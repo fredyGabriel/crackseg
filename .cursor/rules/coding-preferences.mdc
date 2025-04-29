@@ -1,0 +1,51 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Code Preferences & Guidelines
+
+These guidelines define the desired characteristics of the code in this project. Adhering to them ensures consistency, readability, maintainability, and reliability of the codebase.
+
+## Core Code Principles
+
+1.  **Clean and Organized Code:** Write code that is easy to read, understand, and navigate. Structure files, classes, and functions logically.
+2.  **DRY (Don't Repeat Yourself):** Avoid code duplication. Implement functionality once and reuse it. If similar logic exists, refactor to consolidate it.
+
+## Code Style and Readability
+
+3.  **Adhere to PEP 8:** Follow the PEP 8 style guide for Python code, covering naming, spacing, layout, etc.
+4.  **Line Length:** Keep lines of code, ideally within 79 characters. Avoid trailing whitespace.
+5.  **Documentation (Docstrings and Comments):**
+    * Write clear, concise, and **very brief** docstrings for all modules, classes, functions, and methods, explaining their purpose, arguments, and return values. **Avoid excessive or verbose docstrings and comments; keep them minimal and to the point.**
+    * Use comments to clarify complex or non-obvious logic, but do not overuse them.
+    * All docstrings and comments **must be in English**. Translate if necessary.
+6.  **Consistent Naming:** Use descriptive and consistent naming for variables, functions, classes, and files.
+
+## Modularity and Organization
+
+**Never create any file or directory that is not present in the official project structure (as defined in guides/project-structure.mdc or guides/structural-guide.mdc) without explicit user confirmation.**
+
+7.  **Modular Design:** Structure the codebase into small, focused, and reusable modules and components, separating concerns (e.g., data handling, model building blocks, specific architectures, training logic).
+8.  **File Size:** As a guideline, aim to keep individual files manageable, ideally between 200-300 lines of code. No file should exceed 300 lines except in rare, well-justified cases (which must be documented). Under no circumstances should any file exceed 400 lines.
+9.  **Code Location:** Place code in appropriate directories. Avoid adding one-off scripts directly into core source directories (`src/`); use dedicated `scripts/` or `notebooks/` folders if needed.
+10. **Character Encoding:** Use **UTF-8** encoding for all code files.
+
+## Reliability Aspects in Code
+
+11. **Test Coverage:** The codebase should include tests (unit, integration) for major functionality and components to ensure correctness. (The act of *writing* them is in Workflow).
+12. **Environment Data Separation:** Code intended for development or production **must never** contain mocked data, stubbing, or fake data patterns. Test-specific data belongs only in test files.
+13. **Robustness:** Implement basic error handling where necessary to make code more resilient.
+
+## Dependency and Configuration Patterns
+
+14. **Dependency Management:** Dependencies are managed using **Conda** (`environment.yaml`).
+15. **Configuration via Hydra:** All configuration parameters **must** be defined and loaded using **Hydra** and YAML files. Avoid hardcoding parameters in code.
+16. **Environment Configuration:** Sensitive or environment-specific configurations (`.env`) are external and require explicit confirmation to modify.
+
+## Quick References
+- [general-context.mdc](mdc:.cursor/guides/general-context.mdc): Project Proposal & Technical Discussion
+- [project-structure.mdc](mdc:.cursor/guides/project-structure.mdc): Directory Tree
+- [structural-guide.mdc](mdc:.cursor/guides/structural-guide.mdc): Structural Guide. Minimal structural outline
+- [development-guide.mdc](mdc:.cursor/guides/development-guide.mdc): outlines a suggested step-by-step process for developing the pavement crack segmentation project.
+- [glossary.mdc](mdc:.cursor/guides/glossary.mdc): Glossary of Key Terms

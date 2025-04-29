@@ -1,0 +1,8 @@
+# Default model configuration
+# Edit these values for your model
+
+model_name: unet
+input_channels: 3
+output_channels: 1
+encoder_name: resnet34
+pretrained: true 

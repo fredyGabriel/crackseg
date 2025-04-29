@@ -1,0 +1,9 @@
+# Ignore all files in these directories
+__pycache__/
+.github/
+.pytest_cache/
+*/__pycache__
+*/.pytest_cache/
+*/.github/
+*/.git/
+*/.gitignore

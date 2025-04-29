@@ -1,0 +1,160 @@
+---
+description: Structural Guide. Minimal structural outline
+globs: 
+alwaysApply: false
+---
+# ===============================================================
+# Project: Pavement Crack Segmentation (Multi-Architecture Exploration)
+# Structural Guide for AI Code Generation (Minimal & Evolving) - REVISED
+# Goal: Implement and compare multiple U-Net based architectures for crack segmentation, allowing flexible component configuration via Hydra. This guide provides a minimal structural outline; actual implementation details and complexity will evolve during development.
+# ===============================================================
+
+# For detailed coding style, modularity, environment, and workflow rules, refer to `rules/coding-preferences.mdc`, `rules/env-preferences.mdc`, and `rules/workflow-preferences.mdc`.
+
+See also: [Glossary of Key Terms](mdc:glossary.mdc)
+
+## Table of Contents
+
+- [Prerequisites](mdc:#prerequisites)
+- [Phase 1: Configuration Setup (Hydra)](mdc:#phase-1-configuration-setup-hydra)
+- [Phase 2: Code Implementation](mdc:#phase-2-code-implementation)
+  - [src/utils/](mdc:#srcutils)
+  - [src/data/](mdc:#srcdata)
+  - [src/models/](mdc:#srcmodels)
+  - [src/training/](mdc:#srctraining)
+  - [src/main.py](mdc:#srcmainpy)
+- [Project Root: .env and Environment Variables](mdc:#project-root-env-and-environment-variables)
+
+## Prerequisites
+
+Assumed Python Libraries:
+- torch, torchvision
+- hydra-core, omegaconf
+- timm (for SwinTransformer)
+- albumentations (for data augmentation)
+- numpy, cv2, sklearn
+- Standard libraries (os, logging, random, typing, abc)
+
+## Phase 1: Configuration Setup (Hydra)
+
+Use Hydra for managing configurations. Structure configs hierarchically to select model type and parameters.
+Avoid specific values where possible, indicating required types and purposes. This setup provides a flexible structure; specific parameters and their organization might become more granular over time.
+
+### Main Config File
+- **File:** `config/config.yaml` (Main config)
+- Defines the overall structure and selects specific configurations for model, data, training, etc.
+
+### Model Configs
+- **Directory:** `config/model/`
+- Model architecture configs (YAML)
+- Example: `config/model/swinv2_hybrid.yaml`
+- Others: `cnn_unet.yaml`, `rsc_unet.yaml`, `cnn_convlstm_unet.yaml`, `full_swinv2.yaml`
+
+### Data Configs
+- **Directory:** `config/data/`
+- Configuration for dataset loading and preprocessing.
+- Files: `config/data/dataset.yaml` (Data Config), `config/data/augmentation.yaml` (Augmentation Config)
+
+### Training Configs
+- **Directory:** `config/training/`
+- Configuration for the training process.
+- File: `config/training/training.yaml` (Training Config)
+
+### Logging and Checkpoint Configs
+- **Directory:** `config/logging/`
+- Logging and checkpoint configuration in SEPARATE files.
+- Files: `config/logging/checkpoints.yaml` (Checkpoint Config), `config/logging/logging_base.yaml` (Logging Config)
+
+### Evaluation Configs
+- **Directory:** `config/evaluation/`
+- Files: `config/evaluation/metrics.yaml` (Metrics Config), `config/evaluation/thresholds.yaml` (Thresholds Config)
+
+## Phase 2: Code Implementation
+
+Organize code into modules. Implementations should load parameters from the config.
+The implementations within `src/` modules will access configuration parameters via the `cfg` object (type `omegaconf.DictConfig`) provided by Hydra to the main function.
+This is a structural guide; actual code within files will be significantly more detailed.
+
+### src/utils/
+- Basic utilities modules:
+  - `seeds.py`: Contains `set_random_seeds(cfg.seeds)` for reproducibility.
+  - `device.py`: Contains `get_device()` to determine and return the computation device (CPU/GPU), logging device info.
+  - `logging.py`: Contains `get_logger()` to configure and return a standard Python logger.
+  - `checkpointing.py`: Contains `load_checkpoint(...)` and `save_checkpoint(...)` functions for handling model/optimizer/scheduler states. Handle file existence and directory creation.
+  - `exceptions.py`: Custom exceptions.
+  - `config_validation/`: Subdirectory for configuration validation.
+    - `__init__.py`: Submodule exports.
+    - `validator.py`: Configuration validation logic (must be executed at the start of main).
+    - `schemas/`: Validation schema definitions for the different configuration files.
+
+### src/data/
+- Data handling modules:
+  - `transforms.py`: Functions to create data augmentation pipelines using Albumentations based on configuration dictionaries from `cfg.data.augmentation`.
+  - `dataset.py`:
+    - `CrackDataset` class (inherits `torch.utils.data.Dataset`): Handles loading individual image/mask pairs and applying transformations defined by the config. Should return image tensor and mask tensor (binary float, channel first).
+    - `find_image_mask_pairs(directory)`: Helper function to find corresponding image and mask file paths within a directory structure(s).
+  - `loading.py`:
+    - `create_dataloaders(cfg)`: Function to combine dataset paths from config, split data (train/val/test), instantiate `CrackDataset` for each split with appropriate transforms, and create `torch.utils.data.DataLoader` instances with configured batch size, workers, pin memory from `cfg.data`.
+
+### src/models/
+- Model definitions and components. The level of detail here will grow considerably during implementation.
+- **Importance of Abstract Base Classes:**
+  - For a project focused on exploring modular architectures, using Abstract Base Classes (ABCs) from Python's `abc` module is highly recommended.
+  - ABCs allow you to define standard interfaces (methods, expected inputs/outputs) for components like Encoders, Bottlenecks, and Decoders.
+  - Concrete implementations (e.g., a CNN-based Encoder, a SwinV2-based Encoder, an ASPP Bottleneck) must then adhere to these defined interfaces.
+  - This makes components truly interchangeable, significantly simplifies the code that assembles these components into full architectures, and improves clarity, testability, and maintainability.
+
+#### components/
+  - `__init__.py`     # Component and base exports
+  - `_base.py`        # Define Abstract Base Classes (ABCs) like BaseEncoder(ABC), BaseBottleneck(ABC), BaseDecoder(ABC).
+  - `cnn_blocks.py`   # ConvBlock, DoubleConv, ResidualBlock, etc. (inherit from nn.Module or utility bases).
+  - `unet_blocks.py`  # Down, Up, OutConv (U-Net specific parts).
+  - `aspp.py`         # ASPPModule (inherits from nn.Module and potentially BaseBottleneck).
+  - `convlstm.py`     # ConvLSTMCell, ConvLSTMBlock (inherit from nn.Module and potentially BaseBottleneck).
+  - `cbam.py`         # CBAM implementation.
+  - `swin_v2_utils.py` # Helpers/wrappers for integrating timm SwinV2 (handling encoder/decoder parts), should adhere to BaseEncoder/BaseDecoder interfaces.
+
+#### architectures/
+  - Each file here defines a full model architecture class (inheriting nn.Module or a simple base).
+  - These classes will instantiate and connect concrete component classes (e.g., from `../components/`) that ideally adhere to the abstract interfaces defined in `_base.py`, configured via parameters passed during instantiation (likely derived from `cfg.model`).
+  - `__init__.py`     # Architecture exports
+  - `cnn_unet.py`           # Assembles CNN/U-Net blocks.
+  - `rsc_unet.py`           # Assembles CNN/U-Net blocks (with RSC variations).
+  - `cnn_convlstm_unet.py`  # Assembles CNN/U-Net blocks + ConvLSTM bottleneck.
+  - `swinv2_cnn_aspp_unet.py` # Assembles SwinV2 encoder + ASPP + CNN decoder. Needs logic to handle transitions and skips between component types.
+  - `full_swinv2_unet.py`   # Assembles SwinV2 encoder + SwinV2 decoder.
+
+  - `model_factory.py`  # Function or class Factory to instantiate model classes from architectures/ based on `cfg.model`.
+
+### src/training/
+- Training loop, loss functions, optimizers, schedulers, metrics.
+  - `losses.py`: Implementations for different loss functions (e.g., DiceLoss, CombinedBCEDiceLoss, FocalLoss). Function to instantiate the chosen loss based on `cfg.training.loss` parameters. Could potentially use a BaseLoss(ABC) for enhanced structure.
+  - `optimizers.py`: Function to instantiate the chosen optimizer (e.g., AdamW, SGD) with parameters from `cfg.training.optimizer`.
+  - `schedulers.py`: Function to instantiate the chosen learning rate scheduler with parameters from `cfg.training.scheduler`. Needs optional access to steps_per_epoch/total_steps for some scheduler types.
+  - `metrics.py`: Functions to calculate key segmentation metrics (IoU, F1-Score, Precision, Recall) from model outputs (logits/probabilities) and ground truth masks, applying the `cfg.training.segmentation_threshold`. Could potentially use BaseMetric(ABC) for metric classes for enhanced structure.
+  - `trainer.py`: A Trainer class or functions to encapsulate the training and evaluation loops. This is where the core training logic resides.
+    - `train_one_epoch(model, dataloader, loss_fn, optimizer, device, scaler, grad_accum_steps, log_interval, ...)`: Executes one training epoch. Includes forward pass, loss calculation, AMP scaling (if `scaler` is provided), gradient accumulation, backpropagation, and logging loss/metrics per batch. Handles scheduler step if needed per step.
+    - `evaluate(model, dataloader, loss_fn, device, metrics_fn, threshold, ...)`: Executes evaluation on a dataset (validation or test). Calculates total loss and average metrics using functions from `metrics.py`.
+
+### src/main.py
+- Main entry point of the application. Orchestrates the entire process.
+  - Use the `@hydra.main` decorator to enable Hydra config loading (passing config path and name).
+  - Before any other operation, configuration validation using the defined schemas must be executed. If validation fails, the program must abort.
+  - `main(cfg: DictConfig)`:
+    - Initial Setup: Call `utils.seeds.set_random_seeds(cfg.seeds)`, `utils.device.get_device()`, `utils.logging.get_logger()`. Log the loaded configuration (`OmegaConf.to_yaml(cfg)`).
+    - Data Loading: Call `data.loading.create_dataloaders(cfg)` to get train, validation, and optional test DataLoaders.
+    - Model Creation: Use `models.model_factory.create_model(cfg.model)` to dynamically create the model instance based on the selected model configuration. Ensure the model is moved to the correct device.
+    - Training Setup: Instantiate loss function (from `training.losses`), optimizer (from `training.optimizers`), scheduler (from `training.schedulers`), and AMP scaler (`torch.cuda.amp.GradScaler()` if `cfg.training.amp_enabled`).
+    - Checkpointing: Attempt to load model/optimizer/scheduler state from a checkpoint file if resuming training or loading a specific model (using `utils.checkpointing.load_checkpoint`). Retrieve starting epoch and potentially best metric value.
+    - Training and Evaluation Loop: Iterate through the configured number of epochs (`cfg.training.epochs`). Inside the loop:
+      - Call `training.trainer.train_one_epoch` on the training set.
+      - Call `training.trainer.evaluate` on the validation set.
+      - Step the learning rate scheduler (if per epoch, based on `cfg.training.scheduler.step_per_epoch`).
+      - Log epoch-level metrics (validation loss, IoU, F1, etc.) using the configured logger. Consider using TensorBoard or similar for visualization.
+      - Save checkpoints periodically (based on `cfg.logging.save_interval_epochs`), save the last epoch's state (`cfg.logging.save_last`), and save the best model based on the monitored metric (`cfg.logging.save_best_metric` and `cfg.logging.save_best_mode`) using `utils.checkpointing.save_checkpoint`. Ensure checkpoint paths incorporate Hydra's output directory for organization (e.g., using `cfg.logging.checkpoint_dir`).
+    - Final Evaluation: After the main training loop, load the best saved model checkpoint (`utils.checkpointing.load_checkpoint`). Run `training.trainer.evaluate` on the test set (if available). Log final test results.
+
+## Project Root: .env and Environment Variables
+
+Project root should include a `.env` file (not in version control) for sensitive environment variables and paths, and a `.env.example` template for required variables.
+Example: Use `${oc.env:VARIABLE_NAME}` in config files to reference environment variables loaded from `.env`.

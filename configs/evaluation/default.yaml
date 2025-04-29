@@ -1,0 +1,10 @@
+# Default evaluation configuration
+# Edit these values for your evaluation process
+
+metrics:
+  - iou
+  - f1
+  - accuracy
+  - recall
+save_predictions: true
+save_dir: eval_outputs/ 

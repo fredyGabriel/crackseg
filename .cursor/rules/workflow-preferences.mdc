@@ -1,0 +1,50 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Coding Workflow Preferences
+
+These preferences guide the approach and process of writing and modifying code in this project. They emphasize thoughtful planning, focused execution, testing, and responsible interaction with the existing codebase and project structure.
+
+1.  **Plan Thoroughly Before Coding:**
+    * Before implementing a task, take time to understand its requirements and context within the project.
+    * **Review relevant sections of `guides/structural-guide.mdc` to align with architectural patterns and of `guides/env-preferences.mdc` to consider environmental constraints or configuration details.**
+    * Outline the approach and steps. Consider how your changes will integrate with the existing codebase.
+    * When proposing significant implementations, provide a brief summary (e.g., 2-3 paragraphs or bullet points) explaining the chosen approach and the reasoning.
+
+2.  **Prioritize Simple Solutions:**
+    * Always strive for the simplest and most direct solution to a problem. Avoid introducing unnecessary complexity.
+
+3.  **Maintain Focus and Limit Scope:**
+    * Limit your code modifications strictly to the areas directly relevant to the task.
+    * **Do not touch or modify code that is unrelated to the current task** to avoid unintended side effects and maintain a clear scope of changes.
+
+4.  **Consider Impact of Changes:**
+    * Actively think about what other methods, modules, or functionality might be affected by the code you are changing or adding. Anticipate potential side effects or required adjustments elsewhere.
+
+5.  **Implement Iterative Improvement:**
+    * When adding features or fixing bugs, prioritize integrating with and improving existing patterns in the relevant area (referencing `guides/structural-guide.mdc` as needed).
+    * Introduce significantly new patterns, technologies, or approaches only when existing options are exhausted and after discussion and explicit confirmation.
+    * Ensure that any old or superseded logic/code is removed after a new implementation is in place.
+
+6.  **Write Tests During Development:**
+    * As you implement or modify major functionality and components, **actively write corresponding tests** (unit, integration) to verify their correctness and protect against future regressions. (Complements the "Test Coverage" goal in Code Preferences).
+    * **Scope of Changes During Unit Testing:**
+        * When writing or modifying unit tests, **focus changes primarily on the test file itself and the specific unit of code being evaluated.** The goal is to test the unit in isolation as much as possible.
+        * **Exercise extreme caution if modifications to other files (outside the unit and its test) seem necessary.** While sometimes unavoidable to improve testability (e.g., refactoring for dependency injection, implementing an interface), these external changes can introduce regressions or unexpected side effects elsewhere.
+        * **Managing Necessary External Modifications:** Before modifying external code *just* to make a unit test pass, consider these strategies:
+            * **Prioritize Refactoring the Unit:** Can the unit under test itself be refactored to be more testable (e.g., by receiving dependencies instead of creating them)? This is often the best first step.
+            * **Use Dependency Injection (DI) and Abstraction:** Modify the unit and potentially collaborators to use DI and rely on interfaces/abstract classes. This allows tests to inject mock/fake dependencies without changing the core logic of collaborators, promoting loose coupling.
+            * **Leverage Mocking Frameworks:** Use libraries like `unittest.mock` in Python to replace dependencies dynamically *within the test's scope* whenever possible. This avoids permanent changes to collaborator code.
+            * **Justify and Minimize External Changes:** If modifying external code still seems necessary after considering alternatives, treat it as a significant change. Discuss the need (Point #8), clearly justify *why* it's required for testing, keep the change absolutely minimal, and carefully consider its potential impact (Point #4). Ensure these changes are also covered by tests if applicable.
+
+7.  **Manage Project Structure and Track Progress:**
+    * Be aware of and respect the existing project structure documented in `guides/project-structure.mdc`.
+    * Before creating new files or significantly restructuring, review `guides/project-structure.mdc` and the codebase to find the most appropriate location and avoid duplicating existing functionality. Consider also the patterns in `guides/structural-guide.mdc`.
+    * **Always ask for and receive user confirmation** before adding, deleting, moving, or significantly restructuring files or directories.
+    * To track the implementation progress of the planned structure, **directly update the `guides/project-structure.mdc` file with status markers** (e.g., `[x]`, ✅, `(DONE)`) as files/directories are created or completed. Use Git to save these status changes, providing a history of the progress.
+    * After structural changes are confirmed and implemented, **propose the necessary updates to the `guides/project-structure.mdc` documentation** to keep it accurate, reflecting the current state of the project structure.
+
+8.  **Communicate Ambiguity or Issues:**
+    * If the task, requirements, existing code, or guidelines (including `guides/structural-guide.md` or `guides/env-preferences.md`) are unclear, or if you identify potential problems, conflicts with principles, or alternative approaches, communicate these points and seek clarification *before* proceeding with implementation.

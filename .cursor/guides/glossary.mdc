@@ -1,0 +1,28 @@
+---
+description: Glossary of Key Terms
+globs: 
+alwaysApply: false
+---
+# Glossary of Key Terms
+
+This glossary provides definitions for key terms and acronyms used throughout the project guides and rules.
+
+- **ABC (Abstract Base Class):** A Python class that cannot be instantiated directly and is intended to be subclassed, enforcing a contract for derived classes.
+- **AMP (Automatic Mixed Precision):** A technique to speed up deep learning training and reduce memory usage by using both 16-bit and 32-bit floating point types.
+- **CBAM (Convolutional Block Attention Module):** A lightweight attention module for convolutional neural networks that enhances feature representation.
+- **CI/CD (Continuous Integration/Continuous Deployment):** Practices for automating the integration, testing, and deployment of code changes.
+- **CNN (Convolutional Neural Network):** A class of deep neural networks commonly used for image analysis tasks.
+- **Conda:** An open-source package and environment management system for Python and other languages.
+- **DVC (Data Version Control):** A tool for versioning datasets and machine learning models, enabling reproducibility and collaboration.
+- **F1-Score:** A metric that combines precision and recall to evaluate the accuracy of a model, especially in classification tasks.
+- **FAQ (Frequently Asked Questions):** A section or document addressing common questions and issues.
+- **Git:** A distributed version control system for tracking changes in source code.
+- **Hydra:** A Python framework for elegantly configuring complex applications, often used for managing experiment configurations.
+- **IoU (Intersection over Union):** A metric for evaluating the accuracy of object detectors and segmentation models, measuring the overlap between predicted and ground truth regions.
+- **LLM (Large Language Model):** An advanced AI model trained on large text corpora, capable of understanding and generating human-like text (e.g., GPT-4).
+- **SOTA (State Of The Art):** The highest level of performance achieved in a particular field or task at a given time.
+- **TOC (Table of Contents):** A list of the sections and subsections in a document, used for navigation.
+- **U-Net:** A convolutional neural network architecture designed for fast and precise image segmentation.
+- **VRAM (Video RAM):** Memory used by GPUs to store image data and model parameters during computation.
+- **YAML:** A human-readable data serialization format commonly used for configuration files.
+

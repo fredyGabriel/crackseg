@@ -1,0 +1,10 @@
+# Default training configuration
+# Edit these values for your training process
+
+epochs: 50
+learning_rate: 0.001
+optimizer: adam
+weight_decay: 0.0001
+scheduler: step_lr
+step_size: 10
+gamma: 0.5 

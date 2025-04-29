@@ -1,0 +1,10 @@
+# Default data configuration
+# Edit these values for your dataset
+
+data_root: data/
+train_split: 0.7
+val_split: 0.15
+test_split: 0.15
+image_size: [512, 512]
+batch_size: 8
+num_workers: 4 

@@ -1,0 +1,118 @@
+---
+description: General context for what the project is being developed for
+globs: 
+alwaysApply: false
+---
+# Subject: Project Proposal & Technical Discussion:
+
+Exploring U-Net Based Architectures for SOTA Pavement Crack Segmentation
+
+See also: [Glossary of Key Terms](mdc:glossary.mdc)
+
+## Table of Contents
+
+- [Project Overview](mdc:#project-overview)
+- [Problem Domain & Data](mdc:#problem-domain--data)
+- [Proposed Technical Approach: Architectural Variant Exploration](mdc:#proposed-technical-approach-architectural-variant-exploration)
+- [Performance Goals & SOTA Context](mdc:#performance-goals--sota-context)
+- [SOTA Criteria and Benchmarks](mdc:#sota-criteria-and-benchmarks)
+- [Computational Environment](mdc:#computational-environment)
+
+## Project Overview
+
+We are initiating a computer vision project focused on semantic segmentation of cracks in asphalt pavement. The primary objective is to explore, develop, and train various Deep Learning models based on the U-Net architecture to identify the configuration that achieves state-of-the-art (SOTA) performance on this task, guided by benchmarks and recent literature.
+
+## Problem Domain & Data
+
+- Task: Semantic Segmentation (pixel-level classification: crack vs. background).
+- Input Data: Color images of asphalt surfaces exhibiting cracks.
+- Output/Labels: Binary segmentation masks (single channel).
+- Resolution: Both input images and output masks are standardized to 512x512 pixels.
+- Datasets:
+  - Start using a public dataset of 130 image/mask pairs (SUT-dataset), resized to 512x512.
+  - A custom dataset of approximately 1000 image/mask pairs (not currently public).
+  - Plan to augment training data using publicly available datasets (e.g., Crack500, CFD, DeepCrack, etc.) to improve generalization and cover diverse crack types and conditions.
+
+## Proposed Technical Approach: Architectural Variant Exploration
+
+The project will focus on exploring various architectures under the umbrella of the general U-Net encoder-decoder structure. We will seek the optimal combination of components to achieve SOTA performance.
+
+### Base Structure
+Encoder-decoder framework with U-Net style skip connections between corresponding encoder and decoder stages, initially using feature concatenation.
+
+### Abstract Base Classes (ABCs)
+A key aspect of this modular approach is the planned use of **Abstract Base Classes (ABCs)** for defining standard interfaces for components such as Encoders, Bottlenecks, and Decoders. This enforces a clear contract for component implementations, facilitating interchangeability and improving code maintainability and testability.
+
+### Modular Components to Explore
+We will have the flexibility to configure the model by choosing from different types for each main part:
+
+- **Encoder Backbone:** Responsible for extracting hierarchical features and reducing spatial resolution.
+    - **Convolutional Networks (CNN):** Implementations based on standard convolutional blocks, with the potential to use well-known pre-trained backbones (e.g., ResNet, EfficientNet) as a starting point.
+    - **Swin Transformer V2:** Utilizing Swin Transformer V2 blocks (specifically the **Tiny** variant due to VRAM constraints) to capture long-range dependencies and efficient hierarchical representations.
+
+- **Bottleneck:** Connects the encoder and decoder, processing the lowest-level, most semantically dense features.
+    - **Standard Convolutional Layers/Blocks:** A block of convolutions and potentially pooling to process features before the decoder.
+    - **Atrous Spatial Pyramid Pooling (ASPP):** To capture multi-scale context by applying parallel dilated convolutions with different rates.
+    - **ConvLSTM:** ConvLSTM blocks to potentially introduce the ability to model sequences or recurrent spatial dependencies (though less conventional for static images, included for exploration).
+
+- **Decoder Path:** Responsible for upsampling features and reconstructing the segmentation mask to the original resolution, integrating information from skip connections.
+    - **Convolutional Networks (CNN):** Standard decoder path based on upsampling layers (transpose convolutions or bilinear upsampling + convolutions) and convolutional blocks.
+    - **Swin Transformer V2:** Exploring the use of Swin Transformer V2 blocks in the decoder path for architectural symmetry or potential benefits in feature fusion.
+
+### Attention Mechanisms
+To enhance feature discriminability and focus the model's attention on critical crack features, we plan to explore the integration of **attention mechanisms**. Specifically, the **Convolutional Block Attention Module (CBAM)** is a promising candidate due to its effectiveness and relative efficiency. Potential integration points for CBAM include applying it after convolutional blocks, particularly within the Decoder path, and incorporating it into the Skip Connections to refine the features passed from the encoder to the decoder, a strategy inspired by successful attention-based U-Net variants for detailed segmentation tasks.
+
+### Initial Architectural Variants to Implement/Consider
+Based on component combinations and known structures:
+
+1.  **Traditional CNN U-Net:** CNN Encoder, Standard Conv Bottleneck, CNN Decoder.
+2.  **CNN-ConvLSTM U-Net:** CNN Encoder, ConvLSTM Bottleneck, CNN Decoder.
+3.  **CNN U-Net with Residual Connections (RSC-UNET):** CNN Encoder, Standard Conv Bottleneck, CNN Decoder, incorporating residual connections within blocks or in skip paths to improve gradient flow and performance.
+4.  **Hybrid SwinV2-CNN U-Net (Original Proposal):** Swin Transformer V2 (Tiny) Encoder, ASPP Bottleneck, CNN Decoder.
+5.  **Full SwinV2 U-Net:** Swin Transformer V2 (Tiny) Encoder, (possibly a simple transition/conv bottleneck), Swin Transformer V2 Decoder.
+
+### Other Architectural Variants for Future or Advanced Exploration
+- **Attention U-Net:** Incorporating attention mechanisms (Attention Gates) in the skip connections to allow the decoder to selectively focus on the most relevant features from the encoder. (Note: This is distinct from integrating a standard CBAM into skips, offering another avenue for attention exploration).
+- **U-Net with Different CNN Backbones:** Exploring more advanced and pre-trained CNN backbones (e.g., EfficientNet-B0/B1) as the "Convolutional Networks" option for the encoder.
+- **Advanced Decoder Structures:** Investigating decoders that use more sophisticated feature fusion mechanisms than simple concatenation (e.g., Feature Pyramid Network - FPN concepts).
+
+## Performance Goals & SOTA Context
+
+- Primary Goal: Surpass current SOTA performance in pavement crack segmentation across the tested architectures.
+- SOTA Reference: Our understanding of current SOTA methods, performance benchmarks, and relevant architectures is informed by the survey paper: "A state-of-the-art survey of deep learning models for automated pavement crack segmentation.pdf" and ongoing literature review.
+- Key Metrics: Intersection over Union (IoU) and F1-Score.
+- Target Benchmark: Achieve an IoU score significantly exceeding baseline models and aiming for > 0.8 on relevant test sets (informed by the survey paper), striving for the highest score possible with the best-performing architecture variant.
+
+## SOTA Criteria and Benchmarks
+
+To objectively assess whether a model achieves or surpasses the state-of-the-art (SOTA) in pavement crack segmentation, the following criteria and benchmarks will be used:
+
+- **Evaluation Metrics:**
+    - Intersection over Union (IoU) and F1-Score are the primary metrics for comparison.
+    - Additional metrics (e.g., Precision, Recall) may be reported for completeness but are not the main SOTA criteria.
+
+- **Benchmark Datasets:**
+    - Public datasets such as SUT, Crack500, CFD, and DeepCrack will be used for evaluation, with a focus on standardized splits and preprocessing (e.g., 512x512 resolution).
+    - The custom dataset will be used for internal validation and to test generalization, but SOTA claims will be based on public datasets for comparability.
+
+- **Reference Values:**
+    - SOTA is defined by the best results reported in recent literature, especially as summarized in the referenced survey paper.
+    - The target is to achieve an IoU > 0.8 on the main public test sets, or to exceed the best published value for a given dataset/metric.
+
+- **Evaluation Protocol:**
+    - All models must be evaluated using the same data splits, preprocessing, and metric calculation scripts to ensure fair comparison.
+    - Results should be averaged over multiple runs (with different seeds) to account for variability.
+    - Any claim of SOTA must be supported by reproducible code, configuration, and a clear comparison table versus published results.
+
+- **Documentation:**
+    - For each experiment aiming at SOTA, document the configuration, dataset, metrics, and comparison to previous works in a summary table or report.
+
+These criteria ensure that SOTA claims are robust, transparent, and comparable to the current best in the field.
+
+## Computational Environment
+
+- GPU: NVIDIA GeForce RTX 3070 Ti Laptop GPU with 8GB GDDR6 VRAM.
+- CPU: 12th Gen Intel Core i7-12650H
+- RAM: 32 GB
+- OS: Windows 11
+- Consideration: The 8GB VRAM imposes significant limitations on model size (favoring SwinV2-Tiny and careful CNN design) and batch size, especially with 512x512 inputs. Strategies such as **gradient accumulation** and **mixed-precision training (AMP)** will be necessary and implemented across all evaluated architectures where beneficial.
