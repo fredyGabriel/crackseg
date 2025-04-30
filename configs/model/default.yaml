@@ -1,8 +1,41 @@
-# Default model configuration
-# Edit these values for your model
- 
-model_name: unet
-input_channels: 3
-output_channels: 1
-encoder_name: resnet34
-pretrained: true 
+# @package _group_
+
+# Base UNet configuration schema
+
+_target_: src.model.unet.BaseUNet
+type: BaseUNet
+
+# --- Component Configurations ---
+# These sections define the expected structure for each component.
+# Specific model configs (like unet_mock.yaml) will provide the concrete values.
+
+encoder:
+  # type: ??? (e.g., TestEncoder, ResNetEncoder)
+  # in_channels: ???
+  _target_: "???.???.EncoderImplementation" # Placeholder
+  type: "DefaultEncoder" # Placeholder
+  in_channels: 3 # Placeholder
+
+bottleneck:
+  # type: ???
+  # in_channels: ???
+  _target_: "???.???.BottleneckImplementation"
+  type: "DefaultBottleneck"
+  in_channels: 512 # Placeholder
+
+decoder:
+  # type: ???
+  # in_channels: ???
+  # skip_channels: ???
+  # out_channels: ???
+  _target_: "???.???.DecoderImplementation"
+  type: "DefaultDecoder"
+  in_channels: 1024 # Placeholder
+  skip_channels: [64, 128, 256, 512] # Placeholder
+  out_channels: 1 # Placeholder
+
+# --- Optional Final Activation ---
+final_activation: null
+# Example:
+# final_activation:
+#   _target_: torch.nn.Sigmoid 

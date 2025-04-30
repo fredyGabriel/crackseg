@@ -1,0 +1,43 @@
+# @package _global_
+
+# Configuration for a UNet using mock components for testing
+
+# Inherit base structure and override components
+ddefaults:
+  - model: default  # Inherit base UNet schema (_target_, type, final_activation)
+  - _self_
+
+# Override component sections with mock configurations
+model:
+  # Use the actual BaseUNet implementation as the target
+  _target_: src.model.unet.BaseUNet
+  # type: BaseUNet  # Type is less relevant if using _target_ directly
+
+  encoder:
+    type: TestEncoder
+    in_channels: 3
+    # _target_ is not needed by our factory, but good practice for Hydra
+    _target_: tests.model.test_registry.MockEncoder
+
+  bottleneck:
+    type: TestBottleneck
+    in_channels: 64  # Matches MockEncoder output
+    _target_: tests.model.test_registry.MockBottleneck
+
+  decoder:
+    type: TestDecoder
+    in_channels: 128  # Matches MockBottleneck output
+    skip_channels: [16, 32]  # Matches MockEncoder skips
+    out_channels: 1
+    _target_: tests.model.test_registry.MockDecoder
+
+  # Optional: Override final activation
+  final_activation:
+    _target_: torch.nn.Sigmoid
+
+# Specific UNet configuration (can override defaults if needed)
+# type: TestUNet  # Optional: If TestUNet was registered in unet_registry
+
+# Example override: Add final activation
+final_activation:
+  _target_: torch.nn.Sigmoid 

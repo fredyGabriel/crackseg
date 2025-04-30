@@ -1,0 +1,7 @@
+# @package _group_
+
+# Default encoder configuration - using mock for now
+_target_: src.model.factory.create_encoder  # Use the factory function
+
+type: TestEncoder
+in_channels: 3 

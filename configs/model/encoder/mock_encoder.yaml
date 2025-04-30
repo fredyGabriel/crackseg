@@ -1,0 +1,6 @@
+# @package _group_
+
+# Configuration for the mock encoder used in tests
+type: TestEncoder      # Registered name in encoder_registry
+in_channels: 3
+# No _target_ needed as factory uses 'type' 

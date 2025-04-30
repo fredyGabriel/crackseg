@@ -1,0 +1,8 @@
+# @package _group_
+
+# Configuration for the mock decoder used in tests
+type: TestDecoder       # Registered name in decoder_registry
+in_channels: 128       # Must match output of mock bottleneck
+skip_channels: [16, 32]  # Must match skip_channels of mock encoder
+out_channels: 1         # MockDecoder property returns 1
+# No _target_ needed as factory uses 'type' 

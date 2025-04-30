@@ -1,0 +1,9 @@
+# @package _group_
+
+# Default decoder configuration - using mock for now
+_target_: src.model.factory.create_decoder
+
+type: TestDecoder
+in_channels: 128       # Should match default bottleneck output
+skip_channels: [16, 32]  # Should match default encoder skips
+out_channels: 1 
