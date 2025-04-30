@@ -1,0 +1,34 @@
+# Configuración del DataLoader para el modelo de segmentación de grietas
+
+# Parámetros básicos
+batch_size: 8
+num_workers: -1  # -1 = auto-detección basada en CPU
+shuffle: true
+pin_memory: true
+prefetch_factor: 2
+drop_last: false
+
+# Parámetros para entrenamiento distribuido
+distributed:
+  enabled: false  # Activar para entrenamiento distribuido
+  rank: 0         # Rango del proceso actual
+  world_size: 1   # Número total de procesos
+  
+# Configuración del sampler
+sampler:
+  enabled: false  # Si es true, se activará el sampler configurado
+  kind: "random"  # Opciones: "random", "balanced", "subset", "distributed"
+  shuffle: true   # Si se deben mezclar los datos
+  seed: 42        # Semilla para reproducibilidad
+  # Parámetros adicionales según el tipo de sampler
+  # labels: null     # Para balanced sampler
+  # indices: null    # Para subset sampler
+  # num_samples: null # Opcional: número de muestras a tomar
+  # replacement: false # Si se permite reemplazo
+  # drop_last: false   # Si se descartan batches incompletos
+
+# Optimización de memoria
+memory:
+  fp16: false             # Usar precisión mixta (float16)
+  adaptive_batch_size: false  # Ajustar batch size según memoria disponible
+  max_memory_mb: null     # Límite de memoria a usar (MB), null = usar toda disponible 
