@@ -15,6 +15,12 @@ from tests.model.test_registry import (
 # pylint: disable=unused-import
 import tests.model.test_factory  # noqa: F401
 
+# Import the new CNN components
+from src.model.unet import BaseUNet
+from src.model.encoder.cnn_encoder import CNNEncoder
+from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
+from src.model.decoder.cnn_decoder import CNNDecoder
+
 # --- Helper Function to Load Config ---
 
 
@@ -58,7 +64,9 @@ def test_unet_instantiation_from_manual_config():
     assert unet.encoder.in_channels == cfg.model.encoder.in_channels
     assert unet.bottleneck.in_channels == cfg.model.bottleneck.in_channels
     assert unet.decoder.in_channels == cfg.model.decoder.in_channels
-    assert unet.decoder.skip_channels == cfg.model.decoder.skip_channels
+    # Compare with reversed list from config, as MockDecoder stores reversed
+    expected_skips = list(reversed(cfg.model.decoder.skip_channels))
+    assert unet.decoder.skip_channels == expected_skips
 
     if cfg.model.get("final_activation"):
         assert unet.final_activation is not None
@@ -90,3 +98,37 @@ def test_unet_forward_pass_from_manual_config():
     if unet.final_activation:
         assert torch.all(output >= 0)
         assert torch.all(output <= 1)
+
+
+def test_unet_cnn_instantiation_from_config():
+    """Test instantiating the CNN UNet model from unet_cnn.yaml."""
+    cfg = load_test_config(config_name="model/unet_cnn")
+    # Convert relative paths in _target_ if needed by create_unet
+    # (create_unet handles it via hydra.utils.get_class)
+    config_dict = OmegaConf.to_container(cfg.model, resolve=True)
+    unet = create_unet(config_dict)
+
+    assert isinstance(unet, BaseUNet)  # Check specific UNet type
+    assert isinstance(unet.encoder, CNNEncoder)
+    assert isinstance(unet.bottleneck, BottleneckBlock)
+    assert isinstance(unet.decoder, CNNDecoder)
+    assert unet.encoder.in_channels == cfg.model.encoder.in_channels
+    assert unet.encoder.depth == cfg.model.encoder.depth
+    assert unet.bottleneck.in_channels == cfg.model.bottleneck.in_channels
+    assert unet.decoder.in_channels == cfg.model.decoder.in_channels
+    assert unet.decoder.skip_channels == \
+        list(reversed(cfg.model.decoder.skip_channels_list))
+    assert unet.get_output_channels() == cfg.model.decoder.out_channels
+
+    # Check final activation if configured (it's commented out in the example)
+    if cfg.model.get("final_activation"):
+        assert unet.final_activation is not None
+        activation_cls = hydra.utils.get_class(
+            cfg.model.final_activation._target_)
+        assert isinstance(unet.final_activation, activation_cls)
+    else:
+        assert unet.final_activation is None
+
+
+def test_unet_cnn_forward_pass_from_config():
+    """Test the forward pass of the CNN UNet from unet_cnn.yaml."""

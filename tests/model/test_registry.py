@@ -42,7 +42,9 @@ class MockDecoder(DecoderBase):
     """Mock implementation of DecoderBase for testing."""
     def __init__(self, in_channels: int = 128, skip_channels: List[int] = None
                  ):
-        super().__init__(in_channels, skip_channels or [16, 32])
+        # Almacenar skip_channels en el mismo orden que se pasan
+        skips_to_store = skip_channels or [16, 32]
+        super().__init__(in_channels, skips_to_store)
 
     def forward(self, x, skips):
         return x
@@ -137,12 +139,13 @@ def test_register_wrong_type(encoder_registry):
 
 def test_duplicate_registration(encoder_registry):
     """Test that duplicate registrations are not allowed."""
-    @encoder_registry.register()
+    @encoder_registry.register(name="DuplicateTest")
     class DuplicateTest(MockEncoder):
         pass
 
+    # Intentar registrar el mismo nombre de nuevo
     with pytest.raises(ValueError, match="already registered"):
-        @encoder_registry.register()
+        @encoder_registry.register(name="DuplicateTest")
         class DuplicateTest2(MockEncoder):  # Test duplicate registration
             pass
 

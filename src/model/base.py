@@ -125,12 +125,12 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
                                bottleneck.
             skip_channels (List[int]): List of channel dimensions for skip
                                        connection tensors from the encoder,
-                                       ordered as provided by encoder's forward
-                                       (typically higher-res first).
+                                       ordered based on implementation needs.
         """
         super().__init__()
         self.in_channels = in_channels
-        self.skip_channels = skip_channels
+        # Store skips in a private attribute
+        self._skip_channels = skip_channels
 
     @abc.abstractmethod
     def forward(self, x: torch.Tensor, skips: List[torch.Tensor]
@@ -150,6 +150,16 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
                           shape (batch_size, out_channels, H, W).
         """
         raise NotImplementedError
+
+    @property
+    def skip_channels(self) -> List[int]:
+        """List of skip connection channels (order depends on implementation).
+        """
+        if hasattr(self, '_skip_channels') and self._skip_channels is not None:
+            return self._skip_channels
+        raise AttributeError(
+            "DecoderBase has not properly initialized _skip_channels"
+        )
 
     @property
     @abc.abstractmethod
@@ -209,10 +219,10 @@ class UNetBase(nn.Module, metaclass=abc.ABCMeta):
                 f"Bottleneck output channels ({bottleneck.out_channels}) must "
                 f"match decoder input channels ({decoder.in_channels})")
 
-        if encoder.skip_channels != decoder.skip_channels:
+        if encoder.skip_channels != list(reversed(decoder.skip_channels)):
             raise ValueError(
                 f"Encoder skip channels {encoder.skip_channels} must match "
-                f"decoder skip channels {decoder.skip_channels}")
+                f"reversed decoder skip channels {decoder.skip_channels}")
 
     @abc.abstractmethod
     def forward(self, x: torch.Tensor) -> torch.Tensor:

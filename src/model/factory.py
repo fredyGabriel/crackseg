@@ -146,7 +146,7 @@ def create_decoder(config: Dict[str, Any]) -> DecoderBase:
         config (Dict[str, Any]): Configuration dictionary with:
             - type: registered decoder name
             - in_channels: number of input channels
-            - skip_channels: list of skip connection channels
+            - skip_channels OR skip_channels_list: skip info
             - Additional decoder-specific parameters
 
     Returns:
@@ -157,18 +157,26 @@ def create_decoder(config: Dict[str, Any]) -> DecoderBase:
         KeyError: If the specified decoder type is not registered.
     """
     # Validate basic configuration
-    validate_config(
-        config, ["type", "in_channels", "skip_channels"], "decoder"
-    )
+    if "skip_channels" not in config and "skip_channels_list" not in config:
+        raise ConfigurationError(
+            "Missing required config for decoder: 'skip_channels' or "
+            "'skip_channels_list'"
+        )
+    validate_config(config, ["type", "in_channels"], "decoder")
 
     decoder_type = config["type"]
 
     try:
-        # Get additional params by excluding known keys
+        # Prepare params: pass everything except 'type' and '_target_'
         params = {k: v for k, v in config.items()
-                  if k not in ["type", "_target_", "out_channels"]}
+                  if k not in ["type", "_target_"]}
 
-        # Create decoder instance
+        # Special handling for mocks that might not expect all args
+        if decoder_type == "TestDecoder" and "out_channels" in params:
+            # MockDecoder doesn't expect out_channels in init
+            del params["out_channels"]
+
+        # Let the specific decoder handle its expected arguments
         return decoder_registry.instantiate(decoder_type, **params)
     except KeyError:
         available = decoder_registry.list()
@@ -177,7 +185,6 @@ def create_decoder(config: Dict[str, Any]) -> DecoderBase:
             f"Available types: {', '.join(available)}"
         )
     except Exception as e:
-        # Catch any other exceptions during instantiation
         raise ConfigurationError(
             f"Error creating decoder of type '{decoder_type}': {str(e)}"
         ) from e

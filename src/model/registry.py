@@ -6,7 +6,7 @@ using a decorator pattern. Ensures type safety with generics.
 """
 
 from typing import (Dict, List, Type, TypeVar, Generic, Callable, Optional,
-                    Any, Set)
+                    Any)
 
 
 # Define a generic type for component base classes
@@ -33,7 +33,7 @@ class Registry(Generic[T]):
         self._base_class = base_class
         self._name = name
         self._components: Dict[str, Type[T]] = {}
-        self._tags: Dict[str, Set[str]] = {}  # For component categorization
+        self._tags: Dict[str, List[str]] = {}  # For component categorization
 
     def register(self, name: Optional[str] = None,
                  tags: Optional[List[str]] = None) -> Callable[[Type[T]],
@@ -74,11 +74,11 @@ class Registry(Generic[T]):
             # Register the component
             self._components[component_name] = cls
 
-            # Add tags if provided
+            # Add tags if provided (keep order)
             if tags:
-                self._tags[component_name] = set(tags)
+                self._tags[component_name] = list(tags)
             else:
-                self._tags[component_name] = set()
+                self._tags[component_name] = []
 
             return cls
 
@@ -119,7 +119,7 @@ class Registry(Generic[T]):
         Returns:
             Dict[str, List[str]]: Dictionary mapping component names to tags.
         """
-        return {k: list(v) for k, v in self._tags.items()}
+        return {k: v for k, v in self._tags.items()}
 
     def filter_by_tag(self, tag: str) -> List[str]:
         """
