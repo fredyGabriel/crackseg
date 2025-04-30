@@ -1,6 +1,6 @@
 # Base configuration for shared parameters
 # Edit values as needed for your project
-
+ 
 project_name: crackseg
 random_seed: 42
 output_dir: outputs/
