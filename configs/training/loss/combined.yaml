@@ -1,0 +1,15 @@
+# config/training/loss/combined.yaml
+# Example Combined Loss: Focal + Dice
+_target_: src.training.losses.CombinedLoss
+losses:
+  - config:
+      _target_: src.training.losses.FocalLoss
+      alpha: 0.5 # Example different alpha
+      gamma: 2.0
+      sigmoid: True
+    weight: 0.6
+  - config:
+      _target_: src.training.losses.DiceLoss
+      smooth: 1.0
+      sigmoid: True # Note: Sigmoid might be applied twice if not handled in CombinedLoss
+    weight: 0.4 

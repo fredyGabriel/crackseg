@@ -1,0 +1,4 @@
+# config/training/metric/iou.yaml
+_target_: src.training.metrics.IoUScore
+smooth: 1e-6
+threshold: 0.5 

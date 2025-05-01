@@ -1,10 +1,25 @@
 # Default evaluation configuration
 # Edit these values for your evaluation process
 
+# Select metrics to compute by adding their configurations here.
+# These will be instantiated by the factory.
 metrics:
-  - iou
-  - f1
-  - accuracy
-  - recall
+  - _target_: src.training.metrics.F1Score
+    smooth: 1e-6
+    threshold: 0.5
+  - _target_: src.training.metrics.IoUScore
+    smooth: 1e-6
+    threshold: 0.5
+  - _target_: src.training.metrics.PrecisionScore
+    smooth: 1e-6
+    threshold: 0.5
+  - _target_: src.training.metrics.RecallScore
+    smooth: 1e-6
+    threshold: 0.5
+  # Example: Add metric with specific parameters
+  # - _target_: src.training.metrics.F1Score
+  #   smooth: 1e-7
+  #   threshold: 0.6
+
 save_predictions: true
-save_dir: eval_outputs/ 
+save_dir: "eval_outputs/" 

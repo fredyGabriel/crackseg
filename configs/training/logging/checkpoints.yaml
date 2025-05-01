@@ -1,0 +1,33 @@
+# configs/training/logging/checkpoints.yaml
+
+# Configuration for saving model checkpoints
+
+# Directory to save checkpoints (relative to Hydra's run directory)
+# Ensure this aligns with or is separate from the general logging dir
+checkpoint_dir: "${hydra.run.dir}/checkpoints/"
+
+# Frequency of saving checkpoints (in epochs)
+# Set to 0 or null to disable periodic saving (only save last/best)
+save_interval_epochs: 1
+
+# Whether to save the checkpoint of the very last epoch
+save_last: true
+
+# Configuration for saving the best model based on a validation metric
+save_best:
+  # Enable saving the best model checkpoint
+  enabled: true
+
+  # Metric to monitor (must match a key in the dictionary returned by evaluate)
+  # Examples: "val_loss", "val_iou", "val_f1"
+  monitor_metric: "val_iou" # Defaulting to IoU
+
+  # Mode for monitoring ('min' or 'max')
+  # 'min' for loss, 'max' for metrics like IoU, F1
+  monitor_mode: "max"
+
+  # Filename for the best model checkpoint
+  best_filename: "model_best.pth.tar"
+
+# Filename for the regular (last or interval) checkpoints
+filename: "checkpoint_epoch_{epoch:03d}.pth.tar" # Include epoch in filename 

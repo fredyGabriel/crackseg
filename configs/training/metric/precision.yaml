@@ -1,0 +1,4 @@
+# config/training/metric/precision.yaml
+_target_: src.training.metrics.PrecisionScore
+smooth: 1e-6
+threshold: 0.5 

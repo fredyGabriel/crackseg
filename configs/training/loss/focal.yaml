@@ -1,0 +1,5 @@
+# config/training/loss/focal.yaml
+_target_: src.training.losses.FocalLoss
+alpha: 0.25
+gamma: 2.0
+sigmoid: True 

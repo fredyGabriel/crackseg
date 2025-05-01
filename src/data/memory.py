@@ -191,7 +191,7 @@ def calculate_gradient_accumulation_steps(
     return math.ceil(target_batch_size / actual_batch_size)
 
 
-def enable_mixed_precision() -> torch.cuda.amp.GradScaler:
+def enable_mixed_precision() -> torch.amp.GradScaler:
     """
     Enable mixed precision training.
 
@@ -202,7 +202,7 @@ def enable_mixed_precision() -> torch.cuda.amp.GradScaler:
         warnings.warn("CUDA not available, mixed precision not enabled")
         return None
 
-    return torch.cuda.amp.GradScaler()
+    return torch.amp.GradScaler('cuda')
 
 
 def format_memory_stats(stats: Dict[str, float]) -> str:

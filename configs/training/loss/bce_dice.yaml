@@ -1,0 +1,5 @@
+# config/training/loss/bce_dice.yaml
+_target_: src.training.losses.BCEDiceLoss
+bce_weight: 0.5
+dice_weight: 0.5
+smooth: 1.0 

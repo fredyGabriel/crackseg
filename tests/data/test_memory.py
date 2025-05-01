@@ -115,4 +115,4 @@ def test_mixed_precision():
 
     if torch.cuda.is_available():
         assert scaler is not None
-        assert isinstance(scaler, torch.cuda.amp.GradScaler)
+        assert isinstance(scaler, torch.amp.GradScaler)

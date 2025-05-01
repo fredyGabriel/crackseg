@@ -1,6 +1,107 @@
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Optional, Any
+from omegaconf import MISSING
 
+# --- Base Schemas ---
+
+
+@dataclass
+class BaseLossConfig:
+    _target_: str = MISSING
+
+
+@dataclass
+class BaseMetricConfig:
+    _target_: str = MISSING
+    smooth: float = 1e-6
+    threshold: Optional[float] = 0.5
+
+
+# --- Individual Loss Schemas ---
+
+@dataclass
+class BCELossConfig(BaseLossConfig):
+    _target_: str = "src.training.losses.BCELoss"
+    # Optional list[float] or path to tensor file? Let's assume list for now.
+    weight: Optional[List[float]] = None
+
+
+@dataclass
+class DiceLossConfig(BaseLossConfig):
+    _target_: str = "src.training.losses.DiceLoss"
+    smooth: float = 1.0
+    sigmoid: bool = True
+
+
+@dataclass
+class FocalLossConfig(BaseLossConfig):
+    _target_: str = "src.training.losses.FocalLoss"
+    alpha: float = 0.25
+    gamma: float = 2.0
+    sigmoid: bool = True
+
+
+@dataclass
+class BCEDiceLossConfig(BaseLossConfig):
+    _target_: str = "src.training.losses.BCEDiceLoss"
+    bce_weight: float = 0.5
+    dice_weight: float = 0.5
+    smooth: float = 1.0
+
+
+# --- Combined Loss Schema ---
+
+@dataclass
+class CombinedLossItemConfig:
+    # Holds one loss config and its weight
+    config: Any = MISSING  # Using Any to allow any BaseLossConfig subclass
+    weight: float = 1.0
+
+
+@dataclass
+class CombinedLossConfig(BaseLossConfig):
+    _target_: str = "src.training.losses.CombinedLoss"
+    losses: List[CombinedLossItemConfig] = field(default_factory=list)
+    # Note: Actual weights are normalized in CombinedLoss.__init__
+
+    def __post_init__(self):
+        if not self.losses:
+            raise ValueError("CombinedLossConfig must have at least one loss \
+defined in 'losses'.")
+        if not isinstance(self.losses, list):
+            # This check might be redundant due to Hydra/OmegaConf, but good
+            # practice
+            raise TypeError("CombinedLossConfig 'losses' field must be a list."
+                            )
+        total_weight = sum(item.weight for item in self.losses)
+        if total_weight <= 0:
+            raise ValueError("Sum of weights in CombinedLossConfig must be \
+positive.")
+
+# --- Individual Metric Schemas ---
+
+
+@dataclass
+class IoUScoreConfig(BaseMetricConfig):
+    _target_: str = "src.training.metrics.IoUScore"
+
+
+@dataclass
+class PrecisionScoreConfig(BaseMetricConfig):
+    _target_: str = "src.training.metrics.PrecisionScore"
+
+
+@dataclass
+class RecallScoreConfig(BaseMetricConfig):
+    _target_: str = "src.training.metrics.RecallScore"
+
+
+@dataclass
+class F1ScoreConfig(BaseMetricConfig):
+    _target_: str = "src.training.metrics.F1Score"
+
+
+# --- Existing Schemas (Keep as they are) ---
 
 @dataclass
 class DataConfig:
@@ -53,6 +154,9 @@ class TrainingConfig:
     scheduler: str = "step_lr"
     step_size: int = 10
     gamma: float = 0.5
+    # Placeholder for loss configuration
+    # Needs a default in configs/training/default.yaml
+    loss: BaseLossConfig = MISSING
 
     def __post_init__(self):
         if self.epochs <= 0:
@@ -70,22 +174,25 @@ class TrainingConfig:
 @dataclass
 class EvaluationConfig:
     """Configuration for evaluation metrics and output."""
-    metrics: List[str] = field(
-        default_factory=lambda: ["iou", "f1", "accuracy", "recall"]
-    )
+    # Replace simple list of strings with list of metric configs
+    metrics: List[BaseMetricConfig] = field(default_factory=list)
     save_predictions: bool = True
     save_dir: str = "eval_outputs/"
 
     def __post_init__(self):
-        if not self.metrics:
-            raise ValueError(
-                "At least one evaluation metric must be specified"
-            )
+        # Validation for the list itself might be needed depending on usage
+        pass
 
 
 @dataclass
 class RootConfig:
     """Root configuration combining all components."""
+    # Hydra 1.1+ structured config approach for defaults
+    defaults: List[Any] = field(default_factory=lambda: [
+        {"training/loss": "bce_dice"},  # Example default loss
+        "_self_"
+    ])
+
     project_name: str = "crackseg"
     random_seed: int = 42
     output_dir: str = "outputs/"

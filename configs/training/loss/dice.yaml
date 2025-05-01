@@ -1,0 +1,4 @@
+# config/training/loss/dice.yaml
+_target_: src.training.losses.DiceLoss
+smooth: 1.0
+sigmoid: True 

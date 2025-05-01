@@ -1,10 +1,23 @@
+defaults:
+  - loss: bce_dice # Select default loss config from loss/ group
+  - override hydra/job_logging: disabled # Example: disable default logging
+  - override hydra/hydra_logging: disabled # Example: disable default logging
+  - _self_
+
 # Default training configuration
 # Edit these values for your training process
 
 epochs: 50
 learning_rate: 0.001
-optimizer: adam
+optimizer: adam # Options: adam, sgd, etc. (Need factory/config for this too)
 weight_decay: 0.0001
-scheduler: step_lr
-step_size: 10
-gamma: 0.5 
+scheduler: step_lr # Options: step_lr, cosine, etc. (Need factory/config)
+step_size: 10 # Relevant for step_lr
+gamma: 0.5    # Relevant for step_lr
+
+# Loss configuration is now handled by the 'loss' default group above
+# loss: 
+#  _target_: src.training.losses.BCEDiceLoss
+#  bce_weight: 0.5
+#  dice_weight: 0.5
+#  smooth: 1.0 

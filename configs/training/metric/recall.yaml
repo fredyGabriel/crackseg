@@ -1,0 +1,4 @@
+# config/training/metric/recall.yaml
+_target_: src.training.metrics.RecallScore
+smooth: 1e-6
+threshold: 0.5 

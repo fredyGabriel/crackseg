@@ -46,7 +46,7 @@ See also: [Glossary of Key Terms](mdc:glossary.mdc)
 3.  **Base Configuration (Hydra):**
     * Create the basic `config/` directory structure.
     * Define `config/config.yaml` with the initial `defaults` structure.
-    * Define `config/logging/logging_base.yaml` (LOGGING ONLY) and `config/logging/checkpoints.yaml` (CHECKPOINTS ONLY) as separate files.
+    * Define `configs/training/logging/logging_base.yaml` (LOGGING ONLY) and `configs/training/logging/checkpoints.yaml` (CHECKPOINTS ONLY) as separate files.
     * Consider defining initial configuration schemas in `src/utils/config_validation/schemas/` even if the full validation logic (`validator.py`) is implemented later.
 
 ## Phase 1: Reliable Data Pipeline
@@ -92,7 +92,7 @@ See also: [Glossary of Key Terms](mdc:glossary.mdc)
     * Implement logic to create optimizers and schedulers in `src/training/optimizers.py` and `src/training/schedulers.py` based on `config/training/training.yaml`.
     * ***Testing:*** Unit tests for these factory functions.
 15. **Checkpointing:**
-    * Fully implement checkpoint saving/loading logic in `src/utils/checkpointing.py`. Define `config/logging/checkpoints.yaml`.
+    * Fully implement checkpoint saving/loading logic in `src/utils/checkpointing.py`. Define `configs/training/logging/checkpoints.yaml`.
     * ***Testing:*** Unit tests in `tests/utils/test_checkpointing.py`.
 16. **Trainer and Evaluator:**
     * Implement the main training loop (`train_one_epoch`) and evaluation logic (`evaluate`) in `src/training/trainer.py`. **Crucially, integrate handling for AMP (`torch.cuda.amp`) and Gradient Accumulation here**, controlled by parameters in `config/training/training.yaml`, to address VRAM constraints effectively.
@@ -132,7 +132,7 @@ See also: [Glossary of Key Terms](mdc:glossary.mdc)
     * Implement the validator logic in `src/utils/config_validation/validator.py` using the defined schemas. Integrate it into `main.py`.
     * ***Testing:*** Write tests in `tests/utils/config_validation/`.
 23. **General Refinement:**
-    * Refine logging (`src/utils/logging.py`, `config/logging/logging_base.yaml`).
+    * Refine logging (`src/utils/logging.py`, `configs/training/logging/logging_base.yaml`).
     * Complete all remaining tests (unit and integration), aiming for good coverage.
     * Add visualizations or advanced metrics if necessary (`outputs/`).
     * Conduct experiments, tune hyperparameters based on results.
