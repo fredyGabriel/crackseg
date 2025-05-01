@@ -9,11 +9,12 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.model.factory import create_unet
-from src.model.base import UNetBase
+from src.model.factory import create_unet  # noqa: E402
+from src.model.base import UNetBase  # noqa: E402
 
 # Ensure mock components are registered
-import tests.model.test_factory  # pylint: disable=unused-import
+import tests.model.test_factory  # noqa: F401, pylint: disable=unused-import
+
 
 @hydra.main(config_path="../configs", config_name="model/unet_mock",
             version_base=None)

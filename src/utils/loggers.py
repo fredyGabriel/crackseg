@@ -136,6 +136,13 @@ def log_metrics_dict(
         step: The logging step (e.g., epoch number or global step).
         prefix: Optional prefix to add to metric tags (e.g., 'train/').
     """
+    # Debug info
+    standard_logger = get_logger(__name__)
+    standard_logger.debug(
+        f"log_metrics_dict called with logger: {logger}, "
+        f"metrics: {metrics}, step: {step}, prefix: {prefix}"
+    )
+
     if not logger:
         return  # Do nothing if logger is None or NoOpLogger
 

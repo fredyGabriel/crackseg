@@ -1,0 +1,35 @@
+{
+  "meta": {
+    "generatedAt": "2025-05-01T18:13:26.502Z",
+    "tasksAnalyzed": 3,
+    "thresholdScore": 5,
+    "projectName": "Your Project Name",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 8,
+      "taskTitle": "Training Pipeline - Trainer Implementation",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the Trainer implementation into subtasks covering: 1) basic training/validation loop structure, 2) optimizer and learning rate scheduler integration, 3) mixed precision training with AMP, 4) gradient accumulation implementation, 5) checkpointing and model saving, and 6) logging and early stopping mechanisms. For each subtask, specify implementation details, potential challenges, and integration with Hydra configuration.",
+      "reasoning": "This task involves implementing a comprehensive training pipeline with multiple advanced features like mixed precision training, gradient accumulation, and checkpointing. The complexity is high due to the need to integrate various components while ensuring they work together seamlessly. Learning rate schedulers and optimization techniques require careful implementation to ensure model convergence. The task also requires proper monitoring and logging systems."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Main Orchestration and Experiment Runner",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Divide the main orchestration implementation into subtasks covering: 1) Hydra configuration setup and integration, 2) experiment runner core logic with dataset/model/trainer instantiation, 3) reproducibility mechanisms including seed setting, 4) results saving and experiment tracking integration, and 5) evaluation script development. For each subtask, detail the implementation approach, configuration requirements, and integration points.",
+      "reasoning": "This task focuses on orchestrating the entire training pipeline, requiring integration of previously implemented components. While not as technically complex as implementing the trainer, it requires careful design to ensure all components work together correctly. The task involves configuration management, experiment tracking, and ensuring reproducibility, which are critical for machine learning workflows."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Advanced Model Components and Architecture Variants",
+      "complexityScore": 9,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Break down the advanced model components implementation into subtasks covering: 1) SwinV2 transformer encoder implementation following the ABC interface, 2) ASPP module implementation for bottleneck processing, 3) CBAM attention mechanism implementation, 4) hybrid architecture design combining CNN and transformer components, 5) model factory and registry updates, and 6) configuration specifications for each architecture variant. For each subtask, detail the implementation approach, architectural considerations, and potential optimization techniques.",
+      "reasoning": "This task involves implementing complex neural network architectures including transformers and attention mechanisms. The complexity is very high due to the need to understand and correctly implement these advanced components while ensuring they conform to the existing interfaces. Creating hybrid architectures requires deep understanding of both CNN and transformer paradigms. Each component requires careful implementation to ensure computational efficiency and correct behavior."
+    }
+  ]
+}

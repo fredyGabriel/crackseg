@@ -1,0 +1,45 @@
+# configs/training/trainer.yaml
+
+defaults:
+  - lr_scheduler: step_lr  # Cambia a cosine o reduce_on_plateau según necesidad
+  - _self_
+
+# Default configuration for the Trainer class
+
+_target_: src.training.trainer.Trainer # Target class for instantiation
+
+# Basic Training Parameters
+epochs: 10
+# Note: batch_size is typically defined in the dataloader config
+# but can be referenced here if needed.
+
+# Device settings
+device: "auto" # Options: "auto", "cpu", "cuda", "cuda:0", etc.
+
+# Optimizer settings (Example - define actual optimizer in separate config)
+optimizer:
+  _target_: torch.optim.Adam
+  lr: 0.001
+
+# Learning Rate Scheduler settings (Optional - define in separate config)
+lr_scheduler: ${lr_scheduler}
+
+# Mixed Precision Training (AMP)
+use_amp: true # Enable/disable Automatic Mixed Precision
+
+# Gradient Accumulation
+gradient_accumulation_steps: 1 # Number of steps to accumulate gradients over (1 = disabled)
+
+# Logging settings (Reference logging config)
+# logging_cfg: ${logging} # Assumes logging config is available at root
+
+# Checkpointing settings (Reference checkpointing config)
+# checkpointing_cfg: ${checkpointing} # Assumes checkpointing config is available
+
+# Early Stopping settings (Optional - define in separate config)
+early_stopping: null # Example: monitor: "val_loss", patience: 5, mode: "min"
+
+# Verbosity / Progress reporting
+verbose: true
+progress_bar: true
+log_interval_batches: 50 # Log training batch loss every N batches (0 to disable)

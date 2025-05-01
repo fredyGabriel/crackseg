@@ -133,7 +133,8 @@ def get_scalar_metrics(metrics_dict: Dict[str, torch.Tensor]) -> Dict[str,
         elif isinstance(value, (float, int)):
             scalar_metrics[name] = float(value)
         # else: # Optionally warn or skip non-scalar tensors
-        #     print(f"Warning: Metric '{name}' is not a scalar tensor, skipping.")
+        #     print(f"Warning: Metric '{name}' is not a scalar tensor, \
+        # skipping.")
     return scalar_metrics
 
 
