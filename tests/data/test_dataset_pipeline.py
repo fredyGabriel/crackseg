@@ -57,25 +57,27 @@ def test_dataset_pipeline(test_data_dir):
         "test_split": 0.15
     })
 
-    transform_cfg = OmegaConf.create({
-        "resize": {
-            "enabled": True,
-            "height": 64,
-            "width": 64
+    # La configuración de transformación debe ser una lista para cada split
+    transform_cfg = [
+        {
+            "name": "Resize",
+            "params": {
+                "height": 64,
+                "width": 64
+            }
         },
-        "normalize": {
-            "enabled": True,
-            "mean": [0.485, 0.456, 0.406],
-            "std": [0.229, 0.224, 0.225]
+        {
+            "name": "Normalize",
+            "params": {
+                "mean": [0.485, 0.456, 0.406],
+                "std": [0.229, 0.224, 0.225]
+            }
         },
-        "train": {
-            "random_crop": {"enabled": False},
-            "horizontal_flip": {"enabled": False},
-            "vertical_flip": {"enabled": False},
-            "rotate": {"enabled": False},
-            "color_jitter": {"enabled": False}
+        {
+            "name": "ToTensorV2",
+            "params": {}
         }
-    })
+    ]
 
     # Crear dataset para modo 'train'
     dataset = create_crackseg_dataset(
@@ -107,4 +109,4 @@ def test_dataset_pipeline(test_data_dir):
     assert len(sample["mask"].shape) == 2, \
         "Mask should have 2 dimensions (H, W)"
     assert sample["image"].shape[1:] == sample["mask"].shape, \
-        "Image and mask spatial dimensions should match" 
+        "Image and mask spatial dimensions should match"

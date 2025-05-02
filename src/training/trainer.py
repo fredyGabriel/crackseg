@@ -14,10 +14,10 @@ from hydra.utils import instantiate
 # Import factory functions
 from src.training.factory import create_optimizer, create_lr_scheduler
 # Import get_scalar_metrics
-from src.training.metrics import get_scalar_metrics
+# from src.training.metrics import get_scalar_metrics # Removed unused import
 from src.utils.device import get_device
-# Import log_metrics_dict
-from src.utils.loggers import BaseLogger, get_logger, log_metrics_dict
+# Import log_metrics_dict - Removed, use logger instance methods
+from src.utils import BaseLogger, get_logger
 # Import checkpointing functions
 from src.utils.checkpointing import load_checkpoint, save_checkpoint
 # Import EarlyStopping
@@ -116,8 +116,8 @@ class Trainer:
             loaded_state = load_checkpoint(
                 model=self.model,
                 optimizer=self.optimizer,
-                scheduler=self.scheduler,  # Pass scheduler
-                scaler=self.scaler,
+                # scheduler=self.scheduler,  # Cannot load scheduler state yet
+                # scaler=self.scaler, # Cannot load scaler state yet
                 checkpoint_path=self.checkpoint_load_path,
                 device=self.device
             )
@@ -193,14 +193,16 @@ Starting Epoch: {self.start_epoch}"
             if self.scheduler:
                 current_lr = self._step_scheduler(val_results)
                 if current_lr is not None and self.logger_instance:
-                    log_metrics_dict(
-                        self.logger_instance, {"lr": current_lr}, epoch
+                    # Use log_scalar for individual values
+                    # self.logger_instance.log_metrics({"lr": current_lr}, epoch)
+                    self.logger_instance.log_scalar(
+                        tag="lr", value=current_lr, step=epoch
                     )
             else:  # Added else block for clarity when no scheduler
                 pass  # No scheduler step needed
 
             # --- Checkpointing Logic ---
-            is_best = self._check_if_best(val_results)
+            # is_best = self._check_if_best(val_results) # Removed unused var
             # Determine if this epoch's checkpoint should be saved based on
             # freq
             # save_epoch_ckpt = (
@@ -212,17 +214,19 @@ Starting Epoch: {self.start_epoch}"
                 epoch=epoch,
                 model=self.model,
                 optimizer=self.optimizer,
-                scaler=self.scaler,
-                metrics=val_results,
+                # scaler=self.scaler, # Removed scaler argument
+                # Pass metrics as additional data
+                additional_data={"metrics": val_results},
                 checkpoint_dir=self.checkpoint_dir,
-                is_best=is_best,
+                keep_last_n=1,  # Example: keep only last 1 checkpoint
+                # is_best=is_best, # Removed is_best
                 # Save last checkpoint always
                 filename="checkpoint_last.pth",
                 # Optional epoch-wise checkpoint
                 # filename=f"checkpoint_epoch_{epoch}.pth" if save_epoch_ckpt \
                 # else None,
                 # Save best checkpoint always if is_best
-                best_filename="checkpoint_best.pth"
+                # best_filename="checkpoint_best.pth" # Removed best_filename
             )
 
             # --- Early Stopping Check ---
@@ -305,9 +309,16 @@ Starting Epoch: {self.start_epoch}"
                (batch_idx + 1) % log_interval == 0:
                 # Calculate global step (adjusting for 0-based batch_idx)
                 global_step = (epoch - 1) * num_batches + batch_idx + 1
-                log_metrics_dict(
-                    self.logger_instance, {"batch_loss": batch_loss},
-                    global_step, prefix="train_batch/"  # Use distinct prefix
+                # Use log_scalar for batch loss
+                # self.logger_instance.log_metrics(
+                #     {"batch_loss": batch_loss},
+                #     global_step,
+                #     prefix="train_batch/"  # Use distinct prefix
+                # )
+                self.logger_instance.log_scalar(
+                    tag="train_batch/batch_loss",
+                    value=batch_loss,
+                    step=global_step
                 )
 
         avg_loss = total_loss / num_batches
@@ -316,9 +327,14 @@ Starting Epoch: {self.start_epoch}"
 
         # --- Log Epoch Metrics ---
         if self.logger_instance:
-            log_metrics_dict(
-                self.logger_instance, {"epoch_loss": avg_loss},
-                epoch, prefix="train/"
+            # Use log_scalar for epoch loss
+            # self.logger_instance.log_metrics(
+            #     {"epoch_loss": avg_loss},
+            #     epoch,
+            #     prefix="train/"
+            # )
+            self.logger_instance.log_scalar(
+                tag="train/epoch_loss", value=avg_loss, step=epoch
             )
 
         return avg_loss
@@ -374,29 +390,35 @@ Starting Epoch: {self.start_epoch}"
                     total_metrics[name] += value
 
         # Calculate averages
-        avg_metrics = {
-            name: total / num_batches
-            for name, total in total_metrics.items()
-        }
+        avg_metrics = {name: total / num_batches
+                       for name, total in total_metrics.items()}
 
-        # Log validation results
-        log_str = (f"Epoch {epoch} | "
-                   f"Validation Loss: {avg_metrics['loss']:.4f}")
-        for name, value in avg_metrics.items():
-            if name != "loss":  # Skip loss as it's already in the string
-                log_str += f" | {name}: {value:.4f}"
-        self.internal_logger.info(log_str)
+        # Format log message
+        metrics_str = " | ".join(
+            [f"{name.capitalize()}: {value:.4f}" for name, value in
+             avg_metrics.items()]
+        )
+        log_msg = f"Epoch {epoch} | Validation Results | {metrics_str}"
+        self.internal_logger.info(log_msg)
 
         # Ensure floats for logging consistency
-        scalar_results_for_logging = get_scalar_metrics(avg_metrics)
+        # scalar_results_for_logging = get_scalar_metrics(avg_metrics)
 
         if self.logger_instance:
-            log_metrics_dict(
-                self.logger_instance, scalar_results_for_logging,
-                epoch, prefix="val/"
-            )
+            # Use log_scalar for each validation metric
+            # self.logger_instance.log_metrics(
+            #     avg_metrics, epoch, prefix="val/"
+            # )
+            for name, value in avg_metrics.items():
+                self.logger_instance.log_scalar(
+                    tag=f"val/{name}",
+                    value=value,
+                    step=epoch
+                )
 
-        return scalar_results_for_logging
+        # Return the dictionary with potentially non-scalar values if needed
+        # upstream, otherwise return scalar_results_for_logging
+        return avg_metrics
 
     # --- Helper Methods ---
     def _step_scheduler(self, metrics=None) -> Optional[float]:

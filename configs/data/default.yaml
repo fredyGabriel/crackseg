@@ -8,5 +8,5 @@ test_split: 0.15
 image_size: [512, 512]
 batch_size: 8
 num_workers: 4
-seed: 42
+seed: ${random_seed}  # Use global random seed from base.yaml
 in_memory_cache: false 

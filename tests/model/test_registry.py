@@ -42,11 +42,18 @@ class MockDecoder(DecoderBase):
     """Mock implementation of DecoderBase for testing."""
     def __init__(self, in_channels: int = 128, skip_channels: List[int] = None
                  ):
-        # Almacenar skip_channels en el mismo orden que se pasan
-        skips_to_store = skip_channels or [16, 32]
+        # Store skip_channels in the REVERSED order expected by base validation
+        skips_provided = skip_channels if skip_channels is not None else [16,
+                                                                          32]
+        # The UNet base class expects decoder skip_channels to be the reverse
+        # of encoder skip_channels for validation.
+        # Store them in the reversed order internally.
+        skips_to_store = list(reversed(skips_provided))
         super().__init__(in_channels, skips_to_store)
 
     def forward(self, x, skips):
+        # Note: skips passed here by UNet will be in encoder order.
+        # If this mock needed to *use* skips, it might need to reverse them.
         return x
 
     @property
@@ -291,4 +298,4 @@ def test_typical_usage_flow():
     # Verify components are correctly connected
     assert encoder.out_channels == bottleneck.in_channels
     assert bottleneck.out_channels == decoder.in_channels
-    assert encoder.skip_channels == decoder.skip_channels
+    assert encoder.skip_channels == list(reversed(decoder.skip_channels))

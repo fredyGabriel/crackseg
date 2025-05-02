@@ -4,7 +4,7 @@
 
 # Directory to save checkpoints (relative to Hydra's run directory)
 # Ensure this aligns with or is separate from the general logging dir
-checkpoint_dir: "${hydra.run.dir}/checkpoints/"
+checkpoint_dir: "${hydra.run.dir}/outputs/checkpoints/"
 
 # Frequency of saving checkpoints (in epochs)
 # Set to 0 or null to disable periodic saving (only save last/best)

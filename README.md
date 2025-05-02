@@ -64,4 +64,41 @@ Main variables:
 - `ANTHROPIC_API_KEY`: API key for Anthropic Claude (Task Master)
 - `DEBUG`: Enable/disable debug mode (`true` or `false`)
 
+## Dependency Management
+
+### Update Verification
+
+The project includes a script to verify available updates for main dependencies:
+
+```bash
+python scripts/check_updates.py
+```
+
+This script:
+- Verifies current versions in environment.yml
+- Compares with latest versions available on conda-forge and PyPI
+- Shows an update report
+
+### Updating Dependencies
+
+To update dependencies:
+
+1. Run the verification script
+2. Update versions in environment.yml as needed
+3. Apply the updates:
+   ```bash
+   conda env update -f environment.yml --prune
+   ```
+4. Verify compatibility by running tests:
+   ```bash
+   pytest
+   ```
+
+### Update Considerations
+
+- Keep PyTorch and torchvision versions compatible
+- Verify CUDA compatibility if using GPU
+- Document significant changes in CHANGELOG.md
+- Perform thorough testing after updating critical dependencies
+
 --- 

@@ -284,84 +284,109 @@ def test_get_all_samples_empty_dirs(tmp_path):
 
 # --- Tests for create_split_datasets ---
 
-def test_create_split_datasets_basic(temp_data_dir):
+def test_create_split_datasets_basic(temp_data_dir, monkeypatch):
     """Test basic creation of split datasets."""
-    ratios = {'train': 0.5, 'val': 0.5}  # 1 sample each for img1, img2
-    image_size = (64, 64)
-    seed = 99
+    # Setup temp directories for train/val/test structure
+    import os
 
+    # Create directories expected by the new function signature
+    for split in ['train', 'val', 'test']:
+        os.makedirs(os.path.join(temp_data_dir, split, 'images'),
+                    exist_ok=True)
+        os.makedirs(os.path.join(temp_data_dir, split, 'masks'),
+                    exist_ok=True)
+
+    # Mock transform config for all splits
+    transform_cfg = {
+        'train': {'Resize': {'height': 64, 'width': 64}},
+        'val': {'Resize': {'height': 64, 'width': 64}},
+        'test': {'Resize': {'height': 64, 'width': 64}}
+    }
+
+    # Create actual sample files for testing
+    # Minimal valid PNG file content
+    png_data = (
+        b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00'
+        b'\x00\x00\x01\x08\x02\x00\x00\x00\x90wS\xde\x00\x00\x00\x0c'
+        b'IDAT\x08\xd7c\xf8\xff\xff?\x00\x05\xfe\x02\xfe\xdc\xccY\xe7'
+        b'\x00\x00\x00\x00IEND\xaeB`\x82'
+    )
+
+    for split in ['train', 'val']:
+        img_path = os.path.join(temp_data_dir, split, 'images',
+                                f'img{split}.png')
+        mask_path = os.path.join(temp_data_dir, split, 'masks',
+                                 f'img{split}.png')
+        # Create empty files
+        with open(img_path, 'wb') as f:
+            f.write(png_data)
+        with open(mask_path, 'wb') as f:
+            f.write(png_data)
+
+    # Call the function with real files instead of mocking
     datasets = create_split_datasets(
         data_root=temp_data_dir,
-        image_size=image_size,
-        ratios=ratios,
-        seed=seed,
+        transform_cfg=transform_cfg,
+        seed=99,
         cache_flag=False,
         dataset_cls=CrackSegmentationDataset
     )
 
     assert isinstance(datasets, dict)
-    assert list(datasets.keys()) == ['train', 'val', 'test']
+    assert 'train' in datasets
+    assert 'val' in datasets
 
     assert isinstance(datasets['train'], CrackSegmentationDataset)
     assert isinstance(datasets['val'], CrackSegmentationDataset)
-    assert isinstance(datasets['test'], CrackSegmentationDataset)
 
-    # Total valid samples in temp_data_dir is 2 (img1, img2)
-    # train = floor(2 * 0.5) = 1
-    # val = floor(2 * 0.5) = 1
-    # test = 2 - 1 - 1 = 0
+    # Datasets should now contain the actual files we created
     assert len(datasets['train']) == 1
     assert len(datasets['val']) == 1
-    assert len(datasets['test']) == 0
-    assert len(datasets['train']) +\
-        len(datasets['val']) + len(datasets['test']) == 2
 
     # Check dataset properties
     assert datasets['train'].mode == 'train'
     assert datasets['val'].mode == 'val'
-    assert datasets['train'].seed == seed
+    assert datasets['train'].seed == 99
     assert datasets['val'].in_memory_cache is False
-    # Check samples list content (might be brittle due to shuffling)
-    # Instead, check total unique samples assigned
-    all_assigned_samples = datasets['train'].samples + datasets['val'].samples
-    assert len(all_assigned_samples) == 2
-    # Ensure the paths are correct (check one example)
-    expected_img1_path = str(Path(temp_data_dir) / "images" / "img1.png")
-    expected_img2_path = str(Path(temp_data_dir) / "images" / "img2.jpg")
-    assigned_img_paths = [s[0] for s in all_assigned_samples]
-    assert expected_img1_path in assigned_img_paths
-    assert expected_img2_path in assigned_img_paths
 
 
 def test_create_split_datasets_missing_cls():
     """Test error when dataset_cls is not provided."""
+    transform_cfg = {
+        'train': {'resize': {'height': 64, 'width': 64}},
+        'val': {'resize': {'height': 64, 'width': 64}},
+        'test': {'resize': {'height': 64, 'width': 64}}
+    }
+
     with pytest.raises(ValueError, match="dataset_cls must be provided"):
         create_split_datasets(
-            data_root="dummy",  # Will fail before this if cls missing
-            image_size=(64, 64),
-            ratios={'train': 1.0},
+            data_root="dummy",
+            transform_cfg=transform_cfg,
             dataset_cls=None
         )
 
 
-def test_create_split_datasets_no_samples(tmp_path):
-    """Test error when data_root contains no valid samples."""
-    data_dir = tmp_path / "no_samples"
-    images_dir = data_dir / "images"
-    masks_dir = data_dir / "masks"
-    images_dir.mkdir(parents=True)
-    masks_dir.mkdir()
-    # Add a file without a pair
-    (images_dir / "orphan.png").touch()
+def test_create_split_datasets_missing_transform(temp_data_dir):
+    """Test error when transform config is missing for a split."""
+    # Create basic directory structure
+    import os
+    for split in ['train', 'val', 'test']:
+        os.makedirs(os.path.join(temp_data_dir, split, 'images'),
+                    exist_ok=True)
+        os.makedirs(os.path.join(temp_data_dir, split, 'masks'), exist_ok=True)
 
-    with pytest.raises(RuntimeError, match="No valid image/mask pairs found"):
-        with pytest.warns(UserWarning):  # Expect warning for orphan
-            create_split_datasets(
-                data_root=str(data_dir),
-                image_size=(64, 64),
-                ratios={'train': 1.0},
-                dataset_cls=CrackSegmentationDataset
-            )
+    # Missing 'test' config
+    transform_cfg = {
+        'train': {'resize': {'height': 64, 'width': 64}},
+        'val': {'resize': {'height': 64, 'width': 64}}
+    }
+
+    with pytest.raises(ValueError, match="Transform config missing for split"):
+        create_split_datasets(
+            data_root=temp_data_dir,
+            transform_cfg=transform_cfg,
+            dataset_cls=CrackSegmentationDataset
+        )
 
 # Test warning for zero samples in a split?
 # Handled inside the function itself with warnings.warn

@@ -9,10 +9,10 @@ import numpy as np
 import torch
 from typing import Dict, Optional, Tuple, Union
 from pathlib import Path
+from omegaconf import DictConfig, OmegaConf
 
 import albumentations as A
-# Remove direct import
-# from albumentations.pytorch import ToTensorV2
+from albumentations.pytorch import ToTensorV2
 
 
 def get_basic_transforms(
@@ -149,78 +149,78 @@ def apply_transforms(
     return {"image": image_tensor}
 
 
-def get_transforms_from_config(config: dict, mode: str) -> A.Compose:
-    """Create an Albumentations pipeline from a config dict and mode
-    (train/val/test)."""
-    # General settings
-    resize_cfg = config.get('resize', {})
-    normalize_cfg = config.get('normalize', {})
+def get_transforms_from_config(config_list: Union[list, dict], mode: str
+                               ) -> A.Compose:
+    """Create an Albumentations pipeline from a list or dict of transform
+    configs.
 
+    Args:
+        config_list (Union[list, dict]): Either:
+            - List of dictionaries where each defines a transform
+            ('name' and 'params')
+            - Single dictionary with transform configs
+            (e.g., {'resize': {...}})
+        mode (str): 'train', 'val', or 'test'. Currently unused but kept for
+            API consistency.
+
+    Returns:
+        A.Compose: The Albumentations pipeline.
+    """
     transforms = []
-    if resize_cfg.get('enabled', True):
-        transforms.append(
-            A.Resize(
-                height=resize_cfg.get('height', 512),
-                width=resize_cfg.get('width', 512),
-                interpolation=cv2.INTER_LINEAR
-            )
-        )
 
-    # Augmentations by mode
-    aug_cfg = config.get(mode, {})
-    if mode == 'train':
-        if aug_cfg.get('random_crop', {}).get('enabled', False):
-            crop = aug_cfg['random_crop']
-            transforms.append(
-                A.RandomCrop(
-                    height=crop.get('height', 480),
-                    width=crop.get('width', 480),
-                    p=crop.get('p', 0.5)
-                )
-            )
-        if aug_cfg.get('horizontal_flip', {}).get('enabled', False):
-            transforms.append(
-                A.HorizontalFlip(
-                    p=aug_cfg['horizontal_flip'].get('p', 0.5)
-                )
-            )
-        if aug_cfg.get('vertical_flip', {}).get('enabled', False):
-            transforms.append(
-                A.VerticalFlip(
-                    p=aug_cfg['vertical_flip'].get('p', 0.5)
-                )
-            )
-        if aug_cfg.get('rotate', {}).get('enabled', False):
-            transforms.append(
-                A.Rotate(
-                    limit=aug_cfg['rotate'].get('limit', 90),
-                    p=aug_cfg['rotate'].get('p', 0.5)
-                )
-            )
-        if aug_cfg.get('color_jitter', {}).get('enabled', False):
-            cj = aug_cfg['color_jitter']
-            transforms.append(
-                A.ColorJitter(
-                    brightness=cj.get('brightness', 0.2),
-                    contrast=cj.get('contrast', 0.2),
-                    saturation=cj.get('saturation', 0.2),
-                    hue=cj.get('hue', 0.1),
-                    p=cj.get('p', 0.3)
-                )
-            )
-    # For val/test, only minimal transforms (no augmentations)
-    # (If needed, can add more logic here)
+    # Convert dict to list of transform specs if needed
+    if isinstance(config_list, (dict, DictConfig)):
+        # Create a list of transforms from a dictionary
+        transform_specs = []
+        for transform_name, params in config_list.items():
+            if transform_name.lower() == 'resize':
+                # Special handling for resize which takes height/width
+                transform_specs.append({
+                    "name": "Resize",
+                    "params": params
+                })
+            else:
+                # For other transforms
+                transform_specs.append({
+                    "name": transform_name,
+                    "params": params
+                })
+        config_list = transform_specs
 
-    # Normalization
-    if normalize_cfg.get('enabled', True):
-        transforms.append(
-            A.Normalize(
-                mean=normalize_cfg.get('mean', [0.485, 0.456, 0.406]),
-                std=normalize_cfg.get('std', [0.229, 0.224, 0.225]),
-                max_pixel_value=255.0
-            )
-        )
-    transforms.append(
-        A.pytorch.ToTensorV2()
-    )
+    # Process each transform defined in the list
+    for transform_item in config_list:
+        if not isinstance(transform_item, (dict, DictConfig)):
+            raise ValueError("Each item in config_list must be a dictionary.")
+
+        name = transform_item.get("name")
+        params = transform_item.get("params", {})
+
+        if name is None:
+            raise ValueError("Each transform item must have a 'name' key.")
+
+        try:
+            # Find the transform class in Albumentations
+            if name == "ToTensorV2":  # Handle specific case
+                transform_class = ToTensorV2
+                params = {}  # ToTensorV2 takes no params
+            else:
+                transform_class = getattr(A, name)
+
+            # Instantiate and add to the list
+            # Convert OmegaConf DictConfig params if necessary
+            if isinstance(params, DictConfig):
+                params = OmegaConf.to_container(params, resolve=True)
+
+            # Standard instantiation works now as YAML provides correct params
+            transforms.append(transform_class(**params))
+
+        except AttributeError:
+            raise ValueError(f"Unknown transform name: '{name}'")
+        except Exception as e:
+            raise ValueError(
+                f"Error instantiating transform '{name}' with params {params}:"
+                f"{e}"
+            ) from e
+
+    # Create the composition
     return A.Compose(transforms)

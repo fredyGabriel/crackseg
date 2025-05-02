@@ -1,114 +1,109 @@
-"""Implements the EarlyStopping callback logic."""
+"""Early stopping implementation for training."""
 
-import numpy as np
 from typing import Optional
+import numpy as np
 
-from src.utils.loggers import get_logger
+from src.utils.logging import get_logger
 
-# Logger for this module
 logger = get_logger(__name__)
 
 
 class EarlyStopping:
-    """Monitors a metric and stops training when it stops improving."""
+    """Early stopping to prevent overfitting.
+
+    Stops training when a monitored metric has not improved for a given
+    number of epochs.
+    """
 
     def __init__(
         self,
-        monitor_metric: str = "loss",
-        patience: int = 10,
-        min_delta: float = 0,
-        mode: str = "min",
+        patience: int = 7,
+        min_delta: float = 0.0,
+        mode: str = 'min',
         verbose: bool = True
     ):
-        """Initializes the EarlyStopping callback.
+        """Initialize early stopping.
 
         Args:
-            monitor_metric: Name of the metric to monitor (from val results).
-            patience: Number of epochs with no improvement after which
-                      training will be stopped.
-            min_delta: Minimum change in the monitored quantity to qualify as
-                       an improvement.
-            mode: One of {"min", "max"}. In "min" mode, training stops when the
-                  quantity monitored has stopped decreasing; in "max" mode
-                  it stops when the quantity monitored has stopped increasing.
-            verbose: If True, prints a message for each improvement or stop.
+            patience: Number of epochs to wait before stopping
+            min_delta: Minimum change to qualify as improvement
+            mode: One of {'min', 'max'}. In 'min' mode, stops when the
+                quantity stops decreasing; in 'max' mode when it stops
+                increasing.
+            verbose: If True, prints message when early stopping triggers
         """
-        if mode not in ["min", "max"]:
-            raise ValueError(f"EarlyStopping mode '{mode}' is unknown, choose \
-from [\"min\", \"max\"].")
-
-        self.monitor_metric = monitor_metric
         self.patience = patience
-        self.min_delta = min_delta
+        self.min_delta = abs(min_delta)
         self.mode = mode
         self.verbose = verbose
-
         self.counter = 0
-        self.best_score = np.inf if self.mode == "min" else -np.inf
+        self.best_value: Optional[float] = None
         self.early_stop = False
 
-        # Adjust delta based on mode
-        self.min_delta *= 1 if self.mode == "min" else -1
+        if mode not in ['min', 'max']:
+            raise ValueError(f"mode '{mode}' is unknown")
 
-        log_msg = (
-            f"EarlyStopping initialized: monitor='{self.monitor_metric}', "
-            f"patience={self.patience}, mode='{self.mode}', "
-            f"min_delta={abs(self.min_delta)}"
+        self.monitor_op = np.less if mode == 'min' else np.greater
+        # Adjust delta based on mode for comparison
+        self.delta_val = -self.min_delta if mode == 'min' else self.min_delta
+        logger.info(
+            f"Initialized early stopping (mode={mode}, patience={patience})"
         )
-        logger.info(log_msg)
 
-    def step(self, current_metric_value: Optional[float]) -> bool:
-        """Checks if training should stop based on the current metric value.
+    def __call__(self, current_value: Optional[float]) -> bool:
+        """Check if training should stop.
 
         Args:
-            current_metric_value: The latest value of the monitored metric.
+            current_value: Current value of the monitored metric. If None,
+                           it's ignored, and the counter doesn't increase.
 
         Returns:
-            bool: True if training should stop, False otherwise.
+            True if training should stop, False otherwise
         """
-        if current_metric_value is None:
-            logger.warning(
-                f"Early stopping condition metric '{self.monitor_metric}' "
-                f"was not found. Skipping check."
-            )
+        # Handle None: Don't update counter or stop if metric is missing
+        if current_value is None:
+            logger.debug("Early stopping received None metric, ignoring step.")
             return False
 
-        score = current_metric_value
+        # First valid value initializes best_value
+        if self.best_value is None:
+            self.best_value = current_value
+            logger.debug(f"Early stopping initialized best_value= \
+{self.best_value:.4f}")
+            return False
 
-        # Check for improvement
-        improvement = False
-        if self.mode == "min":
-            if score < self.best_score - self.min_delta:
-                improvement = True
-        else:  # mode == "max"
-            if score + self.min_delta > self.best_score:
-                improvement = True
-
-        if improvement:
-            if self.verbose:
-                logger.info(
-                    f"EarlyStopping metric '{self.monitor_metric}' improved "
-                    f"from {self.best_score:.4f} to {score:.4f}."
-                )
-            self.best_score = score
+        # Check for improvement including delta
+        # Mode min: stop if current_value >= best_value - min_delta
+        # Mode max: stop if current_value <= best_value + min_delta
+        # Using monitor_op: improve if op(current_value, best_value + delta_val
+        # )
+        if self.monitor_op(current_value, self.best_value + self.delta_val):
+            # Improvement detected
+            improve_msg = (
+                f"Improvement detected: {current_value:.4f} vs best "
+                f"{self.best_value:.4f} (delta={self.delta_val:.4f})"
+            )
+            logger.debug(improve_msg)
+            self.best_value = current_value
             self.counter = 0
         else:
+            # No improvement
             self.counter += 1
             if self.verbose:
-                logger.info(
-                    f"EarlyStopping counter: {self.counter} out of "
-                    f"{self.patience} for metric '{self.monitor_metric}'"
+                counter_msg = (
+                    f"Early stopping counter: {self.counter}/{self.patience}"
                 )
+                logger.info(counter_msg)
             if self.counter >= self.patience:
                 self.early_stop = True
                 if self.verbose:
-                    logger.info(
-                        f"Early stopping triggered after {self.patience} "
-                        f"epochs with no improvement."
-                    )
+                    logger.info("Early stopping triggered")
+                return True
+        return False
 
-        return self.early_stop
-
-    def should_stop(self) -> bool:
-        """Returns the current early stopping status."""
-        return self.early_stop
+    def reset(self) -> None:
+        """Reset the early stopping state."""
+        self.counter = 0
+        self.best_value = None
+        self.early_stop = False
+        logger.debug("Early stopping state reset")

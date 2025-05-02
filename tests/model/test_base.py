@@ -287,9 +287,14 @@ class MinimalValidDecoder(DecoderBase):
 
     def __init__(self, in_channels: int = 128,
                  skip_channels: List[int] = [16, 32]):
-        super().__init__(in_channels, skip_channels)
-        # Dummy check: skip_channels list length matches expectation
-        assert len(skip_channels) == 2
+        # Basic check on input types
+        if not isinstance(skip_channels, list) or not all(
+            isinstance(c, int) for c in skip_channels
+        ):
+            raise TypeError("skip_channels must be a list of integers")
+        # Store skip_channels in the REVERSED order expected by base validation
+        skips_to_store = list(reversed(skip_channels))
+        super().__init__(in_channels, skips_to_store)
 
     def forward(self, x: torch.Tensor,
                 skips: List[torch.Tensor]) -> torch.Tensor:
@@ -592,9 +597,15 @@ def test_skip_connection_compatibility():
                 skip_channels=[8, 16]  # Different channel dimensions
             )
 
-    err_msg = "Encoder skip channels .* must match decoder skip channels"
+    # Updated regex to be more flexible with list formatting
+    err_msg = (
+        r"Encoder skip channels .* must match reversed decoder skip "
+        r"channels .*"
+    )
+    # Instantiate the incompatible decoder *before* the assertion block
+    incompatible_decoder_instance = IncompatibleDecoder()
     with pytest.raises(ValueError, match=err_msg):
-        MinimalValidUNet(encoder, bottleneck, IncompatibleDecoder())
+        MinimalValidUNet(encoder, bottleneck, incompatible_decoder_instance)
 
     # Test with incompatible skip channels (wrong number of skips)
     class WrongNumberOfSkips(DecoderBase):
@@ -615,6 +626,10 @@ def test_skip_connection_compatibility():
         def out_channels(self) -> int:
             return 1  # Binary segmentation
 
-    err_msg = "Encoder skip channels .* must match decoder skip channels"
+    # Updated regex to include 'reversed'
+    err_msg = (
+        r"Encoder skip channels .* must match reversed decoder skip "
+        r"channels .*"
+    )
     with pytest.raises(ValueError, match=err_msg):
         MinimalValidUNet(encoder, bottleneck, WrongNumberOfSkips())

@@ -13,7 +13,7 @@ from tests.model.test_registry import (
 
 # Ensure mock components are registered before tests run
 # pylint: disable=unused-import
-import tests.model.test_factory  # noqa: F401
+import tests.model.test_model_factory  # noqa: F401
 
 # Import the new CNN components
 from src.model.unet import BaseUNet

@@ -1,0 +1,82 @@
+# Main Hydra configuration for experiment runner
+
+defaults:
+  - base
+  - data: default
+  - data/transform: augmentations  # Configuración de transformaciones
+  - data/dataloader: default  # Configuración del dataloader
+  - model: default
+  - training: default
+  - evaluation: default
+  - _self_
+
+# General configuration
+random_seed: 42
+require_cuda: true
+log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+log_to_file: true
+
+# Data configuration
+data:
+  root_dir: "data"
+  train_dir: "${data.root_dir}/train"
+  val_dir: "${data.root_dir}/val"
+  test_dir: "${data.root_dir}/test"
+  batch_size: 16
+  num_workers: 4
+  pin_memory: true
+
+# Model configuration - This entire section will be loaded via defaults
+# model:
+#   name: "unet"
+#   encoder:
+#     name: "resnet34"
+#     pretrained: true
+#     in_channels: 3
+#   decoder:
+#     out_channels: 1
+#   bottleneck:
+#     type: "default"
+
+# Training configuration
+training:
+  epochs: 100
+  optimizer:
+    type: "adam"
+    lr: 0.001
+    weight_decay: 0.0001
+  scheduler:
+    type: "reduce_lr_on_plateau"
+    mode: "min"
+    factor: 0.1
+    patience: 10
+    min_lr: 0.00001
+    step_per_epoch: true
+  amp_enabled: true
+  checkpoints:
+    checkpoint_dir: "outputs/checkpoints"
+    save_interval_epochs: 10
+    save_last: true
+    save_best:
+      enabled: true
+      monitor_metric: "val_loss"
+      monitor_mode: "min"
+      best_filename: "model_best.pth.tar"
+    filename: "checkpoint_epoch_{epoch:03d}.pth.tar"
+    resume_from_checkpoint: null
+
+# Evaluation configuration
+evaluation:
+  metrics:
+    iou:
+      _target_: src.training.metrics.IoUScore
+      threshold: 0.5
+    f1:
+      _target_: src.training.metrics.F1Score
+      threshold: 0.5
+    precision:
+      _target_: src.training.metrics.PrecisionScore
+      threshold: 0.5
+    recall:
+      _target_: src.training.metrics.RecallScore
+      threshold: 0.5

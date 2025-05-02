@@ -209,54 +209,55 @@ def create_unet(config: Dict[str, Any]) -> UNetBase:
         ConfigurationError: If required configuration is missing or invalid.
         ImportError: If the target class cannot be imported.
     """
-    # Validate basic configuration
+    # Validate presence of component configurations
     validate_config(
-        config, ["_target_", "encoder", "bottleneck", "decoder"], "unet"
+        config,
+        # Remove _target_ from required keys for the top-level UNet config
+        # ["_target_", "encoder", "bottleneck", "decoder"],
+        ["encoder", "bottleneck", "decoder"],
+        "unet"
     )
 
-    unet_cls_path = config["_target_"]
-
     try:
-        # Dynamically import the UNet class
-        unet_cls = hydra.utils.get_class(unet_cls_path)
-        if not issubclass(unet_cls, UNetBase):
-            raise TypeError(f"Target class {unet_cls_path} does not inherit \
-from UNetBase")
-
-        # Create components first
+        # Create components manually
         encoder = create_encoder(config["encoder"])
         bottleneck = create_bottleneck(config["bottleneck"])
         decoder = create_decoder(config["decoder"])
 
-        # Get additional UNet-specific parameters
-        unet_params = {k: v for k, v in config.items()
-                       # Also exclude 'type' just in case
-                       if k not in ["_target_", "type",
-                                    "encoder", "bottleneck", "decoder"]}
+        # Get UNet class from config
+        unet_class = None
+        if "_target_" in config:
+            unet_class = hydra.utils.get_class(config["_target_"])
+        else:
+            # Default to BaseUNet if not specified
+            from src.model.unet import BaseUNet
+            unet_class = BaseUNet
 
-        # Instantiate the specific UNet class
-        return unet_cls(
+        # Extract final_activation if present
+        final_activation = config.get("final_activation", None)
+
+        # Instantiate UNet with manually created components
+        unet_instance = unet_class(
             encoder=encoder,
             bottleneck=bottleneck,
             decoder=decoder,
-            **unet_params
+            final_activation=final_activation
         )
-    except ImportError as e:
-        raise ConfigurationError(
-            f"Could not import UNet class '{unet_cls_path}': {str(e)}"
-        ) from e
-    except TypeError as e:
-        # Catch potential TypeError from issubclass or __init__
-        raise ConfigurationError(
-            f"Error related to UNet class '{unet_cls_path}': {str(e)}"
-        ) from e
-    except ConfigurationError:
-        # Re-raise component creation errors
-        raise
+
+        if not isinstance(unet_instance, UNetBase):
+            raise TypeError(
+                f"Instantiated object is not a UNetBase subclass: "
+                f"{type(unet_instance)}"
+            )
+
+        return unet_instance
+
     except Exception as e:
-        # Catch any other exceptions during instantiation
+        # Catch errors during instantiation
+        logger.error(f"Error instantiating UNet model: {config}",
+                     exc_info=True)
         raise ConfigurationError(
-            f"Error creating UNet from '{unet_cls_path}': {str(e)}"
+            f"Error instantiating UNet model: {str(e)}"
         ) from e
 
 

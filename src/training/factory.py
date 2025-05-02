@@ -4,10 +4,33 @@ from torch.optim import Optimizer
 from torch.optim.lr_scheduler import _LRScheduler
 from omegaconf import DictConfig
 from hydra.utils import instantiate
+from torch.nn import Module
 
 # Removed incorrect imports of create_loss, create_metric
 # from src.training.losses import create_loss
 # from src.training.metrics import create_metric
+
+
+def create_loss_fn(cfg: DictConfig) -> Module:
+    """Creates a loss function based on the provided configuration.
+
+    Args:
+        cfg (DictConfig): Configuration dictionary for the loss function.
+                         Expected keys: _target_, etc.
+
+    Returns:
+        Module: The instantiated loss function.
+    """
+    if not cfg or not cfg.get('_target_'):
+        raise ValueError("Loss configuration must include '_target_'")
+
+    # Use Hydra's instantiate to create the loss function
+    try:
+        return instantiate(cfg)
+    except:  # noqa: E722
+        # If instantiation fails and we're in a test (mock is set up),
+        # the exception will be caught by the test framework
+        raise
 
 
 def create_optimizer(model_params, cfg: DictConfig) -> Optimizer:

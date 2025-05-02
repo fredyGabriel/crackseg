@@ -1,174 +1,182 @@
-"""Utility functions for saving and loading model checkpoints."""
+"""Checkpoint management utilities."""
+
+# import os # Not needed if sorting by name
+from pathlib import Path
+from typing import Dict, Any, Optional, Union
 
 import torch
+from torch import nn
 from torch.optim import Optimizer
-from torch.amp import GradScaler
-from pathlib import Path
-from typing import Dict, Any, Optional
-# from torch.optim.lr_scheduler import _LRScheduler # Add later if needed
 
-from src.utils.loggers import get_logger
+from src.utils.logging import get_logger
 
-# Logger for this module
 logger = get_logger(__name__)
 
 
 def save_checkpoint(
-    epoch: int,
-    model: torch.nn.Module,
+    model: nn.Module,
     optimizer: Optimizer,
-    # scheduler: Optional[_LRScheduler] = None,
-    scaler: Optional[GradScaler] = None,
-    metrics: Optional[Dict[str, Any]] = None,
-    checkpoint_dir: Path | str = "checkpoints",
-    filename: str = "checkpoint_last.pth",
-    is_best: bool = False,
-    best_filename: str = "checkpoint_best.pth"
+    epoch: int,
+    checkpoint_dir: Union[str, Path],
+    filename: str = 'checkpoint.pt',
+    additional_data: Optional[Dict[str, Any]] = None,
+    keep_last_n: int = 1
 ) -> None:
-    """Saves the model checkpoint.
+    """Save a model checkpoint.
 
     Args:
-        epoch: Current epoch number.
-        model: Model instance.
-        optimizer: Optimizer instance.
-        scaler: GradScaler instance (if using AMP).
-        metrics: Dictionary of metrics from validation (e.g., loss).
-        checkpoint_dir: Directory to save the checkpoint.
-        filename: Base filename for the checkpoint.
-        is_best: Flag indicating if this is the best model so far.
-        best_filename: Filename for the best model checkpoint.
+        model: The PyTorch model to save
+        optimizer: The optimizer to save
+        epoch: Current training epoch
+        checkpoint_dir: Directory to save checkpoints
+        filename: Name of the checkpoint file. If using keep_last_n > 0,
+                  this filename *must* follow a pattern where the epoch
+                  number can be extracted, like 'prefix_epoch_NUM.pth'.
+        additional_data: Optional dictionary of additional data to save
+        keep_last_n: Number of recent checkpoints to keep (based on epoch
+                     in filename)
     """
     checkpoint_dir = Path(checkpoint_dir)
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
+    checkpoint_path = checkpoint_dir / filename
 
-    state = {
+    # Prepare checkpoint data
+    checkpoint = {
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
-        # 'scheduler_state_dict': scheduler.state_dict() if scheduler else
-        # None,
-        'scaler_state_dict': scaler.state_dict() if scaler else None,
-        'metrics': metrics if metrics else {}
     }
+    if additional_data:
+        checkpoint.update(additional_data)
 
-    filepath = checkpoint_dir / filename
-    try:
-        torch.save(state, filepath)
-        logger.info(f"Checkpoint saved to {filepath}")
+    # Save checkpoint
+    torch.save(checkpoint, checkpoint_path)
+    logger.info(f"Saved checkpoint at epoch {epoch} to {checkpoint_path}")
 
-        if is_best:
-            best_filepath = checkpoint_dir / best_filename
-            torch.save(state, best_filepath)
-            logger.info(f"Best checkpoint saved to {best_filepath}")
+    # Clean up old checkpoints if needed, based on filename epoch number
+    if keep_last_n > 0:
+        # Define a common prefix/suffix pattern to parse epoch number
+        # Example assumes: someprefix_epoch_123.pth
+        # Adjust prefix/suffix if your filename pattern is different
+        prefix = "_epoch_"
+        suffix = ".pth"
+        checkpoint_files = []
+        glob_pattern = f'*{prefix}*{suffix}'
 
-    except Exception as e:
-        # Format error message to avoid long line
-        logger.error(
-            f"Error saving checkpoint to {filepath}: {e}", exc_info=True
-        )
+        for f_path in checkpoint_dir.glob(glob_pattern):
+            try:
+                # Extract epoch number from filename stem
+                epoch_str = f_path.stem.split(prefix)[-1]
+                file_epoch = int(epoch_str)
+                checkpoint_files.append((file_epoch, f_path))
+            except (IndexError, ValueError):
+                log_msg = (
+                    f"Could not parse epoch from {f_path.name}, "
+                    f"skipping cleanup for this file."
+                )
+                logger.warning(log_msg)
+                continue
+
+        # Sort by epoch number, oldest first
+        checkpoint_files.sort(key=lambda x: x[0])
+
+        # Remove oldest checkpoints if count exceeds keep_last_n
+        if len(checkpoint_files) > keep_last_n:
+            files_to_remove = checkpoint_files[:-keep_last_n]
+            logger.debug(f"Removing {len(files_to_remove)} old checkpoints")
+            for file_epoch, f_path_to_remove in files_to_remove:
+                try:
+                    f_path_to_remove.unlink()
+                    rm_msg = f"Removed old ckpt (epoch {file_epoch}): " \
+                             f"{f_path_to_remove.name}"
+                    logger.debug(rm_msg)
+                except OSError as e:
+                    err_msg = f"Error removing old checkpoint " \
+                              f"{f_path_to_remove}: {e}"
+                    logger.error(err_msg)
 
 
 def load_checkpoint(
-    model: torch.nn.Module,
-    optimizer: Optional[torch.optim.Optimizer] = None,
-    scheduler: Optional[Any] = None,  # Using Any for flexibility
-    scaler: Optional[GradScaler] = None,  # Add scaler parameter
-    checkpoint_path: str = None,
-    device: torch.device = None
+    checkpoint_path: Union[str, Path],
+    model: nn.Module,
+    optimizer: Optional[Optimizer] = None,
+    device: Optional[torch.device] = None
 ) -> Dict[str, Any]:
-    """Loads training state from a checkpoint file.
+    """Load a model checkpoint.
 
     Args:
-        model: The model instance to load the state into.
-        optimizer: The optimizer instance to load the state into (optional).
-        scheduler: The scheduler instance to load the state into (optional).
-        scaler: GradScaler instance to load state into (optional).
-        checkpoint_path: Path to the checkpoint file.
-        device: The device to map the loaded tensors to (optional).
+        checkpoint_path: Path to the checkpoint file
+        model: The PyTorch model to load weights into
+        optimizer: Optional optimizer to load state into
+        device: Optional device to load the model to
 
     Returns:
-        A dictionary containing the loaded state (epoch, best_metric, etc.),
-        or an empty dictionary if checkpoint_path is None or file not found.
-    """
-    if not checkpoint_path or not Path(checkpoint_path).is_file():
-        logger.warning(
-            f"Checkpoint file not found at '{checkpoint_path}'. "
-            f"Starting training from scratch."
-        )
-        # Default start state
-        return {"epoch": 0, "best_metric_value": None}
+        Dict containing checkpoint data (epoch and any additional data)
 
-    logger.info(f"Loading checkpoint from '{checkpoint_path}'")
-    map_location = device if device else None
-    # Explicitly set weights_only=False to load full state (optimizer, etc.)
-    # and silence FutureWarning.
-    checkpoint = torch.load(
-        checkpoint_path, map_location=map_location, weights_only=False
-    )
+    Raises:
+        FileNotFoundError: If checkpoint_path does not exist.
+        KeyError: If 'model_state_dict' is missing in the checkpoint.
+        Exception: Other errors during torch.load or state dict loading.
+    """
+    checkpoint_path = Path(checkpoint_path)
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
+
+    # Determine map_location for torch.load
+    map_location = device
+    if map_location is None:
+        try:
+            map_location = model.device
+        except AttributeError:
+            map_location = torch.device('cpu')
+            logger.debug("Model has no .device attribute, loading ckpt to CPU")
+
+    # Load checkpoint
+    try:
+        # Set weights_only=True for security if only loading state_dicts
+        checkpoint = torch.load(
+            checkpoint_path,
+            map_location=map_location,
+            weights_only=False  # Consider True if applicable
+        )
+        log_msg = f"Loading checkpoint from {checkpoint_path} to \
+{map_location}"
+        logger.info(log_msg)
+    except Exception as e:
+        logger.error(f"Failed to load checkpoint from {checkpoint_path}: {e}")
+        raise
 
     # Load model state
-    if 'model_state_dict' in checkpoint:
-        # Handle potential DataParallel wrapping
-        state_dict = checkpoint['model_state_dict']
-        keys = list(state_dict.keys())
-        is_dp_saved = keys[0].startswith('module.') if keys else False
+    if 'model_state_dict' not in checkpoint:
+        raise KeyError(f"'model_state_dict' not found in {checkpoint_path}")
+    try:
+        model.load_state_dict(checkpoint['model_state_dict'])
+        # Move model to target device *after* loading state dict
+        if device:
+            model.to(device)
+    except Exception as e:
+        logger.error(f"Failed to load model_state_dict: {e}")
+        raise
 
-        if isinstance(model, torch.nn.DataParallel):
-            if not is_dp_saved:
-                # Adjust state dict keys if saved model was not DataParallel
-                state_dict = {'module.' + k: v for k, v in state_dict.items()}
-            model.load_state_dict(state_dict)
-        elif is_dp_saved:
-            # Adjust state dict keys if saved model was DataParallel
-            state_dict = {k.partition('module.')[2]: v for k, v in
-                          state_dict.items()}
-            model.load_state_dict(state_dict)
+    # Load optimizer state if provided and available
+    if optimizer:
+        if 'optimizer_state_dict' in checkpoint:
+            try:
+                optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+                logger.debug("Loaded optimizer state.")
+            except Exception as e:
+                err_msg = f"Failed to load optimizer_state_dict: {e}"
+                logger.error(err_msg)
+                # Decide if this should be a fatal error or just a warning
+                # raise # Consider re-raising or handling differently
         else:
-            model.load_state_dict(state_dict)
-        logger.info("Model state loaded successfully.")
-    else:
-        logger.warning("Checkpoint missing 'model_state_dict'. "
-                       "Model weights not loaded.")
+            warn_msg = ("Optimizer provided, but 'optimizer_state_dict' "
+                        "not found in checkpoint.")
+            logger.warning(warn_msg)
 
-    # Load optimizer state
-    if optimizer and 'optimizer_state_dict' in checkpoint:
-        try:
-            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-            logger.info("Optimizer state loaded successfully.")
-        except Exception as e:
-            logger.warning(f"Could not load optimizer state: {e}. "
-                           "Optimizer state might be reset.")
-    elif optimizer:
-        logger.warning("Checkpoint missing 'optimizer_state_dict'. "
-                       "Optimizer state not loaded.")
-
-    # Load scheduler state
-    if scheduler and 'scheduler_state_dict' in checkpoint:
-        try:
-            scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-            logger.info("Scheduler state loaded successfully.")
-        except Exception as e:
-            logger.warning(f"Could not load scheduler state: {e}. "
-                           "Scheduler state might be reset.")
-    elif scheduler:
-        logger.warning("Checkpoint missing 'scheduler_state_dict'. "
-                       "Scheduler state not loaded.")
-
-    # Load scaler state
-    if scaler and 'scaler_state_dict' in checkpoint:
-        try:
-            scaler.load_state_dict(checkpoint['scaler_state_dict'])
-            logger.info("Scaler state loaded successfully.")
-        except Exception as e:
-            logger.warning(f"Could not load scaler state: {e}. Scaler state \
-might be reset.")
-    elif scaler:
-        logger.warning("Checkpoint missing 'scaler_state_dict'. Scaler state \
-not loaded.")
-
-    # Load other metadata
-    epoch = checkpoint.get("epoch", 0)
-    best_metric_value = checkpoint.get("best_metric_value", None)
-    logger.info(f"Checkpoint loaded. Resuming from epoch {epoch + 1}.")
-
-    return {"epoch": epoch, "best_metric_value": best_metric_value}
+    # Return checkpoint data without model/optimizer states
+    checkpoint_data = {
+        k: v for k, v in checkpoint.items()
+        if k not in ['model_state_dict', 'optimizer_state_dict']
+    }
+    return checkpoint_data

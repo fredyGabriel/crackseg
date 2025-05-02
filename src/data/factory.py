@@ -4,7 +4,7 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 
 from .dataset import CrackSegmentationDataset
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig, OmegaConf, ListConfig
 from .sampler import sampler_factory
 from .memory import get_available_gpu_memory
 from .splitting import create_split_datasets
@@ -36,34 +36,73 @@ def validate_data_config(data_cfg):
         raise ValueError("image_size must be a list or tuple of length 2")
 
 
-def validate_transform_config(transform_cfg):
+def validate_transform_config(transform_list_cfg):
+    """Validates a list of transform configurations for a specific split.
+
+    Checks if 'Resize' and 'Normalize' transforms are present with correct
+    params.
+
+    Args:
+        transform_list_cfg: List of transform configs for one split
+                            (e.g., cfg.data.transforms.train)
     """
-    Validates the transform configuration dictionary.
-    Raises ValueError if required parameters are missing or invalid.
-    """
-    # General settings
-    if "resize" not in transform_cfg:
-        raise ValueError("Missing 'resize' section in transform config")
-    resize = transform_cfg["resize"]
-    for k in ["height", "width"]:
-        if k not in resize:
-            raise ValueError(f"Missing '{k}' in 'resize' config")
-    # Normalization
-    if "normalize" not in transform_cfg:
-        raise ValueError("Missing 'normalize' section in transform config")
-    norm = transform_cfg["normalize"]
-    for k in ["mean", "std"]:
-        if k not in norm:
-            raise ValueError(f"Missing '{k}' in 'normalize' config")
-    # Check mean/std are lists of length 3
-    if not (
-        isinstance(norm["mean"], (list, tuple)) and len(norm["mean"]) == 3
-    ):
-        raise ValueError("normalize.mean must be a list of 3 values")
-    if not (
-        isinstance(norm["std"], (list, tuple)) and len(norm["std"]) == 3
-    ):
-        raise ValueError("normalize.std must be a list of 3 values")
+    if not isinstance(transform_list_cfg, (list, ListConfig)):
+        raise ValueError("Transform config must be a list for a split.")
+
+    resize_found = False
+    normalize_found = False
+
+    for transform_item in transform_list_cfg:
+        if not isinstance(transform_item, (dict, DictConfig)):
+            raise ValueError("Each transform item must be a dictionary.")
+
+        name = transform_item.get("name")
+        params = transform_item.get("params", {})
+
+        if name == "Resize":
+            resize_found = True
+            # Permitir tanto 'size' como 'height'/'width' para compatibilidad
+            if "size" not in params and (
+                    "height" not in params or "width" not in params):
+                raise ValueError(
+                    "Resize transform must have either 'size' or both "
+                    "'height' and 'width' parameters."
+                )
+
+            if "size" in params:
+                size = params["size"]
+                if not (isinstance(size, (list, ListConfig)) and len(size) == 2
+                        ):
+                    raise ValueError(
+                        "Resize 'size' must be a list/tuple of length 2."
+                    )
+            # Verificar height/width si están presentes
+            if "height" in params and "width" in params:
+                if not (isinstance(params["height"], (int, float)) and
+                        isinstance(params["width"], (int, float))):
+                    raise ValueError(
+                        "Resize 'height' and 'width' must be numeric values."
+                    )
+
+        elif name == "Normalize":
+            normalize_found = True
+            if "mean" not in params or "std" not in params:
+                raise ValueError("Missing 'mean' or 'std' in Normalize params."
+                                 )
+            mean, std = params["mean"], params["std"]
+            if not (isinstance(mean, (list, ListConfig)) and len(mean) == 3):
+                raise ValueError(
+                    "Normalize 'mean' must be list/tuple of 3 values."
+                )
+            if not (isinstance(std, (list, ListConfig)) and len(std) == 3):
+                raise ValueError(
+                    "Normalize 'std' must be list/tuple of 3 values."
+                )
+
+    if not resize_found:
+        raise ValueError("Missing 'Resize' transform in the list.")
+    if not normalize_found:
+        raise ValueError("Missing 'Normalize' transform in the list.")
 
 
 def create_crackseg_dataset(
@@ -316,11 +355,13 @@ def create_dataloaders_from_config(
     dl_cfg = OmegaConf.to_container(dataloader_config, resolve=True)
 
     validate_data_config(data_cfg)
-    validate_transform_config(transform_cfg)
+    # Remove redundant validation here, rely on validation within
+    # create_crackseg_dataset
+    # validate_transform_config(transform_cfg)
 
     # Extraer parámetros de data_cfg
     data_root = data_cfg['data_root']
-    image_size = data_cfg['image_size']
+    # image_size = data_cfg['image_size'] # No longer needed here
     in_memory_cache = data_cfg.get('in_memory_cache', False)
     seed = data_cfg.get('seed', 42)
 
@@ -335,8 +376,7 @@ def create_dataloaders_from_config(
     try:
         split_datasets = create_split_datasets(
             data_root=data_root,
-            image_size=image_size,
-            ratios=ratios,
+            transform_cfg=transform_cfg,
             seed=seed,
             cache_flag=in_memory_cache,
             dataset_cls=dataset_class
@@ -365,10 +405,17 @@ def create_dataloaders_from_config(
             split_indices_list = indices_map[split_name]
             split_samples = [all_samples[i] for i in split_indices_list]
 
+            # --- Select the specific transform config for this split ---
+            if split_name not in transform_cfg:
+                raise ValueError(f"Transform config missing for split: \
+{split_name}")
+            split_transform_cfg = transform_cfg[split_name]
+            # ----------------------------------------------------------
+
             # Crear dataset para este split
             split_datasets[split_name] = create_crackseg_dataset(
                 data_cfg=data_cfg,
-                transform_cfg=transform_cfg,
+                transform_cfg=split_transform_cfg,
                 mode=split_name,
                 samples_list=split_samples,
                 in_memory_cache=in_memory_cache

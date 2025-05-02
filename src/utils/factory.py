@@ -1,164 +1,144 @@
-import hydra
-import torch  # Needed for BCELoss weight tensor conversion
+"""Factory functions for creating objects from configuration."""
+
+from typing import Dict, List, Type, Callable
+from importlib import import_module
+
 from omegaconf import DictConfig, ListConfig
-from typing import Dict
+import torch
+import torch.nn as nn
 
-# Imports are handled by hydra.utils.instantiate based on _target_
-from src.training.losses import SegmentationLoss, CombinedLoss
-from src.training.metrics import Metric
+from src.utils.logging import get_logger
+from src.utils.exceptions import ConfigError
+# Import specific losses for type checking if needed, or rely on name
+from src.training.losses import CombinedLoss, BCEDiceLoss
+
+logger = get_logger(__name__)
 
 
-def get_loss_from_cfg(cfg: DictConfig) -> SegmentationLoss:
-    """
-    Instantiates a loss function based on the provided Hydra configuration.
-
-    Handles standard losses and the CombinedLoss case which requires
-    recursive instantiation of nested loss configurations.
+def import_class(class_path: str) -> Type:
+    """Import a class from a string path.
 
     Args:
-        cfg: The Hydra configuration object for the loss function.
-             Expected to have a '_target_' field pointing to the class
-             and other parameters matching the class __init__.
+        class_path: Full path to the class (e.g., 'torch.nn.CrossEntropyLoss')
 
     Returns:
-        An instantiated loss function object.
-
-    Raises:
-        ValueError: If the configuration is invalid or the target class
-                    cannot be instantiated.
-        TypeError: If the instantiated object is not a SegmentationLoss.
+        The imported class
     """
-    target_class_path = cfg.get("_target_")
-    if not target_class_path:
-        raise ValueError(f"Configuration missing '_target_' field: {cfg}")
-
     try:
-        if target_class_path == "src.training.losses.CombinedLoss":
-            nested_losses = []
-            nested_weights = []
-            if not hasattr(cfg, 'losses') or \
-               not isinstance(cfg.losses, (list, ListConfig)):
-                raise ValueError("CombinedLoss config requires a 'losses' \
-list.")
-
-            for item_cfg_dict in cfg.losses:
-                if not isinstance(item_cfg_dict, DictConfig):
-                    item_cfg_dict = DictConfig(item_cfg_dict)
-
-                if 'config' not in item_cfg_dict or 'weight' not in \
-                        item_cfg_dict:
-                    # Split the long error message line
-                    err_msg = (
-                        "Each item in CombinedLoss.losses must have "
-                        "'config' and 'weight'."
-                    )
-                    raise ValueError(err_msg)
-
-                nested_loss_cfg = item_cfg_dict.config
-                weight = item_cfg_dict.weight
-
-                nested_loss_instance = get_loss_from_cfg(nested_loss_cfg)
-                nested_losses.append(nested_loss_instance)
-                nested_weights.append(weight)
-
-            # Manually instantiate CombinedLoss
-            instance = CombinedLoss(losses=nested_losses,
-                                    weights=nested_weights)
-
-        elif target_class_path == "src.training.losses.BCELoss":
-            # Special handling for BCE weight tensor conversion
-            # Create a copy to avoid modifying the original config
-            bce_cfg = cfg.copy()
-            # Remove weight if present, handle conversion separately
-            weight_list = bce_cfg.pop("weight", None)
-            # Remove reduction if present, not needed for BCELoss init
-            bce_cfg.pop("reduction", None)
-
-            weight_tensor = torch.tensor(weight_list) \
-                if weight_list is not None else None
-
-            # Pass only relevant args to instantiate
-            instance = hydra.utils.instantiate(
-                bce_cfg, weight=weight_tensor, _convert_="partial"
-            )
-
-        else:
-            # For other standard losses, instantiate directly
-            instance = hydra.utils.instantiate(cfg, _convert_="partial")
-
-        # Final type check
-        if not isinstance(instance, SegmentationLoss):
-            # Split the long error message line
-            err_msg = (
-                f"Instantiated object is not a SegmentationLoss: "
-                f"{type(instance)} from config {cfg}"
-            )
-            raise TypeError(err_msg)
-        return instance
-
+        module_path, class_name = class_path.rsplit('.', 1)
+        module = import_module(module_path)
+        return getattr(module, class_name)
     except Exception as e:
-        # Catch instantiation errors or ValueErrors from recursive calls
-        # Split the long error message line
-        err_msg = f"Failed to instantiate loss from config {cfg}: {e}"
-        raise ValueError(err_msg) from e
-
-
-def get_metrics_from_cfg(cfg_dict: DictConfig) -> Dict[str, Metric]:
-    """
-    Instantiates a dictionary of metric objects based on a Hydra DictConfig.
-
-    Args:
-        cfg_dict: A Hydra DictConfig where keys are metric names and values
-                  are DictConfigs defining each metric with a '_target_' field.
-
-    Returns:
-        A dictionary where keys are metric names and values are instantiated
-        metric objects.
-
-    Raises:
-        ValueError: If any configuration is invalid or a target class
-                    cannot be instantiated.
-        TypeError: If the input is not a DictConfig, or if an
-                 instantiated object is not a Metric.
-    """
-    metrics = {}
-    if not isinstance(cfg_dict, DictConfig):
-        raise TypeError(
-            "Input must be a DictConfig of metric configurations."
+        raise ConfigError(
+            f"Failed to import class '{class_path}'",
+            details=str(e)
         )
 
-    for name, metric_cfg in cfg_dict.items():
+
+def get_optimizer(
+    model_params: List[nn.Parameter],
+    optimizer_cfg: DictConfig
+) -> torch.optim.Optimizer:
+    """Create an optimizer from config.
+
+    Args:
+        model_params: Model parameters to optimize
+        optimizer_cfg: Optimizer configuration
+
+    Returns:
+        Configured optimizer instance
+    """
+    try:
+        optimizer_class = import_class(optimizer_cfg.type)
+        optimizer_params = {
+            k: v for k, v in optimizer_cfg.items()
+            if k != 'type'
+        }
+        return optimizer_class(model_params, **optimizer_params)
+    except Exception as e:
+        raise ConfigError(
+            "Failed to create optimizer",
+            details=str(e)
+        )
+
+
+def get_loss_fn(loss_cfg: DictConfig) -> Callable:
+    """Create a loss function from config."""
+    try:
+        target_path = loss_cfg.get("_target_")
+        if not target_path:
+            raise ConfigError("Loss configuration missing '_target_' key.")
+
+        loss_class = import_class(target_path)
+
+        # --- Special Handling ---
+        if loss_class is CombinedLoss:
+            # Access directly assuming key exists based on _target_
+            inner_loss_configs = loss_cfg.losses
+            weights = loss_cfg.get("weights")  # Optional, use .get
+            # Check type after access - handle ListConfig
+            if not isinstance(inner_loss_configs, (list, ListConfig)
+                              ) or not inner_loss_configs:
+                raise ConfigError("CombinedLoss requires a non-empty list or \
+ListConfig under 'losses'.")
+
+            inner_losses = []
+            for item in inner_loss_configs:
+                # Ensure item is a DictConfig and has a 'config' key
+                if not isinstance(item, DictConfig) or "config" not in item:
+                    raise ConfigError("Each item in CombinedLoss losses needs \
+a 'config' sub-dict.")
+                inner_losses.append(get_loss_fn(item.config))  # Recursive call
+
+            combined_params = {}
+            if weights is not None:
+                combined_params["weights"] = weights
+            # Pass only expected args to CombinedLoss
+            return CombinedLoss(losses=inner_losses, **combined_params)
+
+        elif loss_class is BCEDiceLoss:
+            # BCEDiceLoss internally creates CombinedLoss, pass simple
+            # weights/params
+            params = {k: v for k, v in loss_cfg.items() if k != '_target_'}
+            # Assumes BCEDiceLoss takes bce_weight, dice_weight etc.
+            return BCEDiceLoss(**params)
+
+        # --- Default Handling ---
+        else:
+            # Standard instantiation for simple losses like BCE, Dice, Focal
+            params = {k: v for k, v in loss_cfg.items() if k != '_target_'}
+            return loss_class(**params)
+
+    except ConfigError as e:
+        raise e  # Re-raise specific config errors
+    except Exception as e:
+        raise ConfigError(
+            f"Failed to create loss function from config: {loss_cfg}",
+            details=str(e)
+        ) from e
+
+
+def get_metrics_from_cfg(metrics_cfg: DictConfig) -> Dict[str, Callable]:
+    """Create metric functions from config.
+
+    Args:
+        metrics_cfg: Metrics configuration dictionary
+
+    Returns:
+        Dictionary mapping metric names to their functions
+    """
+    metrics = {}
+    for name, cfg in metrics_cfg.items():
         try:
-            # Ensure it's a DictConfig and has _target_
-            if not isinstance(metric_cfg, DictConfig) or \
-               '_target_' not in metric_cfg:
-                # Split the long error message line
-                err_msg = (
-                    f"Metric config for '{name}' missing '_target_' or "
-                    f"is not a DictConfig: {metric_cfg}"
-                )
-                raise ValueError(err_msg)
-
-            # Instantiate the metric using Hydra
-            metric_instance = hydra.utils.instantiate(
-                metric_cfg, _convert_="partial"
-            )
-
-            if not isinstance(metric_instance, Metric):
-                # Split the long error message line
-                err_msg = (
-                    f"Instantiated object for '{name}' is not a Metric: "
-                    f"{type(metric_instance)} from config {metric_cfg}"
-                )
-                raise TypeError(err_msg)
-
-            metrics[name] = metric_instance
+            metric_class = import_class(cfg._target_)
+            metric_params = {
+                k: v for k, v in cfg.items()
+                if k != '_target_'
+            }
+            metrics[name] = metric_class(**metric_params)
         except Exception as e:
-            # Split the long error message line
-            err_msg = (
-                f"Failed to instantiate metric '{name}' from config "
-                f"{metric_cfg}: {e}"
+            raise ConfigError(
+                f"Failed to create metric '{name}'",
+                details=str(e)
             )
-            raise ValueError(err_msg) from e
-
     return metrics

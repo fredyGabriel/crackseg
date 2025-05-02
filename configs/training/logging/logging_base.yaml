@@ -11,7 +11,7 @@ type: tensorboard
 
 # Base directory for logger outputs (relative to Hydra's run directory)
 # Specific loggers might create subdirectories within this.
-log_dir: "${hydra.run.dir}/logs/${logging.type}/" # Example: outputs/.../logs/tensorboard/
+log_dir: "${hydra.run.dir}/outputs/logs/${logging.type}/" # Example: outputs/.../logs/tensorboard/
 
 # Frequency of logging (to be interpreted by the Trainer)
 log_interval_batches: 50 # Log every N batches (0 to disable batch logging)

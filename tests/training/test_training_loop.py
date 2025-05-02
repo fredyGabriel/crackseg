@@ -4,11 +4,11 @@ import torch
 import torch.nn as nn
 from omegaconf import OmegaConf
 from torch.utils.data import Dataset, DataLoader
+from unittest.mock import MagicMock
 
 from src.training.losses import BCEDiceLoss
 from src.training.metrics import IoUScore, F1Score
 from src.training.trainer import Trainer
-from src.utils.loggers import NoOpLogger
 
 
 class SimpleSegmentationModel(nn.Module):
@@ -61,9 +61,14 @@ def test_training_loop():
     # Create model and loss function
     model = SimpleSegmentationModel()
     loss_fn = BCEDiceLoss()
+    # Configure mocks to return tensors
+    iou_mock = MagicMock(spec=IoUScore)
+    iou_mock.return_value = torch.tensor(0.75)  # Example value
+    f1_mock = MagicMock(spec=F1Score)
+    f1_mock.return_value = torch.tensor(0.85)  # Example value
     metrics = {
-        'iou': IoUScore(),
-        'f1': F1Score()
+        "IoU": iou_mock,
+        "F1": f1_mock
     }
 
     # Create trainer config
@@ -83,6 +88,7 @@ def test_training_loop():
     })
 
     # Create trainer
+    logger_mock = MagicMock()
     trainer = Trainer(
         model=model,
         train_loader=train_loader,
@@ -90,14 +96,15 @@ def test_training_loop():
         loss_fn=loss_fn,
         metrics_dict=metrics,
         cfg=trainer_cfg,
-        logger_instance=NoOpLogger()
+        logger_instance=logger_mock
     )
 
     # Run training and get results
     results = trainer.train()
 
     # Basic assertions
-    assert isinstance(results, dict), "Training should return a dict of metrics"
+    assert isinstance(results, dict), \
+        "Training should return a dict of metrics"
     assert 'loss' in results, "Results should include loss"
-    assert 'iou' in results, "Results should include IoU score"
-    assert 'f1' in results, "Results should include F1 score" 
+    assert 'IoU' in results, "Results should include IoU score"
+    assert 'F1' in results, "Results should include F1 score"

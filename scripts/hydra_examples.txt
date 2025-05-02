@@ -1,0 +1,28 @@
+Hydra Override Examples:
+
+1. Basic value override:
+python -m src.main training.epochs=100
+
+2. Multiple overrides:
+python -m src.main training.epochs=100 model.encoder.name=resnet50
+
+3. Override nested values:
+python -m src.main model.encoder.pretrained=false model.decoder.channels=[256,128,64]
+
+4. Override with different config group:
+python -m src.main model=unet_resnet training=fast
+
+5. Override with list values:
+python -m src.main data.transforms=[resize,normalize,augment]
+
+6. Override with null value:
+python -m src.main training.scheduler=null
+
+7. Override with complex nested structure:
+python -m src.main 'model.encoder={name:resnet34,pretrained:true,channels:[64,128,256]}'
+
+8. Override output directory:
+python -m src.main hydra.run.dir=outputs/custom_run
+
+9. Override with environment variables:
+python -m src.main +training.device=${CUDA_VISIBLE_DEVICES}

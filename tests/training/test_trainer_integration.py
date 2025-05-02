@@ -1,8 +1,8 @@
 import torch
 import shutil
 from omegaconf import OmegaConf
+from src.utils.logging import NoOpLogger
 from src.training.trainer import Trainer
-from src.utils.loggers import NoOpLogger
 
 
 def get_dummy_data_loader(num_batches=4, batch_size=2, shape=(3, 4, 4)):

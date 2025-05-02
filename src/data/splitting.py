@@ -1,97 +1,96 @@
 """Provides functionality for splitting datasets into train/val/test sets."""
 
 # import os
-import random
+# import random
 import warnings
+import math
+import random
 from typing import List, Tuple, Dict, Optional
 from pathlib import Path
 # import numpy as np
-import math
+# import math
 from torch.utils.data import Dataset
-
-# Placeholder for now, might need CrackSegmentationDataset
+from omegaconf import DictConfig
 
 
 def split_indices(
     num_samples: int,
     ratios: Dict[str, float],
     seed: Optional[int] = None,
-    shuffle: bool = True,
+    shuffle: bool = True
 ) -> Dict[str, List[int]]:
-    """Splits a range of indices into train, validation, and test sets.
+    """Split indices into train/val/test sets based on provided ratios.
 
     Args:
-        num_samples (int): The total number of samples.
-        ratios (Dict[str, float]): Split ratios (e.g., {'train': 0.7,
-                                                        'val': 0.15}).
-            Keys must be 'train', 'val', 'test'. Values should sum to 1.0.
-            'test' ratio is inferred if not provided.
-        seed (Optional[int]): Random seed for shuffling. Defaults to None.
-        shuffle (bool): Whether to shuffle indices. Defaults to True.
+        num_samples (int): Total number of samples to split.
+        ratios (Dict[str, float]): Dictionary with keys for split names and
+            values as ratios. Valid keys are 'train', 'val', 'test'.
+            If 'test' is missing, it will be inferred as 1.0 minus the sum of
+            other ratios.
+        seed (Optional[int]): Random seed for reproducibility. If None, no seed
+            is set and results may vary between runs.
+        shuffle (bool): Whether to shuffle indices before splitting.
 
     Returns:
-        Dict[str, List[int]]: Map from split name to list of indices.
+        Dict[str, List[int]]: Dictionary with keys for split names and values
+        as lists of indices.
 
     Raises:
-        ValueError: If ratios are invalid.
+        ValueError: If ratios have invalid keys, values, or sum to > 1.0.
     """
-    if not all(k in ['train', 'val', 'test'] for k in ratios):
-        raise ValueError("Ratio keys must be 'train', 'val', or 'test'.")
-    if not all(0.0 <= v <= 1.0 for v in ratios.values()):
-        raise ValueError("Ratio values must be between 0.0 and 1.0.")
-
-    internal_ratios = ratios.copy()
-    provided_ratio_sum = sum(internal_ratios.values())
-
-    if 'test' not in internal_ratios:
-        if provided_ratio_sum > 1.0:
-            raise ValueError("Sum of provided ratios cannot exceed 1.0")
-        internal_ratios['test'] = 1.0 - provided_ratio_sum
-    elif not math.isclose(sum(internal_ratios.values()), 1.0):
-        raise ValueError("Sum of ratios must be close to 1.0")
-
-    indices = list(range(num_samples))
-    if shuffle:
-        if seed is not None:
-            random.seed(seed)
-        random.shuffle(indices)
-
-    split_indices_dict: Dict[str, List[int]] = {'train': [], 'val': [],
-                                                'test': []}
-    current_idx = 0
-
-    # Calculate counts using floor to avoid exceeding total samples initially
-    train_count = math.floor(num_samples * internal_ratios['train'])
-    val_count = math.floor(num_samples * internal_ratios['val'])
-    # Calculate test count accurately based on the remainder
-    test_count = num_samples - train_count - val_count
-
-    if test_count < 0:
-        # This case should ideally not happen with floor, but as safety:
-        test_count = 0
-        val_count = num_samples - train_count
-        if val_count < 0:
-            val_count = 0
-            train_count = num_samples  # All to train
-
-    split_indices_dict['train'] = indices[current_idx:
-                                          current_idx + train_count]
-    current_idx += train_count
-    split_indices_dict['val'] = indices[current_idx:
-                                        current_idx + val_count]
-    current_idx += val_count
-    split_indices_dict['test'] = indices[current_idx:
-                                         current_idx + test_count]
-
-    # Final check
-    total_assigned = sum(len(v) for v in split_indices_dict.values())
-    if total_assigned != num_samples:
-        warnings.warn(
-            f"Final counts sum to {total_assigned}, expected {num_samples}. "
-            f"Check ratios/sample size."
+    # Validate ratio keys
+    valid_keys = {'train', 'val', 'test'}
+    if not all(k in valid_keys for k in ratios.keys()):
+        raise ValueError(
+            f"Ratio keys must be one of {valid_keys}, got {ratios.keys()}"
         )
 
-    return split_indices_dict
+    # Validate ratio values
+    if not all(0 <= v <= 1.0 for v in ratios.values()):
+        raise ValueError(
+            "Ratio values must be between 0 and 1.0"
+        )
+
+    # Handle case where test is not provided
+    if 'test' not in ratios:
+        sum_provided = sum(ratios.values())
+        if sum_provided > 1.0:
+            raise ValueError(
+                "Sum of provided ratios cannot exceed 1.0 when inferring "
+                "test ratio"
+            )
+        ratios = ratios.copy()  # Avoid modifying the input
+        ratios['test'] = 1.0 - sum_provided
+
+    # Validate sum of ratios
+    ratio_sum = sum(ratios.values())
+    if not (0.99 <= ratio_sum <= 1.01):  # Allow small floating point error
+        raise ValueError(
+            f"Sum of ratios must be close to 1.0, got {ratio_sum}"
+        )
+
+    # Generate indices
+    indices = list(range(num_samples))
+
+    # Shuffle if requested
+    if shuffle and seed is not None:
+        random.seed(seed)
+    if shuffle:
+        random.shuffle(indices)
+
+    # Calculate split sizes
+    train_size = math.floor(num_samples * ratios['train'])
+    val_size = math.floor(num_samples * ratios['val'])
+    # Ensure no rounding issues
+
+    # Split the indices
+    result = {
+        'train': indices[:train_size],
+        'val': indices[train_size:train_size + val_size],
+        'test': indices[train_size + val_size:]
+    }
+
+    return result
 
 
 # --- Updated function ---
@@ -120,7 +119,8 @@ def get_all_samples(data_root: str) -> List[Tuple[str, str]]:
     Raises:
         FileNotFoundError: If 'images' or 'masks' directory doesn't exist.
     """
-    data_root_path = Path(data_root)
+    # Ensure data_root is an absolute path
+    data_root_path = Path(data_root).resolve()
     images_dir = data_root_path / "images"
     masks_dir = data_root_path / "masks"
 
@@ -158,22 +158,22 @@ def get_all_samples(data_root: str) -> List[Tuple[str, str]]:
 
 def create_split_datasets(
     data_root: str,
-    image_size: Tuple[int, int],
-    ratios: Dict[str, float],
+    transform_cfg: DictConfig,
     seed: Optional[int] = None,
     cache_flag: bool = False,
     dataset_cls: type = None  # Pass the actual Dataset class type
 ) -> Dict[str, Dataset]:  # Return type updated
-    """Creates split datasets (train, val, test).
+    """Creates split datasets (train, val, test) from existing folders.
 
-    Finds all samples in data_root, splits them according to ratios,
+    Finds samples within data_root/train, data_root/val, data_root/test
     and instantiates the provided dataset_cls for each split.
 
     Args:
-        data_root (str): Root directory containing 'images' and 'masks'.
-        image_size (Tuple[int, int]): Target size for resizing.
-        ratios (Dict[str, float]): Split ratios (e.g., {'train': 0.7}).
-        seed (Optional[int]): Random seed for splitting and dataset init.
+        data_root (str): Root directory containing 'train', 'val', 'test'
+                         subdirectories, each with 'images' and 'masks'.
+        transform_cfg (DictConfig): Configuration for dataset transformations,
+                                expected to have keys 'train', 'val', 'test'.
+        seed (Optional[int]): Random seed for dataset init.
         cache_flag (bool): Whether to enable in-memory caching in datasets.
         dataset_cls (type): The Dataset class to instantiate (e.g.,
                             CrackSegmentationDataset).
@@ -190,45 +190,59 @@ def create_split_datasets(
     if dataset_cls is None:
         raise ValueError("dataset_cls must be provided.")
 
-    all_samples = get_all_samples(data_root)
-    if not all_samples:
-        # get_all_samples raises FileNotFoundError if dirs are missing
-        # It warns if no pairs are found, but we raise here if list is empty
-        raise RuntimeError(f"No valid image/mask pairs found in {data_root}.")
-
-    num_samples = len(all_samples)
-    indices_map = split_indices(num_samples, ratios, seed, shuffle=True)
-
     datasets: Dict[str, Dataset] = {}
-    for split_name, indices in indices_map.items():
-        split_samples = [all_samples[i] for i in indices]
+    # Iterate through expected split names
+    for split_name in ['train', 'val', 'test']:
+        # Construct path to the specific split directory
+        split_data_root = Path(data_root) / split_name
 
-        if not split_samples and ratios.get(split_name, 0) > 0:
-            # Only warn if the ratio was non-zero but we got 0 samples
-            # (e.g., very few total samples and a small ratio)
+        # Get samples specifically for this split
+        try:
+            split_samples = get_all_samples(str(split_data_root))
+        except FileNotFoundError:
             warnings.warn(
-                f"Split '{split_name}' resulted in 0 samples despite ratio "
-                f"{ratios.get(split_name)}. Check total samples vs ratios."
+                f"Directory or subdirs not found for split '{split_name}' "
+                f"at {split_data_root}. Skipping split."
             )
-            # Still create an empty dataset if the class supports it
+            continue  # Skip this split if dirs not found
+
+        if not split_samples:
+            warnings.warn(
+                f"No samples found for split '{split_name}' "
+                f"at {split_data_root}. Creating empty dataset if possible."
+            )
+            # Continue to create dataset, it might handle empty list
+
+        # Get transform config for this specific split
+        if split_name not in transform_cfg:
+            raise ValueError(
+                f"Transform config missing for split: {split_name}"
+            )
+        split_transform_config = transform_cfg[split_name]
 
         try:
-            # Instantiate the provided dataset class
+            # Instantiate the provided dataset class for this split
             datasets[split_name] = dataset_cls(
                 mode=split_name,
-                image_size=image_size,
-                samples_list=split_samples,  # Pass the filtered list
-                seed=seed,                   # Pass seed for reproducibility
-                in_memory_cache=cache_flag
+                samples_list=split_samples,  # Pass the split-specific list
+                seed=seed,
+                in_memory_cache=cache_flag,
+                config_transform=split_transform_config
             )
-            # Log dataset size
-            print(f"Created dataset for '{split_name}' with \
-{len(datasets[split_name])} samples.")
+            print(
+                f"Created dataset for '{split_name}' "
+                f"with {len(datasets[split_name])} samples."
+            )
         except Exception as e:
-            # Log the error and potentially stop, or just warn and continue?
-            # For now, re-raise as it indicates a fundamental problem.
             raise RuntimeError(
                 f"Failed to instantiate dataset for split '{split_name}': {e}"
             ) from e
+
+    # Check if we actually created datasets (especially train/val needed)
+    if 'train' not in datasets or 'val' not in datasets:
+        warnings.warn(
+            "Train or Val dataset could not be created. "
+            "Check data paths and structure."
+        )
 
     return datasets

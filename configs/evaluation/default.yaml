@@ -4,16 +4,20 @@
 # Select metrics to compute by adding their configurations here.
 # These will be instantiated by the factory.
 metrics:
-  - _target_: src.training.metrics.F1Score
+  iou:
+    _target_: src.training.metrics.IoUScore
     smooth: 1e-6
     threshold: 0.5
-  - _target_: src.training.metrics.IoUScore
+  f1:
+    _target_: src.training.metrics.F1Score
     smooth: 1e-6
     threshold: 0.5
-  - _target_: src.training.metrics.PrecisionScore
+  precision:
+    _target_: src.training.metrics.PrecisionScore
     smooth: 1e-6
     threshold: 0.5
-  - _target_: src.training.metrics.RecallScore
+  recall:
+    _target_: src.training.metrics.RecallScore
     smooth: 1e-6
     threshold: 0.5
   # Example: Add metric with specific parameters

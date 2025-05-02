@@ -1,0 +1,157 @@
+"""Custom exceptions for the crack segmentation project."""
+
+from typing import Optional
+
+
+class CrackSegError(Exception):
+    """Base exception class for the crack segmentation project."""
+
+    def __init__(self, message: str, details: Optional[str] = None):
+        """Initialize the exception.
+
+        Args:
+            message: Main error message
+            details: Optional additional error details
+        """
+        self.message = message
+        self.details = details
+        super().__init__(self.full_message)
+
+    @property
+    def full_message(self) -> str:
+        """Get the complete error message including details if available."""
+        if self.details:
+            return f"{self.message}\nDetails: {self.details}"
+        return self.message
+
+
+class ConfigError(CrackSegError):
+    """Raised when there is an error in the configuration."""
+
+    def __init__(
+        self,
+        message: str,
+        config_path: Optional[str] = None,
+        details: Optional[str] = None
+    ):
+        """Initialize the configuration error.
+
+        Args:
+            message: Main error message
+            config_path: Path to the problematic config file/section
+            details: Optional additional error details
+        """
+        self.config_path = config_path
+        if config_path:
+            message = f"Configuration error in {config_path}: {message}"
+        super().__init__(message, details)
+
+
+class DataError(CrackSegError):
+    """Raised when there is an error with the input data."""
+
+    def __init__(
+        self,
+        message: str,
+        data_path: Optional[str] = None,
+        details: Optional[str] = None
+    ):
+        """Initialize the data error.
+
+        Args:
+            message: Main error message
+            data_path: Path to the problematic data file/directory
+            details: Optional additional error details
+        """
+        self.data_path = data_path
+        if data_path:
+            message = f"Data error in {data_path}: {message}"
+        super().__init__(message, details)
+
+
+class ModelError(CrackSegError):
+    """Raised when there is an error with the model."""
+
+    def __init__(
+        self,
+        message: str,
+        model_name: Optional[str] = None,
+        details: Optional[str] = None
+    ):
+        """Initialize the model error.
+
+        Args:
+            message: Main error message
+            model_name: Name or identifier of the problematic model
+            details: Optional additional error details
+        """
+        self.model_name = model_name
+        if model_name:
+            message = f"Model error in {model_name}: {message}"
+        super().__init__(message, details)
+
+
+class TrainingError(CrackSegError):
+    """Raised when there is an error during model training."""
+
+    def __init__(
+        self,
+        message: str,
+        epoch: Optional[int] = None,
+        details: Optional[str] = None
+    ):
+        """Initialize the training error.
+
+        Args:
+            message: Main error message
+            epoch: Training epoch where the error occurred
+            details: Optional additional error details
+        """
+        self.epoch = epoch
+        if epoch is not None:
+            message = f"Training error at epoch {epoch}: {message}"
+        super().__init__(message, details)
+
+
+class ResourceError(CrackSegError):
+    """Raised when there is an error with system resources."""
+
+    def __init__(
+        self,
+        message: str,
+        resource_type: Optional[str] = None,
+        details: Optional[str] = None
+    ):
+        """Initialize the resource error.
+
+        Args:
+            message: Main error message
+            resource_type: Type of resource (e.g., 'GPU', 'Memory')
+            details: Optional additional error details
+        """
+        self.resource_type = resource_type
+        if resource_type:
+            message = f"{resource_type} resource error: {message}"
+        super().__init__(message, details)
+
+
+class ValidationError(CrackSegError):
+    """Raised when there is an error during data or config validation."""
+
+    def __init__(
+        self,
+        message: str,
+        field: Optional[str] = None,
+        details: Optional[str] = None
+    ):
+        """Initialize the validation error.
+
+        Args:
+            message: Main error message
+            field: Name of the field that failed validation
+            details: Optional additional error details
+        """
+        self.field = field
+        if field:
+            message = f"Validation error for {field}: {message}"
+        super().__init__(message, details)

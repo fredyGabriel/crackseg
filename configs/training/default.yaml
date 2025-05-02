@@ -1,7 +1,5 @@
 defaults:
   - loss: bce_dice # Select default loss config from loss/ group
-  - override hydra/job_logging: disabled # Example: disable default logging
-  - override hydra/hydra_logging: disabled # Example: disable default logging
   - _self_
 
 # Default training configuration

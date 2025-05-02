@@ -10,29 +10,35 @@ type: BaseUNet
 # Specific model configs (like unet_mock.yaml) will provide the concrete values.
 
 encoder:
-  # type: ??? (e.g., TestEncoder, ResNetEncoder)
-  # in_channels: ???
-  _target_: "???.???.EncoderImplementation" # Placeholder
-  type: "DefaultEncoder" # Placeholder
-  in_channels: 3 # Placeholder
+  # Point _target_ to the factory function
+  _target_: src.model.factory.create_encoder
+  type: "resnet34" # Specify the desired type for the factory
+  # Remove placeholder type
+  # type: "DefaultEncoder"
+  # Add any default params needed by create_encoder or resnet34
+  name: "resnet34" # Kept for potential use?
+  pretrained: true
+  in_channels: 3
 
 bottleneck:
-  # type: ???
-  # in_channels: ???
-  _target_: "???.???.BottleneckImplementation"
-  type: "DefaultBottleneck"
-  in_channels: 512 # Placeholder
+  # Point _target_ to the factory function
+  _target_: src.model.factory.create_bottleneck
+  type: "default" # Specify the desired type for the factory
+  # Remove placeholder type and target
+  # _target_: "???.???.BottleneckImplementation"
+  # type: "DefaultBottleneck"
+  in_channels: 512 # Example default, adjust as needed
 
 decoder:
-  # type: ???
-  # in_channels: ???
-  # skip_channels: ???
-  # out_channels: ???
-  _target_: "???.???.DecoderImplementation"
-  type: "DefaultDecoder"
-  in_channels: 1024 # Placeholder
-  skip_channels: [64, 128, 256, 512] # Placeholder
-  out_channels: 1 # Placeholder
+  # Point _target_ to the factory function
+  _target_: src.model.factory.create_decoder
+  type: "default" # Specify the desired type for the factory
+  # Remove placeholder type and target
+  # _target_: "???.???.DecoderImplementation"
+  # type: "DefaultDecoder"
+  in_channels: 1024 # Example default, adjust as needed
+  skip_channels: [64, 128, 256, 512] # Example default
+  out_channels: 1 # Example default
 
 # --- Optional Final Activation ---
 final_activation: null

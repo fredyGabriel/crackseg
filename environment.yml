@@ -296,4 +296,5 @@ dependencies:
       - sympy==1.13.1
       - torchaudio==2.5.1
       - torchvision==0.20.1
+      - python-dotenv
 prefix: C:\Users\fgrv\miniconda3\envs\torch

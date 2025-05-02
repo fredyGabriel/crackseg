@@ -35,15 +35,19 @@ class SegmentationLoss(nn.Module):
 class BCELoss(SegmentationLoss):
     """Binary Cross Entropy loss for binary segmentation."""
 
-    def __init__(self, weight: Optional[torch.Tensor] = None):
+    def __init__(self,
+                 weight: Optional[torch.Tensor] = None,
+                 reduction: str = 'mean'):
         """
         Initialize BCE loss.
 
         Args:
             weight: Optional weight for unbalanced datasets
+            reduction: Specifies the reduction to apply to the output:
+                       'none' | 'mean' | 'sum'. Default: 'mean'
         """
         super().__init__()
-        self.bce = nn.BCEWithLogitsLoss(weight=weight)
+        self.bce = nn.BCEWithLogitsLoss(weight=weight, reduction=reduction)
 
     def forward(self, pred: torch.Tensor,
                 target: torch.Tensor) -> torch.Tensor:

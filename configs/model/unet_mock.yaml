@@ -14,7 +14,7 @@ model:
   # type: BaseUNet  # Type is less relevant if using _target_ directly
 
   encoder:
-    type: TestEncoder
+    type: FactoryEncoder
     in_channels: 3
     # _target_ is not needed by our factory, but good practice for Hydra
     _target_: tests.model.test_registry.MockEncoder
@@ -25,10 +25,9 @@ model:
     _target_: tests.model.test_registry.MockBottleneck
 
   decoder:
-    type: TestDecoder
+    type: FactoryDecoder
     in_channels: 128  # Matches MockBottleneck output
     skip_channels: [16, 32]  # Matches MockEncoder skips
-    out_channels: 1
     _target_: tests.model.test_registry.MockDecoder
 
   # Optional: Override final activation
