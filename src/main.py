@@ -22,10 +22,9 @@ from src.utils import (
     load_checkpoint
 )
 from src.data.factory import create_dataloaders_from_config  # Import factory
-from src.utils.factory import get_metrics_from_cfg
-# from src.models.model_factory import create_model
-# from src.training.optimizers import create_optimizer
-# from src.training.schedulers import create_scheduler
+from src.utils.factory import get_metrics_from_cfg, get_optimizer, get_loss_fn
+from src.model.factory import create_unet
+from src.training.factory import create_lr_scheduler
 
 # Configure standard logger
 log = logging.getLogger(__name__)
@@ -124,17 +123,19 @@ def main(cfg: DictConfig) -> None:
         except Exception as e:
             raise DataError(f"Error during data loading: {str(e)}") from e
 
-        # --- 3. Model Creation --- Placeholder
-        log.info("Creating model... (Placeholder)")
+        # --- 3. Model Creation ---
+        log.info("Creating model...")
         try:
-            model = torch.nn.Module()  # Simple placeholder
+            # Create model using the factory function
+            model = create_unet(cfg.model)
             model.to(device)
-            log.info("Model creation complete.")
+            log.info(f"Created {type(model).__name__} model with \
+{sum(p.numel() for p in model.parameters())} parameters")
         except Exception as e:
             raise ModelError(f"Error creating model: {str(e)}") from e
 
-        # --- 4. Training Setup --- Placeholder
-        log.info("Setting up training components... (Partially Placeholder)")
+        # --- 4. Training Setup ---
+        log.info("Setting up training components...")
 
         # Ensure evaluation metrics config exists
         metrics = {}
@@ -148,19 +149,35 @@ def main(cfg: DictConfig) -> None:
         else:
             log.warning("Evaluation metrics configuration not found.")
 
-        # Placeholder optimizer - Use config values
-        optimizer_cfg = cfg.training.get(
-            "optimizer", {"type": "adam", "lr": 1e-3})
-        optimizer = torch.optim.Adam(
-            model.parameters(),
-            lr=optimizer_cfg.get("lr", 1e-3)
-        )
+        # Create optimizer using factory
+        optimizer_cfg = cfg.training.get("optimizer",
+                                         {"type": "adam", "lr": 1e-3})
+        optimizer = get_optimizer(model.parameters(), optimizer_cfg)
+        log.info(f"Created optimizer: {type(optimizer).__name__}")
 
-        # Placeholder scheduler - Use config values
+        # Create loss function using factory
+        loss_fn = None
+        if hasattr(cfg.training, 'loss'):
+            try:
+                loss_fn = get_loss_fn(cfg.training.loss)
+                log.info(f"Created loss function: {type(loss_fn).__name__}")
+            except Exception as e:
+                log.error(f"Error creating loss function: {e}")
+                # Fallback to a simple loss if needed
+                loss_fn = torch.nn.BCEWithLogitsLoss()
+                log.info("Using fallback loss function: BCEWithLogitsLoss")
+
+        # Create scheduler using factory
         scheduler = None
         if cfg.training.get("scheduler", None):
-            # TODO: Implement scheduler factory
-            pass
+            try:
+                scheduler = create_lr_scheduler(optimizer,
+                                                cfg.training.scheduler)
+                log.info(f"Created learning rate scheduler: \
+{type(scheduler).__name__}")
+            except Exception as e:
+                log.error(f"Error creating scheduler: {e}")
+                scheduler = None
 
         # Setup AMP if enabled
         use_amp = cfg.training.get("amp_enabled", False)
@@ -244,52 +261,113 @@ start."
             experiment_logger.log_hardware_stats()
 
             try:
-                # Train - Placeholder Data
-                log.warning("Using placeholder training data.")
+                # Train
                 model.train()
-                if optimizer:
+                train_loss = 0.0
+                train_batches = 0
+
+                for batch_idx, batch in enumerate(train_loader):
+                    inputs, targets = batch['image'].to(device), \
+                        batch['mask'].to(device)
+
+                    # Clear gradients
                     optimizer.zero_grad()
-                dummy_loss = torch.tensor(0.5, requires_grad=True)
-                if scaler:
-                    scaler.scale(dummy_loss).backward()
-                else:
-                    dummy_loss.backward()
-                if optimizer:
-                    if scaler:
+
+                    # Forward pass
+                    if use_amp:
+                        with torch.amp.autocast('cuda'):
+                            outputs = model(inputs)
+                            batch_loss = loss_fn(outputs, targets)
+                    else:
+                        outputs = model(inputs)
+                        batch_loss = loss_fn(outputs, targets)
+
+                    # Backward pass
+                    if use_amp:
+                        scaler.scale(batch_loss).backward()
                         scaler.step(optimizer)
                         scaler.update()
                     else:
+                        batch_loss.backward()
                         optimizer.step()
-                avg_train_loss = dummy_loss.item()
+
+                    train_loss += batch_loss.item()
+                    train_batches += 1
+
+                    # Log batch progress
+                    if batch_idx % 10 == 0:
+                        log.info(f"Batch {batch_idx}/{len(train_loader)}, \
+Loss: {batch_loss.item():.4f}")
+
+                # Calculate average training loss
+                avg_train_loss = train_loss / train_batches if \
+                    train_batches > 0 else 0
                 if experiment_logger:
                     experiment_logger.log_scalar("train/epoch_loss",
                                                  avg_train_loss, epoch)
+                log.info(f"Training - Epoch: {epoch}, Loss: \
+{avg_train_loss:.4f}")
 
-                # Evaluate - Placeholder Data
-                log.warning("Using placeholder evaluation data.")
-                eval_results = {"val_loss": 0.8}
-                if metrics:
-                    eval_results.update({f"val_{k}": 0.6 for k in metrics})
+                # Evaluate
+                model.eval()
+                eval_results = {"val_loss": 0.0}
+                val_batches = 0
+
+                with torch.no_grad():
+                    for batch_idx, batch in enumerate(val_loader):
+                        inputs, targets = batch['image'].to(device), \
+                            batch['mask'].to(device)
+
+                        # Forward pass
+                        if use_amp:
+                            with torch.amp.autocast('cuda'):
+                                outputs = model(inputs)
+                                batch_loss = loss_fn(outputs, targets)
+                        else:
+                            outputs = model(inputs)
+                            batch_loss = loss_fn(outputs, targets)
+
+                        eval_results["val_loss"] += batch_loss.item()
+                        val_batches += 1
+
+                        # Calculate metrics
+                        if metrics:
+                            for metric_name, metric_fn in metrics.items():
+                                if metric_name not in eval_results:
+                                    eval_results[f"val_{metric_name}"] = 0.0
+                                eval_results[f"val_{metric_name}"] += \
+                                    metric_fn(outputs, targets).item()
+
+                # Calculate average validation metrics
+                if val_batches > 0:
+                    eval_results["val_loss"] /= val_batches
+                    for metric_name in metrics:
+                        if f"val_{metric_name}" in eval_results:
+                            eval_results[f"val_{metric_name}"] /= val_batches
+
+                # Log validation metrics
                 if experiment_logger:
-                    experiment_logger.log_scalar(
-                        "val/epoch_loss",
-                        eval_results["val_loss"],
-                        epoch
-                    )
+                    experiment_logger.log_scalar("val/epoch_loss",
+                                                 eval_results["val_loss"],
+                                                 epoch)
                     for k, v in eval_results.items():
                         if k != "val_loss":
                             experiment_logger.log_scalar(
-                                k.replace("val_", "val/"),
-                                v,
-                                epoch
-                            )
+                                k.replace("val_", "val/"), v, epoch)
 
-                # Step LR Scheduler (if epoch-based) - Placeholder
+                log.info(f"Validation - Epoch: {epoch}, Loss: \
+{eval_results['val_loss']:.4f}")
+                for k, v in eval_results.items():
+                    if k != "val_loss":
+                        log.info(f"Validation - {k}: {v:.4f}")
+
+                # Step LR Scheduler (if epoch-based)
                 if scheduler and cfg.training.scheduler.get("step_per_epoch",
                                                             True):
                     if isinstance(scheduler,
                                   torch.optim.lr_scheduler.ReduceLROnPlateau):
-                        scheduler.step(eval_results.get(monitor_metric))
+                        scheduler.step(eval_results.get(
+                            monitor_metric, eval_results["val_loss"]))
                     else:
                         scheduler.step()
 
@@ -366,10 +444,9 @@ start."
 
         log.info("Training loop finished.")
 
-        # --- 7. Final Evaluation --- Placeholder
+        # --- 7. Final Evaluation ---
         if test_loader is not None:
-            log.info("Performing final evaluation on test set... \
-(Placeholder Data)")
+            log.info("Performing final evaluation on test set...")
             best_model_path = os.path.join(checkpoint_dir, best_filename)
             test_model = model  # Default to last model state
             if save_best_enabled and os.path.exists(best_model_path):
@@ -387,25 +464,56 @@ start."
                 )
                 log.warning(msg)
 
-            # Dummy test results
-            test_results = {"test_loss": 0.7}
-            if metrics:
-                test_results.update({f"test_{k}": 0.55 for k in metrics})
+            # Perform test evaluation
+            test_model.eval()
+            test_results = {"test_loss": 0.0}
+            test_batches = 0
+
+            with torch.no_grad():
+                for batch_idx, batch in enumerate(test_loader):
+                    inputs, targets = batch['image'].to(device), batch[
+                        'mask'].to(device)
+
+                    # Forward pass
+                    if use_amp:
+                        with torch.amp.autocast('cuda'):
+                            outputs = test_model(inputs)
+                            batch_loss = loss_fn(outputs, targets)
+                    else:
+                        outputs = test_model(inputs)
+                        batch_loss = loss_fn(outputs, targets)
+
+                    test_results["test_loss"] += batch_loss.item()
+                    test_batches += 1
+
+                    # Calculate metrics
+                    if metrics:
+                        for metric_name, metric_fn in metrics.items():
+                            if metric_name not in test_results:
+                                test_results[f"test_{metric_name}"] = 0.0
+                            test_results[f"test_{metric_name}"] += \
+                                metric_fn(outputs, targets).item()
+
+            # Calculate average test metrics
+            if test_batches > 0:
+                test_results["test_loss"] /= test_batches
+                for metric_name in metrics:
+                    if f"test_{metric_name}" in test_results:
+                        test_results[f"test_{metric_name}"] /= test_batches
+
+            # Log test metrics
             if experiment_logger:
-                experiment_logger.log_scalar(
-                    "test/epoch_loss",
-                    test_results["test_loss"],
-                    -1
-                )
+                experiment_logger.log_scalar("test/loss",
+                                             test_results["test_loss"], -1)
                 for k, v in test_results.items():
                     if k != "test_loss":
                         experiment_logger.log_scalar(
-                            k.replace("test_", "test/"),
-                            v,
-                            -1
-                        )
+                            k.replace("test_", "test/"), v, -1)
 
-            log.info(f"Final Test Results (Placeholder): {test_results}")
+            log.info(f"Test Results: Loss: {test_results['test_loss']:.4f}")
+            for k, v in test_results.items():
+                if k != "test_loss":
+                    log.info(f"Test {k}: {v:.4f}")
         else:
             log.info("No test loader available, skipping final evaluation.")
 
