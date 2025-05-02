@@ -113,6 +113,29 @@ class TrainingError(CrackSegError):
         super().__init__(message, details)
 
 
+class EvaluationError(CrackSegError):
+    """Raised when there is an error during model evaluation."""
+
+    def __init__(
+        self,
+        message: str,
+        checkpoint: Optional[str] = None,
+        details: Optional[str] = None
+    ):
+        """Initialize the evaluation error.
+
+        Args:
+            message: Main error message
+            checkpoint: Path or name of the checkpoint being evaluated
+            details: Optional additional error details
+        """
+        self.checkpoint = checkpoint
+        if checkpoint:
+            message = f"Evaluation error with checkpoint {checkpoint}: \
+{message}"
+        super().__init__(message, details)
+
+
 class ResourceError(CrackSegError):
     """Raised when there is an error with system resources."""
 

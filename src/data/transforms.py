@@ -131,6 +131,9 @@ def apply_transforms(
         transformed_image = result["image"]
         if "mask" in result and result["mask"] is not None:
             transformed_mask = result["mask"]
+            # Ensure mask is a PyTorch tensor before calling tensor methods
+            if isinstance(transformed_mask, np.ndarray):
+                transformed_mask = torch.from_numpy(transformed_mask)
             # Ensure mask remains binary and float afterwards
             # Convert potential interpolated values to int {0, 1} then to float
             transformed_mask = (transformed_mask > 0.5).long().float()

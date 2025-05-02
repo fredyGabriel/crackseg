@@ -100,11 +100,9 @@ def main(cfg: DictConfig) -> None:
         # --- 2. Data Loading ---
         log.info("Loading data...")
         try:
-            # Access configs safely using the correct structure
-            data_cfg = cfg.data  # Direct access since it is in defaults
+            data_cfg = cfg.data
             transform_cfg = data_cfg.get("transforms", OmegaConf.create({}))
-            dataloader_cfg = data_cfg  # Dataloader parameters are in data_cfg
-
+            dataloader_cfg = data_cfg
             dataloaders_dict = create_dataloaders_from_config(
                 data_config=data_cfg,
                 transform_config=transform_cfg,
@@ -113,13 +111,11 @@ def main(cfg: DictConfig) -> None:
             train_loader = dataloaders_dict.get('train', {}).get('dataloader')
             val_loader = dataloaders_dict.get('val', {}).get('dataloader')
             test_loader = dataloaders_dict.get('test', {}).get('dataloader')
-
             if not train_loader or not val_loader:
                 raise DataError(
                     "Train or validation dataloader could not be created."
                 )
             log.info("Data loading complete.")
-
         except Exception as e:
             raise DataError(f"Error during data loading: {str(e)}") from e
 
@@ -264,11 +260,24 @@ start."
                 # Train
                 model.train()
                 train_loss = 0.0
+                train_metrics = {k: 0.0 for k in metrics.keys()}
                 train_batches = 0
 
                 for batch_idx, batch in enumerate(train_loader):
                     inputs, targets = batch['image'].to(device), \
                         batch['mask'].to(device)
+
+                    # Ensure inputs tensor has the correct shape (B, C, H, W)
+                    # If channels are last (B, H, W, C)
+                    if inputs.shape[-1] == 3:
+                        # Change to (B, C, H, W)
+                        inputs = inputs.permute(0, 3, 1, 2)
+
+                    # Ensure targets tensor has a channel dimension
+                    # If (B, H, W) without channel dimension
+                    if len(targets.shape) == 3:
+                        # Add channel dimension: (B,H,W)->(B,1,H,W)
+                        targets = targets.unsqueeze(1)
 
                     # Clear gradients
                     optimizer.zero_grad()
@@ -292,6 +301,10 @@ start."
                         optimizer.step()
 
                     train_loss += batch_loss.item()
+                    with torch.no_grad():
+                        for k, metric_fn in metrics.items():
+                            train_metrics[k] += metric_fn(outputs,
+                                                          targets).item()
                     train_batches += 1
 
                     # Log batch progress
@@ -302,11 +315,18 @@ Loss: {batch_loss.item():.4f}")
                 # Calculate average training loss
                 avg_train_loss = train_loss / train_batches if \
                     train_batches > 0 else 0
+                for k in train_metrics:
+                    train_metrics[k] /= train_batches if train_batches > 0 \
+                        else 1
                 if experiment_logger:
                     experiment_logger.log_scalar("train/epoch_loss",
                                                  avg_train_loss, epoch)
-                log.info(f"Training - Epoch: {epoch}, Loss: \
-{avg_train_loss:.4f}")
+                    for k, v in train_metrics.items():
+                        experiment_logger.log_scalar(f"train/{k}", v, epoch)
+                log.info(
+                    f"Training - Epoch: {epoch}, Loss: {avg_train_loss:.4f}, "
+                    f"Metrics: {train_metrics}"
+                )
 
                 # Evaluate
                 model.eval()
@@ -317,6 +337,19 @@ Loss: {batch_loss.item():.4f}")
                     for batch_idx, batch in enumerate(val_loader):
                         inputs, targets = batch['image'].to(device), \
                             batch['mask'].to(device)
+
+                        # Ensure inputs tensor has the correct shape
+                        # (B, C, H, W)
+                        # If channels are last (B, H, W, C)
+                        if inputs.shape[-1] == 3:
+                            # Change to (B, C, H, W)
+                            inputs = inputs.permute(0, 3, 1, 2)
+
+                        # Ensure targets tensor has a channel dimension
+                        # If (B, H, W) without channel dimension
+                        if len(targets.shape) == 3:
+                            # Add channel dimension: (B,H,W)->(B,1,H,W)
+                            targets = targets.unsqueeze(1)
 
                         # Forward pass
                         if use_amp:
@@ -355,8 +388,10 @@ Loss: {batch_loss.item():.4f}")
                             experiment_logger.log_scalar(
                                 k.replace("val_", "val/"), v, epoch)
 
-                log.info(f"Validation - Epoch: {epoch}, Loss: \
-{eval_results['val_loss']:.4f}")
+                log.info(
+                    f"Validation - Epoch: {epoch}, Loss: \
+{eval_results['val_loss']:.4f}"
+                )
                 for k, v in eval_results.items():
                     if k != "val_loss":
                         log.info(f"Validation - {k}: {v:.4f}")
@@ -390,47 +425,56 @@ Loss: {batch_loss.item():.4f}")
                                f"{best_metric_value:.4f}")
                         log.info(msg)
 
-                # Prepare state dictionary
-                state = {
-                    'epoch': epoch,
-                    'model_state_dict': model.state_dict(),
-                    'optimizer_state_dict': optimizer.state_dict(
-                    ) if optimizer else None,
-                    'scheduler_state_dict': scheduler.state_dict(
-                    ) if scheduler else None,
-                    'best_metric_value': best_metric_value,
-                    'config': OmegaConf.to_container(cfg, resolve=True)
-                }
-
                 # Save interval checkpoint
                 if save_interval > 0 and (epoch + 1) % save_interval == 0:
                     filename = fname_pattern.format(epoch=epoch + 1)
                     save_checkpoint(
-                        state=state,
-                        is_best=is_best,
+                        model=model,
+                        optimizer=optimizer,
+                        epoch=epoch,
                         checkpoint_dir=checkpoint_dir,
                         filename=filename,
-                        best_filename=best_filename
+                        additional_data={
+                            'scheduler_state_dict': (
+                                scheduler.state_dict() if scheduler else None
+                            ),
+                            'best_metric_value': best_metric_value,
+                            'config': OmegaConf.to_container(cfg, resolve=True)
+                        }
                     )
                 # Save last checkpoint
                 elif save_last and epoch == num_epochs - 1:
                     filename = "last_checkpoint.pth.tar"
                     save_checkpoint(
-                        state=state,
-                        is_best=is_best,
+                        model=model,
+                        optimizer=optimizer,
+                        epoch=epoch,
                         checkpoint_dir=checkpoint_dir,
                         filename=filename,
-                        best_filename=best_filename
+                        additional_data={
+                            'scheduler_state_dict': (
+                                scheduler.state_dict() if scheduler else None
+                            ),
+                            'best_metric_value': best_metric_value,
+                            'config': OmegaConf.to_container(cfg, resolve=True)
+                        }
                     )
                 # Explicitly save if it's the best, even if not interval/last
                 elif is_best:
                     filename = fname_pattern.format(epoch=epoch + 1)
                     save_checkpoint(
-                        state=state,
-                        is_best=True,
+                        model=model,
+                        optimizer=optimizer,
+                        epoch=epoch,
                         checkpoint_dir=checkpoint_dir,
                         filename=filename,
-                        best_filename=best_filename
+                        additional_data={
+                            'scheduler_state_dict': (
+                                scheduler.state_dict() if scheduler else None
+                            ),
+                            'best_metric_value': best_metric_value,
+                            'config': OmegaConf.to_container(cfg, resolve=True)
+                        }
                     )
 
             except Exception as e:
@@ -473,6 +517,18 @@ Loss: {batch_loss.item():.4f}")
                 for batch_idx, batch in enumerate(test_loader):
                     inputs, targets = batch['image'].to(device), batch[
                         'mask'].to(device)
+
+                    # Ensure inputs tensor has the correct shape (B, C, H, W)
+                    # If channels are last (B, H, W, C)
+                    if inputs.shape[-1] == 3:
+                        # Change to (B, C, H, W)
+                        inputs = inputs.permute(0, 3, 1, 2)
+
+                    # Ensure targets tensor has a channel dimension
+                    # If (B, H, W) without channel dimension
+                    if len(targets.shape) == 3:
+                        # Add channel dimension -> (B, 1, H, W)
+                        targets = targets.unsqueeze(1)
 
                     # Forward pass
                     if use_amp:
