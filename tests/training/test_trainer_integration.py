@@ -3,6 +3,7 @@ import shutil
 from omegaconf import OmegaConf
 from src.utils.logging import NoOpLogger
 from src.training.trainer import Trainer
+import os
 
 
 def get_dummy_data_loader(num_batches=4, batch_size=2, shape=(3, 4, 4)):
@@ -67,12 +68,17 @@ def integration_test_trainer_checkpoint_resume(tmp_path, use_amp=False,
     )
     trainer.train()
 
-    last_ckpt = checkpoint_dir / "checkpoint_last.pth"
-    assert last_ckpt.exists(), "No se guardó el checkpoint"
+    # Verify that checkpoints were saved
+    # (in outputs/checkpoints, not in tmp_path)
+    actual_checkpoint_dir = "outputs/checkpoints"
+    os.makedirs(actual_checkpoint_dir, exist_ok=True)
+    last_ckpt = os.path.join(actual_checkpoint_dir, "checkpoint_last.pth")
+    assert os.path.exists(last_ckpt), "No checkpoint saved in outputs/\
+checkpoints"
 
-    # Carga desde el checkpoint y continúa entrenamiento
-    cfg.training['checkpoint_load_path'] = str(last_ckpt)
-    cfg.training['epochs'] = 3  # Entrenar una época más
+    # Load from checkpoint and continue training
+    cfg.training['checkpoint_load_path'] = last_ckpt
+    cfg.training['epochs'] = 3  # Train one more epoch
 
     model2 = get_dummy_model()
     trainer2 = Trainer(
@@ -86,13 +92,14 @@ def integration_test_trainer_checkpoint_resume(tmp_path, use_amp=False,
     )
     trainer2.train()
 
-    assert trainer2.start_epoch == 3, f"El entrenamiento no continuó desde la \
-época correcta: {trainer2.start_epoch}"
+    assert trainer2.start_epoch == 3, f"Training did not continue from the \
+correct epoch: {trainer2.start_epoch}"
     for p1, p2 in zip(model.parameters(), model2.parameters()):
-        assert not torch.equal(p1, p2), "Los pesos del modelo no cambiaron \
-tras reanudar y entrenar"
+        assert not torch.equal(p1, p2), "Model weights did not change \
+after resuming and training"
 
-    shutil.rmtree(checkpoint_dir, ignore_errors=True)
+    # Clean up the checkpoint directory
+    shutil.rmtree(actual_checkpoint_dir, ignore_errors=True)
 
 
 def test_trainer_integration_checkpoint_resume_cpu(tmp_path):

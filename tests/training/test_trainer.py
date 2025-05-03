@@ -8,6 +8,7 @@ from unittest.mock import MagicMock, patch
 # Assuming the necessary modules exist in these paths
 from src.training.trainer import Trainer
 from src.utils.logging import NoOpLogger  # Use NoOpLogger for testing
+from src.training.batch_processing import train_step, val_step
 
 
 # --- Mocks and Fixtures ---
@@ -81,7 +82,7 @@ def mock_logger_instance():
 
 @pytest.fixture
 def dummy_batch():
-    """Devuelve un batch dummy de imágenes y máscaras."""
+    """Returns a dummy batch of images and masks."""
     images = torch.randn(2, 3, 4, 4)
     masks = torch.randn(2, 1, 4, 4)
     return (images, masks)
@@ -89,7 +90,7 @@ def dummy_batch():
 
 @pytest.fixture
 def dummy_data_loader():
-    # Devuelve un DataLoader con 2 batches de datos dummy
+    # Returns a DataLoader with 2 batches of dummy data
     class DummyDataset(torch.utils.data.Dataset):
         def __len__(self): return 4
 
@@ -177,7 +178,7 @@ def test_trainer_initialization(
 @patch('src.training.trainer.get_device', return_value=torch.device('cpu'))
 @patch('src.training.trainer.create_lr_scheduler')
 @patch('src.training.trainer.create_optimizer')
-@patch('src.training.trainer.save_checkpoint')
+@patch('src.training.trainer.handle_epoch_checkpointing')
 @patch('src.training.trainer.Trainer._step_scheduler')
 @patch(
     'src.training.trainer.Trainer.validate',
@@ -185,7 +186,7 @@ def test_trainer_initialization(
 )
 @patch('src.training.trainer.Trainer._train_epoch', return_value=0.5)
 def test_trainer_train_loop(
-    mock_save_checkpoint,
+    mock_handle_checkpoint,
     mock_train_epoch,
     mock_validate,
     mock_step_scheduler,
@@ -207,6 +208,9 @@ def test_trainer_train_loop(
     mock_scheduler_instance = MagicMock()
     mock_create_trainer_scheduler.return_value = mock_scheduler_instance
 
+    # El helper debe devolver un valor float simulado
+    mock_handle_checkpoint.return_value = float('inf')
+
     # Modify config slightly for this test
     test_cfg = base_trainer_cfg.copy()
     test_cfg.training.epochs = 3  # Test with 3 epochs
@@ -215,8 +219,7 @@ def test_trainer_train_loop(
         "step_size": 1
     })
 
-    # Instantiate Trainer
-    # (it will internally try to call the patched factories)
+    # Instanciar Trainer
     trainer = Trainer(
         model=mock_model,
         train_loader=mock_dataloader,
@@ -227,15 +230,10 @@ def test_trainer_train_loop(
         logger_instance=mock_logger_instance
     )
 
-    # Remove manual setting, rely on patched factories during init
-    # trainer.optimizer = mock_optimizer
-    # trainer.scheduler = mock_scheduler_instance
-
-    # --- Execute the train method ---
+    # --- Ejecutar el método train ---
     final_results = trainer.train()
 
     # --- Assertions ---
-    # Check factories were called during init
     mock_create_trainer_optimizer.assert_called_once()
     mock_create_trainer_scheduler.assert_called_once()
 
@@ -247,17 +245,14 @@ def test_trainer_train_loop(
 
     assert final_results == {"loss": 0.4, "iou": 0.8}
 
-    # Loop assertions
     for i in range(1, test_cfg.training.epochs + 1):
         mock_train_epoch.assert_any_call(i)
-        # mock_validate.assert_any_call(i) # Arg check complex
 
-    # Instead of checking args in loop, check total count after loop
     if trainer.scheduler:
         assert mock_step_scheduler.call_count == test_cfg.training.epochs
 
-    # Assert save_checkpoint was called (e.g., once per epoch)
-    assert mock_save_checkpoint.call_count == test_cfg.training.epochs
+    # Verificar que el helper de checkpointing se llama una vez por época
+    assert mock_handle_checkpoint.call_count == test_cfg.training.epochs
 
 
 @patch('src.training.trainer.get_device', return_value=torch.device('cpu'))
@@ -308,16 +303,20 @@ def test_train_step_computes_loss_and_backward(
     trainer.scaler = mock_scaler  # Forzar el mock
 
     # Ejecutar _train_step
-    loss_value = trainer._train_step(dummy_batch)
+    result = train_step(
+        model=mock_model,
+        batch=dummy_batch,
+        loss_fn=mock_loss_fn,
+        optimizer=mock_optimizer,
+        device=mock_get_device(),
+        metrics_dict=mock_metrics_dict
+    )
 
     # Verificaciones
     mock_model.assert_called_once()  # Se llama el forward
     mock_loss_fn.assert_called_once()  # Se calcula el loss
-    mock_scaler.scale.assert_called_once()  # Se escala el loss
-    mock_scaled_loss.backward.assert_called_once()  # Se hace backward
-
-    # El valor devuelto debe ser el loss * grad_accum_steps
-    assert loss_value == pytest.approx(0.8)
+    # El valor devuelto debe ser el loss
+    assert result["loss"].item() == pytest.approx(0.8)
 
 
 @pytest.mark.cuda
@@ -365,13 +364,19 @@ def test_train_step_amp_cuda(
     trainer.scaler = mock_scaler
 
     # Ejecutar _train_step
-    loss_value = trainer._train_step(dummy_batch)
+    result = train_step(
+        model=mock_model,
+        batch=dummy_batch,
+        loss_fn=mock_loss_fn,
+        optimizer=mock_optimizer,
+        device=mock_get_device(),
+        metrics_dict=mock_metrics_dict
+    )
 
     mock_model.assert_called_once()
     mock_loss_fn.assert_called_once()
-    mock_scaler.scale.assert_called_once()
-    mock_scaled_loss.backward.assert_called_once()
-    assert loss_value == pytest.approx(0.5)
+    # El valor devuelto debe ser el loss
+    assert result["loss"].item() == pytest.approx(0.5)
 
 
 @patch('src.training.trainer.get_device', return_value=torch.device('cpu'))
@@ -413,7 +418,14 @@ def test_train_step_raises_on_forward_error(
     trainer.scaler = mock_scaler
 
     with pytest.raises(RuntimeError, match="Forward error"):
-        trainer._train_step(dummy_batch)
+        train_step(
+            model=mock_model,
+            batch=dummy_batch,
+            loss_fn=mock_loss_fn,
+            optimizer=mock_optimizer,
+            device=mock_get_device(),
+            metrics_dict=mock_metrics_dict
+        )
 
 
 def test_epoch_level_logging(dummy_data_loader, dummy_loss,
@@ -426,7 +438,7 @@ def test_epoch_level_logging(dummy_data_loader, dummy_loss,
             'epochs': 2,
             'device': 'cpu',
             'use_amp': False,
-            'grad_accum_steps': 1,
+            'gradient_accumulation_steps': 1,
             'checkpoint_dir': str(checkpoint_dir),
             'optimizer': {'_target_': 'torch.optim.SGD', 'lr': 0.01},
             'lr_scheduler': {'_target_': 'torch.optim.lr_scheduler.StepLR',
@@ -469,7 +481,7 @@ def test_batch_level_logging(dummy_data_loader, dummy_loss,
             'epochs': num_epochs,
             'device': 'cpu',
             'use_amp': False,
-            'grad_accum_steps': 1,
+            'gradient_accumulation_steps': 1,
             'checkpoint_dir': str(checkpoint_dir),
             'optimizer': {'_target_': 'torch.optim.SGD', 'lr': 0.01},
             'lr_scheduler': None,
@@ -499,3 +511,309 @@ def test_batch_level_logging(dummy_data_loader, dummy_loss,
     trainer.train()
     # Verifica que logger.log_scalar fue llamado al menos una vez
     assert logger.log_scalar.call_count > 0
+
+
+def test_val_step_returns_metrics(
+    mock_model, mock_loss_fn, mock_metrics_dict,
+    base_trainer_cfg, mock_logger_instance, dummy_batch
+):
+    # No se necesita instanciar Trainer para testear val_step directamente
+    metrics = val_step(
+        model=mock_model,
+        batch=dummy_batch,
+        loss_fn=mock_loss_fn,
+        device=torch.device('cpu'),
+        metrics_dict=mock_metrics_dict
+    )
+    assert isinstance(metrics, dict)
+    assert "loss" in metrics
+    assert "iou" in metrics
+    assert "f1" in metrics
+    assert all(isinstance(float(v), float) for v in metrics.values())
+
+
+def test_validate_aggregates_metrics(
+    mock_model, mock_loss_fn, mock_metrics_dict, base_trainer_cfg,
+    mock_logger_instance, mock_dataloader
+):
+    """Test that validate correctly averages and returns metrics with val_
+    prefix."""
+    trainer = Trainer(
+        model=mock_model,
+        train_loader=None,
+        val_loader=mock_dataloader,
+        loss_fn=mock_loss_fn,
+        metrics_dict=mock_metrics_dict,
+        cfg=base_trainer_cfg,
+        logger_instance=mock_logger_instance
+    )
+    val_metrics = trainer.validate(epoch=1)
+    assert isinstance(val_metrics, dict)
+    assert "val_loss" in val_metrics
+    assert "val_iou" in val_metrics
+    assert "val_f1" in val_metrics
+    assert all(isinstance(v, float) for v in val_metrics.values())
+
+
+def test_step_scheduler_reduce_on_plateau(monkeypatch):
+    import torch
+    from unittest.mock import MagicMock
+    # Mock scheduler and optimizer
+    scheduler = MagicMock(spec=torch.optim.lr_scheduler.ReduceLROnPlateau)
+    optimizer = MagicMock()
+    optimizer.param_groups = [{'lr': 0.01}]
+    logger = MagicMock()
+    # Case: metric present
+    metrics = {'val_loss': 0.5}
+    from src.utils.scheduler_helper import step_scheduler_helper
+    lr = step_scheduler_helper(
+        scheduler=scheduler,
+        optimizer=optimizer,
+        monitor_metric='val_loss',
+        metrics=metrics,
+        logger=logger
+    )
+    scheduler.step.assert_called_once_with(0.5)
+    logger.info.assert_called()
+    assert lr == 0.01
+    # Case: metric missing
+    scheduler.reset_mock()
+    logger.reset_mock()
+    lr = step_scheduler_helper(
+        scheduler=scheduler,
+        optimizer=optimizer,
+        monitor_metric='val_loss',
+        metrics={},
+        logger=logger
+    )
+    scheduler.step.assert_not_called()
+    logger.warning.assert_called()
+    assert lr == 0.01
+
+
+def test_step_scheduler_other_scheduler():
+    from unittest.mock import MagicMock
+    scheduler = MagicMock()
+    optimizer = MagicMock()
+    optimizer.param_groups = [{'lr': 0.02}]
+    logger = MagicMock()
+    from src.utils.scheduler_helper import step_scheduler_helper
+    lr = step_scheduler_helper(
+        scheduler=scheduler,
+        optimizer=optimizer,
+        monitor_metric='val_loss',
+        metrics={'val_loss': 0.1},
+        logger=logger
+    )
+    scheduler.step.assert_called_once()
+    logger.info.assert_called()
+    assert lr == 0.02
+
+
+def test_trainer_early_stopping(
+    monkeypatch, mock_model, mock_dataloader, mock_loss_fn,
+    mock_metrics_dict, base_trainer_cfg, mock_logger_instance
+):
+    """Test that Trainer stops training when early_stopper.step returns True.
+    """
+    # Minimal config
+    test_cfg = base_trainer_cfg.copy()
+    test_cfg.training.epochs = 5
+
+    # Mock EarlyStopping
+    class DummyEarlyStopping:
+        def __init__(self):
+            self.monitor_metric = 'val_loss'
+            self.calls = 0
+
+        def step(self, value):
+            self.calls += 1
+            # Stop on third call
+            return self.calls == 3
+
+    early_stopper = DummyEarlyStopping()
+
+    # Mock validate to always return the same value
+    def fake_validate(self, epoch):
+        return {'val_loss': 0.5}
+
+    monkeypatch.setattr(
+        'src.training.trainer.Trainer.validate',
+        fake_validate
+    )
+    # Instantiate Trainer with early_stopper
+    trainer = Trainer(
+        model=mock_model,
+        train_loader=mock_dataloader,
+        val_loader=mock_dataloader,
+        loss_fn=mock_loss_fn,
+        metrics_dict=mock_metrics_dict,
+        cfg=test_cfg,
+        logger_instance=mock_logger_instance,
+        early_stopper=early_stopper
+    )
+    # Force use of the mock early_stopper
+    trainer.early_stopper = early_stopper
+    trainer._train_epoch = lambda epoch: 0.0  # Mock to do nothing
+    with patch(
+        'src.training.trainer.handle_epoch_checkpointing',
+        return_value=float('inf')
+    ):
+        trainer.train()
+    # Should have called step 3 times and exited before completing all epochs
+    assert early_stopper.calls == 3
+
+
+def test_format_metrics():
+    from src.utils.training_logging import format_metrics
+    metrics = {"loss": 0.1234, "iou": 0.5678}
+    formatted = format_metrics(metrics)
+    assert "Loss: 0.1234" in formatted
+    assert "Iou: 0.5678" in formatted
+    assert "|" in formatted
+
+
+def test_log_validation_results(caplog):
+    from src.utils.training_logging import log_validation_results
+
+    class DummyLogger:
+        def __init__(self):
+            self.last_msg = None
+
+        def info(self, msg):
+            self.last_msg = msg
+
+    logger = DummyLogger()
+    metrics = {"val_loss": 0.1, "val_iou": 0.9}
+    log_validation_results(logger, 5, metrics)
+    assert logger.last_msg.startswith("Epoch 5 | Validation Results | ")
+    assert "Val_loss: 0.1000" in logger.last_msg
+    assert "Val_iou: 0.9000" in logger.last_msg
+
+
+def test_amp_autocast_context_manager():
+    from src.utils.amp_utils import amp_autocast
+    import torch
+    with amp_autocast(False):
+        x = torch.tensor([1.0], requires_grad=True)
+        y = x * 2
+        assert y.item() == 2.0
+    # No error should occur
+    with amp_autocast(True):
+        x = torch.tensor([1.0], requires_grad=True)
+        y = x * 2
+        assert y.item() == 2.0
+
+
+def test_optimizer_step_with_accumulation_no_amp():
+    from src.utils.amp_utils import optimizer_step_with_accumulation
+    import torch
+    from unittest.mock import MagicMock
+    optimizer = MagicMock()
+    scaler = None
+    loss = torch.tensor(1.0, requires_grad=True)
+    grad_accum_steps = 2
+    # batch_idx = 0: no step
+    optimizer_step_with_accumulation(
+        optimizer=optimizer,
+        scaler=scaler,
+        loss=loss,
+        grad_accum_steps=grad_accum_steps,
+        batch_idx=0,
+        use_amp=False
+    )
+    optimizer.step.assert_not_called()
+    # batch_idx = 1: step
+    optimizer_step_with_accumulation(
+        optimizer=optimizer,
+        scaler=scaler,
+        loss=loss,
+        grad_accum_steps=grad_accum_steps,
+        batch_idx=1,
+        use_amp=False
+    )
+    optimizer.step.assert_called_once()
+    optimizer.zero_grad.assert_called()
+
+
+def test_optimizer_step_with_accumulation_amp():
+    from src.utils.amp_utils import optimizer_step_with_accumulation
+    import torch
+    from unittest.mock import MagicMock
+    optimizer = MagicMock()
+    scaler = MagicMock()
+    loss = torch.tensor(1.0, requires_grad=True)
+    grad_accum_steps = 2
+    # batch_idx = 0: no step
+    optimizer_step_with_accumulation(
+        optimizer=optimizer,
+        scaler=scaler,
+        loss=loss,
+        grad_accum_steps=grad_accum_steps,
+        batch_idx=0,
+        use_amp=True
+    )
+    scaler.scale.assert_called_with(loss / grad_accum_steps)
+    scaler.step.assert_not_called()
+    # batch_idx = 1: step
+    optimizer_step_with_accumulation(
+        optimizer=optimizer,
+        scaler=scaler,
+        loss=loss,
+        grad_accum_steps=grad_accum_steps,
+        batch_idx=1,
+        use_amp=True
+    )
+    scaler.step.assert_called_once_with(optimizer)
+    scaler.update.assert_called()
+    optimizer.zero_grad.assert_called()
+
+
+def test_validate_trainer_config_valid():
+    from src.training.config_validation import validate_trainer_config
+
+    class DummyCfg:
+        epochs = 5
+        device = "cpu"
+        optimizer = {"_target_": "torch.optim.Adam", "lr": 0.001}
+        gradient_accumulation_steps = 1
+    # No debe lanzar excepción
+    validate_trainer_config(DummyCfg())
+
+
+def test_validate_trainer_config_missing_field():
+    from src.training.config_validation import validate_trainer_config
+
+    class DummyCfg:
+        device = "cpu"
+        optimizer = {"_target_": "torch.optim.Adam", "lr": 0.001}
+        gradient_accumulation_steps = 1
+    import pytest
+    with pytest.raises(ValueError):
+        validate_trainer_config(DummyCfg())
+
+
+def test_validate_trainer_config_invalid_type():
+    from src.training.config_validation import validate_trainer_config
+
+    class DummyCfg:
+        epochs = "five"
+        device = "cpu"
+        optimizer = {"_target_": "torch.optim.Adam", "lr": 0.001}
+        gradient_accumulation_steps = 1
+    import pytest
+    with pytest.raises(TypeError):
+        validate_trainer_config(DummyCfg())
+
+
+def test_validate_trainer_config_invalid_optimizer():
+    from src.training.config_validation import validate_trainer_config
+
+    class DummyCfg:
+        epochs = 5
+        device = "cpu"
+        optimizer = {"lr": 0.001}  # Falta _target_
+        gradient_accumulation_steps = 1
+    import pytest
+    with pytest.raises(ValueError):
+        validate_trainer_config(DummyCfg())

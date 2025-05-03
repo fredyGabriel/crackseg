@@ -297,6 +297,9 @@ dependencies:
       - torchaudio==2.5.1
       - torchvision==0.20.1
       - python-dotenv
+  - pytest-cov=4.1.0
+  - graphviz
+  - python-graphviz
 prefix: C:\Users\fgrv\miniconda3\envs\torch
 
 variables:
