@@ -31,6 +31,7 @@ tasks/
 
 # Python
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *.so
 *.egg
@@ -38,6 +39,8 @@ __pycache__/
 dist/
 build/
 .eggs/
+*.pyc
+**/*.pyc
 
 # Jupyter
 .ipynb_checkpoints
