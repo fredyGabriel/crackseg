@@ -225,3 +225,43 @@ def load_checkpoint(
         if k not in ['model_state_dict', 'optimizer_state_dict']
     }
     return checkpoint_data
+
+
+def load_checkpoint_dict(
+    checkpoint_path: Union[str, Path],
+    device: Optional[torch.device] = None
+) -> Dict[str, Any]:
+    """Load a checkpoint dictionary from file without loading weights into a
+    model.
+
+    Args:
+        checkpoint_path: Path to the checkpoint file
+        device: Optional device for map_location
+
+    Returns:
+        The loaded checkpoint dictionary
+    """
+    checkpoint_path = Path(checkpoint_path)
+    if not checkpoint_path.exists():
+        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
+
+    map_location = device if device is not None else torch.device('cpu')
+    try:
+        checkpoint = torch.load(
+            checkpoint_path,
+            map_location=map_location,
+            weights_only=False
+        )
+        logger.info(
+            "Loaded checkpoint dict from %s to %s",
+            str(checkpoint_path),
+            str(map_location)
+        )
+        return checkpoint
+    except Exception as e:
+        logger.error(
+            "Failed to load checkpoint dict from %s: %s",
+            str(checkpoint_path),
+            str(e)
+        )
+        raise
