@@ -5,6 +5,8 @@ import torch.nn as nn
 from omegaconf import OmegaConf
 from torch.utils.data import Dataset, DataLoader
 from unittest.mock import MagicMock
+import os
+import tempfile
 
 from src.training.losses import BCEDiceLoss
 from src.training.metrics import IoUScore, F1Score
@@ -39,7 +41,7 @@ class SyntheticCrackDataset(Dataset):
         """Get a random image and mask pair.
 
         Returns:
-            tuple: (image, mask) tensors with correct types for training.
+            dict: {'image': tensor, 'mask': tensor} for training.
         """
         # Generate random image and mask
         image = torch.randn(1, self.image_size, self.image_size)
@@ -47,7 +49,7 @@ class SyntheticCrackDataset(Dataset):
             0, 2, (1, self.image_size, self.image_size),
             dtype=torch.float32
         )
-        return image, mask
+        return {'image': image, 'mask': mask}
 
 
 def test_training_loop():
@@ -73,7 +75,7 @@ def test_training_loop():
 
     # Create trainer config
     trainer_cfg = OmegaConf.create({
-        'trainer': {
+        'training': {
             'epochs': 2,
             'device': 'cpu',
             'use_amp': False,
@@ -83,12 +85,18 @@ def test_training_loop():
                 '_target_': 'torch.optim.Adam',
                 'lr': 0.001
             },
-            'lr_scheduler': None
+            'lr_scheduler': None,
+            'scheduler': None
         }
     })
 
     # Create trainer
     logger_mock = MagicMock()
+    checkpoint_dir = os.path.join(tempfile.gettempdir(), "checkpoints_test")
+    os.makedirs(checkpoint_dir, exist_ok=True)
+    exp_manager = MagicMock()
+    exp_manager.get_path.return_value = checkpoint_dir
+    logger_mock.experiment_manager = exp_manager
     trainer = Trainer(
         model=model,
         train_loader=train_loader,
@@ -105,6 +113,6 @@ def test_training_loop():
     # Basic assertions
     assert isinstance(results, dict), \
         "Training should return a dict of metrics"
-    assert 'loss' in results, "Results should include loss"
-    assert 'IoU' in results, "Results should include IoU score"
-    assert 'F1' in results, "Results should include F1 score"
+    assert 'val_loss' in results, "Results should include validation loss"
+    assert 'val_IoU' in results, "Results should include validation IoU score"
+    assert 'val_F1' in results, "Results should include validation F1 score"

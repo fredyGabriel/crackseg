@@ -36,7 +36,7 @@ def create_loss_fn(cfg: DictConfig) -> Module:
 
 
 def create_optimizer(
-    model_params, 
+    model_params,
     cfg: Union[DictConfig, str, dict]
 ) -> Optimizer:
     """Creates an optimizer based on the provided configuration.
@@ -54,7 +54,7 @@ def create_optimizer(
     if isinstance(cfg, str):
         # Handle string case - map to common optimizers with default params
         optimizer_name = cfg.lower()
-        
+
         if optimizer_name == 'adam':
             return Adam(model_params, lr=0.001)
         elif optimizer_name == 'sgd':
@@ -68,12 +68,12 @@ def create_optimizer(
                 f"Unsupported optimizer name: {optimizer_name}. "
                 "Supported names: adam, sgd, adamw, rmsprop"
             )
-    
+
     elif isinstance(cfg, dict) and not hasattr(cfg, 'get'):
         # Handle plain dictionary case
         if 'type' in cfg:
             optimizer_type = cfg.pop('type').lower()
-            
+
             if optimizer_type == 'adam':
                 return Adam(model_params, **cfg)
             elif optimizer_type == 'sgd':
@@ -83,9 +83,11 @@ def create_optimizer(
             elif optimizer_type == 'rmsprop':
                 return RMSprop(model_params, **cfg)
             else:
-                raise ValueError(f"Unsupported optimizer type: {optimizer_type}")
+                raise ValueError(f"Unsupported optimizer type: \
+{optimizer_type}")
         else:
-            raise ValueError("Dictionary optimizer config must contain 'type' key")
+            raise ValueError("Dictionary optimizer config must contain 'type' \
+key")
 
     # Handle DictConfig case with _target_ attribute
     elif hasattr(cfg, 'get') and cfg.get('_target_'):
@@ -96,7 +98,7 @@ def create_optimizer(
             # If instantiation fails and we're in a test (mock is set up),
             # the exception will be caught by the test framework
             raise
-    
+
     else:
         raise ValueError(
             f"Invalid optimizer configuration: {cfg}. "
@@ -105,7 +107,7 @@ def create_optimizer(
 
 
 def create_lr_scheduler(
-    optimizer: Optimizer, 
+    optimizer: Optimizer,
     cfg: Union[DictConfig, str, dict, None]
 ) -> Optional[_LRScheduler]:
     """Creates a learning rate scheduler based on the provided configuration.
@@ -124,15 +126,16 @@ def create_lr_scheduler(
     """
     if cfg is None:
         return None  # No scheduler configured
-    
+
     if isinstance(cfg, str):
         # Handle string case - map to common schedulers with default params
         scheduler_name = cfg.lower()
-        
+
         if scheduler_name == 'step_lr':
             return StepLR(optimizer, step_size=10, gamma=0.1)
         elif scheduler_name == 'reduce_lr_on_plateau':
-            return ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10)
+            return ReduceLROnPlateau(optimizer, mode='min', factor=0.1,
+                                     patience=10)
         elif scheduler_name == 'none' or scheduler_name == '':
             return None
         else:
@@ -140,12 +143,12 @@ def create_lr_scheduler(
                 f"Unsupported scheduler name: {scheduler_name}. "
                 "Supported names: step_lr, reduce_lr_on_plateau, none"
             )
-    
+
     elif isinstance(cfg, dict) and not hasattr(cfg, 'get'):
         # Handle plain dictionary case
         if 'type' in cfg:
             scheduler_type = cfg.pop('type').lower()
-            
+
             if scheduler_type == 'step_lr':
                 return StepLR(optimizer, **cfg)
             elif scheduler_type == 'reduce_lr_on_plateau':
@@ -153,9 +156,11 @@ def create_lr_scheduler(
             elif scheduler_type == 'none':
                 return None
             else:
-                raise ValueError(f"Unsupported scheduler type: {scheduler_type}")
+                raise ValueError(f"Unsupported scheduler type: \
+{scheduler_type}")
         else:
-            raise ValueError("Dictionary scheduler config must contain 'type' key")
+            raise ValueError("Dictionary scheduler config must contain 'type' \
+key")
 
     # Handle DictConfig case with _target_ attribute
     elif hasattr(cfg, 'get') and cfg.get('_target_'):
@@ -166,9 +171,10 @@ def create_lr_scheduler(
             # If instantiation fails and we're in a test (mock is set up),
             # the exception will be caught by the test framework
             raise
-    
+
     else:
         raise ValueError(
             f"Invalid scheduler configuration: {cfg}. "
-            "Must be string, DictConfig with _target_, or dict with type, or None"
+            "Must be string, DictConfig with _target_, or dict with type, or"
+            "None"
         )
