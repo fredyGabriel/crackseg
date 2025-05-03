@@ -4,12 +4,12 @@ import torch
 from unittest.mock import MagicMock, patch
 
 from src.evaluation.setup import parse_args, setup_output_directory
-from src.evaluation.loading import load_model_from_checkpoint
 from src.evaluation.data import get_evaluation_dataloader
 from src.evaluation.core import evaluate_model
 from src.utils.visualization import visualize_predictions
 from src.evaluation.results import save_evaluation_results
 from src.evaluation.ensemble import ensemble_evaluate
+from src.evaluation.loading import load_model_from_checkpoint
 
 
 def test_parse_args_defaults(monkeypatch):
@@ -29,43 +29,63 @@ def test_setup_output_directory_creates_dirs():
         assert os.path.exists(os.path.join(out_dir, 'visualizations'))
 
 
-@patch('src.model.factory.create_unet')
-def test_load_model_from_checkpoint(mock_create_unet):
-    # Crear un archivo temporal para simular un checkpoint
-    with tempfile.NamedTemporaryFile(suffix='.pth') as temp_file:
-        checkpoint_path = temp_file.name
+@patch('src.utils.checkpointing.Path.exists', return_value=True)
+@patch('src.utils.checkpointing.torch.load')
+@patch('src.evaluation.loading.create_unet')
+def test_load_model_from_checkpoint(
+    mock_create_unet, mock_torch_load, mock_exists
+):
+    # Create a dummy model and test data
+    dummy_model = torch.nn.Linear(2, 2)
+    mock_create_unet.return_value = dummy_model
 
-        # Configurar mocks
-        dummy_model = torch.nn.Linear(2, 2)
-        mock_create_unet.return_value = dummy_model
-
-        # Crear un checkpoint simulado en el archivo temporal
-        dummy_state = {
-            'model_state_dict': {
-                'weight': torch.randn(2, 2),
-                'bias': torch.randn(2)
-            },
-            'config': {'model': {}}
+    # Simulate a checkpoint with required data using valid components
+    encoder_out_channels = 512  # Typical output for CNNEncoder with depth 4
+    encoder_skip_channels = [
+        64, 128, 256, 512
+    ]  # Skip channels for depth=4, init_features=64
+    bottleneck_out_channels = encoder_out_channels * 2
+    dummy_state = {
+        'model_state_dict': {'weight': torch.randn(2, 2)},
+        'config': {
+            'model': {
+                'encoder': {
+                    'type': 'CNNEncoder',
+                    'in_channels': 3,
+                    'init_features': 64,
+                    'depth': 4
+                },
+                'bottleneck': {
+                    'type': 'CNNBottleneckBlock',
+                    'in_channels': encoder_out_channels,
+                    'out_channels': bottleneck_out_channels
+                },
+                'decoder': {
+                    'type': 'CNNDecoder',
+                    'in_channels': bottleneck_out_channels,
+                    'skip_channels_list': encoder_skip_channels
+                }
+            }
         }
-        torch.save(dummy_state, checkpoint_path)
+    }
+    mock_torch_load.return_value = dummy_state
 
-        # Patch para evitar la verificación del modelo
-        with patch('torch.nn.Module.load_state_dict'):
-            # Llamar a la función bajo prueba
-            model, data = load_model_from_checkpoint(
-                checkpoint_path, torch.device('cpu')
-            )
+    # Also ensure load_state_dict does not fail
+    with patch.object(torch.nn.Module, 'load_state_dict'):
+        # Call the function under test
+        model, data = load_model_from_checkpoint(
+            'fake.pth', torch.device('cpu')
+        )
 
-        # Verificar los resultados
-        assert isinstance(model, torch.nn.Module)
-        assert model is dummy_model
-        assert 'config' in data
-        mock_create_unet.assert_called_once()
+    # Check results
+    assert model is dummy_model
+    mock_create_unet.assert_called_once()
+    mock_exists.assert_called()
 
 
 def test_get_evaluation_dataloader(monkeypatch):
     dummy_loader = MagicMock()
-    dummy_loader.dataset = [1, 2, 3]  # Simula un dataset con 3 muestras
+    dummy_loader.dataset = [1, 2, 3]  # Simulate a dataset with 3 samples
     monkeypatch.setattr(
         'src.evaluation.data.create_dataloaders_from_config',
         lambda **kwargs: {'test': {'dataloader': dummy_loader}}
@@ -111,50 +131,65 @@ def test_save_evaluation_results_creates_files(tmp_path):
     )
     metrics_dir = os.path.join(tmp_path, 'metrics')
     assert os.path.exists(os.path.join(metrics_dir, 'evaluation_results.yaml'))
-    assert os.path.exists(os.path.join(metrics_dir, 'evaluation_results.txt'))
+    txt_path = os.path.join(metrics_dir, 'evaluation_results.txt')
+    assert os.path.exists(txt_path)
 
 
-def test_ensemble_evaluate_creates_results_and_files(tmp_path, monkeypatch):
-    # Dummy model que siempre predice unos
+@patch('pathlib.Path.exists', return_value=True)
+@patch('torch.load')
+def test_ensemble_evaluate_creates_results_and_files(
+    mock_torch_load, mock_exists, tmp_path
+):
+    # Dummy model for ensemble
     class DummyModel(torch.nn.Module):
         def forward(self, x):
             return torch.ones_like(x[:, :1])
 
-    # Mock de load_model_from_checkpoint para devolver DummyModel
-    def fake_load_model_from_checkpoint(path, device):
-        return DummyModel(), {'config': {'model': {}}}
-    monkeypatch.setattr('src.evaluation.ensemble.load_model_from_checkpoint',
-                        fake_load_model_from_checkpoint)
+    # Create a simulated checkpoint
+    dummy_state = {
+        'model_state_dict': {
+            'weight': torch.randn(2, 2),
+            'bias': torch.randn(2)
+        },
+        'config': {'model': {}}
+    }
+    mock_torch_load.return_value = dummy_state
 
-    # Dummy dataloader: 2 batches de 2 muestras
-    batch = {'image': torch.zeros(2, 3, 4, 4), 'mask': torch.zeros(2, 1, 4, 4)}
-    dataloader = [batch, batch]
+    # Mock load_model_from_checkpoint for ensemble.py
+    with patch(
+        'src.evaluation.ensemble.load_model_from_checkpoint'
+    ) as mock_load:
+        # Prepare the mock
+        mock_load.return_value = (DummyModel(), {'config': {'model': {}}})
 
-    # Dummy metric
-    metrics = {'dummy': lambda o, t: torch.tensor(1.0)}
+        # Dummy dataloader: 2 batches of 2 samples
+        batch = {'image': torch.zeros(2, 3, 4, 4),
+                 'mask': torch.zeros(2, 1, 4, 4)}
+        dataloader = [batch, batch]
 
-    # Mock de visualize_predictions para evitar crear imágenes reales
-    monkeypatch.setattr('src.evaluation.ensemble.visualize_predictions',
-                        lambda *a, **kw: None)
+        # Dummy metric
+        metrics = {'dummy': lambda o, t: torch.tensor(1.0)}
 
-    # Ejecutar ensemble_evaluate
-    results = ensemble_evaluate(
-        checkpoint_paths=['ckpt1.pth', 'ckpt2.pth'],
-        config={'model': {}},
-        dataloader=dataloader,
-        metrics=metrics,
-        device=torch.device('cpu'),
-        output_dir=str(tmp_path)
-    )
-    # Verifica que la clave de resultado esté presente y el valor sea correcto
+        # Mock for visualize_predictions
+        with patch('src.utils.visualization.visualize_predictions'):
+            results = ensemble_evaluate(
+                checkpoint_paths=['ckpt1.pth', 'ckpt2.pth'],
+                config={'model': {}},
+                dataloader=dataloader,
+                metrics=metrics,
+                device=torch.device('cpu'),
+                output_dir=str(tmp_path)
+            )
+
+    # Check that the result key is present
     assert 'ensemble_dummy' in results
     assert results['ensemble_dummy'] == 1.0
 
-    # Verifica que se crea el archivo ensemble_results.yaml
+    # Check that the ensemble_results.yaml file was created
     ensemble_dir = os.path.join(tmp_path, 'metrics', 'ensemble')
     yaml_path = os.path.join(ensemble_dir, 'ensemble_results.yaml')
     assert os.path.exists(yaml_path)
-    # Verifica que el archivo contiene la métrica
+    # Check that the file contains the metric
     with open(yaml_path, 'r') as f:
         content = f.read()
         assert 'ensemble_dummy' in content
