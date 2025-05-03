@@ -2,7 +2,8 @@ import pytest
 import torch
 from torch.utils.data import Dataset
 from omegaconf import OmegaConf
-from src.data.factory import create_dataloader, create_dataloaders_from_config
+from src.data.dataloader import create_dataloader
+from src.data.factory import create_dataloaders_from_config
 
 
 class DummyDataset(Dataset):

@@ -1,4 +1,6 @@
 [
+  "tests/data/test_dataloader.py::test_create_dataloader_basic",
+  "tests/data/test_dataloader.py::test_create_dataloader_invalid_batch_size",
   "tests/data/test_dataset_pipeline.py::test_dataset_pipeline",
   "tests/data/test_factory.py::test_create_dataloaders_from_config_basic",
   "tests/data/test_factory.py::test_create_dataloaders_from_config_distributed",
@@ -41,6 +43,10 @@
   "tests/data/test_sampler.py::test_sampler_factory_subset",
   "tests/data/test_sampler.py::test_set_epoch_distributed_sampler",
   "tests/data/test_sampler.py::test_subset_sampler",
+  "tests/data/test_validation.py::test_validate_data_config_missing_key",
+  "tests/data/test_validation.py::test_validate_data_config_valid",
+  "tests/data/test_validation.py::test_validate_transform_config_missing_resize",
+  "tests/data/test_validation.py::test_validate_transform_config_valid",
   "tests/evaluation/test_evaluate.py::test_ensemble_evaluate_creates_results_and_files",
   "tests/evaluation/test_evaluate.py::test_evaluate_model_basic",
   "tests/evaluation/test_evaluate.py::test_get_evaluation_dataloader",

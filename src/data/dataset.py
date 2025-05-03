@@ -9,6 +9,8 @@ import PIL.Image
 import PIL.ImageOps
 from pathlib import Path
 import cv2
+from omegaconf import DictConfig, OmegaConf
+from src.data.validation import validate_data_config, validate_transform_config
 
 # Import the transform functions
 from .transforms import (
@@ -290,3 +292,65 @@ class CrackSegmentationDataset(Dataset):
         raise RuntimeError(
             "No valid image/mask pairs could be loaded/processed from dataset."
         )
+
+
+def create_crackseg_dataset(
+    data_cfg: DictConfig,
+    transform_cfg: DictConfig,
+    mode: str,
+    samples_list: list,
+    in_memory_cache: bool = False,
+    max_samples: Optional[int] = None
+) -> CrackSegmentationDataset:
+    """
+    Factory function to create a CrackSegmentationDataset from Hydra configs.
+
+    Args:
+        data_cfg (DictConfig): Data config (e.g. configs/data/default.yaml)
+        transform_cfg (DictConfig): Transform config
+            (e.g. configs/data/transform.yaml)
+        mode (str): 'train', 'val' or 'test'
+        samples_list (list): List of (image_path, mask_path) tuples
+        in_memory_cache (bool): Whether to cache images in RAM
+        max_samples (Optional[int]): Maximum number of samples for the dataset
+    Returns:
+        CrackSegmentationDataset: Configured dataset instance
+    """
+    # Mensaje de depuración mejorado
+    if max_samples is not None and max_samples > 0:
+        print(f"DEBUG - Creating dataset for '{mode}' with:")
+        print(f"  Total samples available: {len(samples_list)}")
+        print(f"  Max samples limit: {max_samples}")
+        print(
+            f"  Will apply limit: "
+            f"{min(max_samples, len(samples_list))} samples"
+        )
+    else:
+        print(
+            f"DEBUG - Creating dataset for '{mode}' with all "
+            f"{len(samples_list)} samples"
+        )
+
+    # Convert transform config to dict if needed
+    if isinstance(transform_cfg, DictConfig):
+        transform_cfg = OmegaConf.to_container(transform_cfg, resolve=True)
+    if isinstance(data_cfg, DictConfig):
+        data_cfg = OmegaConf.to_container(data_cfg, resolve=True)
+    # Validar ambos configs
+    validate_data_config(data_cfg)
+    validate_transform_config(transform_cfg)
+    seed = data_cfg.get('seed', 42)
+
+    # Crear el dataset
+    dataset = CrackSegmentationDataset(
+        mode=mode,
+        samples_list=samples_list,
+        seed=seed,
+        in_memory_cache=in_memory_cache,
+        config_transform=transform_cfg,
+        max_samples=max_samples
+    )
+
+    # Reporte final
+    print(f"Created dataset for '{mode}' with {len(dataset)} samples.")
+    return dataset
