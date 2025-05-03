@@ -22,6 +22,46 @@ python src/main.py
 
 For more details on configuration and advanced usage, see the documentation in the `docs/` folder (if available) or the comments in the configuration files.
 
+## Training Flow
+
+The training process is now fully modular and managed by the `Trainer` class. The main script (`src/main.py`) delegates all training logic to this class, ensuring a clean separation of concerns and easier maintenance.
+
+**Key features of the training flow:**
+- **Trainer-based orchestration:** All training, validation, and checkpointing logic is handled by `src/training/trainer.py`.
+- **Checkpointing:** The best and last model states are automatically saved during training. You can resume training from any checkpoint by setting the appropriate configuration in Hydra (`resume_from_checkpoint`).
+- **Early stopping:** Training can be stopped early based on validation metrics, as configured in the Hydra YAML files (`early_stopping` section).
+- **Hydra configuration:** All parameters (epochs, optimizer, scheduler, checkpointing, early stopping, etc.) are managed via YAML files in `configs/training/`.
+- **No duplicate logic:** All legacy training code has been removed from `main.py`.
+
+**To run training:**
+```bash
+python src/main.py
+```
+
+**To resume from a checkpoint:**
+- Edit your Hydra config (e.g., `configs/training/trainer.yaml`) and set the path in `training.checkpoints.resume_from_checkpoint`.
+
+**For more details:**
+- See `src/training/trainer.py` for the orchestration logic.
+- See `configs/training/trainer.yaml` for all configurable options.
+- See the `tests/training/` folder for integration and unit tests covering the training flow.
+
+## Evaluation Flow
+
+The final evaluation is no longer performed in `main.py`. To evaluate your trained model on the test set, use the dedicated evaluation script:
+
+```bash
+python src/evaluate.py
+```
+
+- This script loads the best or last checkpoint and computes metrics on the test set.
+- Configuration (paths, metrics, etc.) is managed via Hydra YAML files, just like training.
+- See `src/evaluate.py` and `configs/evaluation/` for details.
+
+**Why this change?**
+- This separation ensures a clean, modular workflow and avoids mixing training and evaluation logic in the same script.
+- It also makes it easier to run evaluation independently, automate experiments, and maintain the codebase.
+
 ## How to Contribute
 
 - Please read the guidelines in `CONTRIBUTING.md` before submitting a pull request.

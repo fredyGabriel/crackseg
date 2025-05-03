@@ -112,7 +112,6 @@ def main(cfg: DictConfig) -> None:
             )
             train_loader = dataloaders_dict.get('train', {}).get('dataloader')
             val_loader = dataloaders_dict.get('val', {}).get('dataloader')
-            test_loader = dataloaders_dict.get('test', {}).get('dataloader')
             if not train_loader or not val_loader:
                 log.error(
                     "Train or validation dataloader could not be created."
@@ -247,8 +246,6 @@ def main(cfg: DictConfig) -> None:
         monitor_metric = save_best_cfg.get("monitor_metric", None)
         monitor_mode = save_best_cfg.get("monitor_mode", "max")
         save_best_enabled = save_best_cfg.get("enabled", False)
-        best_filename = save_best_cfg.get("best_filename", "model_best.pth.tar"
-                                          )
 
         if save_best_enabled and not monitor_metric:
             msg = ("save_best enabled but monitor_metric not set. "
@@ -278,89 +275,10 @@ def main(cfg: DictConfig) -> None:
         trainer.train()
 
         # --- 7. Final Evaluation ---
-        if test_loader is not None:
-            log.info("Performing final evaluation on test set...")
-            best_model_path = os.path.join(checkpoint_dir, best_filename)
-            test_model = model  # Default to last model state
-            if save_best_enabled and os.path.exists(best_model_path):
-                log.info(f"Loading best model from: {best_model_path}")
-                load_checkpoint(
-                    model=test_model,
-                    checkpoint_path=best_model_path,
-                    device=device
-                )
-            else:
-                msg = (
-                    f"Best model checkpoint not found at '{best_model_path}' "
-                    "or save_best disabled. Evaluating with the last model "
-                    "state."
-                )
-                log.warning(msg)
-
-            # Perform test evaluation
-            test_model.eval()
-            test_results = {"test_loss": 0.0}
-            test_batches = 0
-
-            with torch.no_grad():
-                for batch_idx, batch in enumerate(test_loader):
-                    inputs, targets = batch['image'].to(device), batch[
-                        'mask'].to(device)
-
-                    # Ensure inputs tensor has the correct shape (B, C, H, W)
-                    # If channels are last (B, H, W, C)
-                    if inputs.shape[-1] == 3:
-                        # Change to (B, C, H, W)
-                        inputs = inputs.permute(0, 3, 1, 2)
-
-                    # Ensure targets tensor has a channel dimension
-                    # If (B, H, W) without channel dimension
-                    if len(targets.shape) == 3:
-                        # Add channel dimension -> (B, 1, H, W)
-                        targets = targets.unsqueeze(1)
-
-                    # Forward pass
-                    if use_amp:
-                        with torch.amp.autocast('cuda'):
-                            outputs = test_model(inputs)
-                            batch_loss = loss_fn(outputs, targets)
-                    else:
-                        outputs = test_model(inputs)
-                        batch_loss = loss_fn(outputs, targets)
-
-                    test_results["test_loss"] += batch_loss.item()
-                    test_batches += 1
-
-                    # Calculate metrics
-                    if metrics:
-                        for metric_name, metric_fn in metrics.items():
-                            if metric_name not in test_results:
-                                test_results[f"test_{metric_name}"] = 0.0
-                            test_results[f"test_{metric_name}"] += \
-                                metric_fn(outputs, targets).item()
-
-            # Calculate average test metrics
-            if test_batches > 0:
-                test_results["test_loss"] /= test_batches
-                for metric_name in metrics:
-                    if f"test_{metric_name}" in test_results:
-                        test_results[f"test_{metric_name}"] /= test_batches
-
-            # Log test metrics
-            if experiment_logger:
-                experiment_logger.log_scalar("test/loss",
-                                             test_results["test_loss"], -1)
-                for k, v in test_results.items():
-                    if k != "test_loss":
-                        experiment_logger.log_scalar(
-                            k.replace("test_", "test/"), v, -1)
-
-            log.info(f"Test Results: Loss: {test_results['test_loss']:.4f}")
-            for k, v in test_results.items():
-                if k != "test_loss":
-                    log.info(f"Test {k}: {v:.4f}")
-        else:
-            log.info("No test loader available, skipping final evaluation.")
+        log.info(
+            "Final evaluation removed from main.py. "
+            "Use evaluate.py for evaluation."
+        )
 
     except Exception as e:
         # Log and properly handle the error

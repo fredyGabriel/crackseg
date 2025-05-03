@@ -10,7 +10,7 @@ def get_dummy_data_loader(num_batches=4, batch_size=2, shape=(3, 4, 4)):
         def __len__(self): return num_batches * batch_size
 
         def __getitem__(self, idx):
-            return torch.randn(*shape), torch.randn(1, 4, 4)
+            return {'image': torch.randn(*shape), 'mask': torch.randn(1, 4, 4)}
     return torch.utils.data.DataLoader(DummyDataset(), batch_size=batch_size)
 
 
@@ -32,15 +32,18 @@ def integration_test_trainer_checkpoint_resume(tmp_path, use_amp=False,
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
     cfg = OmegaConf.create({
-        'trainer': {
+        'training': {
             'epochs': 2,
             'device': 'cpu',
             'use_amp': use_amp,
             'gradient_accumulation_steps': grad_accum_steps,
             'checkpoint_dir': str(checkpoint_dir),
             'optimizer': {'_target_': 'torch.optim.SGD', 'lr': 0.01},
-            'lr_scheduler': {'_target_': 'torch.optim.lr_scheduler.StepLR',
-                             'step_size': 1, 'gamma': 0.5},
+            'scheduler': {
+                '_target_': 'torch.optim.lr_scheduler.StepLR',
+                'step_size': 1,
+                'gamma': 0.5
+            },
             'verbose': False,
             'log_interval_batches': 0
         }
@@ -68,8 +71,8 @@ def integration_test_trainer_checkpoint_resume(tmp_path, use_amp=False,
     assert last_ckpt.exists(), "No se guardó el checkpoint"
 
     # Carga desde el checkpoint y continúa entrenamiento
-    cfg.trainer['checkpoint_load_path'] = str(last_ckpt)
-    cfg.trainer['epochs'] = 3  # Entrenar una época más
+    cfg.training['checkpoint_load_path'] = str(last_ckpt)
+    cfg.training['epochs'] = 3  # Entrenar una época más
 
     model2 = get_dummy_model()
     trainer2 = Trainer(

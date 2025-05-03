@@ -55,7 +55,7 @@ def mock_metrics_dict():
 def base_trainer_cfg():
     """Basic Hydra config for the trainer."""
     return OmegaConf.create({
-        "trainer": {
+        "training": {
             "epochs": 2,
             "device": "cpu",
             "use_amp": False,
@@ -66,6 +66,7 @@ def base_trainer_cfg():
                 "lr": 1e-3
             },
             "lr_scheduler": None,
+            "scheduler": None,
             # Add other necessary fields if init requires them
         }
         # Add other top-level keys if needed by mocks (e.g., logging)
@@ -93,7 +94,10 @@ def dummy_data_loader():
         def __len__(self): return 4
 
         def __getitem__(self, idx):
-            return torch.randn(3, 4, 4), torch.randn(1, 4, 4)
+            return {
+                'image': torch.randn(3, 4, 4),
+                'mask': torch.randn(1, 4, 4)
+            }
     return torch.utils.data.DataLoader(DummyDataset(), batch_size=2)
 
 
@@ -158,7 +162,7 @@ def test_trainer_initialization(
         # is None
         # Adjust assertion based on actual Trainer logic
         # (assuming it checks cfg)
-        if base_trainer_cfg.trainer.lr_scheduler:
+        if base_trainer_cfg.training.lr_scheduler:
             mock_create_trainer_scheduler.assert_called_once()
         else:
             mock_create_trainer_scheduler.assert_called_once()
@@ -205,8 +209,8 @@ def test_trainer_train_loop(
 
     # Modify config slightly for this test
     test_cfg = base_trainer_cfg.copy()
-    test_cfg.trainer.epochs = 3  # Test with 3 epochs
-    test_cfg.trainer.lr_scheduler = OmegaConf.create({
+    test_cfg.training.epochs = 3  # Test with 3 epochs
+    test_cfg.training.lr_scheduler = OmegaConf.create({
         "_target_": "torch.optim.lr_scheduler.StepLR",
         "step_size": 1
     })
@@ -235,25 +239,25 @@ def test_trainer_train_loop(
     mock_create_trainer_optimizer.assert_called_once()
     mock_create_trainer_scheduler.assert_called_once()
 
-    assert mock_train_epoch.call_count == test_cfg.trainer.epochs
-    assert mock_validate.call_count == test_cfg.trainer.epochs
+    assert mock_train_epoch.call_count == test_cfg.training.epochs
+    assert mock_validate.call_count == test_cfg.training.epochs
 
     if trainer.scheduler:
-        assert mock_step_scheduler.call_count == test_cfg.trainer.epochs
+        assert mock_step_scheduler.call_count == test_cfg.training.epochs
 
     assert final_results == {"loss": 0.4, "iou": 0.8}
 
     # Loop assertions
-    for i in range(1, test_cfg.trainer.epochs + 1):
+    for i in range(1, test_cfg.training.epochs + 1):
         mock_train_epoch.assert_any_call(i)
         # mock_validate.assert_any_call(i) # Arg check complex
 
     # Instead of checking args in loop, check total count after loop
     if trainer.scheduler:
-        assert mock_step_scheduler.call_count == test_cfg.trainer.epochs
+        assert mock_step_scheduler.call_count == test_cfg.training.epochs
 
     # Assert save_checkpoint was called (e.g., once per epoch)
-    assert mock_save_checkpoint.call_count == test_cfg.trainer.epochs
+    assert mock_save_checkpoint.call_count == test_cfg.training.epochs
 
 
 @patch('src.training.trainer.get_device', return_value=torch.device('cpu'))
@@ -272,7 +276,7 @@ def test_train_step_computes_loss_and_backward(
     dummy_batch
 ):
     # Configuración: grad_accum_steps = 2 para probar el escalado
-    base_trainer_cfg.trainer.gradient_accumulation_steps = 2
+    base_trainer_cfg.training.gradient_accumulation_steps = 2
 
     # Mock optimizer y scaler
     mock_optimizer = MagicMock(spec=torch.optim.Optimizer)
@@ -333,9 +337,9 @@ def test_train_step_amp_cuda(
     dummy_batch
 ):
     # Habilitar AMP y usar CUDA
-    base_trainer_cfg.trainer.use_amp = True
-    base_trainer_cfg.trainer.device = "cuda:0"
-    base_trainer_cfg.trainer.gradient_accumulation_steps = 1
+    base_trainer_cfg.training.use_amp = True
+    base_trainer_cfg.training.device = "cuda:0"
+    base_trainer_cfg.training.gradient_accumulation_steps = 1
 
     mock_optimizer = MagicMock(spec=torch.optim.Optimizer)
     mock_create_optimizer.return_value = mock_optimizer
@@ -385,7 +389,7 @@ def test_train_step_raises_on_forward_error(
     mock_logger_instance,
     dummy_batch
 ):
-    base_trainer_cfg.trainer.gradient_accumulation_steps = 1
+    base_trainer_cfg.training.gradient_accumulation_steps = 1
 
     mock_optimizer = MagicMock(spec=torch.optim.Optimizer)
     mock_create_optimizer.return_value = mock_optimizer
@@ -415,23 +419,27 @@ def test_train_step_raises_on_forward_error(
 # Remove patch for log_metrics_dict, check logger calls instead
 # @patch('src.utils.logging.base.log_metrics_dict')
 def test_epoch_level_logging(dummy_data_loader, dummy_loss,
-                             dummy_metrics):
+                             dummy_metrics, tmp_path):
     # Configuración mínima para usar StepLR
+    checkpoint_dir = tmp_path / "checkpoints"
+    checkpoint_dir.mkdir(parents=True, exist_ok=True)
     cfg = OmegaConf.create({
-        'trainer': {
+        'training': {
             'epochs': 2,
             'device': 'cpu',
             'use_amp': False,
             'grad_accum_steps': 1,
-            'checkpoint_dir': 'checkpoints',
+            'checkpoint_dir': str(checkpoint_dir),
             'optimizer': {'_target_': 'torch.optim.SGD', 'lr': 0.01},
             'lr_scheduler': {'_target_': 'torch.optim.lr_scheduler.StepLR',
                              'step_size': 1, 'gamma': 0.5},
+            'scheduler': None,
             'verbose': False
         }
     })
     model = torch.nn.Conv2d(3, 1, 1)
-    logger = MagicMock()
+    from src.utils.logging import NoOpLogger
+    logger = NoOpLogger()
     trainer = Trainer(
         model=model,
         train_loader=dummy_data_loader,
@@ -469,7 +477,7 @@ def test_batch_level_logging(dummy_data_loader, dummy_loss,
     num_batches_per_epoch = len(dummy_data_loader)
 
     cfg = OmegaConf.create({
-        'trainer': {
+        'training': {
             'epochs': num_epochs,
             'device': 'cpu',
             'use_amp': False,

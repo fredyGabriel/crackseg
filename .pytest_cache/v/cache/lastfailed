@@ -1,0 +1,3 @@
+{
+  "tests/training/test_trainer.py::test_epoch_level_logging": true
+}
