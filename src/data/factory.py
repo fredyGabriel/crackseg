@@ -2,6 +2,7 @@ import os
 import warnings
 import torch
 from torch.utils.data import DataLoader, Dataset
+from typing import Optional
 
 from .dataset import CrackSegmentationDataset
 from omegaconf import DictConfig, OmegaConf, ListConfig
@@ -110,7 +111,8 @@ def create_crackseg_dataset(
     transform_cfg: DictConfig,
     mode: str,
     samples_list: list,
-    in_memory_cache: bool = False
+    in_memory_cache: bool = False,
+    max_samples: Optional[int] = None
 ) -> CrackSegmentationDataset:
     """
     Factory function to create a CrackSegmentationDataset from Hydra configs.
@@ -122,9 +124,25 @@ def create_crackseg_dataset(
         mode (str): 'train', 'val' or 'test'
         samples_list (list): List of (image_path, mask_path) tuples
         in_memory_cache (bool): Whether to cache images in RAM
+        max_samples (Optional[int]): Maximum number of samples for the dataset
     Returns:
         CrackSegmentationDataset: Configured dataset instance
     """
+    # Mensaje de depuración mejorado
+    if max_samples is not None and max_samples > 0:
+        print(f"DEBUG - Creating dataset for '{mode}' with:")
+        print(f"  Total samples available: {len(samples_list)}")
+        print(f"  Max samples limit: {max_samples}")
+        print(
+            f"  Will apply limit: "
+            f"{min(max_samples, len(samples_list))} samples"
+        )
+    else:
+        print(
+            f"DEBUG - Creating dataset for '{mode}' with all "
+            f"{len(samples_list)} samples"
+        )
+
     # Convert transform config to dict if needed
     if isinstance(transform_cfg, DictConfig):
         transform_cfg = OmegaConf.to_container(transform_cfg, resolve=True)
@@ -134,13 +152,20 @@ def create_crackseg_dataset(
     validate_data_config(data_cfg)
     validate_transform_config(transform_cfg)
     seed = data_cfg.get('seed', 42)
-    return CrackSegmentationDataset(
+
+    # Crear el dataset
+    dataset = CrackSegmentationDataset(
         mode=mode,
         samples_list=samples_list,
         seed=seed,
         in_memory_cache=in_memory_cache,
-        config_transform=transform_cfg
+        config_transform=transform_cfg,
+        max_samples=max_samples
     )
+
+    # Reporte final
+    print(f"Created dataset for '{mode}' with {len(dataset)} samples.")
+    return dataset
 
 
 def create_dataloader(
@@ -372,6 +397,17 @@ def create_dataloaders_from_config(
         'test': data_cfg['test_split']
     }
 
+    # Leer límites de muestras desde la config del dataloader
+    max_train_samples = dl_cfg.get('max_train_samples', None)
+    max_val_samples = dl_cfg.get('max_val_samples', None)
+    max_test_samples = dl_cfg.get('max_test_samples', None)
+
+    # Print para depuración
+    print("DEBUG - Límites de muestras configurados:")
+    print(f"  max_train_samples: {max_train_samples}")
+    print(f"  max_val_samples: {max_val_samples}")
+    print(f"  max_test_samples: {max_test_samples}")
+
     # Obtener datasets para cada split
     try:
         split_datasets = create_split_datasets(
@@ -379,11 +415,12 @@ def create_dataloaders_from_config(
             transform_cfg=transform_cfg,
             seed=seed,
             cache_flag=in_memory_cache,
-            dataset_cls=dataset_class
+            dataset_cls=dataset_class,
+            max_train_samples=max_train_samples,
+            max_val_samples=max_val_samples,
+            max_test_samples=max_test_samples
         )
     except (FileNotFoundError, RuntimeError) as e:
-        # Si hay error en create_split_datasets, intentamos obtener samples
-        # manualmente y crear cada dataset individualmente
         from .splitting import get_all_samples
         all_samples = get_all_samples(data_root)
         if not all_samples:
@@ -401,24 +438,28 @@ def create_dataloaders_from_config(
 
         split_datasets = {}
         for split_name in ['train', 'val', 'test']:
-            # Obtener las muestras para este split
             split_indices_list = indices_map[split_name]
             split_samples = [all_samples[i] for i in split_indices_list]
-
-            # --- Select the specific transform config for this split ---
             if split_name not in transform_cfg:
-                raise ValueError(f"Transform config missing for split: \
-{split_name}")
+                raise ValueError(
+                    f"Transform config missing for split: {split_name}"
+                )
             split_transform_cfg = transform_cfg[split_name]
-            # ----------------------------------------------------------
-
-            # Crear dataset para este split
+            # Determinar el límite de muestras para este split
+            max_samples = None
+            if split_name == 'train':
+                max_samples = max_train_samples
+            elif split_name == 'val':
+                max_samples = max_val_samples
+            elif split_name == 'test':
+                max_samples = max_test_samples
             split_datasets[split_name] = create_crackseg_dataset(
                 data_cfg=data_cfg,
                 transform_cfg=split_transform_cfg,
                 mode=split_name,
                 samples_list=split_samples,
-                in_memory_cache=in_memory_cache
+                in_memory_cache=in_memory_cache,
+                max_samples=max_samples
             )
 
     # Preparar el resultado

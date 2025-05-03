@@ -2,6 +2,7 @@
 
 import json
 import logging
+import traceback
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
@@ -10,6 +11,7 @@ import psutil
 import torch
 from omegaconf import DictConfig, OmegaConf
 
+from src.utils.experiment_manager import ExperimentManager
 from src.utils.logging.base import BaseLogger, get_logger, flatten_dict
 
 
@@ -29,140 +31,250 @@ class ExperimentLogger(BaseLogger):
         """Initialize the experiment logger.
 
         Args:
-            log_dir: Directory to store log files
+            log_dir: Path to store logs
             experiment_name: Name of the experiment
-            config: Optional configuration to log at startup
+            config: Configuration for the experiment
             log_system_stats: Whether to log system statistics
-            log_to_file: Whether to save logs to file
-            log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+            log_to_file: Whether to log to a file
+            log_level: Logging level
         """
+        super().__init__()
+
         self.log_dir = Path(log_dir)
         self.experiment_name = experiment_name
+        self.config = config
         self.log_system_stats = log_system_stats
-        self.log_to_file = log_to_file
 
-        # Create log directory
-        self.log_dir.mkdir(parents=True, exist_ok=True)
+        # Initialize logger - properly using the function parameters
+        logger_name = f"experiment.{experiment_name}"
+        self.logger = get_logger(name=logger_name, level=log_level)
 
-        # Setup logging
-        self.logger = get_logger(
-            f"{self.__class__.__name__}.{experiment_name}",
-            level=log_level
-        )
-
+        # Add file handler if log_to_file is True
         if log_to_file:
-            self._setup_file_logging()
+            log_file = self.log_dir / f"{experiment_name}.log"
+            # Create parent directory if it doesn't exist
+            log_file.parent.mkdir(parents=True, exist_ok=True)
 
-        # Initialize metrics file
-        self.metrics_file = self.log_dir / 'metrics.jsonl'
-
-        # Log initial info
-        self.logger.info(
-            f"Initialized experiment '{experiment_name}' in {log_dir}"
-        )
-        if config:
-            self.log_config(config)
-        if log_system_stats:
-            self._log_system_info()
-
-    def _setup_file_logging(self) -> None:
-        """Setup file logging handler."""
-        log_file = self.log_dir / f"{self.experiment_name}.log"
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(
-            logging.Formatter(
-                '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+            file_handler = logging.FileHandler(log_file)
+            formatter = logging.Formatter(
+                '[%(asctime)s][%(levelname)s][%(name)s] - %(message)s'
             )
+            file_handler.setFormatter(formatter)
+            self.logger.addHandler(file_handler)
+            self.logger.info(f"Logging to file: {log_file}")
+
+        # Create experiment manager to handle directory structure
+        self.experiment_manager = ExperimentManager(
+            base_dir=self.log_dir,
+            experiment_name=experiment_name,
+            config=config,
+            create_dirs=True
         )
-        self.logger.addHandler(file_handler)
 
-    def _log_system_info(self) -> None:
-        """Log system information and hardware stats."""
-        try:
-            # CPU info
-            cpu_info = {
-                'cpu_count': psutil.cpu_count(),
-                'cpu_percent': psutil.cpu_percent(interval=1),
-                'memory_total': psutil.virtual_memory().total,
-                'memory_available': psutil.virtual_memory().available,
-            }
+        # Get paths from experiment manager
+        self.outputs_dir = self.experiment_manager.get_path("experiment")
+        self.metrics_dir = self.experiment_manager.get_path("metrics")
+        self.config_dir = self.experiment_manager.get_path("config")
 
-            # GPU info if available
-            gpu_info = {}
-            if torch.cuda.is_available():
-                gpu_info = {
-                    'gpu_name': torch.cuda.get_device_name(),
-                    'gpu_count': torch.cuda.device_count(),
-                    'cuda_version': torch.version.cuda,
-                }
+        # Define file paths
+        self.metrics_file = self.metrics_dir / "metrics.jsonl"
 
-                # Get memory for each GPU
-                for i in range(torch.cuda.device_count()):
-                    mem = torch.cuda.get_device_properties(i).total_memory
-                    gpu_info[f'gpu_{i}_memory'] = mem
+        # Log experiment initialization
+        self.logger.info(f"Initialized experiment '{experiment_name}' in \
+{log_dir}")
+        self.logger.info(f"Metrics will be saved to: {self.metrics_file}")
+        self.logger.info(
+            f"Configuration will be saved to: "
+            f"{self.config_dir / 'config.json'}"
+        )
 
-            # Log the information
-            self.logger.info("System Information:")
-            self.logger.info(f"CPU Info: {cpu_info}")
-            if gpu_info:
-                self.logger.info(f"GPU Info: {gpu_info}")
+        # Save configuration if provided
+        if config is not None:
+            self.log_config(config)
+            self.logger.info("Experiment configuration:")
+            # Print flattened config for readability
+            flat_config = flatten_dict(
+                OmegaConf.to_container(config, resolve=True)
+            )
+            for key, value in flat_config.items():
+                self.logger.info(f"  {key}: {value}")
 
-        except Exception as e:
-            self.logger.warning(f"Failed to collect system information: {e}")
+        # Log system info if requested
+        if log_system_stats:
+            self.log_system_info()
 
     def log_scalar(self, tag: str, value: float, step: int) -> None:
-        """Log a scalar metric.
+        """Log a scalar value.
 
         Args:
-            tag: Metric name/tag
+            tag: Name of the metric
             value: Scalar value
-            step: Training step or epoch
+            step: Step or epoch number
         """
         metric_dict = {
-            'timestamp': datetime.now().isoformat(),
-            'tag': tag,
-            'value': float(value),
-            'step': step
+            "name": tag,
+            "value": value,
+            "step": step,
+            "timestamp": datetime.now().isoformat()
         }
 
-        # Log to metrics file
-        if self.log_to_file:
-            with open(self.metrics_file, 'a') as f:
-                json.dump(metric_dict, f)
-                f.write('\n')
+        # Log to file
+        with open(self.metrics_file, "a") as f:
+            f.write(json.dumps(metric_dict) + "\n")
 
-        # Log to console with reduced precision
-        self.logger.debug(f"{tag}: {value:.4f} (step {step})")
+        # Log to console
+        self.logger.info(f"[{step}] {tag}: {value}")
 
-    def log_config(self, config: Dict[str, Any]) -> None:
+    def log_metric(self, name: str, value: Any, step: Optional[int] = None,
+                   **kwargs) -> None:
+        """Log a metric.
+
+        Args:
+            name: Metric name
+            value: Metric value
+            step: Training step or epoch
+            **kwargs: Additional metadata
+        """
+        # If step is provided, use log_scalar to maintain compatibility
+        if step is not None:
+            self.log_scalar(tag=name, value=float(value), step=step)
+            return
+
+        metric_dict = {
+            "name": name,
+            "value": value,
+            "timestamp": datetime.now().isoformat()
+        }
+
+        # Add any additional metadata
+        metric_dict.update(kwargs)
+
+        # Log to file
+        with open(self.metrics_file, "a") as f:
+            f.write(json.dumps(metric_dict) + "\n")
+
+        # Log to console
+        self.logger.info(f"Metric '{name}': {value}")
+
+    def log_metrics(self, metrics_dict: Dict[str, Any],
+                    step: Optional[int] = None,
+                    **kwargs) -> None:
+        """Log multiple metrics.
+
+        Args:
+            metrics_dict: Dictionary of metrics {name: value}
+            step: Training step or epoch
+            **kwargs: Additional metadata
+        """
+        for name, value in metrics_dict.items():
+            self.log_metric(name, value, step, **kwargs)
+
+    def log_system_info(self) -> None:
+        """Log system information."""
+        try:
+            # CPU info
+            cpu_count = psutil.cpu_count(logical=False)
+            cpu_count_logical = psutil.cpu_count(logical=True)
+
+            # Memory info
+            memory = psutil.virtual_memory()
+            memory_total_gb = memory.total / (1024 ** 3)
+            memory_available_gb = memory.available / (1024 ** 3)
+
+            # GPU info
+            gpu_info = "Not available"
+            gpu_memory = "N/A"
+            if torch.cuda.is_available():
+                gpu_info = torch.cuda.get_device_name(0)
+                gpu_memory = f"{torch.cuda.get_device_properties(
+                    0).total_memory / (1024 ** 3):.2f} GB"
+
+            # PyTorch version
+            pytorch_version = torch.__version__
+
+            # Log all info
+            self.logger.info("System Information:")
+            self.logger.info(f"  CPU: {cpu_count} physical cores, \
+{cpu_count_logical} logical cores")
+            self.logger.info(f"  RAM: {memory_total_gb:.2f} GB total, \
+{memory_available_gb:.2f} GB available")
+            self.logger.info(f"  CUDA: {gpu_info}")
+            self.logger.info(f"  CUDA Memory: {gpu_memory}")
+            self.logger.info(f"  PyTorch: {pytorch_version}")
+
+        except Exception as e:
+            self.logger.warning(f"Failed to log system info: {str(e)}")
+
+    def log_config(self, config: DictConfig) -> None:
         """Log experiment configuration.
 
         Args:
-            config: Configuration dictionary or OmegaConf DictConfig
+            config: Experiment configuration
         """
-        if isinstance(config, DictConfig):
-            # Convert to regular dict for JSON serialization
-            config_dict = OmegaConf.to_container(config)
-        else:
-            config_dict = config
-
-        # Save full config
-        config_file = self.log_dir / 'config.json'
-        with open(config_file, 'w') as f:
-            json.dump(config_dict, f, indent=2)
-
-        # Log flattened config for easier viewing
-        flat_config = flatten_dict(config_dict)
-        self.logger.info("Experiment configuration:")
-        for key, value in flat_config.items():
-            self.logger.info(f"  {key}: {value}")
+        # First, save config to file
+        self.logger.info("Saving configuration to file")
+        config_path = self.experiment_manager.save_config(config)
+        self.logger.info(f"Configuration saved to: {config_path}")
 
     def close(self) -> None:
-        """Close the logger and handlers."""
-        if self.log_system_stats:
-            self._log_system_info()  # Log final system stats
+        """Close the logger and finalize the experiment."""
+        self.logger.info(f"Closing logger for experiment \
+'{self.experiment_name}'")
 
-        # Close all handlers
+        # Update experiment status
+        try:
+            self.experiment_manager.update_status("completed")
+        except Exception as e:
+            self.logger.warning(f"Failed to update experiment status: {str(e)}"
+                                )
+
+        # Close log handlers
         for handler in self.logger.handlers[:]:
             handler.close()
             self.logger.removeHandler(handler)
+
+    def log_error(self, exception: Exception, context: str = None) -> None:
+        """Log an error that occurred during the experiment.
+
+        Args:
+            exception: The exception that occurred
+            context: Additional context about where the error occurred
+        """
+        # Get traceback
+        tb = traceback.format_exc()
+
+        # Build error message
+        error_msg = f"Error: {type(exception).__name__}: {str(exception)}"
+        if context:
+            error_msg = f"Error in {context}: {type(exception).__name__}: \
+{str(exception)}"
+
+        # Log to console/file
+        self.logger.error(error_msg)
+        self.logger.error(f"Traceback:\n{tb}")
+
+        # Update experiment status
+        try:
+            self.experiment_manager.update_status(
+                "failed",
+                metadata={
+                    "error": {
+                        "type": type(exception).__name__,
+                        "message": str(exception),
+                        "context": context,
+                        "traceback": tb
+                    }
+                }
+            )
+        except Exception as e:
+            self.logger.warning(f"Failed to update experiment status: \
+{str(e)}")
+
+        # Write error to a specific error log file
+        try:
+            error_file = self.experiment_manager.get_path("logs") / "error.log"
+            with open(error_file, "a") as f:
+                f.write(f"[{datetime.now().isoformat()}] {error_msg}\n")
+                f.write(f"Traceback:\n{tb}\n\n")
+        except Exception as e:
+            self.logger.warning(f"Failed to write to error log file: {str(e)}")

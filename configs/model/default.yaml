@@ -12,36 +12,42 @@ type: BaseUNet
 encoder:
   # Point _target_ to the factory function
   _target_: src.model.factory.create_encoder
-  type: "resnet34" # Specify the desired type for the factory
+  type: "CNNEncoder" # Usar el encoder registrado
   # Remove placeholder type
   # type: "DefaultEncoder"
   # Add any default params needed by create_encoder or resnet34
-  name: "resnet34" # Kept for potential use?
-  pretrained: true
   in_channels: 3
 
 bottleneck:
   # Point _target_ to the factory function
   _target_: src.model.factory.create_bottleneck
-  type: "default" # Specify the desired type for the factory
+  type: "CNNBottleneckBlock" # Usar el bottleneck registrado
   # Remove placeholder type and target
   # _target_: "???.???.BottleneckImplementation"
   # type: "DefaultBottleneck"
-  in_channels: 512 # Example default, adjust as needed
+  in_channels: 512 # Ajustar según el encoder
+  out_channels: 1024 # Ajustar según la arquitectura
 
 decoder:
   # Point _target_ to the factory function
   _target_: src.model.factory.create_decoder
-  type: "default" # Specify the desired type for the factory
+  type: "CNNDecoder" # Usar el decoder registrado
   # Remove placeholder type and target
   # _target_: "???.???.DecoderImplementation"
   # type: "DefaultDecoder"
-  in_channels: 1024 # Example default, adjust as needed
-  skip_channels: [64, 128, 256, 512] # Example default
-  out_channels: 1 # Example default
+  in_channels: 1024 # Debe coincidir con out_channels del bottleneck
+  skip_channels_list: [64, 128, 256, 512] # Debe coincidir con el encoder
+  out_channels: 1 # Número de clases de salida
+  depth: 4 # Profundidad del decoder, igual que encoder
 
 # --- Optional Final Activation ---
 final_activation: null
 # Example:
 # final_activation:
 #   _target_: torch.nn.Sigmoid 
+
+training:
+  optimizer:
+    _target_: torch.optim.Adam
+    lr: 0.001
+    weight_decay: 0.0001 

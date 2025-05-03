@@ -3,8 +3,8 @@
 defaults:
   - base
   - data: default
-  - data/transform: augmentations  # Configuración de transformaciones
-  - data/dataloader: default  # Configuración del dataloader
+  - data/transform: augmentations
+  - data/dataloader: default
   - model: default
   - training: default
   - evaluation: default
@@ -15,6 +15,22 @@ random_seed: 42
 require_cuda: true
 log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
 log_to_file: true
+
+# Experiment configuration
+experiment:
+  name: "crackseg"
+  output_dir: "outputs"
+
+# Configure Hydra to use the same directory structure as ExperimentManager
+hydra:
+  run:
+    dir: outputs/experiments/${now:%Y%m%d-%H%M%S}-${hydra.job.name}
+  sweep:
+    dir: outputs/multirun/${now:%Y%m%d-%H%M%S}
+    subdir: ${hydra.job.num}
+  job:
+    # Don't change the working directory
+    chdir: false
 
 # Data configuration
 data:
@@ -30,53 +46,47 @@ data:
 # model:
 #   name: "unet"
 #   encoder:
-#     name: "resnet34"
+#     backbone: "resnet34"
 #     pretrained: true
-#     in_channels: 3
-#   decoder:
-#     out_channels: 1
+#     input_channels: 3
 #   bottleneck:
-#     type: "default"
+#     type: "simple"
+#   decoder:
+#     type: "unet"
+#     use_attention: true
 
-# Training configuration
-training:
-  epochs: 100
-  optimizer:
-    type: "adam"
-    lr: 0.001
-    weight_decay: 0.0001
-  scheduler:
-    type: "reduce_lr_on_plateau"
-    mode: "min"
-    factor: 0.1
-    patience: 10
-    min_lr: 0.00001
-    step_per_epoch: true
-  amp_enabled: true
-  checkpoints:
-    checkpoint_dir: "outputs/checkpoints"
-    save_interval_epochs: 10
-    save_last: true
-    save_best:
-      enabled: true
-      monitor_metric: "val_loss"
-      monitor_mode: "min"
-      best_filename: "model_best.pth.tar"
-    filename: "checkpoint_epoch_{epoch:03d}.pth.tar"
-    resume_from_checkpoint: null
+# Training configuration - This entire section will be loaded via defaults
+# training:
+#   num_epochs: 100
+#   optimizer:
+#     type: "adam"
+#     lr: 0.001
+#     weight_decay: 0.0001
+#   scheduler:
+#     type: "reduce_on_plateau"
+#     patience: 5
+#     factor: 0.5
+#   loss:
+#     type: "bce_dice"
+#     dice_weight: 0.5
+#   early_stopping:
+#     enabled: true
+#     patience: 10
+#     min_delta: 0.001
+#   amp_enabled: true  # Automatic Mixed Precision
+#   checkpoints:
+#     save_freq: 5  # Save every N epochs
+#     checkpoint_dir: "checkpoints"
+#     save_best:
+#       enabled: true
+#       monitor_metric: "val_dice"
+#       monitor_mode: "max"  # or "min" for losses
 
-# Evaluation configuration
-evaluation:
-  metrics:
-    iou:
-      _target_: src.training.metrics.IoUScore
-      threshold: 0.5
-    f1:
-      _target_: src.training.metrics.F1Score
-      threshold: 0.5
-    precision:
-      _target_: src.training.metrics.PrecisionScore
-      threshold: 0.5
-    recall:
-      _target_: src.training.metrics.RecallScore
-      threshold: 0.5
+# Evaluation configuration - This entire section will be loaded via defaults
+# evaluation:
+#   metrics:
+#     iou: {}
+#     dice: {}
+#     precision: {}
+#     recall: {}
+#     accuracy: {}

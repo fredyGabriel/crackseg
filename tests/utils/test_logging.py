@@ -69,7 +69,8 @@ def test_experiment_logger_init(experiment_logger, tmp_path: Path):
 
     assert isinstance(experiment_logger, ExperimentLogger)
     assert experiment_logger.log_dir == tmp_path
-    assert (tmp_path / 'config.json').exists()
+    # Check files in correct subdirectories
+    assert (tmp_path / 'outputs' / 'config.json').exists()
     # Check calls during init
     init_log_call = f"Initialized experiment 'test_exp' in {tmp_path}"
     mock_internal_logger.info.assert_any_call(init_log_call)
@@ -83,7 +84,7 @@ def test_experiment_logger_log_scalar(experiment_logger, tmp_path: Path):
 
     experiment_logger.log_scalar(tag="train/loss", value=0.5, step=10)
 
-    metrics_path = tmp_path / 'metrics.jsonl'
+    metrics_path = tmp_path / 'outputs' / 'metrics' / 'metrics.jsonl'
     assert metrics_path.exists()
     with open(metrics_path, 'r') as f:
         line = f.readline()

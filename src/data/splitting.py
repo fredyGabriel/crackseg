@@ -161,7 +161,10 @@ def create_split_datasets(
     transform_cfg: DictConfig,
     seed: Optional[int] = None,
     cache_flag: bool = False,
-    dataset_cls: type = None  # Pass the actual Dataset class type
+    dataset_cls: type = None,  # Pass the actual Dataset class type
+    max_train_samples: Optional[int] = None,
+    max_val_samples: Optional[int] = None,
+    max_test_samples: Optional[int] = None
 ) -> Dict[str, Dataset]:  # Return type updated
     """Creates split datasets (train, val, test) from existing folders.
 
@@ -177,6 +180,12 @@ def create_split_datasets(
         cache_flag (bool): Whether to enable in-memory caching in datasets.
         dataset_cls (type): The Dataset class to instantiate (e.g.,
                             CrackSegmentationDataset).
+        max_train_samples (Optional[int]): Maximum number of samples for
+                                        train dataset.
+        max_val_samples (Optional[int]): Maximum number of samples for
+                                      val dataset.
+        max_test_samples (Optional[int]): Maximum number of samples for
+                                       test dataset.
 
     Returns:
         Dict[str, Dataset]: Dictionary mapping split name ('train', 'val',
@@ -191,6 +200,13 @@ def create_split_datasets(
         raise ValueError("dataset_cls must be provided.")
 
     datasets: Dict[str, Dataset] = {}
+    # Define max samples por each split
+    max_samples_map = {
+        'train': max_train_samples,
+        'val': max_val_samples,
+        'test': max_test_samples
+    }
+
     # Iterate through expected split names
     for split_name in ['train', 'val', 'test']:
         # Construct path to the specific split directory
@@ -221,13 +237,17 @@ def create_split_datasets(
         split_transform_config = transform_cfg[split_name]
 
         try:
+            # Get the appropriate max_samples limit for this split
+            max_samples = max_samples_map.get(split_name)
+
             # Instantiate the provided dataset class for this split
             datasets[split_name] = dataset_cls(
                 mode=split_name,
                 samples_list=split_samples,  # Pass the split-specific list
                 seed=seed,
                 in_memory_cache=cache_flag,
-                config_transform=split_transform_config
+                config_transform=split_transform_config,
+                max_samples=max_samples  # Pass the max_samples for this split
             )
             print(
                 f"Created dataset for '{split_name}' "

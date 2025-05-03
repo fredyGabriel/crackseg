@@ -13,8 +13,8 @@ def get_device(device_str: Optional[str] = None) -> torch.device:
 
     Args:
         device_str: Optional device string ('cpu', 'cuda', 'cuda:0', 'cuda:1',
-                    etc.) or None. If None or 'cuda', uses the first
-                    available GPU or falls back to CPU.
+                    'auto', etc.) or None. If None, 'auto', or 'cuda', uses
+                    the first available GPU or falls back to CPU.
 
     Returns:
         torch.device: The selected device.
@@ -27,8 +27,8 @@ def get_device(device_str: Optional[str] = None) -> torch.device:
         logger.warning("CUDA not available, falling back to CPU.")
         return torch.device('cpu')
 
-    # If None or 'cuda', default to cuda:0
-    if device_str is None or device_str == 'cuda':
+    # If None, 'auto', or 'cuda', default to cuda:0
+    if device_str is None or device_str in ['auto', 'cuda']:
         device_id = 0
         device = torch.device(f'cuda:{device_id}')
         logger.info("CUDA available, using default GPU 0.")

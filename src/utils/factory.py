@@ -1,6 +1,6 @@
 """Factory functions for creating objects from configuration."""
 
-from typing import Dict, List, Type, Callable
+from typing import Dict, List, Type, Callable, Union
 from importlib import import_module
 
 from omegaconf import DictConfig, ListConfig
@@ -37,24 +37,72 @@ def import_class(class_path: str) -> Type:
 
 def get_optimizer(
     model_params: List[nn.Parameter],
-    optimizer_cfg: DictConfig
+    optimizer_cfg: Union[DictConfig, str, dict]
 ) -> torch.optim.Optimizer:
     """Create an optimizer from config.
 
     Args:
         model_params: Model parameters to optimize
-        optimizer_cfg: Optimizer configuration
+        optimizer_cfg: Optimizer configuration or string name
 
     Returns:
         Configured optimizer instance
     """
     try:
-        optimizer_class = import_class(optimizer_cfg.type)
-        optimizer_params = {
-            k: v for k, v in optimizer_cfg.items()
-            if k != 'type'
-        }
-        return optimizer_class(model_params, **optimizer_params)
+        if isinstance(optimizer_cfg, str):
+            # Handle string case - map to common optimizers
+            optimizer_name = optimizer_cfg.lower()
+
+            if optimizer_name == 'adam':
+                return torch.optim.Adam(model_params, lr=0.001)
+            elif optimizer_name == 'sgd':
+                return torch.optim.SGD(model_params, lr=0.01)
+            elif optimizer_name == 'adamw':
+                return torch.optim.AdamW(model_params, lr=0.001)
+            elif optimizer_name == 'rmsprop':
+                return torch.optim.RMSprop(model_params, lr=0.001)
+            else:
+                raise ConfigError(
+                    f"Unsupported optimizer name: {optimizer_name}",
+                    details="Supported names: adam, sgd, adamw, rmsprop"
+                )
+
+        elif hasattr(optimizer_cfg, '_target_'):
+            # Handle case with _target_ attribute (DictConfig)
+            optimizer_class = import_class(optimizer_cfg._target_)
+            optimizer_params = {
+                k: v for k, v in optimizer_cfg.items()
+                if k != '_target_'
+            }
+            return optimizer_class(model_params, **optimizer_params)
+
+        elif isinstance(optimizer_cfg, dict):
+            # Handle plain dictionary case
+            if 'type' in optimizer_cfg:
+                optimizer_type = optimizer_cfg.pop('type').lower()
+
+                if optimizer_type == 'adam':
+                    return torch.optim.Adam(model_params, **optimizer_cfg)
+                elif optimizer_type == 'sgd':
+                    return torch.optim.SGD(model_params, **optimizer_cfg)
+                elif optimizer_type == 'adamw':
+                    return torch.optim.AdamW(model_params, **optimizer_cfg)
+                elif optimizer_type == 'rmsprop':
+                    return torch.optim.RMSprop(model_params, **optimizer_cfg)
+                else:
+                    raise ConfigError(f"Unsupported optimizer type: \
+{optimizer_type}")
+            else:
+                raise ConfigError("Dictionary optimizer config must contain \
+'type' key")
+
+        else:
+            raise ConfigError(
+                f"Unsupported optimizer config type: {type(optimizer_cfg)}",
+                details="Must be string, DictConfig with _target_, or dict \
+with type"
+            )
+
     except Exception as e:
         raise ConfigError(
             "Failed to create optimizer",

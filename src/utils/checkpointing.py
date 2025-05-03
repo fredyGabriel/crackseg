@@ -36,9 +36,43 @@ def save_checkpoint(
         keep_last_n: Number of recent checkpoints to keep (based on epoch
                      in filename)
     """
+    # Ensure checkpoint_dir is a Path object
     checkpoint_dir = Path(checkpoint_dir)
-    checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+    # Create directory if it doesn't exist
+    try:
+        checkpoint_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Checkpoint directory verified: {checkpoint_dir}")
+    except (PermissionError, OSError) as e:
+        logger.error(
+            f"Failed to create checkpoint directory {checkpoint_dir}: {e}"
+        )
+        # Use a fallback directory
+        fallback_dir = Path('./checkpoints')
+        try:
+            fallback_dir.mkdir(parents=True, exist_ok=True)
+            logger.warning(
+                f"Using fallback checkpoint directory: {fallback_dir}"
+            )
+            checkpoint_dir = fallback_dir
+        except (PermissionError, OSError) as e:
+            logger.error(
+                f"Failed to create fallback directory {fallback_dir}: {e}"
+            )
+            raise RuntimeError(f"Cannot create checkpoint directory: {e}")
+
+    # Prepare checkpoint path
     checkpoint_path = checkpoint_dir / filename
+
+    # Verify that the path is writable by attempting to create a test file
+    try:
+        # Check if direct parent directory is writable
+        test_file = checkpoint_dir / f"test_write_{epoch}.tmp"
+        test_file.touch(exist_ok=True)
+        test_file.unlink()  # Remove the test file
+    except (PermissionError, OSError) as e:
+        logger.error(f"Checkpoint directory is not writable: {e}")
+        raise RuntimeError(f"Checkpoint directory is not writable: {e}")
 
     # Prepare checkpoint data
     checkpoint = {
@@ -49,9 +83,20 @@ def save_checkpoint(
     if additional_data:
         checkpoint.update(additional_data)
 
-    # Save checkpoint
-    torch.save(checkpoint, checkpoint_path)
-    logger.info(f"Saved checkpoint at epoch {epoch} to {checkpoint_path}")
+    # Save checkpoint with error handling
+    try:
+        torch.save(checkpoint, checkpoint_path)
+        logger.info(f"Saved checkpoint at epoch {epoch} to {checkpoint_path}")
+    except Exception as e:
+        logger.error(f"Failed to save checkpoint to {checkpoint_path}: {e}")
+        # Try an alternative path as fallback
+        alt_path = checkpoint_dir / f"emergency_checkpoint_epoch_{epoch}.pt"
+        try:
+            torch.save(checkpoint, alt_path)
+            logger.warning(f"Saved emergency checkpoint to {alt_path}")
+        except Exception as e2:
+            logger.error(f"Failed to save emergency checkpoint: {e2}")
+            raise RuntimeError(f"Cannot save checkpoint: {e2}")
 
     # Clean up old checkpoints if needed, based on filename epoch number
     if keep_last_n > 0:

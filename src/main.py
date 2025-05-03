@@ -6,73 +6,25 @@ import logging
 import torch
 import os
 import math  # For inf
-from typing import Tuple
 
 # Project imports
 from src.utils import (
-    ExperimentLogger,
-    ConfigError,
     DataError,
     ModelError,
-    TrainingError,
     ResourceError,
     set_random_seeds,
     get_device,
-    save_checkpoint,
     load_checkpoint
 )
 from src.data.factory import create_dataloaders_from_config  # Import factory
 from src.utils.factory import get_metrics_from_cfg, get_optimizer, get_loss_fn
 from src.model.factory import create_unet
 from src.training.factory import create_lr_scheduler
+from src.utils.experiment import initialize_experiment
+from src.training.trainer import Trainer
 
 # Configure standard logger
 log = logging.getLogger(__name__)
-
-
-def initialize_experiment(cfg: DictConfig) -> Tuple[str, ExperimentLogger]:
-    """Initialize experiment directory and logging.
-
-    Args:
-        cfg: The configuration object
-
-    Returns:
-        Tuple containing:
-        - experiment_dir: Path to the experiment directory
-        - logger: Initialized logger instance
-
-    Raises:
-        ConfigError: If there are issues with the configuration
-    """
-    try:
-        # Get experiment directory from Hydra's output dir
-        experiment_dir = os.getcwd()  # Hydra changes working dir to output dir
-        log.info(f"Experiment directory: {experiment_dir}")
-
-        # Create additional output directories
-        output_base = os.path.join(experiment_dir, "outputs")
-        os.makedirs(os.path.join(output_base, "checkpoints"), exist_ok=True)
-        os.makedirs(os.path.join(output_base, "metrics"), exist_ok=True)
-        os.makedirs(os.path.join(output_base, "visualizations"), exist_ok=True)
-
-        # Initialize experiment logger
-        logger = ExperimentLogger(
-            log_dir=experiment_dir,
-            experiment_name=os.path.basename(experiment_dir),
-            config=cfg,
-            log_level=cfg.get("log_level", "INFO"),
-            log_to_file=cfg.get("log_to_file", True)
-        )
-
-        # Log full configuration
-        logger.log_config(OmegaConf.to_container(cfg))
-
-        return experiment_dir, logger
-
-    except Exception as e:
-        raise ConfigError(
-            f"Failed to initialize experiment: {str(e)}"
-        ) from e
 
 
 @hydra.main(version_base=None, config_path="../configs", config_name="config")
@@ -86,6 +38,7 @@ def main(cfg: DictConfig) -> None:
 
         # Check CUDA availability
         if not torch.cuda.is_available() and cfg.get('require_cuda', True):
+            log.error("CUDA is required but not available on this system.")
             raise ResourceError(
                 "CUDA is required but not available on this system."
             )
@@ -101,8 +54,57 @@ def main(cfg: DictConfig) -> None:
         log.info("Loading data...")
         try:
             data_cfg = cfg.data
-            transform_cfg = data_cfg.get("transforms", OmegaConf.create({}))
-            dataloader_cfg = data_cfg
+            # Obtener la configuración de transformaciones de Hydra
+            # Puede estar en cfg.data.transform o cfg["data/transform"]
+            transform_cfg = None
+            if hasattr(cfg.data, "transform"):
+                transform_cfg = cfg.data.transform
+            elif "data/transform" in cfg:
+                transform_cfg = cfg["data/transform"]
+            else:
+                log.warning(
+                    "Transform config not found in Hydra config. "
+                    "Using empty config."
+                )
+                transform_cfg = OmegaConf.create({})
+            # Asegurar que data_root es absoluto
+            orig_cwd = hydra.utils.get_original_cwd()
+            data_root = os.path.join(
+                orig_cwd,
+                data_cfg.get("data_root", "data/")
+            )
+            data_cfg["data_root"] = data_root
+
+            # Cargar la configuración específica del dataloader
+            dataloader_cfg = None
+            if hasattr(cfg.data, "dataloader"):
+                dataloader_cfg = cfg.data.dataloader
+            elif "data/dataloader" in cfg:
+                dataloader_cfg = cfg["data/dataloader"]
+            else:
+                log.warning(
+                    "Dataloader config not found in Hydra config. "
+                    "Using data config as fallback."
+                )
+                dataloader_cfg = data_cfg
+
+            # Depuración de configuración
+            print("DEBUG - Hydra dataloader_cfg antes de conversión:")
+            print(f"  Tipo: {type(dataloader_cfg)}")
+            if hasattr(dataloader_cfg, "max_train_samples"):
+                print(
+                    f"  max_train_samples directamente: "
+                    f"{dataloader_cfg.max_train_samples}"
+                )
+            elif (isinstance(dataloader_cfg, dict) and
+                  "max_train_samples" in dataloader_cfg):
+                print(
+                    f"  max_train_samples en dict: "
+                    f"{dataloader_cfg['max_train_samples']}"
+                )
+            else:
+                print("  max_train_samples no encontrado en la configuración")
+
             dataloaders_dict = create_dataloaders_from_config(
                 data_config=data_cfg,
                 transform_config=transform_cfg,
@@ -112,18 +114,26 @@ def main(cfg: DictConfig) -> None:
             val_loader = dataloaders_dict.get('val', {}).get('dataloader')
             test_loader = dataloaders_dict.get('test', {}).get('dataloader')
             if not train_loader or not val_loader:
+                log.error(
+                    "Train or validation dataloader could not be created."
+                )
                 raise DataError(
                     "Train or validation dataloader could not be created."
                 )
             log.info("Data loading complete.")
         except Exception as e:
-            raise DataError(f"Error during data loading: {str(e)}") from e
+            log.error(
+                f"Error during data loading: {str(e)}"
+            )
+            raise DataError(
+                f"Error during data loading: {str(e)}"
+            ) from e
 
         # --- 3. Model Creation ---
         log.info("Creating model...")
         try:
             # Create model using the factory function
-            model = create_unet(cfg.model)
+            model = create_unet(cfg._group_)
             model.to(device)
             log.info(f"Created {type(model).__name__} model with \
 {sum(p.numel() for p in model.parameters())} parameters")
@@ -184,10 +194,16 @@ def main(cfg: DictConfig) -> None:
         # --- 5. Checkpointing and Resume ---
         start_epoch = 0
         best_metric_value = None
-        # Use .get to safely access nested config for checkpoints
+
+        # Get ExperimentManager instance from the logger
+        experiment_manager = experiment_logger.experiment_manager
+
+        # Use the checkpoints directory from the experiment manager
+        checkpoint_dir = str(experiment_manager.get_path("checkpoints"))
+        log.info(f"Using checkpoint directory: {checkpoint_dir}")
+
+        # Get checkpoint configuration
         checkpoint_cfg = cfg.training.get("checkpoints", OmegaConf.create({}))
-        default_ckpt_dir = "outputs/checkpoints/"
-        checkpoint_dir = checkpoint_cfg.get("checkpoint_dir", default_ckpt_dir)
         resume_path = checkpoint_cfg.get("resume_from_checkpoint", None)
 
         if resume_path:
@@ -207,18 +223,24 @@ def main(cfg: DictConfig) -> None:
                     device=device
                 )
                 start_epoch = checkpoint_data.get("epoch", 0) + 1
-                best_metric_value = checkpoint_data.get("best_metric_value",
-                                                        None)
-                msg = (f"Resumed from epoch {start_epoch}. "
-                       f"Best: {best_metric_value}")
+                best_metric_value = checkpoint_data.get(
+                    "best_metric_value", None
+                )
+                msg = (
+                    f"Resumed from epoch {start_epoch}. "
+                    f"Best: {best_metric_value}"
+                )
                 log.info(msg)
             else:
-                msg = f"Resume checkpoint not found: {resume_path}. Fresh \
-start."
+                msg = (
+                    f"Resume checkpoint not found: {resume_path}. "
+                    f"Fresh start."
+                )
                 log.warning(msg)
         else:
             log.info(
-                "No checkpoint specified for resume, starting from scratch.")
+                "No checkpoint specified for resume, starting from scratch."
+            )
 
         # --- Setup Best Model Tracking ---
         save_best_cfg = checkpoint_cfg.get("save_best", OmegaConf.create({}))
@@ -227,12 +249,6 @@ start."
         save_best_enabled = save_best_cfg.get("enabled", False)
         best_filename = save_best_cfg.get("best_filename", "model_best.pth.tar"
                                           )
-        fname_pattern = checkpoint_cfg.get(
-            "filename",
-            "checkpoint_epoch_{epoch:03d}.pth.tar"
-        )
-        save_interval = checkpoint_cfg.get("save_interval_epochs", 0)
-        save_last = checkpoint_cfg.get("save_last", True)
 
         if save_best_enabled and not monitor_metric:
             msg = ("save_best enabled but monitor_metric not set. "
@@ -248,245 +264,18 @@ start."
                     math.inf
                 log.info(f"Initializing best metric to {best_metric_value}")
 
-        # --- 6. Training Loop ---
-        log.info(f"Starting training from epoch {start_epoch}...")
-        num_epochs = cfg.training.get("epochs", 1)  # Use config value
-
-        for epoch in range(start_epoch, num_epochs):
-            log.info(f"--- Epoch {epoch}/{num_epochs - 1} ---")
-            experiment_logger.log_hardware_stats()
-
-            try:
-                # Train
-                model.train()
-                train_loss = 0.0
-                train_metrics = {k: 0.0 for k in metrics.keys()}
-                train_batches = 0
-
-                for batch_idx, batch in enumerate(train_loader):
-                    inputs, targets = batch['image'].to(device), \
-                        batch['mask'].to(device)
-
-                    # Ensure inputs tensor has the correct shape (B, C, H, W)
-                    # If channels are last (B, H, W, C)
-                    if inputs.shape[-1] == 3:
-                        # Change to (B, C, H, W)
-                        inputs = inputs.permute(0, 3, 1, 2)
-
-                    # Ensure targets tensor has a channel dimension
-                    # If (B, H, W) without channel dimension
-                    if len(targets.shape) == 3:
-                        # Add channel dimension: (B,H,W)->(B,1,H,W)
-                        targets = targets.unsqueeze(1)
-
-                    # Clear gradients
-                    optimizer.zero_grad()
-
-                    # Forward pass
-                    if use_amp:
-                        with torch.amp.autocast('cuda'):
-                            outputs = model(inputs)
-                            batch_loss = loss_fn(outputs, targets)
-                    else:
-                        outputs = model(inputs)
-                        batch_loss = loss_fn(outputs, targets)
-
-                    # Backward pass
-                    if use_amp:
-                        scaler.scale(batch_loss).backward()
-                        scaler.step(optimizer)
-                        scaler.update()
-                    else:
-                        batch_loss.backward()
-                        optimizer.step()
-
-                    train_loss += batch_loss.item()
-                    with torch.no_grad():
-                        for k, metric_fn in metrics.items():
-                            train_metrics[k] += metric_fn(outputs,
-                                                          targets).item()
-                    train_batches += 1
-
-                    # Log batch progress
-                    if batch_idx % 10 == 0:
-                        log.info(f"Batch {batch_idx}/{len(train_loader)}, \
-Loss: {batch_loss.item():.4f}")
-
-                # Calculate average training loss
-                avg_train_loss = train_loss / train_batches if \
-                    train_batches > 0 else 0
-                for k in train_metrics:
-                    train_metrics[k] /= train_batches if train_batches > 0 \
-                        else 1
-                if experiment_logger:
-                    experiment_logger.log_scalar("train/epoch_loss",
-                                                 avg_train_loss, epoch)
-                    for k, v in train_metrics.items():
-                        experiment_logger.log_scalar(f"train/{k}", v, epoch)
-                log.info(
-                    f"Training - Epoch: {epoch}, Loss: {avg_train_loss:.4f}, "
-                    f"Metrics: {train_metrics}"
-                )
-
-                # Evaluate
-                model.eval()
-                eval_results = {"val_loss": 0.0}
-                val_batches = 0
-
-                with torch.no_grad():
-                    for batch_idx, batch in enumerate(val_loader):
-                        inputs, targets = batch['image'].to(device), \
-                            batch['mask'].to(device)
-
-                        # Ensure inputs tensor has the correct shape
-                        # (B, C, H, W)
-                        # If channels are last (B, H, W, C)
-                        if inputs.shape[-1] == 3:
-                            # Change to (B, C, H, W)
-                            inputs = inputs.permute(0, 3, 1, 2)
-
-                        # Ensure targets tensor has a channel dimension
-                        # If (B, H, W) without channel dimension
-                        if len(targets.shape) == 3:
-                            # Add channel dimension: (B,H,W)->(B,1,H,W)
-                            targets = targets.unsqueeze(1)
-
-                        # Forward pass
-                        if use_amp:
-                            with torch.amp.autocast('cuda'):
-                                outputs = model(inputs)
-                                batch_loss = loss_fn(outputs, targets)
-                        else:
-                            outputs = model(inputs)
-                            batch_loss = loss_fn(outputs, targets)
-
-                        eval_results["val_loss"] += batch_loss.item()
-                        val_batches += 1
-
-                        # Calculate metrics
-                        if metrics:
-                            for metric_name, metric_fn in metrics.items():
-                                if metric_name not in eval_results:
-                                    eval_results[f"val_{metric_name}"] = 0.0
-                                eval_results[f"val_{metric_name}"] += \
-                                    metric_fn(outputs, targets).item()
-
-                # Calculate average validation metrics
-                if val_batches > 0:
-                    eval_results["val_loss"] /= val_batches
-                    for metric_name in metrics:
-                        if f"val_{metric_name}" in eval_results:
-                            eval_results[f"val_{metric_name}"] /= val_batches
-
-                # Log validation metrics
-                if experiment_logger:
-                    experiment_logger.log_scalar("val/epoch_loss",
-                                                 eval_results["val_loss"],
-                                                 epoch)
-                    for k, v in eval_results.items():
-                        if k != "val_loss":
-                            experiment_logger.log_scalar(
-                                k.replace("val_", "val/"), v, epoch)
-
-                log.info(
-                    f"Validation - Epoch: {epoch}, Loss: \
-{eval_results['val_loss']:.4f}"
-                )
-                for k, v in eval_results.items():
-                    if k != "val_loss":
-                        log.info(f"Validation - {k}: {v:.4f}")
-
-                # Step LR Scheduler (if epoch-based)
-                if scheduler and cfg.training.scheduler.get("step_per_epoch",
-                                                            True):
-                    if isinstance(scheduler,
-                                  torch.optim.lr_scheduler.ReduceLROnPlateau):
-                        scheduler.step(eval_results.get(
-                            monitor_metric, eval_results["val_loss"]))
-                    else:
-                        scheduler.step()
-
-                # --- Checkpoint Saving ---
-                is_best = False
-                if save_best_enabled and monitor_metric in eval_results:
-                    current_metric = eval_results[monitor_metric]
-                    if monitor_mode == "max" and current_metric > \
-                            best_metric_value:
-                        best_metric_value = current_metric
-                        is_best = True
-                        msg = (f"New best metric ({monitor_metric}): "
-                               f"{best_metric_value:.4f}")
-                        log.info(msg)
-                    elif monitor_mode == "min" and current_metric < \
-                            best_metric_value:
-                        best_metric_value = current_metric
-                        is_best = True
-                        msg = (f"New best metric ({monitor_metric}): "
-                               f"{best_metric_value:.4f}")
-                        log.info(msg)
-
-                # Save interval checkpoint
-                if save_interval > 0 and (epoch + 1) % save_interval == 0:
-                    filename = fname_pattern.format(epoch=epoch + 1)
-                    save_checkpoint(
+        # --- 6. Training Loop (delegado a Trainer) ---
+        # Refactor: Usar Trainer para manejar el entrenamiento y validación
+        trainer = Trainer(
                         model=model,
-                        optimizer=optimizer,
-                        epoch=epoch,
-                        checkpoint_dir=checkpoint_dir,
-                        filename=filename,
-                        additional_data={
-                            'scheduler_state_dict': (
-                                scheduler.state_dict() if scheduler else None
-                            ),
-                            'best_metric_value': best_metric_value,
-                            'config': OmegaConf.to_container(cfg, resolve=True)
-                        }
-                    )
-                # Save last checkpoint
-                elif save_last and epoch == num_epochs - 1:
-                    filename = "last_checkpoint.pth.tar"
-                    save_checkpoint(
-                        model=model,
-                        optimizer=optimizer,
-                        epoch=epoch,
-                        checkpoint_dir=checkpoint_dir,
-                        filename=filename,
-                        additional_data={
-                            'scheduler_state_dict': (
-                                scheduler.state_dict() if scheduler else None
-                            ),
-                            'best_metric_value': best_metric_value,
-                            'config': OmegaConf.to_container(cfg, resolve=True)
-                        }
-                    )
-                # Explicitly save if it's the best, even if not interval/last
-                elif is_best:
-                    filename = fname_pattern.format(epoch=epoch + 1)
-                    save_checkpoint(
-                        model=model,
-                        optimizer=optimizer,
-                        epoch=epoch,
-                        checkpoint_dir=checkpoint_dir,
-                        filename=filename,
-                        additional_data={
-                            'scheduler_state_dict': (
-                                scheduler.state_dict() if scheduler else None
-                            ),
-                            'best_metric_value': best_metric_value,
-                            'config': OmegaConf.to_container(cfg, resolve=True)
-                        }
-                    )
-
-            except Exception as e:
-                experiment_logger.log_error(
-                    error=e,
-                    context=f"Training epoch {epoch}"
-                )
-                raise TrainingError(
-                    f"Error during training epoch {epoch}: {str(e)}"
-                ) from e
-
-        log.info("Training loop finished.")
+                        train_loader=train_loader,
+                        val_loader=val_loader,
+                        loss_fn=loss_fn,
+                        metrics_dict=metrics,
+                        cfg=cfg,
+                        logger_instance=experiment_logger
+        )
+        trainer.train()
 
         # --- 7. Final Evaluation ---
         if test_loader is not None:
@@ -574,10 +363,12 @@ Loss: {batch_loss.item():.4f}")
             log.info("No test loader available, skipping final evaluation.")
 
     except Exception as e:
+        # Log and properly handle the error
         if experiment_logger:
-            experiment_logger.log_error(error=e, context="Main execution")
-        log.exception("Fatal error during execution")
-        raise
+            experiment_logger.log_error(exception=e, context="Main execution")
+            experiment_logger.close()
+
+        raise e  # Re-raise to let Hydra handle it
 
     finally:
         # --- 8. Cleanup ---

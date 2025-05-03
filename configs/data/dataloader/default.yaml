@@ -32,3 +32,11 @@ memory:
   fp16: false             # Usar precisión mixta (float16)
   adaptive_batch_size: false  # Ajustar batch size según memoria disponible
   max_memory_mb: null     # Límite de memoria a usar (MB), null = usar toda disponible 
+
+# Sample limits for quick tests
+# - To limit the number of samples (e.g., for quick tests), set a positive integer here.
+# - To use the entire dataset, set to null, 0, or remove these lines.
+#   (null, 0, or removing = use the full dataset)
+max_train_samples: 8
+max_val_samples: 4
+max_test_samples: 4 

@@ -298,3 +298,6 @@ dependencies:
       - torchvision==0.20.1
       - python-dotenv
 prefix: C:\Users\fgrv\miniconda3\envs\torch
+
+variables:
+  NO_ALBUMENTATIONS_UPDATE: 1

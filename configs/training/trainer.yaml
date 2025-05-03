@@ -30,14 +30,25 @@ use_amp: true # Enable/disable Automatic Mixed Precision
 # Gradient Accumulation
 gradient_accumulation_steps: 1 # Number of steps to accumulate gradients over (1 = disabled)
 
-# Logging settings (Reference logging config)
-# logging_cfg: ${logging} # Assumes logging config is available at root
+# Checkpoint settings
+checkpoint_dir: "outputs/checkpoints"
+save_freq: 0  # How often to save intermediate checkpoints (epochs), 0 = disable
 
-# Checkpointing settings (Reference checkpointing config)
-# checkpointing_cfg: ${checkpointing} # Assumes checkpointing config is available
+# Save best model configuration
+save_best:
+  enabled: true
+  monitor_metric: "val_loss"  # Metric to monitor (must match key in validation results)
+  monitor_mode: "min"  # 'min' for minimizing (e.g. loss), 'max' for maximizing (e.g. accuracy)
+  best_filename: "model_best.pth.tar"
 
-# Early Stopping settings (Optional - define in separate config)
-early_stopping: null # Example: monitor: "val_loss", patience: 5, mode: "min"
+# Early Stopping settings
+early_stopping:
+  _target_: src.utils.early_stopping.EarlyStopping
+  monitor: "val_loss"
+  patience: 2
+  mode: "min"
+  min_delta: 0.001
+  verbose: true
 
 # Verbosity / Progress reporting
 verbose: true

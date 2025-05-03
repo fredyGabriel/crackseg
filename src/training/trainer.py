@@ -1,7 +1,8 @@
 """Handles the main training and evaluation loops using a Trainer class."""
 
 import time
-from typing import Any, Dict, Optional
+import os
+from typing import Any, Dict, Optional, Union
 
 import torch
 from omegaconf import DictConfig
@@ -60,7 +61,8 @@ class Trainer:
         """
         # Store original full config if needed later
         self.full_cfg = cfg
-        self.cfg = cfg.trainer  # Assume trainer config is under 'trainer' key
+        # Usar 'training' como en la configuración real
+        self.cfg = cfg.training
         self.model = model
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -77,13 +79,76 @@ class Trainer:
         self.use_amp = self.cfg.get("use_amp", True)
         self.grad_accum_steps = self.cfg.get("gradient_accumulation_steps", 1)
         self.verbose = self.cfg.get("verbose", True)
-        self.checkpoint_dir = self.cfg.get("checkpoint_dir", "checkpoints")
-        self.checkpoint_load_path = self.cfg.get("checkpoint_load_path", None)
-        # Add parsing for progress_bar, early_stopping, saving frequency later
-        # Also add config for metric to monitor for best checkpoint
-        self.monitor_metric = self.cfg.get("monitor_metric", "loss")
-        self.monitor_mode = self.cfg.get("monitor_mode", "min")
+
+        # --- Checkpointing Configuration ---
+        # Get the experiment manager from the logger
+        if logger_instance and hasattr(logger_instance, 'experiment_manager'):
+            self.experiment_manager = logger_instance.experiment_manager
+            self.checkpoint_dir = str(
+                self.experiment_manager.get_path("checkpoints")
+            )
+            self.internal_logger.info(
+                f"Using checkpoint directory from ExperimentManager: "
+                f"{self.checkpoint_dir}"
+            )
+        else:
+            # Fallback to config or default
+            default_checkpoint_dir = "outputs/checkpoints"
+            checkpoint_dir_cfg = self.cfg.get(
+                "checkpoint_dir", default_checkpoint_dir
+            )
+
+            # Asegurar que checkpoint_dir es una ruta absoluta
+            if not os.path.isabs(checkpoint_dir_cfg):
+                # Si es una ruta relativa, resolverla respecto al directorio
+                # original
+                try:
+                    import hydra
+                    orig_cwd = hydra.utils.get_original_cwd()
+                    self.checkpoint_dir = os.path.join(
+                        orig_cwd, checkpoint_dir_cfg
+                    )
+                    self.internal_logger.info(
+                        f"Using absolute checkpoint directory: "
+                        f"{self.checkpoint_dir}"
+                    )
+                except (ImportError, ValueError) as e:
+                    # Fallback: usar la ruta relativa tal como está
+                    self.checkpoint_dir = checkpoint_dir_cfg
+                    self.internal_logger.warning(
+                        f"Could not resolve absolute path: {e}. "
+                        f"Using relative: {self.checkpoint_dir}"
+                    )
+            else:
+                self.checkpoint_dir = checkpoint_dir_cfg
+
+        # Create the checkpoint directory if it doesn't exist
+        os.makedirs(self.checkpoint_dir, exist_ok=True)
+        self.internal_logger.info(f"Checkpoint directory: \
+{self.checkpoint_dir}")
+
         self.save_freq = self.cfg.get("save_freq", 0)
+        self.checkpoint_load_path = self.cfg.get("checkpoint_load_path", None)
+
+        # --- Save Best Configuration ---
+        self.save_best_cfg = self.cfg.get("save_best", {})
+        # Asegurarse de obtener enabled de la configuración correcta
+        save_best_config = self.cfg.get("save_best", {})
+        # Verificar si save_best existe directamente o dentro de checkpoints
+        if not save_best_config and "checkpoints" in self.cfg:
+            checkpoints_cfg = self.cfg.get("checkpoints", {})
+            save_best_config = checkpoints_cfg.get("save_best", {})
+
+        self.save_best_enabled = save_best_config.get("enabled", False)
+        self.monitor_metric = self.save_best_cfg.get("monitor_metric",
+                                                     "val_loss")
+        self.monitor_mode = self.save_best_cfg.get("monitor_mode", "min")
+        self.best_filename = self.save_best_cfg.get("best_filename",
+                                                    "model_best.pth.tar")
+
+        # Initialize best metric based on mode
+        self.best_metric_value = float('inf') if self.monitor_mode == "min" \
+            else float('-inf')
 
         self.model.to(self.device)
 
@@ -91,11 +156,11 @@ class Trainer:
         # Use factory functions based on config
         self.optimizer = create_optimizer(
             self.model.parameters(),
-            self.full_cfg.trainer.optimizer  # Use original cfg path
+            self.full_cfg.training.optimizer  # Usar training según config
         )
         self.scheduler = create_lr_scheduler(
             self.optimizer,
-            self.full_cfg.trainer.lr_scheduler  # Use original cfg path
+            self.full_cfg.training.scheduler  # Usar training según config
         )
 
         # --- Setup Mixed Precision ---
@@ -107,9 +172,6 @@ class Trainer:
 
         # --- Initialize Training State Variables ---
         self.start_epoch = 1
-        # Initialize best metric based on mode
-        self.best_metric_value = float('inf') if self.monitor_mode == "min" \
-            else float('-inf')
 
         # --- Load Checkpoint if specified ---
         if self.checkpoint_load_path:
@@ -141,14 +203,24 @@ class Trainer:
         early_stopping_cfg = self.cfg.get("early_stopping", None)
         if early_stopping_cfg:
             try:
+                # Asegurarse de que monitor_metric sea consistente con
+                # _check_if_best
+                es_monitor = early_stopping_cfg.get("monitor",
+                                                    self.monitor_metric)
+                if not es_monitor.startswith("val_"):
+                    es_monitor = f"val_{es_monitor}"
+
                 # Instantiate using Hydra, passing shared monitor params
                 self.early_stopper = instantiate(
                     early_stopping_cfg,
-                    monitor_metric=self.monitor_metric,
+                    # Don't instantiate nested configs recursively
+                    _recursive_=False,
+                    monitor_metric=es_monitor,
                     mode=self.monitor_mode,
                     verbose=self.verbose  # Reuse trainer verbosity
                 )
-                self.internal_logger.info("Early stopping enabled.")
+                self.internal_logger.info(
+                    f"Early stopping enabled. Monitoring: {es_monitor}")
             except Exception as e:
                 self.internal_logger.error(
                     f"Error initializing EarlyStopping: {e}", exc_info=True
@@ -157,22 +229,21 @@ class Trainer:
         else:
             self.internal_logger.info("Early stopping disabled.")
 
-        self.internal_logger.info(
-            f"Trainer initialized. Device: {self.device}. Epochs: \
-{self.epochs}. "
-            f"AMP: {self.use_amp}. Grad Accum: {self.grad_accum_steps}. \
-Starting Epoch: {self.start_epoch}"
+        # Log initialization summary
+        config_summary = (
+            f"Trainer initialized. Device: {self.device}. "
+            f"Epochs: {self.epochs}. AMP: {self.use_amp}. "
+            f"Grad Accum: {self.grad_accum_steps}. "
+            f"Starting Epoch: {self.start_epoch}. "
+            f"Save Best: {self.save_best_enabled}. "
+            f"Early Stopping: {self.early_stopper is not None}."
         )
+        self.internal_logger.info(config_summary)
+
         if self.logger_instance:
             log_msg = f"Using logger: \
 {self.logger_instance.__class__.__name__}"
             self.internal_logger.info(log_msg)
-        # Log config if logger exists (implement log_config in logger later)
-        # if self.logger_instance:
-        #   from omegaconf import OmegaConf # Import here if used only here
-        #   self.logger_instance.log_config(
-        #        OmegaConf.to_container(cfg, resolve=True)
-        #   )
 
     def train(self) -> Dict[str, float]:
         """Runs the full training loop starting from self.start_epoch."""
@@ -194,7 +265,6 @@ Starting Epoch: {self.start_epoch}"
                 current_lr = self._step_scheduler(val_results)
                 if current_lr is not None and self.logger_instance:
                     # Use log_scalar for individual values
-                    # self.logger_instance.log_metrics({"lr": current_lr}, epoch)
                     self.logger_instance.log_scalar(
                         tag="lr", value=current_lr, step=epoch
                     )
@@ -202,32 +272,44 @@ Starting Epoch: {self.start_epoch}"
                 pass  # No scheduler step needed
 
             # --- Checkpointing Logic ---
-            # is_best = self._check_if_best(val_results) # Removed unused var
-            # Determine if this epoch's checkpoint should be saved based on
-            # freq
-            # save_epoch_ckpt = (
-            #     self.save_freq > 0 and epoch % self.save_freq == 0
-            # )
+            # Check if this is the best model so far
+            is_best = self._check_if_best(val_results)
 
             # Always save last checkpoint
             save_checkpoint(
                 epoch=epoch,
                 model=self.model,
                 optimizer=self.optimizer,
-                # scaler=self.scaler, # Removed scaler argument
-                # Pass metrics as additional data
-                additional_data={"metrics": val_results},
+                additional_data={
+                    "metrics": val_results,
+                    # Save current best value
+                    "best_metric_value": self.best_metric_value
+                },
                 checkpoint_dir=self.checkpoint_dir,
                 keep_last_n=1,  # Example: keep only last 1 checkpoint
-                # is_best=is_best, # Removed is_best
-                # Save last checkpoint always
                 filename="checkpoint_last.pth",
-                # Optional epoch-wise checkpoint
-                # filename=f"checkpoint_epoch_{epoch}.pth" if save_epoch_ckpt \
-                # else None,
-                # Save best checkpoint always if is_best
-                # best_filename="checkpoint_best.pth" # Removed best_filename
             )
+
+            # If this is the best model so far, save it separately
+            if is_best:
+                metric_val = val_results.get(self.monitor_metric, 'N/A')
+                log_msg = (
+                    f"Saving best model with "
+                    f"{self.monitor_metric}={metric_val:.4f}"
+                )
+                self.internal_logger.info(log_msg)
+                save_checkpoint(
+                    epoch=epoch,
+                    model=self.model,
+                    optimizer=self.optimizer,
+                    additional_data={
+                        "metrics": val_results,
+                        "best_metric_value": self.best_metric_value
+                    },
+                    checkpoint_dir=self.checkpoint_dir,
+                    keep_last_n=1,  # We only need to keep 1 best model
+                    filename="model_best.pth.tar",
+                )
 
             # --- Early Stopping Check ---
             if self.early_stopper:
@@ -248,18 +330,35 @@ Starting Epoch: {self.start_epoch}"
         # Return last validation results (or best results if tracking)
         return final_val_results
 
-    def _train_step(self, batch: tuple) -> float:
+    def _train_step(
+        self,
+        batch: Union[tuple, Dict[str, torch.Tensor]]
+    ) -> float:
         """Processes a single training batch.
 
         Args:
-            batch: A tuple of (images, masks) tensors.
+            batch: A tuple of (images, masks) tensors or
+                a dictionary with 'image' and 'mask' keys.
 
         Returns:
             float: The batch loss value, scaled for gradient accumulation and
                   ready for logging.
         """
-        images, masks = batch
+        # Handle both tuple format and dictionary format
+        if isinstance(batch, tuple):
+            images, masks = batch
+        else:
+            # Expect dictionary with 'image'/'mask' keys
+            images = batch['image']
+            masks = batch['mask']
+
         images, masks = images.to(self.device), masks.to(self.device)
+
+        # Ensure masks have channel dimension if needed
+        # Check if masks are 3D (missing channel dimension)
+        if len(masks.shape) == 3:
+            # Add channel dimension [B, H, W] -> [B, 1, H, W]
+            masks = masks.unsqueeze(1)
 
         with autocast('cuda', enabled=self.use_amp):
             outputs = self.model(images)
@@ -339,18 +438,35 @@ Starting Epoch: {self.start_epoch}"
 
         return avg_loss
 
-    def _val_step(self, batch: tuple) -> Dict[str, float]:
+    def _val_step(
+        self,
+        batch: Union[tuple, Dict[str, torch.Tensor]]
+    ) -> Dict[str, float]:
         """Processes a single validation batch.
 
         Args:
-            batch: A tuple of (images, masks) tensors.
+            batch: A tuple of (images, masks) tensors or
+                a dictionary with 'image' and 'mask' keys.
 
         Returns:
             Dict[str, float]: Dictionary with loss and metric values for this
             batch.
         """
-        images, masks = batch
+        # Handle both tuple format and dictionary format
+        if isinstance(batch, tuple):
+            images, masks = batch
+        else:
+            # Expect dictionary with 'image'/'mask' keys
+            images = batch['image']
+            masks = batch['mask']
+
         images, masks = images.to(self.device), masks.to(self.device)
+
+        # Ensure masks have channel dimension if needed
+        # Check if masks are 3D (missing channel dimension)
+        if len(masks.shape) == 3:
+            # Add channel dimension [B, H, W] -> [B, 1, H, W]
+            masks = masks.unsqueeze(1)
 
         with autocast('cuda', enabled=self.use_amp):
             outputs = self.model(images)
@@ -393,32 +509,33 @@ Starting Epoch: {self.start_epoch}"
         avg_metrics = {name: total / num_batches
                        for name, total in total_metrics.items()}
 
+        # Rename the loss metric to val_loss and add prefix to other metrics
+        val_metrics = {}
+        for name, value in avg_metrics.items():
+            if name == "loss":
+                val_metrics["val_loss"] = value
+            else:
+                val_metrics[f"val_{name}"] = value
+
         # Format log message
         metrics_str = " | ".join(
             [f"{name.capitalize()}: {value:.4f}" for name, value in
-             avg_metrics.items()]
+             val_metrics.items()]
         )
         log_msg = f"Epoch {epoch} | Validation Results | {metrics_str}"
         self.internal_logger.info(log_msg)
 
-        # Ensure floats for logging consistency
-        # scalar_results_for_logging = get_scalar_metrics(avg_metrics)
-
+        # Log metrics to logger if available
         if self.logger_instance:
-            # Use log_scalar for each validation metric
-            # self.logger_instance.log_metrics(
-            #     avg_metrics, epoch, prefix="val/"
-            # )
-            for name, value in avg_metrics.items():
+            for name, value in val_metrics.items():
                 self.logger_instance.log_scalar(
-                    tag=f"val/{name}",
+                    tag=f"{name}",  # Already has val_ prefix
                     value=value,
                     step=epoch
                 )
 
-        # Return the dictionary with potentially non-scalar values if needed
-        # upstream, otherwise return scalar_results_for_logging
-        return avg_metrics
+        # Return the validation metrics
+        return val_metrics
 
     # --- Helper Methods ---
     def _step_scheduler(self, metrics=None) -> Optional[float]:
@@ -452,11 +569,21 @@ Starting Epoch: {self.start_epoch}"
 
     def _check_if_best(self, metrics: Dict[str, float]) -> bool:
         """Checks if the current metrics represent the best seen so far."""
-        current_metric = metrics.get(self.monitor_metric)
+        # Garantizar que usamos el nombre correcto de la métrica
+        # Si el monitor_metric no tiene prefijo val_ pero buscamos en
+        # val_metrics
+        metric_name = self.monitor_metric
+        all_val_metrics = all(k.startswith("val_") for k in metrics.keys())
+        if not metric_name.startswith("val_") and all_val_metrics:
+            metric_name = f"val_{self.monitor_metric}"
+
+        current_metric = metrics.get(metric_name)
         if current_metric is None:
+            available_metrics = ", ".join(metrics.keys())
             self.internal_logger.warning(
-                f"Monitor metric '{self.monitor_metric}' not found in \
-validation results. Cannot determine if best."
+                f"Monitor metric '{metric_name}' not found in "
+                f"validation results. Available: {available_metrics}. "
+                f"Cannot determine if best."
             )
             return False
 
@@ -472,8 +599,9 @@ validation results. Cannot determine if best."
             old_best = self.best_metric_value
             self.best_metric_value = current_metric
             self.internal_logger.info(
-                f"Validation metric '{self.monitor_metric}' improved \
-from {old_best:.4f} to {current_metric:.4f}. Saving best checkpoint."
+                f"Validation metric '{metric_name}' improved from "
+                f"{old_best:.4f} to {current_metric:.4f}. "
+                f"Saving best checkpoint."
             )
             return True
         return False
