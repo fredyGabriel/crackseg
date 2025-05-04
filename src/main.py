@@ -18,7 +18,6 @@ from src.utils import (
 )
 from src.data.factory import create_dataloaders_from_config  # Import factory
 from src.utils.factory import get_metrics_from_cfg, get_optimizer, get_loss_fn
-from src.model.factory import create_unet
 from src.training.factory import create_lr_scheduler
 from src.utils.experiment import initialize_experiment
 from src.training.trainer import Trainer
@@ -131,8 +130,9 @@ def main(cfg: DictConfig) -> None:
         # --- 3. Model Creation ---
         log.info("Creating model...")
         try:
-            # Create model using the factory function
-            model = create_unet(cfg._group_)
+            # Instantiate model directly using Hydra based on cfg.model
+            # cfg.model will contain the config loaded via `model=...` override
+            model = hydra.utils.instantiate(cfg.model)
             model.to(device)
             log.info(f"Created {type(model).__name__} model with \
 {sum(p.numel() for p in model.parameters())} parameters")

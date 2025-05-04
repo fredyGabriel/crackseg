@@ -32,6 +32,9 @@ hydra:
     # Don't change the working directory
     chdir: false
 
+# Pre-declare model node to allow command-line overrides
+model: {}
+
 # Data configuration
 data:
   root_dir: "data"

@@ -6,26 +6,27 @@ UNet models based on configuration dictionaries. Uses the registry system
 for component lookup.
 """
 
-from typing import Dict, Any, List, TypeVar
 import logging
+from typing import Dict, Any, List, TypeVar
+
+# Imports are kept if validate_config or create_component_from_config are used
+from omegaconf import DictConfig, OmegaConf
 import hydra.utils
-
+import torch.nn as nn
 from src.model.base import EncoderBase, BottleneckBase, DecoderBase, UNetBase
-from src.model.registry import Registry
-
+from src.model.registry import Registry  # Keep if generic creator is used
 
 # Create logger
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 # Component type
 T = TypeVar('T')
 
 # Create registries for each component type
-encoder_registry = Registry(EncoderBase, "Encoder")
-bottleneck_registry = Registry(BottleneckBase, "Bottleneck")
-decoder_registry = Registry(DecoderBase, "Decoder")
-# unet_registry = Registry(UNetBase, "UNet") # Removed, not needed for
-# create_unet
+# encoder_registry = Registry(EncoderBase, "Encoder") # Keep registry
+# definitions if used elsewhere
+# bottleneck_registry = Registry(BottleneckBase, "Bottleneck")
+# decoder_registry = Registry(DecoderBase, "Decoder")
 
 
 class ConfigurationError(Exception):
@@ -54,208 +55,147 @@ def validate_config(config: Dict[str, Any], required_keys: List[str],
         )
 
 
-def create_encoder(config: Dict[str, Any]) -> EncoderBase:
-    """
-    Create an encoder component from configuration.
+# ======================================================================
+# Restoring factory functions
+# ======================================================================
 
-    Args:
-        config (Dict[str, Any]): Configuration dictionary with:
-            - type: registered encoder name
-            - in_channels: number of input channels
-            - Additional encoder-specific parameters
-
-    Returns:
-        EncoderBase: Instantiated encoder component.
-
-    Raises:
-        ConfigurationError: If required configuration is missing or invalid.
-        KeyError: If the specified encoder type is not registered.
-    """
-    # Validate basic configuration
-    validate_config(config, ["type", "in_channels"], "encoder")
-
-    encoder_type = config["type"]
-
+def create_encoder(config: DictConfig) -> EncoderBase:
+    """Factory function to create an encoder based on configuration."""
+    # Directly instantiate using the provided config (which includes _target_)
     try:
-        # Get additional params by excluding known keys
-        params = {k: v for k, v in config.items()
-                  if k not in ["type", "_target_"]}
-
-        # Create encoder instance
-        return encoder_registry.instantiate(encoder_type, **params)
-    except KeyError:
-        available = encoder_registry.list()
-        raise ConfigurationError(
-            f"Encoder type '{encoder_type}' not found in registry. "
-            f"Available types: {', '.join(available)}"
-        )
-    except Exception as e:
-        # Catch any other exceptions during instantiation
-        raise ConfigurationError(
-            f"Error creating encoder of type '{encoder_type}': {str(e)}"
-        ) from e
-
-
-def create_bottleneck(config: Dict[str, Any]) -> BottleneckBase:
-    """
-    Create a bottleneck component from configuration.
-
-    Args:
-        config (Dict[str, Any]): Configuration dictionary with:
-            - type: registered bottleneck name
-            - in_channels: number of input channels
-            - Additional bottleneck-specific parameters
-
-    Returns:
-        BottleneckBase: Instantiated bottleneck component.
-
-    Raises:
-        ConfigurationError: If required configuration is missing or invalid.
-        KeyError: If the specified bottleneck type is not registered.
-    """
-    # Validate basic configuration
-    validate_config(config, ["type", "in_channels"], "bottleneck")
-
-    bottleneck_type = config["type"]
-
-    try:
-        # Get additional params by excluding known keys
-        params = {k: v for k, v in config.items()
-                  if k not in ["type", "_target_"]}
-
-        # Create bottleneck instance
-        return bottleneck_registry.instantiate(bottleneck_type, **params)
-    except KeyError:
-        available = bottleneck_registry.list()
-        raise ConfigurationError(
-            f"Bottleneck type '{bottleneck_type}' not found in registry. "
-            f"Available types: {', '.join(available)}"
-        )
-    except Exception as e:
-        # Catch any other exceptions during instantiation
-        raise ConfigurationError(
-            f"Error creating bottleneck of type '{bottleneck_type}': {str(e)}"
-        ) from e
-
-
-def create_decoder(config: Dict[str, Any]) -> DecoderBase:
-    """
-    Create a decoder component from configuration.
-
-    Args:
-        config (Dict[str, Any]): Configuration dictionary with:
-            - type: registered decoder name
-            - in_channels: number of input channels
-            - skip_channels OR skip_channels_list: skip info
-            - Additional decoder-specific parameters
-
-    Returns:
-        DecoderBase: Instantiated decoder component.
-
-    Raises:
-        ConfigurationError: If required configuration is missing or invalid.
-        KeyError: If the specified decoder type is not registered.
-    """
-    # Validate basic configuration
-    if "skip_channels" not in config and "skip_channels_list" not in config:
-        raise ConfigurationError(
-            "Missing required config for decoder: 'skip_channels' or "
-            "'skip_channels_list'"
-        )
-    validate_config(config, ["type", "in_channels"], "decoder")
-
-    decoder_type = config["type"]
-
-    try:
-        # Prepare params: pass everything except 'type' and '_target_'
-        params = {k: v for k, v in config.items()
-                  if k not in ["type", "_target_"]}
-
-        # Special handling for mocks that might not expect all args
-        if decoder_type == "TestDecoder" and "out_channels" in params:
-            # MockDecoder doesn't expect out_channels in init
-            del params["out_channels"]
-
-        # Let the specific decoder handle its expected arguments
-        return decoder_registry.instantiate(decoder_type, **params)
-    except KeyError:
-        available = decoder_registry.list()
-        raise ConfigurationError(
-            f"Decoder type '{decoder_type}' not found in registry. "
-            f"Available types: {', '.join(available)}"
-        )
-    except Exception as e:
-        raise ConfigurationError(
-            f"Error creating decoder of type '{decoder_type}': {str(e)}"
-        ) from e
-
-
-def create_unet(config: Dict[str, Any]) -> UNetBase:
-    """
-    Create a complete UNet model from configuration.
-
-    Args:
-        config (Dict[str, Any]): Configuration dictionary with:
-            - _target_: Path to the UNet class (e.g., src.model.unet.BaseUNet)
-            - encoder: encoder configuration
-            - bottleneck: bottleneck configuration
-            - decoder: decoder configuration
-            - Additional UNet-specific parameters (like final_activation)
-
-    Returns:
-        UNetBase: Instantiated UNet model.
-
-    Raises:
-        ConfigurationError: If required configuration is missing or invalid.
-        ImportError: If the target class cannot be imported.
-    """
-    # Validate presence of component configurations
-    validate_config(
-        config,
-        # Remove _target_ from required keys for the top-level UNet config
-        # ["_target_", "encoder", "bottleneck", "decoder"],
-        ["encoder", "bottleneck", "decoder"],
-        "unet"
-    )
-
-    try:
-        # Create components manually
-        encoder = create_encoder(config["encoder"])
-        bottleneck = create_bottleneck(config["bottleneck"])
-        decoder = create_decoder(config["decoder"])
-
-        # Get UNet class from config
-        unet_class = None
-        if "_target_" in config:
-            unet_class = hydra.utils.get_class(config["_target_"])
-        else:
-            # Default to BaseUNet if not specified
-            from src.model.unet import BaseUNet
-            unet_class = BaseUNet
-
-        # Extract final_activation if present
-        final_activation = config.get("final_activation", None)
-
-        # Instantiate UNet with manually created components
-        unet_instance = unet_class(
-            encoder=encoder,
-            bottleneck=bottleneck,
-            decoder=decoder,
-            final_activation=final_activation
-        )
-
-        if not isinstance(unet_instance, UNetBase):
+        log.info(f"Attempting to instantiate encoder with config: {config}")
+        encoder = hydra.utils.instantiate(config)
+        if not isinstance(encoder, EncoderBase):
             raise TypeError(
-                f"Instantiated object is not a UNetBase subclass: "
-                f"{type(unet_instance)}"
+                f"Instantiated object for config {config} is not an \
+EncoderBase"
+            )
+        log.info(
+            f"Successfully instantiated encoder: "
+            f"{type(encoder).__name__}"
+        )
+        return encoder
+    except Exception as e:
+        log.error(
+            f"Failed to create encoder from config {config}: {e}",
+            exc_info=True
+        )
+        raise ConfigurationError(f"Failed to create encoder: {e}") from e
+
+
+def create_bottleneck(config: DictConfig, **runtime_kwargs) -> BottleneckBase:
+    """Factory function to create a bottleneck based on configuration."""
+    # Directly instantiate using the provided config, merging runtime kwargs
+    try:
+        log.info(
+            f"Attempting to instantiate bottleneck with config: {config} "
+            f"and runtime_kwargs: {runtime_kwargs}"
+        )
+        # Merge runtime kwargs into the config node before instantiation
+        merged_config = OmegaConf.merge(config, runtime_kwargs)
+        log.info(f"Instantiating bottleneck with merged config: \
+{merged_config}")
+        bottleneck = hydra.utils.instantiate(merged_config)
+        if not isinstance(bottleneck, BottleneckBase):
+            raise TypeError(
+                f"Instantiated object for config {config} with runtime args "
+                f"{runtime_kwargs} is not a BottleneckBase"
+            )
+        log.info(
+            f"Successfully instantiated bottleneck: "
+            f"{type(bottleneck).__name__}"
+        )
+        return bottleneck
+    except Exception as e:
+        log.error(
+            f"Failed to create bottleneck from config {config} and runtime "
+            f"args {runtime_kwargs}: {e}",
+            exc_info=True
+        )
+        raise ConfigurationError(f"Failed to create bottleneck: {e}") from e
+
+
+def create_decoder(config: DictConfig, **runtime_kwargs) -> DecoderBase:
+    """Factory function to create a decoder based on configuration."""
+    # Directly instantiate using the provided config, merging runtime kwargs
+    try:
+        log.info(
+            f"Attempting to instantiate decoder with config: {config} "
+            f"and runtime_kwargs: {runtime_kwargs}"
+        )
+        merged_config = OmegaConf.merge(config, runtime_kwargs)
+        log.info(f"Instantiating decoder with merged config: {merged_config}")
+        decoder = hydra.utils.instantiate(merged_config)
+        if not isinstance(decoder, DecoderBase):
+            raise TypeError(
+                f"Instantiated object for config {config} with runtime args "
+                f"{runtime_kwargs} is not a DecoderBase"
+            )
+        log.info(
+            f"Successfully instantiated decoder: "
+            f"{type(decoder).__name__}"
+        )
+        return decoder
+    except Exception as e:
+        log.error(
+            f"Failed to create decoder from config {config} and runtime "
+            f"args {runtime_kwargs}: {e}",
+            exc_info=True
+        )
+        raise ConfigurationError(f"Failed to create decoder: {e}") from e
+
+
+def create_unet(config: DictConfig) -> UNetBase:
+    """Factory function to create a U-Net model from configuration."""
+    required_components = ["encoder", "bottleneck", "decoder"]
+    validate_config(config, required_components, context="unet")
+
+    try:
+        # 1. Instantiate Encoder using its factory
+        encoder = create_encoder(config.encoder)
+        log.info(f"Instantiated Encoder: {type(encoder).__name__}")
+
+        # 2. Instantiate Bottleneck using its factory, passing derived
+        # in_channels
+        bottleneck_in_channels = encoder.out_channels
+        bottleneck = create_bottleneck(config.bottleneck,
+                                       in_channels=bottleneck_in_channels)
+        log.info(f"Instantiated Bottleneck: {type(bottleneck).__name__}")
+
+        # 3. Instantiate Decoder using its factory, passing derived
+        # channels/skips
+        decoder_in_channels = bottleneck.out_channels
+        encoder_skips = getattr(encoder, 'skip_channels', [])
+        if not isinstance(encoder_skips, list):
+            encoder_skips = []
+        decoder_skip_channels_list = list(reversed(encoder_skips))
+        decoder = create_decoder(
+            config.decoder,
+            in_channels=decoder_in_channels,
+            skip_channels_list=decoder_skip_channels_list
+        )
+        log.info(f"Instantiated Decoder: {type(decoder).__name__}")
+
+        # 4. Instantiate the UNetBase (performs final validation)
+        unet_model = UNetBase(
+            encoder=encoder, bottleneck=bottleneck, decoder=decoder
+        )
+        log.info("Instantiated UNetBase.")
+
+        # 5. Handle optional final activation
+        if "final_activation" in config:
+            activation = hydra.utils.instantiate(config.final_activation)
+            unet_model = nn.Sequential(unet_model, activation)
+            log.info(
+                f"Added final activation: "
+                f"{type(activation).__name__}"
             )
 
-        return unet_instance
+        return unet_model
 
     except Exception as e:
-        # Catch errors during instantiation
-        logger.error(f"Error instantiating UNet model: {config}",
-                     exc_info=True)
+        log.error(f"Error instantiating UNet model from config: {config}",
+                  exc_info=True)
         raise ConfigurationError(
             f"Error instantiating UNet model: {str(e)}"
         ) from e
@@ -297,6 +237,6 @@ def create_component_from_config(
     except Exception as e:
         # Catch any other exceptions during instantiation
         raise ConfigurationError(
-            f"Error creating {registry.name.lower()} of type \
-'{component_type}': {str(e)}"
+            f"Error creating {registry.name.lower()} of type "
+            f"'{component_type}': {str(e)}"
         ) from e

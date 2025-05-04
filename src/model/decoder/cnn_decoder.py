@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 from typing import List
 from src.model.base import DecoderBase
-# Registration dependency
-from src.model.factory import decoder_registry
 
 
+# No longer registering
+# @decoder_registry.register("DecoderBlock")
 class DecoderBlock(DecoderBase):
     """
     CNN Decoder block for U-Net architecture.
@@ -104,13 +104,15 @@ class DecoderBlock(DecoderBase):
         return self._out_channels
 
 
-# Registration
-@decoder_registry.register(name="CNNDecoderBlock")
+# No longer registering
+# @decoder_registry.register(name="CNNDecoderBlock")
 class DecoderBlockAlias(DecoderBlock):
+    # Optional: Alias for clarity in registry if needed
     pass
 
 
-@decoder_registry.register(name="CNNDecoder")
+# No longer registering
+# @decoder_registry.register("CNNDecoder")
 class CNNDecoder(DecoderBase):
     """
     Standard CNN Decoder for U-Net.

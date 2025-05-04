@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 from typing import List, Tuple
 from src.model.base import EncoderBase
-# Registration dependency
-from src.model.factory import encoder_registry
 
 
+# No longer registering with the factory registry
+# @encoder_registry.register("EncoderBlock")
 class EncoderBlock(EncoderBase):
     """
     CNN Encoder block for U-Net architecture.
@@ -89,13 +89,14 @@ class EncoderBlock(EncoderBase):
 
 
 # Registration
-@encoder_registry.register(name="CNNEncoderBlock")
+# @encoder_registry.register(name="CNNEncoderBlock")
 class EncoderBlockAlias(EncoderBlock):
     # Optional: Alias for clarity in registry if needed
     pass
 
 
-@encoder_registry.register(name="CNNEncoder")
+# No longer registering with the factory registry
+# @encoder_registry.register("CNNEncoder")
 class CNNEncoder(EncoderBase):
     """
     Standard CNN Encoder for U-Net.

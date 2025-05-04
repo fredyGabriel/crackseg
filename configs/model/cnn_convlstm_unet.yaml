@@ -1,0 +1,46 @@
+# Hydra configuration for the CNN-ConvLSTM U-Net model.
+# NO main _target_ here. Components instantiated individually.
+
+# --- Encoder Configuration ---
+encoder:
+  # Target the specific class directly
+  _target_: src.model.architectures.cnn_convlstm_unet.CNNEncoder
+  # type: CNNEncoderForConvLSTM # No longer needed
+  in_channels: 3 # Example: RGB input
+  base_filters: 64 # Example: Starting filters
+  depth: 5 # Example: Number of downsampling blocks
+  # kernel_size, pool_size use defaults from CNNEncoder definition
+
+# --- Bottleneck Configuration ---
+bottleneck:
+  # Target the specific class directly
+  _target_: src.model.architectures.cnn_convlstm_unet.ConvLSTMBottleneck
+  # type: ConvLSTMBottleneck # No longer needed
+  # in_channels determined by create_unet
+  hidden_dim: 1024 # Example: Output channels from bottleneck
+  kernel_size: [3, 3] # Use list format for correct YAML parsing
+  num_layers: 1
+  bias: True
+
+# --- Decoder Configuration ---
+decoder:
+  # Target the specific class directly
+  _target_: src.model.architectures.cnn_convlstm_unet.CNNDecoder
+  # type: CNNDecoderForConvLSTM # No longer needed
+  # in_channels determined by create_unet
+  # skip_channels_list determined by create_unet
+  out_channels: 1 # Example: Binary segmentation output
+  # depth determined by create_unet (matches encoder)
+  kernel_size: 3
+  upsample_mode: 'bilinear'
+
+# --- Optional Final Activation ---
+# final_activation:
+#   _target_: torch.nn.Sigmoid
+
+# Note:
+# - UNetBase validation handles channel/depth/skip matching.
+# - Setting ??? for in_channels/skip_channels_list highlights dependencies.
+# - A more robust setup might involve a wrapper config object or having
+#   create_unet handle the channel matching based on instantiated components.
+# - This basic config demonstrates the structure targeting the factory. 

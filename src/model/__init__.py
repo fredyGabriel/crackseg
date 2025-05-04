@@ -1,37 +1,43 @@
-"""Model components for the CrackSeg project."""
+"""Model package initialization."""
 
-# Import registry for component registration
+# Import base classes and components directly if needed elsewhere,
+# but remove factory imports as they are commented out.
+from src.model.base import UNetBase, EncoderBase, BottleneckBase, DecoderBase
+# from src.model.components import *  # Example if components are directly used
 from src.model.registry import Registry
 
-# Import base classes
-from src.model.base import EncoderBase, BottleneckBase, DecoderBase, UNetBase
+# Remove factory imports
+# from src.model.factory import (
+#     create_encoder,
+#     create_bottleneck,
+#     create_decoder,
+#     create_unet,
+#     encoder_registry,
+#     bottleneck_registry,
+#     decoder_registry,
+# )
 
-# Import factories
-from src.model.factory import (
-    create_encoder,
-    create_bottleneck,
-    create_decoder,
-    create_unet,
-    encoder_registry,
-    bottleneck_registry,
-    decoder_registry
-)
+# Expose registries if they are intended to be public API
+# __all__ = [
+#     "UNetBase",
+#     "EncoderBase",
+#     "BottleneckBase",
+#     "DecoderBase",
+#     "Registry",
+#     "encoder_registry",
+#     "bottleneck_registry",
+#     "decoder_registry",
+#     "create_encoder",
+#     "create_bottleneck",
+#     "create_decoder",
+#     "create_unet"
+# ]
 
-# Import encoders, bottlenecks, and decoders
-from src.model.encoder.cnn_encoder import CNNEncoder, EncoderBlock
-from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
-from src.model.decoder.cnn_decoder import CNNDecoder, DecoderBlock
-
-# Import UNet model
-from src.model.unet import BaseUNet
-
+# Simplified __all__ assuming direct class usage and no factory exposure
 __all__ = [
-    'Registry',
-    'EncoderBase', 'BottleneckBase', 'DecoderBase', 'UNetBase',
-    'create_encoder', 'create_bottleneck', 'create_decoder', 'create_unet',
-    'encoder_registry', 'bottleneck_registry', 'decoder_registry',
-    'CNNEncoder', 'EncoderBlock',
-    'BottleneckBlock',
-    'CNNDecoder', 'DecoderBlock',
-    'BaseUNet'
-] 
+    "UNetBase",
+    "EncoderBase",
+    "BottleneckBase",
+    "DecoderBase",
+    "Registry",
+]
