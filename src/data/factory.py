@@ -69,7 +69,8 @@ def create_dataloaders_from_config(
             split_indices_list = indices_map[split_name]
             split_samples = [all_samples[i] for i in split_indices_list]
             if split_name not in transform_cfg:
-                raise ValueError(f"Transform config missing for split: {split_name}")
+                raise ValueError(f"Transform config missing for split: \
+{split_name}")
             split_transform_cfg = transform_cfg[split_name]
             max_samples = None
             if split_name == 'train':

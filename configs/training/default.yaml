@@ -1,17 +1,21 @@
 defaults:
+  - trainer
+  - lr_scheduler: step_lr
   - loss: bce_dice # Select default loss config from loss/ group
   - _self_
 
 # Default training configuration
 # Edit these values for your training process
 
-epochs: 50
+epochs: 2
 learning_rate: 0.001
-optimizer: adam # Options: adam, sgd, etc. (Need factory/config for this too)
+# optimizer: adam # Options: adam, sgd, etc. (Need factory/config for this too)
 weight_decay: 0.0001
 scheduler: step_lr # Options: step_lr, cosine, etc. (Need factory/config)
 step_size: 10 # Relevant for step_lr
 gamma: 0.5    # Relevant for step_lr
+
+device: cuda:0
 
 # Loss configuration is now handled by the 'loss' default group above
 # loss: 

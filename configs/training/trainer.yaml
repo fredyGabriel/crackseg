@@ -1,7 +1,7 @@
 # configs/training/trainer.yaml
 
 defaults:
-  - lr_scheduler: step_lr  # Cambia a cosine o reduce_on_plateau según necesidad
+  # - lr_scheduler: step_lr  # Cambia a cosine o reduce_on_plateau según necesidad
   - _self_
 
 # Default configuration for the Trainer class
@@ -9,7 +9,7 @@ defaults:
 _target_: src.training.trainer.Trainer # Target class for instantiation
 
 # Basic Training Parameters
-epochs: 10
+# epochs: 10
 # Note: batch_size is typically defined in the dataloader config
 # but can be referenced here if needed.
 
