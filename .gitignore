@@ -46,4 +46,7 @@ build/
 .ipynb_checkpoints
 
 # VSCode
-.vscode/ 
+.vscode/
+
+# Ignorar caché de pytest
+.pytest_cache/ 
