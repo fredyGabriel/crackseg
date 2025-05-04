@@ -18,7 +18,8 @@ bottleneck:
   # type: ConvLSTMBottleneck # No longer needed
   # in_channels determined by create_unet
   hidden_dim: 1024 # Example: Output channels from bottleneck
-  kernel_size: [3, 3] # Use list format for correct YAML parsing
+  # Use tuple format directly, which Hydra handles correctly
+  kernel_size: [3, 3]
   num_layers: 1
   bias: True
 

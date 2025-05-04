@@ -259,22 +259,40 @@ class ConvLSTM(nn.Module):
     @staticmethod
     def _check_kernel_size_consistency(kernel_size):
         """Checks if kernel_size format is valid (tuple or list of 2 ints)."""
+        # Case 1: Already a tuple of 2 ints
         if isinstance(kernel_size, tuple) and len(kernel_size) == 2:
-            return kernel_size  # Already a tuple
-        if isinstance(kernel_size, list) and len(kernel_size) == 2 and all(
-            isinstance(elem, int) for elem in kernel_size
-        ):
-            return tuple(kernel_size)  # Convert list of ints to tuple
+            if all(isinstance(elem, int) for elem in kernel_size):
+                return kernel_size
 
-        # Check for list of tuples (for multi-layer consistency)
-        if isinstance(kernel_size, list) and all(
-            isinstance(elem, tuple) and len(elem) == 2 for elem in kernel_size
-        ):
-            # This case is likely handled by _extend_for_layers
-            return kernel_size  # Return list of tuples as is
+        # Case 2: List or ListConfig of 2 ints/numbers - convert to tuple
+        # This handles both Python lists and OmegaConf ListConfig from YAML
+        if hasattr(kernel_size, '__len__') and len(kernel_size) == 2:
+            # Try to convert any numeric types to int
+            try:
+                as_tuple = tuple(int(elem) for elem in kernel_size)
+                return as_tuple
+            except (ValueError, TypeError):
+                # Continue to error if conversion fails
+                pass
 
+        # Case 3: List of tuples/lists (for multi-layer consistency)
+        is_list_of_valid_pairs = (
+            hasattr(kernel_size, '__iter__') and
+            hasattr(kernel_size, '__len__') and
+            all(
+                (hasattr(elem, '__len__') and len(elem) == 2)
+                for elem in kernel_size
+            )
+        )
+        if is_list_of_valid_pairs:
+            # For a list of kernel sizes (one per layer), validate format
+            # Type conversion is handled by _extend_for_layers
+            return kernel_size
+
+        # If we get here, format is invalid
         raise ValueError(
-            'kernel_size must be a tuple of 2 ints or list of 2 ints'
+            'kernel_size must be a tuple of 2 ints, list of 2 ints, '
+            'or list of tuples/lists for multi-layer ConvLSTM'
         )
 
     def _extend_for_layers(self, param, num_layers):

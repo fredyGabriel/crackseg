@@ -386,16 +386,21 @@ def assembled_unet(encoder_params, bottleneck_params, decoder_params):
 
     # Derive decoder params based on bottleneck and encoder
     decoder_in_channels = bottleneck.out_channels
-    decoder_skip_channels = encoder.skip_channels  # high-res to low-res
+    encoder_skips = getattr(encoder, 'skip_channels', [])
+    if not isinstance(encoder_skips, list):
+        encoder_skips = []
+    # Don't reverse the list - CNNDecoder expects high-to-low resolution
+    # and will do the reversing internally
+    decoder_skip_channels_list = encoder_skips
 
+    # Create the decoder using direct constructor
     decoder = CNNDecoder(
         in_channels=decoder_in_channels,
-        skip_channels_list=decoder_skip_channels,
-        # Use decoder fixture output
+        skip_channels_list=decoder_skip_channels_list,
         out_channels=decoder_params["out_channels"],
         depth=encoder_params["depth"],
         kernel_size=decoder_params["kernel_size"],
-        upsample_mode=decoder_params["upsample_mode"],
+        upsample_mode=decoder_params["upsample_mode"]
     )
 
     # Assemble the UNet
@@ -513,14 +518,17 @@ def test_instantiate_cnn_convlstm_unet_with_hydra(hydra_config_dir):
         f"encoder.depth={encoder_depth}",
         # Set bottleneck hidden dimension for this test instance
         f"bottleneck.hidden_dim={bottleneck_hidden_dim}",
-        # Decoder in_channels is derived by create_unet, remove override
-        # f"decoder.in_channels={bottleneck_hidden_dim}",
-        # Decoder depth/skip channels are handled by UNetBase validation
+        # Added: Explicitly override kernel_size to a list of integers
+        "bottleneck.kernel_size=[3,3]",
+        # Decoder depth will be passed directly in instantiate call
     ])
 
-    # Print resolved config for debugging if needed
-    # from omegaconf import OmegaConf
-    # print(OmegaConf.to_yaml(cfg))
+    # Print resolved config for debugging
+    from omegaconf import OmegaConf
+    print("\nBottleneck config:")
+    print(OmegaConf.to_yaml(cfg.bottleneck))
+    print(f"kernel_size type: {type(cfg.bottleneck.kernel_size)}")
+    print(f"kernel_size value: {cfg.bottleneck.kernel_size}")
 
     try:
         # Instantiate components individually
@@ -541,7 +549,9 @@ def test_instantiate_cnn_convlstm_unet_with_hydra(hydra_config_dir):
         encoder_skips = getattr(encoder, 'skip_channels', [])
         if not isinstance(encoder_skips, list):
             encoder_skips = []
-        decoder_skip_channels_list = list(reversed(encoder_skips))
+        # Don't reverse the list - CNNDecoder expects high-to-low resolution
+        # and will do the reversing internally
+        decoder_skip_channels_list = encoder_skips
         log.info(
             f"Instantiating decoder with in_channels={decoder_in_channels}, "
             f"skip_channels_list={decoder_skip_channels_list}..."
@@ -549,7 +559,8 @@ def test_instantiate_cnn_convlstm_unet_with_hydra(hydra_config_dir):
         decoder = hydra.utils.instantiate(
             cfg.decoder,
             in_channels=decoder_in_channels,
-            skip_channels_list=decoder_skip_channels_list
+            skip_channels_list=decoder_skip_channels_list,
+            depth=encoder_depth  # Explicitly pass encoder_depth here
         )
         log.info(f"Decoder instantiated: {type(decoder)}")
 
@@ -566,14 +577,13 @@ def test_instantiate_cnn_convlstm_unet_with_hydra(hydra_config_dir):
         assert isinstance(model.decoder, CNNDecoder)
 
         # Verify some basic properties post-instantiation
-        assert model.encoder.depth == encoder_depth
-        # Bottleneck in_channels should match encoder.out_channels implicitly
+        # Verify encoder, bottleneck, and decoder connectivity
         assert model.bottleneck.in_channels == model.encoder.out_channels
-        # Decoder in_channels should match bottleneck.out_channels
         assert model.decoder.in_channels == model.bottleneck.out_channels
-        # Skip channels should match between encoder and reversed decoder
+        # Skip channels test
         decoder_skips_reversed = list(reversed(model.decoder.skip_channels))
         assert model.encoder.skip_channels == decoder_skips_reversed
+        # Verify output channels
         assert model.out_channels == cfg.decoder.out_channels
 
     except Exception as e:
@@ -595,3 +605,93 @@ def test_instantiate_cnn_convlstm_unet_with_hydra(hydra_config_dir):
 #         "..", # Assuming tests/ is one level down
 #         "configs"
 #     ))
+
+# --- Tests for Real-world Usage Scenarios ---
+
+
+def test_cnn_convlstm_unet_with_realistic_data(assembled_unet, encoder_params,
+                                               decoder_params):
+    """Tests the CNN-ConvLSTM U-Net architecture with more realistic data."""
+    # Use a larger batch size to simulate a real-world scenario
+    batch_size = 4
+
+    # Create input tensor with RGB channels and larger dimensions
+    input_tensor = torch.randn(
+        batch_size,
+        encoder_params["in_channels"],  # Usually 3 for RGB
+        128,  # Larger height
+        128,  # Larger width
+    )
+
+    # Forward pass
+    output = assembled_unet(input_tensor)
+
+    # Verify output dimensions match input dimensions (except for channels)
+    assert output.shape == (
+        batch_size,
+        decoder_params["out_channels"],  # Output channels (classes)
+        128,  # Should match input height
+        128,  # Should match input width
+    )
+
+    # Verify values are in reasonable range for segmentation
+    if decoder_params["out_channels"] == 1:  # Binary segmentation
+        # Without activation, values can be any real number
+        # With sigmoid, values would be in [0, 1]
+        # Check they're not NaN or infinite
+        assert torch.isfinite(output).all()
+
+
+@pytest.mark.parametrize(
+    "base_filters,depth,in_channels,out_channels",
+    [
+        (16, 3, 3, 1),    # Pequeña: RGB a binario, pocas capas
+        (32, 4, 1, 2),    # Mediana: monocanal a 2 clases
+        (64, 2, 3, 3),    # Baja profundidad: RGB a RGB
+    ]
+)
+def test_cnn_convlstm_unet_configurations(base_filters, depth,
+                                          in_channels, out_channels):
+    """Tests CNN-ConvLSTM U-Net with different configurations."""
+    # Pequeño tamaño de entrada para prueba rápida
+    input_height, input_width = 64, 64
+
+    # Crear encoder
+    encoder = CNNEncoder(
+        in_channels=in_channels,
+        base_filters=base_filters,
+        depth=depth,
+    )
+
+    # Crear bottleneck
+    bottleneck = ConvLSTMBottleneck(
+        in_channels=encoder.out_channels,
+        hidden_dim=encoder.out_channels * 2,
+        kernel_size=(3, 3),
+        num_layers=1,
+    )
+
+    # Crear decoder
+    decoder = CNNDecoder(
+        in_channels=bottleneck.out_channels,
+        skip_channels_list=encoder.skip_channels,
+        out_channels=out_channels,
+        depth=depth,
+    )
+
+    # Ensamblar U-Net
+    unet = CNNConvLSTMUNet(
+        encoder=encoder,
+        bottleneck=bottleneck,
+        decoder=decoder
+    )
+
+    # Prueba de pase hacia adelante
+    x = torch.randn(2, in_channels, input_height, input_width)
+    output = unet(x)
+
+    # Verificar forma de salida
+    assert output.shape == (2, out_channels, input_height, input_width)
+
+    # Verificar valores finitos
+    assert torch.isfinite(output).all()

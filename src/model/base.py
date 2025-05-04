@@ -219,10 +219,37 @@ class UNetBase(nn.Module, metaclass=abc.ABCMeta):
                 f"Bottleneck output channels ({bottleneck.out_channels}) must "
                 f"match decoder input channels ({decoder.in_channels})")
 
-        if encoder.skip_channels != list(reversed(decoder.skip_channels)):
+        # Get skip channels from encoder and decoder
+        encoder_skips = encoder.skip_channels
+        decoder_skips = decoder.skip_channels
+        decoder_skips_reversed = list(reversed(decoder_skips))
+
+        # Check if skip channel counts match
+        if len(encoder_skips) != len(decoder_skips):
             raise ValueError(
-                f"Encoder skip channels {encoder.skip_channels} must match "
-                f"reversed decoder skip channels {decoder.skip_channels}")
+                f"Encoder skip channel count ({len(encoder_skips)}) must match"
+                f" decoder skip channel count ({len(decoder_skips)})")
+
+        # Check if individual skip channel values match
+        mismatch = False
+        mismatched_encoder = []
+        mismatched_decoder = []
+
+        for i, (enc_skip, dec_skip) in enumerate(
+                zip(encoder_skips, decoder_skips_reversed)):
+            if enc_skip != dec_skip:
+                mismatch = True
+                mismatched_encoder.append((i, enc_skip))
+                mismatched_decoder.append((i, dec_skip))
+
+        if mismatch:
+            error_msg = (
+                f"Encoder skip channels {encoder_skips} must match "
+                f"reversed decoder skip channels {decoder_skips_reversed}.\n"
+                f"Mismatched encoder indices: {mismatched_encoder},\n"
+                f"decoder indices: {mismatched_decoder}"
+            )
+            raise ValueError(error_msg)
 
     @abc.abstractmethod
     def forward(self, x: torch.Tensor) -> torch.Tensor:

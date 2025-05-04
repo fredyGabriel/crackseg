@@ -1,5 +1,4 @@
 {
-  "tests/model/architectures/test_cnn_convlstm_unet.py::test_instantiate_cnn_convlstm_unet_with_hydra": true,
   "tests/model/test_integration.py::test_unet_instantiation_from_manual_config": true,
   "tests/model/test_integration.py::test_unet_forward_pass_from_manual_config": true,
   "tests/model/test_integration.py::test_unet_cnn_instantiation_from_config": true,

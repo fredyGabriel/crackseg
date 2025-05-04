@@ -66,15 +66,16 @@
 | 13   | Refactor src/training/trainer.py                             | done          | high      | 11           |
 | 14   | Refactor src/model/unet.py                                   | done          | medium-high| 11          |
 | 15   | Refactor src/data/factory.py                                 | done          | medium    | 11           |
-| 16   | Implement ConvLSTM Component and CNN-ConvLSTM U-Net Arch.    | in-progress   | medium    | 15           |
-| 16.1 | Design and implement the ConvLSTM cell class                 | in-progress   |           |              |
-| 16.2 | Implement the ConvLSTM layer class                           | pending       |           | 1            |
-| 16.3 | Create CNN encoder for the U-Net architecture                | pending       |           |              |
-| 16.4 | Implement the ConvLSTM bottleneck                            | pending       |           | 2, 3         |
-| 16.5 | Implement CNN decoder with skip connections                  | pending       |           | 3            |
-| 16.6 | Assemble the complete CNN-ConvLSTM U-Net architecture        | pending       |           | 4, 5         |
-| 16.7 | Create Hydra configuration and register the model            | pending       |           | 6            |
-| 16.8 | Write comprehensive tests and documentation                  | pending       |           | 1,2,3,4,5,6,7|
+| 16   | Implement ConvLSTM Component and CNN-ConvLSTM U-Net Arch.    |
+done   | medium    | 15           |
+| 16.1 | Design and implement the ConvLSTM cell class                 | done   |           |              |
+| 16.2 | Implement the ConvLSTM layer class                           | done   |           | 1            |
+| 16.3 | Create CNN encoder for the U-Net architecture                | done       |           |              |
+| 16.4 | Implement the ConvLSTM bottleneck                            | done       |           | 2, 3         |
+| 16.5 | Implement CNN decoder with skip connections                  | done       |           | 3            |
+| 16.6 | Assemble the complete CNN-ConvLSTM U-Net architecture        | done       |           | 4, 5         |
+| 16.7 | Create Hydra configuration and register the model            | done       |           | 6            |
+| 16.8 | Write comprehensive tests and documentation                  | in-progress       |           | 1,2,3,4,5,6,7|
 | 17   | Implement Swin Transformer V2 as a Modular Encoder Component | pending       | medium    | 15           |
 | 18   | Implement Atrous Spatial Pyramid Pooling (ASPP) Module       | pending       | medium    | 15           |
 | 19   | Implement Convolutional Block Attention Module (CBAM)        | pending       | medium    | 15           |
