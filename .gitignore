@@ -48,5 +48,11 @@ build/
 # VSCode
 .vscode/
 
-# Ignorar caché de pytest
+# Ignore pytest cache
 .pytest_cache/ 
+
+# Ignore hydra cache
+hydra/
+
+# Directories to ignore
+output/
