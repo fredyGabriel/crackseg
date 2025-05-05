@@ -16,5 +16,10 @@
   "tests/model/test_unet.py::TestBaseUNet::test_component_compatibility": true,
   "tests/model/unit/test_base.py::test_skip_connection_compatibility": true,
   "tests/model/integration/test_unet_aspp_integration.py::test_unet_with_aspp_bottleneck_hydra": true,
-  "tests/model/integration/test_unet_aspp_integration.py::test_unet_with_aspp_direct_instantiation[16-3-1-dilations0]": true
+  "tests/model/integration/test_unet_aspp_integration.py::test_unet_with_aspp_direct_instantiation[16-3-1-dilations0]": true,
+  "tests/model/integration/test_cbam_integration.py::test_cbam_integration_unet_forward": true,
+  "tests/model/integration/test_cbam_integration.py::test_cbam_integration_cnn_convlstm_unet_forward": true,
+  "tests/model/integration/test_cbam_integration.py::test_cbam_save_and_load": true,
+  "tests/model/unit/test_cbam_config.py::test_cbam_enabled_in_config": true,
+  "tests/model/unit/test_cbam_config.py::test_cbam_custom_params": true
 }

@@ -15,6 +15,7 @@ import hydra.utils
 import torch.nn as nn
 from src.model.base import EncoderBase, BottleneckBase, DecoderBase, UNetBase
 from src.model.registry import Registry  # Keep if generic creator is used
+from src.model.components.cbam import attention_registry
 
 # Create logger
 log = logging.getLogger(__name__)
@@ -253,3 +254,37 @@ def create_component_from_config(
             f"Error creating {registry.name.lower()} of type "
             f"'{component_type}': {str(e)}"
         ) from e
+
+
+def insert_cbam_if_enabled(module: nn.Module, config: dict) -> nn.Module:
+    """
+    Optionally insert a CBAM block into a CNN module if enabled in config.
+
+    Args:
+        module (nn.Module): The CNN block to wrap.
+        config (dict): Configuration dictionary. Should contain:
+            - 'cbam_enabled' (bool): Whether to insert CBAM.
+            - 'cbam_params' (dict): Parameters for CBAM (optional).
+
+    Returns:
+        nn.Module: The original module or a sequential module with CBAM.
+
+    Example:
+        >>> block = nn.Conv2d(64, 64, 3, padding=1)
+        >>> config = {'cbam_enabled': True, 'cbam_params': {'reduction': 8}}
+        >>> block_with_cbam = insert_cbam_if_enabled(block, config)
+    """
+    if config.get('cbam_enabled', False):
+        cbam_params = config.get('cbam_params', {})
+        # Infer in_channels from the module if not provided
+        in_channels = getattr(module, 'out_channels', None)
+        if in_channels is None:
+            raise ValueError(
+                "Cannot infer in_channels for CBAM from module. "
+                "Please specify 'in_channels' in cbam_params."
+            )
+        cbam = attention_registry.instantiate(
+            'CBAM', in_channels=in_channels, **cbam_params
+        )
+        return nn.Sequential(module, cbam)
+    return module

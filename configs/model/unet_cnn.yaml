@@ -30,6 +30,13 @@ decoder:
   depth: 4 # Must match encoder depth
   _target_: src.model.decoder.cnn_decoder.CNNDecoder
 
+  # --- Optional CBAM Attention Block ---
+  # Enable CBAM attention in each decoder block (default: false)
+  cbam_enabled: false  # Set to true to enable CBAM in decoder blocks
+  cbam_params:
+    reduction: 16      # Reduction ratio for channel attention (default: 16)
+    kernel_size: 7     # Kernel size for spatial attention (default: 7)
+
 # --- Optional Final Activation ---
 # final_activation:
 #   _target_: torch.nn.Sigmoid
