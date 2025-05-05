@@ -55,4 +55,4 @@ build/
 hydra/
 
 # Directories to ignore
-output/
+outputs/
