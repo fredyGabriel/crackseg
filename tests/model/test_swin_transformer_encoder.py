@@ -436,7 +436,8 @@ def test_swintransformerencoder_output_norm_flag():
 
     # Print some values for debugging
     print(f"With norm - First few values: {bottleneck_with_norm[0, 0, 0, :5]}")
-    print(f"Without norm - First few values: {bottleneck_without_norm[0, 0, 0, :5]}")
+    print("Without norm - First few values: "
+          f"{bottleneck_without_norm[0, 0, 0, :5]}")
 
     # NOTE: The actual effect of output_norm depends on the specific
     # implementation.
@@ -445,7 +446,7 @@ def test_swintransformerencoder_output_norm_flag():
 
 
 @pytest.mark.skipif(
-    not torch.cuda.is_available(), 
+    not torch.cuda.is_available(),
     reason="Gradient test requires CUDA"
 )
 def test_swintransformerencoder_gradient_flow():
@@ -463,7 +464,7 @@ def test_swintransformerencoder_gradient_flow():
 
     # Create input tensor requiring gradients
     x = torch.randn(
-        1, in_channels, img_size, img_size, 
+        1, in_channels, img_size, img_size,
         device=device, requires_grad=True
     )
 
@@ -479,7 +480,7 @@ def test_swintransformerencoder_gradient_flow():
     assert torch.isfinite(x.grad).all()
 
     # Check that at least some model parameters have gradients
-    # (we can't guarantee all parameters will due to features of modern 
+    # (we can't guarantee all parameters will due to features of modern
     # architectures like skip connections)
     grad_params = 0
     total_params = 0

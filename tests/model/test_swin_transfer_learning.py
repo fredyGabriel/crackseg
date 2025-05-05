@@ -227,7 +227,8 @@ def test_integration_freeze_and_transfer():
                 f"Expected no gradient for frozen parameter {name}"
         else:
             # Some parameters might not receive gradients due to the network
-            # structure, so we can't assert all non-frozen parameters have gradients
+            # structure, so we can't assert all non-frozen parameters have
+            # gradients
             pass
 
 
@@ -235,7 +236,7 @@ def test_integration_freeze_and_transfer():
 def count_trainable_params(model):
     """Count trainable and frozen parameters in a model."""
     trainable_params = sum(p.numel() for p in model.parameters()
-                          if p.requires_grad)
+                           if p.requires_grad)
     frozen_params = sum(p.numel() for p in model.parameters()
                         if not p.requires_grad)
     return trainable_params, frozen_params
@@ -243,5 +244,5 @@ def count_trainable_params(model):
 
 def get_param_status_by_name(model):
     """Get a dictionary mapping parameter names to trainable status."""
-    return {name: param.requires_grad 
+    return {name: param.requires_grad
             for name, param in model.named_parameters()}

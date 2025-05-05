@@ -46,7 +46,9 @@ def print_model_structure():
 
             # Para el primer grupo, mostrar ejemplos
             if count > 0:
-                examples = [name for name, _ in all_params if name.split('.')[0] == prefix][:3]
+                examples = [name for name,
+                            _ in all_params if name.split('.')[0] == prefix][
+                                :3]
                 for ex in examples:
                     print(f"  - Example: {ex}")
 
@@ -64,7 +66,8 @@ def print_model_structure():
         print("\nSearching for alternative stage/block patterns:")
         patterns = ["stage", "block", "layer"]
         for pattern in patterns:
-            matching = [name for name, _ in all_params if pattern in name.lower()]
+            matching = [name for name, _ in all_params if pattern in
+                        name.lower()]
             if matching:
                 print(f"- '{pattern}': {len(matching)} parameters")
                 for ex in matching[:3]:  # Mostrar algunos ejemplos

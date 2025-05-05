@@ -1,13 +1,13 @@
 """
 Transfer learning demonstration for the Swin Transformer V2 encoder.
 
-This script demonstrates advanced transfer learning techniques for the 
+This script demonstrates advanced transfer learning techniques for the
 SwinTransformerEncoder, including:
 - Parameter freezing strategies
 - Gradual unfreezing
 - Differential learning rates
 
-These techniques help to efficiently fine-tune pre-trained models on new 
+These techniques help to efficiently fine-tune pre-trained models on new
 datasets with limited data or computational resources.
 """
 
