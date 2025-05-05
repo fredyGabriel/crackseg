@@ -75,8 +75,8 @@ done   | medium    | 15           |
 | 16.5 | Implement CNN decoder with skip connections                  | done       |           | 3            |
 | 16.6 | Assemble the complete CNN-ConvLSTM U-Net architecture        | done       |           | 4, 5         |
 | 16.7 | Create Hydra configuration and register the model            | done       |           | 6            |
-| 16.8 | Write comprehensive tests and documentation                  | in-progress       |           | 1,2,3,4,5,6,7|
-| 17   | Implement Swin Transformer V2 as a Modular Encoder Component | pending       | medium    | 15           |
+| 16.8 | Write comprehensive tests and documentation                  | done       |           | 1,2,3,4,5,6,7|
+| 17   | Implement Swin Transformer V2 as a Modular Encoder Component | done       | medium    | 15           |
 | 18   | Implement Atrous Spatial Pyramid Pooling (ASPP) Module       | pending       | medium    | 15           |
 | 19   | Implement Convolutional Block Attention Module (CBAM)        | pending       | medium    | 15           |
 | 20   | Implement Hybrid U-Net Architecture with SwinV2, CNN, ASPP   | pending       | medium-high| 17,18,19     |

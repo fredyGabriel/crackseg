@@ -3,5 +3,8 @@
   "tests/model/test_integration.py::test_unet_forward_pass_from_manual_config": true,
   "tests/model/test_integration.py::test_unet_cnn_instantiation_from_config": true,
   "tests/utils/test_logging.py::test_experiment_logger_init": true,
-  "tests/utils/test_logging.py::test_experiment_logger_log_scalar": true
+  "tests/utils/test_logging.py::test_experiment_logger_log_scalar": true,
+  "tests/model/test_swinv2_integration.py": true,
+  "tests/model/test_swinv2_integration_fixed.py": true,
+  "tests/model/test_swin_minimal.py::test_swin_encoder_unet_factory_integration": true
 }
