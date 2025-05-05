@@ -9,7 +9,7 @@ from src.model.base import EncoderBase, BottleneckBase, DecoderBase  # noqa E402
 # from src.model.factory import (
 #     encoder_registry, bottleneck_registry, decoder_registry
 # )
-# from tests.model.test_registry import (
+# from tests.model.unit.test_registry import (
 #     MockEncoder, MockBottleneck, MockDecoder
 # )
 

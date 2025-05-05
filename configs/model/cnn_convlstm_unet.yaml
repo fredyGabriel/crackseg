@@ -1,6 +1,10 @@
 # Hydra configuration for the CNN-ConvLSTM U-Net model.
 # NO main _target_ here. Components instantiated individually.
 
+defaults:
+  - bottleneck: convlstm_bottleneck
+  - _self_
+
 # --- Encoder Configuration ---
 encoder:
   # Target the specific class directly
@@ -11,17 +15,7 @@ encoder:
   depth: 5 # Example: Number of downsampling blocks
   # kernel_size, pool_size use defaults from CNNEncoder definition
 
-# --- Bottleneck Configuration ---
-bottleneck:
-  # Target the specific class directly
-  _target_: src.model.architectures.cnn_convlstm_unet.ConvLSTMBottleneck
-  # type: ConvLSTMBottleneck # No longer needed
-  # in_channels determined by create_unet
-  hidden_dim: 1024 # Example: Output channels from bottleneck
-  # Use tuple format directly, which Hydra handles correctly
-  kernel_size: [3, 3]
-  num_layers: 1
-  bias: True
+# --- Bottleneck Configuration --- Removed, loaded via defaults
 
 # --- Decoder Configuration ---
 decoder:
@@ -41,6 +35,7 @@ decoder:
 
 # Note:
 # - UNetBase validation handles channel/depth/skip matching.
+# - Bottleneck config is now selected via the 'defaults' list.
 # - Setting ??? for in_channels/skip_channels_list highlights dependencies.
 # - A more robust setup might involve a wrapper config object or having
 #   create_unet handle the channel matching based on instantiated components.

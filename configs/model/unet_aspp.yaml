@@ -1,0 +1,44 @@
+# @package _global_
+
+# Configuration for UNet with Atrous Spatial Pyramid Pooling (ASPP) bottleneck
+# This provides a semantic segmentation model that captures multi-scale context
+# through multiple parallel dilated convolutions.
+
+defaults:
+  - _self_
+  - bottleneck: aspp_bottleneck
+
+# Target the main UNet assembly class
+_target_: src.model.unet.BaseUNet
+
+# --- Component Configurations ---
+
+encoder:
+  in_channels: 3          # Default: RGB images
+  init_features: 64       # Initial feature channels after first conv
+  depth: 4                # Number of downsampling blocks
+  _target_: src.model.encoder.cnn_encoder.CNNEncoder
+
+bottleneck:
+  # ASPP settings (inherited from bottleneck/aspp_bottleneck.yaml)
+  # Override in_channels and output_channels in test
+  # Will auto-compute from encoder.out_channels in create_unet factory
+  type: ASPPModule        # Registered name in bottleneck_registry
+
+decoder:
+  # Will auto-compute in_channels from bottleneck.out_channels in create_unet factory
+  # Will auto-compute skip_channels_list from encoder.skip_channels in create_unet factory
+  out_channels: 1         # Number of segmentation classes
+  depth: ${encoder.depth}  # Must match encoder depth
+  _target_: src.model.decoder.cnn_decoder.CNNDecoder
+
+# Add sigmoid activation for binary segmentation
+final_activation:
+  _target_: torch.nn.Sigmoid
+
+# --- Helpful Notes ---
+# 1. This model uses ASPP to capture multi-scale context, which helps with
+#    detecting features of different sizes (like cracks of varying widths)
+# 2. ASPP dilated convolutions expand receptive field without downsampling,
+#    maintaining resolution for better segmentation detail
+# 3. For best results with ASPP, input resolution should be divisible by 2^depth 

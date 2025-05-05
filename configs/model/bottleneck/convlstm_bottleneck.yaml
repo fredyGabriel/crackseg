@@ -1,0 +1,12 @@
+# Configuration for the ConvLSTM bottleneck module
+# Compatible with src.model.factory.create_bottleneck
+
+# Target the specific class directly
+_target_: src.model.architectures.cnn_convlstm_unet.ConvLSTMBottleneck
+# type: ConvLSTMBottleneck # No longer needed
+# in_channels determined by create_unet
+hidden_dim: 1024 # Example: Output channels from bottleneck
+# Use tuple format directly, which Hydra handles correctly
+kernel_size: [3, 3]
+num_layers: 1
+bias: True 

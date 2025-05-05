@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Directory-specific README.md files with detailed documentation
 - Structured project layout with clear organization
 - Data directory structure for training, validation, and testing
+- Implemented Atrous Spatial Pyramid Pooling (ASPP) module as a modular bottleneck component (`src/model/components/aspp.py`), inheriting from `BottleneckBase`.
+- Added support for configurable dilation rates, dropout, and output stride in ASPP.
+- Integrated ASPP into the UNet architecture with updated Hydra configuration files (`configs/model/bottleneck/aspp_bottleneck.yaml`, `configs/model/unet_aspp.yaml`).
+- Provided detailed documentation and usage recommendations in the configuration README.
 
 ### Changed
 - Directory structure reorganized for better organization:
@@ -34,6 +38,13 @@ Current stable versions:
 - scikit-image 0.25.2
 - opencv-python (version TBD)
 - python-dotenv (version TBD)
+
+### Testing & Benchmarking
+- Added unit and integration tests for ASPP, covering initialization, forward pass, edge cases, and compatibility with UNet. All tests pass.
+- Benchmarked ASPP performance and memory usage versus standard bottlenecks (`scripts/benchmark_aspp.py`).
+
+### Notes
+- The ASPP module is fully integrated, tested, and ready for use in the segmentation pipeline.
 
 ## [0.1.0] - 2025-05-01
 

@@ -6,7 +6,7 @@ import torch.nn as nn
 
 from src.model.base import EncoderBase, BottleneckBase, DecoderBase
 from src.model.unet import BaseUNet
-from tests.model.test_registry import (
+from tests.model.unit.test_registry import (
     MockEncoder, MockBottleneck, MockDecoder
 )
 

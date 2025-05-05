@@ -1,0 +1,16 @@
+# @package _group_
+
+# Configuration for the ASPP bottleneck module.
+# Atrous Spatial Pyramid Pooling (ASPP) module applies multiple parallel dilated
+# convolutions with different rates to capture multi-scale contextual information.
+# Compatible with src.model.factory.create_bottleneck and bottleneck_registry.
+
+_target_: src.model.components.aspp.ASPPModule
+type: ASPPModule  # Registered name in bottleneck_registry
+
+# Parameter Configuration
+in_channels: 128         # Must match encoder output channels
+output_channels: 256    # Output channels for ASPP module after feature fusion
+dilation_rates: [1, 6, 12, 18]  # Dilations for parallel atrous convolutions (DeepLabV3+ default)
+dropout_rate: 0.1        # Dropout probability after feature fusion (range 0-1)
+output_stride: 16        # Output stride of network (affects dilations, usually 8 or 16) 

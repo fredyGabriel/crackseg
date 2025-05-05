@@ -6,5 +6,15 @@
   "tests/utils/test_logging.py::test_experiment_logger_log_scalar": true,
   "tests/model/test_swinv2_integration.py": true,
   "tests/model/test_swinv2_integration_fixed.py": true,
-  "tests/model/test_swin_minimal.py::test_swin_encoder_unet_factory_integration": true
+  "tests/model/test_swin_minimal.py::test_swin_encoder_unet_factory_integration": true,
+  "tests/model/integration/test_model_factory.py::test_create_encoder_basic": true,
+  "tests/model/integration/test_model_factory.py::test_create_encoder_invalid_type": true,
+  "tests/model/integration/test_model_factory.py::test_create_bottleneck_basic": true,
+  "tests/model/integration/test_model_factory.py::test_create_decoder_basic": true,
+  "tests/model/integration/test_model_factory.py::test_create_unet_basic": true,
+  "tests/model/integration/test_model_factory.py::test_create_unet_with_final_activation": true,
+  "tests/model/test_unet.py::TestBaseUNet::test_component_compatibility": true,
+  "tests/model/unit/test_base.py::test_skip_connection_compatibility": true,
+  "tests/model/integration/test_unet_aspp_integration.py::test_unet_with_aspp_bottleneck_hydra": true,
+  "tests/model/integration/test_unet_aspp_integration.py::test_unet_with_aspp_direct_instantiation[16-3-1-dilations0]": true
 }

@@ -1,5 +1,6 @@
 defaults:
   - _self_
+  - bottleneck: aspp_bottleneck  # Select ASPP as the bottleneck (see configs/model/bottleneck/aspp_bottleneck.yaml)
 
 # Target the main UNet assembly class
 _target_: src.model.unet.BaseUNet
@@ -7,32 +8,27 @@ _target_: src.model.unet.BaseUNet
 # --- Component Configurations ---
 
 encoder:
-  _target_: src.model.encoder.cnn_encoder.CNNEncoder
-  type: CNNEncoder # Explicitly added type for factory
   in_channels: 3    # Example: For RGB input
   init_features: 64 # Number of features after the first conv layer
   depth: 4          # Number of downsampling blocks
+  _target_: src.model.encoder.cnn_encoder.CNNEncoder
 
 bottleneck:
-  _target_: src.model.bottleneck.cnn_bottleneck.BottleneckBlock
-  type: CNNBottleneckBlock # Added type for factory (assuming registered)
-  # Input channels calculated based on encoder: init_features * 2**(depth-1)
-  # Example: 64 * 2**(4-1) = 64 * 8 = 512
   in_channels: 512
   out_channels: 1024 # Example: Double channels in bottleneck
   dropout: 0.5
+  _target_: src.model.bottleneck.cnn_bottleneck.BottleneckBlock
 
 decoder:
-  _target_: src.model.decoder.cnn_decoder.CNNDecoder
-  type: CNNDecoder # Explicitly added type for factory
-  # Input channels from bottleneck
   in_channels: 1024
-  # Skip channels must match encoder's skip_channels property
-  # Example: [64, 128, 256, 512]
+  # Este skip_channels_list debe coincidir con encoder.skip_channels para evitar errores
+  # El orden debe ser desde alta resolución (cercana a la entrada) hasta baja resolución 
+  # (cercana al bottleneck), lo que coincide con el orden en que el encoder produce los skips.
+  # CNNDecoder internamente invertirá esta lista al usarla.
   skip_channels_list: [64, 128, 256, 512]
-  # Final output channels (e.g., for binary segmentation)
   out_channels: 1
   depth: 4 # Must match encoder depth
+  _target_: src.model.decoder.cnn_decoder.CNNDecoder
 
 # --- Optional Final Activation ---
 # final_activation:

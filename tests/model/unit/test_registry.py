@@ -40,25 +40,50 @@ class MockBottleneck(BottleneckBase):
 
 class MockDecoder(DecoderBase):
     """Mock implementation of DecoderBase for testing."""
-    def __init__(self, in_channels: int = 128, skip_channels: List[int] = None
-                 ):
-        # Store skip_channels in the REVERSED order expected by base validation
-        skips_provided = skip_channels if skip_channels is not None else [16,
-                                                                          32]
-        # The UNet base class expects decoder skip_channels to be the reverse
-        # of encoder skip_channels for validation.
-        # Store them in the reversed order internally.
-        skips_to_store = list(reversed(skips_provided))
-        super().__init__(in_channels, skips_to_store)
+    def __init__(
+        self,
+        in_channels: int = 128,
+        skip_channels: list = None,
+        skip_channels_list: list = None
+    ):
+        # Permitir ambos nombres de argumento para compatibilidad Hydra
+        if skip_channels_list is not None:
+            skips_provided = skip_channels_list
+        elif skip_channels is not None:
+            skips_provided = skip_channels
+        else:
+            # Default: skip_channels invertidos respecto a MockEncoder
+            # MockEncoder.skip_channels = [16, 32]
+            # Por lo tanto, usamos [32, 16] aquí (de menor a mayor resolución)
+            skips_provided = [32, 16]
+
+        # IMPORTANT: In UNet architecture, decoder.skip_channels must be
+        # the reverse of encoder.skip_channels, since the decoder processes
+        # features from low to high resolution while the encoder outputs
+        # them from high to low resolution.
+        super().__init__(in_channels, skips_provided)
 
     def forward(self, x, skips):
-        # Note: skips passed here by UNet will be in encoder order.
-        # If this mock needed to *use* skips, it might need to reverse them.
+        # Note: skips passed here by UNet will be in encoder order
+        # (high to low res). If this mock needed to *use* skips,
+        # it might need to reverse them.
         return x
 
     @property
     def out_channels(self) -> int:
         return 1
+
+    @classmethod
+    def skip_channels_expected(cls):
+        """
+        Helper for tests: Return the expected skip_channels list after
+        reversal.
+
+        This matches the order expected for decoder.skip_channels when
+        connected to a MockEncoder (low-res to high-res).
+        """
+        # [32, 16] is the reverse of MockEncoder.skip_channels [16, 32]
+        return [32, 16]
 
 
 # Fixtures for common test setups
@@ -287,7 +312,7 @@ def test_typical_usage_flow():
     decoder = decoder_reg.instantiate(
         "SimpleDecoder",
         in_channels=bottleneck.out_channels,
-        skip_channels=encoder.skip_channels
+        skip_channels=list(reversed(encoder.skip_channels))
     )
 
     # Verify instantiation worked correctly
@@ -298,4 +323,4 @@ def test_typical_usage_flow():
     # Verify components are correctly connected
     assert encoder.out_channels == bottleneck.in_channels
     assert bottleneck.out_channels == decoder.in_channels
-    assert encoder.skip_channels == list(reversed(decoder.skip_channels))
+    assert decoder.skip_channels == MockDecoder.skip_channels_expected()

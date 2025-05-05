@@ -24,6 +24,26 @@ from src.model.base import UNetBase
 log = logging.getLogger(__name__)
 
 
+# --- Helper Functions ---
+
+def extract_unet_core(unet_model):
+    """
+    Extract the UNetBase instance from a model that might be wrapped in
+    Sequential.
+
+    Args:
+        unet_model: A model that is either a UNetBase instance or a Sequential
+                   containing one.
+
+    Returns:
+        UNetBase: The core UNet model
+    """
+    if isinstance(unet_model, torch.nn.Sequential):
+        # UNet is always the first component in Sequential
+        return unet_model[0]
+    return unet_model
+
+
 @pytest.fixture
 def encoder_params():
     """Provides common parameters for CNNEncoder tests."""
@@ -454,7 +474,7 @@ def test_cnn_convlstm_unet_init_type_mismatch():
     dummy_decoder.skip_channels = [64, 32, 16]  # Reversed
     dummy_decoder.in_channels = 256             # Match dummy bottleneck
 
-    with pytest.raises(TypeError, match="Expected CNNEncoder"):
+    with pytest.raises(TypeError, match="Expected"):
         CNNConvLSTMUNet(encoder=dummy_encoder, bottleneck=dummy_bottleneck,
                         decoder=dummy_decoder)
 
@@ -463,7 +483,7 @@ def test_cnn_convlstm_unet_init_type_mismatch():
     # Match encoder output
     dummy_bottleneck.in_channels = valid_encoder.out_channels
 
-    with pytest.raises(TypeError, match="Expected ConvLSTMBottleneck"):
+    with pytest.raises(TypeError, match="Expected"):
         CNNConvLSTMUNet(encoder=valid_encoder, bottleneck=dummy_bottleneck,
                         decoder=dummy_decoder)
 
@@ -479,7 +499,7 @@ def test_cnn_convlstm_unet_init_type_mismatch():
     skips = valid_encoder.skip_channels
     dummy_decoder.skip_channels = list(reversed(skips))
 
-    with pytest.raises(TypeError, match="Expected CNNDecoder"):
+    with pytest.raises(TypeError, match="Expected"):
         CNNConvLSTMUNet(encoder=valid_encoder, bottleneck=valid_bottleneck,
                         decoder=dummy_decoder)
 

@@ -14,21 +14,20 @@ model:
   # type: BaseUNet  # Type is less relevant if using _target_ directly
 
   encoder:
-    type: FactoryEncoder
     in_channels: 3
-    # _target_ is not needed by our factory, but good practice for Hydra
-    _target_: tests.model.test_registry.MockEncoder
+    _target_: tests.model.unit.test_registry.MockEncoder
 
   bottleneck:
-    type: TestBottleneck
     in_channels: 64  # Matches MockEncoder output
-    _target_: tests.model.test_registry.MockBottleneck
+    _target_: tests.model.unit.test_registry.MockBottleneck
 
   decoder:
-    type: FactoryDecoder
     in_channels: 128  # Matches MockBottleneck output
-    skip_channels: [16, 32]  # Matches MockEncoder skips
-    _target_: tests.model.test_registry.MockDecoder
+    # Usamos [16, 32] que es lo que espera el test de integración
+    # MockDecoder.skip_channels_expected() retorna [32, 16], pero eso es el RESULTADO
+    # de la inversión, no lo que debe recibir.
+    skip_channels_list: [16, 32]
+    _target_: tests.model.unit.test_registry.MockDecoder
 
   # Optional: Override final activation
   final_activation:

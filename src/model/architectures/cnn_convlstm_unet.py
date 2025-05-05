@@ -314,28 +314,29 @@ class CNNDecoder(DecoderBase):
 # No need to register the final UNet class itself if using create_unet factory
 class CNNConvLSTMUNet(UNetBase):
     """
-    Complete U-Net architecture combining CNNEncoder, ConvLSTMBottleneck,
-    and CNNDecoder.
+    Complete U-Net architecture combining CNNEncoder, a Bottleneck, and
+    CNNDecoder.
+
+    While named CNNConvLSTMUNet, it can accept any BottleneckBase compliant
+    module.
 
     Args:
         encoder (CNNEncoder): The CNN encoder component.
-        bottleneck (ConvLSTMBottleneck): The ConvLSTM bottleneck component.
+        bottleneck (BottleneckBase): The bottleneck component
+        (e.g., ConvLSTM or ASPP).
         decoder (CNNDecoder): The CNN decoder component.
     """
-    def __init__(self, encoder: CNNEncoder, bottleneck: ConvLSTMBottleneck,
+    def __init__(self, encoder: CNNEncoder, bottleneck: BottleneckBase,
                  decoder: CNNDecoder):
-        # Validate component types explicitly here for clarity,
-        # though base class also does it
-        if not isinstance(encoder, CNNEncoder):
-            raise TypeError(f"Expected CNNEncoder, got {type(encoder)}")
-        if not isinstance(bottleneck, ConvLSTMBottleneck):
-            raise TypeError(
-                f"Expected ConvLSTMBottleneck, got {type(bottleneck)}"
-            )
-        if not isinstance(decoder, CNNDecoder):
-            raise TypeError(f"Expected CNNDecoder, got {type(decoder)}")
+        # Validate component types
+        if not isinstance(encoder, EncoderBase):
+            raise TypeError(f"Expected EncoderBase, got {type(encoder)}")
+        if not isinstance(bottleneck, BottleneckBase):
+            raise TypeError(f"Expected BottleneckBase, got {type(bottleneck)}")
+        if not isinstance(decoder, DecoderBase):
+            raise TypeError(f"Expected DecoderBase, got {type(decoder)}")
 
-        # Initialize the base class which also performs validation
+        # Initialize the base class (performs further validation)
         super().__init__(encoder=encoder, bottleneck=bottleneck,
                          decoder=decoder)
 
@@ -349,17 +350,9 @@ class CNNConvLSTMUNet(UNetBase):
         Returns:
             torch.Tensor: Output segmentation map.
         """
-        # Pass input through encoder to get bottleneck features and skips
-        # Encoder returns (output_after_last_pool, skips_high_to_low_res)
         encoder_output, skips = self.encoder(x)
-
-        # Pass encoder output through the bottleneck
         bottleneck_output = self.bottleneck(encoder_output)
-
-        # Pass bottleneck output and skips through the decoder
-        # Decoder expects skips ordered high-res to low-res
         decoder_output = self.decoder(bottleneck_output, skips)
-
         return decoder_output
 
 # Final architecture assembled.

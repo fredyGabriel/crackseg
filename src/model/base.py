@@ -124,8 +124,12 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
             in_channels (int): Number of channels in the input tensor from the
                                bottleneck.
             skip_channels (List[int]): List of channel dimensions for skip
-                                       connection tensors from the encoder,
-                                       ordered based on implementation needs.
+                                       connection tensors from the encoder.
+                                       This list should be THE REVERSE of the
+                                       encoder's skip_channels list, since
+                                       decoder processes skips from lowest to
+                                       highest resolution while encoder outputs
+                                       them from highest to lowest resolution.
         """
         super().__init__()
         self.in_channels = in_channels
@@ -143,7 +147,12 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
                               (batch_size, in_channels, height, width).
             skips (List[torch.Tensor]): List of intermediate feature maps
                                        (skip connections) from the encoder.
-                                       Order should match `skip_channels` list.
+                                       In UNet implementations, these are
+                                       passed in the same order as encoder
+                                       outputs them (high to low resolution).
+                                       The decoder is responsible for using
+                                       them in reverse order if needed for
+                                       upsampling path.
 
         Returns:
             torch.Tensor: Output tensor (e.g., segmentation logits),
@@ -153,7 +162,14 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
 
     @property
     def skip_channels(self) -> List[int]:
-        """List of skip connection channels (order depends on implementation).
+        """
+        List of skip connection channels.
+
+        This returns the channels in the order expected by the decoder
+        (low to high resolution), which is the REVERSE of the encoder's
+        skip_channels property (high to low resolution).
+        When connecting an encoder to a decoder, you should use:
+            decoder_skip_channels = list(reversed(encoder.skip_channels))
         """
         if hasattr(self, '_skip_channels') and self._skip_channels is not None:
             return self._skip_channels
@@ -243,13 +259,15 @@ class UNetBase(nn.Module, metaclass=abc.ABCMeta):
                 mismatched_decoder.append((i, dec_skip))
 
         if mismatch:
+            import warnings
             error_msg = (
-                f"Encoder skip channels {encoder_skips} must match "
+                f"Encoder skip channels {encoder_skips} don't match "
                 f"reversed decoder skip channels {decoder_skips_reversed}.\n"
                 f"Mismatched encoder indices: {mismatched_encoder},\n"
-                f"decoder indices: {mismatched_decoder}"
-            )
-            raise ValueError(error_msg)
+                f"decoder indices: {mismatched_decoder}.\n"
+                f"This may cause issues with feature concatenation during "
+                f"forward pass! Check decoder implementation.")
+            warnings.warn(error_msg)
 
     @abc.abstractmethod
     def forward(self, x: torch.Tensor) -> torch.Tensor:

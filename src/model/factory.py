@@ -25,7 +25,7 @@ T = TypeVar('T')
 # Create registries for each component type
 # encoder_registry = Registry(EncoderBase, "Encoder") # Keep registry
 # definitions if used elsewhere
-# bottleneck_registry = Registry(BottleneckBase, "Bottleneck")
+bottleneck_registry = Registry(BottleneckBase, "Bottleneck")
 # decoder_registry = Registry(DecoderBase, "Decoder")
 
 
@@ -148,7 +148,7 @@ def create_decoder(config: DictConfig, **runtime_kwargs) -> DecoderBase:
 def create_unet(config: DictConfig) -> UNetBase:
     """Factory function to create a U-Net model from configuration."""
     required_components = ["encoder", "bottleneck", "decoder"]
-    validate_config(config, required_components, context="unet")
+    validate_config(config, required_components, "unet")
 
     try:
         # 1. Instantiate Encoder using its factory
@@ -168,19 +168,32 @@ def create_unet(config: DictConfig) -> UNetBase:
         encoder_skips = getattr(encoder, 'skip_channels', [])
         if not isinstance(encoder_skips, list):
             encoder_skips = []
-        decoder_skip_channels_list = list(reversed(encoder_skips))
+
+        # IMPORTANT: Reverse encoder skip_channels when passing to decoder
+        # This is because encoder outputs skip connections from high to low
+        # resolution, but decoder processes them from low to high resolution
+        # during upsampling.
+        # Reverse encoder skips for the decoder
+        reversed_encoder_skips = list(reversed(encoder_skips))
+        # Pass reversed skips to decoder initialization
         decoder = create_decoder(
             config.decoder,
             in_channels=decoder_in_channels,
-            skip_channels_list=decoder_skip_channels_list
+            skip_channels_list=reversed_encoder_skips
         )
         log.info(f"Instantiated Decoder: {type(decoder).__name__}")
 
-        # 4. Instantiate the UNetBase (performs final validation)
-        unet_model = UNetBase(
+        # 4. Instanciar la clase concreta indicada por _target_ o BaseUNet
+        unet_target = config.get('_target_', 'src.model.unet.BaseUNet')
+        if isinstance(unet_target, str):
+            from hydra.utils import get_class
+            UnetClass = get_class(unet_target)
+        else:
+            UnetClass = unet_target
+        unet_model = UnetClass(
             encoder=encoder, bottleneck=bottleneck, decoder=decoder
         )
-        log.info("Instantiated UNetBase.")
+        log.info(f"Instantiated {UnetClass.__name__}.")
 
         # 5. Handle optional final activation
         if "final_activation" in config:
