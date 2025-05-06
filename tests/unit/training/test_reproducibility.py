@@ -36,15 +36,8 @@ def base_config():
     # Robust way to find project root based on this file's location
     # Assuming project root contains 'src' and 'configs'
     current_file_dir = Path(__file__).parent
-    project_root = current_file_dir.parent.parent  # Go up two levels
+    project_root = current_file_dir.parent.parent.parent  # Go up three levels
     config_dir_abs = project_root / "configs"
-
-    # Check if config dir exists
-    if not config_dir_abs.is_dir():
-        pytest.fail(
-            f"Config directory not found: {config_dir_abs}\n"
-            f"Project Root Guessed: {project_root}"
-        )
 
     # Use initialize_config_dir
     initialize_config_dir(config_dir=str(config_dir_abs),
