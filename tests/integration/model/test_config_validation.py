@@ -149,8 +149,9 @@ class TestComponentValidation:
             "in_channels": 3,
             "hidden_dims": [64, 128, 256, 512]
         }
-        is_valid, errors = validate_component_config("encoder",
-                                                     valid_cnn_config)
+        is_valid, errors = validate_component_config(
+            valid_cnn_config, "encoder"
+        )
         print(f"DEBUG ERRORS: {errors}")
         assert is_valid is True
         assert errors is None
@@ -165,8 +166,9 @@ class TestComponentValidation:
             "window_size": 7,
             "pretrained": True
         }
-        is_valid, errors = validate_component_config("encoder",
-                                                     valid_swin_config)
+        is_valid, errors = validate_component_config(
+            valid_swin_config, "encoder"
+        )
         assert not is_valid
         assert errors is not None
         assert "_unknown" in errors or "_general" in errors
@@ -177,7 +179,9 @@ class TestComponentValidation:
             # Missing in_channels
             "hidden_dims": [64, 128, 256, 512]
         }
-        is_valid, errors = validate_component_config("encoder", invalid_config)
+        is_valid, errors = validate_component_config(
+            invalid_config, "encoder"
+        )
         assert is_valid is False
         assert errors is not None
 
@@ -188,7 +192,7 @@ class TestComponentValidation:
             "in_channels": 3,
             "hidden_dims": "should_be_list"
         }
-        is_valid, errors = validate_component_config("encoder", invalid_config)
+        is_valid, errors = validate_component_config(invalid_config, "encoder")
         assert not is_valid
         # Puede fallar por tipo o por error general
         assert ("hidden_dims" in errors) or ("_general" in errors)
@@ -202,8 +206,9 @@ class TestComponentValidation:
             "out_channels": 256,
             "atrous_rates": [6, 12, 18]
         }
-        is_valid, errors = validate_component_config("bottleneck",
-                                                     valid_aspp_config)
+        is_valid, errors = validate_component_config(
+            valid_aspp_config, "bottleneck"
+        )
         assert is_valid is True or (
             not is_valid and (
                 "_unknown" in errors or "_general" in errors
@@ -221,7 +226,7 @@ class TestComponentValidation:
             "num_layers": 1
         }
         is_valid, errors = validate_component_config(
-            "bottleneck", valid_convlstm_config
+            valid_convlstm_config, "bottleneck"
         )
         # Puede fallar por parámetros desconocidos
         assert is_valid is True or (
@@ -236,8 +241,9 @@ class TestComponentValidation:
             "in_channels": "512",  # Should be integer
             "out_channels": 256
         }
-        is_valid, errors = validate_component_config("bottleneck",
-                                                     invalid_config)
+        is_valid, errors = validate_component_config(
+            invalid_config, "bottleneck"
+        )
         assert is_valid is False
         assert errors is not None
 
@@ -248,7 +254,9 @@ class TestComponentValidation:
             "in_channels": 64,
             # Missing out_channels
         }
-        is_valid, errors = validate_component_config("decoder", invalid_config)
+        is_valid, errors = validate_component_config(
+            invalid_config, "decoder"
+        )
         assert not is_valid
         assert (
             "out_channels" in errors

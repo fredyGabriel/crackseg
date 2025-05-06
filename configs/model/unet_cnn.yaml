@@ -21,11 +21,11 @@ bottleneck:
 
 decoder:
   in_channels: 1024
-  # Este skip_channels_list debe coincidir con encoder.skip_channels para evitar errores
-  # El orden debe ser desde alta resolución (cercana a la entrada) hasta baja resolución 
-  # (cercana al bottleneck), lo que coincide con el orden en que el encoder produce los skips.
-  # CNNDecoder internamente invertirá esta lista al usarla.
-  skip_channels_list: [64, 128, 256, 512]
+  # Este skip_channels_list debe coincidir con el INVERSO de encoder.skip_channels
+  # para cumplir el contrato UNet. El encoder produce skips de alta a baja resolución 
+  # [64, 128, 256, 512], mientras que el decoder los procesa de baja a alta resolución
+  # [512, 256, 128, 64].
+  skip_channels_list: [512, 256, 128, 64]
   out_channels: 1
   depth: 4 # Must match encoder depth
   _target_: src.model.decoder.cnn_decoder.CNNDecoder

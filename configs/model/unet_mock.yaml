@@ -15,19 +15,18 @@ model:
 
   encoder:
     in_channels: 3
-    _target_: tests.model.unit.test_registry.MockEncoder
+    _target_: tests.integration.model.conftest.MockEncoder
 
   bottleneck:
     in_channels: 64  # Matches MockEncoder output
-    _target_: tests.model.unit.test_registry.MockBottleneck
+    _target_: tests.integration.model.conftest.MockBottleneck
 
   decoder:
     in_channels: 128  # Matches MockBottleneck output
-    # Usamos [16, 32] que es lo que espera el test de integración
-    # MockDecoder.skip_channels_expected() retorna [32, 16], pero eso es el RESULTADO
-    # de la inversión, no lo que debe recibir.
-    skip_channels_list: [16, 32]
-    _target_: tests.model.integration.conftest.TestDecoderImpl
+    # El decoder espera los skips en orden low->high res: [32, 16]
+    # Esto debe ser el reverse de MockEncoder.skip_channels ([16, 32])
+    skip_channels_list: [32, 16]
+    _target_: tests.integration.model.conftest.TestDecoderImpl
 
   # Optional: Override final activation
   final_activation:

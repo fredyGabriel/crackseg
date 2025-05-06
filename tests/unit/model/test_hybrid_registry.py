@@ -62,8 +62,18 @@ class MockBottleneck(BottleneckBase):
 
 
 class MockDecoder(DecoderBase):
-    def __init__(self, in_channels=8, skip_channels=[4, 8]):
-        super().__init__(in_channels, skip_channels)
+    """
+    MockDecoder que espera skip_channels en orden inverso a MockEncoder.
+    Si MockEncoder.skip_channels = [16, 32],
+    entonces MockDecoder.skip_channels = [32, 16].
+    """
+    def __init__(self, in_channels=64, skip_channels=None):
+        # Si no se pasa skip_channels, usar el reverso del default de
+        # MockEncoder
+        if skip_channels is None:
+            # reverse de [16, 32]
+            skip_channels = [32, 16]
+        super().__init__(in_channels, skip_channels=skip_channels)
         self._out_channels = 1
 
     def forward(self, x, skips):

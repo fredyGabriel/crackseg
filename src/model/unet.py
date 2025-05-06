@@ -75,6 +75,24 @@ nn.Module"
 {e}")
                     self.final_activation = None  # Fallback to no activation
 
+        # Validar compatibilidad de canales de skip
+        if hasattr(self.encoder, 'skip_channels') and \
+                hasattr(self.decoder, 'skip_channels'):
+            if list(self.encoder.skip_channels) != \
+                    list(reversed(self.decoder.skip_channels)):
+                raise ValueError(
+                    "Encoder skip channels and decoder skip channels are "
+                    "incompatible."
+                )
+        # Validar compatibilidad de canales entre encoder y bottleneck
+        if hasattr(self.encoder, 'out_channels') and \
+                hasattr(self.bottleneck, 'in_channels'):
+            if self.encoder.out_channels != self.bottleneck.in_channels:
+                raise ValueError(
+                    "Encoder output channels and bottleneck input channels "
+                    "are incompatible."
+                )
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Forward pass through the UNet model.

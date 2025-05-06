@@ -262,9 +262,13 @@ class CNNDecoder(DecoderBase):
             current_channels = block_out_channels  # Update for next block
 
         # Final 1x1 convolution to map to the desired number of output channels
-        self.final_conv = nn.Conv2d(current_channels, self._final_out_channels, kernel_size=1)
+        self.final_conv = nn.Conv2d(
+            current_channels, self._final_out_channels, kernel_size=1
+        )
 
-    def forward(self, x: torch.Tensor, skips: List[torch.Tensor]) -> torch.Tensor:
+    def forward(
+        self, x: torch.Tensor, skips: List[torch.Tensor]
+    ) -> torch.Tensor:
         """
         Forward pass through the decoder.
 
@@ -330,9 +334,21 @@ class CNNConvLSTMUNet(UNetBase):
             raise TypeError(f"Expected EncoderBase, got {type(encoder)}")
         if not isinstance(bottleneck, BottleneckBase):
             raise TypeError(f"Expected BottleneckBase, got {type(bottleneck)}")
-        # Temporarily comment out decoder type check due to CBAM wrapper
-        # if not isinstance(decoder, DecoderBase):
-        #     raise TypeError(f"Expected DecoderBase, got {type(decoder)}")
+        # Validación flexible para el decoder
+        if not (
+            isinstance(decoder, DecoderBase) or (
+                hasattr(decoder, 'forward') and
+                callable(
+                    getattr(decoder, 'forward', None)
+                ) and
+                hasattr(decoder, 'out_channels')
+            )
+        ):
+            raise TypeError(
+                f"Expected DecoderBase, got {type(decoder)}. "
+                "If using a wrapper, it must implement 'forward' and "
+                "'out_channels'."
+            )
 
         # Initialize the base class (performs further validation)
         super().__init__(encoder=encoder, bottleneck=bottleneck,

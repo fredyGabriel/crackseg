@@ -109,8 +109,8 @@ def hydra_to_dict(config: Union[DictConfig, Dict[str, Any]],
     """
     if isinstance(config, DictConfig):
         return OmegaConf.to_container(config, resolve=resolve)
-    # If already a dict, return as is
-    return config
+    # If already a dict, return a copy to avoid modifying the original
+    return config.copy()
 
 
 def extract_runtime_params(component: Any,

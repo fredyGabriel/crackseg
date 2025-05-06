@@ -25,7 +25,7 @@ sys.path.insert(0, str(project_root))
 
 # Import after configuring the path
 # noqa: E402 - Import not at the top of the file (intentional)
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder  # noqa: E
 
 # Configure the logger
 logging.basicConfig(level=logging.INFO)

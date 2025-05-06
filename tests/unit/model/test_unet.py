@@ -6,7 +6,7 @@ import torch.nn as nn
 
 from src.model.base import EncoderBase, BottleneckBase, DecoderBase
 from src.model.unet import BaseUNet
-from tests.model.unit.test_registry import (
+from tests.unit.model.test_registry import (
     MockEncoder, MockBottleneck, MockDecoder
 )
 
@@ -26,10 +26,15 @@ class TestBaseUNet:
 
     @pytest.fixture
     def decoder(self, bottleneck, encoder):
-        """Create a mock decoder for testing."""
+        """
+        Create a mock decoder for testing.
+
+        Siguiendo el contrato UNet, el decoder debe recibir los skip_channels
+        en orden inverso al encoder (low->high resolution).
+        """
         return MockDecoder(
             in_channels=bottleneck.out_channels,
-            skip_channels=encoder.skip_channels
+            skip_channels=list(reversed(encoder.skip_channels))
         )
 
     @pytest.fixture

@@ -1,5 +1,9 @@
 """
-Test script for the registry system.
+Demo script for the registry system.
+
+This script muestra cómo registrar y listar componentes en el sistema de
+registros de modelos.
+No es un test automatizado, sino una referencia para desarrolladores.
 """
 
 import sys

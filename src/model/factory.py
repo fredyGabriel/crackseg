@@ -27,6 +27,7 @@ from .factory_utils import (
     log_component_creation, log_configuration_error,
     extract_runtime_params
 )
+from src.model.components.cbam import CBAM
 
 # Create logger
 log = logging.getLogger(__name__)
@@ -218,46 +219,43 @@ class FinalCBAMDecoder(DecoderBase):
         return self._out_channels
 
 
-def insert_cbam_if_enabled(component: ComponentType, cbam_enabled: bool,
-                           cbam_params: Dict[str, Any] = None
-                           ) -> ComponentType:
+def insert_cbam_if_enabled(
+    component: ComponentType, config
+) -> ComponentType:
     """
     Optionally insert CBAM (Convolutional Block Attention Module) after a
-    component.
-
-    If CBAM is enabled, creates and attaches a CBAM module to the component
-    using the FinalCBAMDecoder pattern for decoders or a simple sequential
-    for other components.
+    component, based on a config dict or OmegaConf.
 
     Args:
         component: The model component (encoder, decoder, etc.)
-        cbam_enabled: Whether to insert CBAM
-        cbam_params: Parameters for CBAM configuration
+        config: Configuration dict or OmegaConf with keys 'cbam_enabled' y
+        'cbam_params'
 
     Returns:
         The original component or a component wrapped with CBAM
     """
+    cbam_enabled = config.get("cbam_enabled", False)
+    cbam_params = config.get("cbam_params", {})
     if not cbam_enabled:
         return component
 
-    # Get output channels from component if it has that attribute
-    if hasattr(component, 'out_channels'):
+    # Determinar número de canales para CBAM
+    if "in_channels" in cbam_params:
+        channels = cbam_params["in_channels"]
+    elif hasattr(component, "out_channels"):
         channels = component.out_channels
     else:
-        log.warning("Component doesn't have 'out_channels' attribute. "
-                    "Using 64 as default for CBAM.")
-        channels = 64
+        channels = 64  # valor por defecto
 
-    # Create CBAM module
-    cbam = create_cbam_module(channels, cbam_params)
+    # Pasar los parámetros correctos a CBAM
+    cbam_args = dict(cbam_params)
+    cbam_args["in_channels"] = channels
+    cbam = CBAM(**cbam_args)
 
-    # For decoders, use FinalCBAMDecoder to apply CBAM only at the end
-    if hasattr(component, 'skip_channels'):
-        log.debug("Using FinalCBAMDecoder for decoder with CBAM")
+    # Para decoders, usar FinalCBAMDecoder
+    if hasattr(component, "skip_channels"):
         return FinalCBAMDecoder(component, cbam)
-
-    # For other components, simple sequential is fine
-    log.debug("Adding CBAM to component using Sequential")
+    # Para otros, Sequential
     return nn.Sequential(component, cbam)
 
 

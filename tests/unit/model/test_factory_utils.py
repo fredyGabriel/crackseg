@@ -118,7 +118,13 @@ class TestConfigTransformation:
         mock_dictconfig = MagicMock()
         mock_dictconfig.__class__.__name__ = "DictConfig"
 
-        with patch('src.model.factory_utils.OmegaConf') as mock_omegaconf:
+        # Patch isinstance para que devuelva True cuando se verifiqu
+        #  DictConfig
+        with patch('src.model.factory_utils.OmegaConf') as mock_omegaconf, \
+             patch('src.model.factory_utils.isinstance',
+                   side_effect=lambda obj, cls:
+                   True if cls.__name__ == 'DictConfig' else isinstance(obj,
+                                                                        cls)):
             mock_omegaconf.to_container.return_value = {"converted": True}
             result = hydra_to_dict(mock_dictconfig)
 

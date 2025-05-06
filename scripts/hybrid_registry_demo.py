@@ -1,8 +1,8 @@
 """
-Test script for validating the hybrid architecture registry system.
+Demo script for validating the hybrid architecture registry system.
 
-This script tests the functionality implemented for subtask 21.2:
-'Implement Hybrid Architecture Registration'.
+Este script muestra cómo registrar, listar y consultar arquitecturas híbridas en el sistema de registros.
+No es un test automatizado, sino una referencia para desarrolladores.
 """
 
 import sys

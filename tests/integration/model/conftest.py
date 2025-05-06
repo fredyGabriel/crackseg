@@ -11,6 +11,11 @@ from src.model.registry_setup import (
     encoder_registry, bottleneck_registry, decoder_registry
 )
 
+# Import CNN components
+from src.model.encoder.cnn_encoder import CNNEncoder
+from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
+from src.model.decoder.cnn_decoder import CNNDecoder
+
 
 # --- Mock Components for Manual Config Tests ---
 
@@ -18,15 +23,20 @@ class MockEncoder(EncoderBase):
     def __init__(self, in_channels):
         super().__init__(in_channels)
         self._out_channels = 64
+        # Contract: skip_channels = [16, 32] (high->low resolution)
         self._skip_channels = [16, 32]
 
     def forward(self, x):
         # Return dummy output and list of skips
-        output_features = torch.randn(1, self._out_channels, x.shape[2]//4,
-                                      x.shape[3]//4)
+        batch_size = x.shape[0]
+        output_features = torch.randn(
+            batch_size, self._out_channels, x.shape[2]//4,
+            x.shape[3]//4
+        )
         skips = [
             torch.randn(
-                1, c, x.shape[2]//(2**(i+1)), x.shape[3]//(2**(i+1))
+                batch_size, c, x.shape[2]//(2**(i+1)),
+                x.shape[3]//(2**(i+1))
             ) for i, c in enumerate(self._skip_channels)
         ]
         return output_features, skips
@@ -43,7 +53,9 @@ class MockBottleneck(BottleneckBase):
         self._out_channels = 128
 
     def forward(self, x):
-        return torch.randn(1, self._out_channels, x.shape[2], x.shape[3])
+        batch_size = x.shape[0]
+        return torch.randn(batch_size, self._out_channels, x.shape[2],
+                           x.shape[3])
 
     @property
     def out_channels(self): return self._out_channels
@@ -72,13 +84,17 @@ class DummyIdentity(BottleneckBase):
 
 class TestDecoderImpl(DecoderBase):
     def __init__(self, in_channels, skip_channels_list):
+        # Contract: skip_channels_list debe ser el reverse de
+        # MockEncoder.skip_channels, i.e., [32, 16] (low->high resolution)
         super().__init__(in_channels, skip_channels_list)
         self._out_channels = 1
 
     def forward(self, x, skips):
         batch_size = x.shape[0]
-        return torch.randn(batch_size, self._out_channels, x.shape[2]*4,
-                           x.shape[3]*4)
+        return torch.randn(
+            batch_size, self._out_channels, x.shape[2]*4,
+            x.shape[3]*4
+        )
 
     @property
     def out_channels(self) -> int:
@@ -107,6 +123,14 @@ def register_mock_components():
             decoder_registry.register("TestDecoderImpl")(TestDecoderImpl)
             registered_names["decoder"].append("TestDecoderImpl")
 
+        # Registro explícito de componentes CNN reales para integración
+        if "CNNEncoder" not in encoder_registry:
+            encoder_registry.register("CNNEncoder")(CNNEncoder)
+        if "BottleneckBlock" not in bottleneck_registry:
+            bottleneck_registry.register("BottleneckBlock")(BottleneckBlock)
+        if "CNNDecoder" not in decoder_registry:
+            decoder_registry.register("CNNDecoder")(CNNDecoder)
+
         yield  # Test runs here
 
     finally:
@@ -127,3 +151,14 @@ def register_mock_components():
                 decoder_registry.unregister(name)
             except KeyError:
                 pass  # Ignore if already unregistered
+
+
+def pytest_configure(config):
+    # ... registro de mocks ...
+    # Registro explícito de componentes CNN reales para integración
+    if "CNNEncoder" not in encoder_registry:
+        encoder_registry.register("CNNEncoder")(CNNEncoder)
+    if "BottleneckBlock" not in bottleneck_registry:
+        bottleneck_registry.register("BottleneckBlock")(BottleneckBlock)
+    if "CNNDecoder" not in decoder_registry:
+        decoder_registry.register("CNNDecoder")(CNNDecoder)

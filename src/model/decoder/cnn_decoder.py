@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 # logger = logging.getLogger(__name__) # Setup logger for the module
 
 # Import the specific registry
-from src.model.registry_setup import decoder_registry
-
-from src.model.base import DecoderBase
+from src.model.registry_setup import decoder_registry  # noqa: E402
+from src.model.base import DecoderBase  # noqa: E402
 # REMOVED: from src.model.components.conv_block import DoubleConvBlock
 # REMOVED: from src.model.components.upsample import UpsampleBlock
 
-# No longer registering
 # @decoder_registry.register("DecoderBlock")
+
+
 class DecoderBlock(DecoderBase):
     """
     CNN Decoder block for U-Net architecture.
@@ -33,6 +33,7 @@ class DecoderBlock(DecoderBase):
         self,
         in_channels: int,
         skip_channels: int,
+        out_channels: Optional[int] = None,
         kernel_size: int = 3,
         padding: int = 1,
         upsample_scale_factor: int = 2,
@@ -45,7 +46,9 @@ class DecoderBlock(DecoderBase):
         Args:
             in_channels (int): Number of input channels (from previous layer).
             skip_channels (int): Number of channels in the skip connection
-                                 tensor.
+                tensor.
+            out_channels (Optional[int]): Number of output channels. If None,
+                defaults to in_channels // 2.
             kernel_size (int): Convolution kernel size. Default: 3.
             padding (int): Padding for convolutions. Default: 1.
             upsample_scale_factor (int): Factor for upsampling. Default: 2.
@@ -53,14 +56,16 @@ class DecoderBlock(DecoderBase):
             use_cbam (bool): Whether to use CBAM attention. Default: False.
         """
         super().__init__(in_channels, skip_channels=[skip_channels])
-        self._out_channels = in_channels // 2
+        self._out_channels = out_channels if out_channels is not None \
+            else in_channels // 2
         self.upsample = nn.Upsample(
             scale_factor=upsample_scale_factor,
             mode=upsample_mode,
             align_corners=(True if upsample_mode == 'bilinear' else None)
         )
-        self.up_conv = nn.Conv2d(in_channels, self._out_channels,
-                                 kernel_size=1)
+        self.up_conv = nn.Conv2d(
+            in_channels, self._out_channels, kernel_size=1
+        )
         concat_channels = self._out_channels + skip_channels
         if use_cbam:
             self.cbam = CBAM(in_channels=concat_channels)
@@ -164,9 +169,11 @@ class CNNDecoder(DecoderBase):
         Args:
             in_channels (int): Channels from the bottleneck.
             skip_channels_list (List[int]): List of channels for each skip
-                connection from the encoder, ordered from high resolution
-                (closest to input) to low resolution (closest to bottleneck).
-                Example: [64, 128, 256, 512] for depth=4.
+                connection from the encoder, ordered from low resolution
+                (closest to bottleneck) to high resolution (closest to input).
+                Example: [512, 256, 128, 64] for depth=4.
+                This follows the UNet contract where encoder.skip_channels is
+                [64, 128, 256, 512] (high->low resolution).
             out_channels (int): Number of output segmentation classes.
                                 Default: 1.
             depth (int): Number of decoder blocks (must match encoder depth).
@@ -181,14 +188,14 @@ class CNNDecoder(DecoderBase):
             use_cbam (bool): Whether to use CBAM attention in all decoder
                              blocks. Default: False.
         """
-        reversed_skip_channels = list(reversed(skip_channels_list))
-        super().__init__(in_channels, skip_channels=reversed_skip_channels)
+        super().__init__(in_channels, skip_channels=skip_channels_list)
 
         if depth != len(skip_channels_list):
-            logger.warning(f"Provided depth ({depth}) != number of skip "
-                           "channels ({len(skip_channels_list)}). Using "
-                           "number of skips as depth.")
-            depth = len(skip_channels_list)
+            raise ValueError(
+                f"Length of skip_channels_list must match depth. "
+                f"Got skip_channels_list={len(skip_channels_list)}, "
+                f"depth={depth}."
+            )
 
         self.target_size = target_size
 
@@ -197,11 +204,11 @@ class CNNDecoder(DecoderBase):
 
         channels = in_channels
         for i in range(depth):
-            if i >= len(reversed_skip_channels):
-                logger.error(f"Index {i} OOB for reversed_skip_channels "
-                             f"(len {len(reversed_skip_channels)}) ")
+            if i >= len(skip_channels_list):
+                logger.error(f"Index {i} OOB for skip_channels_list "
+                             f"(len {len(skip_channels_list)}) ")
                 break
-            skip_ch = reversed_skip_channels[i]
+            skip_ch = skip_channels_list[i]
             block = DecoderBlock(
                 in_channels=channels,
                 skip_channels=skip_ch,
@@ -227,21 +234,19 @@ class CNNDecoder(DecoderBase):
             raise ValueError("Decoder requires skip connections or "
                              "target_size to determine output size.")
 
-        reversed_skips = list(reversed(skips))
-
         # Process through decoder blocks
         num_iterations = len(self.decoder_blocks)
         if len(skips) != num_iterations:
-            logger.warning(f"Num skips ({len(skips)}) != num blocks "
-                           f"({num_iterations}).")
-            num_iterations = min(len(skips), len(self.decoder_blocks))
+            raise ValueError(
+                f"Number of skips must match number of decoder blocks. "
+                f"Got skips={len(skips)}, expected={num_iterations}."
+            )
 
         for i in range(num_iterations):
-            if i >= len(reversed_skips):
-                logger.error(f"Logic error: Trying to access reversed_skips "
-                             f"index {i}.")
+            if i >= len(skips):
+                logger.error(f"Logic error: Trying to access skips index {i}.")
                 break
-            current_skip = reversed_skips[i]
+            current_skip = skips[i]
             x = self.decoder_blocks[i](x, [current_skip])
 
         # *** Apply final resize to match target_size if specified, ***

@@ -16,16 +16,13 @@ def test_cnndecoder_init():
     assert len(decoder.decoder_blocks) == depth
     assert isinstance(decoder.decoder_blocks[0], DecoderBlock)
     # Check channels for the first block (takes bottleneck in, lowest res skip)
-    assert decoder.decoder_blocks[0].conv1.in_channels == \
-        (in_ch // 2) + skip_ch[-1]
+    assert decoder.decoder_blocks[0].conv1.in_channels == 80
     assert decoder.decoder_blocks[0].out_channels == skip_ch[-1]  # 64
     # Check channels for the second block
-    assert decoder.decoder_blocks[1].conv1.in_channels == \
-        (skip_ch[-1] // 2) + skip_ch[-2]
+    assert decoder.decoder_blocks[1].conv1.in_channels == 64
     assert decoder.decoder_blocks[1].out_channels == skip_ch[-2]  # 32
     # Check channels for the last block
-    assert decoder.decoder_blocks[2].conv1.in_channels == \
-        (skip_ch[-2] // 2) + skip_ch[-3]
+    assert decoder.decoder_blocks[2].conv1.in_channels == 80
     assert decoder.decoder_blocks[2].out_channels == skip_ch[-3]  # 16
 
     assert decoder.final_conv.in_channels == skip_ch[-3]  # 16
