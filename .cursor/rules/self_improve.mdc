@@ -3,7 +3,6 @@ description: Guidelines for continuously improving Cursor rules based on emergin
 globs: **/*
 alwaysApply: true
 ---
-
 - **Rule Improvement Triggers:**
   - New code patterns not covered by existing rules
   - Repeated similar implementations across files
@@ -69,5 +68,15 @@ alwaysApply: true
   - Update references to external docs
   - Maintain links between related rules
   - Document breaking changes
+
+---
+
+## Professional Solution Analysis
+
+- **Before making a significant technical decision (e.g., refactoring, rule update, pattern change, or test adaptation), you must analyze at least 3 possible options.**
+    - Clearly justify the chosen solution, selecting the most professional, robust, and maintainable approach.
+    - Document the reasoning in the implementation log, commit message, or rule update as appropriate.
+    - This ensures thoughtful, high-quality decisions and prevents arbitrary or rushed fixes.
+    - This principle applies to all code, rules, and workflow improvements, not just tests.
 
 Follow [cursor_rules.mdc](mdc:.cursor/rules/cursor_rules.mdc) for proper rule formatting and structure.

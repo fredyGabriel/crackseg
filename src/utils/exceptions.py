@@ -32,6 +32,7 @@ class ConfigError(CrackSegError):
         self,
         message: str,
         config_path: Optional[str] = None,
+        field: Optional[str] = None,
         details: Optional[str] = None
     ):
         """Initialize the configuration error.
@@ -39,11 +40,15 @@ class ConfigError(CrackSegError):
         Args:
             message: Main error message
             config_path: Path to the problematic config file/section
+            field: Name of the field that failed validation (optional)
             details: Optional additional error details
         """
         self.config_path = config_path
+        self.field = field
         if config_path:
             message = f"Configuration error in {config_path}: {message}"
+        if field:
+            message = f"Config error for {field}: {message}"
         super().__init__(message, details)
 
 

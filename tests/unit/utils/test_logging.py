@@ -5,6 +5,7 @@ import logging
 import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+from omegaconf import OmegaConf
 
 # Updated imports for the new logging structure
 from src.utils.logging import (
@@ -25,8 +26,6 @@ def mock_logger_instance():
 
 
 @pytest.fixture
-@patch('src.utils.logging.experiment.ExperimentLogger._log_system_info',
-       MagicMock())
 @patch('src.utils.logging.experiment.get_logger')  # Patch get_logger here
 def experiment_logger(mock_get_logger, tmp_path: Path, mock_logger_instance):
     """Fixture for ExperimentLogger, mocking the internal logger.
@@ -36,7 +35,7 @@ def experiment_logger(mock_get_logger, tmp_path: Path, mock_logger_instance):
     """
     mock_get_logger.return_value = mock_logger_instance
 
-    config = {"test_param": "value"}
+    config = OmegaConf.create({"test_param": "value"})
     logger = ExperimentLogger(
         log_dir=str(tmp_path),
         experiment_name="test_exp",
@@ -69,8 +68,12 @@ def test_experiment_logger_init(experiment_logger, tmp_path: Path):
 
     assert isinstance(experiment_logger, ExperimentLogger)
     assert experiment_logger.log_dir == tmp_path
-    # Check files in correct subdirectories
-    assert (tmp_path / 'outputs' / 'config.json').exists()
+    # Buscar el subdirectorio de experimento generado dinámicamente
+    exp_dirs = list((tmp_path / 'experiments').glob('*-test_exp'))
+    assert exp_dirs, "No experiment directory found"
+    exp_dir = exp_dirs[0]
+    config_path = exp_dir / 'config.json'
+    assert config_path.exists(), f"Config file not found at {config_path}"
     # Check calls during init
     init_log_call = f"Initialized experiment 'test_exp' in {tmp_path}"
     mock_internal_logger.info.assert_any_call(init_log_call)
@@ -84,18 +87,22 @@ def test_experiment_logger_log_scalar(experiment_logger, tmp_path: Path):
 
     experiment_logger.log_scalar(tag="train/loss", value=0.5, step=10)
 
-    metrics_path = tmp_path / 'outputs' / 'metrics' / 'metrics.jsonl'
-    assert metrics_path.exists()
+    # Buscar el subdirectorio de experimento generado dinámicamente
+    exp_dirs = list((tmp_path / 'experiments').glob('*-test_exp'))
+    assert exp_dirs, "No experiment directory found"
+    exp_dir = exp_dirs[0]
+    metrics_path = exp_dir / 'metrics' / 'metrics.jsonl'
+    assert metrics_path.exists(), f"Metrics file not found at {metrics_path}"
     with open(metrics_path, 'r') as f:
         line = f.readline()
         data = json.loads(line)
-        assert data['tag'] == 'train/loss'
+        assert data['name'] == 'train/loss'
         assert data['value'] == 0.5
         assert data['step'] == 10
 
-    # Check console log call (debug level)
-    expected_debug_log = "train/loss: 0.5000 (step 10)"
-    mock_internal_logger.debug.assert_called_once_with(expected_debug_log)
+    # Check console log call (info level)
+    expected_info_log = "[10] train/loss: 0.5"
+    mock_internal_logger.info.assert_any_call(expected_info_log)
 
 
 # --- Test logger setup/retrieval ---

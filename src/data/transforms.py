@@ -109,7 +109,16 @@ def apply_transforms(
         transforms: Albumentations transformation pipeline.
 
     Returns:
-        Dictionary with 'image' and optionally 'mask' keys.
+        Dictionary with 'image' and optionally 'mask' keys. If no pipeline is
+        provided, both image and mask are returned as torch.Tensor. The image
+        will have shape (C, H, W) and the mask will have shape (1, H, W) if
+        present, both normalized to [0, 1].
+
+    Notes:
+        - If no transforms are provided, the function will convert the image
+          and mask to torch.Tensor, permuting the image to (C, H, W) and
+          adding a channel dimension to the mask if needed.
+        - The returned mask will always have shape (1, H, W) for consistency.
     """
     # Load image if provided as path
     if isinstance(image, (str, Path)):
@@ -147,7 +156,13 @@ def apply_transforms(
     if mask is not None:
         # Convert mask to float tensor
         # Add channel dimension if necessary (H, W) -> (1, H, W)
-        mask_tensor = torch.from_numpy(mask).unsqueeze(0).float()
+        mask_tensor = torch.from_numpy(mask)
+        if mask_tensor.ndim == 2:
+            mask_tensor = mask_tensor.unsqueeze(0)
+        elif mask_tensor.ndim == 3 and mask_tensor.shape[0] != 1:
+            # If mask has 3 channels, reduce to 1
+            mask_tensor = mask_tensor[0:1]
+        mask_tensor = mask_tensor.float()
         return {"image": image_tensor, "mask": mask_tensor}
     return {"image": image_tensor}
 

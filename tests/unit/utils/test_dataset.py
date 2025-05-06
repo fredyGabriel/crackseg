@@ -43,7 +43,8 @@ def test_dataset_basic(tmp_path):
         create_image(images_dir / f"img{i}.png")
         create_mask(masks_dir / f"img{i}.png")
 
-    # Crear lista de muestras manualmente ya que el dataset ahora requiere samples_list
+    # Crear lista de muestras manualmente ya que el dataset ahora requiere
+    # samples_list
     samples_list = [
         (str(images_dir / f"img{i}.png"), str(masks_dir / f"img{i}.png"))
         for i in range(3)
@@ -65,7 +66,8 @@ def test_dataset_basic(tmp_path):
     assert sample["mask"].dtype == torch.float32
     # Default image_size es variable, verificar solo las dimensiones
     assert sample["image"].ndim == 3  # C, H, W
-    assert sample["mask"].ndim == 2  # H, W
+    assert sample["mask"].ndim == 3  # 1, H, W
+    assert sample["mask"].shape[0] == 1
     assert sample["image"].shape[0] == 3  # Canales RGB
 
 
@@ -77,7 +79,7 @@ def test_dataset_missing_mask(tmp_path):
     masks_dir.mkdir(parents=True)
     create_image(images_dir / "img0.png")
     # Don't create the corresponding mask
-    
+
     # Lista vacía, entonces lanzará ValueError
     with pytest.raises(ValueError, match="samples_list must be provided"):
         CrackSegmentationDataset(mode="train", samples_list=None)
@@ -90,14 +92,15 @@ def test_dataset_missing_dirs(tmp_path):
     # con una lista de archivos que no existen
     non_existent_img = str(data_root / "non_existent.jpg")
     non_existent_mask = str(data_root / "non_existent_mask.png")
-    
+
     ds = CrackSegmentationDataset(
         mode="train",
         samples_list=[(non_existent_img, non_existent_mask)]
     )
-    
+
     # Ahora el error ocurrirá al intentar cargar la imagen
-    with pytest.raises(RuntimeError, match="No valid image/mask pairs could be loaded"):
+    with pytest.raises(RuntimeError,
+                       match="No valid image/mask pairs could be loaded"):
         _ = ds[0]
 
 
@@ -114,18 +117,18 @@ def test_dataset_corrupt_image(tmp_path):
     with open(images_dir / "img1.png", "wb") as f:
         f.write(b"not an image")
     create_mask(masks_dir / "img1.png")
-    
+
     # Crear lista de muestras manualmente
     samples_list = [
         (str(images_dir / f"img{i}.png"), str(masks_dir / f"img{i}.png"))
         for i in range(2)
     ]
-    
+
     ds = CrackSegmentationDataset(
         mode="train",
         samples_list=samples_list
     )
-    
+
     # Dataset should find 2 pairs, but only process 1 valid one
     assert len(ds) == 2
     # __getitem__ should skip the corrupt one and return the valid one
@@ -135,7 +138,9 @@ def test_dataset_corrupt_image(tmp_path):
     assert isinstance(sample["image"], torch.Tensor)
     assert isinstance(sample["mask"], torch.Tensor)
     assert sample["image"].ndim == 3
-    assert sample["mask"].ndim == 2
+    assert sample["mask"].ndim == 3
+    assert sample["mask"].shape[0] == 1
+    assert sample["image"].shape[0] == 3  # Canales RGB
 
 
 def test_dataset_exif_orientation(tmp_path):
@@ -147,47 +152,46 @@ def test_dataset_exif_orientation(tmp_path):
     # Create image with EXIF orientation
     create_image(images_dir / "img0.png", exif_orientation=3)
     create_mask(masks_dir / "img0.png")
-    
+
     # Crear lista de muestras manualmente
     samples_list = [
         (str(images_dir / "img0.png"), str(masks_dir / "img0.png"))
     ]
-    
+
     ds = CrackSegmentationDataset(
         mode="train",
         samples_list=samples_list
     )
-    
+
     sample = ds[0]
     # Just check if a valid tensor is returned. EXIF handled by PIL/cv2.
     assert isinstance(sample["image"], torch.Tensor)
     assert isinstance(sample["mask"], torch.Tensor)
 
 
-@pytest.mark.skip(reason="Transform parameter removed, test needs redesign or \
-removal")
 def test_dataset_with_transform(tmp_path):
-    # ... (original test content, now skipped) ...
     data_root = tmp_path / "data"
     images_dir = data_root / "train" / "images"
     masks_dir = data_root / "train" / "masks"
     images_dir.mkdir(parents=True)
     masks_dir.mkdir(parents=True)
-    create_image(images_dir / "img0.png")
-    create_mask(masks_dir / "img0.png")
+    create_image(images_dir / "img0.png", size=(16, 16))
+    create_mask(masks_dir / "img0.png", size=(16, 16))
 
-    def dummy_transform(sample):
-        # Cambia el color de la imagen a azul
-        img = sample["image"].copy()
-        img.paste((0, 0, 255), [0, 0, img.size[0], img.size[1]])
-        return {"image": img, "mask": sample["mask"]}
+    samples_list = [
+        (str(images_dir / "img0.png"), str(masks_dir / "img0.png"))
+    ]
 
+    # Usar image_size para forzar un resize a (8, 8)
     ds = CrackSegmentationDataset(
-        # This call will fail
-        str(data_root), transform=dummy_transform, mode="train"
+        mode="train",
+        samples_list=samples_list,
+        image_size=(8, 8)
     )
     sample = ds[0]
-    assert sample["image"].getpixel((0, 0)) == (0, 0, 255)
+    # Verificar que la imagen y la máscara han sido redimensionadas
+    assert sample["image"].shape == (3, 8, 8)
+    assert sample["mask"].shape == (1, 8, 8)
 
 
 def test_dataset_all_samples_corrupt(tmp_path):
@@ -206,12 +210,12 @@ def test_dataset_all_samples_corrupt(tmp_path):
     samples_list = [
         (str(images_dir / "img0.png"), str(masks_dir / "img0.png"))
     ]
-    
+
     ds = CrackSegmentationDataset(
         mode="train",
         samples_list=samples_list
     )
-    
+
     # __getitem__ should raise RuntimeError after failing all samples
     with pytest.raises(RuntimeError,
                        match="No valid image/mask pairs could be loaded"):

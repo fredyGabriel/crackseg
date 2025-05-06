@@ -24,3 +24,9 @@ alwaysApply: false
     - This rule ensures production code remains clean, consistent, and focused on real functionality, while tests fulfill their role as validation and do not dictate accidental implementation details.
     - It makes maintenance and code evolution easier, avoiding technical debt and unnecessary files/outputs.
 
+- **Professional solution analysis required**
+    - Before choosing a solution for a test or related code (e.g., when a test fails or needs adaptation), you must analyze at least 3 possible options.
+    - Clearly justify the chosen solution, selecting the most professional, robust, and maintainable approach.
+    - Document the reasoning in the implementation log or commit message if relevant.
+    - This ensures thoughtful, high-quality decisions and prevents arbitrary or rushed fixes.
+

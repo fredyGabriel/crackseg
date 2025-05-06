@@ -7,5 +7,7 @@
   "tests/model/test_factory_utils.py::TestConfigTransformation::test_hydra_to_dict": true,
   "tests/model/test_unet.py::TestBaseUNet::test_component_compatibility": true,
   "tests/model/unit/test_base.py::test_component_validation_error_messages": true,
-  "tests/model/unit/test_base.py::test_skip_connection_compatibility": true
+  "tests/model/unit/test_base.py::test_skip_connection_compatibility": true,
+  "tests/unit/data/test_transforms.py::test_apply_transforms_numpy": true,
+  "tests/unit/data/test_transforms.py::test_apply_transforms_path": true
 }

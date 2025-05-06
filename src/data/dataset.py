@@ -249,7 +249,9 @@ class CrackSegmentationDataset(Dataset):
 
                         # Asegurar que mask_tensor sea binario (0/1)
                         mask_tensor = (mask_tensor > 0.5).float()
-
+                        # Garantizar shape (1, H, W)
+                        if mask_tensor.ndim == 2:
+                            mask_tensor = mask_tensor.unsqueeze(0)
                         return {"image": image_tensor, "mask": mask_tensor}
                     else:
                         # Sin transformaciones, convertir a tensor manualmente
@@ -275,8 +277,11 @@ class CrackSegmentationDataset(Dataset):
                             "apply_transforms no retornó tensores PyTorch. "
                             "Revisar implementación."
                         )
-
-                    return sample
+                    # Garantizar shape (1, H, W) para la máscara
+                    mask_tensor = sample['mask']
+                    if mask_tensor.ndim == 2:
+                        mask_tensor = mask_tensor.unsqueeze(0)
+                    return {"image": sample['image'], "mask": mask_tensor}
 
             except Exception as e:
                 img_path, mask_path = self.samples[current_idx]

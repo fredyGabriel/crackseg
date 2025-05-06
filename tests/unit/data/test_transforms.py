@@ -25,7 +25,9 @@ def test_apply_transforms_numpy():
     assert "mask" in result
     assert isinstance(result["image"], torch.Tensor)
     assert isinstance(result["mask"], torch.Tensor)
-    assert result["image"].shape[1:] == result["mask"].shape
+    assert result["mask"].ndim == 3
+    assert result["mask"].shape[0] == 1
+    assert result["mask"].shape[1:] == result["image"].shape[1:]
 
 
 def test_apply_transforms_path(tmp_path):
@@ -42,17 +44,22 @@ def test_apply_transforms_path(tmp_path):
     result = tr.apply_transforms(str(img_path), str(mask_path), pipeline)
     assert isinstance(result["image"], torch.Tensor)
     assert isinstance(result["mask"], torch.Tensor)
-    assert result["image"].shape[1:] == result["mask"].shape
+    assert result["mask"].ndim == 3
+    assert result["mask"].shape[0] == 1
+    assert result["mask"].shape[1:] == result["image"].shape[1:]
 
 
 def test_apply_transforms_no_transform():
-    """Test apply_transforms with no pipeline returns tensors."""
+    """Test apply_transforms with no pipeline returns tensors
+    with correct shapes.
+    """
     img = np.random.randint(0, 255, (8, 8, 3), dtype=np.uint8)
     mask = np.random.randint(0, 2, (8, 8), dtype=np.uint8) * 255
     result = tr.apply_transforms(img, mask, None)
     assert isinstance(result["image"], torch.Tensor)
     assert isinstance(result["mask"], torch.Tensor)
-    assert result["image"].shape[1:] == result["mask"].shape
+    assert result["image"].shape == (3, 8, 8)
+    assert result["mask"].shape == (1, 8, 8)
 
 
 def test_get_transforms_from_config_list():
