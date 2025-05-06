@@ -1,7 +1,15 @@
 import torch
 import torch.nn as nn
-from typing import List
+import torch.nn.functional as F
+from typing import List, Optional, Tuple
 from src.model.base import DecoderBase
+# Import CBAM
+from src.model.components.cbam import CBAM
+# import logging # Import logging
+import logging
+logger = logging.getLogger(__name__)
+
+# logger = logging.getLogger(__name__) # Setup logger for the module
 
 
 # No longer registering
@@ -12,16 +20,17 @@ class DecoderBlock(DecoderBase):
 
     Upsamples the input features and concatenates them with skip connection
     features. Followed by two Conv2d layers (with BatchNorm and ReLU).
+    Optionally applies CBAM attention after concatenation.
     """
     def __init__(
         self,
         in_channels: int,
-        skip_channels: int,  # Channels from the corresponding encoder skip
-        out_channels: int,
+        skip_channels: int,
         kernel_size: int = 3,
         padding: int = 1,
         upsample_scale_factor: int = 2,
-        upsample_mode: str = 'bilinear'
+        upsample_mode: str = 'bilinear',
+        use_cbam: bool = False
     ):
         """
         Initialize DecoderBlock.
@@ -30,37 +39,36 @@ class DecoderBlock(DecoderBase):
             in_channels (int): Number of input channels (from previous layer).
             skip_channels (int): Number of channels in the skip connection
                                  tensor.
-            out_channels (int): Number of output channels.
             kernel_size (int): Convolution kernel size. Default: 3.
             padding (int): Padding for convolutions. Default: 1.
             upsample_scale_factor (int): Factor for upsampling. Default: 2.
             upsample_mode (str): Mode for nn.Upsample. Default: 'bilinear'.
+            use_cbam (bool): Whether to use CBAM attention. Default: False.
         """
-        # Pass the list of skip channels expected by the base class
         super().__init__(in_channels, skip_channels=[skip_channels])
-        self._out_channels = out_channels
-
-        # Upsampling followed by convolution
+        self._out_channels = in_channels // 2
         self.upsample = nn.Upsample(
             scale_factor=upsample_scale_factor,
             mode=upsample_mode,
             align_corners=(True if upsample_mode == 'bilinear' else None)
         )
-        # Convolution after upsampling to adjust channels
-        self.up_conv = nn.Conv2d(in_channels, in_channels // 2, kernel_size=1)
-
-        # Convolution layers after concatenating upsampled and skip features
-        # Input channels = (upsampled channels + skip channels)
-        concat_channels = (in_channels // 2) + skip_channels
+        self.up_conv = nn.Conv2d(in_channels, self._out_channels,
+                                 kernel_size=1)
+        concat_channels = self._out_channels + skip_channels
+        if use_cbam:
+            self.cbam = CBAM(in_channels=concat_channels)
+        else:
+            self.cbam = nn.Identity()
         self.conv1 = nn.Conv2d(
-            concat_channels, out_channels, kernel_size, padding=padding
+            concat_channels, self._out_channels, kernel_size, padding=padding
         )
-        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.bn1 = nn.BatchNorm2d(self._out_channels)
         self.relu1 = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(
-            out_channels, out_channels, kernel_size, padding=padding
+            self._out_channels, self._out_channels, kernel_size,
+            padding=padding
         )
-        self.bn2 = nn.BatchNorm2d(out_channels)
+        self.bn2 = nn.BatchNorm2d(self._out_channels)
         self.relu2 = nn.ReLU(inplace=True)
 
     def forward(self, x: torch.Tensor, skips: List[torch.Tensor]
@@ -75,22 +83,35 @@ class DecoderBlock(DecoderBase):
                                        stage.
 
         Returns:
-            torch.Tensor: Output tensor after upsampling, concatenation, and
-                          convs.
+            torch.Tensor: Output tensor after upsampling, concatenation, CBAM
+                          (optional), and convs.
         """
         if not skips or len(skips) != 1:
             raise ValueError(
                 "DecoderBlock expects exactly one skip connection tensor."
             )
         skip = skips[0]
-
         x = self.upsample(x)
         x = self.up_conv(x)
-
-        # Concatenate along the channel dimension
-        x = torch.cat([x, skip], dim=1)
-
-        x = self.conv1(x)
+        target_h, target_w = skip.shape[2:]
+        current_h, current_w = x.shape[2:]
+        if (current_h != target_h) or (current_w != target_w):
+            x = F.interpolate(x, size=(target_h, target_w), mode='bilinear',
+                              align_corners=False)
+        try:
+            x = torch.cat([x, skip], dim=1)
+        except RuntimeError as e:
+            logger.error(f"torch.cat failed! x shape: {x.shape}, "
+                         f"skip shape: {skip.shape}. Error: {e}")
+            raise e
+        x = self.cbam(x)
+        try:
+            x = self.conv1(x)
+        except RuntimeError as e:
+            logger.error(f"self.conv1 failed! Input shape: {x.shape}, "
+                         "expected channels: {self.conv1.in_channels}. "
+                         "Error: {e}")
+            raise e
         x = self.bn1(x)
         x = self.relu1(x)
         x = self.conv2(x)
@@ -116,19 +137,21 @@ class DecoderBlockAlias(DecoderBlock):
 class CNNDecoder(DecoderBase):
     """
     Standard CNN Decoder for U-Net.
-
-    Composed of multiple DecoderBlocks that upsample features and merge them
-    with skip connections from the encoder.
+    Composed of multiple DecoderBlocks. Resizes final output to match the
+    spatial dimensions of the highest-resolution skip connection.
     """
     def __init__(self,
-                 in_channels: int,             # From bottleneck
-                 skip_channels_list: List[int],  # Enc: high-res -> low-res
-                 out_channels: int = 1,        # Final output classes
+                 in_channels: int,
+                 skip_channels_list: List[int],
+                 out_channels: int = 1,
                  depth: int = 4,
+                 target_size: Optional[Tuple[int, int]] = None,
                  upsample_scale_factor: int = 2,
                  upsample_mode: str = 'bilinear',
                  kernel_size: int = 3,
-                 padding: int = 1):
+                 padding: int = 1,
+                 use_cbam: bool = False
+                 ):
         """
         Initialize the CNNDecoder.
 
@@ -142,67 +165,107 @@ class CNNDecoder(DecoderBase):
                                 Default: 1.
             depth (int): Number of decoder blocks (must match encoder depth).
                          Default: 4.
+            target_size (Optional[Tuple[int, int]]): Target (H, W) for the
+                final output. If None, the spatial size of the highest-res
+                skip connection is used. Default: None.
             upsample_scale_factor (int): Upsampling factor. Default: 2.
             upsample_mode (str): Upsampling mode. Default: 'bilinear'.
             kernel_size (int): Convolution kernel size. Default: 3.
             padding (int): Convolution padding. Default: 1.
+            use_cbam (bool): Whether to use CBAM attention in all decoder
+                             blocks. Default: False.
         """
-        # Need skip channels in reverse order for DecoderBase init
         reversed_skip_channels = list(reversed(skip_channels_list))
         super().__init__(in_channels, skip_channels=reversed_skip_channels)
 
-        if len(skip_channels_list) != depth:
-            raise ValueError("Length of skip_channels_list must match depth")
+        if depth != len(skip_channels_list):
+            logger.warning(f"Provided depth ({depth}) != number of skip "
+                           "channels ({len(skip_channels_list)}). Using "
+                           "number of skips as depth.")
+            depth = len(skip_channels_list)
+
+        self.target_size = target_size
 
         self.decoder_blocks = nn.ModuleList()
         self._out_channels = out_channels
 
-        channels = in_channels  # Start with channels from bottleneck
+        channels = in_channels
         for i in range(depth):
-            skip_ch = reversed_skip_channels[i]  # Match skip: low-res -> high
-            # Calculate output channels for this block.
-            # Assume it matches the skip channel size (common pattern).
-            block_out_channels = skip_ch
-
+            if i >= len(reversed_skip_channels):
+                logger.error(f"Index {i} OOB for reversed_skip_channels "
+                             f"(len {len(reversed_skip_channels)}) ")
+                break
+            skip_ch = reversed_skip_channels[i]
             block = DecoderBlock(
                 in_channels=channels,
                 skip_channels=skip_ch,
-                out_channels=block_out_channels,
                 kernel_size=kernel_size,
                 padding=padding,
                 upsample_scale_factor=upsample_scale_factor,
-                upsample_mode=upsample_mode
+                upsample_mode=upsample_mode,
+                use_cbam=use_cbam
             )
             self.decoder_blocks.append(block)
-            channels = block_out_channels  # Output becomes next input
+            channels = block.out_channels
 
-        # Final 1x1 convolution to map to the desired output classes
         self.final_conv = nn.Conv2d(channels, out_channels, kernel_size=1)
 
     def forward(self, x: torch.Tensor, skips: List[torch.Tensor]
                 ) -> torch.Tensor:
         """
         Forward pass through the decoder.
-
-        Args:
-            x (torch.Tensor): Input tensor from the bottleneck.
-            skips (List[torch.Tensor]): List of skip connection tensors from
-                the encoder (ordered high-res to low-res).
-
-        Returns:
-            torch.Tensor: Final segmentation map.
+        Ensures output spatial dimensions match the highest-res skip
+        connection.
         """
-        if len(skips) != len(self.decoder_blocks):
-            raise ValueError("Number of skips must match decoder depth")
+        if not skips and self.target_size is None:
+            raise ValueError("Decoder requires skip connections or "
+                             "target_size to determine output size.")
 
-        # Skips are high-res to low-res, need to reverse for decoder
         reversed_skips = list(reversed(skips))
 
-        for i, block in enumerate(self.decoder_blocks):
-            # Pass feature map and corresponding skip connection
-            x = block(x, [reversed_skips[i]])
+        # Process through decoder blocks
+        num_iterations = len(self.decoder_blocks)
+        if len(skips) != num_iterations:
+            logger.warning(f"Num skips ({len(skips)}) != num blocks "
+                           f"({num_iterations}).")
+            num_iterations = min(len(skips), len(self.decoder_blocks))
 
-        # Apply final convolution
+        for i in range(num_iterations):
+            if i >= len(reversed_skips):
+                logger.error(f"Logic error: Trying to access reversed_skips "
+                             f"index {i}.")
+                break
+            current_skip = reversed_skips[i]
+            x = self.decoder_blocks[i](x, [current_skip])
+
+        # *** Apply final resize to match target_size if specified, ***
+        # *** otherwise match highest-res skip connection. ***
+        if self.target_size:
+            target_h, target_w = self.target_size
+            logger.debug("Decoder resizing output to target_size: "
+                         f"{(target_h, target_w)}")
+        elif skips:  # Fallback to highest-res skip if target_size is None
+            target_h, target_w = skips[0].shape[2:]
+            logger.debug("Decoder resizing output to highest-res skip size: "
+                         f"{(target_h, target_w)}")
+        else:
+            # Should not happen due to check at the beginning, but as safeguard
+            target_h, target_w = x.shape[2:]  # Keep current size
+            logger.warning("Decoder could not determine target size, keeping "
+                           "current spatial dimensions.")
+
+        current_h, current_w = x.shape[2:]
+        if (current_h != target_h) or (current_w != target_w):
+            x = F.interpolate(
+                x,
+                size=(target_h, target_w),
+                mode='bilinear',
+                align_corners=False
+            )
+            logger.debug("Decoder resized output from "
+                         f"{(current_h, current_w)} to target "
+                         f"{(target_h, target_w)}")
+
         x = self.final_conv(x)
         return x
 

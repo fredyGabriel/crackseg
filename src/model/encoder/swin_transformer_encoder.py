@@ -166,23 +166,65 @@ img_size={img_size}")
                 logger.error(f"Failed to initialize fallback model: {str(e2)}")
                 raise ValueError(f"Could not initialize any model: {str(e2)}")
 
-        # Store the output channels of each stage
-        feature_info = self.swin.feature_info
-        all_channels = [info['num_chs'] for info in feature_info.info]
+        # *** Determine actual output channels via dummy forward pass ***
+        try:
+            dummy_input = torch.randn(2, in_channels, img_size, img_size)
+            # Ensure model is in eval mode for deterministic output shapes if
+            # using dropout/etc
+            self.swin.eval()
+            with torch.no_grad():
+                dummy_features = self.swin(dummy_input)
 
-        # Store spatial reduction factor for each stage for potential
-        # upsampling
-        self.reduction_factors = [info.get('reduction', 2**(i+1))
-                                  for i, info in enumerate(feature_info.info)]
+            if not isinstance(dummy_features, list) or not dummy_features:
+                raise RuntimeError(
+                    "Timm model did not return a list of features.")
 
-        # Store channels in the order needed for decoder (high to low res)
-        # Note: Swin returns features from low to high resolution
-        # So we reverse the order
-        self._skip_channels = list(reversed(all_channels[:-1]))  # Exclude last
-        self._out_channels = all_channels[-1]  # Last feature map's channels
+            # Extract channels from actual feature tensors (low to high res)
+            actual_all_channels = [feat.shape[1] for feat in dummy_features]
+            logger.info("Detected feature channels from dummy pass: "
+                        f"{actual_all_channels}")
 
-        logger.info(f"Encoder initialized with out_channels=\
-{self._out_channels}, " f"skip_channels={self._skip_channels}")
+            # Use actual channels to set properties
+            # H->L res
+            self._skip_channels = list(reversed(actual_all_channels[:-1]))
+            self._out_channels = actual_all_channels[-1]
+
+        except Exception as e:
+            logger.error("Failed to determine output channels via dummy "
+                         f"forward pass: {e}. Falling back to timm "
+                         "feature_info.")
+            # Fallback to using feature_info if dummy pass fails
+            feature_info = self.swin.feature_info
+            if feature_info:
+                all_channels = [info['num_chs'] for info in feature_info.info]
+                self._skip_channels = list(reversed(all_channels[:-1]))
+                self._out_channels = all_channels[-1]
+                logger.warning("Using fallback channels from feature_info: "
+                               f"skips={self._skip_channels}, "
+                               f"out={self._out_channels}")
+            else:
+                logger.error("Cannot determine output channels from dummy "
+                             "pass or feature_info.")
+                # Set defaults or raise error? Raising is safer.
+                raise RuntimeError("Could not determine encoder output "
+                                   "channel dimensions.")
+
+        # Store reduction factors (still useful)
+        if hasattr(self.swin, 'feature_info'):
+            self.reduction_factors = [
+                info.get('reduction', 2**(i+1)) for i, info in enumerate(
+                    self.swin. feature_info.info)]
+        else:
+            # Estimate reduction factors if feature_info not available
+            num_stages = len(self._skip_channels) + 1
+            self.reduction_factors = [patch_size * (2**i) for i in range(
+                num_stages)]
+            logger.warning("Estimating reduction factors: "
+                           f"{self.reduction_factors}")
+
+        logger.info("Encoder initialized with out_channels="
+                    f"{self._out_channels}, "
+                    f"skip_channels={self._skip_channels}")
 
         # Apply transfer learning configuration (layer freezing)
         if freeze_layers:
@@ -382,21 +424,24 @@ img_size={img_size}")
                                  including channels and reduction factor.
         """
         feature_info = []
-        # Iterate through the skip channel info (high to low res)
-        for i, channels in enumerate(self._skip_channels):
+        num_skips = len(self._skip_channels)
+        for i in range(num_skips):
+            # reduction_factors[0] corresponds to skip_channels[0]
+            # (highest res skip)
+            idx = i  # Index for reduction factor
+            channels = self._skip_channels[i]  # High-res to low-res
             feature_info.append({
                 "channels": channels,
-                "reduction_factor": self.reduction_factors[i],
-                "stage": i
+                "reduction_factor": self.reduction_factors[idx],
+                "stage": idx  # Use index relative to H->L res skips
             })
-
         # Add bottleneck info
+        bottleneck_stage_idx = num_skips
         feature_info.append({
             "channels": self._out_channels,
-            "reduction_factor": self.reduction_factors[-1],
-            "stage": len(self._skip_channels)
+            "reduction_factor": self.reduction_factors[bottleneck_stage_idx],
+            "stage": bottleneck_stage_idx
         })
-
         return feature_info
 
     @property

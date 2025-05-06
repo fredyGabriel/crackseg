@@ -1,0 +1,49 @@
+# @package _group_
+
+# Configuration for the Hybrid SwinV2 + ASPP + CNN U-Net Architecture
+# Provides a powerful segmentation model combining transformer-based encoding,
+# multi-scale context via ASPP, and CNN decoding.
+
+_target_: src.model.architectures.swinv2_cnn_aspp_unet.SwinV2CnnAsppUNet
+
+# --- Top-Level Model Parameters ---
+num_classes: 1         # Number of output segmentation classes (e.g., 1 for binary)
+final_activation: 'sigmoid' # Final activation ('sigmoid', 'softmax', or null)
+
+# --- Component Configurations ---
+
+encoder_cfg:
+  # Configuration for SwinV2EncoderAdapter (src.model.encoder.swin_v2_adapter.SwinV2EncoderAdapter)
+  # _target_ implicitly handled by SwinV2CnnAsppUNet __init__
+  in_channels: 3         # Input channels (e.g., 3 for RGB)
+  model_name: "swinv2_tiny_window16_256" # Timm model name (e.g., tiny, small, base)
+  pretrained: true       # Use ImageNet pretrained weights
+  img_size: 256          # Input image size expected by the Timm model
+  patch_size: 4          # Patch size used by Swin Transformer
+  handle_input_size: "resize" # How to handle different input sizes ("resize", "pad", "none")
+  # out_indices: [0, 1, 2, 3] # Default feature map indices used by SwinTransformerEncoder
+  # Transfer learning options:
+  freeze_layers: false   # Options: false, true (freeze early layers), "all", "stages.0", ["patch_embed"]
+  # finetune_lr_scale: { "patch_embed": 0.1, "stages.0": 0.3 } # Example: Differential LR
+
+bottleneck_cfg:
+  # Configuration for ASPPModule (src.model.components.aspp.ASPPModule)
+  # _target_ implicitly handled by SwinV2CnnAsppUNet __init__
+  # in_channels is inferred automatically from encoder.out_channels
+  output_channels: 256   # Output channels for ASPP module branches
+  dilation_rates: [1, 6, 12, 18] # Standard dilation rates for ASPP
+  dropout_rate: 0.1       # Dropout probability within ASPP
+  output_stride: 16       # Assumed output stride (affects dilation rates if not 16)
+
+decoder_cfg:
+  # Configuration for CNNDecoder (src.model.decoder.cnn_decoder.CNNDecoder)
+  # _target_ implicitly handled by SwinV2CnnAsppUNet __init__
+  # in_channels inferred from bottleneck.out_channels
+  # skip_channels_list inferred from encoder.skip_channels
+  # out_channels set by top-level num_classes
+  depth: 4               # Number of decoder blocks (should match encoder stages, e.g., len(encoder.skip_channels))
+  upsample_scale_factor: 2 # Upsampling factor per block
+  upsample_mode: 'bilinear'# Upsampling mode ('bilinear', 'nearest')
+  kernel_size: 3         # Convolution kernel size in decoder blocks
+  padding: 1             # Convolution padding in decoder blocks
+  use_cbam: false        # Whether to enable CBAM attention in decoder blocks 
