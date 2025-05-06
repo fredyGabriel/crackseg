@@ -2,6 +2,8 @@ import torch
 import torch.nn as nn
 from typing import List, Tuple
 from src.model.base import EncoderBase
+# Import the specific registry
+from src.model.registry_setup import encoder_registry
 
 
 # No longer registering with the factory registry
@@ -95,11 +97,10 @@ class EncoderBlockAlias(EncoderBlock):
     pass
 
 
-# No longer registering with the factory registry
-# @encoder_registry.register("CNNEncoder")
+@encoder_registry.register("CNNEncoder")
 class CNNEncoder(EncoderBase):
     """
-    Standard CNN Encoder for U-Net.
+    Standard CNN Encoder for U-Net style architectures.
 
     Composed of multiple EncoderBlocks with increasing feature channels
     and downsampling via pooling.

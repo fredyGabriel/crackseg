@@ -1,91 +1,117 @@
-# Tests del Proyecto
+# Project Tests
 
-Este directorio contiene las pruebas unitarias y de integración para el proyecto de segmentación de grietas.
+This directory contains the unit and integration tests for the crack segmentation project.
 
-## Estructura del Directorio
+## Directory Structure
 
-La estructura de pruebas refleja la estructura del código fuente:
+The test structure is organized by test type:
 
 ```
 tests/
-├── data/           # Pruebas para módulos de datos
-├── model/          # Pruebas para arquitecturas de modelos
-├── training/       # Pruebas para lógica de entrenamiento
-├── utils/          # Pruebas para utilidades
-└── conftest.py     # Fixtures compartidos de pytest
+├── unit/          # Unit tests organized by module
+│   ├── data/
+│   ├── model/
+│   ├── training/
+│   ├── evaluation/
+│   └── utils/
+├── integration/   # Integration tests organized by module or workflow
+│   ├── data/
+│   ├── model/
+│   ├── training/
+│   ├── evaluation/
+│   └── utils/
+├── conftest.py    # Shared pytest fixtures
+├── README.md      # This file
+└── __init__.py    # Test package initialization
 ```
 
-## Tipos de Pruebas
+## Types of Tests
 
-### Pruebas Unitarias
-- Pruebas de componentes individuales
-- Mocking de dependencias
-- Verificación de comportamiento aislado
+### Unit Tests
+- Test individual components of each module
+- Use mocking for dependencies
+- Verify isolated behavior
+- Located in `tests/unit/<module>/`
 
-### Pruebas de Integración
-- Pruebas de interacción entre componentes
-- Verificación de flujos completos
-- Pruebas de configuración
+### Integration Tests
+- Test the interaction between several modules or the full workflow
+- Verify integration and configuration
+- Located in `tests/integration/<module>/` or directly in `integration/` if they affect multiple modules
 
-## Ejecución de Pruebas
+## Running Tests
 
-### Ejecutar todas las pruebas:
+### Run all tests:
 ```bash
-pytest
+pytest tests/
 ```
 
-### Ejecutar pruebas específicas:
+### Run only unit tests:
 ```bash
-# Ejecutar pruebas de un módulo
-pytest tests/data/
+pytest tests/unit/
+```
 
-# Ejecutar una prueba específica
-pytest tests/model/test_unet.py
+### Run only integration tests:
+```bash
+pytest tests/integration/
+```
 
-# Ejecutar con cobertura
+### Run tests for a specific module:
+```bash
+pytest tests/unit/model/
+pytest tests/integration/training/
+```
+
+### Run a specific test:
+```bash
+pytest tests/unit/model/test_unet.py
+```
+
+### Run with coverage:
+```bash
 pytest --cov=src tests/
 ```
 
 ## Fixtures
 
-Los fixtures comunes se encuentran en `conftest.py`:
-- Datos de prueba
-- Configuraciones mock
-- Utilidades compartidas
+Common fixtures are located in `conftest.py` at the root of `tests/`:
+- Test data
+- Mock configurations
+- Shared utilities
 
-## Buenas Prácticas
+## Best Practices
 
-1. Mantener pruebas independientes
-2. Usar nombres descriptivos para las pruebas
-3. Documentar casos de prueba complejos
-4. Mantener datos de prueba pequeños y representativos
-5. Actualizar pruebas al modificar código
+1. Keep tests independent and reproducible
+2. Use descriptive names for test functions
+3. Briefly document complex test cases
+4. Keep test data small and representative
+5. Update or add tests when modifying code
+6. Clearly separate unit and integration tests
 
-## Cobertura de Código
+## Code Coverage
 
-Se recomienda mantener una cobertura mínima del 80% en:
-- Módulos de datos
-- Arquitecturas de modelos
-- Lógica de entrenamiento
-- Utilidades críticas
+It is recommended to maintain at least 80% coverage in:
+- Data modules
+- Model architectures
+- Training logic
+- Critical utilities
 
-## Organización de Pruebas
+## Test Organization
 
-- Cada módulo debe tener su conjunto de pruebas
-- Usar clases de prueba para agrupar casos relacionados
-- Mantener pruebas enfocadas y específicas
-- Documentar configuraciones especiales
+- Each module should have its own set of unit and integration tests
+- Use test classes to group related cases
+- Keep tests focused and specific
+- Document special configurations
 
-## Ejemplos
+## Examples
 
 ```python
-# Ejemplo de prueba unitaria
+# Example unit test
 def test_dataset_loading():
     dataset = CrackDataset(...)
     assert len(dataset) > 0
     assert dataset[0]['image'].shape == (3, 512, 512)
 
-# Ejemplo de prueba de integración
+# Example integration test
 def test_training_loop():
     trainer = Trainer(...)
     trainer.train()

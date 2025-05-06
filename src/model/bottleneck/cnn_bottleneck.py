@@ -1,10 +1,12 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+from torch import nn
 from src.model.base import BottleneckBase
-from src.model.factory import bottleneck_registry
+from src.model.registry_setup import bottleneck_registry
 
 
-@bottleneck_registry.register(name="CNNBottleneckBlock")
+@bottleneck_registry.register("BottleneckBlock")
 class BottleneckBlock(BottleneckBase):
     """
     CNN Bottleneck block for U-Net architecture.

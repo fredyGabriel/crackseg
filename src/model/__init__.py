@@ -1,43 +1,62 @@
-"""Model package initialization."""
+"""
+Model module initialization.
 
-# Import base classes and components directly if needed elsewhere,
-# but remove factory imports as they are commented out.
-from src.model.base import UNetBase, EncoderBase, BottleneckBase, DecoderBase
-# from src.model.components import *  # Example if components are directly used
-from src.model.registry import Registry
+Imports and exposes the main components and utilities from the model module:
+- Factory functions for creating model components
+- Configuration validation utilities
+- Abstract base models
+"""
 
-# Remove factory imports
-# from src.model.factory import (
-#     create_encoder,
-#     create_bottleneck,
-#     create_decoder,
-#     create_unet,
-#     encoder_registry,
-#     bottleneck_registry,
-#     decoder_registry,
-# )
+# Abstract base model and factory functions
+from .factory import (
+    create_unet,
+    validate_config,
+    ConfigurationError
+)
+from .base import UNetBase as ModelBase
 
-# Expose registries if they are intended to be public API
-# __all__ = [
-#     "UNetBase",
-#     "EncoderBase",
-#     "BottleneckBase",
-#     "DecoderBase",
-#     "Registry",
-#     "encoder_registry",
-#     "bottleneck_registry",
-#     "decoder_registry",
-#     "create_encoder",
-#     "create_bottleneck",
-#     "create_decoder",
-#     "create_unet"
-# ]
+# Configuration validation
+from .config import (
+    validate_component_config,
+    validate_architecture_config,
+    normalize_config,
+    parse_architecture_config,
+    create_model_from_config,
+    # Component instantiation
+    instantiate_encoder,
+    instantiate_bottleneck,
+    instantiate_decoder,
+    instantiate_hybrid_model,
+    InstantiationError
+)
 
-# Simplified __all__ assuming direct class usage and no factory exposure
+# Registries for component classes
+from .registry import Registry # Import only Registry
+
+# Make key classes and functions available at the module level
 __all__ = [
-    "UNetBase",
-    "EncoderBase",
-    "BottleneckBase",
-    "DecoderBase",
+    # Model base
+    "ModelBase",
+
+    # Factory functions
+    "create_unet",
+    "validate_config",
+    "ConfigurationError",
+    "create_model_from_config",
+    "parse_architecture_config",
+
+    # Configuration validation
+    "validate_component_config",
+    "validate_architecture_config",
+    "normalize_config",
+
+    # Component instantiation
+    "instantiate_encoder",
+    "instantiate_bottleneck",
+    "instantiate_decoder",
+    "instantiate_hybrid_model",
+    "InstantiationError",
+
+    # Registry
     "Registry",
 ]

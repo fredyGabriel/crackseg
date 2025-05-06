@@ -27,7 +27,7 @@ model:
     # MockDecoder.skip_channels_expected() retorna [32, 16], pero eso es el RESULTADO
     # de la inversión, no lo que debe recibir.
     skip_channels_list: [16, 32]
-    _target_: tests.model.unit.test_registry.MockDecoder
+    _target_: tests.model.integration.conftest.TestDecoderImpl
 
   # Optional: Override final activation
   final_activation:

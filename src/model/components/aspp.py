@@ -4,10 +4,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from src.model.base import BottleneckBase
-from src.model.factory import bottleneck_registry
+from src.model.registry_setup import bottleneck_registry
 
 
-@bottleneck_registry.register(name="ASPPModule")
+@bottleneck_registry.register("ASPPModule")
 class ASPPModule(BottleneckBase):
     """Atrous Spatial Pyramid Pooling module for semantic segmentation
     networks.

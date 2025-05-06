@@ -277,8 +277,8 @@ def test_cnn_decoder_init(decoder_params):
     decoder = CNNDecoder(
         in_channels=decoder_params["in_channels"],
         skip_channels_list=decoder_params["skip_channels_list"],
-        out_channels=decoder_params["out_channels"],
         depth=decoder_params["depth"],
+        out_channels=decoder_params["out_channels"],
         kernel_size=decoder_params["kernel_size"],
         upsample_mode=decoder_params["upsample_mode"],
     )
@@ -295,8 +295,8 @@ def test_cnn_decoder_forward_shape(decoder_params, encoder_params):
     decoder = CNNDecoder(
         in_channels=decoder_params["in_channels"],
         skip_channels_list=decoder_params["skip_channels_list"],
-        out_channels=decoder_params["out_channels"],
         depth=decoder_params["depth"],
+        out_channels=decoder_params["out_channels"],
     )
 
     # Mock bottleneck output tensor
@@ -341,8 +341,8 @@ def test_cnn_decoder_init_mismatch_depth(decoder_params):
             in_channels=decoder_params["in_channels"],
             # Pass a list with incorrect length
             skip_channels_list=decoder_params["skip_channels_list"][:-1],
-            out_channels=decoder_params["out_channels"],
             depth=decoder_params["depth"],
+            out_channels=decoder_params["out_channels"],
         )
 
 
@@ -352,6 +352,7 @@ def test_cnn_decoder_forward_mismatch_skips(decoder_params):
         in_channels=decoder_params["in_channels"],
         skip_channels_list=decoder_params["skip_channels_list"],
         depth=decoder_params["depth"],
+        out_channels=decoder_params["out_channels"],
     )
     bottleneck_output = torch.randn(
         decoder_params["batch_size"],
@@ -417,8 +418,8 @@ def assembled_unet(encoder_params, bottleneck_params, decoder_params):
     decoder = CNNDecoder(
         in_channels=decoder_in_channels,
         skip_channels_list=decoder_skip_channels_list,
-        out_channels=decoder_params["out_channels"],
         depth=encoder_params["depth"],
+        out_channels=decoder_params["out_channels"],
         kernel_size=decoder_params["kernel_size"],
         upsample_mode=decoder_params["upsample_mode"]
     )
@@ -580,7 +581,8 @@ def test_instantiate_cnn_convlstm_unet_with_hydra(hydra_config_dir):
             cfg.decoder,
             in_channels=decoder_in_channels,
             skip_channels_list=decoder_skip_channels_list,
-            depth=encoder_depth  # Explicitly pass encoder_depth here
+            depth=encoder_depth,  # Explicitly pass encoder_depth here
+            out_channels=cfg.decoder.out_channels
         )
         log.info(f"Decoder instantiated: {type(decoder)}")
 
@@ -695,8 +697,9 @@ def test_cnn_convlstm_unet_configurations(base_filters, depth,
     decoder = CNNDecoder(
         in_channels=bottleneck.out_channels,
         skip_channels_list=encoder.skip_channels,
-        out_channels=out_channels,
         depth=depth,
+        out_channels=out_channels,
+        kernel_size=3,
     )
 
     # Ensamblar U-Net

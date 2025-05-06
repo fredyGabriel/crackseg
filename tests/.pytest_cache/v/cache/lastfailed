@@ -1,8 +1,0 @@
-{
-  "evaluation/test_evaluate.py::test_load_model_from_checkpoint": true,
-  "evaluation/test_evaluate.py::test_get_evaluation_dataloader": true,
-  "evaluation/test_evaluate.py::test_evaluate_model_basic": true,
-  "evaluation/test_evaluate.py::test_visualize_predictions_creates_files": true,
-  "evaluation/test_evaluate.py::test_save_evaluation_results_creates_files": true,
-  "evaluation/test_evaluate.py::test_ensemble_evaluate_creates_results_and_files": true
-}

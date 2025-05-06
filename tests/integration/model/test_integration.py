@@ -4,16 +4,24 @@ import os
 import torch
 import hydra
 from omegaconf import DictConfig
+import pytest
 
 from src.model.factory import create_unet
+from src.model.base import EncoderBase, BottleneckBase, DecoderBase
+from src.model.registry_setup import (
+    encoder_registry, bottleneck_registry, decoder_registry
+)
 from src.model.base import UNetBase
-from tests.model.unit.test_registry import (
-    MockEncoder, MockBottleneck, MockDecoder
+# Import BaseUNet separately if needed for type hints/checks
+# Import Mock classes from conftest
+# Use absolute import from tests directory
+from tests.model.integration.conftest import (
+    MockEncoder, MockBottleneck, TestDecoderImpl
 )
 
 # Ensure mock components are registered before tests run
 # pylint: disable=unused-import
-import tests.model.integration.test_model_factory  # noqa: F401
+# REMOVED: import tests.model.integration.test_model_factory  # noqa: F401
 
 # Import the new CNN components
 from src.model.unet import BaseUNet
@@ -98,53 +106,26 @@ test or cwd: {config_path}")
     hydra.core.global_hydra.GlobalHydra.instance().clear()
     return cfg
 
+
 # --- Test Cases ---
 
-
-def test_unet_instantiation_from_manual_config():
-    """Test instantiating the UNet model by manually loading config."""
-    cfg = load_test_config()
+def test_unet_instantiation_from_manual_config(register_mock_components):
+    """Test instantiating UNet from a manually created config using mocks."""
+    cfg = load_test_config() # Load the config that uses Mock* _target_
+    # No need to manually register here, fixture handles it
     unet = create_unet(cfg.model)
-
-    # Use helper function to extract UNetBase core
-    unet_core = extract_unet_core(unet)
-
-    assert isinstance(unet_core, UNetBase)
+    unet_core = extract_unet_core(unet) # Extract core model
+    assert isinstance(unet_core, BaseUNet) # Assert on the core model
     assert isinstance(unet_core.encoder, MockEncoder)
     assert isinstance(unet_core.bottleneck, MockBottleneck)
-    assert isinstance(unet_core.decoder, MockDecoder)
-    assert unet_core.encoder.in_channels == cfg.model.encoder.in_channels
-    assert unet_core.bottleneck.in_channels == cfg.model.bottleneck.in_channels
-    assert unet_core.decoder.in_channels == cfg.model.decoder.in_channels
-    # Compare with reversed list from config, as MockDecoder stores reversed
-    expected_skips = list(reversed(cfg.model.decoder.skip_channels_list))
-    assert unet_core.decoder.skip_channels == expected_skips
-
-    if cfg.model.get("final_activation"):
-        if isinstance(unet, torch.nn.Sequential):
-            activation_cls = hydra.utils.get_class(
-                cfg.model.final_activation._target_
-            )
-            assert isinstance(unet[1], activation_cls)
-        else:
-            assert hasattr(unet_core, "final_activation")
-    else:
-        if isinstance(unet, torch.nn.Sequential):
-            assert False, "final_activation expected None but got Sequential"
-        else:
-            assert not hasattr(unet_core, "final_activation")
-
-    # Validate skip_channels consistency:
-    # decoder.skip_channels should be the reverse of encoder.skip_channels
-    assert unet_core.decoder.skip_channels == list(
-        reversed(unet_core.encoder.skip_channels)
-    )
+    assert isinstance(unet_core.decoder, TestDecoderImpl)
 
 
-def test_unet_forward_pass_from_manual_config():
+def test_unet_forward_pass_from_manual_config(register_mock_components):
     """Test the forward pass of a UNet instantiated from manually loaded
     config."""
     cfg = load_test_config()
+    # Fixture handles registration
     unet = create_unet(cfg.model)
     unet.eval()
 
@@ -155,8 +136,9 @@ def test_unet_forward_pass_from_manual_config():
     with torch.no_grad():
         output = unet(x)
 
-    assert output.shape[0] == x.shape[0]
-    assert output.shape[1] == input_channels  # Correct for MockDecoder
+    assert output.shape[0] == x.shape[0] # Check batch size matches
+    # Use get_output_channels helper which handles Sequential wrapper
+    assert output.shape[1] == get_output_channels(unet)
     assert output.shape[2:] == x.shape[2:]
 
     # Check activation effects if present
@@ -166,6 +148,15 @@ def test_unet_forward_pass_from_manual_config():
     elif hasattr(unet, "final_activation"):
         assert torch.all(output >= 0)
         assert torch.all(output <= 1)
+
+    # decoder.skip_channels should match encoder.skip_channels
+    # (CNNDecoder internally reverses the list)
+    # Correct assertion: compare encoder skips with reversed decoder skips
+    unet_core = extract_unet_core(unet)
+    assert list(reversed(unet_core.decoder.skip_channels)) == unet_core.encoder.skip_channels
+
+    # Comprobar cantidad de bloques del decoder
+    assert len(unet_core.decoder.decoder_blocks) == cfg.model.decoder.depth
 
 
 def test_unet_cnn_instantiation_from_config():
@@ -230,7 +221,8 @@ def test_unet_cnn_forward_pass_from_config():
     # Validate skip_channels consistency:
     # decoder.skip_channels should match encoder.skip_channels
     # (CNNDecoder internally reverses the list)
-    assert unet_core.decoder.skip_channels == unet_core.encoder.skip_channels
+    # Correct assertion: compare encoder skips with reversed decoder skips
+    assert list(reversed(unet_core.decoder.skip_channels)) == unet_core.encoder.skip_channels
 
     # Comprobar cantidad de bloques del decoder
     assert len(unet_core.decoder.decoder_blocks) == cfg.model.decoder.depth

@@ -2,10 +2,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# Registry for attention modules (for future integration in factory/config)
-from src.model.registry import Registry
+# Importamos el registro global de atención
+from src.model.registry_setup import component_registries
 
-attention_registry = Registry(nn.Module, "Attention")
+# Obtenemos el registro global de atención
+attention_registry = component_registries.get('attention')
 
 
 class ChannelAttention(nn.Module):

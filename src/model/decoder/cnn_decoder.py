@@ -1,8 +1,9 @@
+from typing import List, Optional, Tuple
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import List, Optional, Tuple
-from src.model.base import DecoderBase
+
 # Import CBAM
 from src.model.components.cbam import CBAM
 # import logging # Import logging
@@ -11,6 +12,12 @@ logger = logging.getLogger(__name__)
 
 # logger = logging.getLogger(__name__) # Setup logger for the module
 
+# Import the specific registry
+from src.model.registry_setup import decoder_registry
+
+from src.model.base import DecoderBase
+# REMOVED: from src.model.components.conv_block import DoubleConvBlock
+# REMOVED: from src.model.components.upsample import UpsampleBlock
 
 # No longer registering
 # @decoder_registry.register("DecoderBlock")
@@ -132,8 +139,7 @@ class DecoderBlockAlias(DecoderBlock):
     pass
 
 
-# No longer registering
-# @decoder_registry.register("CNNDecoder")
+@decoder_registry.register("CNNDecoder")
 class CNNDecoder(DecoderBase):
     """
     Standard CNN Decoder for U-Net.
