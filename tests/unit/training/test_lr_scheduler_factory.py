@@ -1,6 +1,7 @@
 """Test that learning rate schedulers are correctly instantiated from Hydra
 configs."""
 
+import os
 import pytest
 import torch
 from omegaconf import OmegaConf
@@ -9,8 +10,23 @@ from src.training.factory import create_lr_scheduler
 
 @pytest.fixture
 def dummy_optimizer():
-    model = torch.nn.Linear(10, 2)
+    """Create a dummy optimizer for scheduler testing."""
+    # Use torch.nn.Linear as a simple model with parameters
+    model = torch.nn.Linear(10, 5)
     return torch.optim.Adam(model.parameters(), lr=0.001)
+
+
+# Helper to get absolute config path regardless of working directory
+def get_absolute_config_path(relative_path):
+    """Convert a relative config path to an absolute path regardless of
+    working directory."""
+    # Get the project root: if we're in scripts/, go up one level
+    if os.path.basename(os.getcwd()) == 'scripts':
+        project_root = os.path.dirname(os.getcwd())
+    else:
+        project_root = os.getcwd()
+
+    return os.path.join(project_root, relative_path)
 
 
 @pytest.mark.parametrize("config_path, expected_cls", [
@@ -23,6 +39,11 @@ def dummy_optimizer():
 ])
 def test_scheduler_instantiation_from_config(config_path, expected_cls,
                                              dummy_optimizer):
-    cfg = OmegaConf.load(config_path)
+    # Use absolute path to find config regardless of working directory
+    abs_config_path = get_absolute_config_path(config_path)
+    cfg = OmegaConf.load(abs_config_path)
+
+    # Create scheduler based on config
     scheduler = create_lr_scheduler(dummy_optimizer, cfg)
+
     assert isinstance(scheduler, expected_cls)
