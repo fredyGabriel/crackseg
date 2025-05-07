@@ -2,15 +2,21 @@
 
 ## Project Overview
 
-This project aims to achieve state-of-the-art performance in pavement crack segmentation using modular U-Net-based deep learning architectures. It is designed for researchers, engineers, and practitioners interested in automated road inspection and infrastructure monitoring.
+Este proyecto busca lograr un desempeño de vanguardia en segmentación de grietas en pavimentos usando arquitecturas modulares basadas en U-Net. Está diseñado para investigadores, ingenieros y profesionales interesados en inspección automatizada de carreteras y monitoreo de infraestructura.
 
 ## Project Structure
 
 - `src/` — Main source code (models, data pipeline, training, utils)
 - `tests/` — Unit and integration tests
 - `configs/` — Hydra YAML configuration files
-- `scripts/` — Utility and setup scripts
+- `scripts/` — Scripts auxiliares y de utilidad, organizados en subcarpetas:
+  - `experiments/` — Scripts de experimentación, benchmarks y pruebas de modelos.
+  - `utils/` — Utilidades y herramientas para el workspace/proyecto.
+  - `reports/` — Reportes generados, archivos de análisis, PRD de ejemplo y documentación auxiliar.
+  - `examples/` — Ejemplos de integración, uso de APIs y demostraciones.
 - `tasks/` — TaskMaster task files
+
+> Nota: Los scripts en `scripts/` no forman parte del core del proyecto y no deben ser importados directamente por el código principal. Elimina regularmente archivos temporales como `__pycache__`.
 
 ## Basic Usage
 
@@ -20,125 +26,125 @@ After setting up the environment and configuration files, you can run the main t
 python src/main.py
 ```
 
-For more details on configuration and advanced usage, see the documentation in the `docs/` folder (if available) or the comments in the configuration files.
+Para más detalles sobre configuración y uso avanzado, consulta la documentación en la carpeta `docs/` (si está disponible) o los comentarios en los archivos de configuración.
 
 ## Training Flow
 
-The training process is now fully modular and managed by the `Trainer` class. The main script (`src/main.py`) delegates all training logic to this class, ensuring a clean separation of concerns and easier maintenance.
+El proceso de entrenamiento es totalmente modular y está gestionado por la clase `Trainer`. El script principal (`src/main.py`) delega toda la lógica de entrenamiento a esta clase, asegurando una separación clara de responsabilidades y un mantenimiento más sencillo.
 
-**Key features of the training flow:**
-- **Trainer-based orchestration:** All training, validation, and checkpointing logic is handled by `src/training/trainer.py`.
-- **Checkpointing:** The best and last model states are automatically saved during training. You can resume training from any checkpoint by setting the appropriate configuration in Hydra (`resume_from_checkpoint`).
-- **Early stopping:** Training can be stopped early based on validation metrics, as configured in the Hydra YAML files (`early_stopping` section).
-- **Hydra configuration:** All parameters (epochs, optimizer, scheduler, checkpointing, early stopping, etc.) are managed via YAML files in `configs/training/`.
-- **No duplicate logic:** All legacy training code has been removed from `main.py`.
+**Características clave del flujo de entrenamiento:**
+- **Orquestación basada en Trainer:** Toda la lógica de entrenamiento, validación y checkpointing está en `src/training/trainer.py`.
+- **Checkpointing:** Los mejores y últimos estados del modelo se guardan automáticamente. Puedes reanudar el entrenamiento desde cualquier checkpoint configurando Hydra (`resume_from_checkpoint`).
+- **Early stopping:** El entrenamiento puede detenerse anticipadamente según métricas de validación, configurable en los YAML de Hydra (`early_stopping`).
+- **Configuración Hydra:** Todos los parámetros (épocas, optimizador, scheduler, checkpointing, early stopping, etc.) se gestionan vía YAML en `configs/training/`.
+- **Sin lógica duplicada:** Todo el código legado de entrenamiento fue removido de `main.py`.
 
-**To run training:**
+**Para entrenar:**
 ```bash
 python src/main.py
 ```
 
-**To resume from a checkpoint:**
-- Edit your Hydra config (e.g., `configs/training/trainer.yaml`) and set the path in `training.checkpoints.resume_from_checkpoint`.
+**Para reanudar desde un checkpoint:**
+- Edita tu config de Hydra (por ejemplo, `configs/training/trainer.yaml`) y pon la ruta en `training.checkpoints.resume_from_checkpoint`.
 
-**For more details:**
-- See `src/training/trainer.py` for the orchestration logic.
-- See `configs/training/trainer.yaml` for all configurable options.
-- See the `tests/training/` folder for integration and unit tests covering the training flow.
+**Para más detalles:**
+- Ver `src/training/trainer.py` para la lógica de orquestación.
+- Ver `configs/training/trainer.yaml` para todas las opciones configurables.
+- Ver la carpeta `tests/training/` para tests de integración y unidad del flujo de entrenamiento.
 
 ## Evaluation Flow
 
-The final evaluation is no longer performed in `main.py`. To evaluate your trained model on the test set, use the dedicated evaluation script:
+La evaluación final ya no se realiza en `main.py`. Para evaluar tu modelo entrenado en el set de test, usa el script dedicado:
 
 ```bash
 python src/evaluate.py
 ```
 
-- This script loads the best or last checkpoint and computes metrics on the test set.
-- Configuration (paths, metrics, etc.) is managed via Hydra YAML files, just like training.
-- See `src/evaluate.py` and `configs/evaluation/` for details.
+- Este script carga el mejor o último checkpoint y calcula métricas en el set de test.
+- La configuración (rutas, métricas, etc.) se gestiona vía YAML de Hydra, igual que el entrenamiento.
+- Ver `src/evaluate.py` y `configs/evaluation/` para detalles.
 
-**Why this change?**
-- This separation ensures a clean, modular workflow and avoids mixing training and evaluation logic in the same script.
-- It also makes it easier to run evaluation independently, automate experiments, and maintain the codebase.
+**¿Por qué este cambio?**
+- Esta separación asegura un flujo limpio y modular, evitando mezclar lógica de entrenamiento y evaluación.
+- Facilita la automatización de experimentos y el mantenimiento del código.
 
 ## How to Contribute
 
-- Please read the guidelines in `CONTRIBUTING.md` before submitting a pull request.
-- Follow the coding style and modularity guidelines (see `coding-preferences.mdc`).
-- Add or update tests for your changes.
-- Update documentation as needed.
+- Por favor, lee las guías en `CONTRIBUTING.md` antes de enviar un pull request.
+- Sigue las guías de estilo y modularidad (ver `coding-preferences.mdc`).
+- Añade o actualiza tests para tus cambios.
+- Actualiza la documentación según sea necesario.
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+Este proyecto está bajo licencia MIT. Ver el archivo `LICENSE` para detalles.
 
 ## Conda Environment
 
-This project uses a Conda environment named `torch`.
+Este proyecto usa un entorno Conda llamado `torch`.
 
-**To activate it:**
+**Para activarlo:**
 ```bash
 conda activate torch
 ```
 
-**To install additional dependencies:**
+**Para instalar dependencias adicionales:**
 ```bash
 conda install <package>
 ```
 
-**To reproduce the environment:**
+**Para reproducir el entorno:**
 ```bash
 conda env create -f environment.yml
 ```
 
 ## Environment Variables
 
-This project uses environment variables for sensitive configuration.  
-See the example file: `.env.example`
+Este proyecto usa variables de entorno para configuración sensible.  
+Ver el archivo de ejemplo: `.env.example`
 
-- Copy `.env.example` to `.env` and fill in the required values.
-- Never commit your real `.env` file to the repository.
+- Copia `.env.example` a `.env` y completa los valores requeridos.
+- Nunca subas tu archivo `.env` real al repositorio.
 
-Main variables:
-- `ANTHROPIC_API_KEY`: API key for Anthropic Claude (Task Master)
-- `DEBUG`: Enable/disable debug mode (`true` or `false`)
+Variables principales:
+- `ANTHROPIC_API_KEY`: API key para Anthropic Claude (Task Master)
+- `DEBUG`: Activa/desactiva modo debug (`true` o `false`)
 
 ## Dependency Management
 
 ### Update Verification
 
-The project includes a script to verify available updates for main dependencies:
+El proyecto incluye un script para verificar actualizaciones de dependencias principales:
 
 ```bash
-python scripts/check_updates.py
+python scripts/utils/check_updates.py
 ```
 
-This script:
-- Verifies current versions in environment.yml
-- Compares with latest versions available on conda-forge and PyPI
-- Shows an update report
+Este script:
+- Verifica versiones actuales en environment.yml
+- Compara con las últimas versiones en conda-forge y PyPI
+- Muestra un reporte de actualizaciones
 
 ### Updating Dependencies
 
-To update dependencies:
+Para actualizar dependencias:
 
-1. Run the verification script
-2. Update versions in environment.yml as needed
-3. Apply the updates:
+1. Ejecuta el script de verificación
+2. Actualiza versiones en environment.yml según sea necesario
+3. Aplica las actualizaciones:
    ```bash
    conda env update -f environment.yml --prune
    ```
-4. Verify compatibility by running tests:
+4. Verifica compatibilidad ejecutando los tests:
    ```bash
    pytest
    ```
 
-### Update Considerations
+### Consideraciones de actualización
 
-- Keep PyTorch and torchvision versions compatible
-- Verify CUDA compatibility if using GPU
-- Document significant changes in CHANGELOG.md
-- Perform thorough testing after updating critical dependencies
+- Mantén versiones compatibles de PyTorch y torchvision
+- Verifica compatibilidad CUDA si usas GPU
+- Documenta cambios significativos en CHANGELOG.md
+- Realiza pruebas exhaustivas tras actualizar dependencias críticas
 
 --- 
