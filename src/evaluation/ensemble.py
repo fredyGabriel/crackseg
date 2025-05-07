@@ -34,6 +34,9 @@ def ensemble_evaluate(
     Returns:
         Dictionary of ensemble evaluation results
     """
+    if not checkpoint_paths:
+        raise ValueError("No checkpoints provided for ensemble evaluation.")
+
     log.info(
         f"Performing ensemble evaluation with {len(checkpoint_paths)} models"
     )

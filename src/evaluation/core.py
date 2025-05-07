@@ -23,6 +23,12 @@ def evaluate_model(
         - Dictionary of metric results
         - Tuple of (inputs, targets, outputs) tensors for visualization
     """
+    if len(dataloader) == 0:
+        results = {f"test_{name}": 0.0 for name in metrics.keys()}
+        results["test_loss"] = 0.0
+        empty = torch.empty(0)
+        return results, (empty, empty, empty)
+
     model.eval()
     results = {f"test_{name}": 0.0 for name in metrics.keys()}
     # Add loss placeholder even though we may not calculate it
