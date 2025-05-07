@@ -80,4 +80,4 @@ done   | medium    | 15           |
 | 18   | Implement Atrous Spatial Pyramid Pooling (ASPP) Module       | done       | medium    | 15           |
 | 19   | Implement Convolutional Block Attention Module (CBAM)        | done       | medium    | 15           |
 | 20   | Implement Hybrid U-Net Architecture with SwinV2, CNN, ASPP   | done       | medium-high| 17,18,19     |
-| 21   | Task #21: Update Model Factory and Registry                  | pending       | medium    | 16, 20       | 
+| 21   | Task #21: Update Model Factory and Registry                  | done       | medium    | 16, 20       | 

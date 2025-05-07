@@ -46,6 +46,14 @@ Current stable versions:
 ### Notes
 - The ASPP module is fully integrated, tested, and ready for use in the segmentation pipeline.
 
+### Testing & QA
+- Removed duplicate test files in `tests/unit/data/` to avoid collection errors and redundancy.
+- Updated assertions in tests to match the real API contract (e.g., mask shape `(1, H, W)`).
+- Refactored tests to use temporary paths (`tmp_path`) for file/directory creation, improving portability and reliability.
+- Updated `tests/README.md` to document new best practices and current test status.
+- All unit and integration tests now pass successfully after these changes.
+- Improved overall test suite maintainability and clarity.
+
 ## [0.1.0] - 2025-05-01
 
 ### Added
