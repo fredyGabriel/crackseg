@@ -29,8 +29,8 @@ class TestBaseUNet:
         """
         Create a mock decoder for testing.
 
-        Siguiendo el contrato UNet, el decoder debe recibir los skip_channels
-        en orden inverso al encoder (low->high resolution).
+        Following the UNet contract, the decoder must receive the skip_channels
+        in reverse order from the encoder (low->high resolution).
         """
         return MockDecoder(
             in_channels=bottleneck.out_channels,

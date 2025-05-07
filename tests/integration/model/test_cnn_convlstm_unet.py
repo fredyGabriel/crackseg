@@ -2,7 +2,6 @@ import pytest
 import logging
 import torch
 import torch.nn as nn
-import hydra
 
 # Import the component to be tested
 from src.model.architectures.cnn_convlstm_unet import CNNEncoder
@@ -506,90 +505,81 @@ def test_cnn_convlstm_unet_init_type_mismatch():
 
 # --- Test Hydra Instantiation ---
 
-@pytest.mark.skip(
-        reason="Requires updating to work with reorganized module structure")
-@pytest.mark.hydra
-def test_instantiate_cnn_convlstm_unet_with_hydra(hydra_config_dir):
-    """Tests instantiation of the full model using Hydra."""
-    from omegaconf import OmegaConf
+def test_cnn_convlstm_unet_direct_assembly():
+    """
+    Tests the assembly of the CNN-ConvLSTM UNet model by directly
+    instantiating components.
 
-    # Instead of using file-based config, create it programmatically
-    # This avoids path issues due to the reorganization
-    config = {
-        "model": {
-            # No _target_ at this level for UNetBase instantiation via factory
-            "encoder": {
-                "_target_": "src.model.encoder.cnn_encoder.CNNEncoder",
-                "in_channels": 3,
-                "init_features": 64,  # Changed from base_filters
-                "depth": 4,
-            },
-            "bottleneck": {
-                "_target_": (
-                    "src.model.bottleneck.cnn_bottleneck.BottleneckBlock"),
-                "in_channels": 512,
-                "out_channels": 1024,
-                "dropout": 0.5,
-            },
-            "decoder": {
-                "_target_": "src.model.decoder.cnn_decoder.CNNDecoder",
-                "in_channels": 1024,
-                "skip_channels_list": [512, 256, 128, 64],
-                "out_channels": 1,
-                "depth": 4,
-                "kernel_size": 3,
-                "upsample_mode": "bilinear",
-            }
-        }
-    }
+    This test replaces the previous one that used Hydra and the factory.
+    """
+    # Parameters for the encoder
+    encoder_depth = 4
 
-    # Use model factory directly with our config to create UNet
-    from src.model.factory import create_unet
-    model = create_unet(OmegaConf.create(config["model"]))
+    # Create the encoder
+    encoder = CNNEncoder(
+        in_channels=3,          # RGB input
+        base_filters=64,        # Initial filters
+        depth=encoder_depth,    # Encoder depth
+        kernel_size=3,          # Kernel size
+        pool_size=2,            # Pooling factor
+    )
 
-    # Verify basic model structure and components
-    assert isinstance(model, torch.nn.Module)
+    # Check that the number of blocks matches the depth
+    assert len(encoder.encoder_blocks) == encoder_depth
 
-    # If UNetBase is wrapped in Sequential, extract it
-    if isinstance(model, torch.nn.Sequential):
-        unet_core = model[0]
-    else:
-        unet_core = model
+    # Get out_channels from the encoder to create the bottleneck
+    encoder_out_channels = encoder.out_channels
 
-    # Verify the core UNet model
-    assert hasattr(unet_core, "encoder")
-    assert hasattr(unet_core, "bottleneck")
-    assert hasattr(unet_core, "decoder")
+    # Create the bottleneck
+    bottleneck = ConvLSTMBottleneck(
+        in_channels=encoder_out_channels,
+        hidden_dim=1024,         # Hidden dimension
+        kernel_size=(3, 3),      # Kernel size for ConvLSTM
+        num_layers=1,            # One layer is enough for tests
+        bias=True,               # Use bias
+    )
 
-    # Check encoder
-    assert "CNNEncoder" in unet_core.encoder.__class__.__name__
-    assert unet_core.encoder.in_channels == 3
-    assert unet_core.encoder.depth == 4
+    # Create the decoder using the correct encoder information
+    # Use the length of encoder_blocks to determine the depth
+    decoder = CNNDecoder(
+        in_channels=bottleneck.out_channels,  # Use the real output
+        skip_channels_list=encoder.skip_channels,  # Use directly
+        out_channels=1,          # Binary segmentation
+        depth=len(encoder.encoder_blocks),  # Depth based on actual blocks
+        kernel_size=3,           # Kernel size
+        upsample_mode='bilinear',  # Upsampling mode
+    )
 
-    # Check bottleneck
-    assert "Bottleneck" in unet_core.bottleneck.__class__.__name__
+    # Assemble the UNet
+    model = CNNConvLSTMUNet(
+        encoder=encoder,
+        bottleneck=bottleneck,
+        decoder=decoder
+    )
 
-    # Check decoder
-    assert "CNNDecoder" in unet_core.decoder.__class__.__name__
-    assert unet_core.decoder.out_channels == 1
+    # Check components and types
+    assert isinstance(model, UNetBase)
+    assert isinstance(model.encoder, CNNEncoder)
+    assert isinstance(model.bottleneck, ConvLSTMBottleneck)
+    assert isinstance(model.decoder, CNNDecoder)
 
-    # Clean up Hydra globals
-    if hydra.core.global_hydra.GlobalHydra.instance().is_initialized():
-        hydra.core.global_hydra.GlobalHydra.instance().clear()
+    # Check configuration consistency
+    assert model.encoder.in_channels == 3
+    assert len(model.encoder.encoder_blocks) == encoder_depth
+    assert model.bottleneck.in_channels == model.encoder.out_channels
+    assert model.decoder.in_channels == model.bottleneck.out_channels
+    assert model.decoder.out_channels == 1
 
-# Need to add hydra_config_dir fixture, e.g., in conftest.py
-# Example conftest.py content:
-# import pytest
-# import os
-#
-# @pytest.fixture(scope='session')
-# def hydra_config_dir():
-#     # Adjust path relative to your conftest.py location
-#     return os.path.abspath(os.path.join(
-#         os.path.dirname(__file__),
-#         "..", # Assuming tests/ is one level down
-#         "configs"
-#     ))
+    # Forward pass test
+    batch_size = 2
+    input_tensor = torch.randn(batch_size, 3, 64, 64)  # [B, C, H, W]
+    output = model(input_tensor)
+
+    # Check output shape
+    assert output.shape == (batch_size, 1, 64, 64)
+    # Check that values are finite
+    assert torch.isfinite(output).all()
+
 
 # --- Tests for Real-world Usage Scenarios ---
 
