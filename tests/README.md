@@ -2,6 +2,15 @@
 
 This directory contains the unit and integration tests for the crack segmentation project.
 
+## Final Status
+
+- All unit and integration tests are organized and pass successfully.
+- Obsolete or redundant tests have been removed after refactoring (e.g., individual component factory tests now covered by integration tests).
+- Test coverage and organization are robust, reflecting the real API and workflows.
+- Mask shape and path assertions are adapted to the actual production API contract (e.g., mask shape: `(1, H, W)`).
+- Tests that create files or directories use temporary paths (`tmp_path`) to avoid environment dependencies.
+- The suite covers main flows and edge cases for data, model, training, and evaluation.
+
 ## Directory Structure
 
 The test structure is organized by test type:
@@ -82,12 +91,12 @@ Common fixtures are located in `conftest.py` at the root of `tests/`:
 
 1. Keep tests independent and reproducible
 2. Use descriptive names for test functions
-3. Briefly document complex test cases
+3. Briefly document complex test cases (in English)
 4. Keep test data small and representative
 5. Update or add tests when modifying code
 6. Clearly separate unit and integration tests
-7. Usa rutas temporales (`tmp_path`) para archivos/directorios en tests que lo requieran
-8. Adapta los asserts a la API real del código de producción (por ejemplo, shape de máscaras)
+7. Use temporary paths (`tmp_path`) for files/directories in tests that require them
+8. Adapt asserts to the real API of the production code (e.g., mask shape)
 
 ## Code Coverage
 
@@ -118,12 +127,4 @@ def test_training_loop():
     trainer = Trainer(...)
     trainer.train()
     assert trainer.metrics['val_loss'] < initial_loss
-```
-
-## Estado actual de la suite de tests
-
-- Todos los tests unitarios e integración están organizados y pasan correctamente.
-- Se eliminaron duplicados en `tests/unit/data/` para evitar errores de colección y redundancia.
-- Los asserts de shape de máscaras y rutas se adaptaron al contrato real de la API (máscara: `(1, H, W)`).
-- Los tests que crean archivos o directorios usan rutas temporales (`tmp_path`) para evitar dependencias de entorno.
-- La suite cubre los flujos principales y edge cases de datos, modelo, entrenamiento y evaluación. 
+``` 

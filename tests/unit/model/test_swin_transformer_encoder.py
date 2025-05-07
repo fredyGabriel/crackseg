@@ -73,10 +73,23 @@ def test_swintransformerencoder_forward_shape():
 
 
 @pytest.mark.parametrize("handle_mode", ["resize", "pad"])
-@pytest.mark.parametrize("input_size", [(128, 128), (224, 224), (256, 256),
-                                        (225, 225)])
+@pytest.mark.parametrize("input_size", [
+    (128, 128), (224, 224), (256, 256), (225, 225)
+])
 def test_swintransformerencoder_variable_input(handle_mode, input_size):
-    """Test forward pass with different input sizes and handling modes."""
+    """
+    Test forward pass with different input sizes and handling modes.
+
+    For handle_mode='resize', the encoder resizes any input to the expected
+    size. For handle_mode='pad', the encoder currently only supports input
+    sizes that exactly match the model's expected img_size (default: 256).
+    If the input size does not match, the test is skipped.
+
+    This skip is intentional and documents the current limitation of the
+    SwinTransformerEncoder: dynamic padding for arbitrary input sizes is not
+    implemented in 'pad' mode. If this changes in the future, this test
+    should be updated to remove the skip and check the new behavior.
+    """
     batch_size = 2
     in_channels = 3
 
@@ -87,15 +100,15 @@ def test_swintransformerencoder_variable_input(handle_mode, input_size):
         handle_input_size=handle_mode
     )
 
-    # Skip unsupported combinations - for pad mode we should skip any test
-    # where the input size doesn't match the model's expected img_size
-    # since the current implementation of pad mode requires exact sizes
+    # For pad mode, skip any test where the input size doesn't match the
+    # model's expected img_size. This is a limitation of the current
+    # implementation: only exact sizes are supported for 'pad'.
     if handle_mode == "pad" and input_size != (encoder.img_size,
                                                encoder.img_size):
         img_size_str = f"{encoder.img_size}"
         pytest.skip(
             f"Skipping pad mode with size {input_size}, requires "
-            f"{img_size_str}"
+            f"{img_size_str} (see test docstring for explanation)"
         )
 
     # Create input tensor with variable dimensions

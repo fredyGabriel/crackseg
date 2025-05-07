@@ -1,43 +1,37 @@
 # Project Configurations
 
-This directory contains all project configurations using Hydra. The structure is organized hierarchically to allow modular and flexible configuration.
+This directory contains all configuration files for the project, managed using Hydra. The structure is hierarchical and modular to ensure flexibility, clarity, and reproducibility for all experiments and workflows.
+
+## Final Status
+
+- All configuration files are organized by module and purpose.
+- The structure supports modular overrides and experiment tracking.
+- All parameters are documented and versioned with the codebase.
 
 ## Directory Structure
 
-- `base.yaml`: Base configuration that defines common parameters and default values
+- `base.yaml`: Base configuration with common parameters and default values
 - `config.yaml`: Main configuration that composes different configuration groups
 
 ### Configuration Groups
 
 - `data/`: Data-related configurations
-  - `dataloader/`: Dataloader configuration
-    - Batch size
-    - Number of workers
-    - Shuffling policies
-  - `transform/`: Transformation configuration
-    - Data augmentation
-    - Normalization
-    - Preprocessing
+  - `dataloader/`: Dataloader settings (batch size, workers, shuffling)
+  - `transform/`: Data augmentation, normalization, preprocessing
 
-- `model/`: Architecture configurations
-  - `encoder/`: Encoder configurations
-  - `decoder/`: Decoder configurations
-  - `bottleneck/`: Bottleneck configurations
-  - Architecture hyperparameters
-  - Weight initialization
+- `model/`: Model and architecture configurations
+  - `encoder/`, `decoder/`, `bottleneck/`: Component-specific settings
+  - Architecture hyperparameters, weight initialization
 
 - `training/`: Training configurations
-  - `logging/`: Logger configuration
-  - `loss/`: Loss function configuration
-  - `lr_scheduler/`: Learning rate scheduler configuration
-  - `metric/`: Metrics configuration
-  - Training hyperparameters
-  - Optimization policies
+  - `logging/`: Logger settings
+  - `loss/`: Loss function settings
+  - `lr_scheduler/`: Learning rate scheduler
+  - `metric/`: Metrics for training/validation
+  - Training hyperparameters, optimization policies
 
 - `evaluation/`: Evaluation configurations
-  - Evaluation metrics
-  - Decision thresholds
-  - Visualization parameters
+  - Metrics, thresholds, visualization parameters
 
 ## Using with Hydra
 
@@ -54,9 +48,7 @@ python main.py training.optimizer.lr=0.001
 python main.py +experiment=unet_baseline training.batch_size=32 data.augmentation=strong
 ```
 
-## Configuration Structure
-
-Example of hierarchical structure:
+## Configuration Structure Example
 
 ```yaml
 defaults:
@@ -72,5 +64,6 @@ defaults:
 1. Keep configurations modular and reusable
 2. Document all parameters and their effects
 3. Use sensible default values
-4. Keep experiment configurations reproducible
-5. Version configurations along with code 
+4. Ensure experiment configurations are reproducible
+5. Version configurations along with code
+6. Use Hydra's override and composition features for flexible experimentation 

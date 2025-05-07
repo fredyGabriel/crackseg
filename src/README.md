@@ -1,66 +1,69 @@
-# Código Fuente del Proyecto de Segmentación de Grietas
+# Project Source Code
 
-Este directorio contiene el código fuente principal del proyecto de segmentación de grietas en pavimento. La estructura está organizada de manera modular para facilitar el mantenimiento y la escalabilidad.
+This directory contains the main source code for the pavement crack segmentation project. The structure is modular and designed for maintainability, scalability, and reproducibility.
 
-## Estructura del Directorio
+## Final Status
 
-- `data/`: Módulos para el manejo y procesamiento de datos
-  - `dataset.py`: Implementación de datasets personalizados
-  - `transforms.py`: Transformaciones de datos y aumentación
-  - `factory.py`: Fábrica para crear instancias de datasets
-  - `memory.py`: Utilidades para manejo eficiente de memoria
-  - `sampler.py`: Implementación de samplers personalizados
-  - `splitting.py`: Funciones para división de datos
-  - `distributed.py`: Soporte para entrenamiento distribuido
+- All source code is organized by module and functionality.
+- The structure supports modularity, extension, and experiment tracking.
+- All modules are documented and versioned with the codebase.
 
-- `model/`: Implementación de arquitecturas de redes neuronales
-  - `unet.py`: Implementación de la arquitectura U-Net
-  - `base.py`: Clases base para modelos
-  - `factory.py`: Fábrica para crear instancias de modelos
-  - `config.py`: Configuraciones específicas de modelos
-  - `encoder/`: Módulos de codificación
-  - `decoder/`: Módulos de decodificación
-  - `bottleneck/`: Módulos de cuello de botella
+## Directory Structure
 
-- `training/`: Lógica de entrenamiento y evaluación
-  - `trainer.py`: Clase principal de entrenamiento
-  - `losses.py`: Funciones de pérdida personalizadas
-  - `metrics.py`: Métricas de evaluación
-  - `factory.py`: Fábrica para componentes de entrenamiento
+- `data/`: Data handling and processing modules
+  - `dataset.py`: Custom dataset implementations
+  - `transforms.py`: Data transformations and augmentation
+  - `factory.py`: Dataset factory
+  - `memory.py`: Efficient memory utilities
+  - `sampler.py`: Custom samplers
+  - `splitting.py`: Data splitting functions
+  - `distributed.py`: Distributed training support
 
-- `utils/`: Utilidades generales
-  - `checkpointing.py`: Manejo de checkpoints
-  - `config_*.py`: Utilidades de configuración
-  - `device.py`: Gestión de dispositivos (CPU/GPU)
-  - `early_stopping.py`: Implementación de early stopping
-  - `env.py`: Variables de entorno
-  - `factory.py`: Fábrica genérica
-  - `loggers.py`: Configuración de logging
-  - `paths.py`: Gestión de rutas
-  - `seeds.py`: Control de semillas aleatorias
+- `model/`: Neural network architecture implementations
+  - `unet.py`: U-Net architecture
+  - `base.py`: Model base classes
+  - `factory.py`: Model factory
+  - `config.py`: Model-specific configurations
+  - `encoder/`, `decoder/`, `bottleneck/`: Model components
 
-## Archivo Principal
+- `training/`: Training and evaluation logic
+  - `trainer.py`: Main training class
+  - `losses.py`: Custom loss functions
+  - `metrics.py`: Evaluation metrics
+  - `factory.py`: Training component factory
 
-- `main.py`: Punto de entrada principal del proyecto que orquesta el entrenamiento y la evaluación
+- `utils/`: General utilities
+  - `checkpointing.py`: Checkpoint management
+  - `config_*.py`: Configuration utilities
+  - `device.py`: Device management (CPU/GPU)
+  - `early_stopping.py`: Early stopping implementation
+  - `factory.py`: Generic factory
+  - `logger_setup.py`: Logging configuration
+  - `paths.py`: Path management
+  - `seeds.py`: Random seed control
 
-## Características Principales
+## Main Entry Point
 
-- Arquitectura modular y extensible
-- Configuración basada en Hydra
-- Soporte para experimentación
-- Logging detallado
-- Manejo eficiente de recursos
-- Compatibilidad con entrenamiento distribuido
+- `main.py`: Main entry point that orchestrates training and evaluation
 
-## Uso
+## Key Features
 
-El proyecto utiliza Hydra para la gestión de configuraciones. Para ejecutar el entrenamiento:
+- Modular and extensible architecture
+- Hydra-based configuration
+- Full experiment support
+- Detailed logging
+- Efficient resource management
+- Distributed training compatibility
+
+## Usage
+
+The project uses Hydra for configuration management. To run training:
 
 ```bash
 python main.py
 ```
 
-Para modificar la configuración, usar los archivos en el directorio `configs/` o sobrescribir parámetros desde la línea de comandos:
+To modify configuration, use the files in the `configs/` directory or override parameters from the command line:
 
 ```bash
 python main.py data.batch_size=32 training.epochs=100

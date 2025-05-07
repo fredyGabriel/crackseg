@@ -1,11 +1,9 @@
 """Unit tests for model component factory functions."""
 
 import pytest
-import torch
 from unittest.mock import patch, MagicMock
 from omegaconf import OmegaConf
 import torch.nn as nn
-
 from src.model.base import EncoderBase, BottleneckBase, DecoderBase, UNetBase
 from src.model.factory import (
     ConfigurationError, validate_config
@@ -50,71 +48,22 @@ def test_validate_config_valid():
     )
 
 
-# --- Test Cases for Individual Component Factories ---
-
-# Note: These tests now need to mock the functions from instantiation.py
-# if we want to isolate the create_unet logic in factory.py.
-# Alternatively, they could become full integration tests calling create_unet.
-
-# Example test for create_encoder (needs adaptation)
-@patch('src.model.config.instantiation.instantiate_encoder') # Patch new target
-def test_create_encoder_basic(mock_instantiate_encoder):
-    """Test basic encoder creation call flow (mocking instantiation)."""
-    # This test might need rethinking. What are we testing in factory.py now?
-    # Perhaps test create_unet's interaction with instantiate_encoder?
-    # For now, just adapt the patch target.
-    mock_encoder = MagicMock(spec=EncoderBase)
-    mock_instantiate_encoder.return_value = mock_encoder
-
-    # config = {"_target_": "some.Encoder", "type": "CNNEncoder", "params": {}}
-    # encoder = create_unet(OmegaConf.create({"encoder": config, ...})) # Example
-    # mock_instantiate_encoder.assert_called_once_with(config)
-    pytest.skip("Test needs redesign after factory refactoring")
-
-
-@patch('src.model.config.instantiation.instantiate_encoder') # Patch new target
-def test_create_encoder_invalid_type(mock_instantiate_encoder):
-    """Test encoder creation with invalid type (mocking instantiation)."""
-    # mock_instantiate_encoder.side_effect = InstantiationError("Invalid type")
-    # config = {"_target_": "some.Encoder", "type": "InvalidEncoder", "params": {}}
-    # with pytest.raises(ConfigurationError):
-    #     create_unet(OmegaConf.create({"encoder": config, ...}))
-    pytest.skip("Test needs redesign after factory refactoring")
-
-
-@patch('src.model.config.instantiation.instantiate_bottleneck') # Patch new target
-def test_create_bottleneck_basic(mock_instantiate_bottleneck):
-    """Test basic bottleneck creation call flow (mocking instantiation)."""
-    # mock_bottleneck = MagicMock(spec=BottleneckBase)
-    # mock_instantiate_bottleneck.return_value = mock_bottleneck
-    # config = {"_target_": "some.Bottle", "type": "ASPP", "params": {}}
-    # runtime = {"in_channels": 64}
-    # # Assume create_unet prepares runtime args correctly
-    # bottleneck = create_unet(OmegaConf.create({"bottleneck": config, ...}))
-    # mock_instantiate_bottleneck.assert_called_once_with(config, runtime_params=runtime)
-    pytest.skip("Test needs redesign after factory refactoring")
-
-
-@patch('src.model.config.instantiation.instantiate_decoder') # Patch new target
-def test_create_decoder_basic(mock_instantiate_decoder):
-    """Test basic decoder creation call flow (mocking instantiation)."""
-    # mock_decoder = MagicMock(spec=DecoderBase)
-    # mock_instantiate_decoder.return_value = mock_decoder
-    # config = {"_target_": "some.Decoder", "type": "CNNDecoder", "params": {}}
-    # runtime = {"in_channels": 128, "skip_channels_list": [64, 32]}
-    # decoder = create_unet(OmegaConf.create({"decoder": config, ...}))
-    # mock_instantiate_decoder.assert_called_once_with(config, runtime_params=runtime)
-    pytest.skip("Test needs redesign after factory refactoring")
-
+# NOTE: Tests for individual component factories (encoder, bottleneck, decoder)
+# have been removed. After the factory refactor, their instantiation logic is
+# now covered by the integration tests below (test_create_unet_basic,
+# test_create_unet_with_final_activation). This avoids redundancy and ensures
+# tests reflect the real API and integration flow.
 
 # --- Tests for UNet Factory ---
 
-@patch('src.model.config.instantiation._instantiate_component') # Patch the internal helper
+# Patch the internal helper
+@patch('src.model.config.instantiation._instantiate_component')
 @patch('hydra.utils.get_class')
 def test_create_unet_basic(
-    mock_get_class, mock_instantiate_component # Renamed mock arg
+    mock_get_class, mock_instantiate_component
 ):
-    """Test creation of a basic UNet model, mocking the core instantiation helper."""
+    """Test creation of a basic UNet model, mocking the core instantiation
+    helper."""
     from src.model.factory import create_unet
 
     # Setup component mocks
@@ -125,12 +74,12 @@ def test_create_unet_basic(
     # Configure mock properties needed by create_unet
     mock_encoder.out_channels = 64
     mock_encoder.skip_channels = [32, 16]
-    mock_bottleneck.out_channels = 128 # Needed for decoder runtime_params
+    mock_bottleneck.out_channels = 128  # Needed for decoder runtime_params
 
     # Configure side_effect for the mocked internal helper
     def instantiate_side_effect(*args, **kwargs):
-        config = kwargs.get('config') or (args[0] if args else None)
-        category = kwargs.get('component_category') or (args[2] if len(args) > 2 else None)
+        category = kwargs.get('component_category') or (
+            args[2] if len(args) > 2 else None)
         if category == 'encoder':
             return mock_encoder
         elif category == 'bottleneck':
@@ -151,7 +100,7 @@ def test_create_unet_basic(
     # Test config (content less critical now, as instantiation is mocked)
     config = OmegaConf.create({
         "_target_": "src.model.unet.BaseUNet",
-        "encoder": {"_target_": "e", "type": "E"}, # Type E won't be checked now
+        "encoder": {"_target_": "e", "type": "E"},
         "bottleneck": {"_target_": "b", "type": "B"},
         "decoder": {"_target_": "d", "type": "D"}
     })
@@ -175,7 +124,8 @@ def test_create_unet_basic(
     assert calls[2].kwargs['component_category'] == 'decoder'
     assert calls[2].kwargs['config'] == {"_target_": "d", "type": "D"}
     assert calls[2].kwargs['runtime_params'] == {
-        "in_channels": 128, "skip_channels_list": [16, 32]
+        "in_channels": 128,
+        "skip_channels_list": [16, 32]
     }
 
     mock_get_class.assert_called_once_with("src.model.unet.BaseUNet")
@@ -184,11 +134,12 @@ def test_create_unet_basic(
     )
 
 
-@patch('src.model.config.instantiation._instantiate_component') # Patch internal helper
+# Patch internal helper
+@patch('src.model.config.instantiation._instantiate_component')
 @patch('hydra.utils.get_class')
 @patch('hydra.utils.instantiate')
 def test_create_unet_with_final_activation(
-    mock_hydra_instantiate, mock_get_class, mock_instantiate_component # Renamed
+    mock_hydra_instantiate, mock_get_class, mock_instantiate_component
 ):
     """Test UNet creation with activation, mocking core instantiation."""
     from src.model.factory import create_unet
@@ -203,10 +154,14 @@ def test_create_unet_with_final_activation(
 
     # Configure side_effect for the mocked internal helper
     def instantiate_side_effect(*args, **kwargs):
-        category = kwargs.get('component_category') or (args[2] if len(args) > 2 else None)
-        if category == 'encoder': return mock_encoder
-        if category == 'bottleneck': return mock_bottleneck
-        if category == 'decoder': return mock_decoder
+        category = kwargs.get('component_category') or (
+            args[2] if len(args) > 2 else None)
+        if category == 'encoder':
+            return mock_encoder
+        if category == 'bottleneck':
+            return mock_bottleneck
+        if category == 'decoder':
+            return mock_decoder
         raise ValueError(f"Unexpected category: {category}")
     mock_instantiate_component.side_effect = instantiate_side_effect
 

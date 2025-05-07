@@ -1,150 +1,184 @@
 # Pavement Crack Segmentation Project
 
+> **Note:** This project was developed with the assistance of artificial intelligence tools (AI-assisted code generation and documentation).
+
 ## Project Overview
 
-Este proyecto busca lograr un desempeño de vanguardia en segmentación de grietas en pavimentos usando arquitecturas modulares basadas en U-Net. Está diseñado para investigadores, ingenieros y profesionales interesados en inspección automatizada de carreteras y monitoreo de infraestructura.
+This project explores and develops state-of-the-art (SOTA) deep learning models for semantic segmentation of cracks in asphalt pavement, with a focus on modular U-Net-based architectures. The main goal is to identify the best-performing configuration for crack detection using public and custom datasets, leveraging a flexible, reproducible, and well-documented codebase. The approach includes experimenting with CNNs, Swin Transformer V2, hybrid models, and attention mechanisms, all orchestrated via Hydra configuration and Conda environments. The project is intended for researchers, engineers, and practitioners seeking robust, automated pavement crack analysis.
+
+## Project Final Status
+
+- The project is fully functional, robust, and production-ready.
+- All unit and integration tests pass successfully; obsolete or redundant tests have been removed after refactoring.
+- The codebase is modular, clean, and follows best practices for maintainability and reproducibility.
+- Configuration, training, evaluation, and experiment management are fully separated and documented.
+- The environment is managed via Conda and all dependencies are versioned.
 
 ## Project Structure
 
 - `src/` — Main source code (models, data pipeline, training, utils)
-- `tests/` — Unit and integration tests
-- `configs/` — Hydra YAML configuration files
-- `scripts/` — Scripts auxiliares y de utilidad, organizados en subcarpetas:
-  - `experiments/` — Scripts de experimentación, benchmarks y pruebas de modelos.
-  - `utils/` — Utilidades y herramientas para el workspace/proyecto.
-  - `reports/` — Reportes generados, archivos de análisis, PRD de ejemplo y documentación auxiliar.
-  - `examples/` — Ejemplos de integración, uso de APIs y demostraciones.
+- `tests/` — Unit and integration tests (see `tests/README.md` for details)
+- `configs/` — Hydra YAML configuration files for all modules
+- `scripts/` — Utilities, experiment scripts, and examples (not imported by core code)
+- `outputs/` — Experiment results, logs, and checkpoints
 - `tasks/` — TaskMaster task files
 
-> Nota: Los scripts en `scripts/` no forman parte del core del proyecto y no deben ser importados directamente por el código principal. Elimina regularmente archivos temporales como `__pycache__`.
+> Note: Scripts in `scripts/` are for experimentation and utilities only. Do not import them in core modules. Clean up temporary files like `__pycache__` regularly.
 
-## Basic Usage
+## Training Workflow
 
-After setting up the environment and configuration files, you can run the main training pipeline (example):
+The training process is fully modular and managed by the `Trainer` class. The main script (`src/main.py`) delegates all training logic to this class, ensuring clear separation of concerns and easy maintenance.
 
+**Key features:**
+- **Trainer orchestration:** All training, validation, and checkpointing logic is in `src/training/trainer.py`.
+- **Checkpointing:** Best and last model states are saved automatically. Resume training from any checkpoint via Hydra config (`resume_from_checkpoint`).
+- **Early stopping:** Configurable via Hydra YAML (`early_stopping`).
+- **Hydra configuration:** All parameters (epochs, optimizer, scheduler, checkpointing, early stopping, etc.) are managed via YAML in `configs/training/`.
+- **No duplicate logic:** All legacy training code has been removed from `main.py`.
+
+**To train:**
 ```bash
 python src/main.py
 ```
 
-Para más detalles sobre configuración y uso avanzado, consulta la documentación en la carpeta `docs/` (si está disponible) o los comentarios en los archivos de configuración.
+**To resume from a checkpoint:**
+- Edit your Hydra config (e.g., `configs/training/trainer.yaml`) and set the path in `training.checkpoints.resume_from_checkpoint`.
 
-## Training Flow
+**For details:**
+- See `src/training/trainer.py` for orchestration logic.
+- See `configs/training/trainer.yaml` for all configurable options.
+- See `tests/training/` for integration and unit tests of the training flow.
 
-El proceso de entrenamiento es totalmente modular y está gestionado por la clase `Trainer`. El script principal (`src/main.py`) delega toda la lógica de entrenamiento a esta clase, asegurando una separación clara de responsabilidades y un mantenimiento más sencillo.
+## Evaluation Workflow
 
-**Características clave del flujo de entrenamiento:**
-- **Orquestación basada en Trainer:** Toda la lógica de entrenamiento, validación y checkpointing está en `src/training/trainer.py`.
-- **Checkpointing:** Los mejores y últimos estados del modelo se guardan automáticamente. Puedes reanudar el entrenamiento desde cualquier checkpoint configurando Hydra (`resume_from_checkpoint`).
-- **Early stopping:** El entrenamiento puede detenerse anticipadamente según métricas de validación, configurable en los YAML de Hydra (`early_stopping`).
-- **Configuración Hydra:** Todos los parámetros (épocas, optimizador, scheduler, checkpointing, early stopping, etc.) se gestionan vía YAML en `configs/training/`.
-- **Sin lógica duplicada:** Todo el código legado de entrenamiento fue removido de `main.py`.
-
-**Para entrenar:**
-```bash
-python src/main.py
-```
-
-**Para reanudar desde un checkpoint:**
-- Edita tu config de Hydra (por ejemplo, `configs/training/trainer.yaml`) y pon la ruta en `training.checkpoints.resume_from_checkpoint`.
-
-**Para más detalles:**
-- Ver `src/training/trainer.py` para la lógica de orquestación.
-- Ver `configs/training/trainer.yaml` para todas las opciones configurables.
-- Ver la carpeta `tests/training/` para tests de integración y unidad del flujo de entrenamiento.
-
-## Evaluation Flow
-
-La evaluación final ya no se realiza en `main.py`. Para evaluar tu modelo entrenado en el set de test, usa el script dedicado:
+Final evaluation is performed using a dedicated script:
 
 ```bash
 python src/evaluate.py
 ```
 
-- Este script carga el mejor o último checkpoint y calcula métricas en el set de test.
-- La configuración (rutas, métricas, etc.) se gestiona vía YAML de Hydra, igual que el entrenamiento.
-- Ver `src/evaluate.py` y `configs/evaluation/` para detalles.
+- This script loads the best or last checkpoint and computes metrics on the test set.
+- Configuration (paths, metrics, etc.) is managed via Hydra YAML, just like training.
+- See `src/evaluate.py` and `configs/evaluation/` for details.
 
-**¿Por qué este cambio?**
-- Esta separación asegura un flujo limpio y modular, evitando mezclar lógica de entrenamiento y evaluación.
-- Facilita la automatización de experimentos y el mantenimiento del código.
+**Why this separation?**
+- Ensures a clean, modular workflow and avoids mixing training and evaluation logic.
+- Facilitates experiment automation and code maintenance.
+
+## Testing
+
+- All tests are located in the `tests/` directory and are organized into unit and integration tests.
+- The suite covers all main flows and edge cases for data, model, training, and evaluation.
+- See `tests/README.md` for details on running and organizing tests.
 
 ## How to Contribute
 
-- Por favor, lee las guías en `CONTRIBUTING.md` antes de enviar un pull request.
-- Sigue las guías de estilo y modularidad (ver `coding-preferences.mdc`).
-- Añade o actualiza tests para tus cambios.
-- Actualiza la documentación según sea necesario.
+- Please read the guidelines in `CONTRIBUTING.md` before submitting a pull request.
+- Follow the coding style and modularity guidelines (see `coding-preferences.mdc`).
+- Add or update tests for your changes.
+- Update documentation as needed.
 
 ## License
 
-Este proyecto está bajo licencia MIT. Ver el archivo `LICENSE` para detalles.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
 ## Conda Environment
 
-Este proyecto usa un entorno Conda llamado `torch`.
+This project uses a Conda environment named `torch`.
 
-**Para activarlo:**
+**To activate:**
 ```bash
 conda activate torch
 ```
 
-**Para instalar dependencias adicionales:**
+**To install additional dependencies:**
 ```bash
 conda install <package>
 ```
 
-**Para reproducir el entorno:**
+**To reproduce the environment:**
 ```bash
 conda env create -f environment.yml
 ```
 
 ## Environment Variables
 
-Este proyecto usa variables de entorno para configuración sensible.  
-Ver el archivo de ejemplo: `.env.example`
+Sensitive configuration is managed via environment variables. See `.env.example` for a template.
 
-- Copia `.env.example` a `.env` y completa los valores requeridos.
-- Nunca subas tu archivo `.env` real al repositorio.
+- Copy `.env.example` to `.env` and fill in the required values.
+- Never commit your real `.env` file to the repository.
 
-Variables principales:
-- `ANTHROPIC_API_KEY`: API key para Anthropic Claude (Task Master)
-- `DEBUG`: Activa/desactiva modo debug (`true` o `false`)
+Main variables:
+- `ANTHROPIC_API_KEY`: API key for Anthropic Claude (Task Master)
+- `DEBUG`: Enable/disable debug mode (`true` or `false`)
 
 ## Dependency Management
 
 ### Update Verification
 
-El proyecto incluye un script para verificar actualizaciones de dependencias principales:
+A script is included to check for updates to main dependencies:
 
 ```bash
 python scripts/utils/check_updates.py
 ```
 
-Este script:
-- Verifica versiones actuales en environment.yml
-- Compara con las últimas versiones en conda-forge y PyPI
-- Muestra un reporte de actualizaciones
+This script:
+- Checks current versions in `environment.yml`
+- Compares with latest versions on conda-forge and PyPI
+- Shows an update report
 
 ### Updating Dependencies
 
-Para actualizar dependencias:
-
-1. Ejecuta el script de verificación
-2. Actualiza versiones en environment.yml según sea necesario
-3. Aplica las actualizaciones:
+1. Run the verification script
+2. Update versions in `environment.yml` as needed
+3. Apply updates:
    ```bash
    conda env update -f environment.yml --prune
    ```
-4. Verifica compatibilidad ejecutando los tests:
+4. Verify compatibility by running the tests:
    ```bash
    pytest
    ```
 
-### Consideraciones de actualización
+### Update Considerations
 
-- Mantén versiones compatibles de PyTorch y torchvision
-- Verifica compatibilidad CUDA si usas GPU
-- Documenta cambios significativos en CHANGELOG.md
-- Realiza pruebas exhaustivas tras actualizar dependencias críticas
+- Maintain compatible versions of PyTorch and torchvision
+- Check CUDA compatibility if using GPU
+- Document significant changes in `CHANGELOG.md`
+- Run thorough tests after updating critical dependencies
+
+## How to Train, Monitor, and Visualize Results
+
+### 1. Training
+
+To start a training run with the default configuration:
+```bash
+python src/main.py
+```
+- All training parameters (model, optimizer, scheduler, etc.) are managed via Hydra YAML files in `configs/`.
+- To resume from a checkpoint, set the path in your Hydra config (e.g., `configs/training/trainer.yaml` → `training.checkpoints.resume_from_checkpoint`).
+
+### 2. Monitoring Training
+- **Logs:** Training and validation progress, losses, and metrics are logged to the console and to log files in `outputs/` and `outputs/experiments/<experiment_id>/logs/`.
+- **Checkpoints:** Model checkpoints (best and last) are saved in `outputs/experiments/<experiment_id>/checkpoints/`.
+- **Hydra Output:** Hydra creates a timestamped folder for each run in `outputs/experiments/`.
+
+### 3. Visualizing and Accessing Results
+- **Numerical Results:**
+  - Metrics (IoU, F1, Precision, Recall) are saved in `outputs/experiments/<experiment_id>/experiment_info.json` and/or `metrics/` if present.
+  - Training/evaluation logs are in `outputs/experiments/<experiment_id>/logs/`.
+- **Predictions:**
+  - Segmentation masks predicted by the model are saved in `outputs/experiments/<experiment_id>/results/predictions/{test,validation}/`.
+- **Visualizations:**
+  - Visual comparison images (input, ground truth, prediction) are saved in `outputs/experiments/<experiment_id>/results/visualizations/`.
+
+### 4. Evaluation
+To evaluate a trained model:
+```bash
+python src/evaluate.py
+```
+- This computes metrics on the test set and saves results as above.
+
+> For more details, see the sections below and the configuration files in `configs/`.
 
 --- 
