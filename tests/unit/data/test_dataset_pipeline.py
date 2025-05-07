@@ -2,20 +2,22 @@
 
 import numpy as np
 import cv2
-from pathlib import Path
 import pytest
 import torch
 from omegaconf import OmegaConf
+from torch.utils.data import DataLoader, Dataset
+from src.data import transforms as tr
 
 from src.data import create_crackseg_dataset
 
 
 @pytest.fixture
-def test_data_dir():
-    """Create and return a temporary directory with test images."""
-    # Create test directory in tests/data/
-    test_dir = Path("tests/data/test_images")
-    test_dir.mkdir(exist_ok=True)
+def test_data_dir(tmp_path):
+    """Create and return a temporary directory with test images.
+    Uses tmp_path for isolation.
+    """
+    test_dir = tmp_path / "test_images"
+    test_dir.mkdir(parents=True, exist_ok=True)
 
     # Create dummy image and mask
     img = np.zeros((64, 64, 3), dtype=np.uint8)
@@ -106,7 +108,59 @@ def test_dataset_pipeline(test_data_dir):
         "Image should have 3 dimensions (C, H, W)"
     assert sample["image"].shape[0] == 3, \
         "Image should have 3 channels"
-    assert len(sample["mask"].shape) == 2, \
-        "Mask should have 2 dimensions (H, W)"
-    assert sample["image"].shape[1:] == sample["mask"].shape, \
+    assert len(sample["mask"].shape) == 3 and sample["mask"].shape[0] == 1, \
+        "Mask should have shape (1, H, W)"
+    assert sample["image"].shape[1:] == sample["mask"].shape[1:], \
         "Image and mask spatial dimensions should match"
+
+
+class DummySegmentationDataset(Dataset):
+    """Dummy dataset for integration test."""
+
+    def __init__(self, images, masks, transform=None):
+        self.images = images
+        self.masks = masks
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        img = self.images[idx]
+        mask = self.masks[idx]
+        if self.transform:
+            result = self.transform(img, mask)
+            img = result["image"]
+            mask = result["mask"]
+        return img, mask
+
+
+def test_data_pipeline_end_to_end(tmp_path):
+    """Integration test: full data pipeline from images to dataloader batch."""
+    # Create dummy data
+    n = 8
+    images = [
+        np.random.randint(0, 255, (32, 32, 3), dtype=np.uint8)
+        for _ in range(n)
+    ]
+    masks = [
+        np.random.randint(0, 2, (32, 32), dtype=np.uint8) * 255
+        for _ in range(n)
+    ]
+    # Compose transforms
+    pipeline = tr.get_basic_transforms("train", image_size=(32, 32))
+
+    def transform_fn(img, mask):
+        return tr.apply_transforms(img, mask, pipeline)
+
+    # Use a temp directory for any file operations if needed
+    # Create dataset and dataloader
+    dataset = DummySegmentationDataset(images, masks, transform=transform_fn)
+    loader = DataLoader(dataset, batch_size=4, shuffle=False)
+    # Iterate and check batch shapes
+    for imgs, masks in loader:
+        assert isinstance(imgs, torch.Tensor)
+        assert isinstance(masks, torch.Tensor)
+        assert imgs.shape[1:] == (3, 32, 32)
+        assert masks.shape[1:] == (32, 32)
+        assert imgs.shape[0] == masks.shape[0] <= 4

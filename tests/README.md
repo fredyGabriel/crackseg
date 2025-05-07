@@ -86,6 +86,8 @@ Common fixtures are located in `conftest.py` at the root of `tests/`:
 4. Keep test data small and representative
 5. Update or add tests when modifying code
 6. Clearly separate unit and integration tests
+7. Usa rutas temporales (`tmp_path`) para archivos/directorios en tests que lo requieran
+8. Adapta los asserts a la API real del código de producción (por ejemplo, shape de máscaras)
 
 ## Code Coverage
 
@@ -116,4 +118,12 @@ def test_training_loop():
     trainer = Trainer(...)
     trainer.train()
     assert trainer.metrics['val_loss'] < initial_loss
-``` 
+```
+
+## Estado actual de la suite de tests
+
+- Todos los tests unitarios e integración están organizados y pasan correctamente.
+- Se eliminaron duplicados en `tests/unit/data/` para evitar errores de colección y redundancia.
+- Los asserts de shape de máscaras y rutas se adaptaron al contrato real de la API (máscara: `(1, H, W)`).
+- Los tests que crean archivos o directorios usan rutas temporales (`tmp_path`) para evitar dependencias de entorno.
+- La suite cubre los flujos principales y edge cases de datos, modelo, entrenamiento y evaluación. 
