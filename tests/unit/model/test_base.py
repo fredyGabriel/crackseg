@@ -3,16 +3,16 @@ import torch
 from typing import List, Tuple
 
 # Import the base class to be tested
-from src.model.base import EncoderBase
+from src.model import EncoderBase
 
 # Import the new base class
-from src.model.base import BottleneckBase
+from src.model import BottleneckBase
 
 # Import the new base class
-from src.model.base import DecoderBase
+from src.model import DecoderBase
 
 # Import the new base class
-from src.model.base import UNetBase
+from src.model import UNetBase
 
 
 # 1. Test that EncoderBase itself cannot be instantiated

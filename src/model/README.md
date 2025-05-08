@@ -1,6 +1,147 @@
-# src/model
+# Model Module
 
-This directory contains the core model architectures and related utilities for the pavement crack segmentation project. The code is organized to maximize modularity, reusability, and clarity, following the project's coding standards.
+## Overview
+
+The Model module provides a comprehensive framework for creating, configuring, and using segmentation models based on the U-Net architecture. It follows a modular design pattern, allowing for easy extension and customization of model components.
+
+## Module Structure
+
+Below is a diagram of the current modular structure of the model package:
+
+```mermaid
+flowchart TD
+    A[src.model]
+    A --> B[base/]
+    B --> B1[abstract.py]
+    A --> C[core/]
+    C --> C1[unet.py]
+    A --> D[factory/]
+    D --> D1[factory.py]
+    D --> D2[config.py]
+    D --> D3[config_schema.py]
+    D --> D4[factory_utils.py]
+    D --> D5[registry.py]
+    D --> D6[registry_setup.py]
+    D --> D7[hybrid_registry.py]
+    A --> E[common/]
+    E --> E1[utils.py]
+    A --> F[components/]
+    A --> G[encoder/]
+    A --> H[bottleneck/]
+    A --> I[decoder/]
+    A --> J[architectures/]
+```
+
+This diagram reflects the main submodules and files in the modular structure. Each directory contains focused components or utilities, supporting extensibility and maintainability.
+
+The module is organized into several submodules:
+
+- **base/**: Contains abstract base classes that define interfaces for model components
+  - `abstract.py`: Defines `EncoderBase`, `BottleneckBase`, `DecoderBase`, and `UNetBase` abstract classes
+
+- **core/**: Contains concrete implementations of the core model architecture
+  - `unet.py`: Implements `BaseUNet`, the main model implementation
+
+- **factory/**: Contains factory functions and utilities for model creation
+  - `factory.py`: Main factory functions for creating models from configuration
+  - `config.py`: Component instantiation from configuration
+  - `config_schema.py`: Configuration schemas for components
+  - `factory_utils.py`: Utility functions for configuration validation and transformation
+  - `registry.py`: Registry system for model components
+  - `registry_setup.py`: Setup for component registries
+  - `hybrid_registry.py`: Support for hybrid architectures
+
+- **common/**: Contains common utilities shared across model components
+  - `utils.py`: Utility functions for model inspection and visualization
+
+- **components/**: Implementation of specific components like attention mechanisms
+- **encoder/**: Encoder implementations (CNN, ResNet, etc.)
+- **bottleneck/**: Bottleneck implementations
+- **decoder/**: Decoder implementations
+- **architectures/**: Specialized architecture variants
+
+## Key Concepts
+
+1. **Component-Based Design**: The model is divided into three main components:
+   - **Encoder**: Downsamples the input and extracts features
+   - **Bottleneck**: Processes features at the lowest resolution
+   - **Decoder**: Upsamples features and generates segmentation output
+
+2. **Abstract Interfaces**: Base classes define consistent interfaces for components.
+
+3. **Registry System**: Components can be registered and retrieved by name.
+
+4. **Factory Pattern**: Factory functions instantiate components and models from configuration.
+
+5. **Configuration Schema**: Dataclasses define the structure of component configurations.
+
+## Usage Examples
+
+### Basic Usage with Default Configuration
+
+```python
+from src.model.architectures.unet import UNet
+from src.model.factory.factory import create_unet
+from omegaconf import OmegaConf
+
+# Load configuration
+config = OmegaConf.load('configs/model/default.yaml')
+
+# Create model
+model = create_unet(config)
+
+# Forward pass
+output = model(input_tensor)
+```
+
+### Creating Components Individually
+
+```python
+from src.model.encoder.cnn_encoder import CNNEncoder
+from src.model.bottleneck.bottleneck_block import BottleneckBlock
+from src.model.decoder.cnn_decoder import CNNDecoder
+from src.model.factory.hybrid_model import instantiate_hybrid_model
+
+# Create components
+encoder = CNNEncoder(**encoder_config)
+bottleneck = BottleneckBlock(**bottleneck_config, runtime_params={'in_channels': encoder.out_channels})
+decoder = CNNDecoder(**decoder_config, runtime_params={
+    'in_channels': bottleneck.out_channels,
+    'skip_channels_list': list(reversed(encoder.skip_channels))
+})
+
+# Assemble model
+model = instantiate_hybrid_model(encoder, bottleneck, decoder)
+```
+
+## Extension Points
+
+1. **Custom Encoders**: Implement `EncoderBase` and register with the encoder registry.
+2. **Custom Bottlenecks**: Implement `BottleneckBase` and register with the bottleneck registry.
+3. **Custom Decoders**: Implement `DecoderBase` and register with the decoder registry.
+4. **Custom U-Net Variants**: Implement `UNetBase` for specialized architectures.
+
+## Configuration
+
+Configuration is managed using OmegaConf and Hydra. Key configuration files:
+
+- `configs/model/default.yaml`: Default U-Net configuration
+- Various specialized configurations for different models
+
+## Note on Reorganization (May 2025)
+
+The model module was reorganized in May 2025 to improve modularity and maintainability:
+
+1. Abstract base classes are now in `base/abstract.py`
+2. The main UNet implementation is in `architectures/unet.py`
+3. Factory and registry functionality is in the `factory/` module
+4. Common utilities are in `common/utils.py`
+
+Backward compatibility is maintained via `__init__.py`, but it is recommended to use the new explicit import paths for clarity and maintainability.
+
+## Migration Notice
+
+All documentation, code examples, and import statements have been updated to reflect the new modular structure. For legacy code, prefer updating imports to the new structure for long-term maintainability.
 
 ## Final Status
 
@@ -37,11 +178,11 @@ All utility functions are documented with concise docstrings and are tested inde
 
 - **Importing Models:**
   ```python
-  from src.model.unet import UNet
+  from src.model.architectures.unet import UNet
   ```
 - **Using Utilities:**
   ```python
-  from src.model.utils import count_parameters, render_unet_architecture_diagram
+  from src.model.common.utils import count_parameters, render_unet_architecture_diagram
   ```
 
 - **Visualization Example:**
@@ -74,6 +215,32 @@ All utility functions are documented with concise docstrings and are tested inde
 - Do not hardcode configuration; use Hydra for all parameters.
 - Do not introduce new files or directories without explicit confirmation and documentation updates.
 
----
+## Understanding and Navigating the Modular Structure
+
+The modular structure of `src.model` was adopted to maximize maintainability, extensibility, and clarity. Each submodule encapsulates a specific responsibility, making it easier to:
+- Extend or replace components (e.g., encoders, decoders, bottlenecks) without affecting unrelated code.
+- Test and document each part independently.
+- Onboard new contributors by providing clear boundaries and responsibilities.
+
+### Module Overview
+- **base/**: Abstract interfaces for all model components.
+- **core/**: Core implementations (e.g., main UNet logic).
+- **factory/**: Factories, registries, and configuration utilities for dynamic model/component creation.
+- **common/**: Shared utilities (e.g., parameter counting, visualization).
+- **components/**: Specialized building blocks (e.g., attention, normalization).
+- **encoder/**, **bottleneck/**, **decoder/**: Concrete implementations of each architectural block.
+- **architectures/**: Specialized or experimental model variants.
+
+### Best Practices
+- **Explicit Imports**: Always import from the most specific submodule (e.g., `from src.model.architectures.unet import UNet`) for clarity and IDE support.
+- **Configuration**: Use Hydra/YAML for all parameters; avoid hardcoding.
+- **Extending**: Add new components in the appropriate subdirectory and register them if needed.
+- **Testing**: Place tests in `tests/model/` and use mocks for utilities.
+- **Documentation**: Update this README and diagrams when the structure changes.
+
+### For Contributors
+- Follow PEP8 and project coding guidelines.
+- Do not introduce new files or directories without explicit confirmation and documentation updates.
+- When adding new modules, update the mermaid diagram and this section.
 
 For more details, see the [project-structure.mdc](../../.cursor/guides/project-structure.mdc) and [development-guide.mdc](../../.cursor/guides/development-guide.mdc). 

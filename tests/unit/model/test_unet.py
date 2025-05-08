@@ -4,8 +4,8 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.model.base import EncoderBase, BottleneckBase, DecoderBase
-from src.model.unet import BaseUNet
+from src.model import EncoderBase, BottleneckBase, DecoderBase
+from src.model import BaseUNet
 from tests.unit.model.test_registry import (
     MockEncoder, MockBottleneck, MockDecoder
 )

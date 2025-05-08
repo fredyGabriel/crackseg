@@ -3,20 +3,13 @@ from typing import List, Optional, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-# Import CBAM
-from src.model.components.cbam import CBAM
-# import logging # Import logging
 import logging
+
+from src.model.components.cbam import CBAM
+from src.model.factory.registry_setup import decoder_registry
+from src.model.base.abstract import DecoderBase
+
 logger = logging.getLogger(__name__)
-
-# logger = logging.getLogger(__name__) # Setup logger for the module
-
-# Import the specific registry
-from src.model.registry_setup import decoder_registry  # noqa: E402
-from src.model.base import DecoderBase  # noqa: E402
-# REMOVED: from src.model.components.conv_block import DoubleConvBlock
-# REMOVED: from src.model.components.upsample import UpsampleBlock
 
 # @decoder_registry.register("DecoderBlock")
 

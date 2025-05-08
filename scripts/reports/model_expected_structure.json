@@ -1,0 +1,28 @@
+{
+  "root": [
+    "README.md",
+    "__init__.py"
+  ],
+  "base": ["abstract.py", "__init__.py"],
+  "core": ["unet.py", "__init__.py"],
+  "factory": [
+    "config.py", "config_schema.py", "factory.py", "factory_utils.py",
+    "hybrid_registry.py", "registry.py", "registry_setup.py", "__init__.py"
+  ],
+  "common": ["utils.py", "__init__.py"],
+  "components": [
+    "aspp.py", "attention_decorator.py", "cbam.py", "convlstm.py",
+    "registry_support.py", "__init__.py"
+  ],
+  "bottleneck": ["cnn_bottleneck.py", "__init__.py"],
+  "decoder": ["cnn_decoder.py", "__init__.py"],
+  "encoder": [
+    "cnn_encoder.py", "swin_transformer_encoder.py", "swin_v2_adapter.py", "__init__.py"
+  ],
+  "architectures": [
+    "cnn_convlstm_unet.py", "swinv2_cnn_aspp_unet.py", "__init__.py"
+  ],
+  "config": [
+    "core.py", "factory.py", "instantiation.py", "schemas.py", "validation.py", "__init__.py"
+  ]
+} 

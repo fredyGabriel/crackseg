@@ -11,17 +11,18 @@ from typing import Dict, Any, TypeVar, Tuple, Optional, Type
 
 from omegaconf import DictConfig
 import torch.nn as nn
-from src.model.base import UNetBase, DecoderBase
-# Import instantiation functions
+# Actualizar importación para usar ruta correcta al paquete base
+from src.model.base.abstract import UNetBase, DecoderBase
+# Import instantiation functions usando referencias relativas
 from .config import (
     instantiate_encoder,
     instantiate_bottleneck,
     instantiate_decoder
     # We might need instantiate_hybrid_model if create_unet handles more
 )
-# Import global component registries
+# Import global component registries - usar referencia relativa
 from .registry_setup import component_registries
-# Import factory utilities
+# Import factory utilities - usar referencia relativa
 from .factory_utils import (
     ConfigurationError, validate_config, hydra_to_dict,
     log_component_creation, log_configuration_error,
@@ -379,7 +380,8 @@ def get_unet_class(config: DictConfig) -> Type[UNetBase]:
     Returns:
         UNet class to instantiate
     """
-    unet_target = config.get('_target_', 'src.model.unet.BaseUNet')
+    # Actualizar ruta predeterminada para reflejar la nueva estructura
+    unet_target = config.get('_target_', 'src.model.core.unet.BaseUNet')
 
     if isinstance(unet_target, str):
         # Use hydra only to get the class, not instantiate

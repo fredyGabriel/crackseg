@@ -10,7 +10,7 @@ import random
 from concurrent.futures import ThreadPoolExecutor
 import torch.nn as nn
 
-from src.model.registry import Registry
+from src.model.factory.registry import Registry
 
 
 class SimpleComponent(nn.Module):

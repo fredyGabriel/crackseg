@@ -1,8 +1,9 @@
 """Integration tests for model instantiation and forward pass from config."""
 
-import os
 import torch
 import hydra
+import traceback
+import os
 from omegaconf import DictConfig, OmegaConf
 
 from src.model.factory import create_unet
@@ -18,7 +19,7 @@ from tests.integration.model.conftest import (  # noqa: F401
 # REMOVED: import tests.model.integration.test_model_factory  # noqa: F401
 
 # Import the new CNN components
-from src.model.unet import BaseUNet
+from src.model import BaseUNet
 from src.model.encoder.cnn_encoder import CNNEncoder
 from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
 from src.model.decoder.cnn_decoder import CNNDecoder
@@ -83,59 +84,64 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
     This function uses a special case approach for specific configs that had
     issues with the reorganization of the model directory structure.
     """
-    # For unet_mock, we can use the normal Hydra loading
     if config_name == "unet_mock":
-        # Determine the absolute path to the configs directory
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.abspath(os.path.join(
-            script_dir, "..", "..", "configs"
-        ))
-
-        if not os.path.exists(config_path):
-            config_path = os.path.abspath(os.path.join(os.getcwd(), "configs"))
-            if not os.path.exists(config_path):
-                raise FileNotFoundError(
-                    f"Config directory not found relative to test or cwd: "
-                    f"{config_path}"
-                )
-
-        # Check existence in new location or use fallback
-        new_path = os.path.join(
-            config_path, "model", "architectures", f"{config_name}.yaml"
-        )
-        old_path = os.path.join(config_path, "model", f"{config_name}.yaml")
-
-        if os.path.exists(new_path):
-            full_config_name = f"model/architectures/{config_name}"
-        elif os.path.exists(old_path):
-            full_config_name = f"model/{config_name}"
-        else:
-            raise FileNotFoundError(
-                f"Configuration for '{config_name}' not found in any location:"
-                f" neither in '{new_path}' nor in '{old_path}'"
-            )
-
         # Clear Hydra global state if already initialized
         if hydra.core.global_hydra.GlobalHydra.instance().is_initialized():
             hydra.core.global_hydra.GlobalHydra.instance().clear()
 
-        # Initialize Hydra with config path
-        hydra.initialize_config_dir(config_dir=config_path, version_base=None)
+        try:
+            # Calcular ruta absoluta a 'configs' desde este archivo de test
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            # Sube 2 niveles desde tests/integration/model
+            project_root = os.path.abspath(os.path.join(current_dir, "..",
+                                                        ".."))
+            absolute_config_path = os.path.join(project_root, "configs")
 
-        # Load configuration
-        cfg = hydra.compose(config_name=full_config_name)
+            if not os.path.isdir(absolute_config_path):
+                # Fallback si no se encuentra o se ejecuta desde otro lugar
+                absolute_config_path = os.path.abspath(
+                    os.path.join(os.getcwd(), "configs")
+                )
+                if not os.path.isdir(absolute_config_path):
+                    raise FileNotFoundError(
+                        f"Config directory not found at {absolute_config_path}"
+                    )
 
-        # Clean up Hydra global state
-        hydra.core.global_hydra.GlobalHydra.instance().clear()
+            # Inicializar Hydra con la ruta absoluta
+            # Usar initialize_config_dir con ruta absoluta
+            hydra.initialize_config_dir(
+                config_dir=absolute_config_path,
+                version_base=None
+            )
 
-        return cfg
+            # Load configuration using the full path relative to the config dir
+            cfg = hydra.compose(config_name="model/architectures/unet_mock")
+
+            # Clean up Hydra global state
+            hydra.core.global_hydra.GlobalHydra.instance().clear()
+            return cfg
+        except Exception as e:
+            # --- ADDED DETAILED EXCEPTION PRINTING ---
+            print("\n--- Exception caught in load_test_config ---")
+            traceback.print_exc()
+            print("--------------------------------------------\n")
+            # --- END ADDED CODE ---
+
+            # Clean up Hydra state even if compose fails
+            if hydra.core.global_hydra.GlobalHydra.instance().is_initialized():
+                hydra.core.global_hydra.GlobalHydra.instance().clear()
+            # Re-raise exception to make test fail clearly
+            raise FileNotFoundError(
+                f"Hydra initialize/compose failed for 'unet_mock'. "
+                f"Original Error: {e}"
+            ) from e
 
     # For other configs, create the configuration directly
     elif config_name == "unet_cnn":
         # Create CNN UNet config directly
         cfg_dict = {
             "model": {
-                "_target_": "src.model.unet.BaseUNet",
+                "_target_": "src.model.core.unet.BaseUNet",
                 "encoder": {
                     "_target_": "src.model.encoder.cnn_encoder.CNNEncoder",
                     "in_channels": 3,
@@ -155,11 +161,7 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
                     "skip_channels_list": [512, 256, 128, 64],
                     "out_channels": 1,
                     "depth": 4,
-                    "cbam_enabled": False,
-                    "cbam_params": {
-                        "reduction": 16,
-                        "kernel_size": 7
-                    }
+                    "use_cbam": False
                 }
             }
         }

@@ -6,7 +6,7 @@ from typing import Dict, Any, Optional
 import logging
 
 # Base class
-from src.model.base import UNetBase
+from src.model.base.abstract import UNetBase
 
 # Components
 from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter

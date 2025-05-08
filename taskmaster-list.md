@@ -65,6 +65,7 @@
 | 12   | Refactor src/evaluate.py                                     | done          | high      | 11           |
 | 13   | Refactor src/training/trainer.py                             | done          | high      | 11           |
 | 14   | Refactor src/model/unet.py                                   | done          | medium-high| 11          |
+| 14   | Refactor src/model/architectures/unet.py                                   | done          | medium-high| 11          |
 | 15   | Refactor src/data/factory.py                                 | done          | medium    | 11           |
 | 16   | Implement ConvLSTM Component and CNN-ConvLSTM U-Net Arch.    |
 done   | medium    | 15           |

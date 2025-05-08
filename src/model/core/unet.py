@@ -13,8 +13,14 @@ import hydra.utils  # Import hydra utils
 import sys
 from io import StringIO
 
-from src.model.base import UNetBase, EncoderBase, BottleneckBase, DecoderBase
-from src.model.utils import (
+# Actualizar importaciones para reflejar la nueva estructura de directorios
+from src.model.base.abstract import (
+    UNetBase,
+    EncoderBase,
+    BottleneckBase,
+    DecoderBase
+)
+from src.model.common.utils import (
     count_parameters,
     estimate_receptive_field,
     estimate_memory_usage,

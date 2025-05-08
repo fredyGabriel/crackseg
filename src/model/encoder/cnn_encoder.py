@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 from typing import List, Tuple
-from src.model.base import EncoderBase
+from src.model.base.abstract import EncoderBase
 # Import the specific registry
-from src.model.registry_setup import encoder_registry
+from src.model.factory.registry_setup import encoder_registry
 
 
 # No longer registering with the factory registry

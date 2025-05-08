@@ -1,9 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torch import nn
-from src.model.base import BottleneckBase
-from src.model.registry_setup import bottleneck_registry
+from src.model.base.abstract import BottleneckBase
+from src.model.factory.registry_setup import bottleneck_registry
 
 
 @bottleneck_registry.register("BottleneckBlock")

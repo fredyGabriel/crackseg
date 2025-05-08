@@ -12,8 +12,8 @@ from typing import Dict, Any, TypeVar, Optional
 
 from torch import nn
 
-from ..registry import Registry
-from ..registry_setup import (
+from src.model.factory.registry import Registry
+from src.model.factory.registry_setup import (
     encoder_registry,
     bottleneck_registry,
     decoder_registry,

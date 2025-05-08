@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 # Importamos el registro global de atención
-from src.model.registry_setup import component_registries
+from src.model.factory.registry_setup import component_registries
 
 # Obtenemos el registro global de atención
 attention_registry = component_registries.get('attention')

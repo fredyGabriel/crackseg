@@ -16,14 +16,14 @@ from src.model.config.factory import (
     get_model_config_schema
 )
 from src.model.config.validation import normalize_config
-from src.model.registry_setup import (
+from src.model.factory.registry_setup import (
     architecture_registry,
     encoder_registry,
     bottleneck_registry,
     decoder_registry,
 )
-from src.model.base import UNetBase, EncoderBase, BottleneckBase, DecoderBase
-from src.model.registry import Registry
+from src.model import UNetBase, EncoderBase, BottleneckBase, DecoderBase
+from src.model.factory.registry import Registry
 
 
 # --- Dummy Components for Testing ---
@@ -65,7 +65,8 @@ class DummyIdentity(BottleneckBase):
     def __init__(self, in_channels, out_channels=None, **kwargs):
         super().__init__(in_channels=in_channels)
         self.in_channels = in_channels
-        self._out_channels = out_channels if out_channels is not None else in_channels
+        self._out_channels = out_channels if out_channels is not None else \
+            in_channels
 
     def forward(self, x):
         # Need to return tensor potentially with different out_channels
@@ -82,7 +83,8 @@ class DummyIdentity(BottleneckBase):
 
 
 class DummyCNNDecoder(DecoderBase):
-    def __init__(self, in_channels, skip_channels_list=None, out_channels=1, **kwargs):
+    def __init__(self, in_channels, skip_channels_list=None, out_channels=1,
+                 **kwargs):
         _skip_channels = skip_channels_list or []
         super().__init__(in_channels=in_channels, skip_channels=_skip_channels)
         self._out_channels = out_channels

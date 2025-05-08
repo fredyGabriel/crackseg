@@ -9,11 +9,11 @@ proper error reporting and default values.
 import logging
 from typing import Dict, Any
 
-from ..registry_setup import (
+from src.model.factory.registry_setup import (
+    architecture_registry,
     encoder_registry,
     bottleneck_registry,
     decoder_registry,
-    architecture_registry,
     component_registries
 )
 

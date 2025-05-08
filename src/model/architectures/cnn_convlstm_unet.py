@@ -3,7 +3,7 @@ import torch.nn as nn
 from typing import List, Tuple
 
 # Import base classes
-from src.model.base import (
+from src.model.base.abstract import (
     EncoderBase, BottleneckBase, DecoderBase, UNetBase
 )
 # Import reusable components

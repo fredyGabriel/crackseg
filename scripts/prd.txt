@@ -1,0 +1,83 @@
+<context>
+# Overview
+This document describes the plan to verify and consolidate the reorganization of the `src/model` module and adapt the rest of the project (tests, scripts, configurations, and documentation) to the new modular structure. The goal is to ensure consistency, maintainability, and compatibility throughout the codebase after the migration.
+
+# Core Features
+- **Verification of the src/model reorganization**
+  - Confirm that all files and submodules are correctly located and that there are no duplicates or remnants of the previous structure.
+  - Validate that internal imports in `src/model` use the new paths.
+  - Check that the `__init__.py` file correctly re-exports the main classes and functions to maintain compatibility.
+- **Global project adaptation**
+  - Update all unit and integration tests to use the new import paths and file names.
+  - Adapt scripts, notebooks, and utilities that depend on `src/model`.
+  - Review and update Hydra/YAML configurations and any references to old paths.
+  - Update technical and user documentation to reflect the new structure.
+
+# User Experience
+- **For developers:**
+  - Clear and consistent imports from `src.model` and submodules.
+  - Tests that reflect the real architecture of the code and are easy to maintain.
+  - Documentation aligned with the actual project structure.
+- **For end users:**
+  - No changes are expected in the public API, but greater robustness and ease of extension are expected.
+
+# Migration Notes and File Renaming
+- **Key file renaming and relocation changes:**
+  - `base.py` → `base/abstract.py` (abstract base classes: EncoderBase, BottleneckBase, DecoderBase, UNetBase)
+  - `unet.py` → `core/unet.py` (main implementation of BaseUNet)
+  - `utils.py` → `common/utils.py` (shared utilities)
+  - `factory.py`, `registry.py`, `registry_setup.py`, `hybrid_registry.py`, `config.py`, `config_schema.py`, `factory_utils.py` → now in `factory/` (organized by responsibility)
+  - Duplicate files in the root of `src/model` were deleted after moving them to their new locations.
+  - The `__init__.py` file in `src/model` was updated to re-export the main classes and functions from their new locations, maintaining backward compatibility.
+  - Internal and external imports must be updated to reflect the new structure (e.g., `from src.model.base import EncoderBase` → `from src.model.base.abstract import EncoderBase`).
+  - Paths in Hydra/YAML configurations and scripts must use the new locations (e.g., `_target_: src.model.core.unet.BaseUNet`).
+  - Documentation (`README.md` and docstrings) was updated to reflect the modular structure.
+  - It is recommended to review any reference to old paths throughout the project.
+
+<PRD>
+# Technical Architecture
+- **src/model**: Modularized into subfolders (`base/`, `core/`, `factory/`, `common/`, etc.)
+- **Tests**: Must import from the new paths (`src.model.base.abstract`, `src.model.core.unet`, etc.)
+- **Scripts and utilities**: Must update their imports and access paths to models/components.
+- **Configurations**: YAML/Hydra must point to the new class and function paths.
+- **Documentation**: Must reflect the current structure and paths.
+
+# Development Roadmap
+- **Phase 1: Verification of src/model**
+  - Audit the structure and remove obsolete or duplicate files.
+  - Validate internal imports and `__init__.py`.
+  - Test importing the main components from the project root.
+- **Phase 2: Test adaptation**
+  - Sweep all tests to identify old imports.
+  - Update imports and fixtures/mocks according to the new structure.
+  - Run and fix the test suite until it passes completely.
+- **Phase 3: Adaptation of scripts, notebooks, and utilities**
+  - Search and update imports in training, inference scripts, notebooks, and utilities.
+  - Validate that the main scripts work correctly.
+- **Phase 4: Update configurations and documentation**
+  - Review and update YAML/Hydra files.
+  - Update README, docstrings, and any relevant documentation.
+- **Phase 5: Final validation**
+  - Run end-to-end tests.
+  - Validate compatibility and the absence of obsolete paths.
+
+# Logical Dependency Chain
+1. Verify and consolidate the structure of `src/model`.
+2. Adapt the tests to ensure the validity of the reorganization.
+3. Update scripts and utilities dependent on `src/model`.
+4. Review and adapt configurations and documentation.
+5. Validate the overall functioning of the project.
+
+# Risks and Mitigations
+- **Risk:** Broken imports or obsolete references in tests/scripts.
+  - *Mitigation:* Exhaustive sweep and continuous test execution after each change.
+- **Risk:** Loss of backward compatibility.
+  - *Mitigation:* Maintain re-exports in `__init__.py` and validate with real examples.
+- **Risk:** Outdated documentation.
+  - *Mitigation:* Systematic update after each phase and cross-review.
+
+# Appendix
+- Reference: `src/model/README.md` for the modular structure.
+- Reference: `scripts/reports/example_prd.txt` as a PRD template.
+- Tools: Task Master for task management, pytest for validation.
+</PRD> 

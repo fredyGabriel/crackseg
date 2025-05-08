@@ -1,0 +1,197 @@
+[
+  {
+    "relative_path": "README.md",
+    "size_bytes": 7648,
+    "last_modified": "2025-05-07T01:01:54.894541"
+  },
+  {
+    "relative_path": "__init__.py",
+    "size_bytes": 2096,
+    "last_modified": "2025-05-07T00:59:43.455942"
+  },
+  {
+    "relative_path": "architectures/cnn_convlstm_unet.py",
+    "size_bytes": 14517,
+    "last_modified": "2025-05-07T01:21:07.943782"
+  },
+  {
+    "relative_path": "architectures/swinv2_cnn_aspp_unet.py",
+    "size_bytes": 7011,
+    "last_modified": "2025-05-07T01:21:06.123127"
+  },
+  {
+    "relative_path": "architectures/__init__.py",
+    "size_bytes": 291,
+    "last_modified": "2025-05-04T04:15:15.386975"
+  },
+  {
+    "relative_path": "base/abstract.py",
+    "size_bytes": 11827,
+    "last_modified": "2025-05-07T00:59:54.459952"
+  },
+  {
+    "relative_path": "base/__init__.py",
+    "size_bytes": 396,
+    "last_modified": "2025-05-07T00:59:49.437972"
+  },
+  {
+    "relative_path": "bottleneck/cnn_bottleneck.py",
+    "size_bytes": 2278,
+    "last_modified": "2025-05-07T01:17:59.286365"
+  },
+  {
+    "relative_path": "bottleneck/__init__.py",
+    "size_bytes": 219,
+    "last_modified": "2025-05-05T01:13:21.557528"
+  },
+  {
+    "relative_path": "common/utils.py",
+    "size_bytes": 11842,
+    "last_modified": "2025-05-07T01:00:03.801308"
+  },
+  {
+    "relative_path": "common/__init__.py",
+    "size_bytes": 539,
+    "last_modified": "2025-05-07T00:59:59.521575"
+  },
+  {
+    "relative_path": "components/aspp.py",
+    "size_bytes": 5617,
+    "last_modified": "2025-05-07T01:21:50.606057"
+  },
+  {
+    "relative_path": "components/attention_decorator.py",
+    "size_bytes": 2356,
+    "last_modified": "2025-05-06T03:55:48.408896"
+  },
+  {
+    "relative_path": "components/cbam.py",
+    "size_bytes": 5179,
+    "last_modified": "2025-05-07T01:12:15.295216"
+  },
+  {
+    "relative_path": "components/convlstm.py",
+    "size_bytes": 13152,
+    "last_modified": "2025-05-04T05:34:33.471279"
+  },
+  {
+    "relative_path": "components/registry_support.py",
+    "size_bytes": 9348,
+    "last_modified": "2025-05-06T00:20:32.663878"
+  },
+  {
+    "relative_path": "components/__init__.py",
+    "size_bytes": 43,
+    "last_modified": "2025-05-07T02:18:50.286127"
+  },
+  {
+    "relative_path": "config/core.py",
+    "size_bytes": 6947,
+    "last_modified": "2025-05-06T00:49:44.844249"
+  },
+  {
+    "relative_path": "config/factory.py",
+    "size_bytes": 9249,
+    "last_modified": "2025-05-06T01:45:02.093829"
+  },
+  {
+    "relative_path": "config/instantiation.py",
+    "size_bytes": 17844,
+    "last_modified": "2025-05-06T04:15:55.784871"
+  },
+  {
+    "relative_path": "config/schemas.py",
+    "size_bytes": 15020,
+    "last_modified": "2025-05-06T01:05:40.356483"
+  },
+  {
+    "relative_path": "config/validation.py",
+    "size_bytes": 9096,
+    "last_modified": "2025-05-06T05:39:23.449934"
+  },
+  {
+    "relative_path": "config/__init__.py",
+    "size_bytes": 1725,
+    "last_modified": "2025-05-06T02:19:41.541917"
+  },
+  {
+    "relative_path": "core/unet.py",
+    "size_bytes": 12695,
+    "last_modified": "2025-05-07T01:00:43.660887"
+  },
+  {
+    "relative_path": "core/__init__.py",
+    "size_bytes": 183,
+    "last_modified": "2025-05-07T01:00:08.860501"
+  },
+  {
+    "relative_path": "decoder/cnn_decoder.py",
+    "size_bytes": 11225,
+    "last_modified": "2025-05-07T01:18:02.003590"
+  },
+  {
+    "relative_path": "decoder/__init__.py",
+    "size_bytes": 166,
+    "last_modified": "2025-05-02T04:52:23.656932"
+  },
+  {
+    "relative_path": "encoder/cnn_encoder.py",
+    "size_bytes": 6735,
+    "last_modified": "2025-05-07T01:14:29.782707"
+  },
+  {
+    "relative_path": "encoder/swin_transformer_encoder.py",
+    "size_bytes": 28543,
+    "last_modified": "2025-05-05T23:06:38.308867"
+  },
+  {
+    "relative_path": "encoder/swin_v2_adapter.py",
+    "size_bytes": 9175,
+    "last_modified": "2025-05-05T22:56:50.362553"
+  },
+  {
+    "relative_path": "encoder/__init__.py",
+    "size_bytes": 271,
+    "last_modified": "2025-05-04T20:54:13.454175"
+  },
+  {
+    "relative_path": "factory/config.py",
+    "size_bytes": 15028,
+    "last_modified": "2025-05-07T01:06:11.021281"
+  },
+  {
+    "relative_path": "factory/config_schema.py",
+    "size_bytes": 4050,
+    "last_modified": "2025-05-07T01:00:56.467140"
+  },
+  {
+    "relative_path": "factory/factory.py",
+    "size_bytes": 16268,
+    "last_modified": "2025-05-07T01:01:33.035667"
+  },
+  {
+    "relative_path": "factory/factory_utils.py",
+    "size_bytes": 7481,
+    "last_modified": "2025-05-07T01:01:27.410463"
+  },
+  {
+    "relative_path": "factory/hybrid_registry.py",
+    "size_bytes": 12248,
+    "last_modified": "2025-05-07T01:01:43.332287"
+  },
+  {
+    "relative_path": "factory/registry.py",
+    "size_bytes": 7065,
+    "last_modified": "2025-05-07T01:06:28.519364"
+  },
+  {
+    "relative_path": "factory/registry_setup.py",
+    "size_bytes": 6640,
+    "last_modified": "2025-05-07T01:06:22.627743"
+  },
+  {
+    "relative_path": "factory/__init__.py",
+    "size_bytes": 514,
+    "last_modified": "2025-05-07T01:00:49.540658"
+  }
+]

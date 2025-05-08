@@ -8,15 +8,15 @@ correctly with different component combinations.
 import pytest
 import torch
 import torch.nn as nn
-from src.model.base import EncoderBase, BottleneckBase, DecoderBase
+from src.model import EncoderBase, BottleneckBase, DecoderBase
 
-from src.model.registry_setup import (
+from src.model.factory.registry_setup import (
     encoder_registry,
     bottleneck_registry,
     decoder_registry,
     architecture_registry
 )
-from src.model.hybrid_registry import (
+from src.model.factory.hybrid_registry import (
     hybrid_registry,
     register_standard_hybrid,
     register_complex_hybrid,
@@ -24,7 +24,7 @@ from src.model.hybrid_registry import (
     query_architectures_by_tag,
     HybridArchitectureDescriptor,
     ComponentReference
-)
+)  # Migración: import actualizado para reflejar la ubicación real
 
 
 # Mock classes for testing
@@ -107,7 +107,7 @@ def setup_module(module):
     except Exception:
         pass
     try:
-        from src.model.registry_setup import component_registries
+        from src.model.factory.registry_setup import component_registries
         attention_registry = component_registries.get('attention')
         attention_registry.unregister("MockAttention")
     except Exception:
@@ -117,7 +117,7 @@ def setup_module(module):
     bottleneck_registry.register(name="MockBottleneck")(MockBottleneck)
     decoder_registry.register(name="MockDecoder")(MockDecoder)
     # Get attention registry and register mock component
-    from src.model.registry_setup import component_registries
+    from src.model.factory.registry_setup import component_registries
     attention_registry = component_registries.get('attention')
     attention_registry.register(name="MockAttention")(MockAttention)
 
@@ -141,7 +141,7 @@ def teardown_module(module):
     except Exception:
         pass
     try:
-        from src.model.registry_setup import component_registries
+        from src.model.factory.registry_setup import component_registries
         attention_registry = component_registries.get('attention')
         attention_registry.unregister("MockAttention")
     except Exception:

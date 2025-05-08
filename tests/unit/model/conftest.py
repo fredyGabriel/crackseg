@@ -3,7 +3,7 @@
 import pytest  # noqa E402
 
 # Import base classes needed for mocks (if other tests use them)
-from src.model.base import EncoderBase, BottleneckBase, DecoderBase  # noqa E402
+from src.model import EncoderBase, BottleneckBase, DecoderBase  # noqa E402
 
 # Registries and mock imports commented out as they are unused now
 # from src.model.factory import (

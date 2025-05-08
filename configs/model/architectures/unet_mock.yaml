@@ -10,7 +10,7 @@ ddefaults:
 # Override component sections with mock configurations
 model:
   # Use the actual BaseUNet implementation as the target
-  _target_: src.model.unet.BaseUNet
+  _target_: src.model.core.unet.BaseUNet
   # type: BaseUNet  # Type is less relevant if using _target_ directly
 
   encoder:

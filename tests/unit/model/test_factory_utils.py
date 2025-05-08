@@ -9,7 +9,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 import logging
 
-from src.model.factory_utils import (
+from src.model.factory.factory_utils import (
     ConfigurationError,
     validate_config,
     validate_component_types,
@@ -120,8 +120,9 @@ class TestConfigTransformation:
 
         # Patch isinstance para que devuelva True cuando se verifiqu
         #  DictConfig
-        with patch('src.model.factory_utils.OmegaConf') as mock_omegaconf, \
-             patch('src.model.factory_utils.isinstance',
+        with patch('src.model.factory.factory_utils.OmegaConf') as \
+            mock_omegaconf, \
+             patch('src.model.factory.factory_utils.isinstance',
                    side_effect=lambda obj, cls:
                    True if cls.__name__ == 'DictConfig' else isinstance(obj,
                                                                         cls)):

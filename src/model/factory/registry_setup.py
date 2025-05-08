@@ -11,8 +11,14 @@ from typing import List, Dict
 import logging
 import torch.nn as nn
 
-from src.model.base import EncoderBase, DecoderBase, BottleneckBase, UNetBase
-from src.model.registry import Registry
+# Actualizar la importación para reflejar la nueva estructura
+from src.model.base.abstract import (
+    EncoderBase,
+    DecoderBase,
+    BottleneckBase,
+    UNetBase
+)
+from .registry import Registry
 
 # Create logger
 log = logging.getLogger(__name__)

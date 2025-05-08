@@ -1,6 +1,6 @@
 import pytest
 from omegaconf import OmegaConf
-from src.model.factory import insert_cbam_if_enabled
+from src.model.factory.factory import insert_cbam_if_enabled
 from src.model.components.cbam import CBAM
 import torch.nn as nn
 

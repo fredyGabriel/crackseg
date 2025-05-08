@@ -3,7 +3,7 @@
 import torch
 import pytest
 from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
-from src.model.base import EncoderBase
+from src.model import EncoderBase
 
 
 def test_swin_transformer_encoder_instantiation():

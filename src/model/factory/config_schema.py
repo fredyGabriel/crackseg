@@ -9,7 +9,7 @@ configuration files.
 Example YAML configuration for a UNet:
 
 unet:
-  _target_: src.model.unet.BaseUNet
+  _target_: src.model.core.unet.BaseUNet
   type: BaseUNet
   encoder:
     _target_: src.model.encoder.MockEncoder
@@ -71,7 +71,7 @@ class DecoderConfig:
 @dataclass
 class UNetConfig:
     """Configuration schema for the complete UNet model."""
-    _target_: str = "src.model.unet.BaseUNet"  # Default to BaseUNet
+    _target_: str = "src.model.core.unet.BaseUNet"  # Updated default path
     type: str = "BaseUNet"  # Name for potential registration
     encoder: EncoderConfig = field(default_factory=EncoderConfig)
     bottleneck: BottleneckConfig = field(default_factory=BottleneckConfig)
@@ -87,8 +87,9 @@ class UNetConfig:
             bott_in = getattr(self.bottleneck, 'in_channels', None)
             if enc_out is not None and bott_in is not None:
                 if enc_out != bott_in:
-                    raise ValueError("Encoder out_channels must match \
-Bottleneck in_channels")
+                    raise ValueError(
+                        "Encoder out must match Bottleneck in channels"
+                    )
         # Add more validation as needed
 
 
@@ -114,9 +115,3 @@ def validate_unet_config(config: UNetConfig) -> None:
     """Validate a UNetConfig instance. Raises ValueError if invalid."""
     # This will trigger __post_init__
     UNetConfig(**vars(config))
-
-
-# Example usage (as comment):
-# from src.model.config import load_unet_config_from_yaml
-# config = load_unet_config_from_yaml('configs/model/unet_mock.yaml')
-# validate_unet_config(config)

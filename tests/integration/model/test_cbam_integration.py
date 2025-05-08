@@ -1,9 +1,9 @@
 import torch
-from src.model.factory import CBAMPostProcessor
+from src.model.factory.factory import CBAMPostProcessor
 from src.model.architectures.cnn_convlstm_unet import (
     CNNConvLSTMUNet, CNNEncoder, ConvLSTMBottleneck, CNNDecoder
 )
-from src.model.registry_setup import component_registries
+from src.model.factory.registry_setup import component_registries
 
 
 def test_cbam_integration_unet_forward():

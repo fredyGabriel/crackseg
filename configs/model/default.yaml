@@ -1,42 +1,29 @@
-# @package _group_
+# @package model
 
 # Base UNet configuration schema
 
-_target_: src.model.unet.BaseUNet
-type: BaseUNet
+_target_: src.model.core.unet.BaseUNet
 
 # --- Component Configurations ---
 # These sections define the expected structure for each component.
-# Specific model configs (like unet_mock.yaml) will provide the concrete values.
+# Using the correct class names as sugeridos por los mensajes de error
 
 encoder:
-  # Point _target_ to the factory function
-  _target_: src.model.factory.create_encoder
-  type: "CNNEncoder" # Usar el encoder registrado
-  # Remove placeholder type
-  # type: "DefaultEncoder"
-  # Add any default params needed by create_encoder or resnet34
+  # Use the correct encoder class name
+  _target_: src.model.encoder.CNNEncoder
   in_channels: 3
 
 bottleneck:
-  # Point _target_ to the factory function
-  _target_: src.model.factory.create_bottleneck
-  type: "CNNBottleneckBlock" # Usar el bottleneck registrado
-  # Remove placeholder type and target
-  # _target_: "???.???.BottleneckImplementation"
-  # type: "DefaultBottleneck"
+  # Use the correct bottleneck class name
+  _target_: src.model.bottleneck.BottleneckBlock
   in_channels: 512 # Ajustar según el encoder
   out_channels: 1024 # Ajustar según la arquitectura
 
 decoder:
-  # Point _target_ to the factory function
-  _target_: src.model.factory.create_decoder
-  type: "CNNDecoder" # Usar el decoder registrado
-  # Remove placeholder type and target
-  # _target_: "???.???.DecoderImplementation"
-  # type: "DefaultDecoder"
+  # Use the correct decoder class name
+  _target_: src.model.decoder.CNNDecoder
   in_channels: 1024 # Debe coincidir con out_channels del bottleneck
-  skip_channels_list: [64, 128, 256, 512] # Debe coincidir con el encoder
+  skip_channels_list: [512, 256, 128, 64] # Orden invertido respecto al encoder
   out_channels: 1 # Número de clases de salida
   depth: 4 # Profundidad del decoder, igual que encoder
 
@@ -45,9 +32,3 @@ final_activation: null
 # Example:
 # final_activation:
 #   _target_: torch.nn.Sigmoid 
-
-training:
-  optimizer:
-    _target_: torch.optim.Adam
-    lr: 0.001
-    weight_decay: 0.0001 

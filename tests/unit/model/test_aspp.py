@@ -2,7 +2,7 @@ import pytest
 import torch
 import torch.nn as nn
 from src.model.components.aspp import ASPPModule
-from src.model.base import BottleneckBase
+from src.model import BottleneckBase
 
 
 def test_asppmodule_valid_initialization():

@@ -1,0 +1,2396 @@
+[
+  {
+    "file": "__init__.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "factory.factory",
+    "statement": "from factory.factory import create_unet"
+  },
+  {
+    "file": "__init__.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "factory.factory",
+    "statement": "from factory.factory import validate_config"
+  },
+  {
+    "file": "__init__.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "factory.factory",
+    "statement": "from factory.factory import ConfigurationError"
+  },
+  {
+    "file": "__init__.py",
+    "line": 17,
+    "type": "from-import",
+    "module": "base.abstract",
+    "statement": "from base.abstract import UNetBase"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import validate_component_config"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import validate_architecture_config"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import normalize_config"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import parse_architecture_config"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import create_model_from_config"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import instantiate_encoder"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import instantiate_bottleneck"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import instantiate_decoder"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import instantiate_hybrid_model"
+  },
+  {
+    "file": "__init__.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "factory.config",
+    "statement": "from factory.config import InstantiationError"
+  },
+  {
+    "file": "__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "factory.config_schema",
+    "statement": "from factory.config_schema import EncoderConfig"
+  },
+  {
+    "file": "__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "factory.config_schema",
+    "statement": "from factory.config_schema import BottleneckConfig"
+  },
+  {
+    "file": "__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "factory.config_schema",
+    "statement": "from factory.config_schema import DecoderConfig"
+  },
+  {
+    "file": "__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "factory.config_schema",
+    "statement": "from factory.config_schema import UNetConfig"
+  },
+  {
+    "file": "__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "factory.config_schema",
+    "statement": "from factory.config_schema import load_unet_config_from_yaml"
+  },
+  {
+    "file": "__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "factory.config_schema",
+    "statement": "from factory.config_schema import validate_unet_config"
+  },
+  {
+    "file": "__init__.py",
+    "line": 45,
+    "type": "from-import",
+    "module": "factory.registry",
+    "statement": "from factory.registry import Registry"
+  },
+  {
+    "file": "__init__.py",
+    "line": 48,
+    "type": "from-import",
+    "module": "core.unet",
+    "statement": "from core.unet import BaseUNet"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 1,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 2,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 6,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import EncoderBase"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 6,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import BottleneckBase"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 6,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import DecoderBase"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 6,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import UNetBase"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "src.model.encoder.cnn_encoder",
+    "statement": "from src.model.encoder.cnn_encoder import EncoderBlock"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "src.model.components.convlstm",
+    "statement": "from src.model.components.convlstm import ConvLSTM"
+  },
+  {
+    "file": "architectures/cnn_convlstm_unet.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "src.model.decoder.cnn_decoder",
+    "statement": "from src.model.decoder.cnn_decoder import DecoderBlock"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 3,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 4,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 5,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 5,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 5,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 6,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import UNetBase"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "src.model.encoder.swin_v2_adapter",
+    "statement": "from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "src.model.components.aspp",
+    "statement": "from src.model.components.aspp import ASPPModule"
+  },
+  {
+    "file": "architectures/swinv2_cnn_aspp_unet.py",
+    "line": 14,
+    "type": "from-import",
+    "module": "src.model.decoder.cnn_decoder",
+    "statement": "from src.model.decoder.cnn_decoder import CNNDecoder"
+  },
+  {
+    "file": "architectures/__init__.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.architectures.cnn_convlstm_unet",
+    "statement": "from src.model.architectures.cnn_convlstm_unet import CNNEncoder"
+  },
+  {
+    "file": "architectures/__init__.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.architectures.cnn_convlstm_unet",
+    "statement": "from src.model.architectures.cnn_convlstm_unet import ConvLSTMBottleneck"
+  },
+  {
+    "file": "architectures/__init__.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.architectures.cnn_convlstm_unet",
+    "statement": "from src.model.architectures.cnn_convlstm_unet import CNNDecoder"
+  },
+  {
+    "file": "architectures/__init__.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.architectures.cnn_convlstm_unet",
+    "statement": "from src.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet"
+  },
+  {
+    "file": "base/abstract.py",
+    "line": 1,
+    "type": "import",
+    "module": "abc",
+    "statement": "import abc"
+  },
+  {
+    "file": "base/abstract.py",
+    "line": 2,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "base/abstract.py",
+    "line": 3,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "base/abstract.py",
+    "line": 4,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "base/abstract.py",
+    "line": 4,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "base/abstract.py",
+    "line": 266,
+    "type": "import",
+    "module": "warnings",
+    "statement": "import warnings"
+  },
+  {
+    "file": "base/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "abstract",
+    "statement": "from abstract import EncoderBase"
+  },
+  {
+    "file": "base/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "abstract",
+    "statement": "from abstract import BottleneckBase"
+  },
+  {
+    "file": "base/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "abstract",
+    "statement": "from abstract import DecoderBase"
+  },
+  {
+    "file": "base/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "abstract",
+    "statement": "from abstract import UNetBase"
+  },
+  {
+    "file": "bottleneck/cnn_bottleneck.py",
+    "line": 1,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "bottleneck/cnn_bottleneck.py",
+    "line": 2,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "bottleneck/cnn_bottleneck.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import BottleneckBase"
+  },
+  {
+    "file": "bottleneck/cnn_bottleneck.py",
+    "line": 4,
+    "type": "from-import",
+    "module": "src.model.factory.registry_setup",
+    "statement": "from src.model.factory.registry_setup import bottleneck_registry"
+  },
+  {
+    "file": "bottleneck/__init__.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.bottleneck.cnn_bottleneck",
+    "statement": "from src.model.bottleneck.cnn_bottleneck import BottleneckBlock"
+  },
+  {
+    "file": "bottleneck/__init__.py",
+    "line": 4,
+    "type": "from-import",
+    "module": "src.model.components.aspp",
+    "statement": "from src.model.components.aspp import ASPPModule"
+  },
+  {
+    "file": "common/utils.py",
+    "line": 1,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "common/utils.py",
+    "line": 2,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "common/utils.py",
+    "line": 2,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "common/utils.py",
+    "line": 2,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "common/utils.py",
+    "line": 2,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "common/utils.py",
+    "line": 2,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "common/utils.py",
+    "line": 168,
+    "type": "from-import",
+    "module": "graphviz",
+    "statement": "from graphviz import Digraph"
+  },
+  {
+    "file": "common/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "utils",
+    "statement": "from utils import count_parameters"
+  },
+  {
+    "file": "common/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "utils",
+    "statement": "from utils import estimate_receptive_field"
+  },
+  {
+    "file": "common/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "utils",
+    "statement": "from utils import estimate_memory_usage"
+  },
+  {
+    "file": "common/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "utils",
+    "statement": "from utils import get_layer_hierarchy"
+  },
+  {
+    "file": "common/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "utils",
+    "statement": "from utils import render_unet_architecture_diagram"
+  },
+  {
+    "file": "components/aspp.py",
+    "line": 1,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "components/aspp.py",
+    "line": 2,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "components/aspp.py",
+    "line": 3,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "components/aspp.py",
+    "line": 4,
+    "type": "import",
+    "module": "torch.nn.functional",
+    "statement": "import torch.nn.functional"
+  },
+  {
+    "file": "components/aspp.py",
+    "line": 6,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import BottleneckBase"
+  },
+  {
+    "file": "components/aspp.py",
+    "line": 7,
+    "type": "from-import",
+    "module": "src.model.factory.registry_setup",
+    "statement": "from src.model.factory.registry_setup import bottleneck_registry"
+  },
+  {
+    "file": "components/attention_decorator.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "src.model.base",
+    "statement": "from src.model.base import DecoderBase"
+  },
+  {
+    "file": "components/cbam.py",
+    "line": 1,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "components/cbam.py",
+    "line": 2,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "components/cbam.py",
+    "line": 3,
+    "type": "import",
+    "module": "torch.nn.functional",
+    "statement": "import torch.nn.functional"
+  },
+  {
+    "file": "components/cbam.py",
+    "line": 6,
+    "type": "from-import",
+    "module": "src.model.factory.registry_setup",
+    "statement": "from src.model.factory.registry_setup import component_registries"
+  },
+  {
+    "file": "components/convlstm.py",
+    "line": 1,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "components/convlstm.py",
+    "line": 2,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 14,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "src.model.registry_setup",
+    "statement": "from src.model.registry_setup import encoder_registry"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "src.model.registry_setup",
+    "statement": "from src.model.registry_setup import bottleneck_registry"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "src.model.registry_setup",
+    "statement": "from src.model.registry_setup import architecture_registry"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "src.model.registry_setup",
+    "statement": "from src.model.registry_setup import component_registries"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 22,
+    "type": "from-import",
+    "module": "src.model.hybrid_registry",
+    "statement": "from src.model.hybrid_registry import register_standard_hybrid"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 22,
+    "type": "from-import",
+    "module": "src.model.hybrid_registry",
+    "statement": "from src.model.hybrid_registry import register_complex_hybrid"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 42,
+    "type": "from-import",
+    "module": "src.model.components.convlstm",
+    "statement": "from src.model.components.convlstm import ConvLSTMCell"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 42,
+    "type": "from-import",
+    "module": "src.model.components.convlstm",
+    "statement": "from src.model.components.convlstm import ConvLSTM"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 60,
+    "type": "from-import",
+    "module": "src.model.bottleneck.convlstm_bottleneck",
+    "statement": "from src.model.bottleneck.convlstm_bottleneck import ConvLSTMBottleneck"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 73,
+    "type": "from-import",
+    "module": "src.model.architectures.cnn_convlstm_unet",
+    "statement": "from src.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 105,
+    "type": "from-import",
+    "module": "src.model.encoder.swin_v2_adapter",
+    "statement": "from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 117,
+    "type": "from-import",
+    "module": "src.model.architectures.swinv2_cnn_aspp_unet",
+    "statement": "from src.model.architectures.swinv2_cnn_aspp_unet import SwinV2CNNASPPUNet"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 153,
+    "type": "from-import",
+    "module": "src.model.components.aspp",
+    "statement": "from src.model.components.aspp import ASPPModule"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 175,
+    "type": "from-import",
+    "module": "src.model.components.cbam",
+    "statement": "from src.model.components.cbam import CBAM"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 175,
+    "type": "from-import",
+    "module": "src.model.components.cbam",
+    "statement": "from src.model.components.cbam import ChannelAttention"
+  },
+  {
+    "file": "components/registry_support.py",
+    "line": 175,
+    "type": "from-import",
+    "module": "src.model.components.cbam",
+    "statement": "from src.model.components.cbam import SpatialAttention"
+  },
+  {
+    "file": "config/core.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "config/core.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "config/core.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "config/core.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "config/core.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Union"
+  },
+  {
+    "file": "config/core.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Callable"
+  },
+  {
+    "file": "config/core.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "dataclasses",
+    "statement": "from dataclasses import dataclass"
+  },
+  {
+    "file": "config/core.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "dataclasses",
+    "statement": "from dataclasses import field"
+  },
+  {
+    "file": "config/core.py",
+    "line": 12,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "config/core.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "enum",
+    "statement": "from enum import Enum"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 9,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import encoder_registry"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import bottleneck_registry"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import decoder_registry"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import architecture_registry"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import component_registries"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "validation",
+    "statement": "from validation import validate_architecture_config"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 20,
+    "type": "from-import",
+    "module": "validation",
+    "statement": "from validation import normalize_config"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 21,
+    "type": "from-import",
+    "module": "instantiation",
+    "statement": "from instantiation import instantiate_hybrid_model"
+  },
+  {
+    "file": "config/factory.py",
+    "line": 21,
+    "type": "from-import",
+    "module": "instantiation",
+    "statement": "from instantiation import InstantiationError"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 10,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import TypeVar"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "torch",
+    "statement": "from torch import nn"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "registry",
+    "statement": "from registry import Registry"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import encoder_registry"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import bottleneck_registry"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import decoder_registry"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import architecture_registry"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import component_registries"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 24,
+    "type": "from-import",
+    "module": "utils.component_cache",
+    "statement": "from utils.component_cache import get_cached_component"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 24,
+    "type": "from-import",
+    "module": "utils.component_cache",
+    "statement": "from utils.component_cache import cache_component"
+  },
+  {
+    "file": "config/instantiation.py",
+    "line": 24,
+    "type": "from-import",
+    "module": "utils.component_cache",
+    "statement": "from utils.component_cache import generate_cache_key"
+  },
+  {
+    "file": "config/schemas.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "config/schemas.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "config/schemas.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "config/schemas.py",
+    "line": 14,
+    "type": "from-import",
+    "module": "core",
+    "statement": "from core import ConfigParam"
+  },
+  {
+    "file": "config/schemas.py",
+    "line": 14,
+    "type": "from-import",
+    "module": "core",
+    "statement": "from core import ConfigSchema"
+  },
+  {
+    "file": "config/schemas.py",
+    "line": 14,
+    "type": "from-import",
+    "module": "core",
+    "statement": "from core import ParamType"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 11,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_encoder_schema"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_bottleneck_schema"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_decoder_schema"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_architecture_schema"
+  },
+  {
+    "file": "config/validation.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_hybrid_schema"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 7,
+    "type": "from-import",
+    "module": "validation",
+    "statement": "from validation import validate_component_config"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 7,
+    "type": "from-import",
+    "module": "validation",
+    "statement": "from validation import validate_architecture_config"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 7,
+    "type": "from-import",
+    "module": "validation",
+    "statement": "from validation import normalize_config"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "core",
+    "statement": "from core import ConfigParam"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "core",
+    "statement": "from core import ConfigSchema"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "core",
+    "statement": "from core import ParamType"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 19,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_encoder_schema"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 19,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_bottleneck_schema"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 19,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_decoder_schema"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 19,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_architecture_schema"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 19,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import create_hybrid_schema"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 19,
+    "type": "from-import",
+    "module": "schemas",
+    "statement": "from schemas import COMPONENT_VALIDATORS"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 28,
+    "type": "from-import",
+    "module": "factory",
+    "statement": "from factory import parse_architecture_config"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 28,
+    "type": "from-import",
+    "module": "factory",
+    "statement": "from factory import create_model_from_config"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 28,
+    "type": "from-import",
+    "module": "factory",
+    "statement": "from factory import create_hybrid_model_from_config"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 28,
+    "type": "from-import",
+    "module": "factory",
+    "statement": "from factory import get_model_config_schema"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "instantiation",
+    "statement": "from instantiation import instantiate_encoder"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "instantiation",
+    "statement": "from instantiation import instantiate_bottleneck"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "instantiation",
+    "statement": "from instantiation import instantiate_decoder"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "instantiation",
+    "statement": "from instantiation import instantiate_hybrid_model"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "instantiation",
+    "statement": "from instantiation import instantiate_additional_component"
+  },
+  {
+    "file": "config/__init__.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "instantiation",
+    "statement": "from instantiation import InstantiationError"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 9,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 10,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 11,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Union"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 12,
+    "type": "import",
+    "module": "hydra.utils",
+    "statement": "import hydra.utils"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 13,
+    "type": "import",
+    "module": "sys",
+    "statement": "import sys"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 14,
+    "type": "from-import",
+    "module": "io",
+    "statement": "from io import StringIO"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 17,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import UNetBase"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 17,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import EncoderBase"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 17,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import BottleneckBase"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 17,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import DecoderBase"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 23,
+    "type": "from-import",
+    "module": "src.model.common.utils",
+    "statement": "from src.model.common.utils import count_parameters"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 23,
+    "type": "from-import",
+    "module": "src.model.common.utils",
+    "statement": "from src.model.common.utils import estimate_receptive_field"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 23,
+    "type": "from-import",
+    "module": "src.model.common.utils",
+    "statement": "from src.model.common.utils import estimate_memory_usage"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 23,
+    "type": "from-import",
+    "module": "src.model.common.utils",
+    "statement": "from src.model.common.utils import get_layer_hierarchy"
+  },
+  {
+    "file": "core/unet.py",
+    "line": 23,
+    "type": "from-import",
+    "module": "src.model.common.utils",
+    "statement": "from src.model.common.utils import render_unet_architecture_diagram"
+  },
+  {
+    "file": "core/__init__.py",
+    "line": 7,
+    "type": "from-import",
+    "module": "unet",
+    "statement": "from unet import BaseUNet"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 1,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 1,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 1,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 3,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 4,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 5,
+    "type": "import",
+    "module": "torch.nn.functional",
+    "statement": "import torch.nn.functional"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 6,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "src.model.components.cbam",
+    "statement": "from src.model.components.cbam import CBAM"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "src.model.factory.registry_setup",
+    "statement": "from src.model.factory.registry_setup import decoder_registry"
+  },
+  {
+    "file": "decoder/cnn_decoder.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import DecoderBase"
+  },
+  {
+    "file": "decoder/__init__.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.decoder.cnn_decoder",
+    "statement": "from src.model.decoder.cnn_decoder import CNNDecoder"
+  },
+  {
+    "file": "decoder/__init__.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.decoder.cnn_decoder",
+    "statement": "from src.model.decoder.cnn_decoder import DecoderBlock"
+  },
+  {
+    "file": "encoder/cnn_encoder.py",
+    "line": 1,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "encoder/cnn_encoder.py",
+    "line": 2,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "encoder/cnn_encoder.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "encoder/cnn_encoder.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "encoder/cnn_encoder.py",
+    "line": 4,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import EncoderBase"
+  },
+  {
+    "file": "encoder/cnn_encoder.py",
+    "line": 6,
+    "type": "from-import",
+    "module": "src.model.factory.registry_setup",
+    "statement": "from src.model.factory.registry_setup import encoder_registry"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 6,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 7,
+    "type": "import",
+    "module": "torch.nn.functional",
+    "statement": "import torch.nn.functional"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Union"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "src.model.base",
+    "statement": "from src.model.base import EncoderBase"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 10,
+    "type": "import",
+    "module": "timm",
+    "statement": "import timm"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 11,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "encoder/swin_transformer_encoder.py",
+    "line": 12,
+    "type": "import",
+    "module": "re",
+    "statement": "import re"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 2,
+    "type": "import",
+    "module": "torch",
+    "statement": "import torch"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Union"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 4,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 7,
+    "type": "from-import",
+    "module": "src.model.base",
+    "statement": "from src.model.base import EncoderBase"
+  },
+  {
+    "file": "encoder/swin_v2_adapter.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "src.model.encoder.swin_transformer_encoder",
+    "statement": "from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder"
+  },
+  {
+    "file": "encoder/__init__.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.encoder.cnn_encoder",
+    "statement": "from src.model.encoder.cnn_encoder import CNNEncoder"
+  },
+  {
+    "file": "encoder/__init__.py",
+    "line": 3,
+    "type": "from-import",
+    "module": "src.model.encoder.cnn_encoder",
+    "statement": "from src.model.encoder.cnn_encoder import EncoderBlock"
+  },
+  {
+    "file": "encoder/__init__.py",
+    "line": 4,
+    "type": "from-import",
+    "module": "src.model.encoder.swin_transformer_encoder",
+    "statement": "from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 9,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Type"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Union"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 12,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "omegaconf",
+    "statement": "from omegaconf import DictConfig"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 14,
+    "type": "import",
+    "module": "hydra.utils",
+    "statement": "import hydra.utils"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import EncoderBase"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import BottleneckBase"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import DecoderBase"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 16,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import UNetBase"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 22,
+    "type": "from-import",
+    "module": "factory_utils",
+    "statement": "from factory_utils import hydra_to_dict"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 22,
+    "type": "from-import",
+    "module": "factory_utils",
+    "statement": "from factory_utils import merge_configs"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 22,
+    "type": "from-import",
+    "module": "factory_utils",
+    "statement": "from factory_utils import log_component_creation"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 27,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import encoder_registry"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 27,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import bottleneck_registry"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 27,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import decoder_registry"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 285,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import architecture_registry"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 294,
+    "type": "import",
+    "module": "importlib",
+    "statement": "import importlib"
+  },
+  {
+    "file": "factory/config.py",
+    "line": 448,
+    "type": "import",
+    "module": "importlib",
+    "statement": "import importlib"
+  },
+  {
+    "file": "factory/config_schema.py",
+    "line": 32,
+    "type": "from-import",
+    "module": "dataclasses",
+    "statement": "from dataclasses import dataclass"
+  },
+  {
+    "file": "factory/config_schema.py",
+    "line": 32,
+    "type": "from-import",
+    "module": "dataclasses",
+    "statement": "from dataclasses import field"
+  },
+  {
+    "file": "factory/config_schema.py",
+    "line": 33,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "factory/config_schema.py",
+    "line": 33,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "factory/config_schema.py",
+    "line": 33,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "factory/config_schema.py",
+    "line": 33,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "factory/config_schema.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "omegaconf",
+    "statement": "from omegaconf import MISSING"
+  },
+  {
+    "file": "factory/config_schema.py",
+    "line": 35,
+    "type": "from-import",
+    "module": "omegaconf",
+    "statement": "from omegaconf import OmegaConf"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 9,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import TypeVar"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Type"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 12,
+    "type": "from-import",
+    "module": "omegaconf",
+    "statement": "from omegaconf import DictConfig"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 13,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import UNetBase"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import DecoderBase"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 17,
+    "type": "from-import",
+    "module": "config",
+    "statement": "from config import instantiate_encoder"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 17,
+    "type": "from-import",
+    "module": "config",
+    "statement": "from config import instantiate_bottleneck"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 17,
+    "type": "from-import",
+    "module": "config",
+    "statement": "from config import instantiate_decoder"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 24,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import component_registries"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 26,
+    "type": "from-import",
+    "module": "factory_utils",
+    "statement": "from factory_utils import ConfigurationError"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 26,
+    "type": "from-import",
+    "module": "factory_utils",
+    "statement": "from factory_utils import validate_config"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 26,
+    "type": "from-import",
+    "module": "factory_utils",
+    "statement": "from factory_utils import hydra_to_dict"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 26,
+    "type": "from-import",
+    "module": "factory_utils",
+    "statement": "from factory_utils import log_component_creation"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 26,
+    "type": "from-import",
+    "module": "factory_utils",
+    "statement": "from factory_utils import log_configuration_error"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 26,
+    "type": "from-import",
+    "module": "factory_utils",
+    "statement": "from factory_utils import extract_runtime_params"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 31,
+    "type": "from-import",
+    "module": "src.model.components.cbam",
+    "statement": "from src.model.components.cbam import CBAM"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 388,
+    "type": "from-import",
+    "module": "hydra.utils",
+    "statement": "from hydra.utils import get_class"
+  },
+  {
+    "file": "factory/factory.py",
+    "line": 416,
+    "type": "import",
+    "module": "hydra.utils",
+    "statement": "import hydra.utils"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 8,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Type"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import TypeVar"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Union"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 9,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Set"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "omegaconf",
+    "statement": "from omegaconf import DictConfig"
+  },
+  {
+    "file": "factory/factory_utils.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "omegaconf",
+    "statement": "from omegaconf import OmegaConf"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 13,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Tuple"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 14,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "dataclasses",
+    "statement": "from dataclasses import dataclass"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "dataclasses",
+    "statement": "from dataclasses import field"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 18,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import architecture_registry"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 49,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import get_registry"
+  },
+  {
+    "file": "factory/hybrid_registry.py",
+    "line": 180,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import UNetBase"
+  },
+  {
+    "file": "factory/registry.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "factory/registry.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "factory/registry.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Type"
+  },
+  {
+    "file": "factory/registry.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import TypeVar"
+  },
+  {
+    "file": "factory/registry.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Generic"
+  },
+  {
+    "file": "factory/registry.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Callable"
+  },
+  {
+    "file": "factory/registry.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Optional"
+  },
+  {
+    "file": "factory/registry.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Any"
+  },
+  {
+    "file": "factory/registry.py",
+    "line": 10,
+    "type": "import",
+    "module": "threading",
+    "statement": "import threading"
+  },
+  {
+    "file": "factory/registry_setup.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import List"
+  },
+  {
+    "file": "factory/registry_setup.py",
+    "line": 10,
+    "type": "from-import",
+    "module": "typing",
+    "statement": "from typing import Dict"
+  },
+  {
+    "file": "factory/registry_setup.py",
+    "line": 11,
+    "type": "import",
+    "module": "logging",
+    "statement": "import logging"
+  },
+  {
+    "file": "factory/registry_setup.py",
+    "line": 12,
+    "type": "import",
+    "module": "torch.nn",
+    "statement": "import torch.nn"
+  },
+  {
+    "file": "factory/registry_setup.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import EncoderBase"
+  },
+  {
+    "file": "factory/registry_setup.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import DecoderBase"
+  },
+  {
+    "file": "factory/registry_setup.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import BottleneckBase"
+  },
+  {
+    "file": "factory/registry_setup.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "src.model.base.abstract",
+    "statement": "from src.model.base.abstract import UNetBase"
+  },
+  {
+    "file": "factory/registry_setup.py",
+    "line": 21,
+    "type": "from-import",
+    "module": "registry",
+    "statement": "from registry import Registry"
+  },
+  {
+    "file": "factory/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "factory",
+    "statement": "from factory import create_unet"
+  },
+  {
+    "file": "factory/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "factory",
+    "statement": "from factory import validate_config"
+  },
+  {
+    "file": "factory/__init__.py",
+    "line": 8,
+    "type": "from-import",
+    "module": "factory",
+    "statement": "from factory import ConfigurationError"
+  },
+  {
+    "file": "factory/__init__.py",
+    "line": 14,
+    "type": "from-import",
+    "module": "registry",
+    "statement": "from registry import Registry"
+  },
+  {
+    "file": "factory/__init__.py",
+    "line": 15,
+    "type": "from-import",
+    "module": "registry_setup",
+    "statement": "from registry_setup import component_registries"
+  }
+]

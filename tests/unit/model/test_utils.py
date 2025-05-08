@@ -1,5 +1,5 @@
 import torch
-from src.model.utils import (
+from src.model.common.utils import (
     count_parameters,
     estimate_receptive_field,
     estimate_memory_usage,

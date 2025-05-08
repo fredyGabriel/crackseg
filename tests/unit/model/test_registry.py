@@ -3,8 +3,8 @@
 import pytest
 from typing import List
 
-from src.model.registry import Registry
-from src.model.base import EncoderBase, BottleneckBase, DecoderBase
+from src.model.factory.registry import Registry
+from src.model import EncoderBase, BottleneckBase, DecoderBase
 
 
 # --- Centralización de canales de skip para mocks ---

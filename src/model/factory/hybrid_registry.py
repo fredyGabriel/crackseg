@@ -14,9 +14,8 @@ from typing import Dict, List, Optional, Any, Tuple
 import logging
 from dataclasses import dataclass, field
 
-from src.model.registry_setup import (
-    architecture_registry,
-)
+# Actualizar importación para usar referencia relativa
+from .registry_setup import architecture_registry
 
 # Create logger
 log = logging.getLogger(__name__)
@@ -46,7 +45,8 @@ class ComponentReference:
         Returns:
             bool: True if valid, raises ValueError otherwise
         """
-        from src.model.registry_setup import get_registry
+        # Actualizar importación para usar referencia relativa
+        from .registry_setup import get_registry
 
         try:
             registry = get_registry(self.registry_type)
@@ -176,7 +176,8 @@ class HybridRegistry:
 
         # Create a dummy class for registration since architecture_registry
         # expects a class to register
-        from src.model.base import UNetBase
+        # Actualizar importación para reflejar la nueva estructura
+        from src.model.base.abstract import UNetBase
 
         class DummyArchitecture(UNetBase):
             """Dummy architecture class for registration purposes."""

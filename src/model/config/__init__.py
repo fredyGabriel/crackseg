@@ -25,10 +25,8 @@ from .schemas import (
     COMPONENT_VALIDATORS
 )
 
-from .factory import (
+from src.model.config.factory import (
     parse_architecture_config,
-    create_model_from_config,
-    create_hybrid_model_from_config,
     get_model_config_schema
 )
 

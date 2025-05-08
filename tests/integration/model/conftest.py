@@ -4,10 +4,10 @@ import pytest
 import torch
 
 # Import Base classes
-from src.model.base import EncoderBase, BottleneckBase, DecoderBase
+from src.model import EncoderBase, BottleneckBase, DecoderBase
 
 # Import Registries needed for fixture
-from src.model.registry_setup import (
+from src.model.factory.registry_setup import (
     encoder_registry, bottleneck_registry, decoder_registry
 )
 
@@ -83,10 +83,10 @@ class DummyIdentity(BottleneckBase):
 
 
 class TestDecoderImpl(DecoderBase):
-    def __init__(self, in_channels, skip_channels_list):
-        # Contract: skip_channels_list debe ser el reverse de
+    def __init__(self, in_channels, skip_channels):
+        # Contract: skip_channels debe ser el reverse de
         # MockEncoder.skip_channels, i.e., [32, 16] (low->high resolution)
-        super().__init__(in_channels, skip_channels_list)
+        super().__init__(in_channels, skip_channels)
         self._out_channels = 1
 
     def forward(self, x, skips):

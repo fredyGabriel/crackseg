@@ -5,19 +5,19 @@ import torch.nn as nn
 
 # Import the component to be tested
 from src.model.architectures.cnn_convlstm_unet import CNNEncoder
-from src.model.base import EncoderBase
+from src.model import EncoderBase
 
 # Import BottleneckBase and the new bottleneck implementation
-from src.model.base import BottleneckBase
+from src.model import BottleneckBase
 from src.model.architectures.cnn_convlstm_unet import ConvLSTMBottleneck
 
 # Import DecoderBase and the new decoder implementation
-from src.model.base import DecoderBase
+from src.model import DecoderBase
 from src.model.architectures.cnn_convlstm_unet import CNNDecoder
 
 # Import CNNConvLSTMUNet and the new UNetBase
 from src.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet
-from src.model.base import UNetBase
+from src.model import UNetBase
 
 log = logging.getLogger(__name__)
 

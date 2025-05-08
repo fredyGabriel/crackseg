@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Directory-specific README.md files with detailed documentation
 - Structured project layout with clear organization
 - Data directory structure for training, validation, and testing
-- Implemented Atrous Spatial Pyramid Pooling (ASPP) module as a modular bottleneck component (`src/model/components/aspp.py`), inheriting from `BottleneckBase`.
+- Implemented Atrous Spatial Pyramid Pooling (ASPP) module as a modular bottleneck component (`src/model/bottleneck/aspp.py`), inheriting from `BottleneckBase`.
 - Added support for configurable dilation rates, dropout, and output stride in ASPP.
 - Integrated ASPP into the UNet architecture with updated Hydra configuration files (`configs/model/bottleneck/aspp_bottleneck.yaml`, `configs/model/unet_aspp.yaml`).
 - Provided detailed documentation and usage recommendations in the configuration README.
