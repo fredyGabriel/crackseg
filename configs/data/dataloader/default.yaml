@@ -1,42 +1,41 @@
-# Configuración del DataLoader para el modelo de segmentación de grietas
+# DataLoader configuration for crack segmentation model
 
-# Parámetros básicos
-batch_size: 8
-num_workers: -1  # -1 = auto-detección basada en CPU
-shuffle: true
-pin_memory: true
-prefetch_factor: 2
-drop_last: false
+# Basic parameters
+batch_size: 4            # Number of samples per batch (reduce to save memory)
+num_workers: -1          # Number of worker processes (-1 = auto-detect based on CPU)
+shuffle: true            # Shuffle data at every epoch
+pin_memory: true         # Pin memory for faster GPU transfer
+prefetch_factor: 2       # Number of batches to prefetch per worker
+drop_last: false         # Drop last incomplete batch (if True)
 
-# Parámetros para entrenamiento distribuido
+# Distributed training parameters
 distributed:
-  enabled: false  # Activar para entrenamiento distribuido
-  rank: 0         # Rango del proceso actual
-  world_size: 1   # Número total de procesos
+  enabled: false         # Enable distributed training
+  rank: 0                # Rank of the current process
+  world_size: 1          # Total number of processes
   
-# Configuración del sampler
+# Sampler configuration
 sampler:
-  enabled: false  # Si es true, se activará el sampler configurado
-  kind: "random"  # Opciones: "random", "balanced", "subset", "distributed"
-  shuffle: true   # Si se deben mezclar los datos
-  seed: 42        # Semilla para reproducibilidad
-  # Parámetros adicionales según el tipo de sampler
-  # labels: null     # Para balanced sampler
-  # indices: null    # Para subset sampler
-  # num_samples: null # Opcional: número de muestras a tomar
-  # replacement: false # Si se permite reemplazo
-  # drop_last: false   # Si se descartan batches incompletos
+  enabled: false         # Enable custom sampler
+  kind: "random"         # Sampler type: "random", "balanced", "subset", "distributed"
+  shuffle: true          # Shuffle data in sampler
+  seed: 42               # Random seed for reproducibility
+  # Additional parameters depending on sampler type:
+  # labels: null         # For balanced sampler
+  # indices: null        # For subset sampler
+  # num_samples: null    # Number of samples to draw (optional)
+  # replacement: false   # Allow sampling with replacement
+  # drop_last: false     # Drop last incomplete batch
 
-# Optimización de memoria
+# Memory optimization
 memory:
-  fp16: false             # Usar precisión mixta (float16)
-  adaptive_batch_size: false  # Ajustar batch size según memoria disponible
-  max_memory_mb: null     # Límite de memoria a usar (MB), null = usar toda disponible 
+  fp16: false                # Use mixed precision (float16)
+  adaptive_batch_size: false # Adjust batch size based on available memory
+  max_memory_mb: null        # Memory limit in MB (null = use all available)
 
 # Sample limits for quick tests
-# - To limit the number of samples (e.g., for quick tests), set a positive integer here.
-# - To use the entire dataset, set to null, 0, or remove these lines.
-#   (null, 0, or removing = use the full dataset)
-max_train_samples: 8
-max_val_samples: 4
-max_test_samples: 4 
+# - To limit the number of samples (e.g., for quick tests), set a positive integer.
+# - To use the full dataset, set to null, 0, or remove these lines.
+max_train_samples: 8         # Limit number of training samples (null = use all)
+max_val_samples: 4           # Limit number of validation samples
+max_test_samples: 4          # Limit number of test samples 

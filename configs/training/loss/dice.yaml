@@ -1,4 +1,4 @@
 # config/training/loss/dice.yaml
-_target_: src.training.losses.DiceLoss
-smooth: 1.0
-sigmoid: True 
+_target_: src.training.losses.DiceLoss  # Dice loss class for segmentation
+smooth: 1.0        # Smoothing factor to avoid division by zero
+sigmoid: True      # Apply sigmoid activation before computing Dice loss 

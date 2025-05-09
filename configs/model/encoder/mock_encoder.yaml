@@ -1,6 +1,8 @@
 # @package _group_
 
 # Configuration for the mock encoder used in tests
-type: TestEncoder      # Registered name in encoder_registry
-in_channels: 3
+# Used for testing model assembly and integration
+
+type: TestEncoder      # Registered name in encoder_registry (mock/test encoder)
+in_channels: 3         # Number of input channels (e.g., 3 for RGB)
 # No _target_ needed as factory uses 'type' 

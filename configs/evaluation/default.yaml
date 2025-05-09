@@ -1,29 +1,29 @@
 # Default evaluation configuration
 # Edit these values for your evaluation process
 
-# Select metrics to compute by adding their configurations here.
-# These will be instantiated by the factory.
+# List of metrics to compute during evaluation.
+# Each metric is instantiated by the factory using its configuration.
 metrics:
   iou:
-    _target_: src.training.metrics.IoUScore
-    smooth: 1e-6
-    threshold: 0.5
+    _target_: src.training.metrics.IoUScore   # Computes Intersection over Union (IoU)
+    smooth: 1e-6                              # Smoothing factor to avoid division by zero
+    threshold: 0.5                            # Threshold for binarizing predictions
   f1:
-    _target_: src.training.metrics.F1Score
-    smooth: 1e-6
-    threshold: 0.5
+    _target_: src.training.metrics.F1Score    # Computes F1 score (Dice coefficient)
+    smooth: 1e-6                              # Smoothing factor
+    threshold: 0.5                            # Binarization threshold
   precision:
-    _target_: src.training.metrics.PrecisionScore
-    smooth: 1e-6
-    threshold: 0.5
+    _target_: src.training.metrics.PrecisionScore # Computes precision metric
+    smooth: 1e-6                              # Smoothing factor
+    threshold: 0.5                            # Binarization threshold
   recall:
-    _target_: src.training.metrics.RecallScore
-    smooth: 1e-6
-    threshold: 0.5
+    _target_: src.training.metrics.RecallScore    # Computes recall metric
+    smooth: 1e-6                              # Smoothing factor
+    threshold: 0.5                            # Binarization threshold
   # Example: Add metric with specific parameters
   # - _target_: src.training.metrics.F1Score
   #   smooth: 1e-7
   #   threshold: 0.6
 
-save_predictions: true
-save_dir: "eval_outputs/" 
+save_predictions: true         # Whether to save predicted masks during evaluation
+save_dir: "eval_outputs/"      # Directory to save evaluation outputs (predictions, metrics, etc.) 

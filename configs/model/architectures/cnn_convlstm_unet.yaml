@@ -1,42 +1,37 @@
 # Hydra configuration for the CNN-ConvLSTM U-Net model.
-# NO main _target_ here. Components instantiated individually.
+# No main _target_ here. Components are instantiated individually.
 
 defaults:
-  - /model/bottleneck/convlstm_bottleneck@bottleneck
+  - /model/bottleneck/convlstm_bottleneck@bottleneck  # Use ConvLSTM bottleneck config
   - _self_
 
 # --- Encoder Configuration ---
 encoder:
-  # Target the specific class directly
-  _target_: src.model.architectures.cnn_convlstm_unet.CNNEncoder
-  # type: CNNEncoderForConvLSTM # No longer needed
-  in_channels: 3 # Example: RGB input
-  base_filters: 64 # Example: Starting filters
-  depth: 5 # Example: Number of downsampling blocks
+  _target_: src.model.architectures.cnn_convlstm_unet.CNNEncoder  # Encoder class
+  in_channels: 3        # Number of input channels (e.g., RGB)
+  base_filters: 64      # Number of filters in the first conv layer
+  depth: 5              # Number of downsampling blocks
   # kernel_size, pool_size use defaults from CNNEncoder definition
 
-# --- Bottleneck Configuration --- Removed, loaded via defaults
+# --- Bottleneck Configuration ---
+# Loaded via defaults above (see /model/bottleneck/convlstm_bottleneck)
 
 # --- Decoder Configuration ---
 decoder:
-  # Target the specific class directly
-  _target_: src.model.architectures.cnn_convlstm_unet.CNNDecoder
-  # type: CNNDecoderForConvLSTM # No longer needed
-  # in_channels determined by create_unet
-  # skip_channels_list determined by create_unet
-  out_channels: 1 # Example: Binary segmentation output
-  # depth determined by create_unet (matches encoder)
-  kernel_size: 3
-  upsample_mode: 'bilinear'
+  _target_: src.model.architectures.cnn_convlstm_unet.CNNDecoder  # Decoder class
+  # in_channels and skip_channels_list are set by create_unet
+  out_channels: 1        # Number of output classes (e.g., binary segmentation)
+  # depth is set by create_unet (should match encoder)
+  kernel_size: 3         # Convolution kernel size in decoder
+  upsample_mode: 'bilinear'  # Upsampling mode
 
 # --- Optional Final Activation ---
 # final_activation:
-#   _target_: torch.nn.Sigmoid
+#   _target_: torch.nn.Sigmoid  # Use sigmoid for binary segmentation
 
-# Note:
+# Notes:
 # - UNetBase validation handles channel/depth/skip matching.
-# - Bottleneck config is now selected via the 'defaults' list.
+# - Bottleneck config is selected via the 'defaults' list.
 # - Setting ??? for in_channels/skip_channels_list highlights dependencies.
-# - A more robust setup might involve a wrapper config object or having
-#   create_unet handle the channel matching based on instantiated components.
-# - This basic config demonstrates the structure targeting the factory. 
+# - A more robust setup might use a wrapper config or let create_unet handle channel matching.
+# - This config demonstrates the structure for the factory. 

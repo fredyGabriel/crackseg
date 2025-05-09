@@ -1,7 +1,7 @@
-# Configuraciones de Datos
+# Data Configurations
 
-Este directorio contiene archivos de configuración para los componentes relacionados con datos:
+This directory contains configuration files for data-related components:
 
-- `default.yaml`: Configuración general de datos (rutas, splits, tamaños de batch, etc.)
-- `transform.yaml`: Configuración de transformaciones y aumentaciones
-- `dataloader.yaml`: Configuración del DataLoader (batch size, sampler, optimizaciones de memoria, etc.) 
+- `default.yaml`: General data configuration (paths, splits, batch sizes, etc.)
+- `augmentations.yaml`: Data augmentation and transformation configuration
+- `dataloader/default.yaml`: DataLoader configuration (batch size, sampler, memory optimizations, etc.) 

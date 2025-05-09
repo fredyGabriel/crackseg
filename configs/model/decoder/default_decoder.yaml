@@ -1,9 +1,9 @@
 # @package _group_
 
 # Default decoder configuration - using mock for now
-_target_: src.model.factory.create_decoder
+_target_: src.model.factory.create_decoder  # Use the factory function for decoder
 
-type: TestDecoder
-in_channels: 128       # Should match default bottleneck output
-skip_channels: [16, 32]  # Should match default encoder skips
-out_channels: 1 
+type: TestDecoder        # Mock/test decoder type (replace with real for production)
+in_channels: 128         # Number of input channels (should match default bottleneck output)
+skip_channels: [16, 32]  # Skip connection channels (should match default encoder skips)
+out_channels: 1          # Number of output channels (e.g., 1 for binary segmentation) 

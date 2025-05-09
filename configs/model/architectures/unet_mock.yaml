@@ -3,38 +3,36 @@
 # Configuration for a UNet using mock components for testing
 
 # Inherit base structure and override components
-ddefaults:
+defaults:
   - model: default  # Inherit base UNet schema (_target_, type, final_activation)
   - _self_
 
 # Override component sections with mock configurations
 model:
-  # Use the actual BaseUNet implementation as the target
-  _target_: src.model.core.unet.BaseUNet
-  # type: BaseUNet  # Type is less relevant if using _target_ directly
+  _target_: src.model.core.unet.BaseUNet   # Main UNet implementation
 
   encoder:
     in_channels: 3
-    _target_: tests.integration.model.conftest.MockEncoder
+    _target_: tests.integration.model.conftest.MockEncoder  # Mock encoder for testing
 
   bottleneck:
-    in_channels: 64  # Matches MockEncoder output
-    _target_: tests.integration.model.conftest.MockBottleneck
+    in_channels: 64  # Must match MockEncoder output channels
+    _target_: tests.integration.model.conftest.MockBottleneck  # Mock bottleneck
 
   decoder:
-    in_channels: 128  # Matches MockBottleneck output
-    # El decoder espera los skips en orden low->high res: [32, 16]
-    # Esto debe ser el reverse de MockEncoder.skip_channels ([16, 32])
+    in_channels: 128  # Must match MockBottleneck output channels
+    # Decoder expects skips in low->high resolution order: [32, 16]
+    # This should be the reverse of MockEncoder.skip_channels ([16, 32])
     skip_channels_list: [32, 16]
-    _target_: tests.integration.model.conftest.TestDecoderImpl
+    _target_: tests.integration.model.conftest.TestDecoderImpl  # Mock decoder
 
   # Optional: Override final activation
   final_activation:
-    _target_: torch.nn.Sigmoid
+    _target_: torch.nn.Sigmoid  # Use sigmoid as final activation
 
 # Specific UNet configuration (can override defaults if needed)
 # type: TestUNet  # Optional: If TestUNet was registered in unet_registry
 
 # Example override: Add final activation
 final_activation:
-  _target_: torch.nn.Sigmoid 
+  _target_: torch.nn.Sigmoid  # Use sigmoid as final activation 

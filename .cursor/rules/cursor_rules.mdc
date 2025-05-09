@@ -3,7 +3,6 @@ description: Guidelines for creating and maintaining Cursor rules to ensure cons
 globs: .cursor/rules/*.mdc
 alwaysApply: true
 ---
-
 - **Required Rule Structure:**
   ```markdown
   ---
@@ -50,4 +49,24 @@ alwaysApply: true
   - Keep descriptions concise
   - Include both DO and DON'T examples
   - Reference actual code over theoretical examples
-  - Use consistent formatting across rules 
+  - Use consistent formatting across rules
+
+---
+description: Enforce that all Git commit messages must be written in English
+globs: ../../*.*, ../../**/*
+alwaysApply: true
+---
+
+- **Commit messages must always be written in clear, correct English**
+  - This applies to all commits, including documentation, code, configuration, and rule updates.
+  - The subject and body of the commit message must be in English, regardless of the language used in code comments or documentation.
+  - Example:
+    ```bash
+    git commit -m "fix(model): Correct off-by-one error in encoder output\n\n- Adjusted index calculation in forward method\n- Added test for edge case"
+    ```
+  - ❌ DON'T:
+    ```bash
+    git commit -m "arreglo bug en el encoder"
+    ```
+  - If a non-English message is required for legal or compliance reasons, add an English translation in the body.
+  - This rule ensures consistency and accessibility for all contributors and reviewers. 

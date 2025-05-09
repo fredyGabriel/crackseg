@@ -1,71 +1,54 @@
 # @package _group_
 
 # Swin Transformer V2 Encoder Configuration
-# This encoder uses the Swin Transformer V2 architecture from timm and adapts it
+# Uses the Swin Transformer V2 architecture from timm and adapts it
 # for use as an encoder in segmentation models like U-Net.
-_target_: src.model.factory.create_encoder
 
-# Specify the encoder type (must match the registered name)
-type: SwinTransformerEncoder
+_target_: src.model.factory.create_encoder  # Factory function for encoder
+
+type: SwinTransformerEncoder  # Registered name for this encoder
 
 # === Basic Parameters ===
-# Number of input channels (e.g., 3 for RGB, 1 for grayscale)
-in_channels: 3
+in_channels: 3  # Number of input channels (e.g., 3 for RGB, 1 for grayscale)
 
 # === Swin Transformer V2 Model Options ===
-# Model name from timm library. Available options include:
-# - swinv2_tiny_window16_256: Smallest model, good for starting (8.8M parameters)
-# - swinv2_small_window16_256: Medium size model (24.9M parameters)
-# - swinv2_base_window16_256: Larger model (87.9M parameters)
-# - swinv2_tiny_window8_256: Small model with smaller window size
-# - swinv2_tiny_window16_384: Small model for 384×384 inputs
+# Model name from timm library. Options include:
+# - swinv2_tiny_window16_256: Smallest model (8.8M params)
+# - swinv2_small_window16_256: Medium (24.9M params)
+# - swinv2_base_window16_256: Large (87.9M params)
+# - swinv2_tiny_window8_256: Small, smaller window
+# - swinv2_tiny_window16_384: Small, for 384×384 inputs
 model_name: "swinv2_tiny_window16_256"
-
-# Whether to use pretrained weights from ImageNet
-pretrained: true
+pretrained: true  # Use pretrained weights from ImageNet
 
 # Feature extraction options
 output_hidden_states: true  # Return hidden states from all layers
 features_only: true         # Return feature maps instead of classification output
-out_indices: [0, 1, 2, 3]   # Feature indices to extract (0=highest resolution, 3=lowest)
+out_indices: [0, 1, 2, 3]   # Feature indices to extract (0=highest res, 3=lowest)
 
 # === Input Processing Options ===
-# Default input size expected by the model
-# Should match the size in the model_name (e.g., 256 for swinv2_tiny_window16_256)
-img_size: 256
-
-# Patch size for embedding layer
-# This is typically 4 for Swin Transformer V2 models
-patch_size: 4
-
-# How to handle inputs with sizes different from img_size:
+img_size: 256      # Default input size expected by the model
+patch_size: 4      # Patch size for embedding layer (typically 4)
+handle_input_size: "resize"  # How to handle inputs with sizes different from img_size
 # - "resize": Resize input to img_size (best for pretrained models)
 # - "pad": Pad input to make divisible by patch_size (preserves aspect ratio)
 # - "none": No special handling (may error if sizes are incompatible)
-handle_input_size: "resize"
 
 # === Output Processing Options ===
-# Whether to use absolute positional embeddings
-# Default: true for better performance with pretrained models
-use_abs_pos_embed: true
-
-# Whether to apply layer normalization to output features
-# Default: true for more stable training
-output_norm: true
+use_abs_pos_embed: true  # Use absolute positional embeddings (default: true)
+output_norm: true        # Apply layer normalization to output features (default: true)
 
 # === Transfer Learning Options ===
-# Control which parts of the model are frozen during training:
+freeze_layers: false  # Control which parts of the model are frozen during training
 # - false: No freezing (default for full training)
 # - true: Freeze all but the last block (common for transfer learning)
 # - "all": Freeze the entire encoder (feature extraction only)
 # - "patch_embed": Freeze only the patch embedding
 # - "stages.0,stages.1": Freeze specific stages (comma-separated)
-freeze_layers: false
 
 # Differential learning rates for fine-tuning
 # Maps layer name patterns to learning rate scaling factors.
 # Allows training different parts of the model with different learning rates.
-# Example: Using discriminative learning rates with lower LRs for early layers
 finetune_lr_scale:
   patch_embed: 0.1  # Early layers: 10% of base LR
   stages.0: 0.2     # First stage: 20% of base LR

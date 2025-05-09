@@ -1,34 +1,32 @@
 # @package model
 
-# Base UNet configuration schema
+# Base UNet configuration schema for segmentation model
 
-_target_: src.model.core.unet.BaseUNet
+_target_: src.model.core.unet.BaseUNet   # Main UNet class to instantiate
 
 # --- Component Configurations ---
-# These sections define the expected structure for each component.
-# Using the correct class names as sugeridos por los mensajes de error
+# Each section defines the configuration for a model component
 
 encoder:
-  # Use the correct encoder class name
-  _target_: src.model.encoder.CNNEncoder
-  in_channels: 3
+  _target_: src.model.encoder.CNNEncoder   # Encoder class
+  in_channels: 3                          # Number of input channels (e.g., RGB)
+  init_features: 32                       # Initial number of features (reduces memory)
+  depth: 4                                # Number of encoder blocks (e.g., 32, 64, 128, 256)
 
 bottleneck:
-  # Use the correct bottleneck class name
-  _target_: src.model.bottleneck.BottleneckBlock
-  in_channels: 512 # Ajustar según el encoder
-  out_channels: 1024 # Ajustar según la arquitectura
+  _target_: src.model.bottleneck.BottleneckBlock  # Bottleneck class
+  in_channels: 256                        # Must match encoder output: init_features * 2^(depth-1)
+  out_channels: 512                       # Output channels (reduced for memory, 2:1 ratio)
 
 decoder:
-  # Use the correct decoder class name
-  _target_: src.model.decoder.CNNDecoder
-  in_channels: 1024 # Debe coincidir con out_channels del bottleneck
-  skip_channels_list: [512, 256, 128, 64] # Orden invertido respecto al encoder
-  out_channels: 1 # Número de clases de salida
-  depth: 4 # Profundidad del decoder, igual que encoder
+  _target_: src.model.decoder.CNNDecoder  # Decoder class
+  in_channels: 512                        # Must match bottleneck out_channels
+  skip_channels_list: [256, 128, 64, 32]  # Skip connection channels (reverse encoder order)
+  out_channels: 1                         # Number of output classes
+  depth: 4                                # Decoder depth (should match encoder)
 
 # --- Optional Final Activation ---
-final_activation: null
+final_activation: null                    # Optional final activation (e.g., Sigmoid)
 # Example:
 # final_activation:
 #   _target_: torch.nn.Sigmoid 

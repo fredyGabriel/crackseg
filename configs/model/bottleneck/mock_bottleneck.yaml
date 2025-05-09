@@ -1,6 +1,8 @@
 # @package _group_
 
 # Configuration for the mock bottleneck used in tests
-type: TestBottleneck  # Registered name in bottleneck_registry
-in_channels: 64      # Must match output of mock encoder
+# Used for testing model assembly and integration
+
+type: TestBottleneck  # Registered name in bottleneck_registry (mock/test bottleneck)
+in_channels: 64       # Number of input channels (must match output of mock encoder)
 # No _target_ needed as factory uses 'type' 

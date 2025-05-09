@@ -1,5 +1,5 @@
 # config/training/loss/focal.yaml
-_target_: src.training.losses.FocalLoss
-alpha: 0.25
-gamma: 2.0
-sigmoid: True 
+_target_: src.training.losses.FocalLoss  # Focal loss class for imbalanced data
+alpha: 0.25      # Weighting factor for the rare class
+gamma: 2.0       # Focusing parameter for hard-to-classify examples
+sigmoid: True    # Apply sigmoid activation before computing Focal loss 

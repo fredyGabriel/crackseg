@@ -1,7 +1,7 @@
 # Base configuration for shared parameters
 # Edit values as needed for your project
- 
-project_name: crackseg
-random_seed: 42
-output_dir: outputs/
-log_level: INFO 
+
+project_name: crackseg      # Name of the project
+random_seed: 42             # Global random seed for reproducibility
+output_dir: outputs/        # Default directory for all outputs
+log_level: INFO             # Default logging level (INFO, DEBUG, etc.) 

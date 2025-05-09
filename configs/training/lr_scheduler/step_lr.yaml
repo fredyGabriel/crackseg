@@ -1,4 +1,4 @@
 # StepLR scheduler config
-_target_: torch.optim.lr_scheduler.StepLR
-step_size: 10
-gamma: 0.5 
+_target_: torch.optim.lr_scheduler.StepLR  # StepLR scheduler class
+step_size: 10      # Number of epochs between learning rate decays
+gamma: 0.5         # Multiplicative factor of learning rate decay 

@@ -1,4 +1,4 @@
 # CosineAnnealingLR scheduler config
-_target_: torch.optim.lr_scheduler.CosineAnnealingLR
-T_max: 50
-eta_min: 0.0 
+_target_: torch.optim.lr_scheduler.CosineAnnealingLR  # Cosine annealing scheduler class
+T_max: 50      # Maximum number of iterations (epochs) for annealing
+eta_min: 0.0   # Minimum learning rate after annealing 

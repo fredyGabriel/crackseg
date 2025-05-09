@@ -59,7 +59,13 @@ class DecoderBlock(DecoderBase):
         self.up_conv = nn.Conv2d(
             in_channels, self._out_channels, kernel_size=1
         )
+        # Calculamos los canales esperados después de la concatenación
         concat_channels = self._out_channels + skip_channels
+
+        # El adaptador para manejar discrepancias en la concatenación será
+        # inicializado si es necesario
+        self.concat_adapter = None
+
         if use_cbam:
             self.cbam = CBAM(in_channels=concat_channels)
         else:
@@ -109,13 +115,36 @@ class DecoderBlock(DecoderBase):
             logger.error(f"torch.cat failed! x shape: {x.shape}, "
                          f"skip shape: {skip.shape}. Error: {e}")
             raise e
+
         x = self.cbam(x)
+
+        # Comprobamos si los canales de entrada coinciden con los esperados
+        # por la convolución
+        expected_channels = self.conv1.in_channels
+        actual_channels = x.size(1)
+
+        if actual_channels != expected_channels:
+            # Si no coinciden, creamos un adaptador de canales
+            # en tiempo de ejecución
+            if self.concat_adapter is None:
+                logger.warning(
+                    f"Channel mismatch: Creating adapter from "
+                    f"{actual_channels} to {expected_channels}"
+                )
+                self.concat_adapter = nn.Conv2d(
+                    actual_channels, expected_channels, kernel_size=1
+                ).to(x.device)
+                # Inicialización para preservar identidad lo mejor posible
+                nn.init.kaiming_normal_(self.concat_adapter.weight)
+                nn.init.zeros_(self.concat_adapter.bias)
+            x = self.concat_adapter(x)
+
         try:
             x = self.conv1(x)
         except RuntimeError as e:
             logger.error(f"self.conv1 failed! Input shape: {x.shape}, "
-                         "expected channels: {self.conv1.in_channels}. "
-                         "Error: {e}")
+                         f"expected channels: {self.conv1.in_channels}. "
+                         f"Error: {e}")
             raise e
         x = self.bn1(x)
         x = self.relu1(x)

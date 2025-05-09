@@ -1,7 +1,7 @@
 # @package _group_
 
 # Default bottleneck configuration - using mock for now
-_target_: src.model.factory.create_bottleneck
+_target_: src.model.factory.create_bottleneck  # Factory function for bottleneck
 
-type: TestBottleneck
-in_channels: 64  # Should match default encoder output 
+type: TestBottleneck      # Mock/test bottleneck type (replace with real for production)
+in_channels: 64           # Number of input channels (should match default encoder output) 

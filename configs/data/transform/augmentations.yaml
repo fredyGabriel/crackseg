@@ -1,60 +1,62 @@
 # Albumentations transforms defined as lists per split
+# Each section (train, val, test) defines a sequence of image transformations
+# applied to the dataset split. Order matters. See https://albumentations.ai/docs/ for details.
 
 train:
-  - name: Resize
+  - name: Resize           # Resize image to fixed size (height x width)
     params:
-      height: 512
-      width: 512
-  - name: HorizontalFlip
+      height: 256         # Target image height in pixels
+      width: 256          # Target image width in pixels
+  - name: HorizontalFlip  # Randomly flip image horizontally
     params:
-      p: 0.5
-  - name: VerticalFlip
+      p: 0.5              # Probability of applying the flip
+  - name: VerticalFlip    # Randomly flip image vertically
     params:
-      p: 0.5
-  - name: Rotate
+      p: 0.5              # Probability of applying the flip
+  - name: Rotate          # Randomly rotate image within a limit
     params:
-      limit: 90
-      p: 0.5
-  - name: ColorJitter
+      limit: 90           # Maximum rotation angle (degrees)
+      p: 0.5              # Probability of applying the rotation
+  - name: ColorJitter     # Randomly change brightness, contrast, etc.
     params:
-      brightness: 0.2
-      contrast: 0.2
-      saturation: 0.2
-      hue: 0.1
-      p: 0.3
+      brightness: 0.2     # Brightness adjustment factor
+      contrast: 0.2       # Contrast adjustment factor
+      saturation: 0.2     # Saturation adjustment factor
+      hue: 0.1            # Hue adjustment factor
+      p: 0.3              # Probability of applying color jitter
   # RandomCrop might conflict with Resize, review if needed
-  # - name: RandomCrop 
+  # - name: RandomCrop    # Randomly crop a region from the image
   #   params:
-  #     height: 480
-  #     width: 480
-  #     p: 0.5
-  - name: Normalize
+  #     height: 480       # Crop height
+  #     width: 480        # Crop width
+  #     p: 0.5            # Probability of applying the crop
+  - name: Normalize       # Normalize image using mean and std
     params:
-      mean: [0.485, 0.456, 0.406]
-      std: [0.229, 0.224, 0.225]
-  - name: ToTensorV2 # No params needed
-    params: {}
+      mean: [0.485, 0.456, 0.406] # Mean for each channel (RGB)
+      std: [0.229, 0.224, 0.225]  # Std for each channel (RGB)
+  - name: ToTensorV2      # Convert image and mask to PyTorch tensors
+    params: {}            # No parameters needed
 
 val:
-  - name: Resize
+  - name: Resize           # Resize image to fixed size (height x width)
     params:
-      height: 512
-      width: 512
-  - name: Normalize
+      height: 256         # Target image height in pixels
+      width: 256          # Target image width in pixels
+  - name: Normalize       # Normalize image using mean and std
     params:
-      mean: [0.485, 0.456, 0.406]
-      std: [0.229, 0.224, 0.225]
-  - name: ToTensorV2
-    params: {}
+      mean: [0.485, 0.456, 0.406] # Mean for each channel (RGB)
+      std: [0.229, 0.224, 0.225]  # Std for each channel (RGB)
+  - name: ToTensorV2      # Convert image and mask to PyTorch tensors
+    params: {}            # No parameters needed
 
 test:
-  - name: Resize
+  - name: Resize           # Resize image to fixed size (height x width)
     params:
-      height: 512
-      width: 512
-  - name: Normalize
+      height: 256         # Target image height in pixels
+      width: 256          # Target image width in pixels
+  - name: Normalize       # Normalize image using mean and std
     params:
-      mean: [0.485, 0.456, 0.406]
-      std: [0.229, 0.224, 0.225]
-  - name: ToTensorV2
-    params: {} 
+      mean: [0.485, 0.456, 0.406] # Mean for each channel (RGB)
+      std: [0.229, 0.224, 0.225]  # Std for each channel (RGB)
+  - name: ToTensorV2      # Convert image and mask to PyTorch tensors
+    params: {}            # No parameters needed 

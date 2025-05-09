@@ -1,7 +1,7 @@
 # @package _group_
 
 # Default encoder configuration - using mock for now
-_target_: src.model.factory.create_encoder  # Use the factory function
+_target_: src.model.factory.create_encoder  # Use the factory function for encoder
 
-type: TestEncoder
-in_channels: 3 
+type: TestEncoder      # Mock/test encoder type (replace with real for production)
+in_channels: 3         # Number of input channels (e.g., 3 for RGB) 

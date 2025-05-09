@@ -1,15 +1,15 @@
 # config/training/loss/combined.yaml
 # Example Combined Loss: Focal + Dice
-_target_: src.training.losses.CombinedLoss
+_target_: src.training.losses.CombinedLoss  # Combined loss class (multiple losses)
 losses:
   - config:
-      _target_: src.training.losses.FocalLoss
-      alpha: 0.5 # Example different alpha
-      gamma: 2.0
+      _target_: src.training.losses.FocalLoss  # Focal loss component
+      alpha: 0.5   # Weighting factor for rare class
+      gamma: 2.0   # Focusing parameter
       sigmoid: True
-    weight: 0.6
+    weight: 0.6    # Weight for Focal loss in total loss
   - config:
-      _target_: src.training.losses.DiceLoss
+      _target_: src.training.losses.DiceLoss   # Dice loss component
       smooth: 1.0
-      sigmoid: True # Note: Sigmoid might be applied twice if not handled in CombinedLoss
-    weight: 0.4 
+      sigmoid: True  # Note: Sigmoid might be applied twice if not handled in CombinedLoss
+    weight: 0.4    # Weight for Dice loss in total loss 

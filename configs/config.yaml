@@ -1,51 +1,54 @@
 # Main Hydra configuration for experiment runner
+# This file sets up the default configuration structure for the project.
 
+# List of default configuration files to load for each component
+# The order matters. _self_ ensures this file is loaded last.
 defaults:
-  - base
-  - data: default
-  - data/transform: augmentations
-  - data/dataloader: default
-  - model: default
-  - training: default
-  - evaluation: default
+  - base                  # Base global settings
+  - data: default         # General data config
+  - data/transform: augmentations  # Data augmentations
+  - data/dataloader: default       # DataLoader config
+  - model: default        # Model config
+  - training: default     # Training config
+  - evaluation: default   # Evaluation config
   - _self_
 
 # General configuration
-random_seed: 42
-require_cuda: true
-log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-log_to_file: true
+random_seed: 42           # Global random seed for reproducibility
+require_cuda: true        # Require CUDA (GPU) for training/evaluation
+log_level: "INFO"         # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
+log_to_file: true         # Save logs to file in addition to console
 
 # Experiment configuration
 experiment:
-  name: "crackseg"
-  output_dir: "outputs"
+  name: "crackseg"        # Name of the experiment
+  output_dir: "outputs"   # Directory for all experiment outputs
 
 # Configure Hydra to use the same directory structure as ExperimentManager
 hydra:
   run:
-    dir: outputs/experiments/${now:%Y%m%d-%H%M%S}-${hydra.job.name}
+    dir: outputs/experiments/${now:%Y%m%d-%H%M%S}-${hydra.job.name}  # Output dir for single runs
   sweep:
-    dir: outputs/multirun/${now:%Y%m%d-%H%M%S}
-    subdir: ${hydra.job.num}
+    dir: outputs/multirun/${now:%Y%m%d-%H%M%S}                      # Output dir for sweeps
+    subdir: ${hydra.job.num}                                        # Subdir for each sweep job
   job:
-    # Don't change the working directory
-    chdir: false
+    chdir: false            # Do not change working directory
 
 # Pre-declare model node to allow command-line overrides
 model: {}
 
-# Data configuration
+# Data configuration (legacy, for backward compatibility)
 data:
-  root_dir: "data"
-  train_dir: "${data.root_dir}/train"
-  val_dir: "${data.root_dir}/val"
-  test_dir: "${data.root_dir}/test"
-  batch_size: 16
-  num_workers: 4
-  pin_memory: true
+  root_dir: "data"         # Root directory for all data
+  train_dir: "${data.root_dir}/train"  # Training data directory
+  val_dir: "${data.root_dir}/val"      # Validation data directory
+  test_dir: "${data.root_dir}/test"    # Test data directory
+  batch_size: 16            # Batch size (legacy, overridden by dataloader config)
+  num_workers: 4            # Number of workers (legacy)
+  pin_memory: true          # Pin memory for DataLoader (legacy)
 
 # Model configuration - This entire section will be loaded via defaults
+# (see model/default.yaml and model subfolders for details)
 # model:
 #   name: "unet"
 #   encoder:
@@ -59,6 +62,7 @@ data:
 #     use_attention: true
 
 # Training configuration - This entire section will be loaded via defaults
+# (see training/default.yaml and training subfolders for details)
 # training:
 #   num_epochs: 100
 #   optimizer:
@@ -86,6 +90,7 @@ data:
 #       monitor_mode: "max"  # or "min" for losses
 
 # Evaluation configuration - This entire section will be loaded via defaults
+# (see evaluation/default.yaml for details)
 # evaluation:
 #   metrics:
 #     iou: {}

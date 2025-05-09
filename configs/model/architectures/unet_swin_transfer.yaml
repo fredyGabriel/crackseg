@@ -1,60 +1,49 @@
 # @package _group_
 
 # U-Net architecture with Swin Transformer V2 Encoder optimized for transfer learning
-# This configuration uses techniques like layer freezing and discriminative learning rates
-# to efficiently fine-tune a pre-trained Swin Transformer model for segmentation tasks
+# Uses layer freezing and discriminative learning rates to efficiently fine-tune
+# a pre-trained Swin Transformer model for segmentation tasks
 
-_target_: src.model.unet.BaseUNet
+_target_: src.model.unet.BaseUNet  # Main UNet class to instantiate
 type: BaseUNet
 
 # --- Component Configurations ---
 encoder:
-  # Use the factory function to create the encoder
-  _target_: src.model.factory.create_encoder
-  # Specify the SwinTransformerEncoder
-  type: "SwinTransformerEncoder"
-  # Basic parameters
-  in_channels: 3
-  # Use a smaller Swin Transformer V2 model - good balance of performance and speed
-  model_name: "swinv2_tiny_window16_256"
-  pretrained: true
-  # Default to using img_size matching the model name
-  img_size: 256
-  patch_size: 4
-  # Resize input images by default for compatibility with pretrained model
-  handle_input_size: "resize"
-  # Feature extraction setup
-  output_hidden_states: true
-  features_only: true
-  out_indices: [0, 1, 2, 3]
+  _target_: src.model.factory.create_encoder  # Factory function for encoder
+  type: "SwinTransformerEncoder"             # Use Swin Transformer as encoder
+  in_channels: 3                             # Number of input channels (e.g., RGB)
+  model_name: "swinv2_tiny_window16_256"     # SwinV2 model variant (good balance of performance/speed)
+  pretrained: true                           # Use ImageNet pretrained weights
+  img_size: 256                              # Input image size for SwinV2
+  patch_size: 4                              # Patch size for Swin Transformer
+  handle_input_size: "resize"                # Resize input images for compatibility
+  output_hidden_states: true                  # Output all hidden states
+  features_only: true                        # Only output feature maps
+  out_indices: [0, 1, 2, 3]                  # Indices of feature maps to use as skips
   # Transfer learning configuration
-  # Freeze early layers (patch embed and first stage) - most general features
-  freeze_layers: "patch_embed,stages.0"
-  # Use discriminative learning rates - lower rates for earlier layers
+  freeze_layers: "patch_embed,stages.0"      # Freeze early layers (most general features)
   finetune_lr_scale:
-    patch_embed: 0.1  # Frozen, but kept here if gradual unfreezing is applied
-    stages.0: 0.1     # Frozen, but kept here if gradual unfreezing is applied
+    patch_embed: 0.1  # Frozen, but kept for gradual unfreezing
+    stages.0: 0.1     # Frozen, but kept for gradual unfreezing
     stages.1: 0.2     # Earlier layers learn slowly (20% of base LR)
     stages.2: 0.5     # Middle layers learn moderately (50% of base LR)
     stages.3: 1.0     # Final layers learn at full rate (100% of base LR)
 
 bottleneck:
-  # Use the factory function to create the bottleneck
-  _target_: src.model.factory.create_bottleneck
-  type: "CNNBottleneckBlock"
-  # For swinv2_tiny_window16_256, the bottleneck receives features with 768 channels
+  _target_: src.model.factory.create_bottleneck  # Factory function for bottleneck
+  type: "CNNBottleneckBlock"                    # Use CNN bottleneck
+  # For swinv2_tiny_window16_256, bottleneck receives 768 channels
   in_channels: 768
   out_channels: 1024
 
 decoder:
-  # Use the factory function to create the decoder
-  _target_: src.model.factory.create_decoder
-  type: "CNNDecoder"
-  in_channels: 1024  # Match bottleneck output channels
-  # Skip connection channels for swinv2_tiny_window16_256 (in reverse order) 
+  _target_: src.model.factory.create_decoder     # Factory function for decoder
+  type: "CNNDecoder"                           # Use CNN decoder
+  in_channels: 1024                             # Match bottleneck output channels
+  # Skip connection channels for swinv2_tiny_window16_256 (reverse order)
   skip_channels_list: [384, 192, 96]
-  out_channels: 1  # Binary segmentation by default
-  depth: 3  # Swin model has 3 skip connections for decoder
+  out_channels: 1                               # Binary segmentation by default
+  depth: 3                                      # Swin model has 3 skip connections
 
 # Optional sigmoid activation for binary segmentation
 final_activation:
@@ -62,12 +51,11 @@ final_activation:
 
 training:
   optimizer:
-    _target_: torch.optim.AdamW  # AdamW works better with Transformers
-    lr: 0.0002  # Moderate learning rate for transfer learning
-    weight_decay: 0.01  # Higher weight decay for regularization
-  
+    _target_: torch.optim.AdamW                 # AdamW optimizer for Transformers
+    lr: 0.0002                                  # Moderate learning rate for transfer learning
+    weight_decay: 0.01                          # Higher weight decay for regularization
   # Learning rate scheduler for better convergence
   lr_scheduler:
     _target_: torch.optim.lr_scheduler.CosineAnnealingLR
-    T_max: 100  # Number of epochs or iterations
-    eta_min: 0.00001  # Minimum learning rate 
+    T_max: 100                                  # Number of epochs or iterations
+    eta_min: 0.00001                            # Minimum learning rate 

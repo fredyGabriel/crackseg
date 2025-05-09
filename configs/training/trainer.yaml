@@ -1,12 +1,12 @@
 # configs/training/trainer.yaml
 
 defaults:
-  # - lr_scheduler: step_lr  # Cambia a cosine o reduce_on_plateau según necesidad
+  # - lr_scheduler: step_lr  # Change to cosine or reduce_on_plateau as needed
   - _self_
 
 # Default configuration for the Trainer class
 
-_target_: src.training.trainer.Trainer # Target class for instantiation
+_target_: src.training.trainer.Trainer  # Target Trainer class for instantiation
 
 # Basic Training Parameters
 # epochs: 10
@@ -14,43 +14,43 @@ _target_: src.training.trainer.Trainer # Target class for instantiation
 # but can be referenced here if needed.
 
 # Device settings
-device: "auto" # Options: "auto", "cpu", "cuda", "cuda:0", etc.
+device: "auto"  # Options: "auto", "cpu", "cuda", "cuda:0", etc.
 
 # Optimizer settings (Example - define actual optimizer in separate config)
 optimizer:
-  _target_: torch.optim.Adam
-  lr: 0.001
+  _target_: torch.optim.Adam  # Optimizer class
+  lr: 0.001                  # Learning rate
 
 # Learning Rate Scheduler settings (Optional - define in separate config)
-lr_scheduler: ${lr_scheduler}
+lr_scheduler: ${lr_scheduler}  # Reference to scheduler config
 
 # Mixed Precision Training (AMP)
-use_amp: true # Enable/disable Automatic Mixed Precision
+use_amp: true  # Enable/disable Automatic Mixed Precision
 
 # Gradient Accumulation
-gradient_accumulation_steps: 1 # Number of steps to accumulate gradients over (1 = disabled)
+gradient_accumulation_steps: 1  # Number of steps to accumulate gradients (1 = disabled)
 
 # Checkpoint settings
-checkpoint_dir: "outputs/checkpoints"
+checkpoint_dir: "outputs/checkpoints"  # Directory to save checkpoints
 save_freq: 0  # How often to save intermediate checkpoints (epochs), 0 = disable
 
 # Save best model configuration
 save_best:
   enabled: true
   monitor_metric: "val_loss"  # Metric to monitor (must match key in validation results)
-  monitor_mode: "min"  # 'min' for minimizing (e.g. loss), 'max' for maximizing (e.g. accuracy)
+  monitor_mode: "min"         # 'min' for minimizing (e.g. loss), 'max' for maximizing (e.g. accuracy)
   best_filename: "model_best.pth.tar"
 
 # Early Stopping settings
 early_stopping:
-  _target_: src.utils.early_stopping.EarlyStopping
-  monitor: "val_loss"
-  patience: 2
-  mode: "min"
-  min_delta: 0.001
-  verbose: true
+  _target_: src.utils.early_stopping.EarlyStopping  # EarlyStopping class
+  monitor: "val_loss"      # Metric to monitor for early stopping
+  patience: 2              # Number of epochs with no improvement to wait
+  mode: "min"              # 'min' for loss, 'max' for accuracy/metric
+  min_delta: 0.001         # Minimum change to qualify as improvement
+  verbose: true            # Print early stopping messages
 
 # Verbosity / Progress reporting
 verbose: true
 progress_bar: true
-log_interval_batches: 50 # Log training batch loss every N batches (0 to disable)
+log_interval_batches: 50  # Log training batch loss every N batches (0 to disable)

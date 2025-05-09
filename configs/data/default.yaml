@@ -1,12 +1,12 @@
 # Default data configuration
 # Edit these values for your dataset
 
-data_root: data/
-train_split: 0.7
-val_split: 0.15
-test_split: 0.15
-image_size: [512, 512]
-batch_size: 8
-num_workers: 4
-seed: ${random_seed}  # Use global random seed from base.yaml
-in_memory_cache: false 
+data_root: data/           # Root directory for all dataset files
+train_split: 0.7           # Fraction of data used for training
+val_split: 0.15            # Fraction of data used for validation
+test_split: 0.15           # Fraction of data used for testing
+image_size: [512, 512]     # Target image size as [height, width]
+batch_size: 8              # Number of samples per batch
+num_workers: 4             # Number of worker processes for data loading
+seed: ${random_seed}       # Random seed for reproducibility (from base.yaml)
+in_memory_cache: false     # Whether to cache data in memory (improves speed, uses more RAM) 

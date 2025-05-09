@@ -3,41 +3,39 @@ defaults:
   - bottleneck: aspp_bottleneck  # Select ASPP as the bottleneck (see configs/model/bottleneck/aspp_bottleneck.yaml)
 
 # Target the main UNet assembly class
-_target_: src.model.unet.BaseUNet
+_target_: src.model.unet.BaseUNet  # Main UNet class to instantiate
 
 # --- Component Configurations ---
 
 encoder:
-  in_channels: 3    # Example: For RGB input
+  in_channels: 3    # Number of input channels (e.g., RGB)
   init_features: 64 # Number of features after the first conv layer
   depth: 4          # Number of downsampling blocks
-  _target_: src.model.encoder.cnn_encoder.CNNEncoder
+  _target_: src.model.encoder.cnn_encoder.CNNEncoder  # Encoder class
 
 bottleneck:
-  in_channels: 512
-  out_channels: 1024 # Example: Double channels in bottleneck
-  dropout: 0.5
-  _target_: src.model.bottleneck.cnn_bottleneck.BottleneckBlock
+  in_channels: 512                # Must match encoder output channels
+  out_channels: 1024              # Number of output channels in bottleneck
+  dropout: 0.5                    # Dropout rate in bottleneck
+  _target_: src.model.bottleneck.cnn_bottleneck.BottleneckBlock  # Bottleneck class
 
 decoder:
-  in_channels: 1024
-  # Este skip_channels_list debe coincidir con el INVERSO de encoder.skip_channels
-  # para cumplir el contrato UNet. El encoder produce skips de alta a baja resolución 
-  # [64, 128, 256, 512], mientras que el decoder los procesa de baja a alta resolución
-  # [512, 256, 128, 64].
-  skip_channels_list: [512, 256, 128, 64]
-  out_channels: 1
-  depth: 4 # Must match encoder depth
-  _target_: src.model.decoder.cnn_decoder.CNNDecoder
+  in_channels: 1024               # Must match bottleneck out_channels
+  # skip_channels_list must match the REVERSE of encoder.skip_channels
+  # to fulfill the UNet contract. Encoder produces skips from high to low resolution
+  # [64, 128, 256, 512], decoder processes from low to high [512, 256, 128, 64].
+  skip_channels_list: [512, 256, 128, 64]  # Skip connection channels (reverse order)
+  out_channels: 1                 # Number of output classes
+  depth: 4                        # Must match encoder depth
+  _target_: src.model.decoder.cnn_decoder.CNNDecoder  # Decoder class
 
   # --- Optional CBAM Attention Block ---
-  # Enable CBAM attention in each decoder block (default: false)
-  cbam_enabled: false  # Set to true to enable CBAM in decoder blocks
+  cbam_enabled: false             # Enable CBAM attention in decoder blocks (default: false)
   cbam_params:
-    reduction: 16      # Reduction ratio for channel attention (default: 16)
-    kernel_size: 7     # Kernel size for spatial attention (default: 7)
+    reduction: 16                 # Reduction ratio for channel attention (default: 16)
+    kernel_size: 7                # Kernel size for spatial attention (default: 7)
 
 # --- Optional Final Activation ---
 # final_activation:
-#   _target_: torch.nn.Sigmoid
+#   _target_: torch.nn.Sigmoid    # Use sigmoid for binary segmentation
 #   # Add any necessary parameters for the activation function here 

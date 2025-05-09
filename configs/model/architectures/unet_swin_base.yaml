@@ -1,55 +1,44 @@
 # @package _group_
 
 # U-Net architecture with Swin Transformer V2 Base Encoder
-# This model uses a larger Swin Transformer V2 Base as encoder for higher capacity
+# Uses a larger Swin Transformer V2 Base as encoder for higher capacity
 # and potentially better performance at the cost of more parameters and memory usage
 
-_target_: src.model.unet.BaseUNet
+_target_: src.model.unet.BaseUNet  # Main UNet class to instantiate
 type: BaseUNet
 
 # --- Component Configurations ---
 encoder:
-  # Use the factory function to create the encoder
-  _target_: src.model.factory.create_encoder
-  # Specify the SwinTransformerEncoder
-  type: "SwinTransformerEncoder"
-  # Basic parameters
-  in_channels: 3
-  # Use a larger Swin Transformer V2 model
-  model_name: "swinv2_base_window16_256"
-  pretrained: true
-  # Default to using img_size matching the model name
-  img_size: 256
-  patch_size: 4
-  # Resize input images by default for compatibility
-  handle_input_size: "resize"
-  # Feature extraction setup
-  output_hidden_states: true
-  features_only: true
-  out_indices: [0, 1, 2, 3]
-  # Output processing
-  output_norm: true
+  _target_: src.model.factory.create_encoder  # Factory function for encoder
+  type: "SwinTransformerEncoder"             # Use Swin Transformer as encoder
+  in_channels: 3                             # Number of input channels (e.g., RGB)
+  model_name: "swinv2_base_window16_256"     # SwinV2 Base model variant
+  pretrained: true                           # Use ImageNet pretrained weights
+  img_size: 256                              # Input image size for SwinV2
+  patch_size: 4                              # Patch size for Swin Transformer
+  handle_input_size: "resize"                # Resize input images for compatibility
+  output_hidden_states: true                  # Output all hidden states
+  features_only: true                        # Only output feature maps
+  out_indices: [0, 1, 2, 3]                  # Indices of feature maps to use as skips
+  output_norm: true                          # Apply normalization to output features
 
 bottleneck:
-  # Use the factory function to create the bottleneck
-  _target_: src.model.factory.create_bottleneck
-  type: "CNNBottleneckBlock"
-  # Use appropriate channel sizes for Swin Base model
-  # For swinv2_base_window16_256, the feature channels are [128, 256, 512, 1024]
-  # The bottleneck receives the last feature map with 1024 channels
+  _target_: src.model.factory.create_bottleneck  # Factory function for bottleneck
+  type: "CNNBottleneckBlock"                    # Use CNN bottleneck
+  # For swinv2_base_window16_256, feature channels are [128, 256, 512, 1024]
+  # Bottleneck receives last feature map (1024 channels)
   in_channels: 1024
   out_channels: 1536  # Increased for the larger model
 
 decoder:
-  # Use the factory function to create the decoder
-  _target_: src.model.factory.create_decoder
-  type: "CNNDecoder"
-  in_channels: 1536  # Match bottleneck output channels
-  # Skip connection channels for swinv2_base_window16_256 (in reverse order)
-  # [512, 256, 128] - these channels come from the encoder's skip_channels
+  _target_: src.model.factory.create_decoder     # Factory function for decoder
+  type: "CNNDecoder"                           # Use CNN decoder
+  in_channels: 1536                             # Match bottleneck output channels
+  # Skip connection channels for swinv2_base_window16_256 (reverse order)
+  # [512, 256, 128] from encoder's skip_channels
   skip_channels_list: [512, 256, 128]
-  out_channels: 1  # Binary segmentation by default
-  depth: 3  # Swin model has 3 skip connections for decoder
+  out_channels: 1                               # Binary segmentation by default
+  depth: 3                                      # Swin model has 3 skip connections
 
 # Optional sigmoid activation for binary segmentation
 final_activation:
@@ -57,6 +46,6 @@ final_activation:
 
 training:
   optimizer:
-    _target_: torch.optim.AdamW  # AdamW works better with Transformers
-    lr: 0.00005  # Even lower learning rate for larger model
-    weight_decay: 0.01  # Higher weight decay for regularization 
+    _target_: torch.optim.AdamW                 # AdamW optimizer for Transformers
+    lr: 0.00005                                 # Even lower learning rate for larger model
+    weight_decay: 0.01                          # Higher weight decay for regularization 
