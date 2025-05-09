@@ -1,4 +1,5 @@
 # Default data configuration
+# NOTE: 'batch_size' and 'num_workers' are the single source of truth for all modules (including DataLoader). Edit them here to affect all data loading behavior.
 # Edit these values for your dataset
 
 data_root: data/           # Root directory for all dataset files
@@ -7,6 +8,6 @@ val_split: 0.15            # Fraction of data used for validation
 test_split: 0.15           # Fraction of data used for testing
 image_size: [512, 512]     # Target image size as [height, width]
 batch_size: 8              # Number of samples per batch
-num_workers: 4             # Number of worker processes for data loading
+num_workers: -1            # Number of worker processes for data loading (-1 = autodetect based on CPU)
 seed: ${random_seed}       # Random seed for reproducibility (from base.yaml)
 in_memory_cache: false     # Whether to cache data in memory (improves speed, uses more RAM) 

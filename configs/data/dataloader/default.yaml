@@ -1,8 +1,9 @@
 # DataLoader configuration for crack segmentation model
+# NOTE: 'batch_size' and 'num_workers' are inherited from data/default.yaml. Edit them there to change globally.
 
-# Basic parameters
-batch_size: 4            # Number of samples per batch (reduce to save memory)
-num_workers: -1          # Number of worker processes (-1 = auto-detect based on CPU)
+# Basic parameters (inherited from data/default.yaml)
+batch_size: ${data.batch_size}      # Number of samples per batch (from data/default.yaml)
+num_workers: ${data.num_workers}    # Number of worker processes (from data/default.yaml)
 shuffle: true            # Shuffle data at every epoch
 pin_memory: true         # Pin memory for faster GPU transfer
 prefetch_factor: 2       # Number of batches to prefetch per worker
