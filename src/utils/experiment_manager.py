@@ -126,9 +126,11 @@ class ExperimentManager:
         # Add configuration if available
         if self.config is not None:
             if isinstance(self.config, DictConfig):
-                info["config"] = OmegaConf.to_container(self.config)
+                config_dict = OmegaConf.to_container(self.config, resolve=True)
+                info["config"] = str(config_dict)
             else:
-                info["config"] = self.config
+                if self.config is not None:
+                    info["config"] = str(self.config)
 
         # Save as JSON
         with open(self.experiment_dir / "experiment_info.json", "w") as f:
@@ -265,9 +267,11 @@ class ExperimentManager:
         info["updated_at"] = datetime.now().isoformat()
 
         if metadata:
-            if "metadata" not in info:
-                info["metadata"] = {}
-            info["metadata"].update(metadata)
+            meta = info.get("metadata")
+            if not isinstance(meta, dict):
+                meta = {}
+            meta.update(metadata)
+            info["metadata"] = json.dumps(meta)
 
         # Save updated info
         with open(info_path, "w") as f:

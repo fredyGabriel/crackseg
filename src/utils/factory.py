@@ -67,34 +67,16 @@ def get_optimizer(
                     details="Supported names: adam, sgd, adamw, rmsprop"
                 )
 
-        elif hasattr(optimizer_cfg, '_target_'):
-            # Handle case with _target_ attribute (DictConfig)
-            optimizer_class = import_class(optimizer_cfg._target_)
+        elif (
+            isinstance(optimizer_cfg, (DictConfig, dict))
+            and "_target_" in optimizer_cfg
+        ):
+            optimizer_class = import_class(optimizer_cfg["_target_"])
             optimizer_params = {
-                k: v for k, v in optimizer_cfg.items()
-                if k != '_target_'
+                str(k): v for k, v in optimizer_cfg.items()
+                if k != "_target_"
             }
             return optimizer_class(model_params, **optimizer_params)
-
-        elif isinstance(optimizer_cfg, dict):
-            # Handle plain dictionary case
-            if 'type' in optimizer_cfg:
-                optimizer_type = optimizer_cfg.pop('type').lower()
-
-                if optimizer_type == 'adam':
-                    return torch.optim.Adam(model_params, **optimizer_cfg)
-                elif optimizer_type == 'sgd':
-                    return torch.optim.SGD(model_params, **optimizer_cfg)
-                elif optimizer_type == 'adamw':
-                    return torch.optim.AdamW(model_params, **optimizer_cfg)
-                elif optimizer_type == 'rmsprop':
-                    return torch.optim.RMSprop(model_params, **optimizer_cfg)
-                else:
-                    raise ConfigError(f"Unsupported optimizer type: \
-{optimizer_type}")
-            else:
-                raise ConfigError("Dictionary optimizer config must contain \
-'type' key")
 
         else:
             raise ConfigError(
@@ -121,40 +103,38 @@ def get_loss_fn(loss_cfg: DictConfig) -> Callable:
 
         # --- Special Handling ---
         if loss_class is CombinedLoss:
-            # Access directly assuming key exists based on _target_
             inner_loss_configs = loss_cfg.losses
-            weights = loss_cfg.get("weights")  # Optional, use .get
-            # Check type after access - handle ListConfig
-            if not isinstance(inner_loss_configs, (list, ListConfig)
-                              ) or not inner_loss_configs:
-                raise ConfigError("CombinedLoss requires a non-empty list or \
-ListConfig under 'losses'.")
+            weights = loss_cfg.get("weights")
+            if not isinstance(inner_loss_configs, (list, ListConfig)) or not \
+                    inner_loss_configs:
+                raise ConfigError(
+                    "CombinedLoss requires a non-empty list or ListConfig "
+                    "under 'losses'."
+                )
 
             inner_losses = []
             for item in inner_loss_configs:
-                # Ensure item is a DictConfig and has a 'config' key
                 if not isinstance(item, DictConfig) or "config" not in item:
-                    raise ConfigError("Each item in CombinedLoss losses needs \
-a 'config' sub-dict.")
-                inner_losses.append(get_loss_fn(item.config))  # Recursive call
+                    raise ConfigError(
+                        "Each item in CombinedLoss losses needs a "
+                        "'config' sub-dict."
+                    )
+                inner_losses.append(get_loss_fn(item.config))
 
             combined_params = {}
             if weights is not None:
                 combined_params["weights"] = weights
-            # Pass only expected args to CombinedLoss
             return CombinedLoss(losses=inner_losses, **combined_params)
 
         elif loss_class is BCEDiceLoss:
-            # BCEDiceLoss internally creates CombinedLoss, pass simple
-            # weights/params
-            params = {k: v for k, v in loss_cfg.items() if k != '_target_'}
-            # Assumes BCEDiceLoss takes bce_weight, dice_weight etc.
+            params = {str(k): v for k, v in loss_cfg.items()
+                      if k != '_target_'}
             return BCEDiceLoss(**params)
 
         # --- Default Handling ---
         else:
-            # Standard instantiation for simple losses like BCE, Dice, Focal
-            params = {k: v for k, v in loss_cfg.items() if k != '_target_'}
+            params = {str(k): v for k, v in loss_cfg.items()
+                      if k != '_target_'}
             return loss_class(**params)
 
     except ConfigError as e:

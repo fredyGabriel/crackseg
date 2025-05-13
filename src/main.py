@@ -104,6 +104,9 @@ def main(cfg: DictConfig) -> None:
             else:
                 print("  max_train_samples no encontrado en la configuración")
 
+            if not isinstance(dataloader_cfg, DictConfig):
+                dataloader_cfg = OmegaConf.create(dataloader_cfg)
+
             dataloaders_dict = create_dataloaders_from_config(
                 data_config=data_cfg,
                 transform_config=transform_cfg,
@@ -217,7 +220,6 @@ def main(cfg: DictConfig) -> None:
                 checkpoint_data = load_checkpoint(
                     model=model,
                     optimizer=optimizer,
-                    scheduler=scheduler,
                     checkpoint_path=resume_path,
                     device=device
                 )

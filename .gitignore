@@ -56,3 +56,4 @@ hydra/
 
 # Directories to ignore
 outputs/
+old*/

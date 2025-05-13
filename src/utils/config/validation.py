@@ -1,9 +1,7 @@
 """Configuration validation utilities."""
 
 from pathlib import Path
-
 from omegaconf import DictConfig
-
 from src.utils.exceptions import ConfigError, ValidationError
 
 

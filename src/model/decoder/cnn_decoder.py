@@ -136,7 +136,8 @@ class DecoderBlock(DecoderBase):
                 ).to(x.device)
                 # Inicialización para preservar identidad lo mejor posible
                 nn.init.kaiming_normal_(self.concat_adapter.weight)
-                nn.init.zeros_(self.concat_adapter.bias)
+                if self.concat_adapter.bias is not None:
+                    nn.init.zeros_(self.concat_adapter.bias)
             x = self.concat_adapter(x)
 
         try:

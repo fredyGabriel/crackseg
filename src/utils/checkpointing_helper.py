@@ -75,9 +75,9 @@ def handle_epoch_checkpointing(
         )
 
     # Save best checkpoint if improved
-    if is_improvement:
+    if is_improvement and current_metric is not None:
         old_best = best_metric_value
-        best_metric_value = current_metric
+        best_metric_value = float(current_metric)
         save_checkpoint(
             epoch=epoch,
             model=model,

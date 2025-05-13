@@ -2,15 +2,13 @@
 from typing import Optional
 import torch
 from torch.cuda.amp import GradScaler
+from torch import autocast
 
 
 def amp_autocast(enabled: bool):
     """Context manager for autocast, enabled only if specified."""
-    # Use torch.amp.autocast for both CUDA and CPU (PyTorch >=1.10)
-    if torch.cuda.is_available():
-        return torch.amp.autocast("cuda", enabled=enabled)
-    else:
-        return torch.amp.autocast("cpu", enabled=enabled)
+    device_type = "cuda" if torch.cuda.is_available() else "cpu"
+    return autocast(device_type=device_type, enabled=enabled)
 
 
 def optimizer_step_with_accumulation(

@@ -93,9 +93,12 @@ class ExperimentLogger(BaseLogger):
             self.log_config(config)
             self.logger.info("Experiment configuration:")
             # Print flattened config for readability
-            flat_config = flatten_dict(
-                OmegaConf.to_container(config, resolve=True)
-            )
+            container = OmegaConf.to_container(config, resolve=True)
+            if not isinstance(container, dict):
+                container = {}
+            # Convertir claves a str para cumplir con Dict[str, Any]
+            container_str_keys = {str(k): v for k, v in container.items()}
+            flat_config = flatten_dict(container_str_keys)
             for key, value in flat_config.items():
                 self.logger.info(f"  {key}: {value}")
 
@@ -233,7 +236,9 @@ class ExperimentLogger(BaseLogger):
             handler.close()
             self.logger.removeHandler(handler)
 
-    def log_error(self, exception: Exception, context: str = None) -> None:
+    def log_error(
+        self, exception: Exception, context: Optional[str] = None
+    ) -> None:
         """Log an error that occurred during the experiment.
 
         Args:

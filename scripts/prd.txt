@@ -1,83 +1,162 @@
-<context>
 # Overview
-This document describes the plan to verify and consolidate the reorganization of the `src/model` module and adapt the rest of the project (tests, scripts, configurations, and documentation) to the new modular structure. The goal is to ensure consistency, maintainability, and compatibility throughout the codebase after the migration.
+This Product Requirements Document (PRD) outlines the plan to elevate the `crackseg` project to a professional standard. The project currently faces challenges including technical warnings (channel mismatches in the U-Net decoder), a potentially inconsistent test suite, unverified/obsolete utility scripts, and documentation that may not fully reflect the current state or best practices.
 
-# Core Features
-- **Verification of the src/model reorganization**
-  - Confirm that all files and submodules are correctly located and that there are no duplicates or remnants of the previous structure.
-  - Validate that internal imports in `src/model` use the new paths.
-  - Check that the `__init__.py` file correctly re-exports the main classes and functions to maintain compatibility.
-- **Global project adaptation**
-  - Update all unit and integration tests to use the new import paths and file names.
-  - Adapt scripts, notebooks, and utilities that depend on `src/model`.
-  - Review and update Hydra/YAML configurations and any references to old paths.
-  - Update technical and user documentation to reflect the new structure.
+This initiative will address these issues by systematically refactoring critical code sections, establishing a comprehensive and high-quality test suite, performing a thorough codebase cleanup, and ensuring all project documentation is accurate and complete.
 
-# User Experience
-- **For developers:**
-  - Clear and consistent imports from `src.model` and submodules.
-  - Tests that reflect the real architecture of the code and are easy to maintain.
-  - Documentation aligned with the actual project structure.
-- **For end users:**
-  - No changes are expected in the public API, but greater robustness and ease of extension are expected.
+This initiative is for current and future developers of the `crackseg` project. The primary value is to deliver a codebase that is significantly more robust, reliable, maintainable, easier to understand, and simpler to extend for future research and development.
 
-# Migration Notes and File Renaming
-- **Key file renaming and relocation changes:**
-  - `base.py` → `base/abstract.py` (abstract base classes: EncoderBase, BottleneckBase, DecoderBase, UNetBase)
-  - `unet.py` → `core/unet.py` (main implementation of BaseUNet)
-  - `utils.py` → `common/utils.py` (shared utilities)
-  - `factory.py`, `registry.py`, `registry_setup.py`, `hybrid_registry.py`, `config.py`, `config_schema.py`, `factory_utils.py` → now in `factory/` (organized by responsibility)
-  - Duplicate files in the root of `src/model` were deleted after moving them to their new locations.
-  - The `__init__.py` file in `src/model` was updated to re-export the main classes and functions from their new locations, maintaining backward compatibility.
-  - Internal and external imports must be updated to reflect the new structure (e.g., `from src.model.base import EncoderBase` → `from src.model.base.abstract import EncoderBase`).
-  - Paths in Hydra/YAML configurations and scripts must use the new locations (e.g., `_target_: src.model.core.unet.BaseUNet`).
-  - Documentation (`README.md` and docstrings) was updated to reflect the modular structure.
-  - It is recommended to review any reference to old paths throughout the project.
+The successful completion of the tasks outlined in this PRD will result in a highly professional, robust, and well-documented codebase. This stabilized foundation is a critical prerequisite for subsequent phases of the `crackseg` project, which will focus on advanced architectural exploration and the pursuit of state-of-the-art (SOTA) performance as detailed in `general-context.mdc`.
 
-<PRD>
-# Technical Architecture
-- **src/model**: Modularized into subfolders (`base/`, `core/`, `factory/`, `common/`, etc.)
-- **Tests**: Must import from the new paths (`src.model.base.abstract`, `src.model.core.unet`, etc.)
-- **Scripts and utilities**: Must update their imports and access paths to models/components.
-- **Configurations**: YAML/Hydra must point to the new class and function paths.
-- **Documentation**: Must reflect the current structure and paths.
+# Core Features (Key Improvement Areas)
 
-# Development Roadmap
-- **Phase 1: Verification of src/model**
-  - Audit the structure and remove obsolete or duplicate files.
-  - Validate internal imports and `__init__.py`.
-  - Test importing the main components from the project root.
-- **Phase 2: Test adaptation**
-  - Sweep all tests to identify old imports.
-  - Update imports and fixtures/mocks according to the new structure.
-  - Run and fix the test suite until it passes completely.
-- **Phase 3: Adaptation of scripts, notebooks, and utilities**
-  - Search and update imports in training, inference scripts, notebooks, and utilities.
-  - Validate that the main scripts work correctly.
-- **Phase 4: Update configurations and documentation**
-  - Review and update YAML/Hydra files.
-  - Update README, docstrings, and any relevant documentation.
-- **Phase 5: Final validation**
-  - Run end-to-end tests.
-  - Validate compatibility and the absence of obsolete paths.
+1.  **Resolution of U-Net Decoder Channel Warnings:**
+    *   **What it does:** Eliminates runtime `Channel mismatch` warnings in `DecoderBlock` and `CNNDecoder` by ensuring correct channel alignment during model initialization. This involves refactoring the decoder to statically calculate and set correct channel dimensions, removing the need for dynamic 1x1 convolutional adapters.
+    *   **Why it's important:** Improves model performance, predictability, and interpretability. Reduces unnecessary computational overhead and potential for subtle bugs introduced by dynamic adapters.
+    *   **How it works at a high level:** **Perform** detailed unit testing of `DecoderBlock` and `CNNDecoder` to pinpoint channel flow issues. **Refactor** initialization logic within these modules to ensure output channels from one stage correctly match input channels for the next, and skip connection channels are properly integrated.
+
+2.  **Comprehensive and High-Quality Test Suite:**
+    *   **What it does:** Establishes a robust suite of unit and integration tests covering all critical components of the `crackseg` project (model, data handling, training, evaluation, utilities). This includes evaluating, refactoring, or rewriting existing tests and developing new ones.
+    *   **Why it's important:** Ensures functional correctness, prevents regressions during future development, facilitates safer refactoring, and serves as a form of executable documentation.
+    *   **How it works at a high level:**
+        *   **Evaluate** existing tests for relevance, correctness, and coverage.
+        *   **Develop** targeted tests for the U-Net decoder to guide refactoring (bottom-up).
+        *   **Develop/Enhance** integration tests for the full model pipeline.
+        *   **Systematically expand** test coverage to other modules (`data`, `training`, `evaluation`, `utils`).
+        *   **Ensure** all tests adhere to project coding standards (e.g., clarity, conciseness, use of `pytest` features).
+        *   **Continuously maintain**, update, or remove tests to accurately reflect changes in the codebase, ensuring they remain relevant and reliable.
+
+3.  **Extensible and Robust Loss Function System:**
+    *   **What it does:** Refactors and extends the loss function system to support easy registration of new loss functions and robust construction of arbitrarily nested combined losses. Implements a loss registry pattern and recursive factory logic, enabling future research and experimentation with advanced or custom loss combinations.
+    *   **Why it's important:** Ensures the training pipeline is highly modular, maintainable, and ready for future expansion. Facilitates rapid prototyping of new loss functions and combinations without requiring changes to core training code, supporting both research and production needs.
+    *   **How it works at a high level:**
+        *   **Implement** a registry (dictionary or decorator-based) for loss classes, allowing dynamic registration and instantiation.
+        *   Refactor the loss factory to support recursive construction of combined losses from configuration (YAML/DictConfig).
+        *   Update documentation and provide YAML examples for new and combined losses.
+        *   Add unit tests for registry, factory, and combined loss logic to ensure reliability and extensibility.
+
+4.  **Codebase Optimization, Cleanup, and Adherence to Core Coding Principles:**
+    *   **What it does:** Identifies and removes "dead code," obsolete scripts (primarily within the `scripts/` directory), and any other non-essential files. Ensures that all refactored and newly developed code rigorously adheres to fundamental software engineering principles including DRY (Don't Repeat Yourself), SRP (Single Responsibility Principle), and modular design, as outlined in `coding-preferences.mdc` and other relevant project rules.
+    *   **Why it's important:** Reduces project clutter, improves clarity, navigability, maintainability, and extensibility of the codebase. Minimizes potential confusion, reduces the likelihood of errors, makes the system easier to scale and modify, *and critically, facilitates future experimentation with diverse architectural components as envisioned in the project's SOTA objectives.*
+    *   **How it works at a high level:**
+        *   **Conduct** a systematic review of the `scripts/` directory and other potential areas. Each script's purpose and necessity will be evaluated. Obsolete or redundant scripts will be identified for removal after discussion and confirmation, ensuring any valuable logic is migrated or otherwise preserved if needed.
+        *   **Actively review** code for adherence to DRY, SRP, and modularity during all refactoring and development phases (especially concerning the model, data handling, and training logic).
+        *   **Target** existing code violating these principles for refactoring where feasible and impactful, particularly if it contributes to complexity or warnings.
+        *   **Design** new code with these principles in mind from the outset, following the detailed guidelines in `coding-preferences.mdc`.
+        *   **Cross-reference** script functionality with existing tests and core code to prevent accidental loss of valuable logic during cleanup.
+
+5.  **Complete and Updated Project Documentation:**
+    *   **What it does:** Thoroughly revises and updates all user-facing and developer-facing documentation. This includes the main `README.md`, `WORKFLOW_TRAINING.md`, any READMEs in subdirectories (e.g., `configs/`, `tests/`), code comments, and docstrings.
+    *   **Why it's important:** Ensures that documentation is accurate, clear, comprehensive, and helpful for understanding, using, and contributing to the project. All documentation and code comments will be standardized to English.
+    *   **How it works at a high level:**
+        *   **Review** all existing documentation (READMEs, `WORKFLOW_TRAINING.md`, etc.) against the current codebase. **Rewrite** sections for clarity, accuracy, and completeness.
+        *   **Standardize** all documentation and code comments to English.
+        *   **Ensure** consistent formatting and **create** missing documentation for key areas.
+        *   **Ensure** docstrings and comments conform to project guidelines (including brevity, focus, and genuine usefulness as per `coding-preferences.mdc`).
+
+# User Experience (Developer Experience & Maintainability Focus)
+
+*   **Reduced Cognitive Load:** A cleaner, well-tested, well-documented, and principled codebase will be easier for developers to understand and work with.
+*   **Increased Development Velocity & Confidence:** A robust test suite and adherence to SRP/DRY allow developers to make changes and refactor with greater confidence.
+*   **Improved Onboarding:** Clear documentation and a well-structured, modular project will make it easier for new contributors.
+*   **Simplified Debugging:** Well-defined components with single responsibilities and comprehensive tests will aid in quicker bug resolution.
+*   **Enhanced Collaboration:** Standardized practices, clear documentation, and modular design foster better teamwork.
+
+# Technical Architecture (Focus: Verification, Refinement, and Testing Strategy)
+
+*   **U-Net Decoder Refinement:**
+    *   The core architectural change involves modifying the `src.model.decoder.cnn_decoder.DecoderBlock` and `src.model.decoder.cnn_decoder.CNNDecoder`.
+    *   The goal is to ensure that the number of output channels from an upsampling stage and the corresponding skip connection, when concatenated, precisely match the expected input channels of the subsequent convolutional layers *at initialization time*.
+    *   This will involve careful calculation and propagation of channel dimensions throughout the decoder's construction.
+*   **Testing Framework:**
+    *   Continue using `pytest` as the testing framework.
+    *   Leverage `tests/conftest.py` for shared fixtures (e.g., `hydra_config_dir`) and custom markers (`cuda`, `hydra`).
+    *   Maintain the existing test structure (`tests/unit/` and `tests/integration/` mirroring `src/`).
+    *   Tests will be designed to be independent and repeatable.
+*   **Configuration Management:**
+    *   Hydra will continue to be used for all project configurations. Tests requiring configuration will utilize the `hydra_config_dir` fixture to load necessary settings.
+*   **Code Standards & Structure:**
+    *   Adherence to PEP 8 and project-specific `coding-preferences.mdc` (e.g., brief English docstrings, line length).
+    *   All architectural refinements and code restructuring will strictly adhere to the guidelines established in `structural-guide.mdc` and `project-structure.mdc`.
+*   **Loss Function System:**
+    *   The loss function system will be refactored to use a registry-based approach, allowing dynamic registration and instantiation of new loss classes. The factory will support recursive construction of arbitrarily nested combined losses, ensuring the training pipeline is highly extensible and ready for future research needs.
+
+# Development Roadmap (Phased Approach Managed by Task-Master)
+
+1.  **Phase 0: Project Setup & PRD Finalization (Current Phase)**
+    *   Finalize this PRD.
+    *   Initialize `task-master` for this major effort (e.g., `task-master parse-prd` using this document).
+    *   Break down the PRD into high-level tasks in `task-master`.
+
+2.  **Phase 1: Test Suite Evaluation & Baseline Establishment**
+    *   Inventory all existing tests in `tests/unit` and `tests/integration`.
+    *   Execute the full test suite to identify passing, failing, and flaky tests.
+    *   Categorize tests: Keep, Refactor, Delete.
+    *   Establish an initial code coverage baseline (if tools are available).
+
+3.  **Phase 2: Systematic Resolution of Decoder Channel Warnings**
+    *   **Sub-Phase 2.1 (Test Development):**
+        *   Develop focused unit tests for `DecoderBlock` to verify channel calculations and behavior with various input/skip channel configurations.
+        *   Develop unit/integration tests for `CNNDecoder` to verify channel propagation between blocks.
+    *   **Sub-Phase 2.2 (Decoder Refactoring):**
+        *   Refactor `DecoderBlock` and `CNNDecoder` initialization logic to ensure correct static channel alignment, using the tests from 2.1 to guide and validate. This refactoring will explicitly consider DRY, SRP, and modularity.
+    *   **Sub-Phase 2.3 (Full Model Integration Testing):**
+        *   Create/update integration tests for the complete U-Net model (encoder-bottleneck-decoder) to confirm end-to-end functionality without channel mismatch warnings, using various valid configurations.
+
+4.  **Phase 3: Comprehensive Test Coverage & Code Quality Enhancement**
+    *   **Sub-Phase 3.1 (Loss Function System Refactoring & Extensibility):**
+        *   Refactor the loss function system to implement a registry for loss classes and recursive construction logic for combined losses.
+        *   Ensure all loss functions (individual and combined) can be instantiated from configuration without manual code changes.
+        *   Add/Update tests for all supported loss types and combinations.
+        *   Update relevant documentation and configuration examples.
+    *   **Sub-Phase 3.2 (Training Artifacts Verification & Standardization):**
+        *   Verify and ensure the correct and consistent logging and storage of all key training artifacts.
+        *   This includes per-step/per-epoch loss and metric values (`metrics.jsonl`), final metric summaries (`metrics_summary.json`), 
+        *   model checkpoints (which **must include not only model weights but also the state of the optimizer, scheduler, current epoch, and all other parameters necessary to seamlessly resume training as if it had never been interrupted**, including validation of best model saving logic based on `save_best_cfg`), 
+        *   and experiment configuration.
+        *   Define and document clear criteria for what is saved, where, and in what format.
+    *   **Sub-Phase 3.3 (Targeted Test Coverage Expansion):**
+        *   Identify critical modules in `src/data`, `src/training`, `src/evaluation`, `src/utils` with low test coverage.
+        *   Write new unit and integration tests for these identified modules to achieve a target level of coverage and confidence.
+    *   **Sub-Phase 3.4 (General Code Quality & Test Refinement):**
+        *   Identify modules or code sections (outside the primary model components tackled in Phase 2) with potential violations of coding principles (DRY, SRP, modularity).
+        *   Refactor existing tests and code for clarity, robustness, adherence to standards, and core coding principles.
+
+5.  **Phase 4: Codebase Cleanup & Documentation Overhaul**
+    *   **Sub-Phase 4.1 (Script & Obsolete Code Removal):**
+        *   Systematically review files in `scripts/` and other potential locations for obsolete code.
+        *   Confirm and remove unnecessary files, ensuring no vital, un-migrated logic is lost.
+    *   **Sub-Phase 4.2 (Documentation Update):**
+        *   Review and update `README.md` (main and any sub-directory READMEs).
+        *   Review and update `WORKFLOW_TRAINING.md`.
+        *   Ensure all code comments and docstrings are accurate, in English, and conform to project guidelines.
+        *   Add any missing high-level documentation or architectural diagrams if deemed necessary.
+        *   Update `project-structure.mdc` with status markers (e.g., ✅, `(DONE)`) to reflect the current state of implemented modules and directories, providing a live view of structural progress.
+
+Note: Upon successful completion of Phases 0-4 defined herein, the `crackseg` project will be optimally positioned to re-engage with the advanced architectural exploration and SOTA performance goals outlined in `general-context.mdc`.
 
 # Logical Dependency Chain
-1. Verify and consolidate the structure of `src/model`.
-2. Adapt the tests to ensure the validity of the reorganization.
-3. Update scripts and utilities dependent on `src/model`.
-4. Review and adapt configurations and documentation.
-5. Validate the overall functioning of the project.
+
+*   **Phase 0 (Planning)** is foundational.
+*   **Phase 1 (Test Evaluation)** informs subsequent testing and refactoring.
+*   **Phase 2 (Decoder Fixes)** is critical. Sub-Phase 2.1 (Tests) must precede 2.2 (Refactor). Sub-Phase 2.3 (Integration) validates Phase 2.
+*   **Phase 3 (Broader Test/Code Quality)** builds upon a stabilized model from Phase 2.
+*   **Phase 4 (Cleanup & Documentation)** is best finalized when the codebase is stable. Documentation can be iterative.
 
 # Risks and Mitigations
-- **Risk:** Broken imports or obsolete references in tests/scripts.
-  - *Mitigation:* Exhaustive sweep and continuous test execution after each change.
-- **Risk:** Loss of backward compatibility.
-  - *Mitigation:* Maintain re-exports in `__init__.py` and validate with real examples.
-- **Risk:** Outdated documentation.
-  - *Mitigation:* Systematic update after each phase and cross-review.
+
+1.  **Risk:** Scope of test/code refactoring (Phase 1, 2, 3) larger than anticipated.
+    *   **Mitigation:** Thorough initial assessment. Prioritize critical functionality. Iterative improvements.
+2.  **Risk:** Decoder refactoring (Phase 2) uncovers deeper complexities.
+    *   **Mitigation:** Test-driven approach. Allocate analysis time. Prepare for potential redesign discussions.
+3.  **Risk:** Accidental removal of useful scripts during cleanup (Sub-Phase 4.1).
+    *   **Mitigation:** Careful review. Temporary archival. Cross-reference with tests/core code.
+4.  **Risk:** Documentation update (Sub-Phase 4.2) is time-consuming.
+    *   **Mitigation:** Checklist. Prioritize critical docs. Iterative approach.
+5.  **Risk:** Time constraints for all phases.
+    *   **Mitigation:** Define MVP per phase. Prioritize tasks. Clear communication via `task-master`.
 
 # Appendix
-- Reference: `src/model/README.md` for the modular structure.
-- Reference: `scripts/reports/example_prd.txt` as a PRD template.
-- Tools: Task Master for task management, pytest for validation.
-</PRD> 
+
+*   Reference to project's `WORKFLOW_TRAINING.md` for operational details.
+*   Adherence to `coding-preferences.mdc`, `structural-guide.mdc`, `project-structure.mdc`, and other rules.
+*   This entire effort will be managed and tracked using `task-master`. 
