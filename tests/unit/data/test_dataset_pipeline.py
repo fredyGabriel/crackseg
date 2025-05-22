@@ -1,14 +1,14 @@
 """Test for the dataset pipeline and transformations."""
 
-import numpy as np
 import cv2
+import numpy as np
 import pytest
 import torch
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset
-from src.data import transforms as tr
 
 from src.data import create_crackseg_dataset
+from src.data import transforms as tr
 
 
 @pytest.fixture
@@ -43,42 +43,37 @@ def test_dataset_pipeline(test_data_dir):
     """Test the dataset creation and sample loading."""
     # Use test images
     samples_list = [
-        (str(test_data_dir / "test_img.png"),
-         str(test_data_dir / "test_mask.png")),
+        (
+            str(test_data_dir / "test_img.png"),
+            str(test_data_dir / "test_mask.png"),
+        ),
     ]
 
     # Cargar y modificar configuraciones para pruebas
-    data_cfg = OmegaConf.create({
-        "data_root": str(test_data_dir),
-        "image_size": [64, 64],  # Mismo tamaño que las imágenes de prueba
-        "batch_size": 1,
-        "num_workers": 0,
-        "in_memory_cache": False,
-        "train_split": 0.7,
-        "val_split": 0.15,
-        "test_split": 0.15
-    })
+    data_cfg = OmegaConf.create(
+        {
+            "data_root": str(test_data_dir),
+            "image_size": [64, 64],  # Mismo tamaño que las imágenes de prueba
+            "batch_size": 1,
+            "num_workers": 0,
+            "in_memory_cache": False,
+            "train_split": 0.7,
+            "val_split": 0.15,
+            "test_split": 0.15,
+        }
+    )
 
     # La configuración de transformación debe ser una lista para cada split
     transform_cfg = [
-        {
-            "name": "Resize",
-            "params": {
-                "height": 64,
-                "width": 64
-            }
-        },
+        {"name": "Resize", "params": {"height": 64, "width": 64}},
         {
             "name": "Normalize",
             "params": {
                 "mean": [0.485, 0.456, 0.406],
-                "std": [0.229, 0.224, 0.225]
-            }
+                "std": [0.229, 0.224, 0.225],
+            },
         },
-        {
-            "name": "ToTensorV2",
-            "params": {}
-        }
+        {"name": "ToTensorV2", "params": {}},
     ]
 
     # Crear dataset para modo 'train'
@@ -86,32 +81,40 @@ def test_dataset_pipeline(test_data_dir):
         data_cfg=data_cfg,
         transform_cfg=transform_cfg,
         mode="train",
-        samples_list=samples_list
+        samples_list=samples_list,
     )
 
     # Verificaciones básicas
-    assert len(dataset) == len(samples_list), \
-        "Dataset length should match samples list length"
+    assert len(dataset) == len(
+        samples_list
+    ), "Dataset length should match samples list length"
 
     # Verificar una muestra
     sample = dataset[0]
     assert isinstance(sample, dict), "Sample should be a dictionary"
     assert "image" in sample, "Sample should contain 'image'"
     assert "mask" in sample, "Sample should contain 'mask'"
-    assert isinstance(sample["image"], torch.Tensor), \
-        "Image should be a torch.Tensor"
-    assert isinstance(sample["mask"], torch.Tensor), \
-        "Mask should be a torch.Tensor"
+    assert isinstance(
+        sample["image"], torch.Tensor
+    ), "Image should be a torch.Tensor"
+    assert isinstance(
+        sample["mask"], torch.Tensor
+    ), "Mask should be a torch.Tensor"
 
     # Verificar dimensiones
-    assert len(sample["image"].shape) == 3, \
-        "Image should have 3 dimensions (C, H, W)"
-    assert sample["image"].shape[0] == 3, \
-        "Image should have 3 channels"
-    assert len(sample["mask"].shape) == 3 and sample["mask"].shape[0] == 1, \
-        "Mask should have shape (1, H, W)"
-    assert sample["image"].shape[1:] == sample["mask"].shape[1:], \
-        "Image and mask spatial dimensions should match"
+    assert (
+        len(sample["image"].shape) == 3  # noqa: PLR2004
+    ), "Image should have 3 dimensions (C, H, W)"  # noqa: PLR2004
+    assert (
+        sample["image"].shape[0] == 3  # noqa: PLR2004
+    ), "Image should have 3 channels"  # noqa: PLR2004
+    assert (
+        len(sample["mask"].shape) == 3  # noqa: PLR2004
+        and sample["mask"].shape[0] == 1  # noqa: PLR2004
+    ), "Mask should have shape (1, H, W)"  # noqa: PLR2004
+    assert (
+        sample["image"].shape[1:] == sample["mask"].shape[1:]
+    ), "Image and mask spatial dimensions should match"
 
 
 class DummySegmentationDataset(Dataset):
@@ -163,4 +166,4 @@ def test_data_pipeline_end_to_end(tmp_path):
         assert isinstance(masks, torch.Tensor)
         assert imgs.shape[1:] == (3, 32, 32)
         assert masks.shape[1:] == (32, 32)
-        assert imgs.shape[0] == masks.shape[0] <= 4
+        assert imgs.shape[0] == masks.shape[0] <= 4  # noqa: PLR2004

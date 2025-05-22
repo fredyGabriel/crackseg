@@ -13,13 +13,13 @@ learning_rate: 0.001           # Initial learning rate
 weight_decay: 0.0001           # Weight decay (L2 regularization)
 scheduler: step_lr             # Learning rate scheduler (step_lr, cosine, etc.)
 step_size: 10                  # Step size for step_lr scheduler
-gamma: 0.5                     # Decay factor for step_lr scheduler
+gamma: ${thresholds.gamma}                     # Decay factor for step_lr scheduler
 
 device: cuda:0                 # Device to use for training (e.g., cuda:0, cpu)
 
 # Loss configuration is now handled by the 'loss' default group above
-# loss: 
+# loss:
 #  _target_: src.training.losses.BCEDiceLoss
 #  bce_weight: 0.5
 #  dice_weight: 0.5
-#  smooth: 1.0 
+#  smooth: 1.0

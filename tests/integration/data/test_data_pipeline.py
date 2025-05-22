@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, Dataset
+
 from src.data import transforms as tr
 
 
@@ -30,12 +31,12 @@ def test_data_pipeline_end_to_end():
     # Create dummy data
     n = 8
     images = [
-        np.random.randint(0, 255, (32, 32, 3), dtype=np.uint8
-                          ) for _ in range(n)
+        np.random.randint(0, 255, (32, 32, 3), dtype=np.uint8)
+        for _ in range(n)
     ]
     masks = [
-        np.random.randint(0, 2, (32, 32), dtype=np.uint8
-                          ) * 255 for _ in range(n)
+        np.random.randint(0, 2, (32, 32), dtype=np.uint8) * 255
+        for _ in range(n)
     ]
     # Compose transforms
     pipeline = tr.get_basic_transforms("train", image_size=(32, 32))
@@ -51,7 +52,5 @@ def test_data_pipeline_end_to_end():
         assert isinstance(imgs, torch.Tensor)
         assert isinstance(masks, torch.Tensor)
         assert imgs.shape[1:] == (3, 32, 32)
-        assert (
-            masks.shape[1:] == (32, 32)
-        )
-        assert imgs.shape[0] == masks.shape[0] <= 4
+        assert masks.shape[1:] == (32, 32)
+        assert imgs.shape[0] == masks.shape[0] <= 4  # noqa: PLR2004

@@ -8,7 +8,7 @@ and key generation logic.
 
 import logging
 import weakref
-from typing import Dict, Any, Optional
+from typing import Any
 
 from torch import nn
 
@@ -16,17 +16,16 @@ from torch import nn
 log = logging.getLogger(__name__)
 
 # Component cache system (using weak references)
-_component_cache: Dict[str, weakref.ref] = {}
+_component_cache: dict[str, weakref.ref] = {}
 
 
 def clear_component_cache() -> None:
     """Clear the component cache."""
-    global _component_cache
-    _component_cache = {}
+    _component_cache.clear()
     log.info("Component cache cleared")
 
 
-def get_cached_component(cache_key: str) -> Optional[nn.Module]:
+def get_cached_component(cache_key: str) -> nn.Module | None:
     """Retrieve a component from cache if available."""
     if cache_key in _component_cache:
         component_ref = _component_cache[cache_key]
@@ -47,7 +46,7 @@ def cache_component(cache_key: str, component: nn.Module) -> None:
     log.debug(f"Cached component with key: {cache_key}")
 
 
-def generate_cache_key(component_type: str, config: Dict[str, Any]) -> str:
+def generate_cache_key(component_type: str, config: dict[str, Any]) -> str:
     """Generate a unique cache key based on type and config."""
     key_parts = [component_type]
     for k, v in sorted(config.items()):
@@ -56,15 +55,15 @@ def generate_cache_key(component_type: str, config: Dict[str, Any]) -> str:
             continue
 
         # Handle different value types consistently
-        if isinstance(v, (str, int, float, bool, type(None))):
+        if isinstance(v, str | int | float | bool | type(None)):
             key_parts.append(f"{k}:{v}")
-        elif isinstance(v, (list, tuple)):
+        elif isinstance(v, list | tuple):
             # Convert list/tuple elements to string
             key_parts.append(f"{k}:{','.join(map(str, v))}")
         elif isinstance(v, dict):
             # Handle nested dictionaries recursively or flatten them
             nested_parts = [f"{nk}:{nv}" for nk, nv in sorted(v.items())]
-            key_parts.append(f"{k}:{{{",".join(nested_parts)}}}")
+            key_parts.append(f"{k}:{{{','.join(nested_parts)}}}")
         # Add handling for other types if necessary
         # else:
         #     log.warning(f"Unhandled type in cache key generation: {type(v)}")

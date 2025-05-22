@@ -1,18 +1,19 @@
-from typing import Tuple, Dict, Any
+from typing import Any
+
 import torch
 from omegaconf import OmegaConf
+
 from src.model.factory import create_unet
 from src.utils.checkpointing import load_checkpoint_dict
-from src.utils.logging import get_logger
 from src.utils.exceptions import EvaluationError, ModelError
+from src.utils.logging import get_logger
 
 log = get_logger("evaluation.loading")
 
 
 def load_model_from_checkpoint(
-    checkpoint_path: str,
-    device: torch.device
-) -> Tuple[torch.nn.Module, Dict[str, Any]]:
+    checkpoint_path: str, device: torch.device
+) -> tuple[torch.nn.Module, dict[str, Any]]:
     """
     Load a model from checkpoint.
 
@@ -29,13 +30,13 @@ def load_model_from_checkpoint(
     checkpoint = load_checkpoint_dict(checkpoint_path, device=device)
 
     # Extract config from checkpoint if available
-    if 'config' not in checkpoint:
+    if "config" not in checkpoint:
         raise EvaluationError(
             f"Checkpoint at {checkpoint_path} does not contain model "
             "configuration. Please provide a configuration file with --config."
         )
 
-    config = checkpoint['config']
+    config = checkpoint["config"]
 
     if isinstance(config, dict):
         config = OmegaConf.create(config)
@@ -44,14 +45,14 @@ def load_model_from_checkpoint(
     try:
         model = create_unet(config.model)
         model.to(device)
-        log.info(f"Created model: {type(model).__name__}")
+        log.info("Created model: %s", type(model).__name__)
     except Exception as e:
         raise ModelError(f"Error creating model: {str(e)}") from e
 
     # Load weights into model
     try:
-        model.load_state_dict(checkpoint['model_state_dict'])
-        log.info(f"Model weights loaded from: {checkpoint_path}")
+        model.load_state_dict(checkpoint["model_state_dict"])
+        log.info("Model weights loaded from: %s", checkpoint_path)
     except Exception as e:
         raise ModelError(f"Error loading model weights: {str(e)}") from e
 
@@ -60,8 +61,9 @@ def load_model_from_checkpoint(
 
     # Return model and checkpoint data
     checkpoint_data = {
-        k: v for k, v in checkpoint.items()
-        if k not in ['model_state_dict', 'optimizer_state_dict']
+        k: v
+        for k, v in checkpoint.items()
+        if k not in ["model_state_dict", "optimizer_state_dict"]
     }
 
     return model, checkpoint_data

@@ -1,10 +1,11 @@
 import torch
+
 from src.model.common.utils import (
     count_parameters,
-    estimate_receptive_field,
     estimate_memory_usage,
+    estimate_receptive_field,
     get_layer_hierarchy,
-    render_unet_architecture_diagram
+    render_unet_architecture_diagram,
 )
 
 
@@ -57,24 +58,24 @@ class DummyActivation(DummyModule):
 def test_count_parameters():
     model = DummyModule()
     trainable, non_trainable = count_parameters(model)
-    assert trainable == 10
+    assert trainable == 10  # noqa: PLR2004
     assert non_trainable == 0
     # Add a non-trainable param
-    model.register_buffer('buf', torch.ones(5))
+    model.register_buffer("buf", torch.ones(5))
     trainable, non_trainable = count_parameters(model)
-    assert trainable == 10
+    assert trainable == 10  # noqa: PLR2004
 
 
 def test_estimate_receptive_field():
     encoder = DummyEncoder()
     rf = estimate_receptive_field(encoder)
-    assert 'theoretical_rf_size' in rf
-    assert 'downsampling_factor' in rf
+    assert "theoretical_rf_size" in rf
+    assert "downsampling_factor" in rf
     # Encoder sin depth
     encoder2 = DummyEncoder()
     del encoder2.depth
     rf2 = estimate_receptive_field(encoder2)
-    assert 'note' in rf2
+    assert "note" in rf2
 
 
 def test_estimate_memory_usage():
@@ -85,11 +86,11 @@ def test_estimate_memory_usage():
         return 1
 
     mem = estimate_memory_usage(model, encoder, get_out_ch, (1, 3, 32, 32))
-    assert 'model_size_mb' in mem
-    assert 'estimated_activation_mb' in mem
+    assert "model_size_mb" in mem
+    assert "estimated_activation_mb" in mem
     mem2 = estimate_memory_usage(model, encoder, get_out_ch)
-    assert 'model_size_mb' in mem2
-    assert 'note' in mem2
+    assert "model_size_mb" in mem2
+    assert "note" in mem2
 
 
 def test_get_layer_hierarchy():
@@ -99,10 +100,10 @@ def test_get_layer_hierarchy():
     activation = DummyActivation()
     hierarchy = get_layer_hierarchy(encoder, bottleneck, decoder, activation)
     assert isinstance(hierarchy, list)
-    assert any(layer['name'] == 'Encoder' for layer in hierarchy)
-    assert any(layer['name'] == 'Bottleneck' for layer in hierarchy)
-    assert any(layer['name'] == 'Decoder' for layer in hierarchy)
-    assert any(layer['name'] == 'FinalActivation' for layer in hierarchy)
+    assert any(layer["name"] == "Encoder" for layer in hierarchy)
+    assert any(layer["name"] == "Bottleneck" for layer in hierarchy)
+    assert any(layer["name"] == "Decoder" for layer in hierarchy)
+    assert any(layer["name"] == "FinalActivation" for layer in hierarchy)
 
 
 def test_render_unet_architecture_diagram(tmp_path):
@@ -112,6 +113,6 @@ def test_render_unet_architecture_diagram(tmp_path):
     activation = DummyActivation()
     hierarchy = get_layer_hierarchy(encoder, bottleneck, decoder, activation)
     # Solo verificar que no lanza error y genera archivo
-    out_file = tmp_path / 'unet_architecture'
+    out_file = tmp_path / "unet_architecture"
     render_unet_architecture_diagram(hierarchy, str(out_file), view=False)
-    assert (tmp_path / 'unet_architecture.png').exists()
+    assert (tmp_path / "unet_architecture.png").exists()

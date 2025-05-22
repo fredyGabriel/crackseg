@@ -1,31 +1,33 @@
 """Integration tests for model instantiation and forward pass from config."""
 
-import torch
-import hydra
-import traceback
 import os
-from omegaconf import DictConfig, OmegaConf
+import traceback
 
-from src.model.factory import create_unet
-# Import BaseUNet separately if needed for type hints/checks
-# Import Mock classes from conftest
-# Use absolute import from tests directory
-from tests.integration.model.conftest import (  # noqa: F401
-    MockEncoder, MockBottleneck, TestDecoderImpl
-)
+import hydra
+import torch
+from omegaconf import DictConfig, OmegaConf
 
 # Ensure mock components are registered before tests run
 # pylint: disable=unused-import
 # REMOVED: import tests.model.integration.test_model_factory  # noqa: F401
-
 # Import the new CNN components
 from src.model import BaseUNet
-from src.model.encoder.cnn_encoder import CNNEncoder
 from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
 from src.model.decoder.cnn_decoder import CNNDecoder
+from src.model.encoder.cnn_encoder import CNNEncoder
+from src.model.factory import create_unet
 
+# Import BaseUNet separately if needed for type hints/checks
+# Import Mock classes from conftest
+# Use absolute import from tests directory
+from tests.integration.model.conftest import (  # noqa: F401
+    MockBottleneck,
+    MockEncoder,
+    TestDecoderImpl,
+)
 
 # --- Helper Functions ---
+
 
 def extract_unet_core(unet_model):
     """
@@ -93,8 +95,9 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
             # Calcular ruta absoluta a 'configs' desde este archivo de test
             current_dir = os.path.dirname(os.path.abspath(__file__))
             # Sube 2 niveles desde tests/integration/model
-            project_root = os.path.abspath(os.path.join(current_dir, "..",
-                                                        ".."))
+            project_root = os.path.abspath(
+                os.path.join(current_dir, "..", "..")
+            )
             absolute_config_path = os.path.join(project_root, "configs")
 
             if not os.path.isdir(absolute_config_path):
@@ -110,8 +113,7 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
             # Inicializar Hydra con la ruta absoluta
             # Usar initialize_config_dir con ruta absoluta
             hydra.initialize_config_dir(
-                config_dir=absolute_config_path,
-                version_base=None
+                config_dir=absolute_config_path, version_base=None
             )
 
             # Load configuration using the full path relative to the config dir
@@ -146,14 +148,14 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
                     "_target_": "src.model.encoder.cnn_encoder.CNNEncoder",
                     "in_channels": 3,
                     "init_features": 64,
-                    "depth": 4
+                    "depth": 4,
                 },
                 "bottleneck": {
-                    "_target_":
-                    "src.model.bottleneck.cnn_bottleneck.BottleneckBlock",
+                    "_target_": "src.model.bottleneck.cnn_bottleneck.\
+                        BottleneckBlock",
                     "in_channels": 512,
                     "out_channels": 1024,
-                    "dropout": 0.5
+                    "dropout": 0.5,
                 },
                 "decoder": {
                     "_target_": "src.model.decoder.cnn_decoder.CNNDecoder",
@@ -161,8 +163,8 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
                     "skip_channels_list": [512, 256, 128, 64],
                     "out_channels": 1,
                     "depth": 4,
-                    "use_cbam": False
-                }
+                    "use_cbam": False,
+                },
             }
         }
 
@@ -173,6 +175,7 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
 
 # --- Test Cases ---
 
+
 def test_unet_instantiation_from_manual_config(register_mock_components):
     """Test instantiating UNet from a manually created config using mocks."""
     cfg = load_test_config()  # Load the config that uses Mock* _target_
@@ -181,9 +184,9 @@ def test_unet_instantiation_from_manual_config(register_mock_components):
     unet_core = extract_unet_core(unet)  # Extract core model
     assert isinstance(unet_core, BaseUNet)  # Assert on the core model
     # Check types by name instead of by instance
-    assert unet_core.encoder.__class__.__name__ == 'MockEncoder'
-    assert unet_core.bottleneck.__class__.__name__ == 'MockBottleneck'
-    assert unet_core.decoder.__class__.__name__ == 'TestDecoderImpl'
+    assert unet_core.encoder.__class__.__name__ == "MockEncoder"
+    assert unet_core.bottleneck.__class__.__name__ == "MockBottleneck"
+    assert unet_core.decoder.__class__.__name__ == "TestDecoderImpl"
 
 
 def test_unet_forward_pass_from_manual_config(register_mock_components):
@@ -218,8 +221,9 @@ def test_unet_forward_pass_from_manual_config(register_mock_components):
     # (CNNDecoder internally reverses the list)
     # Correct assertion: compare encoder skips with reversed decoder skips
     unet_core = extract_unet_core(unet)
-    assert list(reversed(unet_core.decoder.skip_channels)) == \
-        list(unet_core.encoder.skip_channels)
+    assert list(reversed(unet_core.decoder.skip_channels)) == list(
+        unet_core.encoder.skip_channels
+    )
 
     # Check number of decoder blocks if the attribute exists
     if hasattr(unet_core.decoder, "decoder_blocks"):
@@ -246,8 +250,9 @@ def test_unet_cnn_instantiation_from_config():
     # Validate skip_channels consistency:
     # With the change in BaseUNet contract, decoder now must have
     # skip_channels in reverse order to encoder (low -> high resolution)
-    assert list(reversed(unet_core.decoder.skip_channels)) == \
-        list(unet_core.encoder.skip_channels)
+    assert list(reversed(unet_core.decoder.skip_channels)) == list(
+        unet_core.encoder.skip_channels
+    )
 
     assert unet_core.get_output_channels() == cfg.model.decoder.out_channels
 
@@ -260,13 +265,13 @@ def test_unet_cnn_instantiation_from_config():
             assert isinstance(unet[1], activation_cls)
         else:
             assert hasattr(unet_core, "final_activation")
-    else:
-        if isinstance(unet, torch.nn.Sequential):
-            assert False, "final_activation expected None but got Sequential"
-        else:
-            # BaseUNet can have the final_activation attribute as None
-            if hasattr(unet_core, "final_activation"):
-                assert unet_core.final_activation is None
+    elif isinstance(unet, torch.nn.Sequential):
+        raise AssertionError(
+            "final_activation expected None but got Sequential"
+        )
+    # BaseUNet can have the final_activation attribute as None
+    elif hasattr(unet_core, "final_activation"):
+        assert unet_core.final_activation is None
 
 
 def test_unet_cnn_forward_pass_from_config():
@@ -289,8 +294,9 @@ def test_unet_cnn_forward_pass_from_config():
     # Validate skip_channels consistency:
     # With the change in BaseUNet contract, decoder now must have
     # skip_channels in reverse order to encoder (low -> high resolution)
-    assert list(reversed(unet_core.decoder.skip_channels)) == \
-        list(unet_core.encoder.skip_channels)
+    assert list(reversed(unet_core.decoder.skip_channels)) == list(
+        unet_core.encoder.skip_channels
+    )
 
     # Check number of decoder blocks
     assert len(unet_core.decoder.decoder_blocks) == cfg.model.decoder.depth

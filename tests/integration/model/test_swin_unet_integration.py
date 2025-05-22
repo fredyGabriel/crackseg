@@ -6,8 +6,9 @@ This test validates the Swin encoder and the CNN decoder separately.
 """
 
 import torch
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+
 from src.model.decoder.cnn_decoder import CNNDecoder
+from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
 
 
 def test_swin_encoder():
@@ -21,7 +22,7 @@ def test_swin_encoder():
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        features_only=True
+        features_only=True,
     )
 
     # Forward pass
@@ -44,8 +45,9 @@ def test_swin_encoder():
     print(f"Skip channels from tensor shapes: {real_skip_channels}")
 
     # Check that skip_channels matches the real skip tensor channels
-    assert encoder.skip_channels == real_skip_channels, \
-        "skip_channels property should match actual skip tensor channels"
+    assert (
+        encoder.skip_channels == real_skip_channels
+    ), "skip_channels property should match actual skip tensor channels"
 
 
 @torch.no_grad()
@@ -61,7 +63,7 @@ def test_vanilla_cnn_decoder():
         in_channels=in_channels,
         skip_channels_list=skip_channels,
         out_channels=out_channels,
-        depth=len(skip_channels)
+        depth=len(skip_channels),
     )
 
     # Print channels for debug

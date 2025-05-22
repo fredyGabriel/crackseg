@@ -1,4 +1,6 @@
 """Helper for setting up EarlyStopping from config."""
+
+from hydra import errors as hydra_errors  # Import Hydra errors
 from hydra.utils import instantiate
 
 
@@ -6,10 +8,12 @@ def setup_early_stopping(cfg, monitor_metric, monitor_mode, verbose, logger):
     """
     Sets up EarlyStopping from config. Returns early_stopper or None.
     """
+
     def safe_log(logger, level, *args, **kwargs):
         fn = getattr(logger, level, None)
         if callable(fn):
             fn(*args, **kwargs)
+
     early_stopper = None
     early_stopping_cfg = cfg.get("early_stopping", None)
     if early_stopping_cfg:
@@ -22,17 +26,25 @@ def setup_early_stopping(cfg, monitor_metric, monitor_mode, verbose, logger):
                 _recursive_=False,
                 monitor_metric=es_monitor,
                 mode=monitor_mode,
-                verbose=verbose
+                verbose=verbose,
             )
             safe_log(
-                logger, "info",
-                f"Early stopping enabled. Monitoring: {es_monitor}"
+                logger,
+                "info",
+                f"Early stopping enabled. Monitoring: {es_monitor}",
             )
-        except Exception:
+        except (
+            hydra_errors.InstantiationException,
+            TypeError,
+            ValueError,
+            AttributeError,
+            Exception,
+        ) as e:
             safe_log(
-                logger, "error",
-                "Error initializing EarlyStopping.",
-                exc_info=True
+                logger,
+                "error",
+                f"Error initializing EarlyStopping ({type(e).__name__}: {e}).",
+                exc_info=True,
             )
             early_stopper = None
     else:

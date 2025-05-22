@@ -11,15 +11,16 @@ These techniques help to efficiently fine-tune pre-trained models on new
 datasets with limited data or computational resources.
 """
 
+import logging
 import os
 import sys
 from pathlib import Path
-import torch
+
 import hydra
-import logging
+import torch
 from omegaconf import DictConfig
-import torch.optim as optim
-from torch.utils.data import TensorDataset, DataLoader
+from torch import optim
+from torch.utils.data import DataLoader, TensorDataset
 
 # Add the project root directory to the Python path
 project_root = Path(__file__).parent.parent.absolute()
@@ -27,13 +28,14 @@ os.chdir(project_root)
 sys.path.insert(0, str(project_root))
 
 # Import after configuring the path
-# noqa: E402
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+from src.model.encoder.swin_transformer_encoder import (  # noqa: E402
+    SwinTransformerEncoder,  # noqa: E402
+)
 
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -59,7 +61,7 @@ def display_model_info(encoder, title="Model Information"):
     trainable_params = 0
     frozen_params = 0
 
-    for name, param in encoder.named_parameters():
+    for _name, param in encoder.named_parameters():
         total_params += param.numel()
         if param.requires_grad:
             trainable_params += param.numel()
@@ -68,13 +70,13 @@ def display_model_info(encoder, title="Model Information"):
 
     print(f"\n{title}")
     print(f"Total parameters: {total_params:,}")
-    pct = trainable_params/total_params
+    pct = trainable_params / total_params
     print(f"Trainable parameters: {trainable_params:,} ({pct:.1%})")
-    pct = frozen_params/total_params
+    pct = frozen_params / total_params
     print(f"Frozen parameters: {frozen_params:,} ({pct:.1%})")
 
     # Print out layer groups for learning rates if using differential LRs
-    if hasattr(encoder, 'finetune_lr_scale') and encoder.finetune_lr_scale:
+    if hasattr(encoder, "finetune_lr_scale") and encoder.finetune_lr_scale:
         print("\nLearning Rate Scales:")
         for pattern, scale in encoder.finetune_lr_scale.items():
             print(f"  - {pattern}: {scale:.2f}x base learning rate")
@@ -90,7 +92,7 @@ def setup_encoder_with_freezing(freeze_mode):
         patch_size=4,
         features_only=True,
         handle_input_size="resize",
-        freeze_layers=freeze_mode
+        freeze_layers=freeze_mode,
     )
 
     return encoder
@@ -101,9 +103,9 @@ def setup_encoder_with_differential_lr():
     # Define learning rate scales for different layers
     lr_scales = {
         "patch_embed": 0.1,  # Early layers learn very slowly (10% of base LR)
-        "stages.0": 0.3,     # First stage learns slowly (30% of base LR)
-        "stages.1": 0.7,     # Middle stage learns faster (70% of base LR)
-        "stages.2": 1.0,    # Final stage learns at full rate (100% of base LR)
+        "stages.0": 0.3,  # First stage learns slowly (30% of base LR)
+        "stages.1": 0.7,  # Middle stage learns faster (70% of base LR)
+        "stages.2": 1.0,  # Final stage learns at full rate (100% of base LR)
     }
 
     encoder = SwinTransformerEncoder(
@@ -112,7 +114,7 @@ def setup_encoder_with_differential_lr():
         pretrained=True,
         features_only=True,
         freeze_layers=False,  # Don't freeze, want to train with different LRs
-        finetune_lr_scale=lr_scales
+        finetune_lr_scale=lr_scales,
     )
 
     return encoder
@@ -130,10 +132,10 @@ def simulate_gradual_unfreeze_training(encoder, num_epochs=20):
     """Simulate a training process with gradual unfreezing."""
     # Define a schedule for when to unfreeze different layers
     unfreeze_schedule = {
-        5: ["stages.2"],    # Unfreeze the last stage at epoch 5
-        10: ["stages.1"],   # Unfreeze the middle stage at epoch 10
-        15: ["stages.0"],   # Unfreeze the first stage at epoch 15
-        18: ["patch_embed"]  # Unfreeze the patch embedding layer at epoch 18
+        5: ["stages.2"],  # Unfreeze the last stage at epoch 5
+        10: ["stages.1"],  # Unfreeze the middle stage at epoch 10
+        15: ["stages.0"],  # Unfreeze the first stage at epoch 15
+        18: ["patch_embed"],  # Unfreeze the patch embedding layer at epoch 18
     }
 
     # Print initial state
@@ -161,13 +163,15 @@ def main(cfg: DictConfig):
 
     # 2. Freeze all but the last block (common strategy)
     encoder_partial = setup_encoder_with_freezing(True)
-    display_model_info(encoder_partial,
-                       "2. Partial Fine-tuning (Last Stage Only)")
+    display_model_info(
+        encoder_partial, "2. Partial Fine-tuning (Last Stage Only)"
+    )
 
     # 3. Freeze specific stages
     encoder_custom = setup_encoder_with_freezing("patch_embed,stages.0")
-    display_model_info(encoder_custom,
-                       "3. Custom Freezing (Patch Embed + First Stage)")
+    display_model_info(
+        encoder_custom, "3. Custom Freezing (Patch Embed + First Stage)"
+    )
 
     # 4. Feature extraction (all frozen)
     encoder_frozen = setup_encoder_with_freezing("all")
@@ -175,19 +179,21 @@ def main(cfg: DictConfig):
 
     print("\n=== DEMO 2: Optimizer with Differential Learning Rates ===")
     encoder_diff_lr = setup_encoder_with_differential_lr()
-    optimizer = create_optimizer_with_param_groups(encoder_diff_lr,
-                                                   base_lr=0.001)
+    optimizer = create_optimizer_with_param_groups(
+        encoder_diff_lr, base_lr=0.001
+    )
 
     # Display the learning rates for each parameter group
     print("\nOptimizer Parameter Groups:")
     for i, group in enumerate(optimizer.param_groups):
-        group_name = group.get('name', f'Group {i}')
+        group_name = group.get("name", f"Group {i}")
         print(f"  - {group_name}: lr = {group['lr']}")
 
     print("\n=== DEMO 3: Gradual Unfreezing During Training ===")
     # Start with everything frozen except the very last layer
     encoder_gradual = setup_encoder_with_freezing(
-        "patch_embed,stages.0,stages.1,stages.2")
+        "patch_embed,stages.0,stages.1,stages.2"
+    )
     simulate_gradual_unfreeze_training(encoder_gradual)
 
     print("\nAll transfer learning techniques demonstrated successfully!")

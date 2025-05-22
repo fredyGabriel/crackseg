@@ -2,29 +2,38 @@
 stopping."""
 
 import time
-from typing import Any, Dict, Optional
+from dataclasses import dataclass
+from typing import Any
 
 import torch
 from omegaconf import DictConfig
-from torch.amp import GradScaler
 from torch.utils.data import DataLoader
 
-# Import factory functions
-from src.training.factory import create_optimizer, create_lr_scheduler
-from src.utils.device import get_device
-from src.utils import BaseLogger
-from src.utils.checkpointing import load_checkpoint
-from src.utils.early_stopping import EarlyStopping
-from src.utils.checkpointing_helper import handle_epoch_checkpointing
-from src.utils.scheduler_helper import step_scheduler_helper
 from src.training.batch_processing import train_step, val_step
-from src.utils.training_logging import log_validation_results
-from src.utils.amp_utils import amp_autocast, optimizer_step_with_accumulation
 from src.training.config_validation import validate_trainer_config
-from src.utils.checkpointing_setup import setup_checkpointing
-from src.utils.early_stopping_setup import setup_early_stopping
-from src.utils.logger_setup import setup_internal_logger, safe_log
 
+# Import factory functions
+from src.training.factory import create_lr_scheduler, create_optimizer
+from src.utils import BaseLogger
+from src.utils.amp_utils import (
+    _GRADSCALER_DEVICE,
+    GradScaler,
+    amp_autocast,
+    optimizer_step_with_accumulation,
+)
+from src.utils.checkpointing import load_checkpoint
+from src.utils.checkpointing_helper import (
+    CheckpointConfig,
+    CheckpointContext,
+    handle_epoch_checkpointing,
+)
+from src.utils.checkpointing_setup import setup_checkpointing
+from src.utils.device import get_device
+from src.utils.early_stopping import EarlyStopping
+from src.utils.early_stopping_setup import setup_early_stopping
+from src.utils.logger_setup import safe_log, setup_internal_logger
+from src.utils.scheduler_helper import step_scheduler_helper
+from src.utils.training_logging import log_validation_results
 
 # Placeholder: Checkpointing
 # from src.utils.checkpointing import save_checkpoint, load_checkpoint
@@ -32,111 +41,142 @@ from src.utils.logger_setup import setup_internal_logger, safe_log
 # from src.evaluation.early_stopping import EarlyStopping
 
 
+@dataclass
+class TrainingComponents:
+    """Encapsulates the core components required for training."""
+
+    model: torch.nn.Module
+    train_loader: DataLoader
+    val_loader: DataLoader
+    loss_fn: torch.nn.Module
+    metrics_dict: dict[str, Any]
+
+
 class Trainer:
     """Orchestrates the training and validation process."""
 
     def __init__(
         self,
-        model: torch.nn.Module,
-        train_loader: DataLoader,
-        val_loader: DataLoader,
-        loss_fn: torch.nn.Module,
-        metrics_dict: Dict[str, Any],  # Instantiated metrics
+        components: TrainingComponents,
         cfg: DictConfig,
-        logger_instance: Optional[BaseLogger] = None,
+        logger_instance: BaseLogger | None = None,
         # Early stopper can be instantiated outside and passed, or configured
-        early_stopper: Optional[EarlyStopping] = None
+        early_stopper: EarlyStopping | None = None,
     ):
-        """Initializes the Trainer.
+        """Initializes the Trainer."""
+        self._initialize_core_attributes(components, cfg, logger_instance)
+        self._parse_trainer_settings()
+        self._setup_checkpointing_attributes()
+        self._setup_device_and_model()
+        self._setup_optimizer_and_scheduler()
+        self._setup_mixed_precision()
+        self._load_checkpoint_state()
+        self._setup_early_stopping_instance(
+            early_stopper
+        )  # Pass early_stopper if provided
+        self._log_initialization_summary()
 
-        Args:
-            model: The model to train.
-            train_loader: DataLoader for the training set.
-            val_loader: DataLoader for the validation set.
-            loss_fn: The loss function.
-            metrics_dict: Dictionary of instantiated metric objects
-                          {name: metric_fn}.
-            cfg: Hydra configuration object (expecting cfg.trainer node).
-            logger_instance: Optional logger for recording metrics.
-            early_stopper: Optional EarlyStopping instance for early stopping.
-        """
-        # --- Config validation ---
+    def _initialize_core_attributes(
+        self,
+        components: TrainingComponents,
+        cfg: DictConfig,
+        logger_instance: BaseLogger | None,
+    ):
+        """Validates config and initializes core trainer attributes."""
         validate_trainer_config(cfg.training)
         self.full_cfg = cfg
-        self.cfg = cfg.training
-        self.model = model
-        self.train_loader = train_loader
-        self.val_loader = val_loader
-        self.loss_fn = loss_fn
-        self.metrics_dict = metrics_dict
+        self.cfg = cfg.training  # Main trainer config node
+        self.model = components.model
+        self.train_loader = components.train_loader
+        self.val_loader = components.val_loader
+        self.loss_fn = components.loss_fn
+        self.metrics_dict = components.metrics_dict
         self.logger_instance = logger_instance
         self.internal_logger = setup_internal_logger(logger_instance)
 
-        # --- Configuration Parsing ---
+    def _parse_trainer_settings(self):
+        """Parses basic trainer settings from the configuration."""
         self.epochs = self.cfg.get("epochs", 10)
         self.device_str = self.cfg.get("device", "auto")
-        self.device = get_device(self.device_str)
         self.use_amp = self.cfg.get("use_amp", True)
         self.grad_accum_steps = self.cfg.get("gradient_accumulation_steps", 1)
         self.verbose = self.cfg.get("verbose", True)
+        self.start_epoch = 1  # Default start epoch
 
-        # --- Setup Checkpointing ---
-        self.checkpoint_dir, self.experiment_manager = setup_checkpointing(
-            cfg,
-            getattr(logger_instance, 'experiment_manager', None),
-            self.internal_logger
+    def _setup_checkpointing_attributes(self):
+        """Sets up attributes related to checkpointing."""
+        (self.checkpoint_dir, self.experiment_manager) = setup_checkpointing(
+            self.full_cfg,  # Pass full_cfg for setup_checkpointing
+            getattr(self.logger_instance, "experiment_manager", None),
+            self.internal_logger,
         )
         self.save_freq = self.cfg.get("save_freq", 0)
         self.checkpoint_load_path = self.cfg.get("checkpoint_load_path", None)
-        self.save_best_cfg = self.cfg.get("save_best", {})
+
         save_best_config = self.cfg.get("save_best", {})
+        # Fallback to checkpoints.save_best if training.save_best is not
+        # present
         if not save_best_config and "checkpoints" in self.cfg:
             checkpoints_cfg = self.cfg.get("checkpoints", {})
             save_best_config = checkpoints_cfg.get("save_best", {})
+
         self.save_best_enabled = save_best_config.get("enabled", False)
-        self.monitor_metric = self.save_best_cfg.get("monitor_metric",
-                                                     "val_loss")
-        self.monitor_mode = self.save_best_cfg.get("monitor_mode",
-                                                   "min")
-        self.best_filename = self.save_best_cfg.get("best_filename",
-                                                    "model_best.pth.tar")
-        self.best_metric_value = float('inf') if self.monitor_mode == "min" \
-            else float('-inf')
+        self.monitor_metric = save_best_config.get(
+            "monitor_metric", "val_loss"
+        )
+        self.monitor_mode = save_best_config.get("monitor_mode", "min")
+        self.best_filename = save_best_config.get(
+            "best_filename", "model_best.pth.tar"
+        )
+        self.best_metric_value = (
+            float("inf") if self.monitor_mode == "min" else float("-inf")
+        )
+
+    def _setup_device_and_model(self):
+        """Sets up the device and moves the model to it."""
+        self.device = get_device(self.device_str)
         self.model.to(self.device)
 
-        # --- Setup Optimizer and Scheduler ---
+    def _setup_optimizer_and_scheduler(self):
+        """Initializes the optimizer and learning rate scheduler."""
         self.optimizer = create_optimizer(
             self.model.parameters(),
-            self.full_cfg.training.optimizer
+            self.cfg.optimizer,  # Use self.cfg here
         )
         self.scheduler = create_lr_scheduler(
             self.optimizer,
-            self.full_cfg.training.scheduler
+            self.cfg.scheduler,  # Use self.cfg here
         )
 
-        # --- Setup Mixed Precision ---
-        scaler_enabled = self.use_amp and self.device.type == 'cuda'
-        self.scaler = GradScaler(enabled=scaler_enabled)
+    def _setup_mixed_precision(self):
+        """Sets up GradScaler for automatic mixed precision
+        (compatible with PyTorch >=2.4 y anteriores)."""
+        scaler_enabled = self.use_amp and self.device.type == "cuda"
+        if _GRADSCALER_DEVICE is not None:
+            self.scaler = GradScaler(
+                _GRADSCALER_DEVICE, enabled=scaler_enabled
+            )
+        else:
+            self.scaler = GradScaler(enabled=scaler_enabled)
         if self.use_amp and not scaler_enabled:
             safe_log(
-                self.internal_logger, "warning",
-                "AMP requires CUDA, disabling AMP."
+                self.internal_logger,
+                "warning",
+                "AMP requires CUDA, disabling AMP.",
             )
             self.use_amp = False
 
-        # --- Initialize Training State Variables ---
-        self.start_epoch = 1
-
-        # --- Load Checkpoint if specified ---
+    def _load_checkpoint_state(self):
+        """Loads checkpoint if a path is specified."""
         if self.checkpoint_load_path:
             loaded_state = load_checkpoint(
                 model=self.model,
                 optimizer=self.optimizer,
                 checkpoint_path=self.checkpoint_load_path,
-                device=self.device
+                device=self.device,
             )
-            self.start_epoch = loaded_state.get('epoch', 0) + 1
-            saved_best_metric = loaded_state.get('best_metric_value', None)
+            self.start_epoch = loaded_state.get("epoch", 0) + 1
+            saved_best_metric = loaded_state.get("best_metric_value", None)
             if saved_best_metric is not None:
                 self.best_metric_value = saved_best_metric
                 log_msg = (
@@ -145,23 +185,37 @@ class Trainer:
                 )
                 safe_log(self.internal_logger, "info", log_msg)
 
-        # --- Setup Early Stopping ---
-        self.early_stopper = setup_early_stopping(
-            cfg,
-            monitor_metric="loss",
-            monitor_mode="min",
-            verbose=True,
-            logger=self.internal_logger
-        )
+    def _setup_early_stopping_instance(
+        self, early_stopper_arg: EarlyStopping | None
+    ):
+        """Sets up the early stopping mechanism."""
+        if early_stopper_arg is not None:
+            self.early_stopper = early_stopper_arg
+        else:
+            # Ensure setup_early_stopping is called with the correct config
+            # node
+            self.early_stopper = setup_early_stopping(
+                self.full_cfg,  # Pass full_cfg for setup_early_stopping
+                monitor_metric=self.cfg.early_stopping.get(
+                    "monitor", "val_loss"
+                ),  # Get monitor from early_stopping config
+                monitor_mode=self.cfg.early_stopping.get(
+                    "mode", "min"
+                ),  # Get mode from early_stopping config
+                verbose=self.cfg.early_stopping.get("verbose", True),
+                logger=self.internal_logger,
+            )
 
-        # Log initialization summary
+    def _log_initialization_summary(self):
+        """Logs a summary of the trainer's configuration."""
         config_summary = (
             f"Trainer initialized. Device: {self.device}. "
             f"Epochs: {self.epochs}. AMP: {self.use_amp}. "
             f"Grad Accum: {self.grad_accum_steps}. "
             f"Starting Epoch: {self.start_epoch}. "
             f"Save Best: {self.save_best_enabled}. "
-            f"Early Stopping: {self.early_stopper is not None}."
+            "Early Stopping: "
+            f"{self.early_stopper is not None and self.early_stopper.enabled}."
         )
         safe_log(self.internal_logger, "info", config_summary)
         if self.logger_instance:
@@ -170,7 +224,7 @@ class Trainer:
             )
             safe_log(self.internal_logger, "info", log_msg)
 
-    def train(self) -> Dict[str, float]:
+    def train(self) -> dict[str, float]:
         """Runs the full training loop starting from self.start_epoch."""
         start_msg = f"Starting training from epoch {self.start_epoch}..."
         safe_log(self.internal_logger, "info", start_msg)
@@ -180,8 +234,9 @@ class Trainer:
         for epoch in range(self.start_epoch, self.epochs + 1):
             epoch_start_time = time.time()
             safe_log(
-                self.internal_logger, "info",
-                f"--- Epoch {epoch}/{self.epochs} ---"
+                self.internal_logger,
+                "info",
+                f"--- Epoch {epoch}/{self.epochs} ---",
             )
 
             _ = self._train_epoch(epoch)  # train_loss is unused for now
@@ -199,42 +254,57 @@ class Trainer:
                 pass
 
             # --- Checkpointing Logic (refactorizado) ---
-            self.best_metric_value = handle_epoch_checkpointing(
+            checkpoint_context = CheckpointContext(
                 epoch=epoch,
-                model=self.model,
-                optimizer=self.optimizer,
                 val_results=val_results,
                 monitor_metric=self.monitor_metric,
                 monitor_mode=self.monitor_mode,
                 best_metric_value=self.best_metric_value,
+            )
+            checkpoint_config = CheckpointConfig(
                 checkpoint_dir=self.checkpoint_dir,
                 logger=self.internal_logger,
-                keep_last_n=1,
-                last_filename="checkpoint_last.pth",
+                keep_last_n=self.cfg.get(
+                    "checkpoints.keep_last_n", 1
+                ),  # Default from config or 1
+                last_filename=self.cfg.get(
+                    "checkpoints.last_filename", "checkpoint_last.pth"
+                ),
                 best_filename=self.best_filename,
+            )
+
+            self.best_metric_value = handle_epoch_checkpointing(
+                context=checkpoint_context,
+                config=checkpoint_config,
+                model=self.model,
+                optimizer=self.optimizer,
             )
 
             # --- Early Stopping Check ---
             if self.early_stopper:
                 current_metric = val_results.get(
-                    self.early_stopper.monitor_metric)
+                    self.early_stopper.monitor_metric
+                )
                 if self.early_stopper.step(current_metric):
                     safe_log(
-                        self.internal_logger, "info",
-                        "Early stopping triggered."
+                        self.internal_logger,
+                        "info",
+                        "Early stopping triggered.",
                     )
                     break  # Exit training loop
 
             epoch_duration = time.time() - epoch_start_time
             safe_log(
-                self.internal_logger, "info",
-                f"Epoch {epoch} finished in {epoch_duration:.2f}s"
+                self.internal_logger,
+                "info",
+                f"Epoch {epoch} finished in {epoch_duration:.2f}s",
             )
 
         total_time = time.time() - start_time
         safe_log(
-            self.internal_logger, "info",
-            f"Training finished in {total_time:.2f}s"
+            self.internal_logger,
+            "info",
+            f"Training finished in {total_time:.2f}s",
         )
         return final_val_results
 
@@ -253,7 +323,7 @@ class Trainer:
                     loss_fn=self.loss_fn,
                     optimizer=self.optimizer,
                     device=self.device,
-                    metrics_dict=self.metrics_dict
+                    metrics_dict=self.metrics_dict,
                 )
                 batch_loss = metrics["loss"]
             # Convert loss tensor to float for accumulation
@@ -264,20 +334,21 @@ class Trainer:
                 loss=batch_loss,
                 grad_accum_steps=self.grad_accum_steps,
                 batch_idx=batch_idx,
-                use_amp=self.use_amp
+                use_amp=self.use_amp,
             )
-            if self.logger_instance and log_interval > 0 and \
-               (batch_idx + 1) % log_interval == 0:
+            if (
+                self.logger_instance
+                and log_interval > 0
+                and (batch_idx + 1) % log_interval == 0
+            ):
                 global_step = (epoch - 1) * num_batches + batch_idx + 1
                 self.logger_instance.log_scalar(
                     tag="train_batch/batch_loss",
                     value=batch_loss.item(),
-                    step=global_step
+                    step=global_step,
                 )
         avg_loss = total_loss / num_batches
-        log_msg = (
-            f"Epoch {epoch} | Average Training Loss: {avg_loss:.4f}"
-        )
+        log_msg = f"Epoch {epoch} | Average Training Loss: {avg_loss:.4f}"
         safe_log(self.internal_logger, "info", log_msg)
         if self.logger_instance:
             self.logger_instance.log_scalar(
@@ -285,11 +356,11 @@ class Trainer:
             )
         return avg_loss
 
-    def validate(self, epoch: int) -> Dict[str, float]:
+    def validate(self, epoch: int) -> dict[str, float]:
         """Runs validation over the val_loader and aggregates metrics."""
         self.model.eval()
         total_metrics = {"loss": 0.0}
-        total_metrics.update({name: 0.0 for name in self.metrics_dict})
+        total_metrics.update(dict.fromkeys(self.metrics_dict, 0.0))
         num_batches = len(self.val_loader)
         with torch.no_grad():
             for batch in self.val_loader:
@@ -298,16 +369,18 @@ class Trainer:
                     batch=batch,
                     loss_fn=self.loss_fn,
                     device=self.device,
-                    metrics_dict=self.metrics_dict
+                    metrics_dict=self.metrics_dict,
                 )
                 for name, value in metrics.items():
                     # Convert tensor to float for accumulation
                     total_metrics[name] += (
-                        value.item() if hasattr(value, 'item')
+                        value.item()
+                        if hasattr(value, "item")
                         else float(value)
                     )
-        avg_metrics = {name: total / num_batches for name,
-                       total in total_metrics.items()}
+        avg_metrics = {
+            name: total / num_batches for name, total in total_metrics.items()
+        }
         val_metrics = {}
         for name, value in avg_metrics.items():
             if name == "loss":
@@ -319,24 +392,22 @@ class Trainer:
         if self.logger_instance:
             for name, value in val_metrics.items():
                 self.logger_instance.log_scalar(
-                    tag=f"{name}",
-                    value=value,
-                    step=epoch
+                    tag=f"{name}", value=value, step=epoch
                 )
         return val_metrics
 
     # --- Helper Methods ---
-    def _step_scheduler(self, metrics=None) -> Optional[float]:
+    def _step_scheduler(self, metrics=None) -> float | None:
         """Steps the learning rate scheduler using a helper utility."""
         return step_scheduler_helper(
             scheduler=self.scheduler,
             optimizer=self.optimizer,
             monitor_metric=self.monitor_metric,
             metrics=metrics,
-            logger=self.internal_logger
+            logger=self.internal_logger,
         )
 
-    def _check_if_best(self, metrics: Dict[str, float]) -> bool:
+    def _check_if_best(self, metrics: dict[str, float]) -> bool:
         """Checks if the current metrics represent the best seen so far."""
         # Garantizar que usamos el nombre correcto de la métrica
         # Si el monitor_metric no tiene prefijo val_ pero buscamos en
@@ -350,10 +421,11 @@ class Trainer:
         if current_metric is None:
             available_metrics = ", ".join(metrics.keys())
             safe_log(
-                self.internal_logger, "warning",
+                self.internal_logger,
+                "warning",
                 f"Monitor metric '{metric_name}' not found in "
                 f"validation results. Available: {available_metrics}. "
-                f"Cannot determine if best."
+                f"Cannot determine if best.",
             )
             return False
 
@@ -369,13 +441,15 @@ class Trainer:
             old_best = self.best_metric_value
             self.best_metric_value = current_metric
             safe_log(
-                self.internal_logger, "info",
+                self.internal_logger,
+                "info",
                 f"Validation metric '{metric_name}' improved from "
                 f"{old_best:.4f} to {current_metric:.4f}. "
-                f"Saving best checkpoint."
+                f"Saving best checkpoint.",
             )
             return True
         return False
+
 
 # --- Remove old standalone functions ---
 # def train_one_epoch(...): ...

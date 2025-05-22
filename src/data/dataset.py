@@ -1,66 +1,69 @@
-# import os # No longer needed
+# ruff: noqa: PLR2004
 import random
+import typing
 import warnings
-from typing import List, Optional, Tuple, Dict, Union
+from pathlib import Path
+from typing import Any
+
+import cv2
 import numpy as np
-import torch
-from torch.utils.data import Dataset
 import PIL.Image
 import PIL.ImageOps
-from pathlib import Path
-import cv2
+import torch
 from omegaconf import DictConfig, OmegaConf
+from torch.utils.data import Dataset
+
 from src.data.validation import validate_data_config, validate_transform_config
 
 # Import the transform functions
 from .transforms import (
-    get_basic_transforms,
     apply_transforms,
-    get_transforms_from_config
+    get_basic_transforms,
+    get_transforms_from_config,
 )
 
 # Define SourceType at module level for type hinting
-SourceType = Union[str, Path, PIL.Image.Image, np.ndarray]
+SourceType = str | Path | PIL.Image.Image | np.ndarray[Any, Any]
 # Define cache_item_type at module level
-CacheItemType = Tuple[Optional[PIL.Image.Image], Optional[PIL.Image.Image]]
+CacheItemType = tuple[PIL.Image.Image | None, PIL.Image.Image | None]
 
 
-class CrackSegmentationDataset(Dataset):
+class CrackSegmentationDataset(Dataset[Any]):
     """
     PyTorch Dataset for crack segmentation.
     Loads image/mask pairs from a provided list or scans directories.
     Applies transformations using Albumentations.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
         mode: str,  # Mode is required for transforms
-        image_size: Optional[Tuple[int, int]] = None,
-        # data_root: Optional[str] = None, # Keep for potential future use?
-        samples_list: Optional[List[Tuple[str, str]]] = None,
-        seed: Optional[int] = None,
+        image_size: tuple[int, int] | None = None,
+        # data_root: str | None = None, # Keep for potential future use?
+        samples_list: list[tuple[str, str]] | None = None,
+        seed: int | None = None,
         in_memory_cache: bool = False,
-        config_transform: Optional[dict] = None,
-        max_samples: Optional[int] = None  # Nuevo argumento opcional
+        config_transform: dict[str, Any] | None = None,
+        max_samples: int | None = None,  # New optional argument
     ):
         """
         Args:
             mode (str): 'train', 'val', or 'test'. Determines transforms.
-            image_size (tuple, optional): Target size (height, width) for
-                resizing.
-            samples_list (List[Tuple[str, str]], optional):
+            image_size (tuple[int, int] | None): Target size (height, width)
+            for resizing.
+            samples_list (list[tuple[str, str]] | None):
                 Pre-defined list of (image_path, mask_path) tuples.
                 If not provided, requires a different initialization
                 method (e.g., via data_root, currently implies scanning,
                 which is removed).
                 If provided, these paths are used directly.
-            seed (int, optional): Random seed for reproducibility.
+            seed (int | None): Random seed for reproducibility.
             in_memory_cache (bool): If True, cache all data in RAM.
                 Note: Cache stores raw PIL Images.
                 Transforms applied after cache load.
-            config_transform (dict, optional): Dict with transform config
-                (Hydra YAML).
-            max_samples (int, optional): If set and > 0, limits the number
+            config_transform (dict[str, Any] | None): Dict with transform
+            config (Hydra YAML).
+            max_samples (int | None): If set and > 0, limits the number
                 of samples loaded for this dataset (for fast testing).
         """
         if mode not in ["train", "val", "test"]:
@@ -70,13 +73,14 @@ class CrackSegmentationDataset(Dataset):
         self.seed = seed
         self.in_memory_cache = in_memory_cache
         # self.data_root = data_root # Store if needed later?
-        self.samples: List[Tuple[str, str]] = []
+        self.samples: list[tuple[str, str]] = []
 
         if samples_list is not None:
             self.samples = samples_list
             if not self.samples:
                 warnings.warn(
-                    f"Provided samples_list for mode '{mode}' is empty."
+                    f"Provided samples_list for mode '{mode}' is empty.",
+                    stacklevel=2,
                 )
         # Removed the data_root scanning logic
         # elif data_root is not None:
@@ -87,27 +91,27 @@ class CrackSegmentationDataset(Dataset):
             # For now, assume samples_list is the primary way.
             raise ValueError("samples_list must be provided.")
 
-        # Limitar el número de muestras si se especifica max_samples
+        # Limit the number of samples if max_samples is specified
         if max_samples is not None and max_samples > 0:
             original_count = len(self.samples)
-            # Asegurar que no intentamos tomar más muestras de las disponibles
+            # Ensure we do not try to take more samples than available
             max_samples = min(max_samples, original_count)
             self.samples = self.samples[:max_samples]
             final_count = len(self.samples)
             print(
-                f"DEBUG - Dataset '{mode}': Limitado de "
-                f"{original_count} a {final_count} muestras"
+                f"DEBUG - Dataset '{mode}': Limited from "
+                f"{original_count} to {final_count} samples"
             )
         else:
             print(
-                f"DEBUG - Dataset '{mode}': Usando todas las "
-                f"{len(self.samples)} muestras disponibles (sin límite)"
+                f"DEBUG - Dataset '{mode}': Using all "
+                f"{len(self.samples)} available samples (no limit)"
             )
 
         # Type hint for cache
-        self._cache: Optional[List[CacheItemType]] = None
+        self._cache: list[tuple[Any, Any]] | None = None
 
-        # Selección de transformaciones: config dict > image_size > default
+        # Selection of transformations: config dict > image_size > default
         if config_transform is not None:
             self.transforms = get_transforms_from_config(
                 config_transform, self.mode
@@ -117,7 +121,7 @@ class CrackSegmentationDataset(Dataset):
                 mode=self.mode, image_size=image_size
             )
         else:
-            # Fallback: usar valores por defecto
+            # Fallback: use default values
             self.transforms = get_basic_transforms(mode=self.mode)
 
         # Build cache based on the final self.samples list
@@ -138,7 +142,10 @@ class CrackSegmentationDataset(Dataset):
             if torch.cuda.is_available():
                 torch.cuda.manual_seed_all(self.seed)
         except ImportError:
-            warnings.warn("torch is not installed. Cannot set torch seed.")
+            warnings.warn(
+                "torch is not installed. Cannot set torch seed.",
+                stacklevel=2,
+            )
 
     def _build_cache(self):
         """Cache all images and masks in memory as PIL Images."""
@@ -146,31 +153,45 @@ class CrackSegmentationDataset(Dataset):
         for img_path, mask_path in self.samples:
             try:
                 # Load as PIL for caching
-                image = PIL.Image.open(img_path)
-                image = PIL.ImageOps.exif_transpose(image)
-                image = image.convert("RGB")
+                img_pil_raw = PIL.Image.open(img_path)
+                image_pil = typing.cast(PIL.Image.Image, img_pil_raw)
+                image_intermediate = PIL.ImageOps.exif_transpose(image_pil)
+                image = typing.cast(
+                    PIL.Image.Image, image_intermediate
+                ).convert("RGB")
 
-                mask = PIL.Image.open(mask_path)
-                mask = PIL.ImageOps.exif_transpose(mask)
-                mask = mask.convert("L")  # Grayscale
+                mask_pil_raw = PIL.Image.open(mask_path)
+                mask_pil = typing.cast(PIL.Image.Image, mask_pil_raw)
+                mask_intermediate = PIL.ImageOps.exif_transpose(mask_pil)
+                mask = typing.cast(PIL.Image.Image, mask_intermediate).convert(
+                    "L"
+                )
 
                 self._cache.append((image.copy(), mask.copy()))
                 # Close files after copying
                 image.close()
                 mask.close()
 
-            except Exception as e:
+            except (
+                OSError,
+                FileNotFoundError,
+                PIL.UnidentifiedImageError,
+                AttributeError,
+                ValueError,
+            ) as e:
                 warnings.warn(
-                    f"Could not cache image/mask: "
-                    f"{img_path}, {mask_path}: {e}"
+                    f"Could not cache image/mask: {img_path}, {mask_path}: "
+                    f"{e}",
+                    stacklevel=2,
                 )
-                self._cache.append((None, None))  # Placehold. for failed cache
+                # Placeholder for failed cache
+                self._cache.append((None, None))
 
     def __len__(self) -> int:
         """Return the total number of samples."""
         return len(self.samples)
 
-    def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         """
         Return the transformed image and mask pair at the given index.
 
@@ -182,7 +203,7 @@ class CrackSegmentationDataset(Dataset):
             idx (int): Index of the sample.
 
         Returns:
-            Dict[str, torch.Tensor]: Dictionary containing 'image' and 'mask'
+            dict[str, torch.Tensor]: Dictionary containing 'image' and 'mask'
                                      as torch tensors.
 
         Raises:
@@ -195,8 +216,8 @@ class CrackSegmentationDataset(Dataset):
         while attempts < max_attempts:
             current_idx = (original_idx + attempts) % max_attempts
             # Define possible types for image/mask sources
-            image_source: Optional[SourceType] = None
-            mask_source: Optional[SourceType] = None
+            image_source: SourceType | None = None
+            mask_source: SourceType | None = None
 
             # Try loading from cache first if enabled
             if self.in_memory_cache and self._cache is not None:
@@ -214,81 +235,57 @@ class CrackSegmentationDataset(Dataset):
                 image_source, mask_source = self.samples[current_idx]
 
             try:
-                # Verificar explícitamente si las fuentes son rutas (strings)
-                if isinstance(image_source, str) and isinstance(mask_source,
-                                                                str):
-                    # Cargar y transformar desde archivos
+                # Explicitly check if sources are paths (strings)
+                if isinstance(image_source, str) and isinstance(
+                    mask_source, str
+                ):
+                    # Load and transform from files
                     image = cv2.imread(image_source)
-                    if image is None:
-                        raise ValueError(f"Failed to load image: \
-{image_source}")
                     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
                     mask = cv2.imread(mask_source, cv2.IMREAD_GRAYSCALE)
-                    if mask is None:
-                        raise ValueError(f"Failed to load mask: {mask_source}")
 
-                    # Asegurar que la máscara sea binaria (0/1)
+                    # Ensure mask is binary (0/1)
                     mask = (mask > 127).astype(np.uint8)
 
-                    # Aplicar transformaciones
-                    if self.transforms is not None:
-                        transformed = self.transforms(image=image, mask=mask)
-                        # Ya debe ser un tensor
-                        image_tensor = transformed['image']
-                        mask_tensor = transformed['mask']
+                    # Apply transformations
+                    transformed = self.transforms(image=image, mask=mask)
+                    image_tensor = transformed["image"]
+                    mask_tensor = transformed["mask"]
 
-                        # Verificación adicional para asegurar que ambos sean
-                        # tensores
-                        if not isinstance(image_tensor, torch.Tensor):
-                            image_tensor = torch.from_numpy(image_tensor)\
-                                .permute(2, 0, 1).float() / 255.0
-                        if not isinstance(mask_tensor, torch.Tensor):
-                            mask_tensor = torch.from_numpy(mask_tensor)\
-                                .unsqueeze(0).float()
-
-                        # Asegurar que mask_tensor sea binario (0/1)
-                        mask_tensor = (mask_tensor > 0.5).float()
-                        # Garantizar shape (1, H, W)
-                        if mask_tensor.ndim == 2:
-                            mask_tensor = mask_tensor.unsqueeze(0)
-                        return {"image": image_tensor, "mask": mask_tensor}
-                    else:
-                        # Sin transformaciones, convertir a tensor manualmente
-                        image_tensor = torch.from_numpy(image)\
-                            .permute(2, 0, 1).float() / 255.0
-                        mask_tensor = torch.from_numpy(mask)\
-                            .unsqueeze(0).float()
-                        return {"image": image_tensor, "mask": mask_tensor}
+                    # Ensure mask_tensor is binary (0/1)
+                    mask_tensor = (mask_tensor > 0.5).float()
+                    # Ensure shape (1, H, W)
+                    if mask_tensor.ndim == 2:
+                        mask_tensor = mask_tensor.unsqueeze(0)
+                    return {"image": image_tensor, "mask": mask_tensor}
                 else:
-                    # Apply transformations usando el código existente
-                    # (no son strings)
+                    # Apply transformations using existing code (not strings)
                     sample = apply_transforms(
                         image=image_source,
                         mask=mask_source,
-                        transforms=self.transforms
+                        transforms=self.transforms,
                     )
-
-                    # Verificación final para asegurar que siempre devolvemos
-                    # tensores
-                    if not isinstance(sample['image'], torch.Tensor) or \
-                       not isinstance(sample.get('mask', None), torch.Tensor):
-                        raise TypeError(
-                            "apply_transforms no retornó tensores PyTorch. "
-                            "Revisar implementación."
-                        )
-                    # Garantizar shape (1, H, W) para la máscara
-                    mask_tensor = sample['mask']
+                    # Ensure shape (1, H, W) for the mask
+                    mask_tensor = sample["mask"]
                     if mask_tensor.ndim == 2:
                         mask_tensor = mask_tensor.unsqueeze(0)
-                    return {"image": sample['image'], "mask": mask_tensor}
+                    return {"image": sample["image"], "mask": mask_tensor}
 
-            except Exception as e:
+            except (
+                OSError,
+                ValueError,
+                TypeError,
+                AttributeError,
+                RuntimeError,
+            ) as e:
                 img_path, mask_path = self.samples[current_idx]
-                warnings.warn(
+                # Adjust long warning message line
+                warn_msg = (
                     f"Error processing sample at index {current_idx} "
                     f"({img_path}, {mask_path}): {e}. Skipping."
                 )
+                warnings.warn(warn_msg, stacklevel=2)
                 attempts += 1
                 # Optional: Invalidate cache entry?
                 # if self.in_memory_cache and self._cache is not None:
@@ -299,13 +296,13 @@ class CrackSegmentationDataset(Dataset):
         )
 
 
-def create_crackseg_dataset(
+def create_crackseg_dataset(  # noqa: PLR0913
     data_cfg: DictConfig,
     transform_cfg: DictConfig,
     mode: str,
-    samples_list: list,
+    samples_list: list[tuple[str, str]],
     in_memory_cache: bool = False,
-    max_samples: Optional[int] = None
+    max_samples: int | None = None,
 ) -> CrackSegmentationDataset:
     """
     Factory function to create a CrackSegmentationDataset from Hydra configs.
@@ -315,20 +312,21 @@ def create_crackseg_dataset(
         transform_cfg (DictConfig): Transform config
             (e.g. configs/data/transform.yaml)
         mode (str): 'train', 'val' or 'test'
-        samples_list (list): List of (image_path, mask_path) tuples
+        samples_list (list[tuple[str, str]]): List of (image_path, mask_path)
+            tuples
         in_memory_cache (bool): Whether to cache images in RAM
-        max_samples (Optional[int]): Maximum number of samples for the dataset
+        max_samples (int | None): Maximum number of samples for the dataset
     Returns:
         CrackSegmentationDataset: Configured dataset instance
     """
-    # Mensaje de depuración mejorado
+    # Improved debug message
     if max_samples is not None and max_samples > 0:
         print(f"DEBUG - Creating dataset for '{mode}' with:")
         print(f"  Total samples available: {len(samples_list)}")
         print(f"  Max samples limit: {max_samples}")
         print(
-            f"  Will apply limit: "
-            f"{min(max_samples, len(samples_list))} samples"
+            f"  Will apply limit: {min(max_samples, len(samples_list))} "
+            "samples"
         )
     else:
         print(
@@ -337,25 +335,39 @@ def create_crackseg_dataset(
         )
 
     # Convert transform config to dict if needed
-    if isinstance(transform_cfg, DictConfig):
-        transform_cfg = OmegaConf.to_container(transform_cfg, resolve=True)
-    if isinstance(data_cfg, DictConfig):
-        data_cfg = OmegaConf.to_container(data_cfg, resolve=True)
-    # Validar ambos configs
+    transform_cfg_for_dataset: dict[Any, Any] | None = None
+    container_result = OmegaConf.to_container(transform_cfg, resolve=True)
+    if isinstance(container_result, dict):
+        transform_cfg_for_dataset = typing.cast(
+            dict[Any, Any], container_result
+        )
+    else:
+        warn_msg = (
+            f"OmegaConf.to_container did not return a dict for "
+            f"transform_cfg. Got {type(container_result)}"
+        )
+        warnings.warn(warn_msg, stacklevel=2)
+        # Optionally, raise an error or use a default value; for now, it
+        # remains None
+
+    # data_cfg is DictConfig by type hint, no isinstance needed
+    seed_val = data_cfg.get("seed", 42)
+
+    # Validate both configs
+    # We assume that the validation functions can handle DictConfig or dict
     validate_data_config(data_cfg)
     validate_transform_config(transform_cfg)
-    seed = data_cfg.get('seed', 42)
 
-    # Crear el dataset
+    # Create the dataset
     dataset = CrackSegmentationDataset(
         mode=mode,
         samples_list=samples_list,
-        seed=seed,
+        seed=seed_val,  # Use the extracted seed
         in_memory_cache=in_memory_cache,
-        config_transform=transform_cfg,
-        max_samples=max_samples
+        config_transform=transform_cfg_for_dataset,  # Pass the dict or None
+        max_samples=max_samples,
     )
 
-    # Reporte final
+    # Final report on dataset creation
     print(f"Created dataset for '{mode}' with {len(dataset)} samples.")
     return dataset

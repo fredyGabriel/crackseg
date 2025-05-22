@@ -5,15 +5,11 @@ This test module verifies that the configuration validation system correctly
 validates configurations for various component types and hybrid architectures.
 """
 
+from src.model.config.core import ConfigParam, ConfigSchema, ParamType
 from src.model.config.validation import (
-    validate_component_config,
+    normalize_config,
     validate_architecture_config,
-    normalize_config
-)
-from src.model.config.core import (
-    ParamType,
-    ConfigParam,
-    ConfigSchema
+    validate_component_config,
 )
 
 
@@ -23,8 +19,9 @@ class TestBasicValidation:
     def test_param_validation(self):
         """Test validation of individual parameters."""
         # String param
-        string_param = ConfigParam("test_string", ParamType.STRING,
-                                   required=True)
+        string_param = ConfigParam(
+            "test_string", ParamType.STRING, required=True
+        )
         assert string_param.validate("valid")[0] is True
         assert string_param.validate(None)[0] is False  # Required
         assert string_param.validate(123)[0] is False  # Wrong type
@@ -55,9 +52,10 @@ class TestBasicValidation:
             params=[
                 ConfigParam("name", ParamType.STRING, required=True),
                 ConfigParam("count", ParamType.INTEGER, required=True),
-                ConfigParam("enabled", ParamType.BOOLEAN, required=False,
-                            default=True),
-            ]
+                ConfigParam(
+                    "enabled", ParamType.BOOLEAN, required=False, default=True
+                ),
+            ],
         )
 
         # Valid config
@@ -79,8 +77,11 @@ class TestBasicValidation:
         assert "count" in errors
 
         # Config with unknown parameters
-        unknown_param_config = {"name": "test", "count": 10,
-                                "unknown": "value"}
+        unknown_param_config = {
+            "name": "test",
+            "count": 10,
+            "unknown": "value",
+        }
         is_valid, errors = test_schema.validate(unknown_param_config)
         assert is_valid is False
         assert "_unknown" in errors
@@ -99,7 +100,7 @@ class TestBasicValidation:
             params=[
                 ConfigParam("inner_name", ParamType.STRING, required=True),
                 ConfigParam("inner_value", ParamType.INTEGER, required=True),
-            ]
+            ],
         )
 
         outer_schema = ConfigSchema(
@@ -107,19 +108,18 @@ class TestBasicValidation:
             params=[
                 ConfigParam("name", ParamType.STRING, required=True),
                 ConfigParam(
-                    "nested", ParamType.NESTED, required=True,
-                    nested_schema=inner_schema
+                    "nested",
+                    ParamType.NESTED,
+                    required=True,
+                    nested_schema=inner_schema,
                 ),
-            ]
+            ],
         )
 
         # Valid config
         valid_config = {
             "name": "test",
-            "nested": {
-                "inner_name": "inner",
-                "inner_value": 42
-            }
+            "nested": {"inner_name": "inner", "inner_value": 42},
         }
         is_valid, errors = outer_schema.validate(valid_config)
         assert is_valid is True
@@ -131,7 +131,7 @@ class TestBasicValidation:
             "nested": {
                 "inner_name": "inner",
                 # Missing inner_value
-            }
+            },
         }
         is_valid, errors = outer_schema.validate(invalid_nested_config)
         assert is_valid is False
@@ -147,7 +147,7 @@ class TestComponentValidation:
         valid_cnn_config = {
             "type": "CNNEncoder",
             "in_channels": 3,
-            "hidden_dims": [64, 128, 256, 512]
+            "hidden_dims": [64, 128, 256, 512],
         }
         is_valid, errors = validate_component_config(
             valid_cnn_config, "encoder"
@@ -164,7 +164,7 @@ class TestComponentValidation:
             "depths": [2, 2, 6, 2],
             "num_heads": [3, 6, 12, 24],
             "window_size": 7,
-            "pretrained": True
+            "pretrained": True,
         }
         is_valid, errors = validate_component_config(
             valid_swin_config, "encoder"
@@ -177,11 +177,9 @@ class TestComponentValidation:
         invalid_config = {
             "type": "CNNEncoder",
             # Missing in_channels
-            "hidden_dims": [64, 128, 256, 512]
+            "hidden_dims": [64, 128, 256, 512],
         }
-        is_valid, errors = validate_component_config(
-            invalid_config, "encoder"
-        )
+        is_valid, errors = validate_component_config(invalid_config, "encoder")
         assert is_valid is False
         assert errors is not None
 
@@ -190,7 +188,7 @@ class TestComponentValidation:
         invalid_config = {
             "type": "CNNEncoder",
             "in_channels": 3,
-            "hidden_dims": "should_be_list"
+            "hidden_dims": "should_be_list",
         }
         is_valid, errors = validate_component_config(invalid_config, "encoder")
         assert not is_valid
@@ -204,15 +202,13 @@ class TestComponentValidation:
             "type": "ASPPModule",
             "in_channels": 512,
             "out_channels": 256,
-            "atrous_rates": [6, 12, 18]
+            "atrous_rates": [6, 12, 18],
         }
         is_valid, errors = validate_component_config(
             valid_aspp_config, "bottleneck"
         )
         assert is_valid is True or (
-            not is_valid and (
-                "_unknown" in errors or "_general" in errors
-            )
+            not is_valid and ("_unknown" in errors or "_general" in errors)
         )
 
         # Valid ConvLSTM bottleneck config (puede fallar por parámetros
@@ -223,23 +219,21 @@ class TestComponentValidation:
             "hidden_channels": 256,
             "out_channels": 256,
             "kernel_size": 3,
-            "num_layers": 1
+            "num_layers": 1,
         }
         is_valid, errors = validate_component_config(
             valid_convlstm_config, "bottleneck"
         )
         # Puede fallar por parámetros desconocidos
         assert is_valid is True or (
-            not is_valid and (
-                "_unknown" in errors or "_general" in errors
-            )
+            not is_valid and ("_unknown" in errors or "_general" in errors)
         )
 
         # Invalid bottleneck config (wrong type for parameter)
         invalid_config = {
             "type": "ASPPModule",
             "in_channels": "512",  # Should be integer
-            "out_channels": 256
+            "out_channels": 256,
         }
         is_valid, errors = validate_component_config(
             invalid_config, "bottleneck"
@@ -254,15 +248,9 @@ class TestComponentValidation:
             "in_channels": 64,
             # Missing out_channels
         }
-        is_valid, errors = validate_component_config(
-            invalid_config, "decoder"
-        )
+        is_valid, errors = validate_component_config(invalid_config, "decoder")
         assert not is_valid
-        assert (
-            "out_channels" in errors
-        ) or (
-            "_general" in errors
-        )
+        assert ("out_channels" in errors) or ("_general" in errors)
 
 
 class TestArchitectureValidation:
@@ -278,19 +266,19 @@ class TestArchitectureValidation:
             "encoder": {
                 "type": "CNNEncoder",
                 "in_channels": 3,
-                "hidden_dims": [64, 128, 256, 512]
+                "hidden_dims": [64, 128, 256, 512],
             },
             "bottleneck": {
                 "type": "Identity",
                 "in_channels": 512,
-                "out_channels": 512
+                "out_channels": 512,
             },
             "decoder": {
                 "type": "CNNDecoder",
                 "in_channels": 512,
                 "out_channels": 1,
-                "hidden_dims": [256, 128, 64, 32]
-            }
+                "hidden_dims": [256, 128, 64, 32],
+            },
         }
         is_valid, errors = validate_architecture_config(valid_config)
         assert is_valid is True
@@ -310,13 +298,13 @@ class TestArchitectureValidation:
                 "in_channels": 3,
                 "embed_dim": 96,
                 "depths": [2, 2, 6, 2],
-                "num_heads": [3, 6, 12, 24]
+                "num_heads": [3, 6, 12, 24],
             },
             "bottleneck": {
                 "type": "ASPPModule",
                 "in_channels": 768,
                 "out_channels": 512,
-                "atrous_rates": [6, 12, 18]
+                "atrous_rates": [6, 12, 18],
             },
             "decoder": {
                 "type": "CNNDecoder",
@@ -324,22 +312,21 @@ class TestArchitectureValidation:
                 "out_channels": 1,
                 "hidden_dims": [256, 128, 64, 32],
                 "use_attention": True,
-                "attention_type": "CBAM"
+                "attention_type": "CBAM",
             },
             "components": {
                 "attention": {
                     "type": "CBAM",
                     "channels": 256,
-                    "reduction_ratio": 16
+                    "reduction_ratio": 16,
                 }
-            }
+            },
         }
         is_valid, errors = validate_architecture_config(valid_hybrid_config)
         # Puede fallar por parámetros desconocidos
         assert is_valid is True or (
-            not is_valid and (
-                "_unknown" in str(errors) or "_general" in str(errors)
-            )
+            not is_valid
+            and ("_unknown" in str(errors) or "_general" in str(errors))
         )
 
     def test_hybrid_architecture_with_invalid_component(self):
@@ -353,13 +340,13 @@ class TestArchitectureValidation:
                 "in_channels": 3,
                 "embed_dim": 96,
                 "depths": [2, 2, 6, 2],
-                "num_heads": [3, 6, 12, 24]
+                "num_heads": [3, 6, 12, 24],
             },
             "bottleneck": {
                 "type": "ASPPModule",
                 "in_channels": 768,
                 "out_channels": 512,
-                "atrous_rates": [6, 12, 18]
+                "atrous_rates": [6, 12, 18],
             },
             "decoder": {
                 "type": "CNNDecoder",
@@ -367,23 +354,19 @@ class TestArchitectureValidation:
                 "out_channels": 1,
                 "hidden_dims": [256, 128, 64, 32],
                 "use_attention": True,
-                "attention_type": "CBAM"
+                "attention_type": "CBAM",
             },
             "components": {
                 "attention": {
                     "type": "CBAM"
                     # Falta 'channels', requerido
                 }
-            }
+            },
         }
         is_valid, errors = validate_architecture_config(config)
         assert not is_valid
         # Puede fallar por error en encoder o en components
-        assert (
-            "components" in errors
-        ) or (
-            "encoder" in errors
-        )
+        assert ("components" in errors) or ("encoder" in errors)
 
 
 class TestConfigNormalization:
@@ -396,13 +379,16 @@ class TestConfigNormalization:
             name="test_schema",
             params=[
                 ConfigParam("name", ParamType.STRING, required=True),
-                ConfigParam("count", ParamType.INTEGER, required=False,
-                            default=0),
-                ConfigParam("enabled", ParamType.BOOLEAN, required=False,
-                            default=True),
-                ConfigParam("factor", ParamType.FLOAT, required=False,
-                            default=1.0),
-            ]
+                ConfigParam(
+                    "count", ParamType.INTEGER, required=False, default=0
+                ),
+                ConfigParam(
+                    "enabled", ParamType.BOOLEAN, required=False, default=True
+                ),
+                ConfigParam(
+                    "factor", ParamType.FLOAT, required=False, default=1.0
+                ),
+            ],
         )
 
         # Normalize a minimal config
@@ -419,7 +405,7 @@ class TestConfigNormalization:
         normalized = schema.normalize(config)
 
         assert normalized["name"] == "test"
-        assert normalized["count"] == 5
+        assert normalized["count"] == 5  # noqa: PLR2004
         assert normalized["enabled"] is False
         assert normalized["factor"] == 1.0
 
@@ -430,20 +416,17 @@ class TestConfigNormalization:
             "type": "UNet",
             "in_channels": 3,
             "out_channels": 1,
-            "encoder": {
-                "type": "CNNEncoder",
-                "in_channels": 3
-            },
+            "encoder": {"type": "CNNEncoder", "in_channels": 3},
             "bottleneck": {
                 "type": "Identity",
                 "in_channels": 512,
-                "out_channels": 512
+                "out_channels": 512,
             },
             "decoder": {
                 "type": "CNNDecoder",
                 "in_channels": 512,
-                "out_channels": 1
-            }
+                "out_channels": 1,
+            },
         }
 
         # Normalize the config
@@ -460,34 +443,29 @@ class TestConfigNormalization:
             "type": "HybridUNet",
             "in_channels": 3,
             "out_channels": 1,
-            "encoder": {
-                "type": "SwinV2",
-                "in_channels": 3
-            },
+            "encoder": {"type": "SwinV2", "in_channels": 3},
             "bottleneck": {
                 "type": "ASPPModule",
                 "in_channels": 768,
-                "out_channels": 512
+                "out_channels": 512,
             },
             "decoder": {
                 "type": "CNNDecoder",
                 "in_channels": 512,
-                "out_channels": 1
+                "out_channels": 1,
             },
-            "components": {
-                "attention": {
-                    "type": "CBAM",
-                    "channels": 256
-                }
-            }
+            "components": {"attention": {"type": "CBAM", "channels": 256}},
         }
 
         normalized_hybrid = normalize_config(hybrid_config)
 
         # Check encoder defaults (solo los del esquema base)
         assert "hidden_dims" in normalized_hybrid["encoder"]
-        assert (
-            normalized_hybrid["encoder"]["hidden_dims"] == [64, 128, 256, 512]
-        )
+        assert normalized_hybrid["encoder"]["hidden_dims"] == [
+            64,
+            128,
+            256,
+            512,
+        ]
         assert "dropout" in normalized_hybrid["encoder"]
         assert normalized_hybrid["encoder"]["dropout"] == 0.0

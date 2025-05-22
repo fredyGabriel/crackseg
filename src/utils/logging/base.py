@@ -2,11 +2,12 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any
-from omegaconf import DictConfig
+from typing import Any
+
+from omegaconf import DictConfig, OmegaConf
 
 
-def get_logger(name: str, level: str = 'INFO') -> logging.Logger:
+def get_logger(name: str, level: str = "INFO") -> logging.Logger:
     """Return a configured logger with the given name and level.
 
     Args:
@@ -19,7 +20,7 @@ def get_logger(name: str, level: str = 'INFO') -> logging.Logger:
     logger = logging.getLogger(name)
     if not logger.handlers:
         handler = logging.StreamHandler()
-        formatter = logging.Formatter('[%(levelname)s] %(name)s: %(message)s')
+        formatter = logging.Formatter("[%(levelname)s] %(name)s: %(message)s")
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     logger.setLevel(level.upper())
@@ -35,7 +36,7 @@ class BaseLogger(ABC):
         pass
 
     @abstractmethod
-    def log_config(self, config: Dict[str, Any]) -> None:
+    def log_config(self, config: dict[str, Any]) -> None:
         """Log the experiment configuration."""
         pass
 
@@ -45,7 +46,7 @@ class BaseLogger(ABC):
         pass
 
 
-def flatten_dict(d: Dict[str, Any], parent_key: str = '') -> Dict[str, Any]:
+def flatten_dict(d: dict[str, Any], parent_key: str = "") -> dict[str, Any]:
     """Flatten a nested dictionary.
 
     Args:
@@ -58,18 +59,22 @@ def flatten_dict(d: Dict[str, Any], parent_key: str = '') -> Dict[str, Any]:
     items = []
     for k, v in d.items():
         new_key = f"{parent_key}/{k}" if parent_key else k
-        if isinstance(v, (dict, DictConfig)):
+        if isinstance(v, DictConfig):
+            # Convert DictConfig to a standard dict before recursive call
+            items.extend(
+                flatten_dict(
+                    OmegaConf.to_container(v, resolve=True), new_key
+                ).items()
+            )
+        elif isinstance(v, dict):
             items.extend(flatten_dict(v, new_key).items())
-        elif isinstance(v, (int, float, str, bool)):
+        elif isinstance(v, int | float | str | bool):
             items.append((new_key, v))
     return dict(items)
 
 
 def log_metrics_dict(
-    logger: BaseLogger,
-    metrics: Dict[str, float],
-    step: int,
-    prefix: str = ''
+    logger: BaseLogger, metrics: dict[str, float], step: int, prefix: str = ""
 ) -> None:
     """Logs a dictionary of scalar metrics using the provided logger.
 
@@ -91,7 +96,7 @@ def log_metrics_dict(
 
     for name, value in metrics.items():
         # Only log numeric types (int, float), explicitly excluding bool
-        if isinstance(value, (int, float)) and not isinstance(value, bool):
+        if isinstance(value, int | float) and not isinstance(value, bool):
             tag = f"{prefix}{name}" if prefix else name
             try:
                 # Ensure value is float for logger
@@ -111,7 +116,7 @@ class NoOpLogger(BaseLogger):
         """Does nothing."""
         pass
 
-    def log_config(self, config: Dict[str, Any]) -> None:
+    def log_config(self, config: dict[str, Any]) -> None:
         """Does nothing."""
         pass
 

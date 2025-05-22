@@ -1,3 +1,4 @@
+# ruff: noqa: PLR2004
 """Unit tests for the transforms module."""
 
 import albumentations as A
@@ -6,7 +7,7 @@ import pytest
 import torch
 from PIL import Image
 
-from src.data.transforms import get_basic_transforms, apply_transforms
+from src.data.transforms import apply_transforms, get_basic_transforms
 
 
 @pytest.fixture
@@ -98,11 +99,9 @@ def test_get_basic_transforms_custom_size():
 def test_get_basic_transforms_custom_normalization():
     """Test get_basic_transforms with custom normalization parameters."""
     custom_mean = (0.485, 0.456, 0.406)  # ImageNet mean values
-    custom_std = (0.229, 0.224, 0.225)   # ImageNet std values
+    custom_std = (0.229, 0.224, 0.225)  # ImageNet std values
     transform = get_basic_transforms(
-        mode="val",
-        mean=custom_mean,
-        std=custom_std
+        mode="val", mean=custom_mean, std=custom_std
     )
 
     normalize_transform = next(
@@ -115,8 +114,9 @@ def test_get_basic_transforms_custom_normalization():
 def test_apply_transforms_with_arrays(sample_image, sample_mask):
     """Test apply_transforms with numpy array inputs."""
     transforms = get_basic_transforms(mode="train")
-    result = apply_transforms(sample_image, mask=sample_mask,
-                              transforms=transforms)
+    result = apply_transforms(
+        sample_image, mask=sample_mask, transforms=transforms
+    )
 
     assert "image" in result
     assert "mask" in result
@@ -130,9 +130,7 @@ def test_apply_transforms_with_files(temp_image_file, temp_mask_file):
     """Test apply_transforms with file path inputs."""
     transforms = get_basic_transforms(mode="val")
     result = apply_transforms(
-        temp_image_file,
-        mask=temp_mask_file,
-        transforms=transforms
+        temp_image_file, mask=temp_mask_file, transforms=transforms
     )
 
     assert "image" in result
@@ -173,16 +171,16 @@ def test_apply_transforms_augmentation_variability():
     ]
 
     assert any(
-        not torch.allclose(results[0], result)
-        for result in results[1:]
+        not torch.allclose(results[0], result) for result in results[1:]
     )
 
 
 def test_transforms_tensor_output(sample_image, sample_mask):
     """Test that transformations output tensors with correct shape and type."""
     transforms = get_basic_transforms(mode="val")
-    result = apply_transforms(sample_image, mask=sample_mask,
-                              transforms=transforms)
+    result = apply_transforms(
+        sample_image, mask=sample_mask, transforms=transforms
+    )
 
     assert result["image"].dtype == torch.float32
     assert result["mask"].dtype == torch.float32
@@ -205,8 +203,9 @@ def test_transforms_normalization_range(sample_image):
 def test_transforms_mask_values(sample_image, sample_mask):
     """Test that mask values remain binary after transformations."""
     transforms = get_basic_transforms(mode="train")
-    result = apply_transforms(sample_image, mask=sample_mask,
-                              transforms=transforms)
+    result = apply_transforms(
+        sample_image, mask=sample_mask, transforms=transforms
+    )
 
     # Check that mask values remain binary (or very close to it)
     unique_values = torch.unique(result["mask"])
@@ -230,9 +229,7 @@ def test_transforms_mask_shape_consistency(sample_image, sample_mask):
     """Test that mask shape matches image spatial dimensions."""
     transforms = get_basic_transforms(mode="val")
     result = apply_transforms(
-        sample_image,
-        mask=sample_mask,
-        transforms=transforms
+        sample_image, mask=sample_mask, transforms=transforms
     )
 
     # Verificar que las dimensiones espaciales coinciden

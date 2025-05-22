@@ -1,10 +1,10 @@
 ---
-description: 
+description:
 globs: test*.py
 alwaysApply: false
 ---
-- **Tests should reflect the real API and behavior of production code**
-    - If a test fails because it expects files, names, paths, or outputs that are not actually produced by the real code logic, the test must be adapted to match the actual behavior and public API of the production code.
+- **Tests should validate the real, intended API and behavior of production code, not accidental implementation details.**
+    - If a test fails because it expects files, names, paths, or outputs that are not actually produced by the real code logic, the test must be adapted to match the actual, correct behavior and public API of the production code.
     - **Do not modify production code just to satisfy arbitrary details in tests** (e.g., creating files or outputs that have no functional purpose, just to make a test pass).
     - Correct example:
       ```python
@@ -29,4 +29,14 @@ alwaysApply: false
     - Clearly justify the chosen solution, selecting the most professional, robust, and maintainable approach.
     - Document the reasoning in the implementation log or commit message if relevant.
     - This ensures thoughtful, high-quality decisions and prevents arbitrary or rushed fixes.
+
+- **Limits and exceptions to strict adaptation**
+    - **Do not blindly adapt tests to code if the code is buggy, incomplete, or does not meet functional requirements.**
+    - If the code is suspected to be incorrect, tests should serve as a specification of the intended behavior and help reveal bugs.
+    - During design, refactorization, or when requirements are ambiguous, tests can and should be used to define the desired behavior, guiding corrections in the code.
+    - In regression validation, tests must protect against accidental changes; do not adapt tests if the code changes without a justified functional reason.
+    - The best practice is to analyze each case: if the code is correct and stable, adapt the tests; if there are doubts about the logic, use the tests to guide code correction.
+
+- **Summary**
+    - Apply this rule to keep code clean and tests meaningful, but always use professional judgment: tests are both a validation tool and, when needed, a specification of intent.
 

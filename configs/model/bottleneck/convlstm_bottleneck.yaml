@@ -2,8 +2,20 @@
 # Compatible with src.model.factory.create_bottleneck
 
 _target_: src.model.architectures.cnn_convlstm_unet.ConvLSTMBottleneck  # ConvLSTM bottleneck class
-# in_channels is determined by create_unet (matches encoder output)
-hidden_dim: 1024        # Number of output channels from bottleneck
-kernel_size: [3, 3]     # Kernel size for ConvLSTM (height, width)
-num_layers: 1           # Number of stacked ConvLSTM layers
-bias: True              # Whether to use bias in ConvLSTM layers 
+# in_channels is typically determined by the model factory (e.g., create_unet based on encoder output)
+# and passed directly to the __init__, not part of this 'config' object.
+
+config: # This will be passed as ConvLSTMBottleneckConfig to __init__
+  hidden_dim: 1024        # Number of output channels from bottleneck
+  kernel_size: [3, 3]     # Kernel size for ConvLSTM (height, width)
+  num_layers: 1           # Number of stacked ConvLSTM layers
+  bias: True              # Whether to use bias in ConvLSTM layers
+  kernel_expected_dims: ${data.kernel_expected_dims}  # Expected dimensions for kernel_size
+  num_dims_image: ${data.num_dims_image} # Expected dimensions for input image tensor
+  batch_first: True         # Data format (batch, seq, ...)
+  return_all_layers: False # Whether ConvLSTM returns all layer outputs or just the last
+
+# These are passed to ConvLSTMBottleneck and then to ConvLSTMConfig
+# They have defaults in ConvLSTMBottleneck, but can be overridden here if needed.
+# batch_first: True
+# return_all_layers: False

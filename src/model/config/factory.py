@@ -7,29 +7,26 @@ proper error reporting and default values.
 """
 
 import logging
-from typing import Dict, Any
+from typing import Any
 
 from src.model.factory.registry_setup import (
     architecture_registry,
-    encoder_registry,
     bottleneck_registry,
+    component_registries,
     decoder_registry,
-    component_registries
+    encoder_registry,
 )
 
-from .validation import validate_architecture_config, normalize_config
-from .instantiation import (
-    instantiate_hybrid_model,
-    InstantiationError
-)
+from .instantiation import InstantiationError, instantiate_hybrid_model
+from .validation import normalize_config, validate_architecture_config
 
 # Create logger
 log = logging.getLogger(__name__)
 
 
 def parse_component_config(
-    config: Dict[str, Any], component_type: str
-) -> Dict[str, Any]:
+    config: dict[str, Any], component_type: str
+) -> dict[str, Any]:
     """
     Parse and process component configuration.
 
@@ -82,7 +79,53 @@ def parse_component_config(
     return config
 
 
-def parse_architecture_config(config: Dict[str, Any]) -> Dict[str, Any]:
+def _parse_main_components(config: dict[str, Any]) -> dict[str, Any]:
+    """Parses the main encoder, bottleneck, and decoder components."""
+    if "encoder" in config:
+        config["encoder"] = parse_component_config(
+            config["encoder"], "encoder"
+        )
+    if "bottleneck" in config:
+        config["bottleneck"] = parse_component_config(
+            config["bottleneck"], "bottleneck"
+        )
+    if "decoder" in config:
+        config["decoder"] = parse_component_config(
+            config["decoder"], "decoder"
+        )
+    return config
+
+
+def _parse_hybrid_components(config: dict[str, Any]) -> dict[str, Any]:
+    """Parses additional components for hybrid architectures."""
+    if "components" in config:
+        for name, comp_config in config["components"].items():
+            if "type" not in comp_config:
+                raise ValueError(f"Component '{name}' must specify a 'type'")
+
+            component_type_str = None  # Renamed to avoid conflict
+            comp_type_val = comp_config["type"]  # Renamed to avoid conflict
+
+            if comp_type_val.endswith("Encoder"):
+                component_type_str = "encoder"
+            elif comp_type_val.endswith(
+                "Bottleneck"
+            ) or comp_type_val.endswith("Module"):
+                component_type_str = "bottleneck"
+            elif comp_type_val.endswith("Decoder"):
+                component_type_str = "decoder"
+            elif comp_type_val.endswith("Attention") or name == "attention":
+                component_type_str = "attention"
+            else:
+                component_type_str = name  # Use name as a fallback
+
+            config["components"][name] = parse_component_config(
+                comp_config, component_type_str
+            )
+    return config
+
+
+def parse_architecture_config(config: dict[str, Any]) -> dict[str, Any]:
     """
     Parse and process architecture configuration.
 
@@ -130,53 +173,16 @@ def parse_architecture_config(config: Dict[str, Any]) -> Dict[str, Any]:
     # Normalize to fill in defaults
     normalized_config = normalize_config(config)
 
-    # Parse individual components
-    if "encoder" in normalized_config:
-        normalized_config["encoder"] = parse_component_config(
-            normalized_config["encoder"], "encoder"
-        )
+    # Parse main components
+    normalized_config = _parse_main_components(normalized_config)
 
-    if "bottleneck" in normalized_config:
-        normalized_config["bottleneck"] = parse_component_config(
-            normalized_config["bottleneck"], "bottleneck"
-        )
-
-    if "decoder" in normalized_config:
-        normalized_config["decoder"] = parse_component_config(
-            normalized_config["decoder"], "decoder"
-        )
-
-    # Handle additional components for hybrid architectures
-    if "components" in normalized_config:
-        for name, comp_config in normalized_config["components"].items():
-            if "type" not in comp_config:
-                raise ValueError(f"Component '{name}' must specify a 'type'")
-
-            component_type = None
-
-            # Try to determine component type from name or type
-            comp_type = comp_config["type"]
-            if comp_type.endswith("Encoder"):
-                component_type = "encoder"
-            elif (comp_type.endswith("Bottleneck") or
-                  comp_type.endswith("Module")):
-                component_type = "bottleneck"
-            elif comp_type.endswith("Decoder"):
-                component_type = "decoder"
-            elif comp_type.endswith("Attention") or name == "attention":
-                component_type = "attention"
-            else:
-                # Use name as a fallback
-                component_type = name
-
-            normalized_config["components"][name] = parse_component_config(
-                comp_config, component_type
-            )
+    # Parse additional components for hybrid architectures
+    normalized_config = _parse_hybrid_components(normalized_config)
 
     return normalized_config
 
 
-def create_model_from_config(config: Dict[str, Any]) -> Any:
+def create_model_from_config(config: dict[str, Any]) -> Any:
     """
     Create a model instance from a configuration dictionary.
 
@@ -198,10 +204,10 @@ def create_model_from_config(config: Dict[str, Any]) -> Any:
 
     except InstantiationError as e:
         # Convert instantiation errors to ValueError for backward compatibility
-        raise ValueError(str(e))
+        raise ValueError(str(e)) from e
 
 
-def create_hybrid_model_from_config(config: Dict[str, Any]) -> Any:
+def create_hybrid_model_from_config(config: dict[str, Any]) -> Any:
     """
     Create a hybrid model instance with specialized handling.
 
@@ -219,7 +225,7 @@ def create_hybrid_model_from_config(config: Dict[str, Any]) -> Any:
     return create_model_from_config(config)
 
 
-def get_model_config_schema(model_type: str) -> Dict[str, Any]:
+def get_model_config_schema(model_type: str) -> dict[str, Any]:
     """
     Get a schema describing the configuration options for a model type.
 
@@ -238,8 +244,7 @@ def get_model_config_schema(model_type: str) -> Dict[str, Any]:
     if model_type not in architecture_registry:
         available = ", ".join(architecture_registry.list())
         raise ValueError(
-            f"Unknown model type '{model_type}'. "
-            f"Available types: {available}"
+            f"Unknown model type '{model_type}'. Available types: {available}"
         )
 
     # Basic schema for now, can be expanded with more metadata
@@ -249,18 +254,18 @@ def get_model_config_schema(model_type: str) -> Dict[str, Any]:
             "type": "string",
             "required": True,
             "description": "Type of architecture",
-            "default": model_type
+            "default": model_type,
         },
         "in_channels": {
             "type": "integer",
             "required": True,
-            "description": "Number of input channels"
+            "description": "Number of input channels",
         },
         "out_channels": {
             "type": "integer",
             "required": True,
-            "description": "Number of output channels"
-        }
+            "description": "Number of output channels",
+        },
     }
 
     # Add component schemas based on the model type
@@ -270,19 +275,19 @@ def get_model_config_schema(model_type: str) -> Dict[str, Any]:
     schema["encoder"] = {
         "type": "object",
         "required": True,
-        "description": "Encoder configuration"
+        "description": "Encoder configuration",
     }
 
     schema["bottleneck"] = {
         "type": "object",
         "required": True,
-        "description": "Bottleneck configuration"
+        "description": "Bottleneck configuration",
     }
 
     schema["decoder"] = {
         "type": "object",
         "required": True,
-        "description": "Decoder configuration"
+        "description": "Decoder configuration",
     }
 
     # For hybrid architectures, add components field
@@ -290,7 +295,7 @@ def get_model_config_schema(model_type: str) -> Dict[str, Any]:
         schema["components"] = {
             "type": "object",
             "required": False,
-            "description": "Additional components for hybrid architectures"
+            "description": "Additional components for hybrid architectures",
         }
 
     return schema

@@ -13,4 +13,5 @@ in_channels: 128         # Number of input channels (must match encoder output)
 output_channels: 256     # Output channels after ASPP feature fusion
 dilation_rates: [1, 6, 12, 18]  # Dilations for parallel atrous convolutions (DeepLabV3+ default)
 dropout_rate: 0.1        # Dropout probability after feature fusion (range 0-1)
-output_stride: 16        # Output stride of network (affects dilations, usually 8 or 16) 
+output_stride: 16        # Output stride of network (affects dilations, usually 8 or 16)
+dilation_rates_reference_stride: 16  # The output_stride for which the dilation_rates are defined

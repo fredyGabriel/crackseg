@@ -12,31 +12,25 @@ Usage:
 """
 
 import logging
-import torch
-import torch.nn as nn
-from omegaconf import OmegaConf
 
+import torch
+from omegaconf import OmegaConf
+from torch import nn
+
+from src.model.base import BottleneckBase, DecoderBase, EncoderBase, UNetBase
+from src.model.factory import create_unet
 from src.model.registry_setup import (
-    register_component,
-    encoder_registry,
+    architecture_registry,
     bottleneck_registry,
     decoder_registry,
-    architecture_registry
-)
-from src.model.factory import (
-    create_unet
-)
-from src.model.base import (
-    EncoderBase,
-    BottleneckBase,
-    DecoderBase,
-    UNetBase
+    encoder_registry,
+    register_component,
 )
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 log = logging.getLogger(__name__)
 
@@ -49,8 +43,9 @@ class SimpleEncoder(EncoderBase):
 
     def __init__(self, in_channels, num_filters=16, **kwargs):
         super().__init__(in_channels=in_channels)
-        self.conv = nn.Conv2d(in_channels, num_filters, kernel_size=3,
-                              padding=1)
+        self.conv = nn.Conv2d(
+            in_channels, num_filters, kernel_size=3, padding=1
+        )
         self.relu = nn.ReLU(inplace=True)
         self._out_channels = num_filters
         self._skip_channels = [num_filters]
@@ -146,9 +141,9 @@ class SimpleUNet(UNetBase):
 def register_demo_components():
     """Register components for the demonstration."""
     # Register encoder
-    encoder_registry.register(
-        name="SimpleEncoder", tags=["demo", "simple"]
-    )(SimpleEncoder)
+    encoder_registry.register(name="SimpleEncoder", tags=["demo", "simple"])(
+        SimpleEncoder
+    )
     log.info("Registered SimpleEncoder in encoder_registry")
 
     # Register bottleneck
@@ -158,21 +153,22 @@ def register_demo_components():
     log.info("Registered SimpleBottleneck in bottleneck_registry")
 
     # Register decoder
-    decoder_registry.register(
-        name="SimpleDecoder", tags=["demo", "simple"]
-    )(SimpleDecoder)
+    decoder_registry.register(name="SimpleDecoder", tags=["demo", "simple"])(
+        SimpleDecoder
+    )
     log.info("Registered SimpleDecoder in decoder_registry")
 
     # Register architecture
-    architecture_registry.register(
-        name="SimpleUNet", tags=["demo", "simple"]
-    )(SimpleUNet)
+    architecture_registry.register(name="SimpleUNet", tags=["demo", "simple"])(
+        SimpleUNet
+    )
     log.info("Registered SimpleUNet in architecture_registry")
 
     # Alternative registration using the register_component function
     @register_component("encoder", name="SimpleEncoder2", tags=["demo", "v2"])
     class SimpleEncoder2(SimpleEncoder):
         """A second version of SimpleEncoder for demonstration."""
+
         pass
 
     log.info("Registered SimpleEncoder2 using register_component")
@@ -187,20 +183,20 @@ def create_demo_configs():
     encoder_config = {
         "type": "SimpleEncoder",
         "in_channels": 3,
-        "num_filters": 32
+        "num_filters": 32,
     }
 
     bottleneck_config = {
         "type": "SimpleBottleneck",
         "in_channels": 32,  # This must match encoder output channels
-        "expansion": 2
+        "expansion": 2,
     }
 
     decoder_config = {
         "type": "SimpleDecoder",
         "in_channels": 64,  # This must match bottleneck output channels
         "skip_channels": [32],  # This must match encoder skip channels
-        "out_channels": 1
+        "out_channels": 1,
     }
 
     # Create a UNet configuration
@@ -208,7 +204,7 @@ def create_demo_configs():
         "_target_": "src.model.unet.BaseUNet",
         "encoder": encoder_config,
         "bottleneck": bottleneck_config,
-        "decoder": decoder_config
+        "decoder": decoder_config,
     }
 
     # Convert to OmegaConf for Hydra compatibility
@@ -232,15 +228,10 @@ def create_demo_models(config):
     log.info("Creating UNet model with CBAM...")
     config_with_cbam = OmegaConf.create(OmegaConf.to_container(config))
     config_with_cbam.cbam_enabled = True
-    config_with_cbam.cbam_params = {
-        "reduction": 8,
-        "kernel_size": 7
-    }
+    config_with_cbam.cbam_params = {"reduction": 8, "kernel_size": 7}
 
     cbam_unet = create_unet(config_with_cbam)
-    log.info(
-        f"Created UNet model with CBAM: {type(cbam_unet).__name__}"
-    )
+    log.info(f"Created UNet model with CBAM: {type(cbam_unet).__name__}")
 
     return basic_unet, cbam_unet
 

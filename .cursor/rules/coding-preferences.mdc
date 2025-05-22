@@ -1,6 +1,6 @@
 ---
-description: 
-globs: 
+description:
+globs:
 alwaysApply: true
 ---
 # Code Preferences & Guidelines
@@ -15,7 +15,7 @@ These guidelines define the desired characteristics of the code in this project.
 ## Code Style and Readability
 
 3.  **Adhere to PEP 8:** Follow the PEP 8 style guide for Python code, covering naming, spacing, layout, etc.
-4.  **Line Length:** Keep lines of code, ideally within 79 characters. Avoid trailing whitespace.
+4.  **Line Length:** Aim to keep lines of code within 79 characters, as recommended by PEP 8. Avoid trailing whitespace. However, when using an automatic code formatter like Black, its decisions on line breaks can be respected if they prioritize readability, especially for long strings or complex expressions, even if it results in lines slightly exceeding this ideal limit. The primary goal is maintainable and readable code.
 5.  **Documentation (Docstrings and Comments):**
     * Write clear, concise, and **very brief** docstrings for all modules, classes, functions, and methods, explaining their purpose, arguments, and return values. **Avoid excessive or verbose docstrings and comments; keep them minimal and to the point.**
     * Use comments to clarify complex or non-obvious logic, but do not overuse them.

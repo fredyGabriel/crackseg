@@ -1,7 +1,8 @@
 import torch
-import torch.nn as nn
-from typing import List, Tuple
+from torch import nn
+
 from src.model.base.abstract import EncoderBase
+
 # Import the specific registry
 from src.model.factory.registry_setup import encoder_registry
 
@@ -16,14 +17,15 @@ class EncoderBlock(EncoderBase):
     MaxPool2d. Returns both the output feature map and the pre-pooled feature
     map for skip connections.
     """
-    def __init__(
+
+    def __init__(  # noqa: PLR0913
         self,
         in_channels: int,
         out_channels: int,
         kernel_size: int = 3,
         padding: int = 1,
         pool_size: int = 2,
-        use_pool: bool = True
+        use_pool: bool = True,
     ):
         """
         Initialize EncoderBlock.
@@ -51,8 +53,9 @@ class EncoderBlock(EncoderBase):
         self.relu2 = nn.ReLU(inplace=True)
         self.pool = nn.MaxPool2d(pool_size) if use_pool else None
 
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor,
-                                                List[torch.Tensor]]:
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, list[torch.Tensor]]:
         """
         Forward pass for the encoder block.
 
@@ -84,7 +87,7 @@ class EncoderBlock(EncoderBase):
         return self._out_channels
 
     @property
-    def skip_channels(self) -> List[int]:
+    def skip_channels(self) -> list[int]:
         """List with the number of channels for each skip connection
         (single block)."""
         return [self._out_channels]
@@ -105,13 +108,16 @@ class CNNEncoder(EncoderBase):
     Composed of multiple EncoderBlocks with increasing feature channels
     and downsampling via pooling.
     """
-    def __init__(self,
-                 in_channels: int,
-                 init_features: int = 64,
-                 depth: int = 4,
-                 pool_size: int = 2,
-                 kernel_size: int = 3,
-                 padding: int = 1):
+
+    def __init__(  # noqa: PLR0913
+        self,  # noqa: PLR0913
+        in_channels: int,
+        init_features: int = 64,
+        depth: int = 4,
+        pool_size: int = 2,
+        kernel_size: int = 3,
+        padding: int = 1,
+    ):
         """
         Initialize the CNNEncoder.
 
@@ -128,18 +134,18 @@ class CNNEncoder(EncoderBase):
         super().__init__(in_channels)
         self.depth = depth
         self.encoder_blocks = nn.ModuleList()
-        self._skip_channels: List[int] = []
+        self._skip_channels: list[int] = []
 
         channels = in_channels
         features = init_features
-        for i in range(depth):
+        for _ in range(depth):
             block = EncoderBlock(
                 in_channels=channels,
                 out_channels=features,
                 kernel_size=kernel_size,
                 padding=padding,
                 pool_size=pool_size,
-                use_pool=True  # Always pool in standard U-Net encoder blocks
+                use_pool=True,  # Always pool in standard U-Net encoder blocks
             )
             self.encoder_blocks.append(block)
             self._skip_channels.append(features)  # Store pre-pooled channels
@@ -148,8 +154,9 @@ class CNNEncoder(EncoderBase):
 
         self._out_channels = channels  # Channels after last block (pre-pool)
 
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor,
-                                                List[torch.Tensor]]:
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, list[torch.Tensor]]:
         """
         Forward pass through the encoder.
 
@@ -161,7 +168,7 @@ class CNNEncoder(EncoderBase):
                 - Final feature map (output of the last block).
                 - List of skip connection tensors (from higher to lower res).
         """
-        skip_connections: List[torch.Tensor] = []
+        skip_connections: list[torch.Tensor] = []
         for block in self.encoder_blocks:
             x, skips = block(x)
             # EncoderBlock returns list w/ one skip, take the first
@@ -180,6 +187,6 @@ class CNNEncoder(EncoderBase):
         return self._out_channels
 
     @property
-    def skip_channels(self) -> List[int]:
+    def skip_channels(self) -> list[int]:
         """List of channels for each skip connection (high-res to low-res)."""
         return self._skip_channels

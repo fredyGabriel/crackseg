@@ -7,8 +7,9 @@ U-Net components.
 """
 
 import os
-import torch
+
 import pytest
+import torch
 from omegaconf import DictConfig, OmegaConf
 
 from src.model import EncoderBase
@@ -19,14 +20,22 @@ def load_test_config(config_path: str = None) -> DictConfig:
     """Load Hydra config directly from file path."""
     if config_path is None:
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.abspath(os.path.join(
-            script_dir, "..", "..", "configs", "model", "encoder",
-            "swin_transformer_encoder.yaml"))
+        config_path = os.path.abspath(
+            os.path.join(
+                script_dir,
+                "..",
+                "..",
+                "configs",
+                "model",
+                "encoder",
+                "swin_transformer_encoder.yaml",
+            )
+        )
 
     if not os.path.exists(config_path):
         raise FileNotFoundError(f"Config file not found: {config_path}")
 
-    with open(config_path, 'r') as f:
+    with open(config_path) as f:
         content = f.read()
 
     cfg = OmegaConf.create(content)
@@ -40,7 +49,7 @@ def test_swin_transformer_integration_with_unet():
         in_channels=3,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        features_only=True
+        features_only=True,
     )
 
     # Forward pass through encoder
@@ -48,7 +57,7 @@ def test_swin_transformer_integration_with_unet():
     bottleneck, skip_connections = encoder(x)
 
     # Verify outputs
-    assert bottleneck.shape[0] == 2  # Batch size
+    assert bottleneck.shape[0] == 2  # Batch size  # noqa: PLR2004
     assert len(skip_connections) > 0
 
     # Verify skip_connections property is correct
@@ -66,8 +75,7 @@ def test_swin_transformer_integration_with_unet():
 
 
 @pytest.mark.skipif(
-    not torch.cuda.is_available(),
-    reason="Memory test requires CUDA"
+    not torch.cuda.is_available(), reason="Memory test requires CUDA"
 )
 def test_swin_transformer_memory_usage():
     """Test memory usage of SwinTransformerEncoder."""
@@ -76,9 +84,7 @@ def test_swin_transformer_memory_usage():
 
     # Create encoder
     encoder = SwinTransformerEncoder(
-        in_channels=3,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=False
+        in_channels=3, model_name="swinv2_tiny_window16_256", pretrained=False
     )
     encoder = encoder.to("cuda")
     encoder.eval()

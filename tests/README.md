@@ -15,7 +15,7 @@ This directory contains the unit and integration tests for the crack segmentatio
 
 The test structure is organized by test type:
 
-```
+```python
 tests/
 ├── unit/          # Unit tests organized by module
 │   ├── data/
@@ -37,45 +37,53 @@ tests/
 ## Types of Tests
 
 ### Unit Tests
+
 - Test individual components of each module
 - Use mocking for dependencies
 - Verify isolated behavior
 - Located in `tests/unit/<module>/`
 
 ### Integration Tests
+
 - Test the interaction between several modules or the full workflow
 - Verify integration and configuration
 - Located in `tests/integration/<module>/` or directly in `integration/` if they affect multiple modules
 
 ## Running Tests
 
-### Run all tests:
+### Run all tests
+
 ```bash
 pytest tests/
 ```
 
-### Run only unit tests:
+### Run only unit tests
+
 ```bash
 pytest tests/unit/
 ```
 
-### Run only integration tests:
+### Run only integration tests
+
 ```bash
 pytest tests/integration/
 ```
 
-### Run tests for a specific module:
+### Run tests for a specific module
+
 ```bash
 pytest tests/unit/model/
 pytest tests/integration/training/
 ```
 
-### Run a specific test:
+### Run a specific test
+
 ```bash
 pytest tests/unit/model/test_unet.py
 ```
 
-### Run with coverage:
+### Run with coverage
+
 ```bash
 pytest --cov=src tests/
 ```
@@ -83,6 +91,7 @@ pytest --cov=src tests/
 ## Fixtures
 
 Common fixtures are located in `conftest.py` at the root of `tests/`:
+
 - Test data
 - Mock configurations
 - Shared utilities
@@ -101,6 +110,7 @@ Common fixtures are located in `conftest.py` at the root of `tests/`:
 ## Code Coverage
 
 It is recommended to maintain at least 80% coverage in:
+
 - Data modules
 - Model architectures
 - Training logic
@@ -127,4 +137,4 @@ def test_training_loop():
     trainer = Trainer(...)
     trainer.train()
     assert trainer.metrics['val_loss'] < initial_loss
-``` 
+```

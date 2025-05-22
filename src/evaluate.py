@@ -10,8 +10,8 @@ Usage:
     /path/to/config.yaml
 """
 
-from src.utils.logging import get_logger
 from src.evaluation.__main__ import main
+from src.utils.logging import get_logger
 
 # Configure logger
 log = get_logger("evaluate_wrapper")

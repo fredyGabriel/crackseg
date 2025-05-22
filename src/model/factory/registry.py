@@ -5,13 +5,13 @@ Provides functionality to register, retrieve, and list available components
 using a decorator pattern. Ensures type safety with generics.
 """
 
-from typing import (Dict, List, Type, TypeVar, Generic, Callable, Optional,
-                    Any)
+import builtins
 import threading
-
+from collections.abc import Callable
+from typing import Any, Generic, TypeVar
 
 # Define a generic type for component base classes
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class Registry(Generic[T]):
@@ -23,7 +23,7 @@ class Registry(Generic[T]):
     All operations are thread-safe.
     """
 
-    def __init__(self, base_class: Type[T], name: str):
+    def __init__(self, base_class: type[T], name: str):
         """
         Initialize a Registry for components.
 
@@ -34,17 +34,17 @@ class Registry(Generic[T]):
         """
         self._base_class = base_class
         self._name = name
-        self._components: Dict[str, Type[T]] = {}
-        self._tags: Dict[str, List[str]] = {}  # For component categorization
+        self._components: dict[str, type[T]] = {}
+        self._tags: dict[str, list[str]] = {}  # For component categorization
         # Add lock for thread safety
         self._lock = threading.RLock()  # Reentrant lock for nested operations
 
     #
     # Registration methods
     #
-    def register(self, name: Optional[str] = None,
-                 tags: Optional[List[str]] = None) -> Callable[[Type[T]],
-                                                               Type[T]]:
+    def register(
+        self, name: str | None = None, tags: list[str] | None = None
+    ) -> Callable[[type[T]], type[T]]:
         """
         Thread-safe decorator to register a component class in the registry.
 
@@ -61,7 +61,8 @@ class Registry(Generic[T]):
             class ResNetEncoder(EncoderBase):
                 pass
         """
-        def decorator(cls: Type[T]) -> Type[T]:
+
+        def decorator(cls: type[T]) -> type[T]:
             # Verify that the class inherits from the base class
             if not issubclass(cls, self._base_class):
                 raise TypeError(
@@ -113,7 +114,7 @@ class Registry(Generic[T]):
     #
     # Component retrieval methods
     #
-    def get(self, name: str) -> Type[T]:
+    def get(self, name: str) -> type[T]:
         """
         Retrieve a component class by name. Thread-safe.
 
@@ -154,7 +155,7 @@ class Registry(Generic[T]):
     #
     # Component listing and filtering methods
     #
-    def list(self) -> List[str]:
+    def list(self) -> list[str]:
         """
         List all registered component names. Thread-safe.
 
@@ -164,7 +165,7 @@ class Registry(Generic[T]):
         with self._lock:
             return list(self._components.keys())
 
-    def list_with_tags(self) -> Dict[str, List[str]]:
+    def list_with_tags(self) -> dict[str, builtins.list[str]]:
         """
         List all registered components with their tags. Thread-safe.
 
@@ -175,7 +176,7 @@ class Registry(Generic[T]):
             # Return a deep copy to avoid thread safety issues
             return {k: list(v) for k, v in self._tags.items()}
 
-    def filter_by_tag(self, tag: str) -> List[str]:
+    def filter_by_tag(self, tag: str) -> builtins.list[str]:
         """
         Filter components by tag. Thread-safe.
 
@@ -186,9 +187,7 @@ class Registry(Generic[T]):
             List[str]: List of component names with the specified tag.
         """
         with self._lock:
-            return [
-                name for name, tags in self._tags.items() if tag in tags
-            ]
+            return [name for name, tags in self._tags.items() if tag in tags]
 
     #
     # Properties and built-in method overrides
@@ -199,7 +198,7 @@ class Registry(Generic[T]):
         return self._name
 
     @property
-    def base_class(self) -> Type[T]:
+    def base_class(self) -> type[T]:
         """Base class of the registry."""
         return self._base_class
 

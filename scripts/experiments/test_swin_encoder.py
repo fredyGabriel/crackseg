@@ -8,34 +8,35 @@ of the encoder, useful for presentations, research, and understanding the
 model.
 """
 
+import logging
 import os
 import sys
 from pathlib import Path
-import torch
+
 import hydra
-from omegaconf import DictConfig, OmegaConf
-import logging
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
+from omegaconf import DictConfig, OmegaConf
+
+from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
 
 # Add the project root directory to the Python path
 project_root = Path(__file__).parent.parent.absolute()
 os.chdir(project_root)
 sys.path.insert(0, str(project_root))
 
-# Import after configuring the path
-# noqa: E402 - Import not at the top of the file (intentional)
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder  # noqa: E
-
 # Configure the logger
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+FEATURE_MAPS_EXPECTED_DIM = 4
 
 
 def visualize_feature_maps(feature_maps, title):
     """Visualizes selected feature maps from a tensor."""
     # Select only a few channels for visualization
-    if feature_maps.dim() != 4:
+    if feature_maps.dim() != FEATURE_MAPS_EXPECTED_DIM:
         logger.error(f"Invalid tensor shape: {feature_maps.shape}")
         return
 
@@ -51,15 +52,14 @@ def visualize_feature_maps(feature_maps, title):
         channel = feature_maps[0, i].detach().cpu().numpy()
 
         # Normalize for visualization
-        channel = (
-            (channel - np.min(channel)) /
-            (np.max(channel) - np.min(channel) + 1e-8)
+        channel = (channel - np.min(channel)) / (
+            np.max(channel) - np.min(channel) + 1e-8
         )
 
         # Display in the subplot
-        axes[i].imshow(channel, cmap='viridis')
-        axes[i].set_title(f'Channel {i}')
-        axes[i].axis('off')
+        axes[i].imshow(channel, cmap="viridis")
+        axes[i].set_title(f"Channel {i}")
+        axes[i].axis("off")
 
     plt.suptitle(title)
     plt.tight_layout()
@@ -71,7 +71,8 @@ def main(cfg: DictConfig):
     """Visual demonstration of the Swin Transformer V2 encoder."""
     # Load the specific encoder configuration
     encoder_cfg_path = os.path.join(
-        project_root, "configs/model/encoder/swin_transformer_encoder.yaml")
+        project_root, "configs/model/encoder/swin_transformer_encoder.yaml"
+    )
     encoder_cfg = OmegaConf.load(encoder_cfg_path)
     logger.info("Encoder configuration:")
     logger.info(OmegaConf.to_yaml(encoder_cfg))
@@ -87,14 +88,14 @@ def main(cfg: DictConfig):
         patch_size=4,
         use_abs_pos_embed=True,
         output_norm=True,
-        handle_input_size="resize"
+        handle_input_size="resize",
     )
     logger.info(f"Encoder created: {type(encoder).__name__}")
 
     # Model information
     logger.info("\n--- Model Feature Information ---")
     feature_info = encoder.get_feature_info()
-    for i, info in enumerate(feature_info):
+    for info in feature_info:
         logger.info(
             f"Stage {info['stage']}: channels={info['channels']}, "
             f"reduction_factor={info['reduction_factor']}"
@@ -108,8 +109,7 @@ def main(cfg: DictConfig):
     ]
 
     logger.info(
-        "\n=== DEMO: Feature visualization with different "
-        "resolutions ==="
+        "\n=== DEMO: Feature visualization with different resolutions ==="
     )
 
     for res in input_resolutions:
@@ -125,13 +125,12 @@ def main(cfg: DictConfig):
         if len(skip_connections) > 0:
             visualize_feature_maps(
                 skip_connections[0],
-                f"Low-level features - Resolution {res[0]}x{res[1]}"
+                f"Low-level features - Resolution {res[0]}x{res[1]}",
             )
 
         # Visualize bottleneck features
         visualize_feature_maps(
-            bottleneck,
-            f"Bottleneck features - Resolution {res[0]}x{res[1]}"
+            bottleneck, f"Bottleneck features - Resolution {res[0]}x{res[1]}"
         )
 
     # DEMO 2: Comparison of input size handling methods
@@ -165,7 +164,7 @@ def main(cfg: DictConfig):
                 logger.info(f"Bottleneck shape: {bottleneck.shape}")
                 logger.info("Skip connection shapes:")
                 for i, skip in enumerate(skip_connections):
-                    logger.info(f"  Level {i+1}: {skip.shape}")
+                    logger.info(f"  Level {i + 1}: {skip.shape}")
 
             except Exception as e:
                 logger.error(f"Error with '{method}' method: {str(e)}")

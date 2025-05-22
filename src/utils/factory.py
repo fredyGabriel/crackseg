@@ -1,21 +1,21 @@
 """Factory functions for creating objects from configuration."""
 
-from typing import Dict, List, Type, Callable, Union
+from collections.abc import Callable
 from importlib import import_module
 
-from omegaconf import DictConfig, ListConfig
 import torch
-import torch.nn as nn
+from omegaconf import DictConfig, ListConfig
+from torch import nn
 
-from src.utils.logging import get_logger
-from src.utils.exceptions import ConfigError
 # Import specific losses for type checking if needed, or rely on name
-from src.training.losses import CombinedLoss, BCEDiceLoss
+from src.training.losses import BCEDiceLoss, CombinedLoss
+from src.utils.exceptions import ConfigError
+from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
-def import_class(class_path: str) -> Type:
+def import_class(class_path: str) -> type:
     """Import a class from a string path.
 
     Args:
@@ -25,19 +25,18 @@ def import_class(class_path: str) -> Type:
         The imported class
     """
     try:
-        module_path, class_name = class_path.rsplit('.', 1)
+        module_path, class_name = class_path.rsplit(".", 1)
         module = import_module(module_path)
         return getattr(module, class_name)
     except Exception as e:
         raise ConfigError(
-            f"Failed to import class '{class_path}'",
-            details=str(e)
-        )
+            f"Failed to import class '{class_path}'", details=str(e)
+        ) from e
 
 
 def get_optimizer(
-    model_params: List[nn.Parameter],
-    optimizer_cfg: Union[DictConfig, str, dict]
+    model_params: list[nn.Parameter],
+    optimizer_cfg: DictConfig | str | dict,
 ) -> torch.optim.Optimizer:
     """Create an optimizer from config.
 
@@ -53,28 +52,27 @@ def get_optimizer(
             # Handle string case - map to common optimizers
             optimizer_name = optimizer_cfg.lower()
 
-            if optimizer_name == 'adam':
+            if optimizer_name == "adam":
                 return torch.optim.Adam(model_params, lr=0.001)
-            elif optimizer_name == 'sgd':
+            elif optimizer_name == "sgd":
                 return torch.optim.SGD(model_params, lr=0.01)
-            elif optimizer_name == 'adamw':
+            elif optimizer_name == "adamw":
                 return torch.optim.AdamW(model_params, lr=0.001)
-            elif optimizer_name == 'rmsprop':
+            elif optimizer_name == "rmsprop":
                 return torch.optim.RMSprop(model_params, lr=0.001)
             else:
                 raise ConfigError(
                     f"Unsupported optimizer name: {optimizer_name}",
-                    details="Supported names: adam, sgd, adamw, rmsprop"
+                    details="Supported names: adam, sgd, adamw, rmsprop",
                 )
 
         elif (
-            isinstance(optimizer_cfg, (DictConfig, dict))
+            isinstance(optimizer_cfg, DictConfig | dict)
             and "_target_" in optimizer_cfg
         ):
             optimizer_class = import_class(optimizer_cfg["_target_"])
             optimizer_params = {
-                str(k): v for k, v in optimizer_cfg.items()
-                if k != "_target_"
+                str(k): v for k, v in optimizer_cfg.items() if k != "_target_"
             }
             return optimizer_class(model_params, **optimizer_params)
 
@@ -82,14 +80,11 @@ def get_optimizer(
             raise ConfigError(
                 f"Unsupported optimizer config type: {type(optimizer_cfg)}",
                 details="Must be string, DictConfig with _target_, or dict \
-with type"
+with type",
             )
 
     except Exception as e:
-        raise ConfigError(
-            "Failed to create optimizer",
-            details=str(e)
-        )
+        raise ConfigError("Failed to create optimizer", details=str(e)) from e
 
 
 def get_loss_fn(loss_cfg: DictConfig) -> Callable:
@@ -105,8 +100,10 @@ def get_loss_fn(loss_cfg: DictConfig) -> Callable:
         if loss_class is CombinedLoss:
             inner_loss_configs = loss_cfg.losses
             weights = loss_cfg.get("weights")
-            if not isinstance(inner_loss_configs, (list, ListConfig)) or not \
-                    inner_loss_configs:
+            if (
+                not isinstance(inner_loss_configs, list | ListConfig)
+                or not inner_loss_configs
+            ):
                 raise ConfigError(
                     "CombinedLoss requires a non-empty list or ListConfig "
                     "under 'losses'."
@@ -127,14 +124,16 @@ def get_loss_fn(loss_cfg: DictConfig) -> Callable:
             return CombinedLoss(losses=inner_losses, **combined_params)
 
         elif loss_class is BCEDiceLoss:
-            params = {str(k): v for k, v in loss_cfg.items()
-                      if k != '_target_'}
+            params = {
+                str(k): v for k, v in loss_cfg.items() if k != "_target_"
+            }
             return BCEDiceLoss(**params)
 
         # --- Default Handling ---
         else:
-            params = {str(k): v for k, v in loss_cfg.items()
-                      if k != '_target_'}
+            params = {
+                str(k): v for k, v in loss_cfg.items() if k != "_target_"
+            }
             return loss_class(**params)
 
     except ConfigError as e:
@@ -142,11 +141,11 @@ def get_loss_fn(loss_cfg: DictConfig) -> Callable:
     except Exception as e:
         raise ConfigError(
             f"Failed to create loss function from config: {loss_cfg}",
-            details=str(e)
+            details=str(e),
         ) from e
 
 
-def get_metrics_from_cfg(metrics_cfg: DictConfig) -> Dict[str, Callable]:
+def get_metrics_from_cfg(metrics_cfg: DictConfig) -> dict[str, Callable]:
     """Create metric functions from config.
 
     Args:
@@ -159,14 +158,10 @@ def get_metrics_from_cfg(metrics_cfg: DictConfig) -> Dict[str, Callable]:
     for name, cfg in metrics_cfg.items():
         try:
             metric_class = import_class(cfg._target_)
-            metric_params = {
-                k: v for k, v in cfg.items()
-                if k != '_target_'
-            }
+            metric_params = {k: v for k, v in cfg.items() if k != "_target_"}
             metrics[name] = metric_class(**metric_params)
         except Exception as e:
             raise ConfigError(
-                f"Failed to create metric '{name}'",
-                details=str(e)
-            )
+                f"Failed to create metric '{name}'", details=str(e)
+            ) from e
     return metrics

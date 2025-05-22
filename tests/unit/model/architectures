@@ -1,14 +1,13 @@
 # tests/model/architectures/test_swinv2_cnn_aspp_unet.py
 
+import hydra
 import pytest
 import torch
 from omegaconf import OmegaConf
-import hydra
-import torch.nn as nn
+from torch import nn
 
 # Assuming the main run script or a utility initializes Hydra context
 # For isolated testing, we might need to load config manually
-
 # Import the class to be tested
 from src.model.architectures.swinv2_cnn_aspp_unet import SwinV2CnnAsppUNet
 from src.model.base import UNetBase
@@ -36,13 +35,15 @@ def test_instantiation_with_default_config(default_config):
         # Check basic properties derived from config
         assert model.in_channels == default_config.encoder_cfg.in_channels
         assert model.out_channels == default_config.num_classes
-        assert hasattr(model, 'encoder')
-        assert hasattr(model, 'bottleneck')
-        assert hasattr(model, 'decoder')
-        assert hasattr(model, 'final_activation_layer')
+        assert hasattr(model, "encoder")
+        assert hasattr(model, "bottleneck")
+        assert hasattr(model, "decoder")
+        assert hasattr(model, "final_activation_layer")
     except Exception as e:
-        pytest.fail(f"Failed to instantiate SwinV2CnnAsppUNet from default \
-config: {e}")
+        pytest.fail(
+            f"Failed to instantiate SwinV2CnnAsppUNet from default \
+config: {e}"
+        )
 
 
 def test_forward_pass_default_config(default_config):
@@ -69,10 +70,12 @@ def test_forward_pass_default_config(default_config):
         assert isinstance(output, torch.Tensor)
         assert output.shape[0] == batch_size
         assert output.shape[1] == num_classes
-        assert output.shape[2] == img_size, \
+        assert output.shape[2] == img_size, (
             f"Output H={output.shape[2]} != Input H={img_size}"
-        assert output.shape[3] == img_size, \
+        )
+        assert output.shape[3] == img_size, (
             f"Output W={output.shape[3]} != Input W={img_size}"
+        )
 
     except Exception as e:
         pytest.fail(f"Forward pass failed for default config: {e}")
@@ -104,7 +107,7 @@ def test_instantiation_and_forward_with_cbam(default_config):
                 break
         assert cnn_decoder is not None, "CNNDecoder not found"
         first_decoder_block = cnn_decoder.decoder_blocks[0]
-        assert hasattr(first_decoder_block, 'cbam')
+        assert hasattr(first_decoder_block, "cbam")
         assert not isinstance(first_decoder_block.cbam, nn.Identity)
 
         model.eval()
@@ -127,8 +130,9 @@ def test_backward_and_gradients(default_config):
     img_size = test_cfg.encoder_cfg.img_size
     batch_size = 2
     in_channels = test_cfg.encoder_cfg.in_channels
-    dummy_input = torch.randn(batch_size, in_channels, img_size, img_size,
-                              requires_grad=True)
+    dummy_input = torch.randn(
+        batch_size, in_channels, img_size, img_size, requires_grad=True
+    )
     model = hydra.utils.instantiate(test_cfg)
     model.train()
     output = model(dummy_input)
@@ -160,8 +164,9 @@ def test_skip_connection_shapes_and_channels(default_config):
         bottleneck, skips = encoder(dummy_input)
     # Verifica número de skips y shapes
     expected_skips = encoder.skip_channels
-    assert len(skips) == len(expected_skips), \
+    assert len(skips) == len(expected_skips), (
         f"Expected {len(expected_skips)} skips, got {len(skips)}"
+    )
     for i, (skip, ch) in enumerate(zip(skips, expected_skips)):
         assert skip.shape[0] == batch_size
         assert skip.shape[1] == ch, (
@@ -205,25 +210,27 @@ def test_minimal_configuration_instantiation():
     required fields).
     """
     # Construye una config mínima a mano
-    minimal_cfg = OmegaConf.create({
-        '_target_':
-        'src.model.architectures.swinv2_cnn_aspp_unet.SwinV2CnnAsppUNet',
-        'encoder_cfg': {
-            'in_channels': 3,
-            'model_name': 'swinv2_tiny_window16_256',
-            'img_size': 256,
-            'pretrained': False,
-        },
-        'bottleneck_cfg': {
-            'output_channels': 64,
-            'dilation_rates': [1, 6, 12],
-        },
-        'decoder_cfg': {
-            'kernel_size': 3,
-        },
-        'num_classes': 2,
-        'final_activation': None,
-    })
+    minimal_cfg = OmegaConf.create(
+        {
+            "_target_":
+            "src.model.architectures.swinv2_cnn_aspp_unet.SwinV2CnnAsppUNet",
+            "encoder_cfg": {
+                "in_channels": 3,
+                "model_name": "swinv2_tiny_window16_256",
+                "img_size": 256,
+                "pretrained": False,
+            },
+            "bottleneck_cfg": {
+                "output_channels": 64,
+                "dilation_rates": [1, 6, 12],
+            },
+            "decoder_cfg": {
+                "kernel_size": 3,
+            },
+            "num_classes": 2,
+            "final_activation": None,
+        }
+    )
     img_size = minimal_cfg.encoder_cfg.img_size
     batch_size = 1
     in_channels = minimal_cfg.encoder_cfg.in_channels
@@ -241,9 +248,8 @@ def test_minimal_configuration_instantiation():
             img_size,
         )
     except Exception as e:
-        pytest.fail(
-            f"Minimal config instantiation failed: {e}"
-        )
+        pytest.fail(f"Minimal config instantiation failed: {e}")
+
 
 # TODO:
 # - Add tests for different configurations (e.g., different model_name)

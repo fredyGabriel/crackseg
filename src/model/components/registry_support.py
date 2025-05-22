@@ -13,15 +13,15 @@ registry_setup.py, making them available to the factory system.
 
 import logging
 
-from src.model.registry_setup import (
-    encoder_registry,
-    bottleneck_registry,
-    architecture_registry,
-    component_registries
-)
-from src.model.hybrid_registry import (
+from src.model.factory.hybrid_registry import (
+    register_complex_hybrid,
     register_standard_hybrid,
-    register_complex_hybrid
+)
+from src.model.factory.registry_setup import (
+    architecture_registry,
+    bottleneck_registry,
+    component_registries,
+    encoder_registry,
 )
 
 # Create logger
@@ -39,30 +39,37 @@ def register_convlstm_components() -> None:
     - CNN-ConvLSTM architecture
     """
     # Register the components if not already registered
-    from src.model.components.convlstm import ConvLSTMCell, ConvLSTM
+    from src.model.components.convlstm import ConvLSTM, ConvLSTMCell
 
     # Use the dedicated ConvLSTM registry
-    convlstm_registry = component_registries.get('convlstm')
+    convlstm_registry = component_registries.get("convlstm")
 
     # Check if components are already registered
-    if 'ConvLSTMCell' not in convlstm_registry:
-        # Register with the component registry
-        convlstm_registry.register(name='ConvLSTMCell')(ConvLSTMCell)
-        log.info("Registered ConvLSTMCell component")
+    if convlstm_registry is not None:
+        if "ConvLSTMCell" not in convlstm_registry:
+            # Register with the component registry
+            convlstm_registry.register(name="ConvLSTMCell")(ConvLSTMCell)
+            log.info("Registered ConvLSTMCell component")
 
-    if 'ConvLSTM' not in convlstm_registry:
-        # Register with the component registry
-        convlstm_registry.register(name='ConvLSTM')(ConvLSTM)
-        log.info("Registered ConvLSTM component")
+        if "ConvLSTM" not in convlstm_registry:
+            # Register with the component registry
+            convlstm_registry.register(name="ConvLSTM")(ConvLSTM)
+            log.info("Registered ConvLSTM component")
+    else:
+        log.warning(
+            "convlstm_registry is None. Skipping ConvLSTMCell and "
+            "ConvLSTM registration."
+        )
 
     # If there's a specific bottleneck implementation using ConvLSTM
     try:
         from src.model.bottleneck.convlstm_bottleneck import (  # type: ignore
-            ConvLSTMBottleneck
+            ConvLSTMBottleneck,
         )
-        if 'ConvLSTMBottleneck' not in bottleneck_registry:
+
+        if "ConvLSTMBottleneck" not in bottleneck_registry:
             bottleneck_registry.register(
-                name='ConvLSTMBottleneck', tags=['temporal', 'convlstm']
+                name="ConvLSTMBottleneck", tags=["temporal", "convlstm"]
             )(ConvLSTMBottleneck)
             log.info("Registered ConvLSTMBottleneck with bottleneck registry")
     except ImportError:
@@ -71,25 +78,27 @@ def register_convlstm_components() -> None:
     # If there's a CNN-ConvLSTM architecture
     try:
         from src.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet
-        if 'CNNConvLSTMUNet' not in architecture_registry:
+
+        if "CNNConvLSTMUNet" not in architecture_registry:
             architecture_registry.register(
-                name='CNNConvLSTMUNet',
-                tags=['hybrid', 'temporal', 'convlstm']
+                name="CNNConvLSTMUNet", tags=["hybrid", "temporal", "convlstm"]
             )(CNNConvLSTMUNet)
             log.info("Registered CNN-ConvLSTM UNet architecture")
 
             # Register as a hybrid architecture
             register_standard_hybrid(
-                name='CNNConvLSTMUNet',
-                encoder_type='CNNEncoder',  # Assuming this exists
-                bottleneck_type='ConvLSTMBottleneck',
-                decoder_type='CNNDecoder',  # Assuming this exists
-                tags=['temporal', 'convlstm']
+                name="CNNConvLSTMUNet",
+                encoder_type="CNNEncoder",  # Assuming this exists
+                bottleneck_type="ConvLSTMBottleneck",
+                decoder_type="CNNDecoder",  # Assuming this exists
+                tags=["temporal", "convlstm"],
             )
             log.info("Registered CNN-ConvLSTM as hybrid architecture")
     except (ImportError, ValueError):
-        log.debug("CNN-ConvLSTM UNet architecture not found or dependencies "
-                  "missing, skipping")
+        log.debug(
+            "CNN-ConvLSTM UNet architecture not found or dependencies "
+            "missing, skipping"
+        )
 
 
 def register_swinv2_components() -> None:
@@ -103,10 +112,10 @@ def register_swinv2_components() -> None:
     # Register the SwinV2 encoder if not already registered
     try:
         from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
-        if 'SwinV2' not in encoder_registry:
+
+        if "SwinV2" not in encoder_registry:
             encoder_registry.register(
-                name='SwinV2',
-                tags=['transformer', 'attention', 'pretrained']
+                name="SwinV2", tags=["transformer", "attention", "pretrained"]
             )(SwinV2EncoderAdapter)
             log.info("Registered SwinV2 encoder adapter")
     except ImportError:
@@ -115,22 +124,23 @@ def register_swinv2_components() -> None:
     # Register any hybrid architectures using SwinV2
     try:
         from src.model.architectures.swinv2_cnn_aspp_unet import (
-            SwinV2CNNASPPUNet
+            SwinV2CnnAsppUNet,
         )
-        if 'SwinV2CNNASPPUNet' not in architecture_registry:
+
+        if "SwinV2CNNASPPUNet" not in architecture_registry:
             architecture_registry.register(
-                name='SwinV2CNNASPPUNet',
-                tags=['hybrid', 'transformer', 'aspp']
-            )(SwinV2CNNASPPUNet)
+                name="SwinV2CNNASPPUNet",
+                tags=["hybrid", "transformer", "aspp"],
+            )(SwinV2CnnAsppUNet)
             log.info("Registered SwinV2-CNN-ASPP hybrid architecture")
 
             # Register as a hybrid architecture
             register_standard_hybrid(
-                name='SwinV2CNNASPPUNet',
-                encoder_type='SwinV2',
-                bottleneck_type='ASPPModule',
-                decoder_type='CNNDecoder',  # Assuming this exists
-                tags=['transformer', 'aspp']
+                name="SwinV2CNNASPPUNet",
+                encoder_type="SwinV2",
+                bottleneck_type="ASPPModule",
+                decoder_type="CNNDecoder",  # Assuming this exists
+                tags=["transformer", "aspp"],
             )
             log.info("Registered SwinV2-CNN-ASPP as hybrid architecture")
     except (ImportError, ValueError):
@@ -151,10 +161,10 @@ def register_aspp_components() -> None:
     # Register the ASPP component if not already registered
     try:
         from src.model.components.aspp import ASPPModule
-        if 'ASPPModule' not in bottleneck_registry:
+
+        if "ASPPModule" not in bottleneck_registry:
             bottleneck_registry.register(
-                name='ASPPModule',
-                tags=['atrous', 'pyramid', 'multiscale']
+                name="ASPPModule", tags=["atrous", "pyramid", "multiscale"]
             )(ASPPModule)
             log.info("Registered ASPP Module with bottleneck registry")
     except ImportError:
@@ -173,34 +183,39 @@ def register_cbam_components() -> None:
     # Register the CBAM components if not already registered
     try:
         from src.model.components.cbam import (
-            CBAM, ChannelAttention, SpatialAttention
+            CBAM,
+            ChannelAttention,
+            SpatialAttention,
         )
 
-        attention_registry = component_registries.get('attention')
+        attention_registry = component_registries.get("attention")
 
         # Register CBAM (if not already registered)
-        if 'CBAM' not in attention_registry:
-            attention_registry.register(
-                name='CBAM',
-                tags=['attention', 'channel', 'spatial']
-            )(CBAM)
-            log.info("Registered CBAM attention module")
+        if attention_registry is not None:
+            if "CBAM" not in attention_registry:
+                attention_registry.register(
+                    name="CBAM", tags=["attention", "channel", "spatial"]
+                )(CBAM)
+                log.info("Registered CBAM attention module")
 
-        # Register channel attention (if not already registered)
-        if 'ChannelAttention' not in attention_registry:
-            attention_registry.register(
-                name='ChannelAttention',
-                tags=['attention', 'channel']
-            )(ChannelAttention)
-            log.info("Registered Channel Attention module")
+            # Register channel attention (if not already registered)
+            if "ChannelAttention" not in attention_registry:
+                attention_registry.register(
+                    name="ChannelAttention", tags=["attention", "channel"]
+                )(ChannelAttention)
+                log.info("Registered Channel Attention module")
 
-        # Register spatial attention (if not already registered)
-        if 'SpatialAttention' not in attention_registry:
-            attention_registry.register(
-                name='SpatialAttention',
-                tags=['attention', 'spatial']
-            )(SpatialAttention)
-            log.info("Registered Spatial Attention module")
+            # Register spatial attention (if not already registered)
+            if "SpatialAttention" not in attention_registry:
+                attention_registry.register(
+                    name="SpatialAttention", tags=["attention", "spatial"]
+                )(SpatialAttention)
+                log.info("Registered Spatial Attention module")
+        else:
+            log.warning(
+                "attention_registry is None. Skipping CBAM, "
+                "ChannelAttention, and SpatialAttention registration."
+            )
 
     except ImportError:
         log.debug("CBAM components not found, skipping registration")
@@ -223,12 +238,12 @@ def register_hybrid_architectures() -> None:
         register_complex_hybrid(
             name="SwinV2ASPPCNNWithCBAM",
             components={
-                'encoder': ('encoder', 'SwinV2'),
-                'bottleneck': ('bottleneck', 'ASPPModule'),
-                'decoder': ('decoder', 'CNNDecoder'),  # Assuming this exists
-                'attention': ('attention', 'CBAM')
+                "encoder": ("encoder", "SwinV2"),
+                "bottleneck": ("bottleneck", "ASPPModule"),
+                "decoder": ("decoder", "CNNDecoder"),  # Assuming this exists
+                "attention": ("attention", "CBAM"),
             },
-            tags=['transformer', 'aspp', 'attention', 'cnn']
+            tags=["transformer", "aspp", "attention", "cnn"],
         )
         log.info("Registered SwinV2ASPPCNNWithCBAM hybrid architecture")
     except ValueError as e:

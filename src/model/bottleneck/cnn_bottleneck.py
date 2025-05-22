@@ -1,5 +1,6 @@
 import torch
-import torch.nn as nn
+from torch import nn
+
 from src.model.base.abstract import BottleneckBase
 from src.model.factory.registry_setup import bottleneck_registry
 
@@ -12,13 +13,14 @@ class BottleneckBlock(BottleneckBase):
     Consists of two Conv2d layers (with BatchNorm and ReLU) and a Dropout layer
     between them. Maintains spatial dimensions, increases channel depth.
     """
+
     def __init__(
         self,
         in_channels: int,
         out_channels: int,
         kernel_size: int = 3,
         padding: int = 1,
-        dropout: float = 0.5
+        dropout: float = 0.5,
     ):
         """
         Initialize BottleneckBlock.

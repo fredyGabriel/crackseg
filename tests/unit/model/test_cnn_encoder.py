@@ -1,4 +1,6 @@
+# ruff: noqa: PLR2004
 import torch
+
 from src.model.encoder.cnn_encoder import CNNEncoder, EncoderBlock
 
 
@@ -36,10 +38,14 @@ def test_cnnencoder_forward_shape():
 
     # Check final output shape (after depth=3 blocks and pools)
     expected_out_channels = init_features * (2 ** (depth - 1))
-    expected_H = H // (2 ** depth)
-    expected_W = W // (2 ** depth)
-    assert final_out.shape == (batch_size, expected_out_channels,
-                               expected_H, expected_W)
+    expected_H = H // (2**depth)
+    expected_W = W // (2**depth)
+    assert final_out.shape == (
+        batch_size,
+        expected_out_channels,
+        expected_H,
+        expected_W,
+    )
 
     # Check skip connections shapes (from high-res to low-res)
     assert len(skips) == depth
@@ -48,12 +54,16 @@ def test_cnnencoder_forward_shape():
     expected_skip_W = [W // (2**i) for i in range(depth)]
 
     for i in range(depth):
-        assert skips[i].shape == (batch_size, expected_skip_channels[i],
-                                  expected_skip_H[i], expected_skip_W[i])
+        assert skips[i].shape == (
+            batch_size,
+            expected_skip_channels[i],
+            expected_skip_H[i],
+            expected_skip_W[i],
+        )
 
 
 def test_cnnencoder_properties():
     """Test the out_channels and skip_channels properties."""
     encoder = CNNEncoder(in_channels=3, init_features=16, depth=4)
-    assert encoder.out_channels == 16 * (2**(4-1))  # 128
+    assert encoder.out_channels == 16 * (2 ** (4 - 1))  # 128
     assert encoder.skip_channels == [16, 32, 64, 128]

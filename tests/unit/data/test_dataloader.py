@@ -1,6 +1,7 @@
 import pytest
 import torch
 from torch.utils.data import Dataset
+
 from src.data.dataloader import create_dataloader
 
 
@@ -20,7 +21,7 @@ def test_create_dataloader_basic():
     loader = create_dataloader(ds)
     assert isinstance(loader, torch.utils.data.DataLoader)
     batch = next(iter(loader))
-    assert batch.shape[0] == 5 or batch.shape[0] == 32
+    assert batch.shape[0] == 5 or batch.shape[0] == 32  # noqa: PLR2004
 
 
 def test_create_dataloader_invalid_batch_size():

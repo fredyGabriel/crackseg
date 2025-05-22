@@ -1,77 +1,84 @@
+# ruff: noqa: PLR2004
+# ruff: noqa: PLR0913
 """Tests for the Trainer class."""
+
+from dataclasses import dataclass
+from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
 from omegaconf import OmegaConf
-from unittest.mock import MagicMock, patch
+
+from src.training.batch_processing import train_step, val_step
 
 # Assuming the necessary modules exist in these paths
 from src.training.trainer import Trainer
 from src.utils.logging import NoOpLogger  # Use NoOpLogger for testing
-from src.training.batch_processing import train_step, val_step
-
 
 # --- Mocks and Fixtures ---
 
+
+@dataclass
+class TrainerMocks:
+    """Dataclass to group trainer-related mocks."""
+
+    model: MagicMock
+    dataloader: MagicMock
+    loss_fn: MagicMock
+    metrics_dict: MagicMock
+    logger_instance: MagicMock
+
+
 @pytest.fixture
-def mock_model():
-    """Mock torch model."""
+def trainer_mocks_fixture():
+    """Provides an instance of TrainerMocks with mocked components."""
     model = MagicMock(spec=torch.nn.Module)
     model.parameters.return_value = [torch.nn.Parameter(torch.randn(1))]
-    # Mock the to() method to return self
     model.to.return_value = model
-    return model
 
+    dataloader = MagicMock(spec=torch.utils.data.DataLoader)
+    dataloader.__len__.return_value = 10
+    dataloader.__iter__.return_value = iter(
+        [(torch.randn(2, 3, 4, 4), torch.randn(2, 1, 4, 4)) for _ in range(10)]
+    )
 
-@pytest.fixture
-def mock_dataloader():
-    """Mock dataloader."""
-    loader = MagicMock(spec=torch.utils.data.DataLoader)
-    loader.__len__.return_value = 10  # Example length
-    # Make it iterable (e.g., returning dummy data)
-    loader.__iter__.return_value = iter([
-        (torch.randn(2, 3, 4, 4), torch.randn(2, 1, 4, 4)) for _ in range(10)
-    ])
-    return loader
-
-
-@pytest.fixture
-def mock_loss_fn():
-    """Mock loss function."""
     loss_fn = MagicMock(spec=torch.nn.Module)
-    # Return a tensor
     loss_fn.return_value = torch.tensor(0.5, requires_grad=True)
-    return loss_fn
 
-
-@pytest.fixture
-def mock_metrics_dict():
-    """Mock metrics dictionary."""
     metric_mock = MagicMock()
-    metric_mock.return_value = torch.tensor(0.8)  # Return a tensor
-    return {"iou": metric_mock, "f1": metric_mock}
+    metric_mock.return_value = torch.tensor(0.8)
+    metrics_dict = {"iou": metric_mock, "f1": metric_mock}
+
+    logger_instance = NoOpLogger()
+
+    return TrainerMocks(
+        model=model,
+        dataloader=dataloader,
+        loss_fn=loss_fn,
+        metrics_dict=metrics_dict,
+        logger_instance=logger_instance,
+    )
 
 
 @pytest.fixture
 def base_trainer_cfg():
     """Basic Hydra config for the trainer."""
-    return OmegaConf.create({
-        "training": {
-            "epochs": 2,
-            "device": "cpu",
-            "use_amp": False,
-            "gradient_accumulation_steps": 1,
-            "verbose": False,
-            "optimizer": {
-                "_target_": "torch.optim.Adam",
-                "lr": 1e-3
-            },
-            "lr_scheduler": None,
-            "scheduler": None,
-            # Add other necessary fields if init requires them
+    return OmegaConf.create(
+        {
+            "training": {
+                "epochs": 2,
+                "device": "cpu",
+                "use_amp": False,
+                "gradient_accumulation_steps": 1,
+                "verbose": False,
+                "optimizer": {"_target_": "torch.optim.Adam", "lr": 1e-3},
+                "lr_scheduler": None,
+                "scheduler": None,
+                # Add other necessary fields if init requires them
+            }
+            # Add other top-level keys if needed by mocks (e.g., logging)
         }
-        # Add other top-level keys if needed by mocks (e.g., logging)
-    })
+    )
 
 
 @pytest.fixture
@@ -92,13 +99,15 @@ def dummy_batch():
 def dummy_data_loader():
     # Returns a DataLoader with 2 batches of dummy data
     class DummyDataset(torch.utils.data.Dataset):
-        def __len__(self): return 4
+        def __len__(self):
+            return 4
 
         def __getitem__(self, idx):
             return {
-                'image': torch.randn(3, 4, 4),
-                'mask': torch.randn(1, 4, 4)
+                "image": torch.randn(3, 4, 4),
+                "mask": torch.randn(1, 4, 4),
             }
+
     return torch.utils.data.DataLoader(DummyDataset(), batch_size=2)
 
 
@@ -114,344 +123,284 @@ def dummy_metrics():
 
 # --- Test Cases ---
 
-# Patch factory functions where they are used (in trainer module)
-@patch('src.training.trainer.get_device', return_value=torch.device('cpu'))
-@patch('src.training.trainer.create_lr_scheduler')
-@patch('src.training.trainer.create_optimizer')
+
+@patch("src.training.trainer.get_device", return_value=torch.device("cpu"))
+@patch("src.training.trainer.create_lr_scheduler")
+@patch("src.training.trainer.create_optimizer")
 def test_trainer_initialization(
-    mock_create_trainer_optimizer,
-    mock_create_trainer_scheduler,
+    mock_create_optimizer,
+    mock_create_scheduler,
     mock_get_device,
-    mock_model,
-    mock_dataloader,
-    mock_loss_fn,
-    mock_metrics_dict,
+    trainer_mocks_fixture: TrainerMocks,  # Use the new fixture
     base_trainer_cfg,
-    mock_logger_instance
 ):
     """Test if the Trainer class can be initialized correctly."""
-    # Mock the return values of factory functions
     mock_optimizer = MagicMock(spec=torch.optim.Optimizer)
-    mock_optimizer.param_groups = [{'lr': 1e-3}]
-    mock_create_trainer_optimizer.return_value = mock_optimizer
-    mock_create_trainer_scheduler.return_value = None
+    mock_optimizer.param_groups = [{"lr": 1e-3}]
+    mock_create_optimizer.return_value = mock_optimizer
+    mock_create_scheduler.return_value = None
 
     try:
-        # Instantiate Trainer
-        # (it will internally try to call the patched factories)
         trainer = Trainer(
-            model=mock_model,
-            train_loader=mock_dataloader,
-            val_loader=mock_dataloader,
-            loss_fn=mock_loss_fn,
-            metrics_dict=mock_metrics_dict,
+            model=trainer_mocks_fixture.model,
+            train_loader=trainer_mocks_fixture.dataloader,
+            val_loader=trainer_mocks_fixture.dataloader,
+            loss_fn=trainer_mocks_fixture.loss_fn,
+            metrics_dict=trainer_mocks_fixture.metrics_dict,
             cfg=base_trainer_cfg,
-            logger_instance=mock_logger_instance
+            logger_instance=trainer_mocks_fixture.logger_instance,
         )
 
-        # Assertions to check basic initialization
-        assert trainer.model == mock_model
-        assert trainer.train_loader == mock_dataloader
-        # Assert that the patched factories were called and assigned
+        assert trainer.model == trainer_mocks_fixture.model
+        assert trainer.train_loader == trainer_mocks_fixture.dataloader
         assert trainer.optimizer is mock_optimizer
         assert trainer.scheduler is None
 
-        mock_model.to.assert_called_once_with(torch.device('cpu'))
-        # Check if the factory functions were called
-        mock_create_trainer_optimizer.assert_called_once()
-        # Scheduler factory might not be called if cfg.trainer.lr_scheduler
-        # is None
-        # Adjust assertion based on actual Trainer logic
-        # (assuming it checks cfg)
+        trainer_mocks_fixture.model.to.assert_called_once_with(
+            torch.device("cpu")
+        )
+        mock_create_optimizer.assert_called_once()
         if base_trainer_cfg.training.lr_scheduler:
-            mock_create_trainer_scheduler.assert_called_once()
+            mock_create_scheduler.assert_called_once()
         else:
-            mock_create_trainer_scheduler.assert_called_once()
+            # Still called, returns None
+            mock_create_scheduler.assert_called_once()
             assert trainer.scheduler is None
-
         mock_get_device.assert_called_once_with("cpu")
 
     except Exception as e:
         pytest.fail(f"Trainer initialization failed: {e}")
 
 
-@patch('src.training.trainer.get_device', return_value=torch.device('cpu'))
-@patch('src.training.trainer.create_lr_scheduler')
-@patch('src.training.trainer.create_optimizer')
-@patch('src.training.trainer.handle_epoch_checkpointing')
-@patch('src.training.trainer.Trainer._step_scheduler')
+@patch("src.training.trainer.get_device", return_value=torch.device("cpu"))
+@patch("src.training.trainer.create_lr_scheduler")
+@patch("src.training.trainer.create_optimizer")
+@patch("src.training.trainer.handle_epoch_checkpointing")
 @patch(
-    'src.training.trainer.Trainer.validate',
-    return_value={"loss": 0.4, "iou": 0.8}
+    "src.training.trainer.Trainer._step_scheduler"
+)  # Corrected patch target
+@patch(
+    "src.training.trainer.Trainer.validate",
+    return_value={"loss": 0.4, "iou": 0.8},
 )
-@patch('src.training.trainer.Trainer._train_epoch', return_value=0.5)
+@patch("src.training.trainer.Trainer._train_epoch", return_value=0.5)
 def test_trainer_train_loop(
-    mock_handle_checkpoint,
     mock_train_epoch,
     mock_validate,
-    mock_step_scheduler,
-    mock_create_trainer_optimizer,
-    mock_create_trainer_scheduler,
+    mock_step_scheduler,  # Corrected order
+    mock_handle_checkpoint,  # Corrected order
+    mock_create_optimizer,
+    mock_create_scheduler,
     mock_get_device,
-    mock_model,
-    mock_dataloader,
-    mock_loss_fn,
-    mock_metrics_dict,
+    trainer_mocks_fixture: TrainerMocks,
     base_trainer_cfg,
-    mock_logger_instance
 ):
     """Test the main training loop orchestration in train()."""
-    # Setup mocks for optimizer/scheduler creation
     mock_optimizer = MagicMock(spec=torch.optim.Optimizer)
-    mock_optimizer.param_groups = [{'lr': 1e-3}]
-    mock_create_trainer_optimizer.return_value = mock_optimizer
+    mock_optimizer.param_groups = [{"lr": 1e-3}]
+    mock_create_optimizer.return_value = mock_optimizer
     mock_scheduler_instance = MagicMock()
-    mock_create_trainer_scheduler.return_value = mock_scheduler_instance
+    mock_create_scheduler.return_value = mock_scheduler_instance
+    mock_handle_checkpoint.return_value = float("inf")
 
-    # El helper debe devolver un valor float simulado
-    mock_handle_checkpoint.return_value = float('inf')
-
-    # Modify config slightly for this test
     test_cfg = base_trainer_cfg.copy()
-    test_cfg.training.epochs = 3  # Test with 3 epochs
-    test_cfg.training.lr_scheduler = OmegaConf.create({
-        "_target_": "torch.optim.lr_scheduler.StepLR",
-        "step_size": 1
-    })
-
-    # Instanciar Trainer
-    trainer = Trainer(
-        model=mock_model,
-        train_loader=mock_dataloader,
-        val_loader=mock_dataloader,
-        loss_fn=mock_loss_fn,
-        metrics_dict=mock_metrics_dict,
-        cfg=test_cfg,
-        logger_instance=mock_logger_instance
+    test_cfg.training.epochs = 3
+    test_cfg.training.lr_scheduler = OmegaConf.create(
+        {"_target_": "torch.optim.lr_scheduler.StepLR", "step_size": 1}
     )
 
-    # --- Ejecutar el método train ---
+    trainer = Trainer(
+        model=trainer_mocks_fixture.model,
+        train_loader=trainer_mocks_fixture.dataloader,
+        val_loader=trainer_mocks_fixture.dataloader,
+        loss_fn=trainer_mocks_fixture.loss_fn,
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
+        cfg=test_cfg,
+        logger_instance=trainer_mocks_fixture.logger_instance,
+    )
+
     final_results = trainer.train()
 
-    # --- Assertions ---
-    mock_create_trainer_optimizer.assert_called_once()
-    mock_create_trainer_scheduler.assert_called_once()
-
+    mock_create_optimizer.assert_called_once()
+    mock_create_scheduler.assert_called_once()
     assert mock_train_epoch.call_count == test_cfg.training.epochs
     assert mock_validate.call_count == test_cfg.training.epochs
-
     if trainer.scheduler:
         assert mock_step_scheduler.call_count == test_cfg.training.epochs
-
     assert final_results == {"loss": 0.4, "iou": 0.8}
-
     for i in range(1, test_cfg.training.epochs + 1):
         mock_train_epoch.assert_any_call(i)
-
-    if trainer.scheduler:
-        assert mock_step_scheduler.call_count == test_cfg.training.epochs
-
-    # Verificar que el helper de checkpointing se llama una vez por época
     assert mock_handle_checkpoint.call_count == test_cfg.training.epochs
 
 
-@patch('src.training.trainer.get_device', return_value=torch.device('cpu'))
-@patch('src.training.trainer.create_lr_scheduler')
-@patch('src.training.trainer.create_optimizer')
+@patch("src.training.trainer.get_device", return_value=torch.device("cpu"))
+@patch("src.training.trainer.create_lr_scheduler")
+@patch("src.training.trainer.create_optimizer")
 def test_train_step_computes_loss_and_backward(
     mock_create_optimizer,
     mock_create_scheduler,
     mock_get_device,
-    mock_model,
-    mock_dataloader,
-    mock_loss_fn,
-    mock_metrics_dict,
+    trainer_mocks_fixture: TrainerMocks,
     base_trainer_cfg,
-    mock_logger_instance,
-    dummy_batch
+    dummy_batch,
 ):
-    # Configuración: grad_accum_steps = 2 para probar el escalado
     base_trainer_cfg.training.gradient_accumulation_steps = 2
-
-    # Mock optimizer y scaler
     mock_optimizer = MagicMock(spec=torch.optim.Optimizer)
     mock_create_optimizer.return_value = mock_optimizer
     mock_create_scheduler.return_value = None
-
-    # Mock scaler para capturar el backward
     mock_scaler = MagicMock()
-    # El método scale() debe devolver un objeto con backward()
     mock_scaled_loss = MagicMock()
     mock_scaler.scale.return_value = mock_scaled_loss
-
-    # Mock model: forward devuelve un tensor
-    mock_model.return_value = torch.ones(2, 1, 4, 4)
-
-    # Mock loss_fn: devuelve un tensor escalar
-    mock_loss_fn.return_value = torch.tensor(0.8, requires_grad=True)
-
-    # Instanciar Trainer y reemplazar scaler por el mock
-    trainer = Trainer(
-        model=mock_model,
-        train_loader=mock_dataloader,
-        val_loader=mock_dataloader,
-        loss_fn=mock_loss_fn,
-        metrics_dict=mock_metrics_dict,
-        cfg=base_trainer_cfg,
-        logger_instance=mock_logger_instance
+    trainer_mocks_fixture.model.return_value = torch.ones(2, 1, 4, 4)
+    trainer_mocks_fixture.loss_fn.return_value = torch.tensor(
+        0.8, requires_grad=True
     )
-    trainer.scaler = mock_scaler  # Forzar el mock
 
-    # Ejecutar _train_step
+    trainer = Trainer(
+        model=trainer_mocks_fixture.model,
+        train_loader=trainer_mocks_fixture.dataloader,
+        val_loader=trainer_mocks_fixture.dataloader,
+        loss_fn=trainer_mocks_fixture.loss_fn,
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
+        cfg=base_trainer_cfg,
+        logger_instance=trainer_mocks_fixture.logger_instance,
+    )
+    trainer.scaler = mock_scaler
+
     result = train_step(
-        model=mock_model,
+        model=trainer_mocks_fixture.model,
         batch=dummy_batch,
-        loss_fn=mock_loss_fn,
+        loss_fn=trainer_mocks_fixture.loss_fn,
         optimizer=mock_optimizer,
         device=mock_get_device(),
-        metrics_dict=mock_metrics_dict
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
     )
 
-    # Verificaciones
-    mock_model.assert_called_once()  # Se llama el forward
-    mock_loss_fn.assert_called_once()  # Se calcula el loss
-    # El valor devuelto debe ser el loss
+    trainer_mocks_fixture.model.assert_called_once()
+    trainer_mocks_fixture.loss_fn.assert_called_once()
     assert result["loss"].item() == pytest.approx(0.8)
 
 
 @pytest.mark.cuda
-@patch('src.training.trainer.get_device', return_value=torch.device('cuda:0'))
-@patch('src.training.trainer.create_lr_scheduler')
-@patch('src.training.trainer.create_optimizer')
+@patch("src.training.trainer.get_device", return_value=torch.device("cuda:0"))
+@patch("src.training.trainer.create_lr_scheduler")
+@patch("src.training.trainer.create_optimizer")
 def test_train_step_amp_cuda(
     mock_create_optimizer,
     mock_create_scheduler,
     mock_get_device,
-    mock_model,
-    mock_dataloader,
-    mock_loss_fn,
-    mock_metrics_dict,
+    trainer_mocks_fixture: TrainerMocks,
     base_trainer_cfg,
-    mock_logger_instance,
-    dummy_batch
+    dummy_batch,
 ):
-    # Habilitar AMP y usar CUDA
     base_trainer_cfg.training.use_amp = True
     base_trainer_cfg.training.device = "cuda:0"
     base_trainer_cfg.training.gradient_accumulation_steps = 1
-
     mock_optimizer = MagicMock(spec=torch.optim.Optimizer)
     mock_create_optimizer.return_value = mock_optimizer
     mock_create_scheduler.return_value = None
-
     mock_scaler = MagicMock()
     mock_scaled_loss = MagicMock()
     mock_scaler.scale.return_value = mock_scaled_loss
-
-    mock_model.return_value = torch.ones(2, 1, 4, 4, device='cuda:0')
-    mock_loss_fn.return_value = torch.tensor(0.5, device='cuda:0',
-                                             requires_grad=True)
+    trainer_mocks_fixture.model.return_value = torch.ones(
+        2, 1, 4, 4, device="cuda:0"
+    )
+    trainer_mocks_fixture.loss_fn.return_value = torch.tensor(
+        0.5, device="cuda:0", requires_grad=True
+    )
 
     trainer = Trainer(
-        model=mock_model,
-        train_loader=mock_dataloader,
-        val_loader=mock_dataloader,
-        loss_fn=mock_loss_fn,
-        metrics_dict=mock_metrics_dict,
+        model=trainer_mocks_fixture.model,
+        train_loader=trainer_mocks_fixture.dataloader,
+        val_loader=trainer_mocks_fixture.dataloader,
+        loss_fn=trainer_mocks_fixture.loss_fn,
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
         cfg=base_trainer_cfg,
-        logger_instance=mock_logger_instance
+        logger_instance=trainer_mocks_fixture.logger_instance,
     )
     trainer.scaler = mock_scaler
 
-    # Ejecutar _train_step
     result = train_step(
-        model=mock_model,
+        model=trainer_mocks_fixture.model,
         batch=dummy_batch,
-        loss_fn=mock_loss_fn,
+        loss_fn=trainer_mocks_fixture.loss_fn,
         optimizer=mock_optimizer,
         device=mock_get_device(),
-        metrics_dict=mock_metrics_dict
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
     )
 
-    mock_model.assert_called_once()
-    mock_loss_fn.assert_called_once()
-    # El valor devuelto debe ser el loss
+    trainer_mocks_fixture.model.assert_called_once()
+    trainer_mocks_fixture.loss_fn.assert_called_once()
     assert result["loss"].item() == pytest.approx(0.5)
 
 
-@patch('src.training.trainer.get_device', return_value=torch.device('cpu'))
-@patch('src.training.trainer.create_lr_scheduler')
-@patch('src.training.trainer.create_optimizer')
+@patch("src.training.trainer.get_device", return_value=torch.device("cpu"))
+@patch("src.training.trainer.create_lr_scheduler")
+@patch("src.training.trainer.create_optimizer")
 def test_train_step_raises_on_forward_error(
     mock_create_optimizer,
     mock_create_scheduler,
     mock_get_device,
-    mock_model,
-    mock_dataloader,
-    mock_loss_fn,
-    mock_metrics_dict,
+    trainer_mocks_fixture: TrainerMocks,
     base_trainer_cfg,
-    mock_logger_instance,
-    dummy_batch
+    dummy_batch,
 ):
     base_trainer_cfg.training.gradient_accumulation_steps = 1
-
     mock_optimizer = MagicMock(spec=torch.optim.Optimizer)
     mock_create_optimizer.return_value = mock_optimizer
     mock_create_scheduler.return_value = None
-
     mock_scaler = MagicMock()
     mock_scaler.scale.return_value = MagicMock()
-
-    # Simular excepción en el forward
-    mock_model.side_effect = RuntimeError("Forward error")
+    trainer_mocks_fixture.model.side_effect = RuntimeError("Forward error")
 
     trainer = Trainer(
-        model=mock_model,
-        train_loader=mock_dataloader,
-        val_loader=mock_dataloader,
-        loss_fn=mock_loss_fn,
-        metrics_dict=mock_metrics_dict,
+        model=trainer_mocks_fixture.model,
+        train_loader=trainer_mocks_fixture.dataloader,
+        val_loader=trainer_mocks_fixture.dataloader,
+        loss_fn=trainer_mocks_fixture.loss_fn,
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
         cfg=base_trainer_cfg,
-        logger_instance=mock_logger_instance
+        logger_instance=trainer_mocks_fixture.logger_instance,
     )
     trainer.scaler = mock_scaler
 
     with pytest.raises(RuntimeError, match="Forward error"):
         train_step(
-            model=mock_model,
+            model=trainer_mocks_fixture.model,
             batch=dummy_batch,
-            loss_fn=mock_loss_fn,
+            loss_fn=trainer_mocks_fixture.loss_fn,
             optimizer=mock_optimizer,
             device=mock_get_device(),
-            metrics_dict=mock_metrics_dict
+            metrics_dict=trainer_mocks_fixture.metrics_dict,
         )
 
 
-def test_epoch_level_logging(dummy_data_loader, dummy_loss,
-                             dummy_metrics, tmp_path):
-    # Configuración mínima para usar StepLR
+def test_epoch_level_logging(
+    dummy_data_loader, dummy_loss, dummy_metrics, tmp_path
+):
     checkpoint_dir = tmp_path / "checkpoints"
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
-    cfg = OmegaConf.create({
-        'training': {
-            'epochs': 2,
-            'device': 'cpu',
-            'use_amp': False,
-            'gradient_accumulation_steps': 1,
-            'checkpoint_dir': str(checkpoint_dir),
-            'optimizer': {'_target_': 'torch.optim.SGD', 'lr': 0.01},
-            'lr_scheduler': {'_target_': 'torch.optim.lr_scheduler.StepLR',
-                             'step_size': 1, 'gamma': 0.5},
-            'scheduler': None,
-            'verbose': False
+    cfg = OmegaConf.create(
+        {
+            "training": {
+                "epochs": 2,
+                "device": "cpu",
+                "use_amp": False,
+                "gradient_accumulation_steps": 1,
+                "checkpoint_dir": str(checkpoint_dir),
+                "optimizer": {"_target_": "torch.optim.SGD", "lr": 0.01},
+                "lr_scheduler": {
+                    "_target_": "torch.optim.lr_scheduler.StepLR",
+                    "step_size": 1,
+                    "gamma": 0.5,
+                },
+                "scheduler": None,
+                "verbose": False,
+            }
         }
-    })
+    )
     model = torch.nn.Conv2d(3, 1, 1)
-    from unittest.mock import MagicMock
     logger = MagicMock()
-    # Configurar el experiment_manager del logger mock para que
-    # get_path retorne la ruta de checkpoint_dir correctamente
     exp_manager = MagicMock()
     exp_manager.get_path.return_value = str(checkpoint_dir)
     logger.experiment_manager = exp_manager
@@ -463,38 +412,37 @@ def test_epoch_level_logging(dummy_data_loader, dummy_loss,
         loss_fn=dummy_loss,
         metrics_dict=dummy_metrics,
         cfg=cfg,
-        logger_instance=logger
+        logger_instance=logger,
     )
     trainer.train()
-    # Verifica que logger.log_scalar fue llamado al menos una vez
     assert logger.log_scalar.call_count > 0
 
 
-def test_batch_level_logging(dummy_data_loader, dummy_loss,
-                             dummy_metrics, tmp_path):
-    log_interval = 2  # Log every 2 batches
+def test_batch_level_logging(
+    dummy_data_loader, dummy_loss, dummy_metrics, tmp_path
+):
+    log_interval = 2
     num_epochs = 2
     checkpoint_dir = tmp_path / "checkpoints"
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
-    cfg = OmegaConf.create({
-        'training': {
-            'epochs': num_epochs,
-            'device': 'cpu',
-            'use_amp': False,
-            'gradient_accumulation_steps': 1,
-            'checkpoint_dir': str(checkpoint_dir),
-            'optimizer': {'_target_': 'torch.optim.SGD', 'lr': 0.01},
-            'lr_scheduler': None,
-            'scheduler': None,
-            'verbose': False,
-            'log_interval_batches': log_interval
+    cfg = OmegaConf.create(
+        {
+            "training": {
+                "epochs": num_epochs,
+                "device": "cpu",
+                "use_amp": False,
+                "gradient_accumulation_steps": 1,
+                "checkpoint_dir": str(checkpoint_dir),
+                "optimizer": {"_target_": "torch.optim.SGD", "lr": 0.01},
+                "lr_scheduler": None,
+                "scheduler": None,
+                "verbose": False,
+                "log_interval_batches": log_interval,
+            }
         }
-    })
+    )
     model = torch.nn.Conv2d(3, 1, 1)
-    from unittest.mock import MagicMock
     logger = MagicMock()
-    # Configurar el experiment_manager del logger mock para que
-    # get_path retorne la ruta de checkpoint_dir correctamente
     exp_manager = MagicMock()
     exp_manager.get_path.return_value = str(checkpoint_dir)
     logger.experiment_manager = exp_manager
@@ -506,24 +454,23 @@ def test_batch_level_logging(dummy_data_loader, dummy_loss,
         loss_fn=dummy_loss,
         metrics_dict=dummy_metrics,
         cfg=cfg,
-        logger_instance=logger
+        logger_instance=logger,
     )
     trainer.train()
-    # Verifica que logger.log_scalar fue llamado al menos una vez
     assert logger.log_scalar.call_count > 0
 
 
 def test_val_step_returns_metrics(
-    mock_model, mock_loss_fn, mock_metrics_dict,
-    base_trainer_cfg, mock_logger_instance, dummy_batch
+    trainer_mocks_fixture: TrainerMocks,
+    base_trainer_cfg,  # Not used directly but keeps consistency if needed
+    dummy_batch,
 ):
-    # No se necesita instanciar Trainer para testear val_step directamente
     metrics = val_step(
-        model=mock_model,
+        model=trainer_mocks_fixture.model,
         batch=dummy_batch,
-        loss_fn=mock_loss_fn,
-        device=torch.device('cpu'),
-        metrics_dict=mock_metrics_dict
+        loss_fn=trainer_mocks_fixture.loss_fn,
+        device=torch.device("cpu"),
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
     )
     assert isinstance(metrics, dict)
     assert "loss" in metrics
@@ -533,19 +480,18 @@ def test_val_step_returns_metrics(
 
 
 def test_validate_aggregates_metrics(
-    mock_model, mock_loss_fn, mock_metrics_dict, base_trainer_cfg,
-    mock_logger_instance, mock_dataloader
+    trainer_mocks_fixture: TrainerMocks, base_trainer_cfg
 ):
     """Test that validate correctly averages and returns metrics with val_
     prefix."""
     trainer = Trainer(
-        model=mock_model,
+        model=trainer_mocks_fixture.model,
         train_loader=None,
-        val_loader=mock_dataloader,
-        loss_fn=mock_loss_fn,
-        metrics_dict=mock_metrics_dict,
+        val_loader=trainer_mocks_fixture.dataloader,  # Use mocked dataloader
+        loss_fn=trainer_mocks_fixture.loss_fn,
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
         cfg=base_trainer_cfg,
-        logger_instance=mock_logger_instance
+        logger_instance=trainer_mocks_fixture.logger_instance,
     )
     val_metrics = trainer.validate(epoch=1)
     assert isinstance(val_metrics, dict)
@@ -556,35 +502,32 @@ def test_validate_aggregates_metrics(
 
 
 def test_step_scheduler_reduce_on_plateau(monkeypatch):
-    import torch
-    from unittest.mock import MagicMock
-    # Mock scheduler and optimizer
     scheduler = MagicMock(spec=torch.optim.lr_scheduler.ReduceLROnPlateau)
     optimizer = MagicMock()
-    optimizer.param_groups = [{'lr': 0.01}]
+    optimizer.param_groups = [{"lr": 0.01}]
     logger = MagicMock()
-    # Case: metric present
-    metrics = {'val_loss': 0.5}
+    metrics = {"val_loss": 0.5}
     from src.utils.scheduler_helper import step_scheduler_helper
+
     lr = step_scheduler_helper(
         scheduler=scheduler,
         optimizer=optimizer,
-        monitor_metric='val_loss',
+        monitor_metric="val_loss",
         metrics=metrics,
-        logger=logger
+        logger=logger,
     )
     scheduler.step.assert_called_once_with(0.5)
     logger.info.assert_called()
     assert lr == 0.01
-    # Case: metric missing
+
     scheduler.reset_mock()
     logger.reset_mock()
     lr = step_scheduler_helper(
         scheduler=scheduler,
         optimizer=optimizer,
-        monitor_metric='val_loss',
+        monitor_metric="val_loss",
         metrics={},
-        logger=logger
+        logger=logger,
     )
     scheduler.step.assert_not_called()
     logger.warning.assert_called()
@@ -592,18 +535,18 @@ def test_step_scheduler_reduce_on_plateau(monkeypatch):
 
 
 def test_step_scheduler_other_scheduler():
-    from unittest.mock import MagicMock
     scheduler = MagicMock()
     optimizer = MagicMock()
-    optimizer.param_groups = [{'lr': 0.02}]
+    optimizer.param_groups = [{"lr": 0.02}]
     logger = MagicMock()
     from src.utils.scheduler_helper import step_scheduler_helper
+
     lr = step_scheduler_helper(
         scheduler=scheduler,
         optimizer=optimizer,
-        monitor_metric='val_loss',
-        metrics={'val_loss': 0.1},
-        logger=logger
+        monitor_metric="val_loss",
+        metrics={"val_loss": 0.1},
+        logger=logger,
     )
     scheduler.step.assert_called_once()
     logger.info.assert_called()
@@ -611,61 +554,54 @@ def test_step_scheduler_other_scheduler():
 
 
 def test_trainer_early_stopping(
-    monkeypatch, mock_model, mock_dataloader, mock_loss_fn,
-    mock_metrics_dict, base_trainer_cfg, mock_logger_instance
+    monkeypatch, trainer_mocks_fixture: TrainerMocks, base_trainer_cfg
 ):
-    """Test that Trainer stops training when early_stopper.step returns True.
     """
-    # Minimal config
+    Test that Trainer stops training when early_stopper.step returns True.
+    """
     test_cfg = base_trainer_cfg.copy()
     test_cfg.training.epochs = 5
 
-    # Mock EarlyStopping
     class DummyEarlyStopping:
         def __init__(self):
-            self.monitor_metric = 'val_loss'
+            self.monitor_metric = "val_loss"
             self.calls = 0
 
         def step(self, value):
             self.calls += 1
-            # Stop on third call
             return self.calls == 3
 
     early_stopper = DummyEarlyStopping()
 
-    # Mock validate to always return the same value
     def fake_validate(self, epoch):
-        return {'val_loss': 0.5}
+        return {"val_loss": 0.5}
 
-    monkeypatch.setattr(
-        'src.training.trainer.Trainer.validate',
-        fake_validate
-    )
-    # Instantiate Trainer with early_stopper
+    monkeypatch.setattr("src.training.trainer.Trainer.validate", fake_validate)
+
     trainer = Trainer(
-        model=mock_model,
-        train_loader=mock_dataloader,
-        val_loader=mock_dataloader,
-        loss_fn=mock_loss_fn,
-        metrics_dict=mock_metrics_dict,
+        model=trainer_mocks_fixture.model,
+        train_loader=trainer_mocks_fixture.dataloader,
+        val_loader=trainer_mocks_fixture.dataloader,
+        loss_fn=trainer_mocks_fixture.loss_fn,
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
         cfg=test_cfg,
-        logger_instance=mock_logger_instance,
-        early_stopper=early_stopper
+        logger_instance=trainer_mocks_fixture.logger_instance,
+        early_stopper=early_stopper,  # Pass the mock
     )
-    # Force use of the mock early_stopper
-    trainer.early_stopper = early_stopper
-    trainer._train_epoch = lambda epoch: 0.0  # Mock to do nothing
+    trainer.early_stopper = early_stopper  # Ensure it's used
+    trainer._train_epoch = lambda epoch: 0.0
+
     with patch(
-        'src.training.trainer.handle_epoch_checkpointing',
-        return_value=float('inf')
+        "src.training.trainer.handle_epoch_checkpointing",
+        return_value=float("inf"),
     ):
         trainer.train()
-    # Should have called step 3 times and exited before completing all epochs
     assert early_stopper.calls == 3
 
 
 def test_format_metrics():
     from src.utils.training_logging import format_metrics
+
     metrics = {"loss": 0.1234, "iou": 0.5678}
     formatted = format_metrics(metrics)
     assert "Loss: 0.1234" in formatted
@@ -693,12 +629,11 @@ def test_log_validation_results(caplog):
 
 def test_amp_autocast_context_manager():
     from src.utils.amp_utils import amp_autocast
-    import torch
+
     with amp_autocast(False):
         x = torch.tensor([1.0], requires_grad=True)
         y = x * 2
         assert y.item() == 2.0
-    # No error should occur
     with amp_autocast(True):
         x = torch.tensor([1.0], requires_grad=True)
         y = x * 2
@@ -707,30 +642,17 @@ def test_amp_autocast_context_manager():
 
 def test_optimizer_step_with_accumulation_no_amp():
     from src.utils.amp_utils import optimizer_step_with_accumulation
-    import torch
-    from unittest.mock import MagicMock
+
     optimizer = MagicMock()
     scaler = None
     loss = torch.tensor(1.0, requires_grad=True)
     grad_accum_steps = 2
-    # batch_idx = 0: no step
     optimizer_step_with_accumulation(
-        optimizer=optimizer,
-        scaler=scaler,
-        loss=loss,
-        grad_accum_steps=grad_accum_steps,
-        batch_idx=0,
-        use_amp=False
+        optimizer, scaler, loss, grad_accum_steps, 0, False
     )
     optimizer.step.assert_not_called()
-    # batch_idx = 1: step
     optimizer_step_with_accumulation(
-        optimizer=optimizer,
-        scaler=scaler,
-        loss=loss,
-        grad_accum_steps=grad_accum_steps,
-        batch_idx=1,
-        use_amp=False
+        optimizer, scaler, loss, grad_accum_steps, 1, False
     )
     optimizer.step.assert_called_once()
     optimizer.zero_grad.assert_called()
@@ -738,31 +660,18 @@ def test_optimizer_step_with_accumulation_no_amp():
 
 def test_optimizer_step_with_accumulation_amp():
     from src.utils.amp_utils import optimizer_step_with_accumulation
-    import torch
-    from unittest.mock import MagicMock
+
     optimizer = MagicMock()
     scaler = MagicMock()
     loss = torch.tensor(1.0, requires_grad=True)
     grad_accum_steps = 2
-    # batch_idx = 0: no step
     optimizer_step_with_accumulation(
-        optimizer=optimizer,
-        scaler=scaler,
-        loss=loss,
-        grad_accum_steps=grad_accum_steps,
-        batch_idx=0,
-        use_amp=True
+        optimizer, scaler, loss, grad_accum_steps, 0, True
     )
     scaler.scale.assert_called_with(loss / grad_accum_steps)
     scaler.step.assert_not_called()
-    # batch_idx = 1: step
     optimizer_step_with_accumulation(
-        optimizer=optimizer,
-        scaler=scaler,
-        loss=loss,
-        grad_accum_steps=grad_accum_steps,
-        batch_idx=1,
-        use_amp=True
+        optimizer, scaler, loss, grad_accum_steps, 1, True
     )
     scaler.step.assert_called_once_with(optimizer)
     scaler.update.assert_called()
@@ -777,7 +686,7 @@ def test_validate_trainer_config_valid():
         device = "cpu"
         optimizer = {"_target_": "torch.optim.Adam", "lr": 0.001}
         gradient_accumulation_steps = 1
-    # No debe lanzar excepción
+
     validate_trainer_config(DummyCfg())
 
 
@@ -788,7 +697,7 @@ def test_validate_trainer_config_missing_field():
         device = "cpu"
         optimizer = {"_target_": "torch.optim.Adam", "lr": 0.001}
         gradient_accumulation_steps = 1
-    import pytest
+
     with pytest.raises(ValueError):
         validate_trainer_config(DummyCfg())
 
@@ -801,7 +710,7 @@ def test_validate_trainer_config_invalid_type():
         device = "cpu"
         optimizer = {"_target_": "torch.optim.Adam", "lr": 0.001}
         gradient_accumulation_steps = 1
-    import pytest
+
     with pytest.raises(TypeError):
         validate_trainer_config(DummyCfg())
 
@@ -812,8 +721,8 @@ def test_validate_trainer_config_invalid_optimizer():
     class DummyCfg:
         epochs = 5
         device = "cpu"
-        optimizer = {"lr": 0.001}  # Falta _target_
+        optimizer = {"lr": 0.001}
         gradient_accumulation_steps = 1
-    import pytest
+
     with pytest.raises(ValueError):
         validate_trainer_config(DummyCfg())

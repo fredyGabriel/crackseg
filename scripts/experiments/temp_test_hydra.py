@@ -1,23 +1,24 @@
 """Temporary script to test Hydra config loading and model instantiation."""
 
-import hydra
-from omegaconf import DictConfig, OmegaConf
-import torch
+import os
 
 # Adjust path if necessary to find the modules
 import sys
-import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.model.factory import create_unet  # noqa: E402
-from src.model.base import UNetBase  # noqa: E402
+import hydra
+import torch
+from omegaconf import DictConfig, OmegaConf
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Ensure mock components are registered
-import tests.model.test_factory  # noqa: F401, pylint: disable=unused-import
+from src.model.base import UNetBase
+from src.model.factory import create_unet
 
 
-@hydra.main(config_path="../configs", config_name="model/unet_mock",
-            version_base=None)
+@hydra.main(
+    config_path="../configs", config_name="model/unet_mock", version_base=None
+)
 def run_test(cfg: DictConfig):
     """Load config, instantiate model, and run forward pass."""
     print("Configuration loaded successfully:")
@@ -26,7 +27,7 @@ def run_test(cfg: DictConfig):
     try:
         config_dict = OmegaConf.to_container(cfg, resolve=True)
         print("\nAttempting to create UNet model from model config...")
-        unet = create_unet(config_dict['model'])
+        unet = create_unet(config_dict["model"])
         print("UNet model created successfully!")
         assert isinstance(unet, UNetBase)
 
@@ -48,6 +49,7 @@ def run_test(cfg: DictConfig):
     except Exception as e:
         print(f"\nAn error occurred: {e}")
         import traceback
+
         traceback.print_exc()
 
 

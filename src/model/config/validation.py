@@ -7,14 +7,14 @@ This module provides high-level functions for validating model configurations:
 - normalize_config: Normalizes a configuration by filling in default values
 """
 
-from typing import Dict, Any, Optional, Tuple
 import logging
+from typing import Any
 
 from .schemas import (
-    create_encoder_schema,
+    create_architecture_schema,
     create_bottleneck_schema,
     create_decoder_schema,
-    create_architecture_schema,
+    create_encoder_schema,
     create_hybrid_schema,
     # Add other necessary schema imports
 )
@@ -24,8 +24,8 @@ log = logging.getLogger(__name__)
 
 
 def validate_component_config(
-    config: Dict[str, Any], component_type: str
-) -> Tuple[bool, Dict[str, Any]]:
+    config: dict[str, Any], component_type: str
+) -> tuple[bool, dict[str, Any]]:
     """
     Validate a component configuration.
 
@@ -36,10 +36,10 @@ def validate_component_config(
     Returns:
         tuple: (is_valid, errors)
     """
-    print(
-        f"[DEBUG] validate_component_config: type={type(config)}, "
-        f"value={config}"
-    )
+    # print(
+    #     f"[DEBUG] validate_component_config: type={type(config)}, "
+    #     f"value={config}"
+    # ) # Keep commented out unless debugging
     if not isinstance(config, dict):
         return False, {
             "_general": (
@@ -49,61 +49,92 @@ def validate_component_config(
         }
 
     # Get component-specific validator
-    comp_type = config.get('type')
-    if comp_type:
-        # Use specific schema factories if available
-        if comp_type == "encoder":  # This condition might be too broad
-            schema = create_encoder_schema()
-        elif comp_type == "bottleneck":
-            schema = create_bottleneck_schema()
-        elif comp_type == "decoder":
-            schema = create_decoder_schema()
-        else:
-            # Attempt to find a specific validator function if defined
-            # This part depends on how specific validators are structured
-            # Let's assume for now we fall back to generic
-            log.debug(
-                f"No specific schema factory for comp_type {comp_type},"
-                f" using generic."
-            )
-            schema = None  # Signal to use generic below
-    else:
-        # Fall back to generic schema validation based on component_type
-        log.debug(f"Using generic schema for {component_type}")
-        schema = None
+    comp_type_from_config = config.get(
+        "type"
+    )  # Type specified within the component's own config
+    schema = None
 
-    # If no specific schema was found by comp_type, use component_type
-    if schema is None:
-        if component_type == 'encoder':
+    # Try to get schema based on the specific type declared in the component's
+    # config
+    if comp_type_from_config:
+        if (
+            comp_type_from_config == "encoder"
+        ):  # Or more specific types like "ResNetEncoder" if factories exist
             schema = create_encoder_schema()
-        elif component_type == 'bottleneck':
+        elif comp_type_from_config == "bottleneck":
             schema = create_bottleneck_schema()
-        elif component_type == 'decoder':
+        elif comp_type_from_config == "decoder":
+            schema = create_decoder_schema()
+        # Add elif for other specific known types from config that map to a
+        # schema factory
+        else:
+            log.debug(
+                "No specific schema factory for comp_type "
+                f"'{comp_type_from_config}' from config. "
+                f"Will try category '{component_type}'."
+            )
+            # schema remains None, will fallback to component_type argument
+
+    # If no schema was determined from comp_type_from_config, fallback to
+    # component_type argument
+    if schema is None:
+        if component_type == "encoder":
+            schema = create_encoder_schema()
+        elif component_type == "bottleneck":
+            schema = create_bottleneck_schema()
+        elif component_type == "decoder":
             schema = create_decoder_schema()
         else:
-            # Handle unknown component types more robustly
             log.error(
-                f"Unknown component type for validation: {component_type}"
+                f"Unknown component type for validation: '{component_type}' "
+                "and no specific schema found for config type "
+                f"'{comp_type_from_config}'."
             )
             return False, {
-                "_general": f"Unknown component type: {component_type}"
+                "_general": "Unknown component type or category for "
+                f"validation: {component_type}"
             }
 
-    # Special handling for hybrid schema - might need refinement
-    # This logic might be complex if called for non-architecture components
-    if "components" in config and schema.name == "architecture":
-        # Check schema name
-        schema = create_hybrid_schema()
-
-    # Attempt validation
+    # Attempt validation with the determined schema
     is_valid, errors = schema.validate(config)
 
     return is_valid, errors
 
 
+def _validate_main_components(
+    config: dict[str, Any], errors: dict[str, Any]
+) -> bool:
+    """Validates encoder, bottleneck, and decoder components in the config."""
+    all_main_components_valid = True
+    for comp_name in ["encoder", "bottleneck", "decoder"]:
+        if comp_name in config:
+            comp_cfg = config[comp_name]
+            if not isinstance(comp_cfg, dict):
+                # Skip validation if not a dict (avoids bug of passing str)
+                # errors[comp_name] = f"Component '{comp_name}' config must be
+                # a dictionary, got {type(comp_cfg)}"
+                # all_main_components_valid = False # Or handle as error
+                continue
+            comp_valid, comp_err = validate_component_config(
+                comp_cfg, comp_name
+            )
+            if not comp_valid:
+                all_main_components_valid = False
+                if comp_name in errors:
+                    if isinstance(errors[comp_name], dict) and isinstance(
+                        comp_err, dict
+                    ):
+                        errors[comp_name].update(comp_err)
+                    else:
+                        errors[comp_name] = comp_err
+                else:
+                    errors[comp_name] = comp_err
+    return all_main_components_valid
+
+
 def validate_architecture_config(
-    config: Dict[str, Any]
-) -> Tuple[bool, Dict[str, Any]]:
+    config: dict[str, Any],
+) -> tuple[bool, dict[str, Any]]:
     """Validate the entire architecture configuration."""
     arch_type = config.get("type")
     if not arch_type:
@@ -126,56 +157,114 @@ def validate_architecture_config(
 
     # If basic validation passes, validate nested components
     if is_valid:
-        component_errors = {}
-        for comp_name in ["encoder", "bottleneck", "decoder"]:
-            if comp_name in config:
-                comp_cfg = config[comp_name]
-                if not isinstance(comp_cfg, dict):
-                    # Saltar validación si no es un dict (evita bug de pasar str)
-                    continue
-                comp_valid, comp_err = validate_component_config(
-                    comp_cfg, comp_name
-                )
-                if not comp_valid:
-                    component_errors[comp_name] = comp_err
+        # Validate main components using the helper function
+        main_components_valid = _validate_main_components(config, errors)
+        if not main_components_valid:
+            is_valid = False
 
-        # Validate additional components if present (hybrid)
         # REMOVED: Detailed validation of additional components here.
         # The Hybrid schema allows unknown fields, and specific validation
         # will occur during instantiation where more context is available.
-        # if "components" in config:
-        #     additional_comp_errors = {}
-        #     for name, comp_cfg in config["components"].items():
-        #         # For now, use generic component validation
-        #         comp_valid, comp_err = validate_component_config(
-        #             comp_cfg,
-        #             name  # Use component name as type hint for now
-        #         )
-        #         if not comp_valid:
-        #             additional_comp_errors[name] = comp_err
-        #     if additional_comp_errors:
-        #          component_errors["components"] = additional_comp_errors
-
-        if component_errors:
-            is_valid = False
-            # Merge component errors into main error dict
-            for key, val in component_errors.items():
-                if key in errors:
-                    # Simple merge, might need refinement
-                    if isinstance(errors[key], dict) and isinstance(val, dict):
-                        errors[key].update(val)
-                    else:
-                        # Handle non-dict merge case if necessary
-                        errors[key] = val
-                else:
-                    errors[key] = val
 
     return is_valid, errors
 
 
+# Helper for normalizing individual components
+def _normalize_individual_component(
+    config_to_normalize: dict[str, Any], component_type_str: str
+) -> dict[str, Any]:
+    """Normalizes an individual component configuration using its specific
+    schema."""
+    schema = None
+    if component_type_str == "encoder":
+        schema = create_encoder_schema()
+    elif component_type_str == "bottleneck":
+        schema = create_bottleneck_schema()
+    elif component_type_str == "decoder":
+        schema = create_decoder_schema()
+    # Add other specific component types if they have distinct schemas for
+    # normalization
+    # else:
+    #     log.debug(f"No specific normalization schema for component type:
+    # {component_type_str}")
+
+    if schema:
+        return schema.normalize(config_to_normalize)
+    return (
+        config_to_normalize  # Return as is if no specific schema for this type
+    )
+
+
+# Helper for normalizing the 'components' section in hybrid architectures
+def _normalize_hybrid_additional_components(
+    components_section: dict[str, Any],
+) -> dict[str, Any]:
+    """Normalizes the 'components' dictionary within a hybrid architecture
+    config."""
+    normalized_additional_components = {}
+    if isinstance(components_section, dict):
+        for comp_name, comp_config in components_section.items():
+            if isinstance(comp_config, dict) and "type" in comp_config:
+                # Extract base component type for recursive normalization call
+                # This heuristic assumes types like "SpecificEncoder_v1" ->
+                # "encoder"
+                base_comp_type = comp_config["type"].split("_")[0].lower()
+                normalized_additional_components[comp_name] = normalize_config(
+                    comp_config, base_comp_type
+                )
+            else:
+                # Pass through if not a typical component structure or type is
+                # missing
+                normalized_additional_components[comp_name] = comp_config
+    else:
+        # If 'components' is not a dict, return it as is or log a warning
+        log.warning(
+            "Expected 'components' section to be a dict, got "
+            f"{type(components_section)}"
+        )
+        return components_section
+    return normalized_additional_components
+
+
+# Helper for normalizing a full architecture configuration
+def _normalize_full_architecture(
+    original_config: dict[str, Any],  # Used to check 'type' for hybrid
+    config_to_normalize: dict[str, Any],
+) -> dict[str, Any]:
+    """Normalizes a complete architecture configuration, including nested
+    components."""
+    arch_type_str = original_config.get("type", "").lower()
+    is_hybrid = arch_type_str == "hybrid"  # More direct check
+
+    schema = (
+        create_hybrid_schema() if is_hybrid else create_architecture_schema()
+    )
+    normalized_arch = schema.normalize(config_to_normalize)
+
+    # Normalize main nested components (encoder, bottleneck, decoder)
+    for comp_key in ["encoder", "bottleneck", "decoder"]:
+        if comp_key in normalized_arch and isinstance(
+            normalized_arch[comp_key], dict
+        ):
+            # Use the main normalize_config for these, as it routes to
+            # _normalize_individual_component
+            normalized_arch[comp_key] = normalize_config(
+                normalized_arch[comp_key], comp_key
+            )
+
+    # Normalize additional components for hybrid architectures
+    if is_hybrid and "components" in normalized_arch:
+        normalized_arch["components"] = (
+            _normalize_hybrid_additional_components(
+                normalized_arch["components"]
+            )
+        )
+    return normalized_arch
+
+
 def normalize_config(
-    config: Dict[str, Any], component_type: Optional[str] = None
-) -> Dict[str, Any]:
+    config: dict[str, Any], component_type: str | None = None
+) -> dict[str, Any]:
     """
     Normalize a configuration by filling in default values.
 
@@ -187,58 +276,35 @@ def normalize_config(
         Dict: Normalized configuration
     """
     if not isinstance(config, dict):
-        log.warning("Cannot normalize non-dictionary configuration")
+        log.warning(
+            f"Cannot normalize non-dictionary configuration: {type(config)}"
+        )
         return config
 
-    normalized = dict(config)
+    # Work on a copy to avoid modifying the original config dict in-place
+    # This is important if the same config object is used elsewhere.
+    current_config_state = dict(config)
 
-    # For complete architecture configurations
-    if component_type is None and 'type' in config:
-        is_hybrid = config['type'].lower() == 'hybrid'
-        schema = create_hybrid_schema() if is_hybrid else \
-            create_architecture_schema()
-        normalized = schema.normalize(normalized)
-
-        # Normalize nested components
-        if 'encoder' in normalized:
-            normalized['encoder'] = normalize_config(
-                normalized['encoder'], 'encoder'
-            )
-
-        if 'bottleneck' in normalized:
-            normalized['bottleneck'] = normalize_config(
-                normalized['bottleneck'], 'bottleneck'
-            )
-
-        if 'decoder' in normalized:
-            normalized['decoder'] = normalize_config(
-                normalized['decoder'], 'decoder'
-            )
-
-        # For hybrid architectures with additional components
-        if is_hybrid and 'components' in normalized:
-            components = normalized['components']
-            if isinstance(components, dict):
-                for comp_name, comp_config in components.items():
-                    if isinstance(comp_config, dict) and 'type' in comp_config:
-                        # Extract component type from the component type name
-                        comp_type = comp_config['type'].split('_')[0].lower()
-                        normalized['components'][comp_name] = normalize_config(
-                            comp_config, comp_type
-                        )
-
-    # For individual components
+    if component_type is None and "type" in current_config_state:
+        # This path handles top-level architecture configurations.
+        # 'config' is the original config to check its 'type' for hybrid status
+        # 'current_config_state' is the one being progressively normalized.
+        return _normalize_full_architecture(config, current_config_state)
     elif component_type is not None:
-        schema = None
-
-        if component_type == 'encoder':
-            schema = create_encoder_schema()
-        elif component_type == 'bottleneck':
-            schema = create_bottleneck_schema()
-        elif component_type == 'decoder':
-            schema = create_decoder_schema()
-
-        if schema:
-            normalized = schema.normalize(normalized)
-
-    return normalized
+        # This path handles individual components (e.g., encoder, bottleneck).
+        return _normalize_individual_component(
+            current_config_state, component_type
+        )
+    else:
+        # Fallback for ambiguous cases (e.g., component_type is None but no
+        # 'type' key,
+        # or a generic sub-dictionary not matching other criteria).
+        # Returns the current state (a copy of the original config if no path
+        # was taken).
+        log.debug(
+            "normalize_config: Ambiguous case or generic dict. "
+            f"component_type='{component_type}', "
+            f"'type' in config='{'type' in current_config_state}'. "
+            "Returning as is."
+        )
+        return current_config_state

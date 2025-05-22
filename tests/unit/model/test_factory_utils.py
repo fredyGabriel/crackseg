@@ -1,3 +1,4 @@
+# ruff: noqa: PLR2004
 """
 Unit tests for factory utilities module.
 
@@ -5,21 +6,22 @@ These tests verify the functionality of helper functions in factory_utils.py
 for configuration validation, transformation, extraction of parameters, etc.
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 import logging
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from src.model.factory.factory_utils import (
     ConfigurationError,
-    validate_config,
-    validate_component_types,
     check_parameter_types,
-    hydra_to_dict,
     extract_runtime_params,
-    merge_configs,
     filter_config,
+    hydra_to_dict,
     log_component_creation,
-    log_configuration_error
+    log_configuration_error,
+    merge_configs,
+    validate_component_types,
+    validate_config,
 )
 
 
@@ -47,24 +49,18 @@ class TestValidationFunctions:
     def test_validate_component_types(self):
         """Test validate_component_types function."""
         # Valid component types
-        config = {
-            "encoder": "ResNet",
-            "bottleneck": "Identity"
-        }
+        config = {"encoder": "ResNet", "bottleneck": "Identity"}
 
         type_map = {
             "encoder": ["ResNet", "Swin"],
-            "bottleneck": ["Identity", "LSTM"]
+            "bottleneck": ["Identity", "LSTM"],
         }
 
         # Should not raise exception
         validate_component_types(config, type_map)
 
         # Invalid component type
-        invalid_config = {
-            "encoder": "Unknown",
-            "bottleneck": "Identity"
-        }
+        invalid_config = {"encoder": "Unknown", "bottleneck": "Identity"}
 
         with pytest.raises(ConfigurationError) as excinfo:
             validate_component_types(invalid_config, type_map)
@@ -78,23 +74,16 @@ class TestValidationFunctions:
         params = {
             "int_param": 10,
             "str_param": "text",
-            "list_param": [1, 2, 3]
+            "list_param": [1, 2, 3],
         }
 
-        type_specs = {
-            "int_param": int,
-            "str_param": str,
-            "list_param": list
-        }
+        type_specs = {"int_param": int, "str_param": str, "list_param": list}
 
         # Should not raise exception
         check_parameter_types(params, type_specs)
 
         # Invalid parameter type
-        invalid_params = {
-            "int_param": "not an int",
-            "str_param": "text"
-        }
+        invalid_params = {"int_param": "not an int", "str_param": "text"}
 
         with pytest.raises(ConfigurationError) as excinfo:
             check_parameter_types(invalid_params, type_specs)
@@ -120,12 +109,19 @@ class TestConfigTransformation:
 
         # Patch isinstance para que devuelva True cuando se verifiqu
         #  DictConfig
-        with patch('src.model.factory.factory_utils.OmegaConf') as \
-            mock_omegaconf, \
-             patch('src.model.factory.factory_utils.isinstance',
-                   side_effect=lambda obj, cls:
-                   True if cls.__name__ == 'DictConfig' else isinstance(obj,
-                                                                        cls)):
+        with (
+            patch(
+                "src.model.factory.factory_utils.OmegaConf"
+            ) as mock_omegaconf,
+            patch(
+                "src.model.factory.factory_utils.isinstance",
+                side_effect=lambda obj, cls: (
+                    True
+                    if cls.__name__ == "DictConfig"
+                    else isinstance(obj, cls)
+                ),
+            ),
+        ):
             mock_omegaconf.to_container.return_value = {"converted": True}
             result = hydra_to_dict(mock_dictconfig)
 
@@ -137,6 +133,7 @@ class TestConfigTransformation:
 
     def test_extract_runtime_params(self):
         """Test extract_runtime_params function."""
+
         # Create a component with attributes
         class TestComponent:
             def __init__(self):
@@ -150,7 +147,7 @@ class TestConfigTransformation:
         param_mappings = {
             "attr1": "target1",
             "attr2": "target2",
-            "missing": "target3"  # Attribute that doesn't exist
+            "missing": "target3",  # Attribute that doesn't exist
         }
 
         result = extract_runtime_params(component, param_mappings)
@@ -167,17 +164,10 @@ class TestConfigTransformation:
     def test_merge_configs(self):
         """Test merge_configs function."""
         # Base config
-        base_config = {
-            "type": "TestType",
-            "param1": 10,
-            "param2": "original"
-        }
+        base_config = {"type": "TestType", "param1": 10, "param2": "original"}
 
         # Override config
-        override_config = {
-            "param2": "override",
-            "param3": True
-        }
+        override_config = {"param2": "override", "param3": True}
 
         result = merge_configs(base_config, override_config)
 
@@ -199,7 +189,7 @@ class TestConfigTransformation:
             "param1": 10,
             "param2": "value",
             "param3": True,
-            "param4": [1, 2, 3]
+            "param4": [1, 2, 3],
         }
 
         # Test with include_keys
@@ -224,8 +214,9 @@ class TestConfigTransformation:
 
         # Test with both include_keys and exclude_keys
         result = filter_config(
-            config, include_keys={"type", "param1", "param2"},
-            exclude_keys={"param2"}
+            config,
+            include_keys={"type", "param1", "param2"},
+            exclude_keys={"param2"},
         )
 
         assert "type" in result
@@ -260,8 +251,9 @@ class TestLoggingHelpers:
         # Capture log output
         with caplog.at_level(logging.ERROR):
             log_configuration_error(
-                "Validation", "Missing required parameter",
-                {"type": "TestType", "param1": 10}
+                "Validation",
+                "Missing required parameter",
+                {"type": "TestType", "param1": 10},
             )
 
         # Check log output
@@ -273,8 +265,7 @@ class TestLoggingHelpers:
         caplog.clear()
         with caplog.at_level(logging.WARNING):
             log_configuration_error(
-                "Type", "Unknown component type",
-                level=logging.WARNING
+                "Type", "Unknown component type", level=logging.WARNING
             )
 
         # Check log output

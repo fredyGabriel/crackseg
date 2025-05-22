@@ -1,5 +1,7 @@
 """Helpers for validating Trainer configuration parameters."""
+
 from typing import Any
+
 from omegaconf import DictConfig
 
 
@@ -17,7 +19,7 @@ def validate_trainer_config(cfg: Any) -> None:
 
     # Permitir acceso por atributo o clave
     def get_field(obj, field):
-        if isinstance(obj, (dict, DictConfig)):
+        if isinstance(obj, dict | DictConfig):
             if field in obj:
                 return obj[field]
             else:
@@ -45,8 +47,9 @@ def validate_trainer_config(cfg: Any) -> None:
         raise ValueError("'gradient_accumulation_steps' must be >= 1")
     # Optimizer config must have at least '_target_' and 'lr'
     opt_cfg = get_field(cfg, "optimizer")
-    if not isinstance(opt_cfg, (dict, DictConfig)) or \
-       '_target_' not in opt_cfg or 'lr' not in opt_cfg:
-        raise ValueError(
-            "'optimizer' config must have '_target_' and 'lr'"
-        )
+    if (
+        not isinstance(opt_cfg, dict | DictConfig)
+        or "_target_" not in opt_cfg
+        or "lr" not in opt_cfg
+    ):
+        raise ValueError("'optimizer' config must have '_target_' and 'lr'")

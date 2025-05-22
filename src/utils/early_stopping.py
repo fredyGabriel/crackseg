@@ -1,6 +1,5 @@
 """Early stopping implementation for training."""
 
-from typing import Optional
 import numpy as np
 
 from src.utils.logging import get_logger
@@ -19,8 +18,8 @@ class EarlyStopping:
         self,
         patience: int = 7,
         min_delta: float = 0.0,
-        mode: str = 'min',
-        verbose: bool = True
+        mode: str = "min",
+        verbose: bool = True,
     ):
         """Initialize early stopping.
 
@@ -37,20 +36,20 @@ class EarlyStopping:
         self.mode = mode
         self.verbose = verbose
         self.counter = 0
-        self.best_value: Optional[float] = None
+        self.best_value: float | None = None
         self.early_stop = False
 
-        if mode not in ['min', 'max']:
+        if mode not in ["min", "max"]:
             raise ValueError(f"mode '{mode}' is unknown")
 
-        self.monitor_op = np.less if mode == 'min' else np.greater
+        self.monitor_op = np.less if mode == "min" else np.greater
         # Adjust delta based on mode for comparison
-        self.delta_val = -self.min_delta if mode == 'min' else self.min_delta
+        self.delta_val = -self.min_delta if mode == "min" else self.min_delta
         logger.info(
             f"Initialized early stopping (mode={mode}, patience={patience})"
         )
 
-    def __call__(self, current_value: Optional[float]) -> bool:
+    def __call__(self, current_value: float | None) -> bool:
         """Check if training should stop.
 
         Args:
@@ -68,8 +67,10 @@ class EarlyStopping:
         # First valid value initializes best_value
         if self.best_value is None:
             self.best_value = current_value
-            logger.debug(f"Early stopping initialized best_value= \
-{self.best_value:.4f}")
+            logger.debug(
+                f"Early stopping initialized best_value= \
+{self.best_value:.4f}"
+            )
             return False
 
         # Check for improvement including delta

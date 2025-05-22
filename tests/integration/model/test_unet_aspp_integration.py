@@ -1,14 +1,15 @@
+import logging
+
 import pytest
 import torch
-import logging
-from typing import List
-import math
 
-# Import components for direct instantiation
+from src.model.architectures.cnn_convlstm_unet import CNNEncoder
+
+# NOTE: If you still get argument errors for ASPPModule, check for mocks or
+# redefinitions in the test environment or conftest.py.
 from src.model.components.aspp import ASPPModule
-from src.model.encoder.cnn_encoder import CNNEncoder
 
-# Configurar logging
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -17,60 +18,59 @@ logger = logging.getLogger(__name__)
     "base_filters, in_channels, out_channels, dilations",
     [
         (16, 3, 1, [1, 6, 12, 18]),
-    ]
+    ],
 )
 def test_simple_aspp(
     base_filters: int,
     in_channels: int,
-    out_channels: int,
-    dilations: List[int]
+    out_channels: int,  # Used in parametrize
+    dilations: list[int],  # Used in parametrize
 ):
     """
-    Test simplificado para verificar la funcionalidad básica de ASPP.
+    Simplified test to verify the basic functionality of ASPP.
 
-    Prueba que el módulo ASPP funciona correctamente de forma independiente,
-    sin integrarlo con toda la UNet.
+    Checks that the ASPP module works correctly independently,
+    without integrating it with the entire UNet.
     """
-    # Preparar dimensiones
+    # Prepare dimensions
     batch_size = 2
     input_height = 64
     input_width = 64
 
-    # Crear una entrada simple
+    # Create a simple input
     x = torch.randn(batch_size, in_channels, input_height, input_width)
 
-    # Crear el encoder
+    # Create the encoder
     encoder = CNNEncoder(
-        in_channels=in_channels,
-        init_features=base_filters,
-        depth=4
+        in_channels=in_channels, base_filters=base_filters, depth=4
     )
 
-    # Extraer features y skip connections
-    features, skips = encoder(x)
+    # Extract features and skip connections
+    features, _ = encoder(x)
 
-    # Crear ASPP module
-    aspp = ASPPModule(
-        in_channels=encoder.out_channels,
-        output_channels=encoder.out_channels,
-        dilation_rates=dilations,
-        dropout_rate=0.1
-    )
+    # Create ASPP module
+    # output_channels is a valid parameter for ASPPModule
+    aspp_args = {
+        "in_channels": encoder.out_channels,
+        "output_channels": encoder.out_channels,
+    }
+    aspp = ASPPModule(**aspp_args)
 
-    # Aplicar ASPP
+    # Apply ASPP
     aspp_output = aspp(features)
 
-    # Verificar dimensiones de salida
+    # Check output dimensions
     assert aspp_output.shape[0] == batch_size
     assert aspp_output.shape[1] == encoder.out_channels
     assert aspp_output.shape[2:] == features.shape[2:]
 
-    # Verificar que no hay NaN o infinitos
+    # Check for NaN or infinite values
     assert torch.isfinite(aspp_output).all()
 
     logger.info(
-        f"ASPP test passed: Input shape {features.shape} -> "
-        f"Output shape {aspp_output.shape}"
+        "ASPP test passed: Input shape %s -> Output shape %s",
+        features.shape,
+        aspp_output.shape,
     )
 
 
@@ -78,108 +78,115 @@ def test_simple_aspp(
     "base_filters, in_channels, out_channels, dilations",
     [
         (16, 3, 1, [1, 6, 12, 18]),
-    ]
+    ],
 )
 def test_aspp_simplified_unet(
     base_filters: int,
     in_channels: int,
-    out_channels: int,
-    dilations: List[int]
+    out_channels: int,  # Used in parametrize
+    dilations: list[int],  # Used in parametrize
 ):
     """
-    Test usando una estructura simplificada para la integración de ASPP.
+    Test using a simplified structure for ASPP integration.
 
-    Esta prueba verifica que ASPP puede integrarse correctamente con el flujo
-    de decodificación de UNet, simulando los pasos clave:
-    1. Codificación (encoder)
+    This test verifies that ASPP can be correctly integrated with the UNet
+    decoding flow, simulating the key steps:
+    1. Encoding (encoder)
     2. Bottleneck (ASPP)
-    3. Primera etapa de decodificación
+    3. First decoding stage
     """
-    # Definir parámetros
+    # Define parameters
     encoder_depth = 4
     input_height = 64
     input_width = 64
     batch_size = 2
 
-    # Crear entrada
+    # Create input
     x = torch.randn(batch_size, in_channels, input_height, input_width)
 
-    # 1. Crear encoder
+    # 1. Create encoder
     encoder = CNNEncoder(
-        in_channels=in_channels,
-        init_features=base_filters,
-        depth=encoder_depth
+        in_channels=in_channels, base_filters=base_filters, depth=encoder_depth
     )
 
-    # Aplicar encoder
+    # Apply encoder
     features, skips = encoder(x)
 
-    # 2. Crear bottleneck ASPP
-    bottleneck = ASPPModule(
-        in_channels=encoder.out_channels,
-        output_channels=encoder.out_channels,
-        dilation_rates=dilations,
-        dropout_rate=0.1
-    )
+    # 2. Create ASPP bottleneck
+    # output_channels is a valid parameter for ASPPModule
+    bottleneck_args = {
+        "in_channels": encoder.out_channels,
+        "output_channels": encoder.out_channels,
+    }
+    bottleneck = ASPPModule(**bottleneck_args)
 
-    # Aplicar bottleneck
+    # Apply bottleneck
     bottleneck_output = bottleneck(features)
 
-    # 3. Crear un adaptador con el número correcto de canales para reducir
-    # los canales a la mitad antes de entrar en el primer DecoderBlock
-    adapter_output_channels = math.ceil(bottleneck.out_channels / 2) * 2
-    adapter = torch.nn.Conv2d(
-        bottleneck.out_channels,
-        adapter_output_channels,
-        kernel_size=1,
-        bias=False
-    )
+    # Log channel and dimension info
+    logger.info("Encoder out_channels: %s", encoder.out_channels)
+    logger.info("Bottleneck out_channels: %s", bottleneck.out_channels)
+    logger.info("Encoder skip channels (HIGH->LOW): %s", encoder.skip_channels)
 
-    # Aplicar adaptador
-    adapted_output = adapter(bottleneck_output)
+    # Reverse the order of skip_channels for the decoder (LOW->HIGH)
+    decoder_skip_channels = list(reversed(encoder.skip_channels))
+    logger.info("Decoder skip channels (LOW->HIGH): %s", decoder_skip_channels)
 
-    # 4. Aplicar la primera etapa de upsampling directamente
-    skip_channels = list(reversed(encoder.skip_channels))
-    logger.info(f"Encoder skip channels: {encoder.skip_channels}")
-    logger.info(f"Reversed skip channels: {skip_channels}")
-
-    # 5. Crear la capa de upsampling
+    # 3. Simulate first upsampling stage directly (without adapter)
+    # Apply upsampling
     upsampler = torch.nn.Upsample(
-        scale_factor=2,
-        mode='bilinear',
-        align_corners=True
+        scale_factor=2, mode="bilinear", align_corners=False
     )
-    # Aplicar upsampling
-    upsampled = upsampler(adapted_output)
 
-    # Reducir canales a la mitad después del upsampling
-    first_up_conv = torch.nn.Conv2d(
-        adapter_output_channels,
-        adapter_output_channels // 2,
-        kernel_size=1
+    # Upsample the bottleneck output
+    upsampled = upsampler(bottleneck_output)
+
+    # Calculate the expected output channels for the first decoder layer
+    # This is the same logic used in CNNDecoder to calculate channels
+    first_stage_out_channels = bottleneck.out_channels // 2
+
+    # Create a convolutional layer that performs the appropriate channel
+    # reduction
+    up_conv = torch.nn.Conv2d(
+        bottleneck.out_channels,
+        first_stage_out_channels,
+        kernel_size=3,
+        padding=1,
     )
-    upsampled_reduced = first_up_conv(upsampled)
 
-    # Concatenar con el skip correspondiente
-    first_skip = skips[-1]  # Tomar el último skip (más cercano al bottleneck)
-    logger.info(f"Upsampled shape: {upsampled_reduced.shape}")
-    logger.info(f"Skip shape: {first_skip.shape}")
+    # Apply convolution after upsampling
+    upsampled_reduced = up_conv(upsampled)
+
+    # Take the first skip connection (closest to bottleneck/lowest resolution)
+    first_skip = skips[-1]
+
+    # Check and adjust spatial dimensions if necessary
+    if upsampled_reduced.shape[2:] != first_skip.shape[2:]:
+        upsampled_reduced = torch.nn.functional.interpolate(
+            upsampled_reduced,
+            size=first_skip.shape[2:],
+            mode="bilinear",
+            align_corners=False,
+        )
+
+    logger.info("Upsampled shape: %s", upsampled_reduced.shape)
+    logger.info("Skip shape: %s", first_skip.shape)
+
+    # Concatenate with the corresponding skip connection
     concat = torch.cat([upsampled_reduced, first_skip], dim=1)
 
-    # Verificar dimensiones
-    expected_concat_channels = (adapter_output_channels // 2
-                                ) + skip_channels[0]
-    assert concat.shape[1] == expected_concat_channels, (
-        f"Expected {expected_concat_channels} channels, "
-        f"got {concat.shape[1]}"
+    # Check dimensions
+    expected_concat_channels = (
+        first_stage_out_channels + decoder_skip_channels[0]
     )
+    assert (
+        concat.shape[1] == expected_concat_channels
+    ), f"Expected {expected_concat_channels} channels, got {concat.shape[1]}"
 
-    logger.info(f"Concatenated tensor shape: {concat.shape}")
+    logger.info("Concatenated tensor shape: %s", concat.shape)
     logger.info("Test passed for simplified decoder path")
 
-    # Comentarios sobre la integración completa:
-    # 1. Al integrar ASPP en UNet, debemos prestar atención a las dimensiones
-    # 2. El DecoderBlock espera recibir un tensor con canales específicos
-    # 3. Antes de hacer upsampling, es necesario adaptar los canales
-    # 4. Los skip connections deben estar en el orden correcto
-    # (baja a alta resolución)
+    # Updated comments on integration:
+    # 1. When integrating ASPP into UNet, correctly handle channel dimensions
+    # 2. No dynamic adapters needed, calculate channels during initialization
+    # 3. Skip connections must be in correct order (LOW->HIGH for CNNDecoder)

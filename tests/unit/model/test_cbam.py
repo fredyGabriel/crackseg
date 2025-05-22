@@ -1,14 +1,15 @@
 import pytest
 import torch
-from src.model.components.cbam import ChannelAttention, SpatialAttention, CBAM
+
+from src.model.components.cbam import CBAM, ChannelAttention, SpatialAttention
 
 
 def test_channel_attention_valid_init():
     """Test valid initialization of ChannelAttention."""
     attn = ChannelAttention(in_channels=32, reduction=8)
     assert isinstance(attn, ChannelAttention)
-    assert attn.in_channels == 32
-    assert attn.reduction == 8
+    assert attn.in_channels == 32  # noqa: PLR2004
+    assert attn.reduction == 8  # noqa: PLR2004
 
 
 def test_channel_attention_invalid_reduction():

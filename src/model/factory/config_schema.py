@@ -30,7 +30,7 @@ unet:
 """
 
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
+from typing import Any
 
 from omegaconf import MISSING, OmegaConf
 
@@ -38,8 +38,9 @@ from omegaconf import MISSING, OmegaConf
 @dataclass
 class EncoderConfig:
     """Configuration schema for Encoder components."""
+
     _target_: str = MISSING  # Class path for instantiation
-    type: str = MISSING      # Registered encoder name (used by factory)
+    type: str = MISSING  # Registered encoder name (used by factory)
     in_channels: int = MISSING
     # Add other common or required encoder parameters here
     # Example: depth: int = 5
@@ -50,6 +51,7 @@ class EncoderConfig:
 @dataclass
 class BottleneckConfig:
     """Configuration schema for Bottleneck components."""
+
     _target_: str = MISSING
     type: str = MISSING
     in_channels: int = MISSING
@@ -60,10 +62,11 @@ class BottleneckConfig:
 @dataclass
 class DecoderConfig:
     """Configuration schema for Decoder components."""
+
     _target_: str = MISSING
     type: str = MISSING
     in_channels: int = MISSING
-    skip_channels: List[int] = MISSING
+    skip_channels: list[int] = MISSING
     out_channels: int = 1  # Default to 1 for binary segmentation
     # Add other common or required decoder parameters here
 
@@ -71,20 +74,22 @@ class DecoderConfig:
 @dataclass
 class UNetConfig:
     """Configuration schema for the complete UNet model."""
+
     _target_: str = "src.model.core.unet.BaseUNet"  # Updated default path
     type: str = "BaseUNet"  # Name for potential registration
     encoder: EncoderConfig = field(default_factory=EncoderConfig)
     bottleneck: BottleneckConfig = field(default_factory=BottleneckConfig)
     decoder: DecoderConfig = field(default_factory=DecoderConfig)
     # Config for final activation module
-    final_activation: Optional[Dict[str, Any]] = None
+    final_activation: dict[str, Any] | None = None
 
     def __post_init__(self):
         # Example validation: encoder out_channels == bottleneck in_channels
-        if hasattr(self.encoder, 'out_channels') and \
-           hasattr(self.bottleneck, 'in_channels'):
-            enc_out = getattr(self.encoder, 'out_channels', None)
-            bott_in = getattr(self.bottleneck, 'in_channels', None)
+        if hasattr(self.encoder, "out_channels") and hasattr(
+            self.bottleneck, "in_channels"
+        ):
+            enc_out = getattr(self.encoder, "out_channels", None)
+            bott_in = getattr(self.bottleneck, "in_channels", None)
             if enc_out is not None and bott_in is not None:
                 if enc_out != bott_in:
                     raise ValueError(
@@ -103,11 +108,12 @@ class UNetConfig:
 
 # Helper functions
 
+
 def load_unet_config_from_yaml(yaml_path: str) -> UNetConfig:
     """Load a UNetConfig from a YAML file."""
     cfg = OmegaConf.load(yaml_path)
-    if 'unet' in cfg:
-        return OmegaConf.to_object(cfg['unet'])
+    if "unet" in cfg:
+        return OmegaConf.to_object(cfg["unet"])
     return OmegaConf.to_object(cfg)
 
 

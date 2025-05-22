@@ -1,4 +1,4 @@
-# Add your Python dependencies here 
+# Add your Python dependencies here
 hydra-core>=1.3.2
 omegaconf>=2.3.0
 torch>=2.0.0
@@ -13,5 +13,10 @@ tqdm>=4.65.0
 matplotlib>=3.7.1
 pandas>=2.0.0
 pytest>=7.3.1
-pytest-cov>=4.1.0 
-graphviz>=0.20.1  # Para visualización de arquitecturas 
+pytest-cov>=4.1.0
+graphviz>=0.20.1  # Para visualización de arquitecturas
+
+# Herramientas de linting y formateo
+black>=23.3.0
+mypy>=1.4.0
+ruff>=0.4.0

@@ -15,6 +15,7 @@ workspace.
 Usage:
     python scripts/clean_workspace.py
 """
+
 import os
 import shutil
 from pathlib import Path
@@ -27,11 +28,12 @@ CLEAN_DIRS = ["__pycache__", ".pytest_cache"]
 CLEAN_FILES = ["*.pyc"]
 LOG_FILES = ["crackseg.log"]
 OUTPUTS_KEEP = {"experiments", "shared", "README.md"}
+DATE_FOLDER_PARTS = 3
 
 
 def clean_cache_dirs(base: Path):
     """Remove __pycache__ and .pytest_cache directories recursively."""
-    for dirpath, dirnames, filenames in os.walk(base):
+    for dirpath, _dirnames, _filenames in os.walk(base):
         for d in CLEAN_DIRS:
             full = Path(dirpath) / d
             if full.exists():
@@ -80,7 +82,7 @@ def clean_outputs(outputs: Path):
         parts = item.name.split("-")
         if (
             item.is_dir()
-            and len(parts) == 3
+            and len(parts) == DATE_FOLDER_PARTS
             and all(part.isdigit() for part in parts)
         ):
             print(f"Removing date-named folder: {item}")

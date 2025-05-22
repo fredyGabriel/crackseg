@@ -1,4 +1,5 @@
 import torch
+
 from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
 
 
@@ -23,4 +24,4 @@ def test_bottleneckblock_dropout_effect():
 
 def test_bottleneckblock_properties():
     block = BottleneckBlock(3, 7)
-    assert block.out_channels == 7
+    assert block.out_channels == 7  # noqa: PLR2004

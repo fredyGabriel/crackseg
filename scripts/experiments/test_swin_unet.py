@@ -5,13 +5,14 @@ This script instantiates a complete U-Net model using the Swin Transformer V2
 encoder and tests it with a synthetic image.
 """
 
+import logging
 import os
 import sys
 from pathlib import Path
-import torch
+
 import hydra
-import logging
 import matplotlib.pyplot as plt
+import torch
 from omegaconf import OmegaConf
 
 # Add the project root directory to the Python path
@@ -22,7 +23,7 @@ sys.path.insert(0, str(project_root))
 # Set up logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -43,9 +44,9 @@ def display_feature_maps(features, title=None):
             feature_viz.max() - feature_viz.min() + 1e-8
         )
 
-        axes[i].imshow(feature_viz, cmap='viridis')
+        axes[i].imshow(feature_viz, cmap="viridis")
         axes[i].set_title(f"Stage {i+1}\n{feature.shape[0]} channels")
-        axes[i].axis('off')
+        axes[i].axis("off")
 
     if title:
         fig.suptitle(title)
@@ -93,21 +94,20 @@ def run_unet_swin(config_path="model/unet_swin.yaml"):
     logger.info(f"Model output shape: {output.shape}")
 
     # Access encoder features if available
-    if hasattr(model, 'encoder_features'):
+    if hasattr(model, "encoder_features"):
         encoder_features = model.encoder_features
         # Display features
         display_feature_maps(
-            encoder_features,
-            "Swin Transformer Encoder Features"
+            encoder_features, "Swin Transformer Encoder Features"
         )
     else:
         logger.warning("Model does not have encoder_features attribute.")
 
     # Display output
     plt.figure(figsize=(8, 8))
-    plt.imshow(output[0, 0].detach().cpu().numpy(), cmap='gray')
+    plt.imshow(output[0, 0].detach().cpu().numpy(), cmap="gray")
     plt.title("Model Output")
-    plt.axis('off')
+    plt.axis("off")
     plt.colorbar()
     plt.show()
 

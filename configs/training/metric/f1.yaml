@@ -1,4 +1,4 @@
 # config/training/metric/f1.yaml
 _target_: src.training.metrics.F1Score
 smooth: 1e-6
-threshold: 0.5 
+threshold: ${thresholds.metric}

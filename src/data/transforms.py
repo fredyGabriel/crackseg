@@ -4,23 +4,28 @@ Uses albumentations to create transforms for different modes (train/val/test)
 with support for resizing and normalization.
 """
 
+from pathlib import Path
+from typing import Any, cast
+
+import albumentations as A
 import cv2
 import numpy as np
 import torch
-from typing import Dict, Optional, Tuple, Union
-from pathlib import Path
+from albumentations.pytorch import ToTensorV2
 from omegaconf import DictConfig, OmegaConf
 
-import albumentations as A
-from albumentations.pytorch import ToTensorV2
+MASK_BINARIZATION_THRESHOLD = 127
+MASK_THRESHOLD_FLOAT = 0.5
+MASK_2D_NDIM = 2
+MASK_3D_NDIM = 3
 
 
 def get_basic_transforms(
     mode: str,
-    image_size: Tuple[int, int] = (512, 512),
+    image_size: tuple[int, int] = (512, 512),
     # Restore ImageNet default values
-    mean: Tuple[float, float, float] = (0.485, 0.456, 0.406),
-    std: Tuple[float, float, float] = (0.229, 0.224, 0.225)
+    mean: tuple[float, float, float] = (0.485, 0.456, 0.406),
+    std: tuple[float, float, float] = (0.229, 0.224, 0.225),
 ) -> A.Compose:
     """Creates a basic transformation pipeline based on the mode.
 
@@ -41,18 +46,18 @@ def get_basic_transforms(
         raise ValueError(msg)
 
     # Core transforms
-    core_transforms = [
+    core_transforms: list[A.BasicTransform] = [
         A.Resize(
             height=image_size[0],
             width=image_size[1],
-            interpolation=cv2.INTER_LINEAR  # Default for image
+            interpolation=cv2.INTER_LINEAR,  # Default for image
         ),
         A.Normalize(mean=mean, std=std, max_pixel_value=255.0),
         A.pytorch.ToTensorV2(),
     ]
 
     # Training augmentations
-    image_augmentations = []
+    image_augmentations: list[A.BasicTransform] = []
     if mode == "train":
         image_augmentations = [
             A.HorizontalFlip(p=0.5),
@@ -60,47 +65,63 @@ def get_basic_transforms(
             A.RandomRotate90(p=0.5),
             A.RandomBrightnessContrast(p=0.2),
             A.GaussNoise(p=0.2),
-            # Use size parameter, remove height/width for v2.0.5 compat.
             A.RandomSizedCrop(
                 min_max_height=(
-                    int(0.8 * image_size[0]), int(1.2 * image_size[0])
+                    int(0.8 * image_size[0]),
+                    int(1.2 * image_size[0]),
                 ),
-                # 'size' expects original size, using target as approx.
                 size=image_size,
-                # height=image_size[0], # Invalid in 2.0.5
-                # width=image_size[1],  # Invalid in 2.0.5
-                p=1.0  # Ensure crop/resize always happens
+                p=1.0,
             ),
             A.HueSaturationValue(
                 hue_shift_limit=20,
                 sat_shift_limit=30,
                 val_shift_limit=20,
-                p=0.5
+                p=0.5,
             ),
         ]
-        # For train mode, exclude Resize from core transforms
-        # as RandomSizedCrop handles resizing.
-        final_transforms = image_augmentations + [
+        final_transforms: list[A.BasicTransform] = image_augmentations + [
             t for t in core_transforms if not isinstance(t, A.Resize)
         ]
     else:
-        # For val/test, use only core transforms (including Resize)
         final_transforms = core_transforms
 
-    # Simple composition: Augmentations first, then core transforms.
-    # Intensity/noise transforms should not affect mask by default.
-    # Resize interpolation issues handled later in apply_transforms.
-    # pipeline = A.Compose(image_augmentations + core_transforms)
     pipeline = A.Compose(final_transforms)
 
     return pipeline
 
 
+def _load_image(
+    image: np.ndarray[Any, Any] | str | Path,
+) -> np.ndarray[Any, Any]:
+    if isinstance(image, str | Path):
+        img_array = cv2.imread(str(image))
+        if img_array is None:
+            raise FileNotFoundError(f"Image not found or unreadable: {image}")
+        return cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
+    return image
+
+
+def _load_mask(
+    mask: np.ndarray[Any, Any] | str | Path | None,
+) -> np.ndarray[Any, Any] | None:
+    if isinstance(mask, str | Path):
+        mask_array_raw = cv2.imread(str(mask), cv2.IMREAD_GRAYSCALE)
+        if mask_array_raw is None:
+            raise FileNotFoundError(
+                f"Mask file not found or unreadable: {mask}"
+            )
+        return mask_array_raw
+    elif isinstance(mask, np.ndarray):
+        return mask
+    return None
+
+
 def apply_transforms(
-    image: Union[np.ndarray, str, Path],
-    mask: Optional[Union[np.ndarray, str, Path]] = None,
-    transforms: Optional[A.Compose] = None
-) -> Dict[str, torch.Tensor]:
+    image: np.ndarray[Any, Any] | str | Path,
+    mask: np.ndarray[Any, Any] | str | Path | None = None,
+    transforms: A.Compose | None = None,
+) -> dict[str, torch.Tensor]:
     """Applies transformations to an image and optionally its mask.
 
     Args:
@@ -120,60 +141,77 @@ def apply_transforms(
           adding a channel dimension to the mask if needed.
         - The returned mask will always have shape (1, H, W) for consistency.
     """
-    # Load image if provided as path
-    if isinstance(image, (str, Path)):
-        image = cv2.imread(str(image))
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    current_image: np.ndarray[Any, Any] = _load_image(image)
+    current_mask: np.ndarray[Any, Any] | None = _load_mask(mask)
 
-    # Load mask if provided as path
-    if isinstance(mask, (str, Path)):
-        mask = cv2.imread(str(mask), cv2.IMREAD_GRAYSCALE)
+    if current_mask is not None:
+        current_mask = (current_mask > MASK_BINARIZATION_THRESHOLD).astype(
+            np.uint8
+        )
 
-    # Ensure mask is binary before transformations
-    if mask is not None:
-        # Use uint8 for masks before albumentations
-        mask = (mask > 127).astype(np.uint8)
-
-    # Apply transformations
     if transforms is not None:
-        result = transforms(image=image, mask=mask)
+        result = transforms(image=current_image, mask=current_mask)
         transformed_image = result["image"]
         if "mask" in result and result["mask"] is not None:
             transformed_mask = result["mask"]
-            # Ensure mask is a PyTorch tensor before calling tensor methods
             if isinstance(transformed_mask, np.ndarray):
                 transformed_mask = torch.from_numpy(transformed_mask)
-            # Ensure mask remains binary and float afterwards
-            # Convert potential interpolated values to int {0, 1} then to float
-            transformed_mask = (transformed_mask > 0.5).long().float()
+            transformed_mask = (
+                (transformed_mask > MASK_THRESHOLD_FLOAT).long().float()
+            )
             return {"image": transformed_image, "mask": transformed_mask}
-        # Return only image if no mask in result
         return {"image": transformed_image}
 
-    # If no transforms, convert to tensor manually
-    # Permute to (C, H, W) and normalize to [0, 1]
-    image_tensor = torch.from_numpy(image).permute(2, 0, 1).float() / 255.0
-    if mask is not None:
-        # Convert mask to float tensor
-        # Add channel dimension if necessary (H, W) -> (1, H, W)
-        mask_tensor = torch.from_numpy(mask)
-        if mask_tensor.ndim == 2:
+    image_tensor = (
+        torch.from_numpy(current_image).permute(2, 0, 1).float() / 255.0
+    )
+    if current_mask is not None:
+        mask_tensor = torch.from_numpy(current_mask)
+        if mask_tensor.ndim == MASK_2D_NDIM:
             mask_tensor = mask_tensor.unsqueeze(0)
-        elif mask_tensor.ndim == 3 and mask_tensor.shape[0] != 1:
-            # If mask has 3 channels, reduce to 1
+        elif mask_tensor.ndim == MASK_3D_NDIM and mask_tensor.shape[0] != 1:
             mask_tensor = mask_tensor[0:1]
         mask_tensor = mask_tensor.float()
         return {"image": image_tensor, "mask": mask_tensor}
     return {"image": image_tensor}
 
 
-def get_transforms_from_config(config_list: Union[list, dict], mode: str
-                               ) -> A.Compose:
+def _get_transform_specs(
+    config_list: (
+        list[dict[str, Any] | DictConfig] | dict[str, Any] | DictConfig
+    ),
+) -> list[dict[str, Any] | DictConfig]:
+    if isinstance(config_list, dict | DictConfig):
+        specs_from_mapping: list[dict[str, Any] | DictConfig] = []
+        for name_key, params_val in config_list.items():
+            str_name_key = str(name_key)
+            actual_transform_name = (
+                "Resize" if str_name_key.lower() == "resize" else str_name_key
+            )
+            specs_from_mapping.append(
+                {"name": actual_transform_name, "params": params_val}
+            )
+        return specs_from_mapping
+    elif isinstance(config_list, list):
+        return config_list
+    else:
+        raise TypeError(
+            "config_list must be a list of transform specs or a "
+            f"dict/DictConfig. Got: {type(config_list)}"
+        )
+
+
+def get_transforms_from_config(
+    config_list: (
+        list[dict[str, Any] | DictConfig] | dict[str, Any] | DictConfig
+    ),
+    mode: str,
+) -> A.Compose:
     """Create an Albumentations pipeline from a list or dict of transform
     configs.
 
     Args:
-        config_list (Union[list, dict]): Either:
+        config_list (list[dict[str, Any]] | dict[str, Any]): Either:
             - List of dictionaries where each defines a transform
             ('name' and 'params')
             - Single dictionary with transform configs
@@ -184,61 +222,47 @@ def get_transforms_from_config(config_list: Union[list, dict], mode: str
     Returns:
         A.Compose: The Albumentations pipeline.
     """
-    transforms = []
+    transform_specs_list = _get_transform_specs(config_list)
 
-    # Convert dict to list of transform specs if needed
-    if isinstance(config_list, (dict, DictConfig)):
-        # Create a list of transforms from a dictionary
-        transform_specs = []
-        for transform_name, params in config_list.items():
-            if transform_name.lower() == 'resize':
-                # Special handling for resize which takes height/width
-                transform_specs.append({
-                    "name": "Resize",
-                    "params": params
-                })
-            else:
-                # For other transforms
-                transform_specs.append({
-                    "name": transform_name,
-                    "params": params
-                })
-        config_list = transform_specs
+    transforms_pipeline: list[A.BasicTransform] = []
 
-    # Process each transform defined in the list
-    for transform_item in config_list:
-        if not isinstance(transform_item, (dict, DictConfig)):
-            raise ValueError("Each item in config_list must be a dictionary.")
-
-        name = transform_item.get("name")
-        params = transform_item.get("params", {})
+    for transform_item in transform_specs_list:
+        name_any = transform_item.get("name")
+        name = str(name_any) if name_any is not None else None
+        params_value_any: Any = transform_item.get("params", {})
+        params_value: dict[str, Any] = {}
 
         if name is None:
             raise ValueError("Each transform item must have a 'name' key.")
 
         try:
-            # Find the transform class in Albumentations
-            if name == "ToTensorV2":  # Handle specific case
+            transform_class: type[A.BasicTransform]
+            if name == "ToTensorV2":
                 transform_class = ToTensorV2
-                params = {}  # ToTensorV2 takes no params
+                params_value = {}
             else:
                 transform_class = getattr(A, name)
 
-            # Instantiate and add to the list
-            # Convert OmegaConf DictConfig params if necessary
-            if isinstance(params, DictConfig):
-                params = OmegaConf.to_container(params, resolve=True)
+            if isinstance(params_value_any, DictConfig):
+                resolved_params_raw = OmegaConf.to_container(
+                    params_value_any, resolve=True
+                )
+                resolved_params = cast(dict[Any, Any], resolved_params_raw)
+                params_value = {str(k): v for k, v in resolved_params.items()}
+            elif isinstance(params_value_any, dict):
+                params_dict_any = cast(dict[Any, Any], params_value_any)
+                params_value = {str(k): v for k, v in params_dict_any.items()}
+            else:
+                pass
 
-            # Standard instantiation works now as YAML provides correct params
-            transforms.append(transform_class(**params))
+            transforms_pipeline.append(transform_class(**params_value))
 
-        except AttributeError:
-            raise ValueError(f"Unknown transform name: '{name}'")
+        except AttributeError as exc:
+            raise ValueError(f"Unknown transform name: '{name}'") from exc
         except Exception as e:
             raise ValueError(
-                f"Error instantiating transform '{name}' with params {params}:"
-                f"{e}"
+                f"Error instantiating transform '{name}' with params "
+                f"{params_value}: {e}"
             ) from e
 
-    # Create the composition
-    return A.Compose(transforms)
+    return A.Compose(transforms_pipeline)

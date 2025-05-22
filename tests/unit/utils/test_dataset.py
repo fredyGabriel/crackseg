@@ -1,21 +1,21 @@
-import sys
+# ruff: noqa: PLR2004
 import os
+import sys
+
 import pytest
-from PIL import Image
 import torch  # Import torch
+from PIL import Image
 
 # Add src/ to sys.path to ensure correct import
 sys.path.insert(
-    0,
-    os.path.abspath(
-        os.path.join(os.path.dirname(__file__), '../..')
-    )
+    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 )
 from src.data.dataset import CrackSegmentationDataset  # noqa: E402
 
 
-def create_image(path, size=(16, 16), color=(255, 0, 0),
-                 exif_orientation=None):
+def create_image(
+    path, size=(16, 16), color=(255, 0, 0), exif_orientation=None
+):
     img = Image.new("RGB", size, color)
     if exif_orientation is not None:
         exif = img.getexif()
@@ -51,10 +51,7 @@ def test_dataset_basic(tmp_path):
     ]
 
     # Actualizar la forma de crear el dataset
-    ds = CrackSegmentationDataset(
-        mode="train",
-        samples_list=samples_list
-    )
+    ds = CrackSegmentationDataset(mode="train", samples_list=samples_list)
 
     assert len(ds) == 3
     sample = ds[0]
@@ -94,13 +91,13 @@ def test_dataset_missing_dirs(tmp_path):
     non_existent_mask = str(data_root / "non_existent_mask.png")
 
     ds = CrackSegmentationDataset(
-        mode="train",
-        samples_list=[(non_existent_img, non_existent_mask)]
+        mode="train", samples_list=[(non_existent_img, non_existent_mask)]
     )
 
     # Ahora el error ocurrirá al intentar cargar la imagen
-    with pytest.raises(RuntimeError,
-                       match="No valid image/mask pairs could be loaded"):
+    with pytest.raises(
+        RuntimeError, match="No valid image/mask pairs could be loaded"
+    ):
         _ = ds[0]
 
 
@@ -124,10 +121,7 @@ def test_dataset_corrupt_image(tmp_path):
         for i in range(2)
     ]
 
-    ds = CrackSegmentationDataset(
-        mode="train",
-        samples_list=samples_list
-    )
+    ds = CrackSegmentationDataset(mode="train", samples_list=samples_list)
 
     # Dataset should find 2 pairs, but only process 1 valid one
     assert len(ds) == 2
@@ -158,10 +152,7 @@ def test_dataset_exif_orientation(tmp_path):
         (str(images_dir / "img0.png"), str(masks_dir / "img0.png"))
     ]
 
-    ds = CrackSegmentationDataset(
-        mode="train",
-        samples_list=samples_list
-    )
+    ds = CrackSegmentationDataset(mode="train", samples_list=samples_list)
 
     sample = ds[0]
     # Just check if a valid tensor is returned. EXIF handled by PIL/cv2.
@@ -184,9 +175,7 @@ def test_dataset_with_transform(tmp_path):
 
     # Usar image_size para forzar un resize a (8, 8)
     ds = CrackSegmentationDataset(
-        mode="train",
-        samples_list=samples_list,
-        image_size=(8, 8)
+        mode="train", samples_list=samples_list, image_size=(8, 8)
     )
     sample = ds[0]
     # Verificar que la imagen y la máscara han sido redimensionadas
@@ -211,12 +200,10 @@ def test_dataset_all_samples_corrupt(tmp_path):
         (str(images_dir / "img0.png"), str(masks_dir / "img0.png"))
     ]
 
-    ds = CrackSegmentationDataset(
-        mode="train",
-        samples_list=samples_list
-    )
+    ds = CrackSegmentationDataset(mode="train", samples_list=samples_list)
 
     # __getitem__ should raise RuntimeError after failing all samples
-    with pytest.raises(RuntimeError,
-                       match="No valid image/mask pairs could be loaded"):
+    with pytest.raises(
+        RuntimeError, match="No valid image/mask pairs could be loaded"
+    ):
         _ = ds[0]

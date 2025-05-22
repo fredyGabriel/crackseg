@@ -34,6 +34,9 @@ handle_input_size: "resize"  # How to handle inputs with sizes different from im
 # - "pad": Pad input to make divisible by patch_size (preserves aspect ratio)
 # - "none": No special handling (may error if sizes are incompatible)
 
+# === Validation Parameters ===
+min_model_name_parts_for_size_check: 3 # Min parts in model_name to check size
+
 # === Output Processing Options ===
 use_abs_pos_embed: true  # Use absolute positional embeddings (default: true)
 output_norm: true        # Apply layer normalization to output features (default: true)
@@ -53,4 +56,4 @@ finetune_lr_scale:
   patch_embed: 0.1  # Early layers: 10% of base LR
   stages.0: 0.2     # First stage: 20% of base LR
   stages.1: 0.5     # Middle stage: 50% of base LR
-  stages.2: 1.0     # Later stage: 100% of base LR (base LR) 
+  stages.2: 1.0     # Later stage: 100% of base LR (base LR)

@@ -1,15 +1,16 @@
 import os
-import yaml
 from datetime import datetime
+from typing import Any
+
+import yaml
 from omegaconf import OmegaConf
-from typing import Dict, Any
 
 
 def save_evaluation_results(
-    results: Dict[str, float],
+    results: dict[str, float],
     config: Any,
     checkpoint_path: str,
-    output_dir: str
+    output_dir: str,
 ) -> None:
     """
     Save evaluation results to file.
@@ -29,17 +30,20 @@ def save_evaluation_results(
 
     # Save results as YAML
     yaml_path = os.path.join(metrics_dir, "evaluation_results.yaml")
-    with open(yaml_path, "w") as f:
-        yaml.dump({
-            "results": results,
-            "config": OmegaConf.to_container(config),
-            "checkpoint": checkpoint_path,
-            "timestamp": datetime.now().isoformat()
-        }, f)
+    with open(yaml_path, "w", encoding="utf-8") as f:
+        yaml.dump(
+            {
+                "results": results,
+                "config": OmegaConf.to_container(config),
+                "checkpoint": checkpoint_path,
+                "timestamp": datetime.now().isoformat(),
+            },
+            f,
+        )
 
     # Save results as TXT
     txt_path = os.path.join(metrics_dir, "evaluation_results.txt")
-    with open(txt_path, "w") as f:
+    with open(txt_path, "w", encoding="utf-8") as f:
         f.write(f"Checkpoint: {checkpoint_path}\n")
         f.write(f"Timestamp: {datetime.now().isoformat()}\n")
         f.write("Results:\n")

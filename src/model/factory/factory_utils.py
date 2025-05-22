@@ -6,27 +6,60 @@ configuration transformations, and logging to support the factory module.
 """
 
 import logging
-from typing import Dict, Any, List, Optional, Type, TypeVar, Union, Set
+from typing import Any, TypeVar
+
 from omegaconf import DictConfig, OmegaConf
 
 # Type variable for better type hinting
-T = TypeVar('T')
-ConfigDict = Dict[str, Any]
+T = TypeVar("T")
+ConfigDict = dict[str, Any]
 
 # Create logger
 log = logging.getLogger(__name__)
 
+# Module-level variable to store the configured value for max items in config
+# logs
+# Default value, can be overridden by calling
+# set_max_items_to_log_in_config_repr
+_max_items_to_log_in_config_repr: int = 10
+
+
+def get_max_items_to_log_in_config_repr() -> int:
+    """Returns the configured maximum number of items to log from a config
+    dict."""
+    return _max_items_to_log_in_config_repr
+
+
+def set_max_items_to_log_in_config_repr(value: int) -> None:
+    """Sets the maximum number of items to log from a config dict.
+
+    This function should be called by the main application script after
+    loading the Hydra configuration.
+
+    Args:
+        value (int): The maximum number of items. Must be non-negative.
+    """
+    if value < 0:
+        # Or log a warning and use a default, but raising an error is safer
+        # for an invalid configuration.
+        raise ValueError(
+            "Maximum items to log must be a non-negative integer."
+        )
+    _max_items_to_log_in_config_repr = value
+
 
 class ConfigurationError(Exception):
     """Exception raised for errors in the configuration."""
+
     pass
 
 
 #
 # Configuration Validation
 #
-def validate_config(config: Dict[str, Any], required_keys: List[str],
-                    component_type: str) -> None:
+def validate_config(
+    config: dict[str, Any], required_keys: list[str], component_type: str
+) -> None:
     """
     Validate that a configuration dictionary contains all required keys.
 
@@ -46,8 +79,9 @@ def validate_config(config: Dict[str, Any], required_keys: List[str],
         )
 
 
-def validate_component_types(config: Dict[str, Any],
-                             type_map: Dict[str, List[str]]) -> None:
+def validate_component_types(
+    config: dict[str, Any], type_map: dict[str, list[str]]
+) -> None:
     """
     Validate that component types in configuration are allowed values.
 
@@ -69,8 +103,9 @@ def validate_component_types(config: Dict[str, Any],
                 )
 
 
-def check_parameter_types(params: Dict[str, Any],
-                          type_specs: Dict[str, Type]) -> None:
+def check_parameter_types(
+    params: dict[str, Any], type_specs: dict[str, type]
+) -> None:
     """
     Validate that parameters have the correct types.
 
@@ -95,8 +130,9 @@ def check_parameter_types(params: Dict[str, Any],
 #
 # Configuration Transformation
 #
-def hydra_to_dict(config: Union[DictConfig, Dict[str, Any]],
-                  resolve: bool = True) -> Dict[str, Any]:
+def hydra_to_dict(
+    config: DictConfig | dict[str, Any], resolve: bool = True
+) -> dict[str, Any]:
     """
     Safely convert a Hydra OmegaConf config to a standard dictionary.
 
@@ -113,8 +149,9 @@ def hydra_to_dict(config: Union[DictConfig, Dict[str, Any]],
     return config.copy()
 
 
-def extract_runtime_params(component: Any,
-                           param_mappings: Dict[str, str]) -> Dict[str, Any]:
+def extract_runtime_params(
+    component: Any, param_mappings: dict[str, str]
+) -> dict[str, Any]:
     """
     Extract runtime parameters from a component based on mappings.
 
@@ -132,8 +169,9 @@ def extract_runtime_params(component: Any,
     return runtime_params
 
 
-def merge_configs(base_config: Dict[str, Any],
-                  override_config: Dict[str, Any]) -> Dict[str, Any]:
+def merge_configs(
+    base_config: dict[str, Any], override_config: dict[str, Any]
+) -> dict[str, Any]:
     """
     Merge two configuration dictionaries, with override taking precedence.
 
@@ -149,9 +187,11 @@ def merge_configs(base_config: Dict[str, Any],
     return result
 
 
-def filter_config(config: Dict[str, Any],
-                  include_keys: Optional[Set[str]] = None,
-                  exclude_keys: Optional[Set[str]] = None) -> Dict[str, Any]:
+def filter_config(
+    config: dict[str, Any],
+    include_keys: set[str] | None = None,
+    exclude_keys: set[str] | None = None,
+) -> dict[str, Any]:
     """
     Filter a configuration dictionary by including or excluding specific keys.
 
@@ -184,9 +224,9 @@ def filter_config(config: Dict[str, Any],
 #
 # Logging Helpers
 #
-def log_component_creation(component_type: str,
-                           component_name: str,
-                           level: int = logging.INFO) -> None:
+def log_component_creation(
+    component_type: str, component_name: str, level: int = logging.INFO
+) -> None:
     """
     Log the creation of a component with consistent formatting.
 
@@ -198,9 +238,12 @@ def log_component_creation(component_type: str,
     log.log(level, f"Instantiated {component_type}: {component_name}")
 
 
-def log_configuration_error(error_type: str, details: str,
-                            config: Optional[Dict[str, Any]] = None,
-                            level: int = logging.ERROR) -> None:
+def log_configuration_error(
+    error_type: str,
+    details: str,
+    config: dict[str, Any] | None = None,
+    level: int = logging.ERROR,
+) -> None:
     """
     Log a configuration error with consistent formatting.
 
@@ -212,10 +255,25 @@ def log_configuration_error(error_type: str, details: str,
     """
     message = f"Configuration error ({error_type}): {details}"
     if config is not None:
-        # Log first 10 key-value pairs to avoid overwhelming logs
-        config_str = str({k: v for i, (k, v) in
-                         enumerate(config.items()) if i < 10})
-        if len(config) > 10:
-            config_str = config_str[:-1] + ", ...}"
-        message += f"\nConfig: {config_str}"
+        # Log first N key-value pairs to avoid overwhelming logs
+        limit = get_max_items_to_log_in_config_repr()
+        if isinstance(config, dict):
+            config_items = list(config.items())
+            # Log first 'limit' key-value pairs
+            config_str = str(
+                {k: v for i, (k, v) in enumerate(config_items) if i < limit}
+            )
+            if len(config_items) > limit:
+                config_str = config_str[:-1] + ", ...}"  # Add ellipsis
+        elif hasattr(config, "__dict__"):  # Handle dataclasses/objects
+            config_items = list(vars(config).items())
+            config_str = str(
+                {k: v for i, (k, v) in enumerate(config_items) if i < limit}
+            )
+            if len(config_items) > limit:
+                config_str = config_str[:-1] + ", ...}"
+        else:
+            config_str = str(config)  # Fallback for other types
+
+        message += f"\nConfig (first {limit} items): {config_str}"
     log.log(level, message)

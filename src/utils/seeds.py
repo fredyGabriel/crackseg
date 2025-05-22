@@ -1,9 +1,9 @@
 """Random seed utilities for reproducibility."""
 
 import random
+
 import numpy as np
 import torch
-from typing import Optional
 
 from src.utils.logging import get_logger
 
@@ -11,8 +11,7 @@ logger = get_logger(__name__)
 
 
 def set_random_seeds(
-    seed: Optional[int] = None,
-    deterministic: bool = True
+    seed: int | None = None, deterministic: bool = True
 ) -> None:
     """Set random seeds for reproducibility.
 

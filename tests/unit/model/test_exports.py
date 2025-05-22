@@ -22,7 +22,8 @@ PUBLIC_NAMES = [
 
 
 def test_public_exports():
-    import src.model as model
+    from src import model
+
     missing = []
     for name in PUBLIC_NAMES:
         if not hasattr(model, name):

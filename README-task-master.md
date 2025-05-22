@@ -1,6 +1,6 @@
 # Task Master
 
-### by [@eyaltoledano](https://x.com/eyaltoledano)
+## by [@eyaltoledano](https://x.com/eyaltoledano)
 
 A task management system for AI-driven development with Claude, designed to work seamlessly with Cursor AI.
 
@@ -93,7 +93,7 @@ task-master generate
 
 ## Troubleshooting
 
-### If `task-master init` doesn't respond:
+### If `task-master init` doesn't respond
 
 Try running it with Node directly:
 
@@ -155,7 +155,7 @@ Once configured, you can interact with Task Master's task management commands di
 
 In Cursor's AI chat, instruct the agent to generate tasks from your PRD:
 
-```
+```prompt
 Please use the task-master parse-prd command to generate tasks from my PRD. The PRD is located at scripts/prd.txt.
 ```
 
@@ -175,7 +175,7 @@ This will:
 
 Next, ask the agent to generate individual task files:
 
-```
+```prompt
 Please generate individual task files from tasks.json
 ```
 
@@ -195,7 +195,7 @@ The Cursor agent is pre-configured (via the rules file) to follow this workflow:
 
 Ask the agent to list available tasks:
 
-```
+```prompt
 What tasks are available to work on next?
 ```
 
@@ -218,7 +218,7 @@ When implementing a task, the agent will:
 
 You can ask:
 
-```
+```prompt
 Let's implement task 3. What does it involve?
 ```
 
@@ -234,7 +234,7 @@ Before marking a task as complete, verify it according to:
 
 When a task is completed, tell the agent:
 
-```
+```prompt
 Task 3 is now complete. Please update its status.
 ```
 
@@ -254,7 +254,7 @@ If during implementation, you discover that:
 
 Tell the agent:
 
-```
+```prompt
 We've changed our approach. We're now using Express instead of Fastify. Please update all future tasks to reflect this change.
 ```
 
@@ -270,7 +270,7 @@ This will rewrite or re-scope subsequent tasks in tasks.json while preserving co
 
 For complex tasks that need more granularity:
 
-```
+```prompt
 Task 5 seems complex. Can you break it down into subtasks?
 ```
 
@@ -282,7 +282,7 @@ task-master expand --id=5 --num=3
 
 You can provide additional context:
 
-```
+```prompt
 Please break down task 5 with a focus on security considerations.
 ```
 
@@ -294,7 +294,7 @@ task-master expand --id=5 --prompt="Focus on security aspects"
 
 You can also expand all pending tasks:
 
-```
+```prompt
 Please break down all pending tasks into subtasks.
 ```
 
@@ -306,7 +306,7 @@ task-master expand --all
 
 For research-backed subtask generation using Perplexity AI:
 
-```
+```prompt
 Please break down task 5 using research-backed generation.
 ```
 
@@ -596,50 +596,50 @@ The `show` command:
 
 ### Starting a new project
 
-```
+```prompt
 I've just initialized a new project with Claude Task Master. I have a PRD at scripts/prd.txt.
 Can you help me parse it and set up the initial tasks?
 ```
 
 ### Working on tasks
 
-```
+```prompt
 What's the next task I should work on? Please consider dependencies and priorities.
 ```
 
 ### Implementing a specific task
 
-```
+```prompt
 I'd like to implement task 4. Can you help me understand what needs to be done and how to approach it?
 ```
 
 ### Managing subtasks
 
-```
+```prompt
 I need to regenerate the subtasks for task 3 with a different approach. Can you help me clear and regenerate them?
 ```
 
 ### Handling changes
 
-```
+```prompt
 We've decided to use MongoDB instead of PostgreSQL. Can you update all future tasks to reflect this change?
 ```
 
 ### Completing work
 
-```
+```prompt
 I've finished implementing the authentication system described in task 2. All tests are passing.
 Please mark it as complete and tell me what I should work on next.
 ```
 
 ### Analyzing complexity
 
-```
+```prompt
 Can you analyze the complexity of our tasks to help me understand which ones need to be broken down further?
 ```
 
 ### Viewing complexity report
 
-```
+```prompt
 Can you show me the complexity report in a more readable format?
 ```

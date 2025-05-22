@@ -2,11 +2,14 @@
 
 import sys
 from pathlib import Path
+
 import pytest
 
-# Add the project root directory to the Python path
+# Get the project root directory
 project_root = Path(__file__).parent.parent
-sys.path.append(str(project_root))
+
+# Add the project root to sys.path to support absolute imports
+sys.path.insert(0, str(project_root))
 
 
 def pytest_configure(config):
@@ -21,7 +24,7 @@ def pytest_configure(config):
 
 
 # Added fixture
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def hydra_config_dir():
     """Provides the absolute path to the Hydra configuration directory."""
     # Path(__file__).parent is tests/

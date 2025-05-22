@@ -2,12 +2,13 @@
 
 import pytest
 import torch
-import torch.nn as nn
+from torch import nn
 
-from src.model import EncoderBase, BottleneckBase, DecoderBase
-from src.model import BaseUNet
+from src.model import BaseUNet, BottleneckBase, DecoderBase, EncoderBase
 from tests.unit.model.test_registry import (
-    MockEncoder, MockBottleneck, MockDecoder
+    MockBottleneck,
+    MockDecoder,
+    MockEncoder,
 )
 
 
@@ -34,7 +35,7 @@ class TestBaseUNet:
         """
         return MockDecoder(
             in_channels=bottleneck.out_channels,
-            skip_channels=list(reversed(encoder.skip_channels))
+            skip_channels=list(reversed(encoder.skip_channels)),
         )
 
     @pytest.fixture
@@ -46,8 +47,7 @@ class TestBaseUNet:
     def base_unet_with_activation(self, encoder, bottleneck, decoder):
         """Create a BaseUNet instance with final activation for testing."""
         return BaseUNet(
-            encoder, bottleneck, decoder,
-            final_activation=nn.Sigmoid()
+            encoder, bottleneck, decoder, final_activation=nn.Sigmoid()
         )
 
     def test_initialization(self, base_unet):
@@ -60,8 +60,9 @@ class TestBaseUNet:
 
     def test_initialization_with_activation(self, base_unet_with_activation):
         """Test initialization with final activation."""
-        assert isinstance(base_unet_with_activation.final_activation,
-                          nn.Sigmoid)
+        assert isinstance(
+            base_unet_with_activation.final_activation, nn.Sigmoid
+        )
 
     def test_get_input_channels(self, base_unet, encoder):
         """Test get_input_channels method."""
@@ -84,8 +85,9 @@ class TestBaseUNet:
     def test_forward_with_activation(self, base_unet_with_activation):
         """Test forward pass with activation."""
         # Create a test input tensor
-        x = torch.randn(2, base_unet_with_activation.get_input_channels(), 64,
-                        64)
+        x = torch.randn(
+            2, base_unet_with_activation.get_input_channels(), 64, 64
+        )
         output = base_unet_with_activation(x)
 
         # Shape should be the same as input since our mock just passes through
@@ -102,8 +104,10 @@ class TestBaseUNet:
         assert summary["input_channels"] == base_unet.encoder.in_channels
         assert summary["output_channels"] == base_unet.decoder.out_channels
         assert summary["encoder_type"] == base_unet.encoder.__class__.__name__
-        assert summary["bottleneck_type"] == \
-            base_unet.bottleneck.__class__.__name__
+        assert (
+            summary["bottleneck_type"]
+            == base_unet.bottleneck.__class__.__name__
+        )
         assert summary["decoder_type"] == base_unet.decoder.__class__.__name__
         assert summary["has_final_activation"] is False
         assert summary["final_activation_type"] is None
@@ -124,7 +128,7 @@ class TestBaseUNet:
         # Layer hierarchy
         assert "layer_hierarchy" in summary
         # At least encoder, bottleneck, decoder
-        assert len(summary["layer_hierarchy"]) >= 3
+        assert len(summary["layer_hierarchy"]) >= 3  # noqa: PLR2004
 
         # Test memory estimates with input shape
         detailed_summary = base_unet.summary(input_shape=(1, 3, 256, 256))
@@ -141,13 +145,12 @@ class TestBaseUNet:
 
         # Should have one more layer in hierarchy for activation
         # encoder, bottleneck, decoder, activation
-        assert len(summary["layer_hierarchy"]) >= 4
+        assert len(summary["layer_hierarchy"]) >= 4  # noqa: PLR2004
 
     def test_print_summary(self, base_unet):
         """Test the print_summary method (return as string)."""
         summary_str = base_unet.print_summary(
-            input_shape=(1, 3, 256, 256),
-            return_string=True
+            input_shape=(1, 3, 256, 256), return_string=True
         )
 
         # Basic checks on the returned string
@@ -175,7 +178,7 @@ class TestBaseUNet:
         # Create incompatible decoder (different skip channels)
         incompatible_decoder = MockDecoder(
             in_channels=bottleneck.out_channels,
-            skip_channels=[8, 16]  # Different from encoder.skip_channels
+            skip_channels=[8, 16],  # Different from encoder.skip_channels
         )
 
         # Should raise an error due to incompatible skip channels

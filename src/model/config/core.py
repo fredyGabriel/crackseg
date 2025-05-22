@@ -7,11 +7,11 @@ Provides the base classes and enumerations for validating model configurations:
 - ConfigSchema: Schema for validating component configurations
 """
 
-from typing import Dict, List, Any, Optional, Union, Callable
-from dataclasses import dataclass, field
 import logging
+from collections.abc import Callable
+from dataclasses import dataclass, field
 from enum import Enum
-
+from typing import Any, Optional
 
 # Create logger
 log = logging.getLogger(__name__)
@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 
 class ParamType(Enum):
     """Supported parameter types for configuration validation."""
+
     STRING = "string"
     INTEGER = "integer"
     FLOAT = "float"
@@ -43,16 +44,53 @@ class ConfigParam:
         description: Description of the parameter
         nested_schema: Schema for nested parameters (for NESTED type)
     """
+
     name: str
     param_type: ParamType
     required: bool = False
     default: Any = None
-    choices: Optional[List[Any]] = None
-    validator: Optional[Callable[[Any], bool]] = None
+    choices: list[Any] | None = None
+    validator: Callable[[Any], bool] | None = None
     description: str = ""
     nested_schema: Optional["ConfigSchema"] = None
 
-    def validate(self, value: Any) -> tuple[bool, Optional[str]]:
+    def _validate_value_type(self, value: Any) -> str | None:
+        """Validates the type of the given value based on self.param_type."""
+        error_message: str | None = None
+        if self.param_type == ParamType.STRING and not isinstance(value, str):
+            error_message = f"Parameter '{self.name}' must be a string"
+        elif self.param_type == ParamType.INTEGER and not isinstance(
+            value, int
+        ):
+            error_message = f"Parameter '{self.name}' must be an integer"
+        elif self.param_type == ParamType.FLOAT and not isinstance(
+            value, int | float
+        ):
+            error_message = f"Parameter '{self.name}' must be a number"
+        elif self.param_type == ParamType.BOOLEAN and not isinstance(
+            value, bool
+        ):
+            error_message = f"Parameter '{self.name}' must be a boolean"
+        elif self.param_type == ParamType.LIST and not isinstance(value, list):
+            error_message = f"Parameter '{self.name}' must be a list"
+        elif self.param_type == ParamType.DICT and not isinstance(value, dict):
+            error_message = f"Parameter '{self.name}' must be a dictionary"
+        elif self.param_type == ParamType.NESTED:
+            if not isinstance(value, dict):
+                error_message = (
+                    f"Nested parameter '{self.name}' must be a dictionary"
+                )
+            elif self.nested_schema:
+                is_valid_nested, nested_errors = self.nested_schema.validate(
+                    value
+                )
+                if not is_valid_nested:
+                    error_message = (
+                        f"Invalid nested config '{self.name}': {nested_errors}"
+                    )
+        return error_message
+
+    def validate(self, value: Any) -> tuple[bool, str | None]:
         """
         Validate a parameter value according to its rules.
 
@@ -62,50 +100,50 @@ class ConfigParam:
         Returns:
             tuple: (is_valid, error_message)
         """
-        # Check if value is None and parameter is required
+        error_to_report: str | None = None
+
+        # 1. Check if value is None
         if value is None:
             if self.required:
-                return False, f"Parameter '{self.name}' is required"
-            # Use default if value is None and not required
-            return True, None
+                error_to_report = f"Parameter '{self.name}' is required"
+            else:
+                # Not required and value is None, so it's valid.
+                # No further checks are needed for a None value.
+                return True, None
 
-        # Type validation
-        if self.param_type == ParamType.STRING and not isinstance(value, str):
-            return False, f"Parameter '{self.name}' must be a string"
-        elif self.param_type == ParamType.INTEGER and not isinstance(value,
-                                                                     int):
-            return False, f"Parameter '{self.name}' must be an integer"
-        elif self.param_type == ParamType.FLOAT and not isinstance(
-            value, (int, float)
+        # If value is not None, or if it was None but required
+        # (error_to_report is set)
+        # Proceed with other checks only if no error has been reported yet.
+        if error_to_report is None:
+            # 2. Type validation
+            type_error = self._validate_value_type(value)
+            if type_error:
+                error_to_report = type_error
+
+        # 3. Choices validation (only if no error reported yet)
+        if (
+            error_to_report is None
+            and self.choices
+            and value not in self.choices
         ):
-            return False, f"Parameter '{self.name}' must be a number"
-        elif self.param_type == ParamType.BOOLEAN and not isinstance(value,
-                                                                     bool):
-            return False, f"Parameter '{self.name}' must be a boolean"
-        elif self.param_type == ParamType.LIST and not isinstance(value, list):
-            return False, f"Parameter '{self.name}' must be a list"
-        elif self.param_type == ParamType.DICT and not isinstance(value, dict):
-            return False, f"Parameter '{self.name}' must be a dictionary"
-        elif self.param_type == ParamType.NESTED:
-            if not isinstance(value, dict):
-                msg = f"Nested parameter '{self.name}' must be a dictionary"
-                return False, msg
-            if self.nested_schema:
-                # Validate nested configuration
-                is_valid, errors = self.nested_schema.validate(value)
-                if not is_valid:
-                    msg = f"Invalid nested config '{self.name}': {errors}"
-                    return False, msg
-
-        # Choices validation
-        if self.choices and value not in self.choices:
             choices_str = ", ".join(str(c) for c in self.choices)
-            msg = f"Parameter '{self.name}' must be one of: {choices_str}"
-            return False, msg
+            error_to_report = (
+                f"Parameter '{self.name}' must be one of: {choices_str}"
+            )
 
-        # Custom validator
-        if self.validator and not self.validator(value):
-            return False, f"Parameter '{self.name}' failed custom validation"
+        # 4. Custom validator (only if no error reported yet)
+        if (
+            error_to_report is None
+            and self.validator
+            and not self.validator(value)
+        ):
+            error_to_report = (
+                f"Parameter '{self.name}' failed custom validation"
+            )
+
+        # Final return based on whether an error was reported
+        if error_to_report:
+            return False, error_to_report
 
         return True, None
 
@@ -120,13 +158,14 @@ class ConfigSchema:
         params: List of parameter definitions
         allow_unknown: Whether to allow parameters not in the schema
     """
+
     name: str
-    params: List[ConfigParam] = field(default_factory=list)
+    params: list[ConfigParam] = field(default_factory=list)
     allow_unknown: bool = False
 
     def validate(
-        self, config: Dict[str, Any]
-    ) -> tuple[bool, Union[None, Dict[str, str]]]:
+        self, config: dict[str, Any]
+    ) -> tuple[bool, None | dict[str, str]]:
         """
         Validate a configuration against this schema.
 
@@ -143,7 +182,7 @@ class ConfigSchema:
             return False, {"_general": error_msg}
 
         errors = {}
-        param_names = set(p.name for p in self.params)
+        param_names = {p.name for p in self.params}
 
         # Check for unknown parameters
         if not self.allow_unknown:
@@ -163,7 +202,7 @@ class ConfigSchema:
 
         return len(errors) == 0, errors if errors else None
 
-    def normalize(self, config: Dict[str, Any]) -> Dict[str, Any]:
+    def normalize(self, config: dict[str, Any]) -> dict[str, Any]:
         """
         Normalize a configuration by filling in default values.
 
@@ -182,9 +221,9 @@ class ConfigSchema:
 
             # Normalize nested configurations
             if (
-                param.param_type == ParamType.NESTED and
-                param.name in normalized and
-                param.nested_schema
+                param.param_type == ParamType.NESTED
+                and param.name in normalized
+                and param.nested_schema
             ):
                 nested_config = normalized[param.name]
                 normalized[param.name] = param.nested_schema.normalize(

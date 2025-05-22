@@ -1,8 +1,11 @@
-import torch
-import pytest
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
-import time
+# ruff: noqa: PLR2004
 import gc
+import time
+
+import pytest
+import torch
+
+from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
 
 
 @pytest.mark.parametrize("in_channels", [1, 3, 4])
@@ -11,7 +14,7 @@ def test_swintransformerencoder_init(in_channels):
     encoder = SwinTransformerEncoder(
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
-        pretrained=False  # No need to download weights for tests
+        pretrained=False,  # No need to download weights for tests
     )
 
     assert encoder.in_channels == in_channels
@@ -33,7 +36,7 @@ def test_swintransformerencoder_forward_shape():
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,  # No need to download weights for tests
-        img_size=img_size
+        img_size=img_size,
     )
 
     # Create input tensor with correct dimensions
@@ -52,8 +55,10 @@ def test_swintransformerencoder_forward_shape():
     # Detect channel mismatch and print warning
     actual_channels = bottleneck.size(1)
     if actual_channels != encoder.out_channels:
-        print("Warning: Output channels mismatch. Expected"
-              f"{encoder.out_channels}, got {actual_channels}")
+        print(
+            "Warning: Output channels mismatch. Expected"
+            f"{encoder.out_channels}, got {actual_channels}"
+        )
 
     # Check skip connections
     assert len(skip_connections) == len(encoder.skip_channels)
@@ -67,15 +72,17 @@ def test_swintransformerencoder_forward_shape():
         actual_skip_channels = skip.size(1)
         expected_skip_channels = encoder.skip_channels[i]
         if actual_skip_channels != expected_skip_channels:
-            print(f"Warning: Skip connection {i} channels mismatch. "
-                  f"Expected {expected_skip_channels}, "
-                  f"got {actual_skip_channels}")
+            print(
+                f"Warning: Skip connection {i} channels mismatch. "
+                f"Expected {expected_skip_channels}, "
+                f"got {actual_skip_channels}"
+            )
 
 
 @pytest.mark.parametrize("handle_mode", ["resize", "pad"])
-@pytest.mark.parametrize("input_size", [
-    (128, 128), (224, 224), (256, 256), (225, 225)
-])
+@pytest.mark.parametrize(
+    "input_size", [(128, 128), (224, 224), (256, 256), (225, 225)]
+)
 def test_swintransformerencoder_variable_input(handle_mode, input_size):
     """
     Test forward pass with different input sizes and handling modes.
@@ -97,14 +104,16 @@ def test_swintransformerencoder_variable_input(handle_mode, input_size):
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        handle_input_size=handle_mode
+        handle_input_size=handle_mode,
     )
 
     # For pad mode, skip any test where the input size doesn't match the
     # model's expected img_size. This is a limitation of the current
     # implementation: only exact sizes are supported for 'pad'.
-    if handle_mode == "pad" and input_size != (encoder.img_size,
-                                               encoder.img_size):
+    if handle_mode == "pad" and input_size != (
+        encoder.img_size,
+        encoder.img_size,
+    ):
         img_size_str = f"{encoder.img_size}"
         pytest.skip(
             f"Skipping pad mode with size {input_size}, requires "
@@ -128,9 +137,7 @@ def test_swintransformerencoder_variable_input(handle_mode, input_size):
 def test_swintransformerencoder_feature_info():
     """Test the get_feature_info method."""
     encoder = SwinTransformerEncoder(
-        in_channels=3,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=False
+        in_channels=3, model_name="swinv2_tiny_window16_256", pretrained=False
     )
 
     feature_info = encoder.get_feature_info()
@@ -155,7 +162,7 @@ def test_swintransformerencoder_error_handling():
         in_channels=3,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        handle_input_size="none"
+        handle_input_size="none",
     )
 
     # Test with incorrect input channels
@@ -176,16 +183,19 @@ def test_swintransformerencoder_error_handling():
         encoder(x)
 
 
-@pytest.mark.parametrize("model_name", [
-    "swinv2_tiny_window16_256",
-    pytest.param(
-        "swinv2_small_window16_256",
-        marks=pytest.mark.skipif(
-            not torch.cuda.is_available(),
-            reason="Larger models need GPU for testing"
-        )
-    ),
-])
+@pytest.mark.parametrize(
+    "model_name",
+    [
+        "swinv2_tiny_window16_256",
+        pytest.param(
+            "swinv2_small_window16_256",
+            marks=pytest.mark.skipif(
+                not torch.cuda.is_available(),
+                reason="Larger models need GPU for testing",
+            ),
+        ),
+    ],
+)
 def test_swintransformerencoder_model_variants(model_name):
     """Test different Swin Transformer model variants."""
     in_channels = 3
@@ -196,7 +206,7 @@ def test_swintransformerencoder_model_variants(model_name):
         in_channels=in_channels,
         model_name=model_name,
         pretrained=False,
-        img_size=img_size
+        img_size=img_size,
     )
 
     # Create input tensor
@@ -241,7 +251,7 @@ def test_swintransformerencoder_handle_mode_none():
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
         handle_input_size="none",
-        img_size=img_size
+        img_size=img_size,
     )
 
     # Create input tensor with exact expected dimensions
@@ -256,8 +266,7 @@ def test_swintransformerencoder_handle_mode_none():
 
 
 @pytest.mark.skipif(
-    not torch.cuda.is_available(),
-    reason="Memory test requires CUDA"
+    not torch.cuda.is_available(), reason="Memory test requires CUDA"
 )
 def test_swintransformerencoder_memory_usage():
     """Test memory usage of the SwinTransformerEncoder."""
@@ -275,14 +284,11 @@ def test_swintransformerencoder_memory_usage():
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        img_size=img_size
+        img_size=img_size,
     ).to(device)
 
     # Create input tensor on CUDA
-    x = torch.randn(
-        batch_size, in_channels, img_size, img_size,
-        device=device
-    )
+    x = torch.randn(batch_size, in_channels, img_size, img_size, device=device)
 
     # Record memory before forward pass
     torch.cuda.synchronize()
@@ -316,7 +322,7 @@ def test_swintransformerencoder_fallback_mechanism():
     encoder = SwinTransformerEncoder(
         in_channels=in_channels,
         model_name="swinv2_nonexistent_model",
-        pretrained=False
+        pretrained=False,
     )
 
     # The encoder should have initialized with a fallback model
@@ -340,7 +346,7 @@ def test_swintransformerencoder_batch_handling(batch_size):
     encoder = SwinTransformerEncoder(
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
-        pretrained=False
+        pretrained=False,
     )
 
     # Create input with variable batch size
@@ -358,8 +364,7 @@ def test_swintransformerencoder_batch_handling(batch_size):
 
 
 @pytest.mark.skipif(
-    not torch.cuda.is_available(),
-    reason="Performance test requires CUDA"
+    not torch.cuda.is_available(), reason="Performance test requires CUDA"
 )
 def test_swintransformerencoder_inference_speed():
     """Test the inference speed of the SwinTransformerEncoder."""
@@ -372,14 +377,11 @@ def test_swintransformerencoder_inference_speed():
     encoder = SwinTransformerEncoder(
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
-        pretrained=False
+        pretrained=False,
     ).to(device)
 
     # Create input tensor on CUDA
-    x = torch.randn(
-        batch_size, in_channels, img_size, img_size,
-        device=device
-    )
+    x = torch.randn(batch_size, in_channels, img_size, img_size, device=device)
 
     # Warmup
     for _ in range(10):
@@ -402,7 +404,7 @@ def test_swintransformerencoder_inference_speed():
     avg_time = (end_time - start_time) / num_iterations
 
     # Print timing information (useful for performance optimization)
-    print(f"Average inference time: {avg_time*1000:.2f} ms")
+    print(f"Average inference time: {avg_time * 1000:.2f} ms")
 
     # The timing will vary by hardware, so this is more informational
     # Just check that it's positive and not absurdly slow
@@ -420,14 +422,14 @@ def test_swintransformerencoder_output_norm_flag():
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        output_norm=True
+        output_norm=True,
     )
 
     encoder_without_norm = SwinTransformerEncoder(
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        output_norm=False
+        output_norm=False,
     )
 
     # Create input tensor - use a fixed seed for reproducibility
@@ -449,8 +451,10 @@ def test_swintransformerencoder_output_norm_flag():
 
     # Print some values for debugging
     print(f"With norm - First few values: {bottleneck_with_norm[0, 0, 0, :5]}")
-    print("Without norm - First few values: "
-          f"{bottleneck_without_norm[0, 0, 0, :5]}")
+    print(
+        "Without norm - First few values: "
+        f"{bottleneck_without_norm[0, 0, 0, :5]}"
+    )
 
     # NOTE: The actual effect of output_norm depends on the specific
     # implementation.
@@ -459,8 +463,7 @@ def test_swintransformerencoder_output_norm_flag():
 
 
 @pytest.mark.skipif(
-    not torch.cuda.is_available(),
-    reason="Gradient test requires CUDA"
+    not torch.cuda.is_available(), reason="Gradient test requires CUDA"
 )
 def test_swintransformerencoder_gradient_flow():
     """Test that gradients properly flow through the encoder."""
@@ -472,13 +475,12 @@ def test_swintransformerencoder_gradient_flow():
     encoder = SwinTransformerEncoder(
         in_channels=in_channels,
         model_name="swinv2_tiny_window16_256",
-        pretrained=False
+        pretrained=False,
     ).to(device)
 
     # Create input tensor requiring gradients
     x = torch.randn(
-        1, in_channels, img_size, img_size,
-        device=device, requires_grad=True
+        1, in_channels, img_size, img_size, device=device, requires_grad=True
     )
 
     # Forward pass
@@ -503,14 +505,17 @@ def test_swintransformerencoder_gradient_flow():
             total_params += 1
             if param.grad is not None:
                 grad_params += 1
-                assert torch.isfinite(param.grad).all(), \
-                    f"Non-finite gradient in {name}"
+                assert torch.isfinite(
+                    param.grad
+                ).all(), f"Non-finite gradient in {name}"
 
     # At least some parameters should have gradients
-    assert grad_params > 0, "No gradients were computed for any model \
+    assert (
+        grad_params > 0
+    ), "No gradients were computed for any model \
 parameters"
     # Print stats for debugging
-    ratio = grad_params/total_params*100
+    ratio = grad_params / total_params * 100
     print(
         f"Parameters with gradients: {grad_params}/{total_params} "
         f"({ratio:.1f}%)"

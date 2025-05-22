@@ -3,18 +3,21 @@
 Script to verify available updates for main dependencies.
 """
 
-import subprocess
 import json
-from packaging import version
+import subprocess
+
 import requests
 import yaml
+from packaging import version
+
+HTTP_OK = 200
 
 
 def get_pypi_version(package_name):
     """Gets the latest version available on PyPI."""
     try:
         response = requests.get(f"https://pypi.org/pypi/{package_name}/json")
-        if response.status_code == 200:
+        if response.status_code == HTTP_OK:
             return response.json()["info"]["version"]
         return None
     except Exception:
@@ -27,7 +30,8 @@ def get_conda_version(package_name):
         result = subprocess.run(
             ["conda", "search", "-c", "conda-forge", package_name, "--json"],
             capture_output=True,
-            text=True
+            text=True,
+            check=False,
         )
         data = json.loads(result.stdout)
         if package_name in data:
@@ -40,7 +44,7 @@ def get_conda_version(package_name):
 
 def get_current_versions():
     """Reads current versions from environment.yml."""
-    with open("environment.yml", "r") as f:
+    with open("environment.yml") as f:
         env = yaml.safe_load(f)
 
     deps = {}
@@ -78,7 +82,7 @@ def main():
         "opencv-python",
         "numpy",
         "matplotlib",
-        "scikit-image"
+        "scikit-image",
     ]
 
     updates_available = False

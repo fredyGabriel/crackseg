@@ -5,25 +5,27 @@ These tests verify that the configuration validation, normalization, and
 processing system works correctly with different types of model configurations.
 """
 
-import pytest
 from unittest.mock import patch
-import torch
-import torch.nn as nn
 
+import hydra
+import pytest
+import torch
+from torch import nn
+
+from src.model import BottleneckBase, DecoderBase, EncoderBase, UNetBase
 from src.model.config.factory import (
-    parse_component_config,
+    get_model_config_schema,
     parse_architecture_config,
-    get_model_config_schema
+    parse_component_config,
 )
 from src.model.config.validation import normalize_config
+from src.model.factory.registry import Registry
 from src.model.factory.registry_setup import (
     architecture_registry,
-    encoder_registry,
     bottleneck_registry,
     decoder_registry,
+    encoder_registry,
 )
-from src.model import UNetBase, EncoderBase, BottleneckBase, DecoderBase
-from src.model.factory.registry import Registry
 
 
 # --- Dummy Components for Testing ---
@@ -38,15 +40,17 @@ class DummyCNNEncoder(EncoderBase):
     def forward(self, x):
         # Dummy shapes, assuming batch size 1 for simplicity
         dummy_output = torch.randn(
-            1, self._out_channels,
-            x.shape[2] // (2**len(self.hidden_dims)),
-            x.shape[3] // (2**len(self.hidden_dims))
+            1,
+            self._out_channels,
+            x.shape[2] // (2 ** len(self.hidden_dims)),
+            x.shape[3] // (2 ** len(self.hidden_dims)),
         )
         dummy_skips = [
             torch.randn(
-                1, ch,
-                x.shape[2] // (2**(i+1)),
-                x.shape[3] // (2**(i+1))
+                1,
+                ch,
+                x.shape[2] // (2 ** (i + 1)),
+                x.shape[3] // (2 ** (i + 1)),
             )
             for i, ch in enumerate(self._skip_channels)
         ]
@@ -65,8 +69,9 @@ class DummyIdentity(BottleneckBase):
     def __init__(self, in_channels, out_channels=None, **kwargs):
         super().__init__(in_channels=in_channels)
         self.in_channels = in_channels
-        self._out_channels = out_channels if out_channels is not None else \
-            in_channels
+        self._out_channels = (
+            out_channels if out_channels is not None else in_channels
+        )
 
     def forward(self, x):
         # Need to return tensor potentially with different out_channels
@@ -83,8 +88,9 @@ class DummyIdentity(BottleneckBase):
 
 
 class DummyCNNDecoder(DecoderBase):
-    def __init__(self, in_channels, skip_channels_list=None, out_channels=1,
-                 **kwargs):
+    def __init__(
+        self, in_channels, skip_channels_list=None, out_channels=1, **kwargs
+    ):
         _skip_channels = skip_channels_list or []
         super().__init__(in_channels=in_channels, skip_channels=_skip_channels)
         self._out_channels = out_channels
@@ -96,9 +102,7 @@ class DummyCNNDecoder(DecoderBase):
         batch_size = features.shape[0]
         h = features.shape[2] * 2
         w = features.shape[3] * 2
-        return torch.randn(
-            batch_size, self._out_channels, h, w
-        )
+        return torch.randn(batch_size, self._out_channels, h, w)
 
     @property
     def out_channels(self) -> int:
@@ -123,7 +127,17 @@ class DummyUNet(UNetBase):
     def forward(self, x):
         return x
 
+
 # --- End Dummy Components ---
+
+
+# Load Hydra config for tests
+@pytest.fixture(scope="session")
+def cfg():
+    # Carga la configuración principal de Hydra
+    with hydra.initialize_config_dir(config_dir="configs", version_base=None):
+        config = hydra.compose(config_name="config.yaml")
+    return config
 
 
 class TestComponentConfigParser:
@@ -157,23 +171,25 @@ class TestComponentConfigParser:
         except KeyError:
             pass
 
-    def test_encoder_config_parsing(self):
+    def test_encoder_config_parsing(self, cfg):
         """Test parsing encoder configurations."""
-        # Valid encoder config
+        # Use config values
+        in_channels = cfg.data.num_channels_rgb
+        hidden_dims = [64, 128, 256, 512]  # Si existe en config, usarlo
         encoder_config = {
             "type": "CNNEncoder",
-            "in_channels": 3,
-            "hidden_dims": [64, 128, 256, 512]
+            "in_channels": in_channels,
+            "hidden_dims": hidden_dims,
         }
 
         parsed = parse_component_config(encoder_config, "encoder")
         assert parsed["type"] == "CNNEncoder"
-        assert parsed["in_channels"] == 3
+        assert parsed["in_channels"] == in_channels
 
         # Missing type
         invalid_config = {
-            "in_channels": 3,
-            "hidden_dims": [64, 128, 256, 512]
+            "in_channels": in_channels,
+            "hidden_dims": hidden_dims,
         }
 
         with pytest.raises(ValueError) as excinfo:
@@ -183,26 +199,27 @@ class TestComponentConfigParser:
         # Unknown type
         unknown_config = {
             "type": "NonExistentEncoder",
-            "in_channels": 3
+            "in_channels": in_channels,
         }
 
         with pytest.raises(ValueError) as excinfo:
             parse_component_config(unknown_config, "encoder")
         assert "Unknown encoder type" in str(excinfo.value)
 
-    def test_bottleneck_config_parsing(self):
+    def test_bottleneck_config_parsing(self, cfg):
         """Test parsing bottleneck configurations."""
-        # Valid bottleneck config
+        in_channels = 512  # Si existe en config usarlo
+        out_channels = 512
         bottleneck_config = {
             "type": "Identity",
-            "in_channels": 512,
-            "out_channels": 512
+            "in_channels": in_channels,
+            "out_channels": out_channels,
         }
 
         parsed = parse_component_config(bottleneck_config, "bottleneck")
         assert parsed["type"] == "Identity"
-        assert parsed["in_channels"] == 512
-        assert parsed["out_channels"] == 512
+        assert parsed["in_channels"] == in_channels
+        assert parsed["out_channels"] == out_channels
 
 
 class TestArchitectureConfigParser:
@@ -241,55 +258,50 @@ class TestArchitectureConfigParser:
         except KeyError:
             pass
 
-    def test_standard_architecture_parsing(self):
+    def test_standard_architecture_parsing(self, cfg):
         """Test parsing standard architecture configurations."""
-        # Valid architecture config
+        in_channels = cfg.data.num_channels_rgb
+        out_channels = 1  # Si existe en config usarlo
         arch_config = {
             "type": "DummyUNet",
-            "in_channels": 3,
-            "out_channels": 1,
-            "encoder": {
-                "type": "CNNEncoder",
-                "in_channels": 3
-            },
+            "in_channels": in_channels,
+            "out_channels": out_channels,
+            "encoder": {"type": "CNNEncoder", "in_channels": in_channels},
             "bottleneck": {
                 "type": "Identity",
                 "in_channels": 512,
-                "out_channels": 512
+                "out_channels": 512,
             },
             "decoder": {
                 "type": "CNNDecoder",
                 "in_channels": 512,
-                "out_channels": 1
-            }
+                "out_channels": out_channels,
+            },
         }
 
         parsed = parse_architecture_config(arch_config)
         assert parsed["type"] == "DummyUNet"
-        assert parsed["in_channels"] == 3
-        assert parsed["out_channels"] == 1
+        assert parsed["in_channels"] == in_channels
+        assert parsed["out_channels"] == out_channels
         assert "encoder" in parsed
         assert "bottleneck" in parsed
         assert "decoder" in parsed
 
         # Missing type
         invalid_config = {
-            "in_channels": 3,
-            "out_channels": 1,
-            "encoder": {
-                "type": "CNNEncoder",
-                "in_channels": 3
-            },
+            "in_channels": in_channels,
+            "out_channels": out_channels,
+            "encoder": {"type": "CNNEncoder", "in_channels": in_channels},
             "bottleneck": {
                 "type": "Identity",
                 "in_channels": 512,
-                "out_channels": 512
+                "out_channels": 512,
             },
             "decoder": {
                 "type": "CNNDecoder",
                 "in_channels": 512,
-                "out_channels": 1
-            }
+                "out_channels": out_channels,
+            },
         }
 
         with pytest.raises(ValueError) as excinfo:
@@ -299,22 +311,19 @@ class TestArchitectureConfigParser:
         # Unknown architecture type
         unknown_config = {
             "type": "NonExistentArch",
-            "in_channels": 3,
-            "out_channels": 1,
-            "encoder": {
-                "type": "CNNEncoder",
-                "in_channels": 3
-            },
+            "in_channels": in_channels,
+            "out_channels": out_channels,
+            "encoder": {"type": "CNNEncoder", "in_channels": in_channels},
             "bottleneck": {
                 "type": "Identity",
                 "in_channels": 512,
-                "out_channels": 512
+                "out_channels": 512,
             },
             "decoder": {
                 "type": "CNNDecoder",
                 "in_channels": 512,
-                "out_channels": 1
-            }
+                "out_channels": out_channels,
+            },
         }
 
         with pytest.raises(ValueError) as excinfo:
@@ -328,41 +337,35 @@ class TestArchitectureConfigParser:
             "type": "DummyUNet",  # Using DummyUNet as hybrid for testing
             "in_channels": 3,
             "out_channels": 1,
-            "encoder": {
-                "type": "CNNEncoder",
-                "in_channels": 3
-            },
+            "encoder": {"type": "CNNEncoder", "in_channels": 3},
             "bottleneck": {
                 "type": "Identity",
                 "in_channels": 512,
-                "out_channels": 512
+                "out_channels": 512,
             },
             "decoder": {
                 "type": "CNNDecoder",
                 "in_channels": 512,
-                "out_channels": 1
+                "out_channels": 1,
             },
-            "components": {
-                "attention": {
-                    "type": "CBAM",
-                    "channels": 256
-                }
-            }
+            "components": {"attention": {"type": "CBAM", "channels": 256}},
         }
 
         # --- Mock component_registries for this test --- #
         # Create a specific attention registry for the mock
-        mock_attention_registry = Registry(name='attention',
-                                           base_class=nn.Module)
+        mock_attention_registry = Registry(
+            name="attention", base_class=nn.Module
+        )
         mock_attention_registry.register(name="CBAM")(DummyCBAM)
         mock_registries = {
-            'attention': mock_attention_registry
+            "attention": mock_attention_registry
             # Add other global registries if needed for the test scope
         }
 
         # Patch component_registries within the factory module
-        with patch('src.model.config.factory.component_registries',
-                   mock_registries):
+        with patch(
+            "src.model.config.factory.component_registries", mock_registries
+        ):
             # Parse the hybrid config (this will now use the mocked registries)
             parsed = parse_architecture_config(hybrid_config)
 
@@ -378,26 +381,23 @@ class TestArchitectureConfigParser:
             "type": "DummyUNet",
             "in_channels": 3,
             "out_channels": 1,
-            "encoder": {
-                "type": "CNNEncoder",
-                "in_channels": 3
-            },
+            "encoder": {"type": "CNNEncoder", "in_channels": 3},
             "bottleneck": {
                 "type": "Identity",
                 "in_channels": 512,
-                "out_channels": 512
+                "out_channels": 512,
             },
             "decoder": {
                 "type": "CNNDecoder",
                 "in_channels": 512,
-                "out_channels": 1
-                },
+                "out_channels": 1,
+            },
             "components": {
                 "attention": {
                     # Missing type
                     "channels": 256
                 }
-            }
+            },
         }
 
         with pytest.raises(ValueError) as excinfo:
@@ -408,52 +408,55 @@ class TestArchitectureConfigParser:
 class TestConfigNormalization:
     """Test configuration normalization with defaults."""
 
-    def test_encoder_normalization(self):
+    def test_encoder_normalization(self, cfg):
         """Test encoder configuration normalization."""
         # Minimal encoder config
         encoder_config = {
             "type": "CNNEncoder",
-            "in_channels": 3
+            "in_channels": cfg.data.num_channels_rgb,
         }
 
         # Create a dummy schema for testing
-        from src.model.config.core import ConfigSchema, ConfigParam, ParamType
+        from src.model.config.core import ConfigParam, ConfigSchema, ParamType
 
         encoder_schema = ConfigSchema(
             name="encoder",
             params=[
                 ConfigParam(
-                    name="type",
-                    param_type=ParamType.STRING,
-                    required=True
+                    name="type", param_type=ParamType.STRING, required=True
                 ),
                 ConfigParam(
                     name="in_channels",
                     param_type=ParamType.INTEGER,
-                    required=True
+                    required=True,
                 ),
                 ConfigParam(
                     name="hidden_dims",
                     param_type=ParamType.LIST,
                     required=False,
-                    default=[64, 128, 256, 512]
+                    default=[64, 128, 256, 512],  # Si existe en config, usarlo
                 ),
                 ConfigParam(
                     name="dropout",
                     param_type=ParamType.FLOAT,
                     required=False,
-                    default=0.0
-                )
-            ]
+                    default=0.0,
+                ),
+            ],
         )
 
         normalized = encoder_schema.normalize(encoder_config)
         assert normalized["type"] == "CNNEncoder"
-        assert normalized["in_channels"] == 3
-        assert normalized["hidden_dims"] == [64, 128, 256, 512]
+        assert normalized["in_channels"] == cfg.data.num_channels_rgb
+        assert normalized["hidden_dims"] == [
+            64,
+            128,
+            256,
+            512,
+        ]
         assert normalized["dropout"] == 0.0
 
-    def test_architecture_normalization(self):
+    def test_architecture_normalization(self, cfg):
         """Test architecture configuration normalization."""
         # This test relies on the normalize_config function which uses
         # the schemas defined in config_validation.py
@@ -461,29 +464,29 @@ class TestConfigNormalization:
         # Minimal architecture config
         arch_config = {
             "type": "DummyUNet",
-            "in_channels": 3,
+            "in_channels": cfg.data.num_channels_rgb,
             "out_channels": 1,
             "encoder": {
                 "type": "CNNEncoder",
-                "in_channels": 3
+                "in_channels": cfg.data.num_channels_rgb,
             },
             "bottleneck": {
                 "type": "Identity",
                 "in_channels": 512,
-                "out_channels": 512
+                "out_channels": 512,
             },
             "decoder": {
                 "type": "CNNDecoder",
                 "in_channels": 512,
-                "out_channels": 1
-            }
+                "out_channels": 1,
+            },
         }
 
         # We're primarily checking that normalization doesn't raise exceptions
         # Full testing of defaults is done in the config_validation tests
         normalized = normalize_config(arch_config)
         assert normalized["type"] == "DummyUNet"
-        assert normalized["in_channels"] == 3
+        assert normalized["in_channels"] == cfg.data.num_channels_rgb
         assert normalized["out_channels"] == 1
         assert "encoder" in normalized
         assert "bottleneck" in normalized
@@ -493,7 +496,7 @@ class TestConfigNormalization:
 class TestModelConfigSchema:
     """Test model configuration schema generation."""
 
-    def test_get_model_schema(self):
+    def test_get_model_schema(self, cfg):
         """Test getting a schema for a model type."""
         # Ensure DummyUNet is registered
         if "DummyUNet" not in architecture_registry:

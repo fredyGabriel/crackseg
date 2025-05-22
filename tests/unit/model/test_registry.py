@@ -1,38 +1,49 @@
 """Unit tests for the model component registry system."""
 
 import pytest
-from typing import List
 
+from src.model import BottleneckBase, DecoderBase, EncoderBase
 from src.model.factory.registry import Registry
-from src.model import EncoderBase, BottleneckBase, DecoderBase
 
-
-# --- Centralización de canales de skip para mocks ---
+# Constants for test values
+IN_CHANNELS_RGB = 3
 MOCK_SKIP_CHANNELS = [16, 32]
+OUT_CHANNELS_ENCODER = 64
+OUT_CHANNELS_BOTTLENECK = 128
+IN_CHANNELS_DECODER = 64
+OUT_CHANNELS_DECODER = 1
+IN_CHANNELS_CUSTOM = 10
+NUM_ENCODERS_REGISTERED = 3
+REGISTRY_REPR_EXPECTED = (
+    f"Encoder Registry with {NUM_ENCODERS_REGISTERED} components"
+)
 
 
 class MockEncoder(EncoderBase):
     """Mock implementation of EncoderBase for testing."""
-    def __init__(self, in_channels: int = 3, skip_channels=None):
+
+    def __init__(self, in_channels: int = IN_CHANNELS_RGB, skip_channels=None):
         super().__init__(in_channels)
-        self._skip_channels = (skip_channels if skip_channels is not None
-                               else MOCK_SKIP_CHANNELS)
+        self._skip_channels = (
+            skip_channels if skip_channels is not None else MOCK_SKIP_CHANNELS
+        )
 
     def forward(self, x):
         return x, []
 
     @property
     def out_channels(self) -> int:
-        return 64
+        return OUT_CHANNELS_ENCODER
 
     @property
-    def skip_channels(self) -> List[int]:
+    def skip_channels(self) -> list[int]:
         return self._skip_channels
 
 
 class MockBottleneck(BottleneckBase):
     """Mock implementation of BottleneckBase for testing."""
-    def __init__(self, in_channels: int = 64):
+
+    def __init__(self, in_channels: int = OUT_CHANNELS_ENCODER):
         super().__init__(in_channels)
 
     def forward(self, x):
@@ -40,39 +51,34 @@ class MockBottleneck(BottleneckBase):
 
     @property
     def out_channels(self) -> int:
-        return 128
+        return OUT_CHANNELS_BOTTLENECK
 
 
 class MockDecoder(DecoderBase):
     """
-    MockDecoder que espera skip_channels en orden inverso a MockEncoder.
-    Si MockEncoder.skip_channels = [16, 32],
-    entonces MockDecoder.skip_channels = [32, 16].
+    MockDecoder expects skip_channels in reverse order to MockEncoder.
+    If MockEncoder.skip_channels = [16, 32],
+    then MockDecoder.skip_channels = [32, 16].
     """
-    def __init__(self, in_channels=64, skip_channels=None):
+
+    def __init__(self, in_channels=IN_CHANNELS_DECODER, skip_channels=None):
         if skip_channels is None:
             skip_channels = list(reversed(MOCK_SKIP_CHANNELS))
         super().__init__(in_channels, skip_channels=skip_channels)
-        self._out_channels = 1
+        self._out_channels = OUT_CHANNELS_DECODER
 
     def forward(self, x, skips):
-        # Note: skips passed here by UNet will be in encoder order
-        # (high to low res). If this mock needed to *use* skips,
-        # it might need to reverse them.
         return x
 
     @property
     def out_channels(self) -> int:
-        return 1
+        return self._out_channels
 
     @classmethod
     def skip_channels_expected(cls):
         """
         Helper for tests: Return the expected skip_channels list after
         reversal.
-
-        This matches the order expected for decoder.skip_channels when
-        connected to a MockEncoder (low-res to high-res).
         """
         return list(reversed(MOCK_SKIP_CHANNELS))
 
@@ -87,6 +93,7 @@ def encoder_registry():
 @pytest.fixture
 def populated_registry(encoder_registry):
     """Create a registry with some pre-registered components."""
+
     @encoder_registry.register()
     class TestEncoder1(MockEncoder):
         pass
@@ -116,6 +123,7 @@ def test_registry_creation():
 # Component registration tests
 def test_register_component(encoder_registry):
     """Test registering a component using the decorator."""
+
     @encoder_registry.register()
     class TestEncoder(MockEncoder):
         pass
@@ -131,6 +139,7 @@ def test_register_component(encoder_registry):
 
 def test_register_with_custom_name(encoder_registry):
     """Test registering a component with a custom name."""
+
     @encoder_registry.register(name="CustomEncoder")
     class TestEncoder(MockEncoder):
         pass
@@ -142,6 +151,7 @@ def test_register_with_custom_name(encoder_registry):
 
 def test_register_with_tags(encoder_registry):
     """Test registering a component with tags."""
+
     @encoder_registry.register(tags=["tag1", "tag2"])
     class TestEncoder(MockEncoder):
         pass
@@ -155,6 +165,7 @@ def test_register_with_tags(encoder_registry):
 def test_register_wrong_type(encoder_registry):
     """Test registering a component of the wrong type."""
     with pytest.raises(TypeError, match="must inherit from EncoderBase"):
+
         @encoder_registry.register()
         class WrongType:
             pass
@@ -162,12 +173,14 @@ def test_register_wrong_type(encoder_registry):
 
 def test_duplicate_registration(encoder_registry):
     """Test that duplicate registrations are not allowed."""
+
     @encoder_registry.register(name="DuplicateTest")
     class DuplicateTest(MockEncoder):
         pass
 
     # Intentar registrar el mismo nombre de nuevo
     with pytest.raises(ValueError, match="already registered"):
+
         @encoder_registry.register(name="DuplicateTest")
         class DuplicateTest2(MockEncoder):  # Test duplicate registration
             pass
@@ -191,27 +204,31 @@ def test_get_nonexistent_component(populated_registry):
 
 def test_component_instantiation(populated_registry):
     """Test instantiating a component from the registry."""
-    instance = populated_registry.instantiate("TestEncoder1", in_channels=3)
+    instance = populated_registry.instantiate(
+        "TestEncoder1", in_channels=IN_CHANNELS_RGB
+    )
     assert isinstance(instance, EncoderBase)
-    assert instance.in_channels == 3
+    assert instance.in_channels == IN_CHANNELS_RGB
 
     # With custom constructor args
-    instance = populated_registry.instantiate("TestEncoder1", in_channels=10)
-    assert instance.in_channels == 10
+    instance = populated_registry.instantiate(
+        "TestEncoder1", in_channels=IN_CHANNELS_CUSTOM
+    )
+    assert instance.in_channels == IN_CHANNELS_CUSTOM
 
 
 # Component listing and filtering tests
 def test_list_components(populated_registry):
     """Test listing components in the registry."""
     components = populated_registry.list()
-    assert len(components) == 3
+    assert len(components) == NUM_ENCODERS_REGISTERED
     assert set(components) == {"TestEncoder1", "CustomName", "TestEncoder3"}
 
 
 def test_list_with_tags(populated_registry):
     """Test listing components with their tags."""
     tags_dict = populated_registry.list_with_tags()
-    assert len(tags_dict) == 3
+    assert len(tags_dict) == NUM_ENCODERS_REGISTERED
     assert tags_dict["TestEncoder1"] == []
     assert tags_dict["CustomName"] == []
     assert set(tags_dict["TestEncoder3"]) == {"lightweight", "fast"}
@@ -239,12 +256,12 @@ def test_contains(populated_registry):
 
 def test_len(populated_registry):
     """Test the __len__ method."""
-    assert len(populated_registry) == 3
+    assert len(populated_registry) == NUM_ENCODERS_REGISTERED
 
 
 def test_repr(populated_registry):
     """Test the __repr__ method."""
-    assert repr(populated_registry) == "Encoder Registry with 3 components"
+    assert repr(populated_registry) == REGISTRY_REPR_EXPECTED
 
 
 # Multiple registry tests
@@ -296,14 +313,16 @@ def test_typical_usage_flow():
         pass
 
     # Instantiate components from registry
-    encoder = encoder_reg.instantiate("SimpleEncoder", in_channels=3)
+    encoder = encoder_reg.instantiate(
+        "SimpleEncoder", in_channels=IN_CHANNELS_RGB
+    )
     bottleneck = bottleneck_reg.instantiate(
         "SimpleBottleneck", in_channels=encoder.out_channels
     )
     decoder = decoder_reg.instantiate(
         "SimpleDecoder",
         in_channels=bottleneck.out_channels,
-        skip_channels=list(reversed(encoder.skip_channels))
+        skip_channels=list(reversed(encoder.skip_channels)),
     )
 
     # Verify instantiation worked correctly
@@ -315,3 +334,4 @@ def test_typical_usage_flow():
     assert encoder.out_channels == bottleneck.in_channels
     assert bottleneck.out_channels == decoder.in_channels
     assert decoder.skip_channels == MockDecoder.skip_channels_expected()
+    assert encoder.in_channels == IN_CHANNELS_RGB

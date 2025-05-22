@@ -1,0 +1,53 @@
+[tool.black]
+line-length = 79
+target-version = ['py312']
+include = '\.pyi?$'
+exclude = """
+/(
+    \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | outputs
+)/
+"""
+
+[tool.ruff]
+line-length = 79
+target-version = "py312"
+lint.select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "UP", # pyupgrade
+    "C4", # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+lint.ignore = []
+
+# Ruff's isort rules will respect the 'exclude' from Black by default.
+# It will also respect .gitignore.
+# The 'sections' and 'default_section' from your previous isort config
+# align well with Ruff's defaults when 'known-first-party' is set.
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+# section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+files = ["src/", "tests/", "scripts/"]
+namespace_packages = true
+explicit_package_bases = true
+plugins = ["numpy.typing.mypy_plugin"]
+
+# If you use NumPy extensively and have its stubs (e.g., via numpy[typing]),
+# you might enable its MyPy plugin for better type checking of NumPy code.

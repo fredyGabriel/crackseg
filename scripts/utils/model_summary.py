@@ -8,6 +8,7 @@ and memory usage estimates.
 
 import os
 import sys
+
 import hydra
 from omegaconf import OmegaConf
 
@@ -46,9 +47,11 @@ def main():
     total_params = summary_dict["parameters"]["total"]
     memory_usage = summary_dict["memory_usage"]["total_estimated_mb"]
 
-    print(f"\nIn summary: Model has {total_params:,} parameters and "
-          f"requires approximately {memory_usage:.2f} MB of memory "
-          f"for inference with a 512x512 input image.")
+    print(
+        f"\nIn summary: Model has {total_params:,} parameters and "
+        f"requires approximately {memory_usage:.2f} MB of memory "
+        f"for inference with a 512x512 input image."
+    )
 
 
 if __name__ == "__main__":

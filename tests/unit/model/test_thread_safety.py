@@ -5,16 +5,18 @@ These tests verify that registry operations are thread-safe and can be
 performed concurrently without race conditions or data corruption.
 """
 
-import threading
 import random
+import threading
 from concurrent.futures import ThreadPoolExecutor
-import torch.nn as nn
+
+from torch import nn
 
 from src.model.factory.registry import Registry
 
 
 class SimpleComponent(nn.Module):
     """A simple component for testing registry thread safety."""
+
     def __init__(self, name):
         super().__init__()
         self.name = name
@@ -93,9 +95,9 @@ class TestRegistryThreadSafety:
             assert name in self.registry, f"Component {name} not registered"
 
         # Verify count matches
-        assert len(self.registry) == num_components, (
-            f"Expected {num_components} components, got {len(self.registry)}"
-        )
+        assert (
+            len(self.registry) == num_components
+        ), f"Expected {num_components} components, got {len(self.registry)}"
 
     def test_concurrent_unregistration(self):
         """Test concurrent unregistration of components."""
@@ -119,9 +121,9 @@ class TestRegistryThreadSafety:
 
         # Verify correct components were unregistered
         for name in to_unregister:
-            assert name not in self.registry, (
-                f"Component {name} still registered"
-            )
+            assert (
+                name not in self.registry
+            ), f"Component {name} still registered"
 
         # Verify remaining components are still registered
         remaining = component_names[50:]
@@ -129,9 +131,9 @@ class TestRegistryThreadSafety:
             assert name in self.registry, f"Component {name} not registered"
 
         # Verify count matches
-        assert len(self.registry) == len(remaining), (
-            f"Expected {len(remaining)} components, got {len(self.registry)}"
-        )
+        assert len(self.registry) == len(
+            remaining
+        ), f"Expected {len(remaining)} components, got {len(self.registry)}"
 
     def test_mixed_concurrent_operations(self):
         """Test concurrent registration, unregistration, and retrieval."""
@@ -177,9 +179,9 @@ class TestRegistryThreadSafety:
 
         # Verify registry internals are consistent
         for name in self.registered_components:
-            assert name in self.registry, (
-                f"Component {name} should be registered"
-            )
+            assert (
+                name in self.registry
+            ), f"Component {name} should be registered"
 
         # Verify count matches registered set
         assert len(self.registry) == len(self.registered_components), (
@@ -234,10 +236,11 @@ class TestRegistryThreadSafety:
 
         # Ensure list results match registry size
         list_results = [
-            r for r, (op, _) in zip(results, operations)
+            r
+            for r, (op, _) in zip(results, operations, strict=False)
             if op == self.registry.list
         ]
         for result in list_results:
-            assert len(result) == num_components, (
-                "List result doesn't match component count"
-            )
+            assert (
+                len(result) == num_components
+            ), "List result doesn't match component count"

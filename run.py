@@ -10,14 +10,14 @@ Usage:
     python run.py [hydra_options]
 """
 
-import sys
 import logging
+import sys
 from pathlib import Path
 
 # Configure basic logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger("crackseg.runner")
 
@@ -43,6 +43,7 @@ def run_main():
     except Exception as e:
         logger.error(f"Error during execution: {e}")
         import traceback
+
         logger.error(traceback.format_exc())
         sys.exit(1)
 

@@ -4,4 +4,20 @@
 project_name: crackseg      # Name of the project
 random_seed: 42             # Global random seed for reproducibility
 output_dir: outputs/        # Default directory for all outputs
-log_level: INFO             # Default logging level (INFO, DEBUG, etc.) 
+log_level: INFO             # Default logging level (INFO, DEBUG, etc.)
+max_config_items_to_log: 10 # Max items to show when logging a config dict
+
+timestamp_parsing:
+  min_parts: 2
+  date_len: 8
+  time_len: 6
+
+thresholds:
+  default: 0.5
+  metric: 0.5
+  loss_weight: 0.5
+  gamma: 0.5
+
+visualization:
+  num_cols: 3
+  num_cols_no_targets: 2

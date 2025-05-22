@@ -1,51 +1,48 @@
 """
 Demo script for validating the hybrid architecture registry system.
 
-Este script muestra cómo registrar, listar y consultar arquitecturas híbridas en el sistema de registros.
-No es un test automatizado, sino una referencia para desarrolladores.
+This script shows how to register, list, and query hybrid architectures
+in the registry system.
+It is not an automated test, but a reference for developers.
 """
 
-import sys
 import os
+import sys
 
 # Add current directory to path
 sys.path.append(os.path.abspath("."))
 
 # Import registry modules
-from src.model.registry_setup import (
-    encoder_registry,
-    bottleneck_registry,
-    decoder_registry,
-    architecture_registry
-)
+# Import base classes for creating mock components
+from src.model.base import DecoderBase
 
 # Import hybrid registry modules
 from src.model.hybrid_registry import (
     hybrid_registry,
-    register_standard_hybrid,
-    register_complex_hybrid,
     query_architectures_by_component,
     query_architectures_by_tag,
-    HybridArchitectureDescriptor,
-    ComponentReference
+    register_complex_hybrid,
+    register_standard_hybrid,
 )
-
-# Import base classes for creating mock components
-from src.model.base import EncoderBase, DecoderBase, BottleneckBase
-
-# Import registration utilities
-from src.model.components.registry_support import register_all_components
+from src.model.registry_setup import (
+    architecture_registry,
+    bottleneck_registry,
+    decoder_registry,
+    encoder_registry,
+)
 
 print("Testing Hybrid Registry Implementation (Subtask 21.2)\n")
 print("-" * 50)
+
 
 # Create and register mock components for testing
 class MockDecoder(DecoderBase):
     def __init__(self, in_channels, out_channels):
         super().__init__()
-    
+
     def forward(self, x, skip_connections=None):
         return x
+
 
 # Register our mock components
 decoder_registry.register(name="MockDecoder")(MockDecoder)
@@ -60,9 +57,11 @@ try:
     register_standard_hybrid(
         name="TestStandardHybrid",
         encoder_type="SwinV2" if "SwinV2" in encoder_registry else "ResNet",
-        bottleneck_type="ASPPModule" if "ASPPModule" in bottleneck_registry else "Identity",
+        bottleneck_type=(
+            "ASPPModule" if "ASPPModule" in bottleneck_registry else "Identity"
+        ),
         decoder_type="MockDecoder",  # This should now work
-        tags=["test", "hybrid"]
+        tags=["test", "hybrid"],
     )
     print("✓ Successfully registered standard hybrid architecture")
 except Exception as e:
@@ -71,14 +70,16 @@ except Exception as e:
 # Then register a complex hybrid with custom roles
 try:
     components = {
-        'custom_encoder': ('encoder', 
-                          "SwinV2" if "SwinV2" in encoder_registry else "ResNet"),
-        'custom_decoder': ('decoder', "MockDecoder"),
+        "custom_encoder": (
+            "encoder",
+            "SwinV2" if "SwinV2" in encoder_registry else "ResNet",
+        ),
+        "custom_decoder": ("decoder", "MockDecoder"),
     }
     register_complex_hybrid(
         name="TestComplexHybrid",
         components=components,
-        tags=["test", "complex", "custom-roles"]
+        tags=["test", "complex", "custom-roles"],
     )
     print("✓ Successfully registered complex hybrid architecture")
 except Exception as e:
@@ -135,14 +136,22 @@ print("-" * 50)
 try:
     arch_registry_items = architecture_registry.list()
     # Check if hybrid architectures are also in the main registry
-    hybrid_in_main = [arch for arch in architectures if arch in arch_registry_items]
+    hybrid_in_main = [
+        arch for arch in architectures if arch in arch_registry_items
+    ]
     if hybrid_in_main:
-        print(f"Hybrid architectures found in main registry: {len(hybrid_in_main)}/{len(architectures)}")
-        print(f"✓ Hybrid registry is correctly integrated with main architecture registry")
+        print(
+            "Hybrid architectures found in main registry: "
+            f"{len(hybrid_in_main)}/{len(architectures)}"
+        )
+        print(
+            "✓ Hybrid registry is correctly integrated with main architecture "
+            "registry"
+        )
     else:
         print("× No hybrid architectures found in main registry")
 except Exception as e:
     print(f"× Error verifying integration: {e}")
 
 print("\nHybrid Registry Test Complete")
-print("-" * 50) 
+print("-" * 50)

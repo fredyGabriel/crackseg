@@ -27,11 +27,12 @@ class AttentionDecorator(DecoderBase):
         >>> attention_decoder = AttentionDecorator(decoder, cbam)
         >>> output = attention_decoder(x, skip_connections)
     """
+
     def __init__(self, decoder, attention_module):
         # Inicializar con los mismos parámetros que el decoder original
         super().__init__(
-            in_channels=getattr(decoder, 'in_channels', 0),
-            skip_channels=getattr(decoder, 'skip_channels', [])
+            in_channels=getattr(decoder, "in_channels", 0),
+            skip_channels=getattr(decoder, "skip_channels", []),
         )
         self.decoder = decoder
         self.attention = attention_module

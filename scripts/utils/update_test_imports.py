@@ -1,15 +1,12 @@
-import os
 import glob
+import os
 import shutil
 
-# Mapeo de imports antiguos a nuevos
+# ruff: noqa: E501
 IMPORT_MAP = {
-    "from src.model.hybrid_registry import":
-        "from src.model.factory.hybrid_registry import",
-    "from src.model.registry import":
-        "from src.model.factory.registry import",
-    "from src.model.factory_utils import":
-        "from src.model.factory.factory_utils import"
+    "from src.model.hybrid_registry import": "from src.model.factory.hybrid_registry import",
+    "from src.model.registry import": "from src.model.factory.registry import",
+    "from src.model.factory_utils import": "from src.model.factory.factory_utils import",
 }
 
 TESTS_ROOT = "tests"
@@ -19,16 +16,17 @@ LOG_FILE = "update_test_imports.log"
 
 def update_imports_in_file(filepath, import_map):
     changed = False
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         lines = f.readlines()
 
     new_lines = []
     for line in lines:
+        new_line = line
         for old, new in import_map.items():
-            if old in line:
-                line = line.replace(old, new)
+            if old in new_line:
+                new_line = new_line.replace(old, new)
                 changed = True
-        new_lines.append(line)
+        new_lines.append(new_line)
 
     if changed:
         # Backup original file
@@ -40,8 +38,9 @@ def update_imports_in_file(filepath, import_map):
 
 def main():
     log_entries = []
-    py_files = glob.glob(os.path.join(TESTS_ROOT, "**", "*.py"),
-                         recursive=True)
+    py_files = glob.glob(
+        os.path.join(TESTS_ROOT, "**", "*.py"), recursive=True
+    )
     for filepath in py_files:
         if update_imports_in_file(filepath, IMPORT_MAP):
             log_entries.append(f"Updated: {filepath}")

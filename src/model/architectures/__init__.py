@@ -1,15 +1,9 @@
 """Model architecture implementations."""
 
 from src.model.architectures.cnn_convlstm_unet import (
+    CNNConvLSTMUNet,
     CNNEncoder,
-    ConvLSTMBottleneck,
-    CNNDecoder,
-    CNNConvLSTMUNet
 )
+from src.model.decoder.cnn_decoder import CNNDecoder
 
-__all__ = [
-    "CNNEncoder",
-    "ConvLSTMBottleneck",
-    "CNNDecoder",
-    "CNNConvLSTMUNet"
-]
+__all__ = ["CNNEncoder", "CNNDecoder", "CNNConvLSTMUNet"]

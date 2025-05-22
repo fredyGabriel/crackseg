@@ -1,16 +1,15 @@
-import pytest
 from pathlib import Path
+
+import pytest
 from omegaconf import OmegaConf
+
 from src.utils.config.validation import (
+    validate_config,
+    validate_model_config,
     validate_paths,
     validate_training_config,
-    validate_model_config,
-    validate_config
 )
-from src.utils.exceptions import (
-    ValidationError,
-    ConfigError
-)
+from src.utils.exceptions import ConfigError, ValidationError
 
 
 def make_valid_config(tmp_path):
@@ -18,26 +17,26 @@ def make_valid_config(tmp_path):
     data_dir = tmp_path / "data"
     data_dir.mkdir()
     log_dir = tmp_path / "logs"
-    config = OmegaConf.create({
-        "data": {
-            "train_dir": str(data_dir),
-            "val_dir": str(data_dir),
-            "test_dir": str(data_dir),
-        },
-        "logging": {
-            "log_dir": str(log_dir)
-        },
-        "training": {
-            "epochs": 10,
-            "optimizer": {"lr": 0.01, "weight_decay": 0.0},
-            "early_stopping_patience": 5
-        },
-        "model": {
-            "in_channels": 3,
-            "out_channels": 1,
-            "features": [16, 32, 64]
+    config = OmegaConf.create(
+        {
+            "data": {
+                "train_dir": str(data_dir),
+                "val_dir": str(data_dir),
+                "test_dir": str(data_dir),
+            },
+            "logging": {"log_dir": str(log_dir)},
+            "training": {
+                "epochs": 10,
+                "optimizer": {"lr": 0.01, "weight_decay": 0.0},
+                "early_stopping_patience": 5,
+            },
+            "model": {
+                "in_channels": 3,
+                "out_channels": 1,
+                "features": [16, 32, 64],
+            },
         }
-    })
+    )
     return config
 
 

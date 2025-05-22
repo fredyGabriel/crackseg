@@ -10,6 +10,7 @@ Modular, reproducible, and extensible codebase for research and production.
 ## Quickstart
 
 1. **Install environment**
+
    ```bash
    conda env create -f environment.yml
    conda activate torch
@@ -17,16 +18,18 @@ Modular, reproducible, and extensible codebase for research and production.
    ```
 
 2. **Train a model**
+
    ```bash
    python run.py
    ```
 
 3. **Evaluate**
+
    ```bash
    python src/evaluate.py
    ```
 
-- For a detailed workflow and configuration options, see [WORKFLOW_TRAINING.md](WORKFLOW_TRAINING.md).
+- For a detailed workflow and configuration options, see [WORKFLOW_TRAINING.md](docs/guides/WORKFLOW_TRAINING.md).
 
 ## Project Structure
 
@@ -47,9 +50,37 @@ Modular, reproducible, and extensible codebase for research and production.
 - **Data splits, batch size:** see `configs/data/`
 - Combine components by editing `configs/config.yaml` or via CLI overrides.
 
+## Code Quality & Linting
+
+El proyecto utiliza las siguientes herramientas para mantener la calidad del código:
+
+- **Black**: Formateo automático de código.
+- **Ruff**: Linter y verificación de estilo.
+- **Mypy**: Verificación de tipos estáticos.
+
+El hook de pre-commit ejecuta automáticamente estas herramientas sobre los archivos Python staged.
+
+Asegúrate de que estas herramientas estén instaladas en tu entorno (ya incluidas en `environment.yml`).
+
+Configuración:
+
+- Configuración centralizada: `configs/linting/config.yaml`
+- Configuración de herramientas: `pyproject.toml`
+
+Para instalar y activar el hook de pre-commit (opcional):
+
+```bash
+conda install -c conda-forge pre-commit
+pre-commit install
+```
+
+For a detailed plan on code quality improvements, see [docs/LINTING_PLAN.md](docs/LINTING_PLAN.md).
+
+For a comprehensive report on linting optimization, see [docs/reports/LINTING_REPORT.md](docs/reports/LINTING_REPORT.md).
+
 ## Training & Workflow
 
-- See [WORKFLOW_TRAINING.md](WORKFLOW_TRAINING.md) for a step-by-step guide, including:
+- See [WORKFLOW_TRAINING.md](docs/guides/WORKFLOW_TRAINING.md) for a step-by-step guide, including:
   - Environment setup
   - Data configuration
   - Model/component selection
@@ -59,9 +90,11 @@ Modular, reproducible, and extensible codebase for research and production.
 ## Testing
 
 - Run all tests:
+
   ```bash
   pytest
   ```
+
 - See `tests/README.md` for details.
 
 ## Environment Variables
@@ -74,17 +107,20 @@ Modular, reproducible, and extensible codebase for research and production.
 ## Dependency Management
 
 - Check for updates:
+
   ```bash
   python scripts/utils/check_updates.py
   ```
+
 - Update environment:
+
   ```bash
   conda env update -f environment.yml --prune
   ```
 
 ## Contributing
 
-- See `CONTRIBUTING.md` and follow coding guidelines.
+- See [CONTRIBUTING.md](docs/guides/CONTRIBUTING.md) and follow coding guidelines.
 - Add/update tests for your changes.
 - Update documentation as needed.
 
@@ -95,6 +131,7 @@ MIT License. See `LICENSE`.
 ---
 
 **Tips:**
+
 - Use `run.py` as the main entry point for training.
 - All configuration is modular and can be overridden via Hydra.
-- For advanced usage, see the documentation in each `configs/` subfolder. 
+- For advanced usage, see the documentation in each `configs/` subfolder.

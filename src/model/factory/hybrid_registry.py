@@ -10,11 +10,15 @@ combine multiple component types. Includes:
 4. Dependency management between components
 """
 
-from typing import Dict, List, Optional, Any, Tuple
 import logging
 from dataclasses import dataclass, field
+from typing import Any
 
-# Actualizar importación para usar referencia relativa
+import torch
+
+from src.model.base.abstract import UNetBase
+
+# Update import to use relative reference
 from .registry_setup import architecture_registry
 
 # Create logger
@@ -32,10 +36,11 @@ class ComponentReference:
         optional: Whether this component is optional in the architecture
         tags: Tags associated with this component usage
     """
+
     registry_type: str
     component_name: str
     optional: bool = False
-    tags: List[str] = field(default_factory=list)
+    tags: list[str] = field(default_factory=list)
 
     def validate(self) -> bool:
         """
@@ -45,7 +50,7 @@ class ComponentReference:
         Returns:
             bool: True if valid, raises ValueError otherwise
         """
-        # Actualizar importación para usar referencia relativa
+        # Update import to use relative reference
         from .registry_setup import get_registry
 
         try:
@@ -77,10 +82,11 @@ class HybridArchitectureDescriptor:
         metadata: Additional metadata for the architecture
         tags: Tags for categorizing this architecture
     """
+
     name: str
-    components: Dict[str, ComponentReference]
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    tags: List[str] = field(default_factory=list)
+    components: dict[str, ComponentReference]
+    metadata: dict[str, Any] = field(default_factory=dict)
+    tags: list[str] = field(default_factory=list)
 
     def validate(self) -> bool:
         """
@@ -97,25 +103,27 @@ class HybridArchitectureDescriptor:
                 raise ValueError(
                     f"Invalid component for role '{role}' in "
                     f"architecture '{self.name}': {e}"
-                )
+                ) from e
 
         # Validate encoder, bottleneck, decoder compatibility if present
         # This is just a basic example - real validation would be more complex
-        if all(k in self.components for k in ['encoder', 'bottleneck',
-                                              'decoder']):
+        if all(
+            k in self.components for k in ["encoder", "bottleneck", "decoder"]
+        ):
             # Additional compatibility checks could go here
             pass
 
         return True
 
-    def get_all_component_names(self) -> List[str]:
+    def get_all_component_names(self) -> list[str]:
         """Get names of all required components in this architecture."""
         return [
-            c.component_name for c in self.components.values()
+            c.component_name
+            for c in self.components.values()
             if not c.optional
         ]
 
-    def to_tag_list(self) -> List[str]:
+    def to_tag_list(self) -> list[str]:
         """
         Convert this descriptor to a list of tags for registration.
 
@@ -147,7 +155,7 @@ class HybridRegistry:
     """
 
     def __init__(self):
-        self._descriptors: Dict[str, HybridArchitectureDescriptor] = {}
+        self._descriptors: dict[str, HybridArchitectureDescriptor] = {}
 
     def register(self, descriptor: HybridArchitectureDescriptor) -> bool:
         """
@@ -176,22 +184,31 @@ class HybridRegistry:
 
         # Create a dummy class for registration since architecture_registry
         # expects a class to register
-        # Actualizar importación para reflejar la nueva estructura
-        from src.model.base.abstract import UNetBase
+        # Update import to reflect new structure
+        # from src.model.base.abstract import UNetBase # Esta ya está arriba
 
-        class DummyArchitecture(UNetBase):
+        class DummyArchitectureForRegistration(
+            UNetBase
+        ):  # Inherit from UNetBase
             """Dummy architecture class for registration purposes."""
-            def __init__(self, *args, **kwargs):
-                super().__init__()
-                self.name = descriptor.name
-                self.components = descriptor.components
 
-            def forward(self, x):
+            def __init__(self, *args, **kwargs):
+                # Call super() with None for encoder, bottleneck, decoder
+                # These Nones will be handled by special logic in
+                # UNetBase._validate_components
+                super().__init__(encoder=None, bottleneck=None, decoder=None)
+                # The type: ignore[arg-type] is because None is not strictly
+                # EncoderBase, etc.,
+                # but UNetBase.__init__ now accepts them as Optional and
+                # _validate_components handles them.
+
+            def forward(self, x: torch.Tensor) -> torch.Tensor:
                 return x
 
         # Use the decorator to register the dummy architecture
-        architecture_registry.register(name=descriptor.name,
-                                       tags=tags)(DummyArchitecture)
+        architecture_registry.register(name=descriptor.name, tags=tags)(
+            DummyArchitectureForRegistration
+        )
 
         log.info(
             f"Registered hybrid architecture '{descriptor.name}' with "
@@ -201,10 +218,8 @@ class HybridRegistry:
         return True
 
     def query_by_component(
-        self,
-        component_name: str,
-        role: Optional[str] = None
-    ) -> List[str]:
+        self, component_name: str, role: str | None = None
+    ) -> list[str]:
         """
         Query hybrid architectures that use a specific component.
 
@@ -220,9 +235,11 @@ class HybridRegistry:
         for name, descriptor in self._descriptors.items():
             if role:
                 # Check if component is used in the specified role
-                if (role in descriptor.components and
-                        descriptor.components[role].component_name ==
-                        component_name):
+                if (
+                    role in descriptor.components
+                    and descriptor.components[role].component_name
+                    == component_name
+                ):
                     matches.append(name)
             else:
                 # Check if component is used in any role
@@ -250,7 +267,7 @@ class HybridRegistry:
             raise ValueError(f"Hybrid architecture '{name}' not found")
         return self._descriptors[name]
 
-    def list_architectures(self) -> List[str]:
+    def list_architectures(self) -> list[str]:
         """
         List all registered hybrid architectures.
 
@@ -264,13 +281,13 @@ class HybridRegistry:
 hybrid_registry = HybridRegistry()
 
 
-def register_standard_hybrid(
+def register_standard_hybrid(  # noqa: PLR0913
     name: str,
     encoder_type: str,
     bottleneck_type: str,
     decoder_type: str,
-    attention_type: Optional[str] = None,
-    tags: Optional[List[str]] = None
+    attention_type: str | None = None,
+    tags: list[str] | None = None,
 ) -> bool:
     """
     Register a standard hybrid architecture with encoder, bottleneck, and
@@ -291,22 +308,20 @@ def register_standard_hybrid(
         bool: True if registration was successful
     """
     components = {
-        'encoder': ComponentReference('encoder', encoder_type),
-        'bottleneck': ComponentReference('bottleneck', bottleneck_type),
-        'decoder': ComponentReference('decoder', decoder_type),
+        "encoder": ComponentReference("encoder", encoder_type),
+        "bottleneck": ComponentReference("bottleneck", bottleneck_type),
+        "decoder": ComponentReference("decoder", decoder_type),
     }
 
     # Add attention if specified
     if attention_type:
-        components['attention'] = ComponentReference(
-            'attention', attention_type, optional=True
+        components["attention"] = ComponentReference(
+            "attention", attention_type, optional=True
         )
 
     # Create the descriptor
     descriptor = HybridArchitectureDescriptor(
-        name=name,
-        components=components,
-        tags=tags or []
+        name=name, components=components, tags=tags or []
     )
 
     # Register with the hybrid registry
@@ -315,8 +330,8 @@ def register_standard_hybrid(
 
 def register_complex_hybrid(
     name: str,
-    components: Dict[str, Tuple[str, str]],
-    tags: Optional[List[str]] = None
+    components: dict[str, tuple[str, str]],
+    tags: list[str] | None = None,
 ) -> bool:
     """
     Register a complex hybrid architecture with custom component roles.
@@ -333,14 +348,13 @@ def register_complex_hybrid(
     component_refs = {}
 
     for role, (registry_type, component_name) in components.items():
-        component_refs[role] = ComponentReference(registry_type,
-                                                  component_name)
+        component_refs[role] = ComponentReference(
+            registry_type, component_name
+        )
 
     # Create the descriptor
     descriptor = HybridArchitectureDescriptor(
-        name=name,
-        components=component_refs,
-        tags=tags or []
+        name=name, components=component_refs, tags=tags or []
     )
 
     # Register with the hybrid registry
@@ -348,9 +362,8 @@ def register_complex_hybrid(
 
 
 def query_architectures_by_component(
-    component_name: str,
-    role: Optional[str] = None
-) -> List[str]:
+    component_name: str, role: str | None = None
+) -> list[str]:
     """
     Find hybrid architectures that use a specific component.
 
@@ -364,7 +377,7 @@ def query_architectures_by_component(
     return hybrid_registry.query_by_component(component_name, role)
 
 
-def query_architectures_by_tag(tag: str) -> List[str]:
+def query_architectures_by_tag(tag: str) -> list[str]:
     """
     Find hybrid architectures with a specific tag.
 

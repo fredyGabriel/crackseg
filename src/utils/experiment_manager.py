@@ -8,7 +8,7 @@ ensuring a consistent structure across all runs.
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, Union, List
+from typing import Any, Optional
 
 from omegaconf import DictConfig, OmegaConf
 
@@ -23,14 +23,14 @@ class ExperimentManager:
     - Registry of experiments for easier navigation
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
-        base_dir: Union[str, Path] = "outputs",
+        base_dir: str | Path = "outputs",
         experiment_name: str = "default",
-        config: Optional[DictConfig] = None,
+        config: DictConfig | None = None,
         create_dirs: bool = True,
         timestamp_format: str = "%Y%m%d-%H%M%S",
-        timestamp: Optional[str] = None
+        timestamp: str | None = None,
     ):
         """
         Initialize the experiment manager.
@@ -90,7 +90,7 @@ class ExperimentManager:
             "results": self.results_dir,
             "visualizations": self.visualizations_dir,
             "predictions": self.predictions_dir,
-            "shared": self.shared_dir
+            "shared": self.shared_dir,
         }
 
     def _create_directory_structure(self) -> None:
@@ -106,7 +106,7 @@ class ExperimentManager:
             self.visualizations_dir,
             self.predictions_dir / "validation",
             self.predictions_dir / "test",
-            self.shared_dir
+            self.shared_dir,
         ]:
             dir_path.mkdir(parents=True, exist_ok=True)
 
@@ -120,7 +120,7 @@ class ExperimentManager:
             "name": self.experiment_name,
             "timestamp": self.timestamp,
             "created_at": datetime.now().isoformat(),
-            "status": "created"
+            "status": "created",
         }
 
         # Add configuration if available
@@ -128,12 +128,13 @@ class ExperimentManager:
             if isinstance(self.config, DictConfig):
                 config_dict = OmegaConf.to_container(self.config, resolve=True)
                 info["config"] = str(config_dict)
-            else:
-                if self.config is not None:
-                    info["config"] = str(self.config)
+            elif self.config is not None:
+                info["config"] = str(self.config)
 
         # Save as JSON
-        with open(self.experiment_dir / "experiment_info.json", "w") as f:
+        with open(
+            self.experiment_dir / "experiment_info.json", "w", encoding="utf-8"
+        ) as f:
             json.dump(info, f, indent=2)
 
     def _register_experiment(self) -> None:
@@ -143,23 +144,31 @@ class ExperimentManager:
         # Load existing registry if it exists
         if self.registry_file.exists():
             try:
-                with open(self.registry_file, "r") as f:
+                with open(self.registry_file, encoding="utf-8") as f:
                     registry = json.load(f)
-            except Exception as e:
+            except (OSError, json.JSONDecodeError) as e:
                 print(f"Warning: Could not load experiment registry: {e}")
+                registry = []
+            except Exception as e:
+                print(
+                    "Unexpected error loading experiment registry: "
+                    f"{type(e).__name__} - {e}"
+                )
                 registry = []
 
         # Add this experiment
-        registry.append({
-            "id": self.experiment_id,
-            "name": self.experiment_name,
-            "timestamp": self.timestamp,
-            "path": str(self.experiment_dir),
-            "created_at": datetime.now().isoformat()
-        })
+        registry.append(
+            {
+                "id": self.experiment_id,
+                "name": self.experiment_name,
+                "timestamp": self.timestamp,
+                "path": str(self.experiment_dir),
+                "created_at": datetime.now().isoformat(),
+            }
+        )
 
         # Save registry
-        with open(self.registry_file, "w") as f:
+        with open(self.registry_file, "w", encoding="utf-8") as f:
             json.dump(registry, f, indent=2)
 
     def get_path(self, key: str) -> Path:
@@ -183,7 +192,7 @@ class ExperimentManager:
 
         return self.paths[key]
 
-    def save_config(self, config: Union[Dict, DictConfig]) -> Path:
+    def save_config(self, config: dict | DictConfig) -> Path:
         """
         Save configuration to a JSON file.
 
@@ -201,12 +210,12 @@ class ExperimentManager:
 
         # Save to JSON file
         config_path = self.config_dir / "config.json"
-        with open(config_path, "w") as f:
+        with open(config_path, "w", encoding="utf-8") as f:
             json.dump(config_dict, f, indent=2)
 
         return config_path
 
-    def save_metrics_summary(self, metrics: Dict[str, float]) -> Path:
+    def save_metrics_summary(self, metrics: dict[str, float]) -> Path:
         """
         Save metrics summary to a JSON file.
 
@@ -223,20 +232,18 @@ class ExperimentManager:
         metrics_dict = {
             **metrics,
             "timestamp": datetime.now().isoformat(),
-            "experiment_id": self.experiment_id
+            "experiment_id": self.experiment_id,
         }
 
         # Save to JSON file
         metrics_path = self.metrics_dir / "metrics_summary.json"
-        with open(metrics_path, "w") as f:
+        with open(metrics_path, "w", encoding="utf-8") as f:
             json.dump(metrics_dict, f, indent=2)
 
         return metrics_path
 
     def update_status(
-        self,
-        status: str,
-        metadata: Optional[Dict[str, Any]] = None
+        self, status: str, metadata: dict[str, Any] | None = None
     ) -> None:
         """
         Update experiment status in experiment_info.json.
@@ -251,9 +258,9 @@ class ExperimentManager:
         # Load existing info if it exists
         if info_path.exists():
             try:
-                with open(info_path, "r") as f:
+                with open(info_path, encoding="utf-8") as f:
                     info = json.load(f)
-            except Exception as e:
+            except (OSError, json.JSONDecodeError) as e:
                 print(f"Warning: Could not load experiment info: {e}")
                 info = {
                     "id": self.experiment_id,
@@ -274,10 +281,10 @@ class ExperimentManager:
             info["metadata"] = json.dumps(meta)
 
         # Save updated info
-        with open(info_path, "w") as f:
+        with open(info_path, "w", encoding="utf-8") as f:
             json.dump(info, f, indent=2)
 
-    def get_available_experiments(self) -> List[Dict[str, Any]]:
+    def get_available_experiments(self) -> list[dict[str, Any]]:
         """
         Get list of available experiments from registry.
 
@@ -288,17 +295,21 @@ class ExperimentManager:
             return []
 
         try:
-            with open(self.registry_file, "r") as f:
+            with open(self.registry_file, encoding="utf-8") as f:
                 return json.load(f)
-        except Exception as e:
+        except (OSError, json.JSONDecodeError) as e:
             print(f"Warning: Could not load experiment registry: {e}")
+            return []
+        except Exception as e:
+            print(
+                "Unexpected error reading experiment registry: "
+                f"{type(e).__name__} - {e}"
+            )
             return []
 
     @classmethod
     def get_experiment(
-        cls,
-        experiment_id: str,
-        base_dir: Union[str, Path] = "outputs"
+        cls, experiment_id: str, base_dir: str | Path = "outputs"
     ) -> Optional["ExperimentManager"]:
         """
         Get an experiment by ID.
@@ -316,8 +327,26 @@ class ExperimentManager:
         if not registry_file.exists():
             return None
 
-        with open(registry_file, "r") as f:
-            registry = json.load(f)
+        try:
+            with open(registry_file, encoding="utf-8") as f:
+                registry = json.load(f)
+        except (OSError, json.JSONDecodeError) as e:
+            # Log and return None if registry cannot be read
+            # Assuming a logger might be available at cls.logger or a global
+            # one
+            print(
+                "Warning: Could not load experiment registry to find "
+                f"experiment '{experiment_id}': {e}"
+            )
+            return None
+        except Exception as e:
+            # Assuming a logger might be available at cls.logger or a global
+            # one
+            print(
+                "Unexpected error reading experiment registry for "
+                f"'{experiment_id}': {e}"
+            )
+            return None
 
         # Find the experiment
         for exp in registry:
@@ -327,7 +356,7 @@ class ExperimentManager:
                     base_dir=base_dir,
                     experiment_name=exp["name"],
                     create_dirs=False,
-                    timestamp=exp.get("timestamp")
+                    timestamp=exp.get("timestamp"),
                 )
 
         return None

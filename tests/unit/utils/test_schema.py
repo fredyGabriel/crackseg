@@ -1,8 +1,20 @@
+# ruff: noqa: PLR2004
 import pytest
+
 from src.utils.config.schema import (
-    DataConfig, ModelConfig, TrainingConfig, LoggingConfig, ConfigSchema,
-    BCELossConfig, DiceLossConfig, CombinedLossConfig, CombinedLossItemConfig,
-    IoUScoreConfig, PrecisionScoreConfig, RecallScoreConfig, F1ScoreConfig
+    BCELossConfig,
+    CombinedLossConfig,
+    CombinedLossItemConfig,
+    ConfigSchema,
+    DataConfig,
+    DiceLossConfig,
+    F1ScoreConfig,
+    IoUScoreConfig,
+    LoggingConfig,
+    ModelConfig,
+    PrecisionScoreConfig,
+    RecallScoreConfig,
+    TrainingConfig,
 )
 
 
@@ -28,14 +40,16 @@ def test_model_config_instantiation():
 def test_training_config_instantiation():
     """Test TrainingConfig instantiation with nested OptimizerConfig and
     LossConfig."""
-    from src.utils.config.schema import (OptimizerConfig, LossConfig,
-                                         MetricConfig)
+    from src.utils.config.schema import (
+        LossConfig,
+        MetricConfig,
+        OptimizerConfig,
+    )
+
     opt = OptimizerConfig(type="adam", lr=0.001)
     loss = LossConfig(type="bce")
     metrics = {"iou": MetricConfig(type="iou")}
-    cfg = TrainingConfig(
-        epochs=5, optimizer=opt, loss=loss, metrics=metrics
-    )
+    cfg = TrainingConfig(epochs=5, optimizer=opt, loss=loss, metrics=metrics)
     assert cfg.epochs == 5
     assert cfg.optimizer.type == "adam"
     assert cfg.loss.type == "bce"
@@ -57,8 +71,12 @@ def test_config_schema_instantiation():
     model = ModelConfig(
         type="unet", in_channels=3, out_channels=1, features=[16, 32, 64]
     )
-    from src.utils.config.schema import (OptimizerConfig, LossConfig,
-                                         MetricConfig)
+    from src.utils.config.schema import (
+        LossConfig,
+        MetricConfig,
+        OptimizerConfig,
+    )
+
     opt = OptimizerConfig(type="adam", lr=0.001)
     loss = LossConfig(type="bce")
     metrics = {"iou": MetricConfig(type="iou")}
@@ -84,7 +102,8 @@ def test_combined_loss_config_post_init_valid():
 
 
 def test_combined_loss_config_post_init_invalid():
-    """Test CombinedLossConfig __post_init__ raises error for invalid config.
+    """
+    Test CombinedLossConfig __post_init__ raises error for invalid config.
     """
     with pytest.raises(ValueError):
         CombinedLossConfig(losses=[])

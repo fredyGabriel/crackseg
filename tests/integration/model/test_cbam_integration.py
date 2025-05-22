@@ -1,9 +1,17 @@
 import torch
-from src.model.factory.factory import CBAMPostProcessor
+
 from src.model.architectures.cnn_convlstm_unet import (
-    CNNConvLSTMUNet, CNNEncoder, ConvLSTMBottleneck, CNNDecoder
+    CNNConvLSTMUNet,
+    CNNEncoder,
 )
+from src.model.decoder.cnn_decoder import CNNDecoder
+from src.model.factory.factory import CBAMPostProcessor
 from src.model.factory.registry_setup import component_registries
+
+# Importamos la implementación de SimpleConvLSTMBottleneck de los tests
+from tests.integration.model.test_cnn_convlstm_unet import (
+    SimpleConvLSTMBottleneck,
+)
 
 
 def test_cbam_integration_unet_forward():
@@ -18,34 +26,32 @@ def test_cbam_integration_unet_forward():
 
     # Usar CNNConvLSTMUNet que ya funciona correctamente
     encoder = CNNEncoder(in_channels=in_channels, base_filters=4, depth=1)
-    bottleneck = ConvLSTMBottleneck(
+    bottleneck = SimpleConvLSTMBottleneck(
         in_channels=encoder.out_channels,
         hidden_dim=8,
         kernel_size=(3, 3),
-        num_layers=1
+        num_layers=1,
     )
     decoder = CNNDecoder(
         in_channels=bottleneck.out_channels,
-        skip_channels_list=[encoder.out_channels],
+        skip_channels_list=list(reversed(encoder.skip_channels)),
+        out_channels=out_channels,
         depth=1,
-        out_channels=out_channels
     )
 
     # Modelo base - usar CNNConvLSTMUNet en lugar de BaseUNet
-    model = CNNConvLSTMUNet(encoder=encoder, bottleneck=bottleneck,
-                            decoder=decoder)
+    model = CNNConvLSTMUNet(
+        encoder=encoder, bottleneck=bottleneck, decoder=decoder
+    )
 
     # Ejecutar primero para verificar que el modelo base funciona
     base_output = model(x)
     assert base_output.shape == (2, out_channels, h, w)
 
     # Ahora agregar CBAM como post-procesador
-    attention_registry = component_registries.get('attention')
+    attention_registry = component_registries.get("attention")
     cbam = attention_registry.instantiate(
-        "CBAM",
-        in_channels=out_channels,
-        reduction=1,
-        kernel_size=3
+        "CBAM", in_channels=out_channels, reduction=1, kernel_size=3
     )
     cbam_model = CBAMPostProcessor(model, cbam)
 
@@ -69,34 +75,32 @@ def test_cbam_integration_cnn_convlstm_unet_forward():
 
     # Crear UNet válido con dimensiones consistentes
     encoder = CNNEncoder(in_channels=in_channels, base_filters=4, depth=1)
-    bottleneck = ConvLSTMBottleneck(
+    bottleneck = SimpleConvLSTMBottleneck(
         in_channels=encoder.out_channels,
         hidden_dim=8,
         kernel_size=(3, 3),
-        num_layers=1
+        num_layers=1,
     )
     decoder = CNNDecoder(
         in_channels=bottleneck.out_channels,
-        skip_channels_list=[encoder.out_channels],
+        skip_channels_list=list(reversed(encoder.skip_channels)),
+        out_channels=out_channels,
         depth=1,
-        out_channels=out_channels
     )
 
     # Modelo base
-    model = CNNConvLSTMUNet(encoder=encoder, bottleneck=bottleneck,
-                            decoder=decoder)
+    model = CNNConvLSTMUNet(
+        encoder=encoder, bottleneck=bottleneck, decoder=decoder
+    )
 
     # Ejecutar primero para verificar que el modelo base funciona
     base_output = model(x)
     assert base_output.shape == (1, out_channels, h, w)
 
     # Ahora agregar CBAM como post-procesador
-    attention_registry = component_registries.get('attention')
+    attention_registry = component_registries.get("attention")
     cbam = attention_registry.instantiate(
-        "CBAM",
-        in_channels=out_channels,
-        reduction=1,
-        kernel_size=3
+        "CBAM", in_channels=out_channels, reduction=1, kernel_size=3
     )
     cbam_model = CBAMPostProcessor(model, cbam)
 
@@ -119,34 +123,32 @@ def test_cbam_save_and_load(tmp_path):
 
     # Usar CNNConvLSTMUNet que ya funciona correctamente
     encoder = CNNEncoder(in_channels=in_channels, base_filters=4, depth=1)
-    bottleneck = ConvLSTMBottleneck(
+    bottleneck = SimpleConvLSTMBottleneck(
         in_channels=encoder.out_channels,
         hidden_dim=8,
         kernel_size=(3, 3),
-        num_layers=1
+        num_layers=1,
     )
     decoder = CNNDecoder(
         in_channels=bottleneck.out_channels,
-        skip_channels_list=[encoder.out_channels],
+        skip_channels_list=list(reversed(encoder.skip_channels)),
+        out_channels=out_channels,
         depth=1,
-        out_channels=out_channels
     )
 
     # Modelo base - usar CNNConvLSTMUNet en lugar de BaseUNet
-    model = CNNConvLSTMUNet(encoder=encoder, bottleneck=bottleneck,
-                            decoder=decoder)
+    model = CNNConvLSTMUNet(
+        encoder=encoder, bottleneck=bottleneck, decoder=decoder
+    )
 
     # Ejecutar primero para verificar que el modelo base funciona
     base_output = model(x)
     assert base_output.shape == (1, out_channels, h, w)
 
     # Ahora agregar CBAM como post-procesador
-    attention_registry = component_registries.get('attention')
+    attention_registry = component_registries.get("attention")
     cbam = attention_registry.instantiate(
-        "CBAM",
-        in_channels=out_channels,
-        reduction=1,
-        kernel_size=3
+        "CBAM", in_channels=out_channels, reduction=1, kernel_size=3
     )
     cbam_model = CBAMPostProcessor(model, cbam)
 
@@ -155,8 +157,9 @@ def test_cbam_save_and_load(tmp_path):
     torch.save(cbam_model.state_dict(), path)
 
     # Crea un nuevo modelo idéntico y carga los pesos
-    model2 = CNNConvLSTMUNet(encoder=encoder, bottleneck=bottleneck,
-                             decoder=decoder)
+    model2 = CNNConvLSTMUNet(
+        encoder=encoder, bottleneck=bottleneck, decoder=decoder
+    )
     cbam_model2 = CBAMPostProcessor(model2, cbam)
     cbam_model2.load_state_dict(torch.load(path))
 
@@ -176,30 +179,28 @@ def test_cbam_grad_integration():
 
     # Usar CNNConvLSTMUNet que ya funciona correctamente
     encoder = CNNEncoder(in_channels=in_channels, base_filters=4, depth=1)
-    bottleneck = ConvLSTMBottleneck(
+    bottleneck = SimpleConvLSTMBottleneck(
         in_channels=encoder.out_channels,
         hidden_dim=8,
         kernel_size=(3, 3),
-        num_layers=1
+        num_layers=1,
     )
     decoder = CNNDecoder(
         in_channels=bottleneck.out_channels,
-        skip_channels_list=[encoder.out_channels],
+        skip_channels_list=list(reversed(encoder.skip_channels)),
+        out_channels=out_channels,
         depth=1,
-        out_channels=out_channels
     )
 
     # Modelo base - usar CNNConvLSTMUNet en lugar de BaseUNet
-    model = CNNConvLSTMUNet(encoder=encoder, bottleneck=bottleneck,
-                            decoder=decoder)
+    model = CNNConvLSTMUNet(
+        encoder=encoder, bottleneck=bottleneck, decoder=decoder
+    )
 
     # Ahora agregar CBAM como post-procesador
-    attention_registry = component_registries.get('attention')
+    attention_registry = component_registries.get("attention")
     cbam = attention_registry.instantiate(
-        "CBAM",
-        in_channels=out_channels,
-        reduction=1,
-        kernel_size=3
+        "CBAM", in_channels=out_channels, reduction=1, kernel_size=3
     )
     cbam_model = CBAMPostProcessor(model, cbam)
 

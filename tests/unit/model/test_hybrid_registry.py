@@ -7,24 +7,24 @@ correctly with different component combinations.
 
 import pytest
 import torch
-import torch.nn as nn
-from src.model import EncoderBase, BottleneckBase, DecoderBase
+from torch import nn
 
-from src.model.factory.registry_setup import (
-    encoder_registry,
-    bottleneck_registry,
-    decoder_registry,
-    architecture_registry
-)
+from src.model import BottleneckBase, DecoderBase, EncoderBase
 from src.model.factory.hybrid_registry import (
+    ComponentReference,
+    HybridArchitectureDescriptor,
     hybrid_registry,
-    register_standard_hybrid,
-    register_complex_hybrid,
     query_architectures_by_component,
     query_architectures_by_tag,
-    HybridArchitectureDescriptor,
-    ComponentReference
+    register_complex_hybrid,
+    register_standard_hybrid,
 )  # Migración: import actualizado para reflejar la ubicación real
+from src.model.factory.registry_setup import (
+    architecture_registry,
+    bottleneck_registry,
+    decoder_registry,
+    encoder_registry,
+)
 
 
 # Mock classes for testing
@@ -67,6 +67,7 @@ class MockDecoder(DecoderBase):
     Si MockEncoder.skip_channels = [16, 32],
     entonces MockDecoder.skip_channels = [32, 16].
     """
+
     def __init__(self, in_channels=64, skip_channels=None):
         # Si no se pasa skip_channels, usar el reverso del default de
         # MockEncoder
@@ -78,8 +79,9 @@ class MockDecoder(DecoderBase):
 
     def forward(self, x, skips):
         batch_size = x.shape[0]
-        return torch.randn(batch_size, self._out_channels, x.shape[2]*2,
-                           x.shape[3]*2)
+        return torch.randn(
+            batch_size, self._out_channels, x.shape[2] * 2, x.shape[3] * 2
+        )
 
     @property
     def out_channels(self):
@@ -108,7 +110,8 @@ def setup_module(module):
         pass
     try:
         from src.model.factory.registry_setup import component_registries
-        attention_registry = component_registries.get('attention')
+
+        attention_registry = component_registries.get("attention")
         attention_registry.unregister("MockAttention")
     except Exception:
         pass
@@ -118,7 +121,8 @@ def setup_module(module):
     decoder_registry.register(name="MockDecoder")(MockDecoder)
     # Get attention registry and register mock component
     from src.model.factory.registry_setup import component_registries
-    attention_registry = component_registries.get('attention')
+
+    attention_registry = component_registries.get("attention")
     attention_registry.register(name="MockAttention")(MockAttention)
 
 
@@ -142,7 +146,8 @@ def teardown_module(module):
         pass
     try:
         from src.model.factory.registry_setup import component_registries
-        attention_registry = component_registries.get('attention')
+
+        attention_registry = component_registries.get("attention")
         attention_registry.unregister("MockAttention")
     except Exception:
         pass
@@ -151,17 +156,17 @@ def teardown_module(module):
 def test_component_reference_validation():
     """Test that component references are validated correctly."""
     # Valid component
-    valid_ref = ComponentReference('encoder', 'MockEncoder')
+    valid_ref = ComponentReference("encoder", "MockEncoder")
     assert valid_ref.validate() is True
 
     # Invalid component - should raise ValueError
-    invalid_ref = ComponentReference('encoder', 'NonExistentEncoder')
+    invalid_ref = ComponentReference("encoder", "NonExistentEncoder")
     with pytest.raises(ValueError):
         invalid_ref.validate()
 
     # Optional component that doesn't exist - should warn but not raise
     optional_ref = ComponentReference(
-        'encoder', 'NonExistentEncoder', optional=True
+        "encoder", "NonExistentEncoder", optional=True
     )
     assert optional_ref.validate() is False
 
@@ -169,16 +174,14 @@ def test_component_reference_validation():
 def test_hybrid_architecture_descriptor():
     """Test hybrid architecture descriptor creation and validation."""
     components = {
-        'encoder': ComponentReference('encoder', 'MockEncoder'),
-        'bottleneck': ComponentReference('bottleneck', 'MockBottleneck'),
-        'decoder': ComponentReference('decoder', 'MockDecoder'),
+        "encoder": ComponentReference("encoder", "MockEncoder"),
+        "bottleneck": ComponentReference("bottleneck", "MockBottleneck"),
+        "decoder": ComponentReference("decoder", "MockDecoder"),
     }
 
     # Create descriptor
     descriptor = HybridArchitectureDescriptor(
-        name="TestArchitecture",
-        components=components,
-        tags=["test", "mock"]
+        name="TestArchitecture", components=components, tags=["test", "mock"]
     )
 
     # Validate the descriptor
@@ -200,7 +203,7 @@ def test_register_standard_hybrid():
         name="StandardHybrid",
         encoder_type="MockEncoder",
         bottleneck_type="MockBottleneck",
-        decoder_type="MockDecoder"
+        decoder_type="MockDecoder",
     )
 
     assert result is True
@@ -213,11 +216,12 @@ def test_register_standard_hybrid():
         bottleneck_type="MockBottleneck",
         decoder_type="MockDecoder",
         attention_type="MockAttention",
-        tags=["attention"]
+        tags=["attention"],
     )
 
     assert result is True
-    assert "StandardHybridWithAttention" in hybrid_registry.list_architectures(
+    assert (
+        "StandardHybridWithAttention" in hybrid_registry.list_architectures()
     )
 
     # Try to register duplicate - should raise ValueError
@@ -226,7 +230,7 @@ def test_register_standard_hybrid():
             name="StandardHybrid",
             encoder_type="MockEncoder",
             bottleneck_type="MockBottleneck",
-            decoder_type="MockDecoder"
+            decoder_type="MockDecoder",
         )
 
     # Try to register with non-existent component - should raise ValueError
@@ -235,7 +239,7 @@ def test_register_standard_hybrid():
             name="InvalidHybrid",
             encoder_type="NonExistentEncoder",
             bottleneck_type="MockBottleneck",
-            decoder_type="MockDecoder"
+            decoder_type="MockDecoder",
         )
 
 
@@ -243,17 +247,17 @@ def test_register_complex_hybrid():
     """Test registering a complex hybrid architecture."""
     # Define components
     components = {
-        'spatial_encoder': ('encoder', 'MockEncoder'),
-        'temporal_bottleneck': ('bottleneck', 'MockBottleneck'),
-        'spatial_decoder': ('decoder', 'MockDecoder'),
-        'attention_module': ('attention', 'MockAttention'),
+        "spatial_encoder": ("encoder", "MockEncoder"),
+        "temporal_bottleneck": ("bottleneck", "MockBottleneck"),
+        "spatial_decoder": ("decoder", "MockDecoder"),
+        "attention_module": ("attention", "MockAttention"),
     }
 
     # Register complex hybrid
     result = register_complex_hybrid(
         name="ComplexHybrid",
         components=components,
-        tags=["complex", "spatial-temporal"]
+        tags=["complex", "spatial-temporal"],
     )
 
     assert result is True
@@ -261,7 +265,7 @@ def test_register_complex_hybrid():
 
     # Get the descriptor to verify
     descriptor = hybrid_registry.get_descriptor("ComplexHybrid")
-    assert len(descriptor.components) == 4
+    assert len(descriptor.components) == 4  # noqa: PLR2004
     assert "spatial_encoder" in descriptor.components
     assert "temporal_bottleneck" in descriptor.components
     assert "attention_module" in descriptor.components

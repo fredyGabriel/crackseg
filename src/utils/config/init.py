@@ -1,7 +1,7 @@
+import os
+
 from hydra import compose, initialize
 from omegaconf import DictConfig, OmegaConf
-from typing import Optional
-import os
 
 
 def initialize_hydra(
@@ -11,16 +11,17 @@ def initialize_hydra(
     # Get the absolute path to the config directory
     current_dir = os.path.dirname(os.path.abspath(__file__))
     config_dir = os.path.normpath(os.path.join(current_dir, config_path))
-    
+
     # Convert to relative path from CWD
     cwd = os.getcwd()
     config_dir = os.path.relpath(config_dir, cwd)
-    
+
     initialize(config_path=config_dir, job_name=job_name, version_base=None)
 
 
-def load_config(overrides: Optional[list] = None) -> DictConfig:
-    """Load and compose configuration using Hydra. Optionally apply overrides.
+def load_config(overrides: list | None = None) -> DictConfig:
+    """
+    Load and compose configuration using Hydra. Optionally apply overrides.
     """
     if overrides is None:
         overrides = []
@@ -28,7 +29,7 @@ def load_config(overrides: Optional[list] = None) -> DictConfig:
     return cfg
 
 
-def get_config(overrides: Optional[list] = None) -> DictConfig:
+def get_config(overrides: list | None = None) -> DictConfig:
     """Get the complete configuration object."""
     initialize_hydra()
     cfg = load_config(overrides)
@@ -37,6 +38,4 @@ def get_config(overrides: Optional[list] = None) -> DictConfig:
 
 def print_config(cfg: DictConfig) -> None:
     """Print the configuration in a readable format."""
-    print(
-        OmegaConf.to_yaml(cfg)
-    )
+    print(OmegaConf.to_yaml(cfg))

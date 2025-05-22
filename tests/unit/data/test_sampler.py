@@ -1,12 +1,15 @@
+import numpy as np
 import pytest
 import torch
-from torch.utils.data import Dataset
-from src.data.sampler import (
-    RandomSamplerWrapper, BalancedSampler, SubsetSampler, sampler_factory
-)
+from torch.utils.data import Dataset, DistributedSampler
+
 from src.data.factory import create_dataloader
-import numpy as np
-from torch.utils.data import DistributedSampler
+from src.data.sampler import (
+    BalancedSampler,
+    RandomSamplerWrapper,
+    SubsetSampler,
+    sampler_factory,
+)
 
 
 class DummyDataset(Dataset):
@@ -28,12 +31,12 @@ def test_random_sampler_wrapper_distribution():
     # With replacement, allow repeats
     sampler2 = RandomSamplerWrapper(ds, replacement=True, num_samples=200)
     indices2 = list(iter(sampler2))
-    assert len(indices2) == 200
+    assert len(indices2) == 200  # noqa: PLR2004
     assert set(indices2).issubset(set(range(100)))
 
 
 def test_balanced_sampler_balances_classes():
-    labels = [0]*90 + [1]*10  # Highly imbalanced
+    labels = [0] * 90 + [1] * 10  # Highly imbalanced
     ds = DummyDataset(labels)
     sampler = BalancedSampler(ds, labels)
     sampled = [labels[i] for i in list(iter(sampler))[:1000]]
@@ -41,7 +44,7 @@ def test_balanced_sampler_balances_classes():
     count0 = sampled.count(0)
     count1 = sampled.count(1)
     ratio = count0 / count1
-    assert 0.5 < ratio < 2.0  # Aproximadamente balanceado
+    assert 0.5 < ratio < 2.0  # Aproximadamente balanceado  # noqa: PLR2004
 
 
 def test_subset_sampler():
@@ -53,16 +56,16 @@ def test_subset_sampler():
 
 def test_sampler_factory_random():
     ds = DummyDataset(list(range(10)))
-    sampler = sampler_factory('random', ds, replacement=True, num_samples=15)
+    sampler = sampler_factory("random", ds, replacement=True, num_samples=15)
     assert isinstance(sampler, RandomSamplerWrapper)
     indices = list(iter(sampler))
-    assert len(indices) == 15
+    assert len(indices) == 15  # noqa: PLR2004
 
 
 def test_sampler_factory_balanced():
     labels = [0, 1, 1, 0, 0, 1]
     ds = DummyDataset(labels)
-    sampler = sampler_factory('balanced', ds, labels=labels)
+    sampler = sampler_factory("balanced", ds, labels=labels)
     assert isinstance(sampler, BalancedSampler)
     indices = list(iter(sampler))
     assert len(indices) == len(labels)
@@ -71,27 +74,25 @@ def test_sampler_factory_balanced():
 def test_sampler_factory_subset():
     ds = DummyDataset(list(range(10)))
     indices = [1, 3, 5]
-    sampler = sampler_factory('subset', ds, indices=indices)
+    sampler = sampler_factory("subset", ds, indices=indices)
     assert isinstance(sampler, SubsetSampler)
-    assert sorted(list(iter(sampler))) == sorted(indices)
+    assert sorted(iter(sampler)) == sorted(indices)
 
 
 def test_sampler_factory_invalid():
     with pytest.raises(ValueError):
-        sampler_factory('unknown', DummyDataset(list(range(5))))
+        sampler_factory("unknown", DummyDataset(list(range(5))))
     with pytest.raises(ValueError):
-        sampler_factory('balanced', DummyDataset(list(range(5))))
+        sampler_factory("balanced", DummyDataset(list(range(5))))
     with pytest.raises(ValueError):
-        sampler_factory('subset', DummyDataset(list(range(5))))
+        sampler_factory("subset", DummyDataset(list(range(5))))
 
 
 def test_create_dataloader_with_sampler():
-    labels = [0]*5 + [1]*5
+    labels = [0] * 5 + [1] * 5
     ds = DummyDataset(labels)
-    sampler_cfg = {'kind': 'balanced', 'labels': labels}
-    loader = create_dataloader(
-        ds, batch_size=2, sampler_config=sampler_cfg
-    )
+    sampler_cfg = {"kind": "balanced", "labels": labels}
+    loader = create_dataloader(ds, batch_size=2, sampler_config=sampler_cfg)
     batch_labels = []
     for batch in loader:
         batch_labels.extend(batch.tolist())
@@ -102,7 +103,7 @@ def test_create_dataloader_with_sampler():
 def test_create_dataloader_sampler_and_shuffle_warning():
     labels = [0, 1, 0, 1]
     ds = DummyDataset(labels)
-    sampler_cfg = {'kind': 'random'}
+    sampler_cfg = {"kind": "random"}
     # shuffle=True y sampler: debe forzar shuffle=False
     loader = create_dataloader(
         ds, batch_size=2, shuffle=True, sampler_config=sampler_cfg
@@ -122,7 +123,7 @@ def test_reproducibility_random_sampler():
 
 
 def test_reproducibility_balanced_sampler():
-    labels = [0]*10 + [1]*10
+    labels = [0] * 10 + [1] * 10
     ds = DummyDataset(labels)
     np.random.seed(123)
     torch.manual_seed(123)
@@ -140,33 +141,35 @@ def test_reproducibility_balanced_sampler():
 def test_distributed_sampler_factory():
     ds = DummyDataset(list(range(20)))
     sampler = sampler_factory(
-        'distributed', ds, num_replicas=2, rank=1, shuffle=True, seed=123
+        "distributed", ds, num_replicas=2, rank=1, shuffle=True, seed=123
     )
     assert isinstance(sampler, DistributedSampler)
-    assert sampler.num_replicas == 2
+    assert sampler.num_replicas == 2  # noqa: PLR2004
     assert sampler.rank == 1
     assert sampler.shuffle is True
-    assert sampler.seed == 123
+    assert sampler.seed == 123  # noqa: PLR2004
 
 
 def test_create_dataloader_distributed_sampler():
     ds = DummyDataset(list(range(10)))
-    sampler_cfg = {'kind': 'distributed', 'num_replicas': 2, 'rank': 0,
-                   'shuffle': False}
+    sampler_cfg = {
+        "kind": "distributed",
+        "num_replicas": 2,
+        "rank": 0,
+        "shuffle": False,
+    }
     loader = create_dataloader(ds, batch_size=2, sampler_config=sampler_cfg)
     assert isinstance(loader.sampler, DistributedSampler)
-    assert loader.sampler.num_replicas == 2
+    assert loader.sampler.num_replicas == 2  # noqa: PLR2004
     assert loader.sampler.rank == 0
     assert loader.sampler.shuffle is False
 
 
 def test_set_epoch_distributed_sampler():
     ds = DummyDataset(list(range(10)))
-    sampler = sampler_factory('distributed', ds, num_replicas=2, rank=0)
+    sampler = sampler_factory("distributed", ds, num_replicas=2, rank=0)
     # set_epoch should not raise
     try:
         sampler.set_epoch(5)
     except Exception as e:
-        pytest.fail(
-            f"set_epoch raised an exception: {e}"
-        )
+        pytest.fail(f"set_epoch raised an exception: {e}")

@@ -1,6 +1,7 @@
 import pytest
 import torch
-from src.model.components.convlstm import ConvLSTMCell, ConvLSTM
+
+from src.model.components.convlstm import ConvLSTM, ConvLSTMCell
 
 
 @pytest.fixture
@@ -34,7 +35,8 @@ def test_convlstm_cell_init(cell_params):
     assert cell.conv.in_channels == expected_in_channels
     assert cell.conv.out_channels == 4 * cell_params["hidden_dim"]
     assert cell.padding == (
-        cell_params["kernel_size"][0] // 2, cell_params["kernel_size"][1] // 2
+        cell_params["kernel_size"][0] // 2,
+        cell_params["kernel_size"][1] // 2,
     )
 
 
@@ -133,18 +135,24 @@ def test_convlstm_cell_state_propagation(cell_params):
     )
 
     # Create a non-zero initial state
-    h_init = torch.ones(
-        cell_params["batch_size"],
-        cell_params["hidden_dim"],
-        cell_params["height"],
-        cell_params["width"],
-    ) * 0.5
-    c_init = torch.ones(
-        cell_params["batch_size"],
-        cell_params["hidden_dim"],
-        cell_params["height"],
-        cell_params["width"],
-    ) * 0.5
+    h_init = (
+        torch.ones(
+            cell_params["batch_size"],
+            cell_params["hidden_dim"],
+            cell_params["height"],
+            cell_params["width"],
+        )
+        * 0.5
+    )
+    c_init = (
+        torch.ones(
+            cell_params["batch_size"],
+            cell_params["hidden_dim"],
+            cell_params["height"],
+            cell_params["width"],
+        )
+        * 0.5
+    )
     initial_state = (h_init, c_init)
 
     # First forward pass
@@ -165,16 +173,19 @@ def test_convlstm_cell_state_propagation(cell_params):
 
 # --- Tests for ConvLSTM Layer ---
 
+
 @pytest.fixture
 def layer_params(cell_params):
     """Provides common parameters for ConvLSTM layer tests."""
     params = cell_params.copy()
-    params.update({
-        "num_layers": 3,
-        "seq_len": 5,
-        "return_all_layers": False,
-        "batch_first": True,
-    })
+    params.update(
+        {
+            "num_layers": 3,
+            "seq_len": 5,
+            "return_all_layers": False,
+            "batch_first": True,
+        }
+    )
     # Use list for hidden_dim and kernel_size for multi-layer testing
     params["hidden_dim"] = [params["hidden_dim"]] * params["num_layers"]
     params["kernel_size"] = [params["kernel_size"]] * params["num_layers"]
@@ -190,7 +201,7 @@ def test_convlstm_layer_init(layer_params):
         num_layers=layer_params["num_layers"],
         batch_first=layer_params["batch_first"],
         bias=layer_params["bias"],
-        return_all_layers=layer_params["return_all_layers"]
+        return_all_layers=layer_params["return_all_layers"],
     )
     assert layer.num_layers == layer_params["num_layers"]
     assert len(layer.cell_list) == layer_params["num_layers"]
@@ -219,7 +230,7 @@ def test_convlstm_layer_forward_shape(layer_params, batch_first):
         num_layers=layer_params["num_layers"],
         batch_first=layer_params["batch_first"],
         bias=layer_params["bias"],
-        return_all_layers=False  # Test with return_all_layers=False first
+        return_all_layers=False,  # Test with return_all_layers=False first
     )
 
     if batch_first:
@@ -277,7 +288,7 @@ def test_convlstm_layer_return_all_layers(layer_params, return_all):
         num_layers=layer_params["num_layers"],
         batch_first=True,  # Keep batch_first True for simplicity here
         bias=layer_params["bias"],
-        return_all_layers=return_all
+        return_all_layers=return_all,
     )
 
     input_tensor = torch.randn(
@@ -328,7 +339,7 @@ def test_convlstm_layer_return_all_layers(layer_params, return_all):
             # Assuming same hidden dim for simplicity of state check
             layer_params["hidden_dim"][0],
             layer_params["height"],
-            layer_params["width"]
+            layer_params["width"],
         )
         assert h.shape == expected_state_shape
         assert c.shape == expected_state_shape
@@ -343,7 +354,7 @@ def test_convlstm_layer_initial_state(layer_params):
         num_layers=layer_params["num_layers"],
         batch_first=True,
         bias=layer_params["bias"],
-        return_all_layers=True  # Return all for easier state checking
+        return_all_layers=True,  # Return all for easier state checking
     )
 
     input_tensor = torch.randn(
@@ -362,7 +373,9 @@ def test_convlstm_layer_initial_state(layer_params):
             layer_params["hidden_dim"][i],
             layer_params["height"],
             layer_params["width"],
-        ) * (i + 1)  # Make states unique per layer
+        ) * (
+            i + 1
+        )  # Make states unique per layer
         c_init = torch.ones_like(h_init) * (i + 1)
         initial_hidden_state.append((h_init, c_init))
 
@@ -396,35 +409,36 @@ class TestConvLSTMCell:
         """Fixture que proporciona una instancia predeterminada de
         ConvLSTMCell."""
         return ConvLSTMCell(
-            input_dim=16,
-            hidden_dim=32,
-            kernel_size=(3, 3),
-            bias=True
+            input_dim=16, hidden_dim=32, kernel_size=(3, 3), bias=True
         )
 
     def test_initialization(self):
         """Prueba la inicialización correcta con diferentes parámetros."""
         # Caso básico
-        cell = ConvLSTMCell(input_dim=16, hidden_dim=32, kernel_size=(3, 3),
-                            bias=True)
-        assert cell.input_dim == 16
-        assert cell.hidden_dim == 32
+        cell = ConvLSTMCell(
+            input_dim=16, hidden_dim=32, kernel_size=(3, 3), bias=True
+        )
+        assert cell.input_dim == 16  # noqa: PLR2004
+        assert cell.hidden_dim == 32  # noqa: PLR2004
         assert cell.kernel_size == (3, 3)
         assert cell.bias is True  # Por defecto
 
         # Prueba con otro tamaño de kernel
-        cell = ConvLSTMCell(input_dim=16, hidden_dim=32, kernel_size=(3, 5),
-                            bias=True)
+        cell = ConvLSTMCell(
+            input_dim=16, hidden_dim=32, kernel_size=(3, 5), bias=True
+        )
         assert cell.kernel_size == (3, 5)
 
         # Sin bias
-        cell = ConvLSTMCell(input_dim=16, hidden_dim=32, kernel_size=(3, 3),
-                            bias=False)
+        cell = ConvLSTMCell(
+            input_dim=16, hidden_dim=32, kernel_size=(3, 3), bias=False
+        )
         assert cell.bias is False
 
         # Valores diferentes de kernel
-        cell = ConvLSTMCell(input_dim=16, hidden_dim=32, kernel_size=(5, 5),
-                            bias=True)
+        cell = ConvLSTMCell(
+            input_dim=16, hidden_dim=32, kernel_size=(5, 5), bias=True
+        )
         assert cell.kernel_size == (5, 5)
 
     def test_conv_layer_shape(self, default_cell):
@@ -453,7 +467,8 @@ class TestConvLSTMCell:
         assert c_next.shape == expected_shape
 
     def test_state_initialization(self, default_cell):
-        """Prueba la inicialización automática del estado si no se proporciona.
+        """
+        Prueba la inicialización automática del estado si no se proporciona.
         """
         batch_size = 4
         height, width = 28, 28
@@ -502,8 +517,11 @@ class TestConvLSTMCell:
 
         # Crear entrada de prueba con gradientes habilitados
         x = torch.randn(
-            batch_size, default_cell.input_dim, height, width,
-            requires_grad=True
+            batch_size,
+            default_cell.input_dim,
+            height,
+            width,
+            requires_grad=True,
         )
 
         # Primer paso temporal
@@ -511,8 +529,11 @@ class TestConvLSTMCell:
 
         # Segundo paso temporal
         x2 = torch.randn(
-            batch_size, default_cell.input_dim, height, width,
-            requires_grad=True
+            batch_size,
+            default_cell.input_dim,
+            height,
+            width,
+            requires_grad=True,
         )
         h2, c2 = default_cell(x2, (h1, c1))
 
@@ -525,7 +546,8 @@ class TestConvLSTMCell:
         assert default_cell.conv.weight.grad is not None
 
     def test_batch_size_one(self, default_cell):
-        """Prueba con tamaño de lote 1 para detectar problemas de broadcasting.
+        """
+        Prueba con tamaño de lote 1 para detectar problemas de broadcasting.
         """
         batch_size = 1
         height, width = 28, 28
@@ -568,15 +590,17 @@ class TestConvLSTMCell:
         h, c = None, None
 
         # Simular secuencia temporal
-        for t in range(time_steps):
+        for _t in range(time_steps):
             x = torch.randn(batch_size, default_cell.input_dim, height, width)
-            h, c = default_cell(
-                x, cur_state=(h, c) if h is not None else None
-            )
+            h, c = default_cell(x, cur_state=(h, c) if h is not None else None)
 
             # Verificar formas de salida en cada paso
-            expected_shape = (batch_size, default_cell.hidden_dim, height,
-                              width)
+            expected_shape = (
+                batch_size,
+                default_cell.hidden_dim,
+                height,
+                width,
+            )
             assert h.shape == expected_shape
             assert c.shape == expected_shape
 
@@ -586,8 +610,9 @@ class TestConvLSTMCell:
             assert not torch.isinf(h).any()
             assert not torch.isinf(c).any()
 
-    @pytest.mark.skipif(not torch.cuda.is_available(),
-                        reason="CUDA no disponible para prueba")
+    @pytest.mark.skipif(
+        not torch.cuda.is_available(), reason="CUDA no disponible para prueba"
+    )
     def test_device_handling(self, default_cell):
         """Prueba que la celda funcione correctamente en diferentes
         dispositivos."""
@@ -600,15 +625,15 @@ class TestConvLSTMCell:
 
         # Mueve la celda a GPU si está disponible
         if torch.cuda.is_available():
-            cell_gpu = default_cell.to('cuda')
-            x_gpu = x_cpu.to('cuda')
+            cell_gpu = default_cell.to("cuda")
+            x_gpu = x_cpu.to("cuda")
 
             # Realizar paso forward en GPU
             h_gpu, c_gpu = cell_gpu(x_gpu)
 
             # Verificar que la salida está en GPU
-            assert h_gpu.device.type == 'cuda'
-            assert c_gpu.device.type == 'cuda'
+            assert h_gpu.device.type == "cuda"
+            assert c_gpu.device.type == "cuda"
 
             # Verificar que las formas son iguales
             assert h_gpu.shape == h_cpu.shape

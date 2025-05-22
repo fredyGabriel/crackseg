@@ -1,9 +1,8 @@
-import sys
 import os
-
+import sys
 
 # Añadir el directorio raíz al path para importar desde src
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
 
@@ -16,14 +15,14 @@ def print_model_structure():
             in_channels=3,
             model_name="swinv2_tiny_window16_256",
             pretrained=False,
-            freeze_layers="all"  # Congelar todo inicialmente
+            freeze_layers="all",  # Congelar todo inicialmente
         )
         print("Model initialized successfully!")
 
         # Imprimir estructura básica
         print("\nModel basic properties:")
         print(f"- Has 'stages' attribute: {hasattr(encoder.swin, 'stages')}")
-        if hasattr(encoder.swin, 'stages'):
+        if hasattr(encoder.swin, "stages"):
             print(f"- Number of stages: {len(encoder.swin.stages)}")
 
         # Analizar todos los parámetros
@@ -34,21 +33,24 @@ def print_model_structure():
         # Encontrar prefijos únicos
         prefixes = set()
         for name, _ in all_params:
-            main_part = name.split('.')[0]
+            main_part = name.split(".")[0]
             prefixes.add(main_part)
 
         print("\nUnique top-level parameter groups:")
         for prefix in sorted(prefixes):
             # Contar parámetros en este grupo
-            count = sum(1 for name, _ in all_params if name.split('.')[0] ==
-                        prefix)
+            count = sum(
+                1 for name, _ in all_params if name.split(".")[0] == prefix
+            )
             print(f"- {prefix}: {count} parameters")
 
             # Para el primer grupo, mostrar ejemplos
             if count > 0:
-                examples = [name for name,
-                            _ in all_params if name.split('.')[0] == prefix][
-                                :3]
+                examples = [
+                    name
+                    for name, _ in all_params
+                    if name.split(".")[0] == prefix
+                ][:3]
                 for ex in examples:
                     print(f"  - Example: {ex}")
 
@@ -66,8 +68,9 @@ def print_model_structure():
         print("\nSearching for alternative stage/block patterns:")
         patterns = ["stage", "block", "layer"]
         for pattern in patterns:
-            matching = [name for name, _ in all_params if pattern in
-                        name.lower()]
+            matching = [
+                name for name, _ in all_params if pattern in name.lower()
+            ]
             if matching:
                 print(f"- '{pattern}': {len(matching)} parameters")
                 for ex in matching[:3]:  # Mostrar algunos ejemplos
@@ -76,6 +79,7 @@ def print_model_structure():
     except Exception as e:
         print(f"Error initializing model: {str(e)}")
         import traceback
+
         traceback.print_exc()
 
 

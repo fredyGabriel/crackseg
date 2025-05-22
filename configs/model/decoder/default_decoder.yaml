@@ -1,9 +1,21 @@
 # @package _group_
 
 # Default decoder configuration - using mock for now
-_target_: src.model.factory.create_decoder  # Use the factory function for decoder
+_target_: src.model.decoder.cnn_decoder.CNNDecoder
 
-type: TestDecoder        # Mock/test decoder type (replace with real for production)
-in_channels: 128         # Number of input channels (should match default bottleneck output)
-skip_channels: [16, 32]  # Skip connection channels (should match default encoder skips)
-out_channels: 1          # Number of output channels (e.g., 1 for binary segmentation) 
+# in_channels will be set by the model factory based on bottleneck output
+# skip_channels_list will be set by the model factory based on encoder output
+# out_channels is typically for the number of segmentation classes (e.g., 1 for binary)
+
+out_channels: 1 # Example for binary segmentation
+# depth can be inferred from skip_channels_list by the factory if not set
+# target_size can be set if a specific output H, W is needed, else inferred
+
+# Parameters now part of CNNDecoderConfig
+config:
+  upsample_scale_factor: 2
+  upsample_mode: "bilinear"
+  kernel_size: 3
+  padding: 1
+  use_cbam: false # Or true if CBAM is desired
+  cbam_reduction: 16

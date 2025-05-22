@@ -12,8 +12,12 @@ and from the top-level src.model module.
 def test_import_base_classes_specific():
     """Test import of base classes from their specific module locations."""
     from src.model.base.abstract import (
-        EncoderBase, DecoderBase, BottleneckBase, UNetBase
+        BottleneckBase,
+        DecoderBase,
+        EncoderBase,
+        UNetBase,
     )
+
     assert EncoderBase is not None
     assert DecoderBase is not None
     assert BottleneckBase is not None
@@ -22,9 +26,8 @@ def test_import_base_classes_specific():
 
 def test_import_base_classes_global():
     """Test import of base classes from the top-level src.model module."""
-    from src.model import (
-        EncoderBase, DecoderBase, BottleneckBase, UNetBase
-    )
+    from src.model import BottleneckBase, DecoderBase, EncoderBase, UNetBase
+
     assert EncoderBase is not None
     assert DecoderBase is not None
     assert BottleneckBase is not None
@@ -32,24 +35,20 @@ def test_import_base_classes_global():
 
 
 def test_import_implementation_classes_specific():
-    """Test import of main implementation classes from their specific modules.
+    """
+    Test import of main implementation classes from their specific modules.
     """
     from src.model.architectures import (
-        CNNEncoder, ConvLSTMBottleneck, CNNDecoder,
-        CNNConvLSTMUNet
+        CNNConvLSTMUNet,
+        CNNDecoder,
+        CNNEncoder,
+        ConvLSTMBottleneck,
     )
-    from src.model.architectures.swinv2_cnn_aspp_unet import (
-        SwinV2CnnAsppUNet
-    )
-    from src.model.encoder.swin_v2_adapter import (
-        SwinV2EncoderAdapter
-    )
-    from src.model.components.aspp import (
-        ASPPModule
-    )
-    from src.model.bottleneck.cnn_bottleneck import (
-        BottleneckBlock
-    )
+    from src.model.architectures.swinv2_cnn_aspp_unet import SwinV2CnnAsppUNet
+    from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
+    from src.model.components.aspp import ASPPModule
+    from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
+
     assert CNNEncoder is not None
     assert ConvLSTMBottleneck is not None
     assert CNNDecoder is not None
@@ -64,11 +63,16 @@ def test_import_implementation_classes_global():
     """Test import of main implementation classes from the top-level src.model
     module."""
     from src.model import (
-        CNNEncoder, ConvLSTMBottleneck, CNNDecoder,
-        CNNConvLSTMUNet, SwinV2CnnAsppUNet,
-        SwinV2EncoderAdapter, ASPPModule,
-        BottleneckBlock
+        ASPPModule,
+        BottleneckBlock,
+        CNNConvLSTMUNet,
+        CNNDecoder,
+        CNNEncoder,
+        ConvLSTMBottleneck,
+        SwinV2CnnAsppUNet,
+        SwinV2EncoderAdapter,
     )
+
     assert CNNEncoder is not None
     assert ConvLSTMBottleneck is not None
     assert CNNDecoder is not None
@@ -84,6 +88,7 @@ def test_import_utilities_specific():
     locations."""
     from src.model.factory.factory_utils import merge_configs
     from src.model.factory.registry import Registry
+
     assert merge_configs is not None
     assert Registry is not None
 
@@ -100,10 +105,13 @@ def test_import_factory_components_specific():
     """Test import of main factory components from their specific modules."""
     from src.model.factory.factory import create_unet
     from src.model.factory.registry_setup import (
-        encoder_registry, bottleneck_registry,
-        decoder_registry, architecture_registry,
-        component_registries
+        architecture_registry,
+        bottleneck_registry,
+        component_registries,
+        decoder_registry,
+        encoder_registry,
     )
+
     assert create_unet is not None
     assert encoder_registry is not None
     assert bottleneck_registry is not None

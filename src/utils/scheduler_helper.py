@@ -1,17 +1,20 @@
 """Helper functions for learning rate schedulers."""
-from typing import Any, Optional
+
+from typing import Any
+
 import torch
+
 from src.utils.logger_setup import safe_log
 
 
 def step_scheduler_helper(
     *,
-    scheduler: Optional[Any],
-    optimizer: Optional[Any],
+    scheduler: Any | None,
+    optimizer: Any | None,
     monitor_metric: str,
-    metrics: Optional[dict] = None,
-    logger: Optional[Any] = None
-) -> Optional[float]:
+    metrics: dict | None = None,
+    logger: Any | None = None,
+) -> float | None:
     """Steps the learning rate scheduler, handling ReduceLROnPlateau and
     others.
 
@@ -35,9 +38,10 @@ def step_scheduler_helper(
         if monitor_value is None:
             if logger:
                 safe_log(
-                    logger, "warning",
+                    logger,
+                    "warning",
                     f"ReduceLROnPlateau scheduler needs '{monitor_metric}' "
-                    "metric for step. Skipping scheduler step."
+                    "metric for step. Skipping scheduler step.",
                 )
         else:
             scheduler.step(monitor_value)
@@ -45,11 +49,12 @@ def step_scheduler_helper(
         scheduler.step()
 
     if optimizer is not None:
-        current_lr = optimizer.param_groups[0]['lr']
+        current_lr = optimizer.param_groups[0]["lr"]
         if logger:
             safe_log(
-                logger, "info",
-                f"LR Scheduler step. Current LR: {current_lr:.6f}"
+                logger,
+                "info",
+                f"LR Scheduler step. Current LR: {current_lr:.6f}",
             )
         return current_lr
     return None

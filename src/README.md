@@ -67,4 +67,4 @@ To modify configuration, use the files in the `configs/` directory or override p
 
 ```bash
 python main.py data.batch_size=32 training.epochs=100
-``` 
+```

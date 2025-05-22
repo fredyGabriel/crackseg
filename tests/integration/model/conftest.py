@@ -4,20 +4,22 @@ import pytest
 import torch
 
 # Import Base classes
-from src.model import EncoderBase, BottleneckBase, DecoderBase
-
-# Import Registries needed for fixture
-from src.model.factory.registry_setup import (
-    encoder_registry, bottleneck_registry, decoder_registry
-)
-
-# Import CNN components
-from src.model.encoder.cnn_encoder import CNNEncoder
+from src.model import BottleneckBase, DecoderBase, EncoderBase
 from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
 from src.model.decoder.cnn_decoder import CNNDecoder
 
+# Import CNN components
+from src.model.encoder.cnn_encoder import CNNEncoder
+
+# Import Registries needed for fixture
+from src.model.factory.registry_setup import (
+    bottleneck_registry,
+    decoder_registry,
+    encoder_registry,
+)
 
 # --- Mock Components for Manual Config Tests ---
+
 
 class MockEncoder(EncoderBase):
     def __init__(self, in_channels):
@@ -30,21 +32,26 @@ class MockEncoder(EncoderBase):
         # Return dummy output and list of skips
         batch_size = x.shape[0]
         output_features = torch.randn(
-            batch_size, self._out_channels, x.shape[2]//4,
-            x.shape[3]//4
+            batch_size, self._out_channels, x.shape[2] // 4, x.shape[3] // 4
         )
         skips = [
             torch.randn(
-                batch_size, c, x.shape[2]//(2**(i+1)),
-                x.shape[3]//(2**(i+1))
-            ) for i, c in enumerate(self._skip_channels)
+                batch_size,
+                c,
+                x.shape[2] // (2 ** (i + 1)),
+                x.shape[3] // (2 ** (i + 1)),
+            )
+            for i, c in enumerate(self._skip_channels)
         ]
         return output_features, skips
 
     @property
-    def out_channels(self): return self._out_channels
+    def out_channels(self):
+        return self._out_channels
+
     @property
-    def skip_channels(self): return self._skip_channels
+    def skip_channels(self):
+        return self._skip_channels
 
 
 class MockBottleneck(BottleneckBase):
@@ -54,11 +61,13 @@ class MockBottleneck(BottleneckBase):
 
     def forward(self, x):
         batch_size = x.shape[0]
-        return torch.randn(batch_size, self._out_channels, x.shape[2],
-                           x.shape[3])
+        return torch.randn(
+            batch_size, self._out_channels, x.shape[2], x.shape[3]
+        )
 
     @property
-    def out_channels(self): return self._out_channels
+    def out_channels(self):
+        return self._out_channels
 
 
 # Dummy for Identity Bottleneck
@@ -66,8 +75,9 @@ class DummyIdentity(BottleneckBase):
     def __init__(self, in_channels, out_channels=None, **kwargs):
         super().__init__(in_channels=in_channels)
         self.in_channels = in_channels
-        self._out_channels = out_channels if out_channels is not None else \
-            in_channels
+        self._out_channels = (
+            out_channels if out_channels is not None else in_channels
+        )
 
     def forward(self, x):
         if self.in_channels != self._out_channels:
@@ -92,21 +102,22 @@ class TestDecoderImpl(DecoderBase):
     def forward(self, x, skips):
         batch_size = x.shape[0]
         return torch.randn(
-            batch_size, self._out_channels, x.shape[2]*4,
-            x.shape[3]*4
+            batch_size, self._out_channels, x.shape[2] * 4, x.shape[3] * 4
         )
 
     @property
     def out_channels(self) -> int:
         return self._out_channels
 
+
 # --- End Mock Components ---
 
 
 # --- Fixtures ---
 
+
 @pytest.fixture(scope="function")
-def register_mock_components():
+def register_mock_components():  # noqa: PLR0912
     "Temporarily registers mock components for a test function."
     registered_names = {"encoder": [], "bottleneck": [], "decoder": []}
     try:

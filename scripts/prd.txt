@@ -88,14 +88,15 @@ The successful completion of the tasks outlined in this PRD will result in a hig
     *   Break down the PRD into high-level tasks in `task-master`.
 
 2.  **Phase 1: Test Suite Evaluation & Baseline Establishment**
-    *   Inventory all existing tests in `tests/unit` and `tests/integration`.
+    *   Inventory all existing tests in `tests/unit` and `tests/integration`. This inventory, along with test categorization and initial run summaries, should be stored in `outputs/prd_project_refinement/test_suite_evaluation/`.
     *   Execute the full test suite to identify passing, failing, and flaky tests.
     *   Categorize tests: Keep, Refactor, Delete.
-    *   Establish an initial code coverage baseline (if tools are available).
+    *   Establish an initial code coverage baseline (if tools are available), with reports stored as specified in the Appendix.
 
 3.  **Phase 2: Systematic Resolution of Decoder Channel Warnings**
+    *   Generate and store any specific reports or detailed analysis (e.g., on channel flow issues or performance comparisons before/after refactoring) in `outputs/prd_project_refinement/decoder_analysis_reports/` if deemed necessary during task execution.
     *   **Sub-Phase 2.1 (Test Development):**
-        *   Develop focused unit tests for `DecoderBlock` to verify channel calculations and behavior with various input/skip channel configurations.
+        *   Develop focused unit tests for `DecoderBlock` to verify channel calculations and behavior with various input/skip channel configurations. This may reference findings from `outputs/prd_project_refinement/test_suite_evaluation/`.
         *   Develop unit/integration tests for `CNNDecoder` to verify channel propagation between blocks.
     *   **Sub-Phase 2.2 (Decoder Refactoring):**
         *   Refactor `DecoderBlock` and `CNNDecoder` initialization logic to ensure correct static channel alignment, using the tests from 2.1 to guide and validate. This refactoring will explicitly consider DRY, SRP, and modularity.
@@ -110,10 +111,11 @@ The successful completion of the tasks outlined in this PRD will result in a hig
         *   Update relevant documentation and configuration examples.
     *   **Sub-Phase 3.2 (Training Artifacts Verification & Standardization):**
         *   Verify and ensure the correct and consistent logging and storage of all key training artifacts.
-        *   This includes per-step/per-epoch loss and metric values (`metrics.jsonl`), final metric summaries (`metrics_summary.json`), 
-        *   model checkpoints (which **must include not only model weights but also the state of the optimizer, scheduler, current epoch, and all other parameters necessary to seamlessly resume training as if it had never been interrupted**, including validation of best model saving logic based on `save_best_cfg`), 
-        *   and experiment configuration.
-        *   Define and document clear criteria for what is saved, where, and in what format.
+        *   This includes per-step/per-epoch loss and metric values (e.g., `outputs/prd_project_refinement/training_artifacts/{experiment_name}/{run_id}/metrics.jsonl`),
+        *   final metric summaries (e.g., `outputs/prd_project_refinement/training_artifacts/{experiment_name}/{run_id}/metrics_summary.json`),
+        *   model checkpoints (e.g., within `outputs/prd_project_refinement/training_artifacts/{experiment_name}/{run_id}/checkpoints/`, which **must include not only model weights but also the state of the optimizer, scheduler, current epoch, and all other parameters necessary to seamlessly resume training as if it had never been interrupted**, including validation of best model saving logic based on `save_best_cfg`),
+        *   and experiment configuration (e.g., saved within `outputs/prd_project_refinement/training_artifacts/{experiment_name}/{run_id}/configs/`).
+        *   Define and document clear criteria for what is saved, where, and in what format, adhering to this structured output.
     *   **Sub-Phase 3.3 (Targeted Test Coverage Expansion):**
         *   Identify critical modules in `src/data`, `src/training`, `src/evaluation`, `src/utils` with low test coverage.
         *   Write new unit and integration tests for these identified modules to achieve a target level of coverage and confidence.
@@ -149,7 +151,7 @@ Note: Upon successful completion of Phases 0-4 defined herein, the `crackseg` pr
 2.  **Risk:** Decoder refactoring (Phase 2) uncovers deeper complexities.
     *   **Mitigation:** Test-driven approach. Allocate analysis time. Prepare for potential redesign discussions.
 3.  **Risk:** Accidental removal of useful scripts during cleanup (Sub-Phase 4.1).
-    *   **Mitigation:** Careful review. Temporary archival. Cross-reference with tests/core code.
+    *   **Mitigation:** Careful review. Temporary archival in `old_stuff/archived_scripts/` before deletion. Cross-reference with tests/core code.
 4.  **Risk:** Documentation update (Sub-Phase 4.2) is time-consuming.
     *   **Mitigation:** Checklist. Prioritize critical docs. Iterative approach.
 5.  **Risk:** Time constraints for all phases.
@@ -159,4 +161,16 @@ Note: Upon successful completion of Phases 0-4 defined herein, the `crackseg` pr
 
 *   Reference to project's `WORKFLOW_TRAINING.md` for operational details.
 *   Adherence to `coding-preferences.mdc`, `structural-guide.mdc`, `project-structure.mdc`, and other rules.
-*   This entire effort will be managed and tracked using `task-master`. 
+*   This entire effort will be managed and tracked using `task-master`.
+*   All artifacts generated as part of the execution of tasks derived from this PRD should be stored under the common directory `outputs/prd_project_refinement/`. Specific subdirectories are noted throughout this document.
+*   All content within generated files (reports, summaries, analysis documents, data files, etc.) must be written in English to ensure consistency and accessibility.
+*   Any scripts generated as part of task execution must adhere to the project's established coding standards, including those outlined in `coding-preferences.mdc` and other relevant guidelines.
+*   Generated reports, such as the Taskmaster complexity report, should be stored in `outputs/prd_project_refinement/task_master_reports/`. Code coverage reports should be stored in `outputs/prd_project_refinement/code_coverage/`.
+*   Tasks generated by Taskmaster should explicitly reference the paths of input artifacts from previous phases/tasks when necessary for clarity and execution.
+*   **All tasks and subtasks that depend on previous work must explicitly reference the location of relevant reports, artifacts, or documentation generated by their dependencies.**
+    - In each task or subtask description, add a section such as:
+      ```
+      ## References to Previous Artifacts
+      - [List here the relevant reports, scripts, or data produced by dependencies]
+      ```
+    - This ensures that anyone working on or reviewing a task can quickly locate all relevant context and results from previous phases.

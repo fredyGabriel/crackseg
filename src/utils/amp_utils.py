@@ -1,8 +1,25 @@
 """AMP and gradient accumulation utilities for training loops."""
-from typing import Optional
+
 import torch
-from torch.cuda.amp import GradScaler
 from torch import autocast
+
+# Compatibilidad con PyTorch >=2.4 y anteriores
+try:
+    from torch.amp import GradScaler  # PyTorch >=2.4
+
+    _GRADSCALER_DEVICE = "cuda"
+except ImportError:
+    from torch.cuda.amp import GradScaler  # PyTorch <2.4
+
+    _GRADSCALER_DEVICE = None
+
+# Exportar para uso externo
+__all__ = [
+    "amp_autocast",
+    "optimizer_step_with_accumulation",
+    "GradScaler",
+    "_GRADSCALER_DEVICE",
+]
 
 
 def amp_autocast(enabled: bool):
@@ -11,14 +28,14 @@ def amp_autocast(enabled: bool):
     return autocast(device_type=device_type, enabled=enabled)
 
 
-def optimizer_step_with_accumulation(
+def optimizer_step_with_accumulation(  # noqa: PLR0913
     *,
     optimizer: torch.optim.Optimizer,
-    scaler: Optional[GradScaler],
+    scaler: GradScaler | None,
     loss: torch.Tensor,
     grad_accum_steps: int,
     batch_idx: int,
-    use_amp: bool = False
+    use_amp: bool = False,
 ) -> None:
     """Handles backward, step, and update for optimizer/scaler with
     accumulation.
@@ -31,7 +48,7 @@ def optimizer_step_with_accumulation(
         batch_idx: Current batch index (0-based).
         use_amp: Whether to use AMP.
     """
-    is_update_step = ((batch_idx + 1) % grad_accum_steps == 0)
+    is_update_step = (batch_idx + 1) % grad_accum_steps == 0
     loss = loss / grad_accum_steps
     if use_amp and scaler is not None:
         scaler.scale(loss).backward()

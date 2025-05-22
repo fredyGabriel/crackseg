@@ -1,0 +1,57 @@
+# =============================================================================
+# Centralized configuration for linting tools in the CrackSeg project
+# =============================================================================
+
+# Config file paths
+config_files:
+  black: "${project_root}/pyproject.toml"
+  ruff: "${project_root}/pyproject.toml"
+  mypy: "${project_root}/pyproject.toml"
+  pre_commit: "${project_root}/.git/hooks/pre-commit"
+
+# Linting tools
+tools:
+  # Black for automatic code formatting
+  black:
+    version_required: ">=23.3.0"
+    command: "black"
+    docs_url: "https://black.readthedocs.io/en/stable/"
+    config_section: "tool.black"
+
+  # Ruff for linting and style
+  ruff:
+    version_required: ">=0.4.0"
+    command: "ruff"
+    docs_url: "https://docs.astral.sh/ruff/"
+    config_section: "tool.ruff"
+
+  # Mypy for static type checking
+  mypy:
+    version_required: ">=1.4.0"
+    command: "mypy"
+    docs_url: "https://mypy.readthedocs.io/en/stable/"
+    config_section: "tool.mypy"
+
+# Improvement plan (example, update as needed)
+improvement_plan:
+  phases:
+    format:
+      description: "Formatting issues"
+      duration_weeks: 2
+      tools: ["black"]
+    lint:
+      description: "Linting and style issues"
+      duration_weeks: 3
+      tools: ["ruff"]
+    typing:
+      description: "Type checking issues"
+      duration_weeks: 2
+      tools: ["mypy"]
+
+# Scripts available
+scripts:
+  # No unified lint_manager, use tools directly via pre-commit or CLI
+  # Example usage:
+  #   black .
+  #   ruff .
+  #   mypy .

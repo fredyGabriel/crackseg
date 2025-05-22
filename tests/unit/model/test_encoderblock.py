@@ -1,4 +1,5 @@
 import torch
+
 from src.model.encoder.cnn_encoder import EncoderBlock
 
 
@@ -30,5 +31,5 @@ def test_encoderblock_no_pool():
 
 def test_encoderblock_properties():
     block = EncoderBlock(2, 5)
-    assert block.out_channels == 5
+    assert block.out_channels == 5  # noqa: PLR2004
     assert block.skip_channels == [5]

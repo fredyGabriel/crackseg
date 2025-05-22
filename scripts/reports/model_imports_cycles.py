@@ -3,22 +3,24 @@ import os
 from collections import defaultdict
 
 CATALOG_PATH = os.path.join(
-    os.path.dirname(__file__), 'model_imports_catalog.json')
+    os.path.dirname(__file__), "model_imports_catalog.json"
+)
 CYCLES_PATH = os.path.join(
-    os.path.dirname(__file__), 'model_imports_cycles.json')
+    os.path.dirname(__file__), "model_imports_cycles.json"
+)
 
 # Construir grafo de dependencias
-with open(CATALOG_PATH, encoding='utf-8') as f:
+with open(CATALOG_PATH, encoding="utf-8") as f:
     catalog = json.load(f)
 
 graph = defaultdict(set)
 modules = set()
 
 for entry in catalog:
-    src = entry['file']
-    dst = entry['module']
+    src = entry["file"]
+    dst = entry["module"]
     # Solo considerar imports internos
-    if dst and (dst.startswith('src.model') or dst.startswith('.')):
+    if dst and (dst.startswith("src.model") or dst.startswith(".")):
         graph[src].add(dst)
         modules.add(src)
         modules.add(dst)
@@ -26,7 +28,7 @@ for entry in catalog:
 
 # Normalizar nodos (convertir rutas relativas a absolutas si es posible)
 def normalize(module):
-    if module.startswith('.'):
+    if module.startswith("."):
         return module  # Mantener relativo, requiere análisis más profundo
     return module
 
@@ -46,7 +48,7 @@ def find_cycles(graph):
 
     def visit(node, path):
         if node in path:
-            cycle = path[path.index(node):] + [node]
+            cycle = path[path.index(node) :] + [node]
             cycles.append(cycle)
             return
         if node in visited:
@@ -70,7 +72,7 @@ def find_cycles(graph):
 
 cycles = find_cycles(graph_norm)
 
-with open(CYCLES_PATH, 'w', encoding='utf-8') as f:
+with open(CYCLES_PATH, "w", encoding="utf-8") as f:
     json.dump(cycles, f, indent=2, ensure_ascii=False)
 
 if cycles:

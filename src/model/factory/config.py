@@ -7,41 +7,41 @@ decoders, and hybrid models, with validation and runtime parameter support.
 """
 
 import logging
-from typing import Dict, Any, Optional, Type, Union
+from typing import Any, TypeVar
 
-import torch.nn as nn
-from omegaconf import DictConfig
 import hydra.utils
+from omegaconf import DictConfig
+from torch import nn
 
 from src.model.base.abstract import (
-    EncoderBase,
     BottleneckBase,
     DecoderBase,
-    UNetBase
+    EncoderBase,
+    UNetBase,
 )
-from .factory_utils import (
-    hydra_to_dict,
-    merge_configs,
-    log_component_creation
-)
+
+from .factory_utils import hydra_to_dict, log_component_creation, merge_configs
 from .registry_setup import (
-    encoder_registry,
     bottleneck_registry,
-    decoder_registry
+    decoder_registry,
+    encoder_registry,
 )
 
 # Create logger
 log = logging.getLogger(__name__)
 
+# Definir un TypeVar para el tipo de componente base
+ComponentModelType = TypeVar("ComponentModelType", bound=nn.Module)
+
 
 class InstantiationError(Exception):
     """Exception raised for errors during component instantiation."""
+
     pass
 
 
 def validate_component_config(
-    config: Dict[str, Any],
-    component_type: str
+    config: dict[str, Any], component_type: str
 ) -> None:
     """
     Validate that a component configuration is valid.
@@ -53,14 +53,14 @@ def validate_component_config(
     Raises:
         ValueError: If configuration is invalid
     """
-    if component_type == 'encoder':
-        if 'in_channels' not in config:
+    if component_type == "encoder":
+        if "in_channels" not in config:
             raise ValueError("Encoder config must specify 'in_channels'")
-    elif component_type == 'bottleneck':
-        if 'in_channels' not in config:
+    elif component_type == "bottleneck":
+        if "in_channels" not in config:
             raise ValueError("Bottleneck config must specify 'in_channels'")
-    elif component_type == 'decoder':
-        required = ['in_channels']
+    elif component_type == "decoder":
+        required = ["in_channels"]
         missing = [key for key in required if key not in config]
         if missing:
             raise ValueError(
@@ -71,7 +71,7 @@ def validate_component_config(
         # skip_channels_list)
 
 
-def validate_architecture_config(config: Dict[str, Any]) -> None:
+def validate_architecture_config(config: dict[str, Any]) -> None:
     """
     Validate that a complete architecture configuration is valid.
 
@@ -81,7 +81,7 @@ def validate_architecture_config(config: Dict[str, Any]) -> None:
     Raises:
         ValueError: If configuration is invalid
     """
-    required_components = ['encoder', 'bottleneck', 'decoder']
+    required_components = ["encoder", "bottleneck", "decoder"]
     missing = [comp for comp in required_components if comp not in config]
     if missing:
         raise ValueError(
@@ -89,15 +89,15 @@ def validate_architecture_config(config: Dict[str, Any]) -> None:
         )
 
     # Validate each component
-    validate_component_config(config['encoder'], 'encoder')
-    validate_component_config(config['bottleneck'], 'bottleneck')
-    validate_component_config(config['decoder'], 'decoder')
+    validate_component_config(config["encoder"], "encoder")
+    validate_component_config(config["bottleneck"], "bottleneck")
+    validate_component_config(config["decoder"], "decoder")
 
 
 def normalize_config(
-    config: Union[Dict[str, Any], DictConfig],
-    defaults: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    config: dict[str, Any] | DictConfig,
+    defaults: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Normalize a configuration dictionary for consistency.
 
@@ -124,8 +124,8 @@ def normalize_config(
 
 
 def parse_architecture_config(
-    config: Dict[str, Any]
-) -> Dict[str, Dict[str, Any]]:
+    config: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
     """
     Parse a complete architecture configuration into component configs.
 
@@ -137,15 +137,14 @@ def parse_architecture_config(
     """
     validate_architecture_config(config)
     return {
-        'encoder': config['encoder'],
-        'bottleneck': config['bottleneck'],
-        'decoder': config['decoder']
+        "encoder": config["encoder"],
+        "bottleneck": config["bottleneck"],
+        "decoder": config["decoder"],
     }
 
 
 def instantiate_encoder(
-    config: Dict[str, Any],
-    runtime_params: Optional[Dict[str, Any]] = None
+    config: dict[str, Any], runtime_params: dict[str, Any] | None = None
 ) -> EncoderBase:
     """
     Instantiate an encoder component from configuration.
@@ -162,7 +161,7 @@ def instantiate_encoder(
     """
     try:
         # Validate and normalize config
-        validate_component_config(config, 'encoder')
+        validate_component_config(config, "encoder")
         full_config = normalize_config(config)
 
         # Apply runtime parameters if provided
@@ -171,7 +170,7 @@ def instantiate_encoder(
 
         # Try instantiation methods in order
         return _try_instantiation_methods(
-            full_config, 'encoder', encoder_registry, EncoderBase
+            full_config, "encoder", encoder_registry, EncoderBase
         )
 
     except Exception as e:
@@ -180,8 +179,7 @@ def instantiate_encoder(
 
 
 def instantiate_bottleneck(
-    config: Dict[str, Any],
-    runtime_params: Optional[Dict[str, Any]] = None
+    config: dict[str, Any], runtime_params: dict[str, Any] | None = None
 ) -> BottleneckBase:
     """
     Instantiate a bottleneck component from configuration.
@@ -198,7 +196,7 @@ def instantiate_bottleneck(
     """
     try:
         # Validate and normalize config
-        validate_component_config(config, 'bottleneck')
+        validate_component_config(config, "bottleneck")
         full_config = normalize_config(config)
 
         # Apply runtime parameters if provided
@@ -207,7 +205,7 @@ def instantiate_bottleneck(
 
         # Try instantiation methods in order
         return _try_instantiation_methods(
-            full_config, 'bottleneck', bottleneck_registry, BottleneckBase
+            full_config, "bottleneck", bottleneck_registry, BottleneckBase
         )
 
     except Exception as e:
@@ -218,8 +216,7 @@ def instantiate_bottleneck(
 
 
 def instantiate_decoder(
-    config: Dict[str, Any],
-    runtime_params: Optional[Dict[str, Any]] = None
+    config: dict[str, Any], runtime_params: dict[str, Any] | None = None
 ) -> DecoderBase:
     """
     Instantiate a decoder component from configuration.
@@ -236,7 +233,7 @@ def instantiate_decoder(
     """
     try:
         # Validate and normalize config
-        validate_component_config(config, 'decoder')
+        validate_component_config(config, "decoder")
         full_config = normalize_config(config)
 
         # Apply runtime parameters if provided
@@ -245,7 +242,7 @@ def instantiate_decoder(
 
         # Try instantiation methods in order
         return _try_instantiation_methods(
-            full_config, 'decoder', decoder_registry, DecoderBase
+            full_config, "decoder", decoder_registry, DecoderBase
         )
 
     except Exception as e:
@@ -257,7 +254,7 @@ def instantiate_hybrid_model(
     encoder: EncoderBase,
     bottleneck: BottleneckBase,
     decoder: DecoderBase,
-    model_type: str = "BaseUNet"
+    model_type: str = "BaseUNet",
 ) -> UNetBase:
     """
     Instantiate a hybrid model from pre-created components.
@@ -287,18 +284,14 @@ def instantiate_hybrid_model(
         # Fallback to direct import
         import importlib
 
-        if '.' in model_type:
+        if "." in model_type:
             # Assume it's a fully qualified class name
-            module_name, class_name = model_type.rsplit('.', 1)
+            module_name, class_name = model_type.rsplit(".", 1)
             module = importlib.import_module(module_name)
             model_cls = getattr(module, class_name)
         else:
             # Try a few common locations
-            locations = [
-                'src.model.core.unet',
-                'src.model.unet',
-                'src.model'
-            ]
+            locations = ["src.model.core.unet", "src.model.unet", "src.model"]
 
             for location in locations:
                 try:
@@ -324,7 +317,7 @@ def instantiate_hybrid_model(
         ) from e
 
 
-def create_model_from_config(config: Dict[str, Any]) -> UNetBase:
+def create_model_from_config(config: dict[str, Any]) -> UNetBase:
     """
     Create a complete model from a comprehensive configuration.
 
@@ -342,27 +335,25 @@ def create_model_from_config(config: Dict[str, Any]) -> UNetBase:
         component_configs = parse_architecture_config(config)
 
         # Instantiate components
-        encoder = instantiate_encoder(component_configs['encoder'])
+        encoder = instantiate_encoder(component_configs["encoder"])
 
         # Add runtime parameters from encoder to bottleneck
-        bottleneck_runtime = {'in_channels': encoder.out_channels}
+        bottleneck_runtime = {"in_channels": encoder.out_channels}
         bottleneck = instantiate_bottleneck(
-            component_configs['bottleneck'],
-            runtime_params=bottleneck_runtime
+            component_configs["bottleneck"], runtime_params=bottleneck_runtime
         )
 
         # Add runtime parameters from encoder and bottleneck to decoder
         decoder_runtime = {
-            'in_channels': bottleneck.out_channels,
-            'skip_channels_list': list(reversed(encoder.skip_channels))
+            "in_channels": bottleneck.out_channels,
+            "skip_channels_list": list(reversed(encoder.skip_channels)),
         }
         decoder = instantiate_decoder(
-            component_configs['decoder'],
-            runtime_params=decoder_runtime
+            component_configs["decoder"], runtime_params=decoder_runtime
         )
 
         # Get model type from config or use default
-        model_type = config.get('type', 'BaseUNet')
+        model_type = config.get("type", "BaseUNet")
 
         # Instantiate the model
         return instantiate_hybrid_model(
@@ -377,11 +368,11 @@ def create_model_from_config(config: Dict[str, Any]) -> UNetBase:
 
 
 def _try_instantiation_methods(
-    config: Dict[str, Any],
+    config: dict[str, Any],
     component_type: str,
     registry: Any,
-    base_class: Type
-) -> nn.Module:
+    base_class: type[ComponentModelType],
+) -> ComponentModelType:
     """
     Try multiple methods to instantiate a component.
 
@@ -398,7 +389,7 @@ def _try_instantiation_methods(
         InstantiationError: If all instantiation methods fail
     """
     # Method 1: Use _target_ with Hydra (preferred)
-    if '_target_' in config:
+    if "_target_" in config:
         try:
             component = hydra.utils.instantiate(config)
             if not isinstance(component, base_class):
@@ -406,8 +397,7 @@ def _try_instantiation_methods(
                     f"Instantiated component is not a {base_class.__name__}"
                 )
             log_component_creation(
-                component_type.capitalize(),
-                type(component).__name__
+                component_type.capitalize(), type(component).__name__
             )
             return component
         except Exception as e:
@@ -417,17 +407,19 @@ def _try_instantiation_methods(
             # Fall through to other methods
 
     # Method 2: Use 'type' with registry
-    if 'type' in config:
+    if "type" in config:
         try:
-            component_name = config['type']
-            params = {k: v for k, v in config.items()
-                      if k not in ['type', '_target_']}
+            component_name = config["type"]
+            params = {
+                k: v
+                for k, v in config.items()
+                if k not in ["type", "_target_"]
+            }
 
             if component_name in registry:
                 component = registry.instantiate(component_name, **params)
                 log_component_creation(
-                    component_type.capitalize(),
-                    component_name
+                    component_type.capitalize(), component_name
                 )
                 return component
         except Exception as e:
@@ -437,17 +429,20 @@ def _try_instantiation_methods(
             # Fall through to other methods
 
     # Method 3: Direct import (last resort)
-    if '_target_' in config:
+    if "_target_" in config:
         try:
             import importlib
 
-            target = config['_target_']
-            module_name, class_name = target.rsplit('.', 1)
+            target = config["_target_"]
+            module_name, class_name = target.rsplit(".", 1)
             module = importlib.import_module(module_name)
             cls = getattr(module, class_name)
 
-            params = {k: v for k, v in config.items()
-                      if k not in ['_target_', 'type']}
+            params = {
+                k: v
+                for k, v in config.items()
+                if k not in ["_target_", "type"]
+            }
             component = cls(**params)
 
             if not isinstance(component, base_class):
@@ -455,10 +450,7 @@ def _try_instantiation_methods(
                     f"Instantiated component is not a {base_class.__name__}"
                 )
 
-            log_component_creation(
-                component_type.capitalize(),
-                class_name
-            )
+            log_component_creation(component_type.capitalize(), class_name)
             return component
         except Exception as e:
             log.warning(

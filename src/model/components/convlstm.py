@@ -1,5 +1,20 @@
+from dataclasses import dataclass
+
 import torch
-import torch.nn as nn
+from torch import nn
+
+
+@dataclass
+class ConvLSTMConfig:
+    """Configuration for ConvLSTM layer."""
+
+    hidden_dim: int | list[int]
+    kernel_size: tuple[int, int] | list[tuple[int, int]]
+    num_layers: int
+    kernel_expected_dims: int
+    batch_first: bool = False
+    bias: bool = True
+    return_all_layers: bool = False
 
 
 class ConvLSTMCell(nn.Module):
@@ -13,11 +28,13 @@ class ConvLSTMCell(nn.Module):
         bias (bool): Whether or not to add the bias.
     """
 
-    def __init__(self,
-                 input_dim: int,
-                 hidden_dim: int,
-                 kernel_size: tuple[int, int],
-                 bias: bool):
+    def __init__(
+        self,
+        input_dim: int,
+        hidden_dim: int,
+        kernel_size: tuple[int, int],
+        bias: bool,
+    ):
         super().__init__()
 
         self.input_dim = input_dim
@@ -36,13 +53,13 @@ class ConvLSTMCell(nn.Module):
             out_channels=4 * self.hidden_dim,  # i, f, o, c gates
             kernel_size=self.kernel_size,
             padding=self.padding,
-            bias=self.bias
+            bias=self.bias,
         )
 
     def forward(
         self,
         input_tensor: torch.Tensor,
-        cur_state: tuple[torch.Tensor, torch.Tensor] | None = None
+        cur_state: tuple[torch.Tensor, torch.Tensor] | None = None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """
         Forward pass of the ConvLSTM cell.
@@ -69,8 +86,9 @@ class ConvLSTMCell(nn.Module):
         combined_conv = self.conv(combined)
 
         # Split combined gates into individual gates
-        cc_i, cc_f, cc_o, cc_g = torch.split(combined_conv, self.hidden_dim,
-                                             dim=1)
+        cc_i, cc_f, cc_o, cc_g = torch.split(
+            combined_conv, self.hidden_dim, dim=1
+        )
 
         # Apply activations
         i = torch.sigmoid(cc_i)
@@ -88,7 +106,7 @@ class ConvLSTMCell(nn.Module):
     def _init_hidden(
         self,
         input_tensor: torch.Tensor,
-        cur_state: tuple[torch.Tensor, torch.Tensor] | None
+        cur_state: tuple[torch.Tensor, torch.Tensor] | None,
     ) -> tuple[torch.Tensor, torch.Tensor]:
         """Initializes hidden state if not provided."""
         batch_size, _, height, width = input_tensor.size()
@@ -114,57 +132,52 @@ class ConvLSTM(nn.Module):
 
     Args:
         input_dim (int): Number of channels in input tensor.
-        hidden_dim (int | list[int]): Number of channels in hidden state.
-            Can be a single int (all layers) or a list.
-        kernel_size (tuple[int, int] | list[tuple[int, int]]):
-            Size of the convolutional kernel.
-            Can be a single tuple (all layers) or a list.
-        num_layers (int): Number of ConvLSTM layers.
-        batch_first (bool): If True, inputs are
-            (batch, time, channel, height, width).
-        bias (bool): Whether or not to add the bias in cells.
-        return_all_layers (bool): If true, return outputs and states
-            for all layers.
+        config (ConvLSTMConfig): Configuration object for ConvLSTM parameters.
     """
 
-    def __init__(self,
-                 input_dim: int,
-                 hidden_dim: int | list[int],
-                 kernel_size: tuple[int, int] | list[tuple[int, int]],
-                 num_layers: int,
-                 batch_first: bool = False,
-                 bias: bool = True,
-                 return_all_layers: bool = False):
+    def __init__(self, input_dim: int, config: ConvLSTMConfig):
         super().__init__()
 
-        self._check_kernel_size_consistency(kernel_size)
+        self._check_kernel_size_consistency(
+            config.kernel_size, config.kernel_expected_dims
+        )
 
         # Ensure hidden_dim and kernel_size are lists for iteration
-        hidden_dim = self._extend_for_layers(hidden_dim, num_layers)
-        kernel_size = self._extend_for_layers(kernel_size, num_layers)
+        hidden_dim_list = self._extend_for_layers(
+            config.hidden_dim, config.num_layers
+        )
+        kernel_size_list = self._extend_for_layers(
+            config.kernel_size, config.num_layers
+        )
 
-        if not len(hidden_dim) == len(kernel_size) == num_layers:
-            raise ValueError('Inconsistent list length for dims and kernels.')
+        if (
+            not len(hidden_dim_list)
+            == len(kernel_size_list)
+            == config.num_layers
+        ):
+            raise ValueError("Inconsistent list length for dims and kernels.")
 
         self.input_dim = input_dim
-        self.hidden_dim = hidden_dim
-        self.kernel_size = kernel_size
-        self.num_layers = num_layers
-        self.batch_first = batch_first
-        self.bias = bias
-        self.return_all_layers = return_all_layers
+        self.hidden_dim = hidden_dim_list  # Store the list version
+        self.kernel_size = kernel_size_list  # Store the list version
+        self.num_layers = config.num_layers
+        self.batch_first = config.batch_first
+        self.bias = config.bias
+        self.return_all_layers = config.return_all_layers
+        self.kernel_expected_dims = config.kernel_expected_dims
 
         cell_list = []
         for i in range(self.num_layers):
-            cur_input_dim = self.input_dim if i == 0 else\
-                self.hidden_dim[i - 1]
+            cur_input_dim = (
+                self.input_dim if i == 0 else self.hidden_dim[i - 1]
+            )
 
             cell_list.append(
                 ConvLSTMCell(
                     input_dim=cur_input_dim,
                     hidden_dim=self.hidden_dim[i],
-                    kernel_size=self.kernel_size[i],
-                    bias=self.bias
+                    kernel_size=self.kernel_size[i],  # Use from processed list
+                    bias=self.bias,
                 )
             )
 
@@ -173,7 +186,7 @@ class ConvLSTM(nn.Module):
     def forward(
         self,
         input_tensor: torch.Tensor,
-        hidden_state: list[tuple[torch.Tensor, torch.Tensor]] | None = None
+        hidden_state: list[tuple[torch.Tensor, torch.Tensor]] | None = None,
     ) -> tuple[list[torch.Tensor], list[tuple[torch.Tensor, torch.Tensor]]]:
         """
         Forward pass for the ConvLSTM network.
@@ -221,7 +234,7 @@ class ConvLSTM(nn.Module):
                 # layers
                 h, c = self.cell_list[layer_idx](
                     input_tensor=cur_layer_input[:, t, :, :, :],
-                    cur_state=[h, c]
+                    cur_state=[h, c],
                 )
                 output_inner.append(h)
 
@@ -241,8 +254,10 @@ class ConvLSTM(nn.Module):
         return layer_output_list, last_state_list
 
     def _init_hidden(
-        self, batch_size: int, image_size: tuple[int, int],
-        device: torch.device
+        self,
+        batch_size: int,
+        image_size: tuple[int, int],
+        device: torch.device,
     ) -> list[tuple[torch.Tensor, torch.Tensor]]:
         """Initializes hidden states for all layers."""
         init_states = []
@@ -252,21 +267,29 @@ class ConvLSTM(nn.Module):
             dummy_input_size = (batch_size, self.hidden_dim[i]) + image_size
             dummy_input = torch.empty(dummy_input_size, device=device)
             # Use the cell's internal _init_hidden method
-            init_states.append(self.cell_list[i]._init_hidden(dummy_input,
-                                                              None))
+            init_states.append(
+                self.cell_list[i]._init_hidden(dummy_input, None)
+            )
         return init_states
 
-    @staticmethod
-    def _check_kernel_size_consistency(kernel_size):
+    def _check_kernel_size_consistency(
+        self, kernel_size, kernel_expected_dims
+    ):
         """Checks if kernel_size format is valid (tuple or list of 2 ints)."""
         # Case 1: Already a tuple of 2 ints
-        if isinstance(kernel_size, tuple) and len(kernel_size) == 2:
+        if (
+            isinstance(kernel_size, tuple)
+            and len(kernel_size) == kernel_expected_dims
+        ):
             if all(isinstance(elem, int) for elem in kernel_size):
                 return kernel_size
 
         # Case 2: List or ListConfig of 2 ints/numbers - convert to tuple
         # This handles both Python lists and OmegaConf ListConfig from YAML
-        if hasattr(kernel_size, '__len__') and len(kernel_size) == 2:
+        if (
+            hasattr(kernel_size, "__len__")
+            and len(kernel_size) == kernel_expected_dims
+        ):
             # Try to convert any numeric types to int
             try:
                 as_tuple = tuple(int(elem) for elem in kernel_size)
@@ -277,10 +300,13 @@ class ConvLSTM(nn.Module):
 
         # Case 3: List of tuples/lists (for multi-layer consistency)
         is_list_of_valid_pairs = (
-            hasattr(kernel_size, '__iter__') and
-            hasattr(kernel_size, '__len__') and
-            all(
-                (hasattr(elem, '__len__') and len(elem) == 2)
+            hasattr(kernel_size, "__iter__")
+            and hasattr(kernel_size, "__len__")
+            and all(
+                (
+                    hasattr(elem, "__len__")
+                    and len(elem) == kernel_expected_dims
+                )
                 for elem in kernel_size
             )
         )
@@ -291,8 +317,9 @@ class ConvLSTM(nn.Module):
 
         # If we get here, format is invalid
         raise ValueError(
-            'kernel_size must be a tuple of 2 ints, list of 2 ints, '
-            'or list of tuples/lists for multi-layer ConvLSTM'
+            f"kernel_size must be a tuple of {kernel_expected_dims} ints, "
+            f"list of {kernel_expected_dims} ints, "
+            "or list of tuples/lists for multi-layer ConvLSTM"
         )
 
     def _extend_for_layers(self, param, num_layers):
@@ -311,32 +338,88 @@ class ConvLSTM(nn.Module):
 
 
 # Example usage (for illustration, will be tested properly)
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Example parameters
     _batch_size, _height, _width = 2, 16, 16
     _input_dim, _hidden_dim = 3, 32
     _kernel_size = (3, 3)
-    _bias = True
+    _num_layers = 1
+    _kernel_expected_dims_val = 2
+    _bias_val = True
 
     # Create cell
-    _convlstm_cell = ConvLSTMCell(_input_dim, _hidden_dim, _kernel_size, _bias)
+    _convlstm_cell = ConvLSTMCell(
+        _input_dim, _hidden_dim, _kernel_size, _bias_val
+    )
 
     # Create dummy input
     _input_tensor = torch.randn(_batch_size, _input_dim, _height, _width)
+    # Create config for ConvLSTM
+    _convlstm_config = ConvLSTMConfig(
+        hidden_dim=_hidden_dim,
+        kernel_size=_kernel_size,
+        num_layers=_num_layers,
+        kernel_expected_dims=_kernel_expected_dims_val,
+        bias=_bias_val,
+    )
+    _convlstm_layer = ConvLSTM(input_dim=_input_dim, config=_convlstm_config)
 
-    # Initial state (optional)
-    _h_init = torch.randn(_batch_size, _hidden_dim, _height, _width)
-    _c_init = torch.randn(_batch_size, _hidden_dim, _height, _width)
-    _initial_state = (_h_init, _c_init)
+    # Initial state (optional) for cell
+    _h_init_cell = torch.randn(_batch_size, _hidden_dim, _height, _width)
+    _c_init_cell = torch.randn(_batch_size, _hidden_dim, _height, _width)
+    _initial_state_cell = (_h_init_cell, _c_init_cell)
 
-    # Forward pass with initial state
-    _h_next, _c_next = _convlstm_cell(_input_tensor, _initial_state)
-    print("Output shapes (with initial state):")
-    print(f"h_next: {_h_next.shape}")
-    print(f"c_next: {_c_next.shape}")
+    # Forward pass cell with initial state
+    _h_next_cell, _c_next_cell = _convlstm_cell(
+        _input_tensor, _initial_state_cell
+    )
+    print("Cell Output shapes (with initial state):")
+    print(f"h_next_cell: {_h_next_cell.shape}")
+    print(f"c_next_cell: {_c_next_cell.shape}")
 
-    # Forward pass without initial state (will initialize to zeros)
-    _h_next_zeros, _c_next_zeros = _convlstm_cell(_input_tensor, None)
-    print("\nOutput shapes (without initial state):")
-    print(f"h_next: {_h_next_zeros.shape}")
-    print(f"c_next: {_c_next_zeros.shape}")
+    # Forward pass cell without initial state (will initialize to zeros)
+    _h_next_zeros_cell, _c_next_zeros_cell = _convlstm_cell(
+        _input_tensor, None
+    )
+    print("\nCell Output shapes (without initial state):")
+    print(f"h_next_cell_zeros: {_h_next_zeros_cell.shape}")
+    print(f"c_next_cell_zeros: {_c_next_zeros_cell.shape}")
+
+    # Example for ConvLSTM layer
+    _seq_len = 5
+    _layer_input_tensor = torch.randn(
+        _batch_size, _seq_len, _input_dim, _height, _width
+    )
+
+    # Initial state for layer (optional)
+    _initial_layer_state = []
+    for _ in range(_num_layers):
+        _h_init_layer = torch.randn(_batch_size, _hidden_dim, _height, _width)
+        _c_init_layer = torch.randn(_batch_size, _hidden_dim, _height, _width)
+        _initial_layer_state.append((_h_init_layer, _c_init_layer))
+
+    _layer_output_list, _last_state_list = _convlstm_layer(
+        _layer_input_tensor, _initial_layer_state
+    )
+    print("\nLayer Output shapes (with initial state):")
+    if _convlstm_layer.return_all_layers:
+        for i, _out in enumerate(_layer_output_list):
+            print(f"Layer {i} output: {_out.shape}")
+    else:
+        print(f"Last layer output: {_layer_output_list[0].shape}")
+
+    for i, (_h, _c) in enumerate(_last_state_list):
+        print(f"Layer {i} final h: {_h.shape}, final c: {_c.shape}")
+
+    _layer_output_list_no_hs, _last_state_list_no_hs = _convlstm_layer(
+        _layer_input_tensor, None
+    )
+    print("\nLayer Output shapes (without initial state):")
+    if _convlstm_layer.return_all_layers:
+        for i, _out in enumerate(_layer_output_list_no_hs):
+            print(f"Layer {i} output: {_out.shape}")
+    else:
+        print(f"Last layer output: {_layer_output_list_no_hs[0].shape}")
+
+    for i, (_h, _c) in enumerate(_last_state_list_no_hs):
+        print(f"Layer {i} final h: {_h.shape}, final c: {_c.shape}")

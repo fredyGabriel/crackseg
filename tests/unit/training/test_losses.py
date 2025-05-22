@@ -1,11 +1,15 @@
+# ruff: noqa: PLR2004
 """Tests for loss functions."""
 
 import torch
-import torch.nn as nn
-import torch.optim as optim
+from torch import nn, optim
+
 from src.training.losses import (
-    BCELoss, DiceLoss, FocalLoss,
-    CombinedLoss, BCEDiceLoss
+    BCEDiceLoss,
+    BCELoss,
+    CombinedLoss,
+    DiceLoss,
+    FocalLoss,
 )
 
 
@@ -146,14 +150,12 @@ def test_combined_loss():
 
     # Combined loss with equal weights
     combined_equal = CombinedLoss(
-        losses=[BCELoss(), DiceLoss(sigmoid=True)],
-        weights=[1.0, 1.0]
+        losses=[BCELoss(), DiceLoss(sigmoid=True)], weights=[1.0, 1.0]
     )(torch.logit(pred), target)
 
     # Combined loss with more weight on BCE
     combined_bce_heavy = CombinedLoss(
-        losses=[BCELoss(), DiceLoss(sigmoid=True)],
-        weights=[0.8, 0.2]
+        losses=[BCELoss(), DiceLoss(sigmoid=True)], weights=[0.8, 0.2]
     )(torch.logit(pred), target)
 
     assert not torch.isnan(combined_equal)
@@ -201,7 +203,7 @@ def test_loss_with_empty_target():
         DiceLoss(),
         FocalLoss(),
         BCEDiceLoss(),
-        CombinedLoss(losses=[BCELoss(), DiceLoss()])
+        CombinedLoss(losses=[BCELoss(), DiceLoss()]),
     ]
 
     for loss_fn in losses:
@@ -279,7 +281,7 @@ def test_focal_loss_imbalanced_data():
     # Focal loss should converge better (lower final loss) on imbalanced data
     # Or show significantly more relative improvement
     bce_improvement = (initial_bce_loss - final_bce_loss) / initial_bce_loss
-    focal_improvement = (initial_focal_loss - final_focal_loss)
+    focal_improvement = initial_focal_loss - final_focal_loss
     focal_improvement /= initial_focal_loss
 
     print(f"BCE Improvement: {bce_improvement:.4f}")

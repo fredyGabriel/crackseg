@@ -7,17 +7,18 @@ encoders, decoders, bottlenecks, and specialized components like ConvLSTM,
 SwinV2, ASPP, and CBAM attention.
 """
 
-from typing import List, Dict
 import logging
-import torch.nn as nn
+
+from torch import nn
 
 # Actualizar la importación para reflejar la nueva estructura
 from src.model.base.abstract import (
-    EncoderBase,
-    DecoderBase,
     BottleneckBase,
-    UNetBase
+    DecoderBase,
+    EncoderBase,
+    UNetBase,
 )
+
 from .registry import Registry
 
 # Create logger
@@ -37,7 +38,7 @@ component_registries = {
 
 
 def register_component(
-    registry_type: str, name: str = None, tags: List[str] = None
+    registry_type: str, name: str = None, tags: list[str] = None
 ):
     """
     Decorator to register a component with specified registry type.
@@ -57,12 +58,12 @@ def register_component(
             pass
     """
     registry_map = {
-        'encoder': encoder_registry,
-        'bottleneck': bottleneck_registry,
-        'decoder': decoder_registry,
-        'architecture': architecture_registry,
-        'attention': component_registries.get('attention'),
-        'convlstm': component_registries.get('convlstm'),
+        "encoder": encoder_registry,
+        "bottleneck": bottleneck_registry,
+        "decoder": decoder_registry,
+        "architecture": architecture_registry,
+        "attention": component_registries.get("attention"),
+        "convlstm": component_registries.get("convlstm"),
     }
 
     registry = registry_map.get(registry_type.lower())
@@ -89,12 +90,12 @@ def get_registry(registry_type: str) -> Registry:
         ValueError: If registry type is not recognized.
     """
     registry_map = {
-        'encoder': encoder_registry,
-        'bottleneck': bottleneck_registry,
-        'decoder': decoder_registry,
-        'architecture': architecture_registry,
-        'attention': component_registries.get('attention'),
-        'convlstm': component_registries.get('convlstm'),
+        "encoder": encoder_registry,
+        "bottleneck": bottleneck_registry,
+        "decoder": decoder_registry,
+        "architecture": architecture_registry,
+        "attention": component_registries.get("attention"),
+        "convlstm": component_registries.get("convlstm"),
     }
 
     registry = registry_map.get(registry_type.lower())
@@ -107,7 +108,7 @@ def get_registry(registry_type: str) -> Registry:
     return registry
 
 
-def list_available_components() -> Dict[str, List[str]]:
+def list_available_components() -> dict[str, list[str]]:
     """
     List all registered components across all registries.
 
@@ -116,17 +117,19 @@ def list_available_components() -> Dict[str, List[str]]:
                              lists.
     """
     return {
-        'encoders': encoder_registry.list(),
-        'decoders': decoder_registry.list(),
-        'bottlenecks': bottleneck_registry.list(),
-        'architectures': architecture_registry.list(),
-        'attention': (
-            component_registries.get('attention').list()
-            if 'attention' in component_registries else []
+        "encoders": encoder_registry.list(),
+        "decoders": decoder_registry.list(),
+        "bottlenecks": bottleneck_registry.list(),
+        "architectures": architecture_registry.list(),
+        "attention": (
+            component_registries.get("attention").list()
+            if "attention" in component_registries
+            else []
         ),
-        'convlstm': (
-            component_registries.get('convlstm').list()
-            if 'convlstm' in component_registries else []
+        "convlstm": (
+            component_registries.get("convlstm").list()
+            if "convlstm" in component_registries
+            else []
         ),
     }
 
@@ -136,7 +139,7 @@ def register_hybrid_architecture(
     encoder_type: str,
     bottleneck_type: str,
     decoder_type: str,
-    tags: List[str] = None
+    tags: list[str] = None,
 ) -> bool:
     """
     Register a hybrid architecture model configuration.
@@ -157,22 +160,24 @@ def register_hybrid_architecture(
     """
     # Verify components exist in respective registries
     if encoder_type not in encoder_registry:
-        raise ValueError(f"Encoder type '{encoder_type}' not found in registry"
-                         )
+        raise ValueError(
+            f"Encoder type '{encoder_type}' not found in registry"
+        )
     if bottleneck_type not in bottleneck_registry:
         raise ValueError(
             f"Bottleneck type '{bottleneck_type}' not found in registry"
         )
     if decoder_type not in decoder_registry:
-        raise ValueError(f"Decoder type '{decoder_type}' not found in registry"
-                         )
+        raise ValueError(
+            f"Decoder type '{decoder_type}' not found in registry"
+        )
 
     # Store hybrid architecture configuration
     # Creating a metadata dict with component types
     architecture_metadata = {
-        'encoder_type': encoder_type,
-        'bottleneck_type': bottleneck_type,
-        'decoder_type': decoder_type
+        "encoder_type": encoder_type,
+        "bottleneck_type": bottleneck_type,
+        "decoder_type": decoder_type,
     }
 
     # Register the hybrid architecture with its metadata as tags
@@ -183,7 +188,7 @@ def register_hybrid_architecture(
     component_tags = [
         f"encoder:{encoder_type}",
         f"bottleneck:{bottleneck_type}",
-        f"decoder:{decoder_type}"
+        f"decoder:{decoder_type}",
     ]
     tags.extend(component_tags)
 

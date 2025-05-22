@@ -160,12 +160,14 @@ All documentation, code examples, and import statements have been updated to ref
 ## Key Components
 
 ### 1. BaseUNet & UNet Classes (`unet.py`)
+
 - Implements the core UNet architecture.
 - Uses modular encoder, decoder, and bottleneck blocks.
 - Delegates parameter counting, receptive field estimation, and architecture visualization to utility functions in `utils.py`.
 - Designed for easy extension and integration with Hydra-based configuration.
 
 ### 2. Utilities (`utils.py`)
+
 - **Parameter Counting:** Functions to count total and trainable parameters of a model.
 - **Receptive Field Estimation:** Estimate the receptive field for each layer/block.
 - **Memory Usage Estimation:** Approximate memory requirements for a given input size.
@@ -177,15 +179,19 @@ All utility functions are documented with concise docstrings and are tested inde
 ## Usage
 
 - **Importing Models:**
+
   ```python
   from src.model.architectures.unet import UNet
   ```
+
 - **Using Utilities:**
+
   ```python
   from src.model.common.utils import count_parameters, render_unet_architecture_diagram
   ```
 
 - **Visualization Example:**
+
   ```python
   model = UNet(...)
   render_unet_architecture_diagram(model, output_path="unet_architecture.png")
@@ -218,11 +224,13 @@ All utility functions are documented with concise docstrings and are tested inde
 ## Understanding and Navigating the Modular Structure
 
 The modular structure of `src.model` was adopted to maximize maintainability, extensibility, and clarity. Each submodule encapsulates a specific responsibility, making it easier to:
+
 - Extend or replace components (e.g., encoders, decoders, bottlenecks) without affecting unrelated code.
 - Test and document each part independently.
 - Onboard new contributors by providing clear boundaries and responsibilities.
 
 ### Module Overview
+
 - **base/**: Abstract interfaces for all model components.
 - **core/**: Core implementations (e.g., main UNet logic).
 - **factory/**: Factories, registries, and configuration utilities for dynamic model/component creation.
@@ -232,6 +240,7 @@ The modular structure of `src.model` was adopted to maximize maintainability, ex
 - **architectures/**: Specialized or experimental model variants.
 
 ### Best Practices
+
 - **Explicit Imports**: Always import from the most specific submodule (e.g., `from src.model.architectures.unet import UNet`) for clarity and IDE support.
 - **Configuration**: Use Hydra/YAML for all parameters; avoid hardcoding.
 - **Extending**: Add new components in the appropriate subdirectory and register them if needed.
@@ -239,8 +248,9 @@ The modular structure of `src.model` was adopted to maximize maintainability, ex
 - **Documentation**: Update this README and diagrams when the structure changes.
 
 ### For Contributors
+
 - Follow PEP8 and project coding guidelines.
 - Do not introduce new files or directories without explicit confirmation and documentation updates.
 - When adding new modules, update the mermaid diagram and this section.
 
-For more details, see the [project-structure.mdc](../../.cursor/guides/project-structure.mdc) and [development-guide.mdc](../../.cursor/guides/development-guide.mdc). 
+For more details, see the [project-structure.mdc](../../.cursor/guides/project-structure.mdc) and [development-guide.mdc](../../.cursor/guides/development-guide.mdc).

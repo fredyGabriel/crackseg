@@ -1,4 +1,5 @@
 """Helper for setting up internal logger for Trainer and safe logging."""
+
 import logging
 
 

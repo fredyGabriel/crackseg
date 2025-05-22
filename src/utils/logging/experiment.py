@@ -5,28 +5,29 @@ import logging
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, Union
+from typing import Any
 
 import psutil
 import torch
 from omegaconf import DictConfig, OmegaConf
 
 from src.utils.experiment_manager import ExperimentManager
-from src.utils.logging.base import BaseLogger, get_logger, flatten_dict
+from src.utils.logging.base import BaseLogger, flatten_dict, get_logger
 
 
 class ExperimentLogger(BaseLogger):
-    """Logger for tracking experiment metrics, configuration and system stats.
+    """
+    Logger for tracking experiment metrics, configuration and system stats.
     """
 
-    def __init__(
+    def __init__(  # noqa: PLR0913
         self,
-        log_dir: Union[str, Path],
+        log_dir: str | Path,
         experiment_name: str,
-        config: Optional[DictConfig] = None,
+        config: DictConfig | None = None,
         log_system_stats: bool = True,
         log_to_file: bool = True,
-        log_level: str = 'INFO'
+        log_level: str = "INFO",
     ):
         """Initialize the experiment logger.
 
@@ -57,7 +58,7 @@ class ExperimentLogger(BaseLogger):
 
             file_handler = logging.FileHandler(log_file)
             formatter = logging.Formatter(
-                '[%(asctime)s][%(levelname)s][%(name)s] - %(message)s'
+                "[%(asctime)s][%(levelname)s][%(name)s] - %(message)s"
             )
             file_handler.setFormatter(formatter)
             self.logger.addHandler(file_handler)
@@ -68,7 +69,7 @@ class ExperimentLogger(BaseLogger):
             base_dir=self.log_dir,
             experiment_name=experiment_name,
             config=config,
-            create_dirs=True
+            create_dirs=True,
         )
 
         # Get paths from experiment manager
@@ -80,8 +81,10 @@ class ExperimentLogger(BaseLogger):
         self.metrics_file = self.metrics_dir / "metrics.jsonl"
 
         # Log experiment initialization
-        self.logger.info(f"Initialized experiment '{experiment_name}' in \
-{log_dir}")
+        self.logger.info(
+            f"Initialized experiment '{experiment_name}' in \
+{log_dir}"
+        )
         self.logger.info(f"Metrics will be saved to: {self.metrics_file}")
         self.logger.info(
             f"Configuration will be saved to: "
@@ -118,18 +121,19 @@ class ExperimentLogger(BaseLogger):
             "name": tag,
             "value": value,
             "step": step,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         # Log to file
-        with open(self.metrics_file, "a") as f:
+        with open(self.metrics_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(metric_dict) + "\n")
 
         # Log to console
         self.logger.info(f"[{step}] {tag}: {value}")
 
-    def log_metric(self, name: str, value: Any, step: Optional[int] = None,
-                   **kwargs) -> None:
+    def log_metric(
+        self, name: str, value: Any, step: int | None = None, **kwargs
+    ) -> None:
         """Log a metric.
 
         Args:
@@ -146,22 +150,25 @@ class ExperimentLogger(BaseLogger):
         metric_dict = {
             "name": name,
             "value": value,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
 
         # Add any additional metadata
         metric_dict.update(kwargs)
 
         # Log to file
-        with open(self.metrics_file, "a") as f:
+        with open(self.metrics_file, "a", encoding="utf-8") as f:
             f.write(json.dumps(metric_dict) + "\n")
 
         # Log to console
         self.logger.info(f"Metric '{name}': {value}")
 
-    def log_metrics(self, metrics_dict: Dict[str, Any],
-                    step: Optional[int] = None,
-                    **kwargs) -> None:
+    def log_metrics(
+        self,
+        metrics_dict: dict[str, Any],
+        step: int | None = None,
+        **kwargs,
+    ) -> None:
         """Log multiple metrics.
 
         Args:
@@ -181,26 +188,32 @@ class ExperimentLogger(BaseLogger):
 
             # Memory info
             memory = psutil.virtual_memory()
-            memory_total_gb = memory.total / (1024 ** 3)
-            memory_available_gb = memory.available / (1024 ** 3)
+            memory_total_gb = memory.total / (1024**3)
+            memory_available_gb = memory.available / (1024**3)
 
             # GPU info
             gpu_info = "Not available"
             gpu_memory = "N/A"
             if torch.cuda.is_available():
                 gpu_info = torch.cuda.get_device_name(0)
-                gpu_memory = f"{torch.cuda.get_device_properties(
-                    0).total_memory / (1024 ** 3):.2f} GB"
+                gpu_memory = f"{
+                    torch.cuda.get_device_properties(0).total_memory
+                    / (1024**3):.2f
+                } GB"
 
             # PyTorch version
             pytorch_version = torch.__version__
 
             # Log all info
             self.logger.info("System Information:")
-            self.logger.info(f"  CPU: {cpu_count} physical cores, \
-{cpu_count_logical} logical cores")
-            self.logger.info(f"  RAM: {memory_total_gb:.2f} GB total, \
-{memory_available_gb:.2f} GB available")
+            self.logger.info(
+                f"  CPU: {cpu_count} physical cores, \
+{cpu_count_logical} logical cores"
+            )
+            self.logger.info(
+                f"  RAM: {memory_total_gb:.2f} GB total, \
+{memory_available_gb:.2f} GB available"
+            )
             self.logger.info(f"  CUDA: {gpu_info}")
             self.logger.info(f"  CUDA Memory: {gpu_memory}")
             self.logger.info(f"  PyTorch: {pytorch_version}")
@@ -221,15 +234,18 @@ class ExperimentLogger(BaseLogger):
 
     def close(self) -> None:
         """Close the logger and finalize the experiment."""
-        self.logger.info(f"Closing logger for experiment \
-'{self.experiment_name}'")
+        self.logger.info(
+            f"Closing logger for experiment \
+'{self.experiment_name}'"
+        )
 
         # Update experiment status
         try:
             self.experiment_manager.update_status("completed")
         except Exception as e:
-            self.logger.warning(f"Failed to update experiment status: {str(e)}"
-                                )
+            self.logger.warning(
+                f"Failed to update experiment status: {str(e)}"
+            )
 
         # Close log handlers
         for handler in self.logger.handlers[:]:
@@ -237,7 +253,7 @@ class ExperimentLogger(BaseLogger):
             self.logger.removeHandler(handler)
 
     def log_error(
-        self, exception: Exception, context: Optional[str] = None
+        self, exception: Exception, context: str | None = None
     ) -> None:
         """Log an error that occurred during the experiment.
 
@@ -248,38 +264,36 @@ class ExperimentLogger(BaseLogger):
         # Get traceback
         tb = traceback.format_exc()
 
-        # Build error message
-        error_msg = f"Error: {type(exception).__name__}: {str(exception)}"
+        # Log error message
+        error_msg = f"Error occurred: {type(exception).__name__}: {exception}"
         if context:
-            error_msg = f"Error in {context}: {type(exception).__name__}: \
-{str(exception)}"
-
-        # Log to console/file
+            error_msg = f"[{context}] {error_msg}"
         self.logger.error(error_msg)
-        self.logger.error(f"Traceback:\n{tb}")
 
-        # Update experiment status
+        # Log traceback
+        self.logger.debug(f"Traceback:\n{tb}")
+
+        # Update experiment status to 'failed' if not already closed
         try:
-            self.experiment_manager.update_status(
-                "failed",
-                metadata={
-                    "error": {
-                        "type": type(exception).__name__,
-                        "message": str(exception),
-                        "context": context,
-                        "traceback": tb
-                    }
-                }
-            )
+            # Avoid double-updating if already closed
+            if not all(
+                (
+                    isinstance(h, logging.FileHandler | logging.StreamHandler)
+                    and h.stream.closed
+                )
+                for h in self.logger.handlers
+            ):
+                self.experiment_manager.update_status("failed")
         except Exception as e:
-            self.logger.warning(f"Failed to update experiment status: \
-{str(e)}")
+            self.logger.warning(
+                f"Failed to update experiment status to 'failed': {str(e)}"
+            )
 
         # Write error to a specific error log file
+        error_log_file = self.outputs_dir / "error_log.txt"
         try:
-            error_file = self.experiment_manager.get_path("logs") / "error.log"
-            with open(error_file, "a") as f:
+            with open(error_log_file, "a", encoding="utf-8") as f:
                 f.write(f"[{datetime.now().isoformat()}] {error_msg}\n")
-                f.write(f"Traceback:\n{tb}\n\n")
+                f.write(f"Traceback:\n{tb}\n--- --- ---\n")
         except Exception as e:
             self.logger.warning(f"Failed to write to error log file: {str(e)}")

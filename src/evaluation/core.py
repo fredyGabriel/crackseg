@@ -1,14 +1,17 @@
+from typing import Any
+
 import torch
-from typing import Dict, Any, Tuple
+from omegaconf import DictConfig
 from torch.utils.data import DataLoader
 
 
 def evaluate_model(
     model: torch.nn.Module,
     dataloader: DataLoader,
-    metrics: Dict[str, Any],
-    device: torch.device
-) -> Tuple[Dict[str, float], Tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
+    metrics: dict[str, Any],
+    device: torch.device,
+    config: DictConfig,
+) -> tuple[dict[str, float], tuple[torch.Tensor, torch.Tensor, torch.Tensor]]:
     """
     Evaluate a model on a dataset.
 
@@ -17,6 +20,7 @@ def evaluate_model(
         dataloader: DataLoader with evaluation data
         metrics: Dictionary of metric functions
         device: Device to use for evaluation
+        config: Configuration object
 
     Returns:
         Tuple containing:
@@ -43,24 +47,30 @@ def evaluate_model(
         for batch_idx, batch in enumerate(dataloader):
             # Extract inputs and targets
             if isinstance(batch, dict):
-                inputs, targets = batch['image'], batch['mask']
+                inputs, targets = batch["image"], batch["mask"]
             else:
                 inputs, targets = batch
 
             # Ensure inputs tensor has the correct shape (B, C, H, W)
             # If channels are last
-            if len(inputs.shape) == 4 and inputs.shape[-1] == 3:
+            if (
+                len(inputs.shape) == config.data.num_dims_image
+                and inputs.shape[-1] == config.data.num_channels_rgb
+            ):
                 inputs = inputs.permute(0, 3, 1, 2)  # Change to (B, C, H, W)
 
             # Ensure targets tensor has a channel dimension
             # If (B, H, W) without channel dimension
-            if len(targets.shape) == 3:
+            if len(targets.shape) == config.data.num_dims_mask:
                 targets = targets.unsqueeze(1)  # Add channel dimension
 
             # Handle numpy arrays which don't have .long() method
-            if hasattr(targets, 'long'):
-                targets = targets.long() if targets.dtype != torch.float32 \
+            if hasattr(targets, "long"):
+                targets = (
+                    targets.long()
+                    if targets.dtype != torch.float32
                     else targets
+                )
             else:
                 # Convert numpy array to tensor if needed
                 targets = torch.tensor(targets, dtype=torch.float32)
@@ -77,7 +87,7 @@ def evaluate_model(
                 results[f"test_{name}"] += metric_value
 
             # Store first few batches for visualization
-            if batch_idx < 2:  # Limit number of stored batches to save memory
+            if batch_idx < config.evaluation.num_batches_visualize:
                 all_inputs.append(inputs.cpu())
                 all_targets.append(targets.cpu())
                 all_outputs.append(outputs.cpu())

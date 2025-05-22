@@ -1,11 +1,13 @@
 """Unit tests for environment variable utilities."""
 
-import pytest
 import os
-from src.utils import load_env, get_env_var
 
+import pytest
+
+from src.utils import get_env_var, load_env
 
 # --- Fixtures ---
+
 
 @pytest.fixture
 def test_env_setup_teardown():
@@ -43,6 +45,7 @@ def test_env_setup_teardown():
 
 # --- Test Cases ---
 
+
 def test_load_env_file(tmp_path, test_env_setup_teardown):
     """Test loading variables from a specific .env file."""
     # Create a dummy .env file
@@ -62,5 +65,6 @@ def test_get_env_var(test_env_setup_teardown):
 
     assert get_env_var("EXISTING_VAR") == "exists"
     assert get_env_var("NON_EXISTING_VAR") is None
-    assert get_env_var("NON_EXISTING_VAR", default="default_val"
-                       ) == "default_val"
+    assert (
+        get_env_var("NON_EXISTING_VAR", default="default_val") == "default_val"
+    )

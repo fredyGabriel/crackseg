@@ -1,3 +1,4 @@
+# ruff: noqa: PLR2004
 """Tests for training reproducibility.
 
 This module tests reproducibility of training with:
@@ -9,19 +10,18 @@ This focuses only on random number generation, not the full training process.
 
 import json
 from pathlib import Path
-from typing import Dict, List
 
 import numpy as np
 import pytest
 import torch
-from omegaconf import OmegaConf
-from hydra.core.global_hydra import GlobalHydra
 from hydra import compose, initialize_config_dir
+from hydra.core.global_hydra import GlobalHydra
+from omegaconf import OmegaConf
 
 from src.utils.seeds import set_random_seeds
 
-
 # --- Fixtures ---
+
 
 @pytest.fixture(autouse=True)
 def hydra_cleanup():
@@ -40,15 +40,17 @@ def base_config():
     config_dir_abs = project_root / "configs"
 
     # Use initialize_config_dir
-    initialize_config_dir(config_dir=str(config_dir_abs),
-                          version_base=None,
-                          job_name="repro_test")
+    initialize_config_dir(
+        config_dir=str(config_dir_abs),
+        version_base=None,
+        job_name="repro_test",
+    )
 
     # Load the config using hydra.compose
     cfg = compose(config_name="config.yaml")
 
     # Ensure random_seed exists and set it
-    if 'random_seed' not in cfg:
+    if "random_seed" not in cfg:
         # Add default if missing, or raise error if required
         cfg.random_seed = 42
     else:
@@ -63,7 +65,7 @@ def results_dir(tmp_path):
     return tmp_path / "reproducibility_test"
 
 
-def generate_random_numbers(seed: int, n_samples: int = 10) -> Dict:
+def generate_random_numbers(seed: int, n_samples: int = 10) -> dict:
     """Generate random numbers using given seed.
 
     Args:
@@ -85,14 +87,13 @@ def generate_random_numbers(seed: int, n_samples: int = 10) -> Dict:
     return {
         "seed": seed,
         "np_sum": float(np_rand.sum()),
-        "torch_sum": float(torch_rand.sum().item())
+        "torch_sum": float(torch_rand.sum().item()),
     }
 
 
 def compare_runs(
-    results_same_seed: List[Dict],
-    results_diff_seeds: List[Dict]
-) -> Dict[str, float]:
+    results_same_seed: list[dict], results_diff_seeds: list[dict]
+) -> dict[str, float]:
     """Compare results from runs with same and different seeds.
 
     Args:
@@ -137,6 +138,7 @@ def compare_runs(
 
 
 # --- Test Cases ---
+
 
 def test_exact_reproducibility(base_config, results_dir):
     """Test that multiple runs with the same seed produce identical results."""
@@ -200,14 +202,14 @@ def test_statistical_similarity(base_config, results_dir):
     # but it shouldn't be extremely high relative to the mean
     if "np_sum_std" in stats and "np_sum_mean" in stats:
         rel_std = stats["np_sum_std"] / abs(stats["np_sum_mean"])
-        assert 0 < rel_std < 0.3, (
-            f"NumPy random variation ({rel_std}) outside expected range"
-        )
+        assert (
+            0 < rel_std < 0.3
+        ), f"NumPy random variation ({rel_std}) outside expected range"
 
     if "torch_sum_std" in stats and "torch_sum_mean" in stats:
         # Avoid division by zero
         if stats["torch_sum_mean"] != 0:
             rel_std = stats["torch_sum_std"] / abs(stats["torch_sum_mean"])
-            assert 0 < rel_std < 0.3, (
-                f"PyTorch random variation ({rel_std}) outside expected range"
-            )
+            assert (
+                0 < rel_std < 0.3
+            ), f"PyTorch random variation ({rel_std}) outside expected range"

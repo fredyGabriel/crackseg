@@ -2,28 +2,32 @@
 
 # import os # Unused
 # import sys # Unused
-import torch
 from pathlib import Path
-# import time  # Removed unused import
-from unittest.mock import patch, MagicMock, ANY
-import pytest
 
-from src.utils.checkpointing import save_checkpoint, load_checkpoint
+# import time  # Removed unused import
+from unittest.mock import ANY, MagicMock, patch
+
+import pytest
+import torch
+
+from src.utils.checkpointing import load_checkpoint, save_checkpoint
+
 # from torch.cuda.amp import GradScaler # Removed unused import
 
 
 # --- Fixtures ---
+
 
 @pytest.fixture
 def mock_model():
     """Fixture to create a mock torch.nn.Module."""
     model = MagicMock(spec=torch.nn.Module)
     model.state_dict.return_value = {
-        f'layer{i}.weight': torch.randn(5, 5) for i in range(1, 3)
+        f"layer{i}.weight": torch.randn(5, 5) for i in range(1, 3)
     }
     # Add device attribute for load_checkpoint test compatibility if
     # device=None
-    model.device = torch.device('cpu')  # Mock device attribute
+    model.device = torch.device("cpu")  # Mock device attribute
     return model
 
 
@@ -32,8 +36,8 @@ def mock_optimizer():
     """Fixture to create a mock torch.optim.Optimizer."""
     optimizer = MagicMock(spec=torch.optim.Optimizer)
     optimizer.state_dict.return_value = {
-        'param_groups': [],
-        'state': {i: {'exp_avg': torch.randn(5, 5)} for i in range(2)}
+        "param_groups": [],
+        "state": {i: {"exp_avg": torch.randn(5, 5)} for i in range(2)},
     }
     return optimizer
 
@@ -57,8 +61,9 @@ def mock_optimizer_state(mock_optimizer):
 
 # --- Tests for save_checkpoint ---
 
-@patch('torch.save')
-def test_save_checkpoint_creates_file_and_calls_torch_save(
+
+@patch("torch.save")
+def test_save_checkpoint_creates_file_and_calls_torch_save(  # noqa: PLR0913
     mock_torch_save,
     tmp_path: Path,
     mock_model,
@@ -76,11 +81,13 @@ def test_save_checkpoint_creates_file_and_calls_torch_save(
     additional_data = {"metrics": metrics, "best_metric_value": 0.9}
 
     save_checkpoint(
-        epoch=epoch, model=mock_model, optimizer=mock_optimizer,
+        epoch=epoch,
+        model=mock_model,
+        optimizer=mock_optimizer,
         # scaler=mock_scaler, # Removed scaler
         additional_data=additional_data,  # Use additional_data
         checkpoint_dir=checkpoint_dir,
-        filename="test_last.pth"
+        filename="test_last.pth",
     )
 
     # Check directory was created
@@ -94,18 +101,20 @@ def test_save_checkpoint_creates_file_and_calls_torch_save(
     saved_path = mock_torch_save.call_args[0][1]
 
     assert saved_path == checkpoint_dir / "test_last.pth"
-    assert saved_state['epoch'] == epoch
-    assert saved_state['model_state_dict'] == mock_model_state
-    assert saved_state['optimizer_state_dict'] == mock_optimizer_state
-    assert 'scaler_state_dict' not in saved_state  # Check scaler removed
+    assert saved_state["epoch"] == epoch
+    assert saved_state["model_state_dict"] == mock_model_state
+    assert saved_state["optimizer_state_dict"] == mock_optimizer_state
+    assert "scaler_state_dict" not in saved_state  # Check scaler removed
     # Check additional_data was saved correctly
-    assert saved_state['metrics'] == metrics
-    assert saved_state['best_metric_value'] == 0.9
+    assert saved_state["metrics"] == metrics
+    assert saved_state["best_metric_value"] == 0.9  # noqa: PLR2004
 
 
 def test_save_checkpoint_keep_last_n(
     # mock_torch_save, # Removed argument
-    tmp_path: Path, mock_model, mock_optimizer
+    tmp_path: Path,
+    mock_model,
+    mock_optimizer,
 ):
     """Test that only the last N checkpoints are kept
     (by epoch in filename)."""  # Updated docstring hint
@@ -126,13 +135,16 @@ def test_save_checkpoint_keep_last_n(
     new_epoch = 5
     new_filename = f"ckpt_epoch_{new_epoch}.pth"
     save_checkpoint(
-        epoch=new_epoch, model=mock_model, optimizer=mock_optimizer,
-        checkpoint_dir=checkpoint_dir, filename=new_filename,
-        keep_last_n=keep_n
+        epoch=new_epoch,
+        model=mock_model,
+        optimizer=mock_optimizer,
+        checkpoint_dir=checkpoint_dir,
+        filename=new_filename,
+        keep_last_n=keep_n,
     )
 
     # Check the number of files remaining
-    remaining_files = sorted(list(checkpoint_dir.glob('ckpt_epoch_*.pth')))
+    remaining_files = sorted(checkpoint_dir.glob("ckpt_epoch_*.pth"))
     assert len(remaining_files) == keep_n
 
     # Check that the correct files remain (the ones with the highest epochs)
@@ -148,8 +160,9 @@ def test_save_checkpoint_keep_last_n(
             file_epoch = int(epoch_str)
             remaining_epochs.append(file_epoch)
         except (IndexError, ValueError):
-            fail_msg = ("Could not parse epoch from remaining file: "
-                        f"{f_path.name}")
+            fail_msg = (
+                "Could not parse epoch from remaining file: " f"{f_path.name}"
+            )
             pytest.fail(fail_msg)
 
     assert sorted(remaining_epochs) == expected_remaining_epochs
@@ -159,7 +172,7 @@ def test_save_checkpoint_keep_last_n(
     assert (checkpoint_dir / new_filename).exists()
 
 
-@patch('torch.save')
+@patch("torch.save")
 def test_save_checkpoint_is_best(
     mock_torch_save,
     tmp_path: Path,
@@ -175,7 +188,9 @@ def test_save_checkpoint_is_best(
     additional_data = None
 
     save_checkpoint(
-        epoch=epoch, model=mock_model, optimizer=mock_optimizer,
+        epoch=epoch,
+        model=mock_model,
+        optimizer=mock_optimizer,
         # scaler=mock_scaler, # Removed scaler
         additional_data=additional_data,  # Use additional_data
         checkpoint_dir=checkpoint_dir,
@@ -191,12 +206,12 @@ def test_save_checkpoint_is_best(
 
 # --- Tests for load_checkpoint ---
 
+
 def test_load_checkpoint_file_not_found(mock_model):
-    """Test load_checkpoint raises FileNotFoundError when file doesn't exist.
     """
-    with pytest.raises(
-        FileNotFoundError, match="Checkpoint not found"
-    ):
+    Test load_checkpoint raises FileNotFoundError when file doesn't exist.
+    """
+    with pytest.raises(FileNotFoundError, match="Checkpoint not found"):
         load_checkpoint(
             model=mock_model, checkpoint_path="nonexistent/path.pth"
         )
@@ -214,23 +229,23 @@ def test_load_checkpoint_loads_state(
     filepath = checkpoint_dir / "checkpoint_to_load.pth"
     epoch = 7
     best_metric = 0.85
-    metrics_saved = {'iou': best_metric}
+    metrics_saved = {"iou": best_metric}
 
     # Create a dummy checkpoint file (without scaler state)
     state_to_save = {
-        'epoch': epoch,
-        'model_state_dict': mock_model_state,
-        'optimizer_state_dict': mock_optimizer_state,
+        "epoch": epoch,
+        "model_state_dict": mock_model_state,
+        "optimizer_state_dict": mock_optimizer_state,
         # 'scaler_state_dict': mock_scaler_state, # Removed scaler state
-        'best_metric_value': best_metric,
-        'metrics': metrics_saved  # Example additional data
+        "best_metric_value": best_metric,
+        "metrics": metrics_saved,  # Example additional data
     }
     torch.save(state_to_save, filepath)
 
     # Create new mocks to load into
     new_model = MagicMock(spec=torch.nn.Module)
     new_model.load_state_dict = MagicMock()
-    new_model.device = torch.device('cpu')  # Add device attribute
+    new_model.device = torch.device("cpu")  # Add device attribute
     new_optimizer = MagicMock(spec=torch.optim.Optimizer)
     new_optimizer.load_state_dict = MagicMock()
     # new_scaler = MagicMock(spec=GradScaler) # Removed scaler
@@ -242,7 +257,7 @@ def test_load_checkpoint_loads_state(
         optimizer=new_optimizer,
         # scaler=new_scaler, # Removed scaler
         checkpoint_path=str(filepath),
-        device=None  # Explicitly pass None to use model.device
+        device=None,  # Explicitly pass None to use model.device
     )
 
     # Verify mock methods were called once
@@ -261,23 +276,28 @@ def test_load_checkpoint_loads_state(
     call_args_opt, _ = new_optimizer.load_state_dict.call_args
     loaded_opt_state = call_args_opt[0]
     assert loaded_opt_state.keys() == mock_optimizer_state.keys()
-    assert loaded_opt_state['param_groups'] == mock_optimizer_state[
-        'param_groups']
-    assert loaded_opt_state['state'].keys() == mock_optimizer_state['state'
-                                                                    ].keys()
-    for key in mock_optimizer_state['state']:
-        assert torch.equal(loaded_opt_state['state'][key]['exp_avg'],
-                           mock_optimizer_state['state'][key]['exp_avg'])
+    assert (
+        loaded_opt_state["param_groups"]
+        == mock_optimizer_state["param_groups"]
+    )
+    assert (
+        loaded_opt_state["state"].keys()
+        == mock_optimizer_state["state"].keys()
+    )
+    for key in mock_optimizer_state["state"]:
+        assert torch.equal(
+            loaded_opt_state["state"][key]["exp_avg"],
+            mock_optimizer_state["state"][key]["exp_avg"],
+        )
 
     # Verify metadata is returned
-    assert loaded_state_metadata['epoch'] == epoch
-    assert loaded_state_metadata['best_metric_value'] == best_metric
-    assert loaded_state_metadata['metrics'] == metrics_saved
+    assert loaded_state_metadata["epoch"] == epoch
+    assert loaded_state_metadata["best_metric_value"] == best_metric
+    assert loaded_state_metadata["metrics"] == metrics_saved
 
 
 def test_load_checkpoint_handles_missing_keys(
-    tmp_path: Path,
-    mock_model_state
+    tmp_path: Path, mock_model_state
 ):
     """Test load_checkpoint handles checkpoints with missing optional keys."""
     checkpoint_dir = tmp_path / "missing_keys_ckpts"
@@ -287,15 +307,15 @@ def test_load_checkpoint_handles_missing_keys(
 
     # Create a checkpoint with only essential keys
     state_to_save = {
-        'epoch': epoch,
-        'model_state_dict': mock_model_state,
+        "epoch": epoch,
+        "model_state_dict": mock_model_state,
     }
     torch.save(state_to_save, filepath)
 
     # Create new mocks to load into
     mock_model = MagicMock(spec=torch.nn.Module)
     mock_model.load_state_dict = MagicMock()
-    mock_model.device = torch.device('cpu')  # Add device attribute
+    mock_model.device = torch.device("cpu")  # Add device attribute
     mock_optimizer = MagicMock(spec=torch.optim.Optimizer)
     mock_optimizer.load_state_dict = MagicMock()
     # mock_scaler = MagicMock(spec=GradScaler) # Removed scaler
@@ -307,7 +327,7 @@ def test_load_checkpoint_handles_missing_keys(
         optimizer=mock_optimizer,
         # scaler=mock_scaler, # Removed scaler
         checkpoint_path=str(filepath),
-        device=None  # Explicitly pass None
+        device=None,  # Explicitly pass None
     )
 
     # Verify only model load_state_dict was called once
@@ -321,9 +341,9 @@ def test_load_checkpoint_handles_missing_keys(
     for key in mock_model_state:
         assert torch.equal(loaded_model_state[key], mock_model_state[key])
 
-    assert loaded_state_metadata['epoch'] == epoch
-    assert 'metrics' not in loaded_state_metadata
-    assert 'best_metric_value' not in loaded_state_metadata
+    assert loaded_state_metadata["epoch"] == epoch
+    assert "metrics" not in loaded_state_metadata
+    assert "best_metric_value" not in loaded_state_metadata
 
 
 def test_load_checkpoint_on_device(tmp_path: Path, mock_model_state):
@@ -331,16 +351,17 @@ def test_load_checkpoint_on_device(tmp_path: Path, mock_model_state):
     checkpoint_dir = tmp_path / "device_ckpts"
     checkpoint_dir.mkdir()
     filepath = checkpoint_dir / "device_checkpoint.pth"
-    torch.save({'model_state_dict': mock_model_state, 'epoch': 1}, filepath)
+    torch.save({"model_state_dict": mock_model_state, "epoch": 1}, filepath)
 
     mock_model = MagicMock(spec=torch.nn.Module)
     mock_model.load_state_dict = MagicMock()
     mock_model.to = MagicMock(return_value=mock_model)
     # Use torch.device directly
-    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    load_checkpoint(model=mock_model, checkpoint_path=str(filepath),
-                    device=device)
+    load_checkpoint(
+        model=mock_model, checkpoint_path=str(filepath), device=device
+    )
 
     # Check if model.to(device) was called AFTER loading state (based on impl)
     mock_model.load_state_dict.assert_called_once()

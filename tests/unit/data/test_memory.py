@@ -1,14 +1,15 @@
 import pytest
 import torch
-import torch.nn as nn
+from torch import nn
+
 from src.data.memory import (
-    get_available_gpu_memory,
-    get_gpu_memory_usage,
-    estimate_batch_size,
     calculate_gradient_accumulation_steps,
     enable_mixed_precision,
+    estimate_batch_size,
     format_memory_stats,
-    memory_summary
+    get_available_gpu_memory,
+    get_gpu_memory_usage,
+    memory_summary,
 )
 
 
@@ -21,7 +22,7 @@ class SimpleModel(nn.Module):
             nn.ReLU(),
             nn.Conv2d(hidden_size, hidden_size, kernel_size=3, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
+            nn.MaxPool2d(kernel_size=2, stride=2),
         )
         self.classifier = nn.Sequential(
             nn.Conv2d(hidden_size, num_classes, kernel_size=1)
@@ -40,19 +41,19 @@ def test_memory_monitoring_functions():
 
     usage = get_gpu_memory_usage()
     assert isinstance(usage, dict)
-    assert 'allocated' in usage
-    assert 'reserved' in usage
-    assert 'total' in usage
-    assert 'available' in usage
+    assert "allocated" in usage
+    assert "reserved" in usage
+    assert "total" in usage
+    assert "available" in usage
 
 
 def test_memory_stats_format():
     """Test formatting of memory statistics."""
     stats = {
-        'allocated': 1000.0,
-        'reserved': 1500.0,
-        'total': 8000.0,
-        'available': 7000.0
+        "allocated": 1000.0,
+        "reserved": 1500.0,
+        "total": 8000.0,
+        "available": 7000.0,
     }
     formatted = format_memory_stats(stats)
     assert isinstance(formatted, str)
@@ -73,8 +74,7 @@ def test_memory_summary():
     assert "Parameters" in summary_with_model
 
 
-@pytest.mark.skipif(not torch.cuda.is_available(),
-                    reason="CUDA not available")
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available")
 def test_estimate_batch_size():
     """Test batch size estimation."""
     model = SimpleModel()
@@ -86,7 +86,7 @@ def test_estimate_batch_size():
         input_shape,
         max_memory_mb=100,  # Small limit
         start_batch_size=8,
-        min_batch_size=1
+        min_batch_size=1,
     )
 
     assert bs >= 1
@@ -100,15 +100,14 @@ def test_gradient_accumulation_calculation():
     assert calculate_gradient_accumulation_steps(16, 32) == 1
 
     # Should calculate steps correctly
-    assert calculate_gradient_accumulation_steps(32, 8) == 4
-    assert calculate_gradient_accumulation_steps(100, 32) == 4
+    assert calculate_gradient_accumulation_steps(32, 8) == 4  # noqa: PLR2004
+    assert calculate_gradient_accumulation_steps(100, 32) == 4  # noqa: PLR2004
 
     # Should round up
-    assert calculate_gradient_accumulation_steps(33, 32) == 2
+    assert calculate_gradient_accumulation_steps(33, 32) == 2  # noqa: PLR2004
 
 
-@pytest.mark.skipif(not torch.cuda.is_available(),
-                    reason="CUDA not available")
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available")
 def test_mixed_precision():
     """Test mixed precision utility."""
     scaler = enable_mixed_precision()

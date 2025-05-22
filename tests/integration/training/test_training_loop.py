@@ -1,27 +1,29 @@
 """Test for training loop with a simple model and synthetic dataset."""
 
-import torch
-import torch.nn as nn
-from omegaconf import OmegaConf
-from torch.utils.data import Dataset, DataLoader
-from unittest.mock import MagicMock
 import os
 import tempfile
+from unittest.mock import MagicMock
+
+import torch
+from omegaconf import OmegaConf
+from torch import nn
+from torch.utils.data import DataLoader, Dataset
 
 from src.training.losses import BCEDiceLoss
-from src.training.metrics import IoUScore, F1Score
+from src.training.metrics import F1Score, IoUScore
 from src.training.trainer import Trainer
 
 
 class SimpleSegmentationModel(nn.Module):
     """A very simple segmentation model for testing."""
+
     def __init__(self, in_channels=1, out_channels=1):
         super().__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels, 16, 3, padding=1),
             nn.ReLU(),
             nn.Conv2d(16, out_channels, 1),
-            nn.Sigmoid()
+            nn.Sigmoid(),
         )
 
     def forward(self, x):
@@ -30,6 +32,7 @@ class SimpleSegmentationModel(nn.Module):
 
 class SyntheticCrackDataset(Dataset):
     """Simple synthetic dataset for testing the training loop."""
+
     def __init__(self, size=100, image_size=64):
         self.size = size
         self.image_size = image_size
@@ -46,10 +49,9 @@ class SyntheticCrackDataset(Dataset):
         # Generate random image and mask
         image = torch.randn(1, self.image_size, self.image_size)
         mask = torch.randint(
-            0, 2, (1, self.image_size, self.image_size),
-            dtype=torch.float32
+            0, 2, (1, self.image_size, self.image_size), dtype=torch.float32
         )
-        return {'image': image, 'mask': mask}
+        return {"image": image, "mask": mask}
 
 
 def test_training_loop():
@@ -68,27 +70,23 @@ def test_training_loop():
     iou_mock.return_value = torch.tensor(0.75)  # Example value
     f1_mock = MagicMock(spec=F1Score)
     f1_mock.return_value = torch.tensor(0.85)  # Example value
-    metrics = {
-        "IoU": iou_mock,
-        "F1": f1_mock
-    }
+    metrics = {"IoU": iou_mock, "F1": f1_mock}
 
     # Create trainer config
-    trainer_cfg = OmegaConf.create({
-        'training': {
-            'epochs': 2,
-            'device': 'cpu',
-            'use_amp': False,
-            'gradient_accumulation_steps': 1,
-            'verbose': True,
-            'optimizer': {
-                '_target_': 'torch.optim.Adam',
-                'lr': 0.001
-            },
-            'lr_scheduler': None,
-            'scheduler': None
+    trainer_cfg = OmegaConf.create(
+        {
+            "training": {
+                "epochs": 2,
+                "device": "cpu",
+                "use_amp": False,
+                "gradient_accumulation_steps": 1,
+                "verbose": True,
+                "optimizer": {"_target_": "torch.optim.Adam", "lr": 0.001},
+                "lr_scheduler": None,
+                "scheduler": None,
+            }
         }
-    })
+    )
 
     # Create trainer
     logger_mock = MagicMock()
@@ -104,15 +102,16 @@ def test_training_loop():
         loss_fn=loss_fn,
         metrics_dict=metrics,
         cfg=trainer_cfg,
-        logger_instance=logger_mock
+        logger_instance=logger_mock,
     )
 
     # Run training and get results
     results = trainer.train()
 
     # Basic assertions
-    assert isinstance(results, dict), \
-        "Training should return a dict of metrics"
-    assert 'val_loss' in results, "Results should include validation loss"
-    assert 'val_IoU' in results, "Results should include validation IoU score"
-    assert 'val_F1' in results, "Results should include validation F1 score"
+    assert isinstance(
+        results, dict
+    ), "Training should return a dict of metrics"
+    assert "val_loss" in results, "Results should include validation loss"
+    assert "val_IoU" in results, "Results should include validation IoU score"
+    assert "val_F1" in results, "Results should include validation F1 score"

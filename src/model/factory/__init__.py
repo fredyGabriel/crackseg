@@ -5,12 +5,7 @@ This module provides functions to create and register model components
 (encoders, bottlenecks, decoders) and complete UNet models.
 """
 
-from .factory import (
-    create_unet,
-    validate_config,
-    ConfigurationError
-)
-
+from .factory import ConfigurationError, create_unet, validate_config
 from .registry import Registry
 from .registry_setup import component_registries
 
@@ -19,5 +14,5 @@ __all__ = [
     "validate_config",
     "ConfigurationError",
     "Registry",
-    "component_registries"
+    "component_registries",
 ]

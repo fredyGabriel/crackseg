@@ -1,5 +1,8 @@
 import torch
+
 from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+
+EPSILON = 1e-6
 
 
 def test_swin_transformer_encoder_freeze_layers_bool():
@@ -9,7 +12,7 @@ def test_swin_transformer_encoder_freeze_layers_bool():
         in_channels=3,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,  # No need for pretrained weights in test
-        freeze_layers=True
+        freeze_layers=True,
     )
 
     # Count trainable vs frozen parameters
@@ -30,7 +33,7 @@ def test_swin_transformer_encoder_freeze_layers_str():
         in_channels=3,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        freeze_layers="patch_embed"  # Only freeze patch embedding
+        freeze_layers="patch_embed",  # Only freeze patch embedding
     )
 
     # Get parameter status
@@ -46,7 +49,7 @@ def test_swin_transformer_encoder_freeze_layers_str():
         in_channels=3,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        freeze_layers="all"
+        freeze_layers="all",
     )
 
     # All parameters should be frozen
@@ -62,7 +65,7 @@ def test_swin_transformer_encoder_freeze_layers_list():
         in_channels=3,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        freeze_layers=["patch_embed", "stages.0"]
+        freeze_layers=["patch_embed", "stages.0"],
     )
 
     # Get parameter status
@@ -75,21 +78,18 @@ def test_swin_transformer_encoder_freeze_layers_list():
 
 
 def test_swin_transformer_encoder_optimizer_param_groups():
-    """Test the creation of optimizer parameter groups with differential LRs.
+    """
+    Test the creation of optimizer parameter groups with differential LRs.
     """
     # Define learning rate scales
-    lr_scales = {
-        "patch_embed": 0.1,
-        "stages.0": 0.5,
-        "stages.1": 0.8
-    }
+    lr_scales = {"patch_embed": 0.1, "stages.0": 0.5, "stages.1": 0.8}
 
     # Initialize with differential learning rates
     encoder = SwinTransformerEncoder(
         in_channels=3,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        finetune_lr_scale=lr_scales
+        finetune_lr_scale=lr_scales,
     )
 
     # Get optimizer parameter groups
@@ -102,15 +102,16 @@ def test_swin_transformer_encoder_optimizer_param_groups():
     # Check learning rates for each group
     lr_by_group = {}
     for group in param_groups:
-        if 'name' in group:
-            lr_by_group[group['name']] = group['lr']
+        if "name" in group:
+            lr_by_group[group["name"]] = group["lr"]
 
     # Verify scaled learning rates
     for pattern, scale in lr_scales.items():
         if pattern in lr_by_group:
             expected_lr = base_lr * scale
-            assert abs(lr_by_group[pattern] - expected_lr) < 1e-6, \
-                f"Incorrect learning rate for {pattern}"
+            assert (
+                abs(lr_by_group[pattern] - expected_lr) < EPSILON
+            ), f"Incorrect learning rate for {pattern}"
 
 
 def test_swin_transformer_encoder_gradual_unfreeze():
@@ -120,17 +121,19 @@ def test_swin_transformer_encoder_gradual_unfreeze():
         in_channels=3,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        freeze_layers="all"
+        freeze_layers="all",
     )
 
     # Initial state - all should be frozen
     trainable_before, frozen_before = count_trainable_params(encoder)
-    assert trainable_before == 0, "Expected all parameters to be frozen \
+    assert (
+        trainable_before == 0
+    ), "Expected all parameters to be frozen \
 initially"
 
     # Imprimir la estructura del modelo para depuración
     print("\n=== MODEL STRUCTURE DEBUGGING ===")
-    param_names = list(name for name, _ in encoder.swin.named_parameters())
+    param_names = [name for name, _ in encoder.swin.named_parameters()]
     print(f"Total parameters: {len(param_names)}")
 
     # Encontrar prefijos únicos para entender la estructura
@@ -146,13 +149,10 @@ initially"
     print("\nExamples of parameter names:")
     # Primeros 10 parámetros
     for i, name in enumerate(sorted(param_names)[:10]):
-        print(f"  {i+1}. {name}")
+        print(f"  {i + 1}. {name}")
 
     # Define an unfreeze schedule
-    unfreeze_schedule = {
-        5: ["stages.0"],
-        10: ["stages.1"]
-    }
+    unfreeze_schedule = {5: ["stages.0"], 10: ["stages.1"]}
 
     # Simulate epoch 1 - nothing should be unfrozen yet
     encoder.gradual_unfreeze(1, unfreeze_schedule)
@@ -165,12 +165,13 @@ initially"
     param_status = get_param_status_by_name(encoder)
 
     # Mostrar los parámetros que se han descongelado
-    unfrozen_params = [name for name, is_trainable in param_status.items() if
-                       is_trainable]
+    unfrozen_params = [
+        name for name, is_trainable in param_status.items() if is_trainable
+    ]
     print(f"\nUnfrozen parameters after epoch 5: {len(unfrozen_params)}")
     # Mostrar hasta 5 ejemplos
     for i, name in enumerate(sorted(unfrozen_params)[:5]):
-        print(f"  {i+1}. {name}")
+        print(f"  {i + 1}. {name}")
 
     # Check that layers_0 parameters (equivalent to stages.0) are unfrozen
     layers0_unfrozen = False
@@ -179,7 +180,9 @@ initially"
             layers0_unfrozen = True
             break
 
-    assert layers0_unfrozen, "Expected layers_0 (equivalent to stages.0) to \
+    assert (
+        layers0_unfrozen
+    ), "Expected layers_0 (equivalent to stages.0) to \
 be unfrozen at epoch 5"
 
     # Simulate epoch 10 - layers_1 should also be unfrozen
@@ -193,19 +196,22 @@ be unfrozen at epoch 5"
             layers1_unfrozen = True
             break
 
-    assert layers1_unfrozen, "Expected layers_1 (equivalent to stages.1) to \
+    assert (
+        layers1_unfrozen
+    ), "Expected layers_1 (equivalent to stages.1) to \
 be unfrozen at epoch 10"
 
 
 def test_integration_freeze_and_transfer():
-    """Integration test for transfer learning with frozen layers and training.
+    """
+    Integration test for transfer learning with frozen layers and training.
     """
     # Create a small encoder with freezing
     encoder = SwinTransformerEncoder(
         in_channels=3,
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-        freeze_layers="patch_embed"
+        freeze_layers="patch_embed",
     )
 
     # Create a small input tensor
@@ -223,8 +229,9 @@ def test_integration_freeze_and_transfer():
     # Check that gradients only flow to trainable parameters
     for name, param in encoder.named_parameters():
         if "patch_embed" in name:
-            assert param.grad is None or torch.all(param.grad == 0), \
-                f"Expected no gradient for frozen parameter {name}"
+            assert param.grad is None or torch.all(
+                param.grad == 0
+            ), f"Expected no gradient for frozen parameter {name}"
         else:
             # Some parameters might not receive gradients due to the network
             # structure, so we can't assert all non-frozen parameters have
@@ -235,14 +242,17 @@ def test_integration_freeze_and_transfer():
 # Utility functions
 def count_trainable_params(model):
     """Count trainable and frozen parameters in a model."""
-    trainable_params = sum(p.numel() for p in model.parameters()
-                           if p.requires_grad)
-    frozen_params = sum(p.numel() for p in model.parameters()
-                        if not p.requires_grad)
+    trainable_params = sum(
+        p.numel() for p in model.parameters() if p.requires_grad
+    )
+    frozen_params = sum(
+        p.numel() for p in model.parameters() if not p.requires_grad
+    )
     return trainable_params, frozen_params
 
 
 def get_param_status_by_name(model):
     """Get a dictionary mapping parameter names to trainable status."""
-    return {name: param.requires_grad
-            for name, param in model.named_parameters()}
+    return {
+        name: param.requires_grad for name, param in model.named_parameters()
+    }

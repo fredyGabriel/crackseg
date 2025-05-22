@@ -8,22 +8,34 @@ metrics:
     _target_: src.training.metrics.IoUScore   # Computes Intersection over Union (IoU)
     smooth: 1e-6                              # Smoothing factor to avoid division by zero
     threshold: 0.5                            # Threshold for binarizing predictions
+    expected_dims_before_squeeze: ${data.expected_input_dims}
+    expected_dims_after_squeeze: ${data.num_dims_mask_pre_unsqueeze}
   f1:
     _target_: src.training.metrics.F1Score    # Computes F1 score (Dice coefficient)
     smooth: 1e-6                              # Smoothing factor
     threshold: 0.5                            # Binarization threshold
+    expected_dims_before_squeeze: ${data.expected_input_dims}
+    expected_dims_after_squeeze: ${data.num_dims_mask_pre_unsqueeze}
   precision:
     _target_: src.training.metrics.PrecisionScore # Computes precision metric
     smooth: 1e-6                              # Smoothing factor
     threshold: 0.5                            # Binarization threshold
+    expected_dims_before_squeeze: ${data.expected_input_dims}
+    expected_dims_after_squeeze: ${data.num_dims_mask_pre_unsqueeze}
   recall:
     _target_: src.training.metrics.RecallScore    # Computes recall metric
     smooth: 1e-6                              # Smoothing factor
     threshold: 0.5                            # Binarization threshold
+    expected_dims_before_squeeze: ${data.expected_input_dims}
+    expected_dims_after_squeeze: ${data.num_dims_mask_pre_unsqueeze}
   # Example: Add metric with specific parameters
   # - _target_: src.training.metrics.F1Score
   #   smooth: 1e-7
   #   threshold: 0.6
 
 save_predictions: true         # Whether to save predicted masks during evaluation
-save_dir: "eval_outputs/"      # Directory to save evaluation outputs (predictions, metrics, etc.) 
+save_dir: "eval_outputs/"      # Directory to save evaluation outputs (predictions, metrics, etc.)
+
+# Visualization settings during evaluation
+num_batches_visualize: 2
+visualize_samples: 5         # Default number of samples to visualize for single model evaluation

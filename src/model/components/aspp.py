@@ -1,7 +1,6 @@
-from typing import List
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 
 from src.model.base.abstract import BottleneckBase
 from src.model.factory.registry_setup import bottleneck_registry
@@ -24,13 +23,15 @@ class ASPPModule(BottleneckBase):
           Convolution
         - https://arxiv.org/abs/1802.02611
     """
-    def __init__(
+
+    def __init__(  # noqa: PLR0913
         self,
         in_channels: int,
         output_channels: int,
-        dilation_rates: List[int] = [1, 6, 12, 18],
+        dilation_rates: list[int] | None = None,
         dropout_rate: float = 0.1,
-        output_stride: int = 16
+        output_stride: int = 16,
+        dilation_rates_reference_stride: int = 16,
     ) -> None:
         """Initialize the ASPP module.
 
@@ -40,6 +41,8 @@ class ASPPModule(BottleneckBase):
             dilation_rates: List of dilation rates for parallel atrous convs
             dropout_rate: Dropout probability for regularization
             output_stride: Output stride of the network, affects dilations
+            dilation_rates_reference_stride: The output_stride for which the
+                                             dilation_rates are defined.
 
         Raises:
             ValueError: If in_channels or output_channels are not positive
@@ -49,6 +52,8 @@ class ASPPModule(BottleneckBase):
         super().__init__(in_channels)
         if in_channels <= 0 or output_channels <= 0:
             raise ValueError("Channel dimensions must be positive integers")
+        if dilation_rates is None:
+            dilation_rates = [1, 6, 12, 18]
         if not dilation_rates:
             raise ValueError("At least one dilation rate must be provided")
         if not 0 <= dropout_rate <= 1:
@@ -56,51 +61,72 @@ class ASPPModule(BottleneckBase):
 
         # Guardar parámetros
         self._output_channels = output_channels
-        self._dilation_rates = dilation_rates
-        if output_stride != 16:
-            self._dilation_rates = [
-                rate * (16 // output_stride) for rate in dilation_rates
+
+        # Determine effective dilation rates based on output_stride and
+        # reference_stride
+        effective_dilation_rates = list(dilation_rates)  # Start with a copy
+        if (
+            output_stride != dilation_rates_reference_stride
+            and output_stride > 0
+        ):
+            # This replicates the original integer division logic.
+            # If output_stride > dilation_rates_reference_stride, scale_factor
+            # can be 0.
+            scale_factor = dilation_rates_reference_stride // output_stride
+            effective_dilation_rates = [
+                rate * scale_factor for rate in dilation_rates
             ]
+            # Ensure rates are at least 1 for Conv2d dilation, and padding is
+            # non-negative.
+            # If a rate becomes 0 due to scaling, it implies standard
+            # convolution (dilation=1) and no extra padding due to dilation
+            # for that specific branch.
+            effective_dilation_rates = [
+                max(1, r) if r == 0 and scale_factor == 0 else r
+                for r in effective_dilation_rates
+            ]
+
+        self._dilation_rates = effective_dilation_rates
         self._dropout_rate = dropout_rate
-        self._output_stride = output_stride
+        self._output_stride = (
+            output_stride  # Store the actual output_stride of this module
+        )
 
         # 1x1 convolution branch
         self.conv_1x1 = nn.Sequential(
-            nn.Conv2d(in_channels, output_channels, kernel_size=1,
-                      bias=False),
+            nn.Conv2d(in_channels, output_channels, kernel_size=1, bias=False),
             nn.BatchNorm2d(output_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Atrous convolution branches
         self.branches = nn.ModuleList()
         for rate in self._dilation_rates:
+            # If rate is 0 (from scaling when output_stride > reference),
+            # use dilation=1 (standard conv) and padding=0.
+            current_dilation = rate if rate > 0 else 1
+            current_padding = rate if rate > 0 else 0
             self.branches.append(
                 nn.Sequential(
                     nn.Conv2d(
                         in_channels,
                         output_channels,
                         kernel_size=3,
-                        padding=rate,
-                        dilation=rate,
-                        bias=False
+                        padding=current_padding,
+                        dilation=current_dilation,
+                        bias=False,
                     ),
                     nn.BatchNorm2d(output_channels),
-                    nn.ReLU(inplace=True)
+                    nn.ReLU(inplace=True),
                 )
             )
 
         # Global average pooling branch
         self.global_pool = nn.Sequential(
             nn.AdaptiveAvgPool2d(1),
-            nn.Conv2d(
-                in_channels,
-                output_channels,
-                kernel_size=1,
-                bias=False
-            ),
+            nn.Conv2d(in_channels, output_channels, kernel_size=1, bias=False),
             nn.BatchNorm2d(output_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
         # Nota: la expansión espacial se hará en el forward (próxima subtarea)
 
@@ -110,13 +136,14 @@ class ASPPModule(BottleneckBase):
                 output_channels * (len(self._dilation_rates) + 2),
                 output_channels,
                 kernel_size=1,
-                bias=False
+                bias=False,
             ),
             nn.BatchNorm2d(output_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
-        self.dropout = nn.Dropout2d(p=dropout_rate) if dropout_rate > 0 else \
-            nn.Identity()
+        self.dropout = (
+            nn.Dropout2d(p=dropout_rate) if dropout_rate > 0 else nn.Identity()
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the ASPP module.
@@ -132,7 +159,7 @@ class ASPPModule(BottleneckBase):
         # Global pooling branch: pool, upsample to input size
         pool = self.global_pool(x)
         pool_upsampled = F.interpolate(
-            pool, size=x.shape[2:], mode='bilinear', align_corners=False
+            pool, size=x.shape[2:], mode="bilinear", align_corners=False
         )
         outputs.append(pool_upsampled)
         # Concatenate along channel dimension

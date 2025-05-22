@@ -1,12 +1,10 @@
 """Custom exceptions for the crack segmentation project."""
 
-from typing import Optional
-
 
 class CrackSegError(Exception):
     """Base exception class for the crack segmentation project."""
 
-    def __init__(self, message: str, details: Optional[str] = None):
+    def __init__(self, message: str, details: str | None = None):
         """Initialize the exception.
 
         Args:
@@ -31,9 +29,9 @@ class ConfigError(CrackSegError):
     def __init__(
         self,
         message: str,
-        config_path: Optional[str] = None,
-        field: Optional[str] = None,
-        details: Optional[str] = None
+        config_path: str | None = None,
+        field: str | None = None,
+        details: str | None = None,
     ):
         """Initialize the configuration error.
 
@@ -58,8 +56,8 @@ class DataError(CrackSegError):
     def __init__(
         self,
         message: str,
-        data_path: Optional[str] = None,
-        details: Optional[str] = None
+        data_path: str | None = None,
+        details: str | None = None,
     ):
         """Initialize the data error.
 
@@ -80,8 +78,8 @@ class ModelError(CrackSegError):
     def __init__(
         self,
         message: str,
-        model_name: Optional[str] = None,
-        details: Optional[str] = None
+        model_name: str | None = None,
+        details: str | None = None,
     ):
         """Initialize the model error.
 
@@ -102,8 +100,8 @@ class TrainingError(CrackSegError):
     def __init__(
         self,
         message: str,
-        epoch: Optional[int] = None,
-        details: Optional[str] = None
+        epoch: int | None = None,
+        details: str | None = None,
     ):
         """Initialize the training error.
 
@@ -124,8 +122,8 @@ class EvaluationError(CrackSegError):
     def __init__(
         self,
         message: str,
-        checkpoint: Optional[str] = None,
-        details: Optional[str] = None
+        checkpoint: str | None = None,
+        details: str | None = None,
     ):
         """Initialize the evaluation error.
 
@@ -147,8 +145,8 @@ class ResourceError(CrackSegError):
     def __init__(
         self,
         message: str,
-        resource_type: Optional[str] = None,
-        details: Optional[str] = None
+        resource_type: str | None = None,
+        details: str | None = None,
     ):
         """Initialize the resource error.
 
@@ -169,8 +167,8 @@ class ValidationError(CrackSegError):
     def __init__(
         self,
         message: str,
-        field: Optional[str] = None,
-        details: Optional[str] = None
+        field: str | None = None,
+        details: str | None = None,
     ):
         """Initialize the validation error.
 

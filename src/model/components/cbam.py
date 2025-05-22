@@ -1,12 +1,12 @@
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
+from torch import nn
 
 # Importamos el registro global de atención
 from src.model.factory.registry_setup import component_registries
 
 # Obtenemos el registro global de atención
-attention_registry = component_registries.get('attention')
+attention_registry = component_registries.get("attention")
 
 
 class ChannelAttention(nn.Module):
@@ -24,6 +24,7 @@ class ChannelAttention(nn.Module):
         >>> out = attn(x)
         >>> out.shape  # (8, 64, 32, 32)
     """
+
     def __init__(self, in_channels: int, reduction: int = 16):
         super().__init__()
         if reduction <= 0 or reduction >= in_channels:
@@ -38,7 +39,7 @@ class ChannelAttention(nn.Module):
         self.mlp = nn.Sequential(
             nn.Linear(in_channels, hidden_channels, bias=False),
             nn.ReLU(inplace=True),
-            nn.Linear(hidden_channels, in_channels, bias=False)
+            nn.Linear(hidden_channels, in_channels, bias=False),
         )
         self.sigmoid = nn.Sigmoid()
 
@@ -81,12 +82,11 @@ class SpatialAttention(nn.Module):
         >>> out = attn(x)
         >>> out.shape  # (8, 64, 32, 32)
     """
+
     def __init__(self, kernel_size: int = 7):
         super().__init__()
         if kernel_size % 2 == 0 or kernel_size < 1:
-            raise ValueError(
-                "kernel_size must be odd and >= 1"
-            )
+            raise ValueError("kernel_size must be odd and >= 1")
         padding = kernel_size // 2
         self.conv = nn.Conv2d(
             2, 1, kernel_size=kernel_size, padding=padding, bias=False
@@ -132,8 +132,10 @@ class CBAM(nn.Module):
         >>> out = cbam(x)
         >>> out.shape  # (8, 64, 32, 32)
     """
-    def __init__(self, in_channels: int, reduction: int = 16,
-                 kernel_size: int = 7):
+
+    def __init__(
+        self, in_channels: int, reduction: int = 16, kernel_size: int = 7
+    ):
         super().__init__()
         self.channel_attn = ChannelAttention(in_channels, reduction)
         self.spatial_attn = SpatialAttention(kernel_size)

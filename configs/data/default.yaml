@@ -10,4 +10,14 @@ image_size: [512, 512]     # Target image size as [height, width]
 batch_size: 8              # Number of samples per batch
 num_workers: -1            # Number of worker processes for data loading (-1 = autodetect based on CPU)
 seed: ${random_seed}       # Random seed for reproducibility (from base.yaml)
-in_memory_cache: false     # Whether to cache data in memory (improves speed, uses more RAM) 
+in_memory_cache: false     # Whether to cache data in memory (improves speed, uses more RAM)
+
+# Tensor shape constants
+num_dims_image: 4
+num_channels_rgb: 3
+num_dims_mask: 3
+kernel_expected_dims: 2
+expected_input_dims: 4 # Expected input dimensions (B, C, H, W)
+expected_bottleneck_ndim_4d: 4 # Expected 4D bottleneck dimensions (B, C, H, W)
+expected_bottleneck_ndim_3d: 3 # Expected 3D bottleneck dimensions (B, L, C)
+num_dims_mask_pre_unsqueeze: 3 # Expected mask dimensions before unsqueeze

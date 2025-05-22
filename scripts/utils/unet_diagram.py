@@ -8,18 +8,16 @@ method to create a diagram (PNG) of the model structure.
 
 import os
 import sys
+
 import hydra
 from omegaconf import OmegaConf
+
 # Add the project root directory to the Python path
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 sys.path.insert(0, os.path.join(project_root, ".."))
 
-from src.model.factory import create_unet  # noqa: E
-# Importar explícitamente los módulos CNN para registrar los componentes
-from src.model.encoder.cnn_encoder import CNNEncoder  # noqa: E
-from src.model.bottleneck.cnn_bottleneck import BottleneckBlock  # noqa: E
-from src.model.decoder.cnn_decoder import CNNDecoder  # noqa: E
+from src.model.factory import create_unet  # noqa: E402
 
 
 def main():

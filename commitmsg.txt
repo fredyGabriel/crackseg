@@ -1,0 +1,6 @@
+chore(linting): migrate to ruff, mypy, and black for Python 3.12
+
+- Removed legacy linting tools and configs (pylint, isort)
+- Updated pre-commit hook to use ruff check, black, and mypy
+- Updated documentation and configuration files for Python 3.12
+- Added proper package structure with __init__.py files

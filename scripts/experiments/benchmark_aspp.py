@@ -4,11 +4,12 @@ Benchmark script for comparing ASPP bottleneck performance.
 This script measures forward/backward pass speed and memory usage.
 """
 
-import time
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 import argparse
+import time
+
+import torch
+import torch.nn.functional as F
+from torch import nn
 
 
 # Simplified bottleneck implementations for benchmark
@@ -24,7 +25,7 @@ class SimpleBottleneck(nn.Module):
             nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
             nn.BatchNorm2d(out_channels),
             nn.ReLU(inplace=True),
-            nn.Dropout2d(dropout) if dropout > 0 else nn.Identity()
+            nn.Dropout2d(dropout) if dropout > 0 else nn.Identity(),
         )
 
     def forward(self, x):
@@ -38,20 +39,22 @@ class ASPPModule(nn.Module):
         self,
         in_channels,
         output_channels,
-        dilation_rates=[1, 6, 12, 18],
+        dilation_rates=None,
         dropout_rate=0.1,
-        output_stride=16
+        output_stride=16,
     ):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = output_channels
+        if dilation_rates is None:
+            dilation_rates = [1, 6, 12, 18]
         self._dilation_rates = dilation_rates
 
         # 1x1 convolution branch
         self.conv_1x1 = nn.Sequential(
             nn.Conv2d(in_channels, output_channels, kernel_size=1, bias=False),
             nn.BatchNorm2d(output_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Atrous convolution branches
@@ -65,10 +68,10 @@ class ASPPModule(nn.Module):
                         kernel_size=3,
                         padding=rate,
                         dilation=rate,
-                        bias=False
+                        bias=False,
                     ),
                     nn.BatchNorm2d(output_channels),
-                    nn.ReLU(inplace=True)
+                    nn.ReLU(inplace=True),
                 )
             )
 
@@ -77,7 +80,7 @@ class ASPPModule(nn.Module):
             nn.AdaptiveAvgPool2d(1),
             nn.Conv2d(in_channels, output_channels, kernel_size=1, bias=False),
             nn.BatchNorm2d(output_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
 
         # Final 1x1 projection after concatenation
@@ -86,13 +89,14 @@ class ASPPModule(nn.Module):
                 output_channels * (len(self._dilation_rates) + 2),
                 output_channels,
                 kernel_size=1,
-                bias=False
+                bias=False,
             ),
             nn.BatchNorm2d(output_channels),
-            nn.ReLU(inplace=True)
+            nn.ReLU(inplace=True),
         )
-        self.dropout = nn.Dropout2d(p=dropout_rate) if dropout_rate > 0 else \
-            nn.Identity()
+        self.dropout = (
+            nn.Dropout2d(p=dropout_rate) if dropout_rate > 0 else nn.Identity()
+        )
 
     def forward(self, x):
         # Collect outputs from all branches
@@ -102,7 +106,7 @@ class ASPPModule(nn.Module):
         # Global pooling branch: pool, upsample to input size
         pool = self.global_pool(x)
         pool_upsampled = F.interpolate(
-            pool, size=x.shape[2:], mode='bilinear', align_corners=False
+            pool, size=x.shape[2:], mode="bilinear", align_corners=False
         )
         outputs.append(pool_upsampled)
 
@@ -126,10 +130,12 @@ class ConvLSTMBottleneck(nn.Module):
         self.out_channels = out_channels
 
         # Simplified ConvLSTM using standard convolutions
-        self.conv1 = nn.Conv2d(in_channels, out_channels, kernel_size,
-                               padding=kernel_size//2)
-        self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size,
-                               padding=kernel_size//2)
+        self.conv1 = nn.Conv2d(
+            in_channels, out_channels, kernel_size, padding=kernel_size // 2
+        )
+        self.conv2 = nn.Conv2d(
+            out_channels, out_channels, kernel_size, padding=kernel_size // 2
+        )
         self.bn = nn.BatchNorm2d(out_channels)
         self.relu = nn.ReLU(inplace=True)
 
@@ -182,30 +188,40 @@ def measure_memory_usage(model, input_tensor):
     loss.backward()
 
     # Measure peak memory
-    peak_memory = torch.cuda.max_memory_allocated() / (1024 ** 2)  # MB
+    peak_memory = torch.cuda.max_memory_allocated() / (1024**2)  # MB
     return peak_memory
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Benchmark ASPP module performance')
-    parser.add_argument('--use-cuda', action='store_true',
-                        help='Use CUDA if available')
-    parser.add_argument('--input-size', type=int, default=64,
-                        help='Input spatial dimensions')
-    parser.add_argument('--batch-size', type=int, default=16,
-                        help='Batch size')
-    parser.add_argument('--in-channels', type=int, default=512,
-                        help='Input channels')
-    parser.add_argument('--out-channels', type=int, default=1024,
-                        help='Output channels')
-    parser.add_argument('--iterations', type=int, default=50,
-                        help='Number of iterations for timing')
+        description="Benchmark ASPP module performance"
+    )
+    parser.add_argument(
+        "--use-cuda", action="store_true", help="Use CUDA if available"
+    )
+    parser.add_argument(
+        "--input-size", type=int, default=64, help="Input spatial dimensions"
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=16, help="Batch size"
+    )
+    parser.add_argument(
+        "--in-channels", type=int, default=512, help="Input channels"
+    )
+    parser.add_argument(
+        "--out-channels", type=int, default=1024, help="Output channels"
+    )
+    parser.add_argument(
+        "--iterations",
+        type=int,
+        default=50,
+        help="Number of iterations for timing",
+    )
     args = parser.parse_args()
 
     # Device setup
     use_cuda = args.use_cuda and torch.cuda.is_available()
-    device = torch.device('cuda' if use_cuda else 'cpu')
+    device = torch.device("cuda" if use_cuda else "cpu")
     print(f"Using device: {device}")
 
     # Create benchmark bottlenecks
@@ -214,19 +230,19 @@ def main():
         "Default CNN": SimpleBottleneck(
             in_channels=args.in_channels,
             out_channels=args.out_channels,
-            dropout=0.1
+            dropout=0.1,
         ),
         "ASPP": ASPPModule(
             in_channels=args.in_channels,
             output_channels=args.out_channels,
             dilation_rates=[1, 6, 12, 18],
-            dropout_rate=0.1
+            dropout_rate=0.1,
         ),
         "ConvLSTM": ConvLSTMBottleneck(
             in_channels=args.in_channels,
             out_channels=args.out_channels,
-            kernel_size=3
-        )
+            kernel_size=3,
+        ),
     }
 
     # Move models to device
@@ -235,9 +251,11 @@ def main():
 
     # Create input tensor
     x = torch.randn(
-        args.batch_size, args.in_channels,
-        args.input_size, args.input_size,
-        device=device
+        args.batch_size,
+        args.in_channels,
+        args.input_size,
+        args.input_size,
+        device=device,
     )
 
     # Benchmark settings
@@ -246,11 +264,7 @@ def main():
     print(f"  Iterations: {args.iterations}")
 
     # Results storage
-    results = {
-        "Model": [],
-        "Inference Time (ms)": [],
-        "Memory Usage (MB)": []
-    }
+    results = {"Model": [], "Inference Time (ms)": [], "Memory Usage (MB)": []}
 
     # Run benchmarks
     print("\nRunning benchmarks...")

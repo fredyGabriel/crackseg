@@ -1,5 +1,5 @@
 # config/training/loss/bce_dice.yaml
 _target_: src.training.losses.BCEDiceLoss  # Combined BCE + Dice loss class
-bce_weight: 0.5    # Weight for BCE loss component
-dice_weight: 0.5   # Weight for Dice loss component
-smooth: 1.0        # Smoothing factor for Dice loss 
+bce_weight: ${thresholds.loss_weight}    # Weight for BCE loss component
+dice_weight: ${thresholds.loss_weight}   # Weight for Dice loss component
+smooth: 1.0        # Smoothing factor for Dice loss

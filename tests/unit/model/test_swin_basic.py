@@ -1,25 +1,24 @@
 """Basic test for SwinTransformerEncoder."""
 
-import torch
 import pytest
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+import torch
+
 from src.model import EncoderBase
+from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
 
 
 def test_swin_transformer_encoder_instantiation():
     """Test basic instantiation of SwinTransformerEncoder."""
     # Create a simple encoder instance
     encoder = SwinTransformerEncoder(
-        in_channels=3,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=False
+        in_channels=3, model_name="swinv2_tiny_window16_256", pretrained=False
     )
 
     # Verify basic properties
     assert isinstance(encoder, EncoderBase)
-    assert encoder.in_channels == 3
-    assert hasattr(encoder, 'out_channels')
-    assert hasattr(encoder, 'skip_channels')
+    assert encoder.in_channels == 3  # noqa: PLR2004
+    assert hasattr(encoder, "out_channels")
+    assert hasattr(encoder, "skip_channels")
 
     # Print information for debugging
     print(f"Encoder out_channels: {encoder.out_channels}")
@@ -34,9 +33,7 @@ def test_swin_transformer_encoder_forward():
 
     # Create encoder
     encoder = SwinTransformerEncoder(
-        in_channels=3,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=False
+        in_channels=3, model_name="swinv2_tiny_window16_256", pretrained=False
     )
 
     # Move to CUDA for testing
@@ -55,6 +52,6 @@ def test_swin_transformer_encoder_forward():
     print(f"Skip connection shapes: {[s.shape for s in skip_connections]}")
 
     # Basic assertions
-    assert bottleneck.shape[0] == 2  # Batch size preserved
+    assert bottleneck.shape[0] == 2  # Batch size preserved  # noqa: PLR2004
     assert len(skip_connections) > 0  # Should have skip connections
-    assert all(s.shape[0] == 2 for s in skip_connections)  # All have batch dim
+    assert all(s.shape[0] == 2 for s in skip_connections)  # noqa: PLR2004
