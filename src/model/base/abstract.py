@@ -364,9 +364,9 @@ class UNetBase(nn.Module, metaclass=abc.ABCMeta):
     @property
     def in_channels(self) -> int:
         """Number of input channels."""
-        return self.encoder.in_channels
+        return self.encoder.in_channels if self.encoder is not None else 0
 
     @property
     def out_channels(self) -> int:
         """Number of output channels (segmentation classes)."""
-        return self.decoder.out_channels
+        return self.decoder.out_channels if self.decoder is not None else 0

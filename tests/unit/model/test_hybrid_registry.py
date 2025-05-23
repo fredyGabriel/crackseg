@@ -112,7 +112,8 @@ def setup_module(module):
         from src.model.factory.registry_setup import component_registries
 
         attention_registry = component_registries.get("attention")
-        attention_registry.unregister("MockAttention")
+        if attention_registry is not None:
+            attention_registry.unregister("MockAttention")
     except Exception:
         pass
     # Register test components in appropriate registries
@@ -123,7 +124,8 @@ def setup_module(module):
     from src.model.factory.registry_setup import component_registries
 
     attention_registry = component_registries.get("attention")
-    attention_registry.register(name="MockAttention")(MockAttention)
+    if attention_registry is not None:
+        attention_registry.register(name="MockAttention")(MockAttention)
 
 
 def teardown_module(module):
@@ -148,7 +150,8 @@ def teardown_module(module):
         from src.model.factory.registry_setup import component_registries
 
         attention_registry = component_registries.get("attention")
-        attention_registry.unregister("MockAttention")
+        if attention_registry is not None:
+            attention_registry.unregister("MockAttention")
     except Exception:
         pass
 
@@ -207,7 +210,8 @@ def test_register_standard_hybrid():
     )
 
     assert result is True
-    assert "StandardHybrid" in hybrid_registry.list_architectures()
+    descriptors = hybrid_registry._descriptors  # type: ignore[attr-defined]
+    assert "StandardHybrid" in descriptors
 
     # Register with attention
     result = register_standard_hybrid(
@@ -220,9 +224,8 @@ def test_register_standard_hybrid():
     )
 
     assert result is True
-    assert (
-        "StandardHybridWithAttention" in hybrid_registry.list_architectures()
-    )
+    descriptors = hybrid_registry._descriptors  # type: ignore[attr-defined]
+    assert "StandardHybridWithAttention" in descriptors
 
     # Try to register duplicate - should raise ValueError
     with pytest.raises(ValueError):
@@ -261,7 +264,8 @@ def test_register_complex_hybrid():
     )
 
     assert result is True
-    assert "ComplexHybrid" in hybrid_registry.list_architectures()
+    descriptors = hybrid_registry._descriptors  # type: ignore[attr-defined]
+    assert "ComplexHybrid" in descriptors
 
     # Get the descriptor to verify
     descriptor = hybrid_registry.get_descriptor("ComplexHybrid")
@@ -298,9 +302,11 @@ def test_query_architectures():
 def test_architecture_registry_integration():
     """Test that hybrid architectures are also in the main architecture
     registry."""
-    # Check that the standard and complex hybrids are in the architecture
-    # registry
-    arch_registry_items = architecture_registry.list()
+
+    def get_descriptors(registry):
+        return registry._descriptors  # type: ignore[attr-defined]
+
+    arch_registry_items = get_descriptors(architecture_registry)
     assert "StandardHybrid" in arch_registry_items
     assert "ComplexHybrid" in arch_registry_items
     assert "StandardHybridWithAttention" in arch_registry_items

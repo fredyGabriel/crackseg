@@ -39,9 +39,9 @@ def evaluate_model(
     results["test_loss"] = 0.0
 
     # Store predictions and ground truth for visualization later
-    all_inputs = []
-    all_targets = []
-    all_outputs = []
+    inputs_list: list[torch.Tensor] = []
+    targets_list: list[torch.Tensor] = []
+    outputs_list: list[torch.Tensor] = []
 
     with torch.no_grad():
         for batch_idx, batch in enumerate(dataloader):
@@ -88,9 +88,9 @@ def evaluate_model(
 
             # Store first few batches for visualization
             if batch_idx < config.evaluation.num_batches_visualize:
-                all_inputs.append(inputs.cpu())
-                all_targets.append(targets.cpu())
-                all_outputs.append(outputs.cpu())
+                inputs_list.append(inputs.cpu())
+                targets_list.append(targets.cpu())
+                outputs_list.append(outputs.cpu())
 
             # Log progress (dejar a la función llamadora)
 
@@ -98,9 +98,9 @@ def evaluate_model(
     for key in results:
         results[key] /= len(dataloader)
 
-    # Convert stored tensors to lists
-    all_inputs = torch.cat(all_inputs, dim=0)
-    all_targets = torch.cat(all_targets, dim=0)
-    all_outputs = torch.cat(all_outputs, dim=0)
+    # Convert stored tensors to tensors
+    all_inputs = torch.cat(inputs_list, dim=0)
+    all_targets = torch.cat(targets_list, dim=0)
+    all_outputs = torch.cat(outputs_list, dim=0)
 
     return results, (all_inputs, all_targets, all_outputs)

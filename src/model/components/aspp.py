@@ -1,3 +1,5 @@
+from typing import cast
+
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -168,7 +170,7 @@ class ASPPModule(BottleneckBase):
         x_proj = self.project(x_cat)
         if self.training and self._dropout_rate > 0:
             x_proj = self.dropout(x_proj)
-        return x_proj
+        return cast(torch.Tensor, x_proj)
 
     @property
     def out_channels(self) -> int:

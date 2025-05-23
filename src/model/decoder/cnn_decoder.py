@@ -167,9 +167,7 @@ class DecoderBlock(DecoderBase):
 
         # Store actual operating channels
         self.in_channels = in_channels
-        self._skip_channels = (
-            skip_channels  # This specific block's skip channel count
-        )
+        self._skip_channels = [skip_channels]  # type: list[int]
         self._out_channels = (
             effective_out_channels  # Output of this block's convolutions
         )
@@ -206,19 +204,24 @@ class DecoderBlock(DecoderBase):
         # Concatenated channels: output of up_conv (self._out_channels) +
         # self._skip_channels
         concat_channels_for_cbam_and_conv1 = (
-            self._out_channels + self._skip_channels
+            self._out_channels + self._skip_channels[0]
         )
-        if concat_channels_for_cbam_and_conv1 <= 0 and self._skip_channels > 0:
+        if (
+            concat_channels_for_cbam_and_conv1 <= 0
+            and self._skip_channels[0] > 0
+        ):
             raise ValueError(
                 "concat_channels_for_cbam_and_conv1 "
                 f"({concat_channels_for_cbam_and_conv1}) must be positive when"
                 " skip_channels > 0"
             )
 
+        # Declarar self.cbam como nn.Module para aceptar ambos tipos
+        self.cbam: nn.Module
         if self.use_cbam:
             if (
                 concat_channels_for_cbam_and_conv1 <= self.cbam_reduction
-                and self._skip_channels > 0
+                and self._skip_channels[0] > 0
             ):
                 # This check is only relevant if there's a skip connection to
                 # concatenate
@@ -231,7 +234,7 @@ class DecoderBlock(DecoderBase):
             self.cbam = CBAM(
                 in_channels=(
                     concat_channels_for_cbam_and_conv1
-                    if self._skip_channels > 0
+                    if self._skip_channels[0] > 0
                     else self._out_channels
                 ),  # CBAM input is different if no skip
                 reduction=self.cbam_reduction,
@@ -243,7 +246,7 @@ class DecoderBlock(DecoderBase):
         # Input to conv1 is different if there's no skip connection
         conv1_in_channels = (
             concat_channels_for_cbam_and_conv1
-            if self._skip_channels > 0
+            if self._skip_channels[0] > 0
             else self._out_channels
         )
 
@@ -277,10 +280,10 @@ class DecoderBlock(DecoderBase):
                 f"Input tensor has {x.size(1)} channels, "
                 "expected {self.in_channels}"
             )
-        if skip is not None and skip.size(1) != self.skip_channels:
+        if skip is not None and skip.size(1) != self.skip_channels[0]:
             raise ValueError(
                 f"Skip connection has {skip.size(1)} channels, "
-                "expected {self.skip_channels}"
+                "expected {self.skip_channels[0]}"
             )
         if skip is not None and x.shape[2:] != skip.shape[2:]:
             raise ValueError(
@@ -310,7 +313,7 @@ class DecoderBlock(DecoderBase):
         )
         x = self.upsample(x)
         x = self.up_conv(x)
-        if self._skip_channels == 0:
+        if self._skip_channels[0] == 0:
             # No skip connection: omitir concatenación
             x = self.cbam(x)
             expected_channels = self.conv1.in_channels
@@ -377,7 +380,7 @@ class DecoderBlock(DecoderBase):
         return x
 
     @property
-    def skip_channels(self) -> int:
+    def skip_channels(self) -> list[int]:
         return self._skip_channels
 
     @property

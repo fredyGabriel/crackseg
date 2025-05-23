@@ -30,6 +30,9 @@ print("Available components:", list_available_components())
 # Test component registries
 print("\nComponent registries:")
 for name, registry in component_registries.items():
-    print(f"- {name}: {registry.list()}")
+    print(
+        f"- {name}: "
+        f"{registry.list_available() if registry is not None else None}"
+    )
 
 print("\nRegistry completed successfully!")

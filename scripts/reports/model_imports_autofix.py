@@ -4,7 +4,7 @@ import os
 import re
 import shutil
 
-# Rutas de archivos
+# Paths to files
 REPORT_PATH = os.path.join(
     os.path.dirname(__file__), "model_imports_invalid.json"
 )
@@ -16,7 +16,7 @@ LOG_PATH = os.path.join(
     os.path.dirname(__file__), "model_imports_autofix_log.json"
 )
 
-# Patrones de reemplazo: (antiguo, nuevo)
+# Replacement patterns: (old, new)
 REPLACEMENTS = [
     (
         r"^(base|core|factory|common|components|bottleneck|decoder|encoder|"
@@ -30,14 +30,14 @@ REPLACEMENTS = [
     ),
 ]
 
-# Crear backup dir si no existe
+# Create backup dir if it doesn't exist
 os.makedirs(BACKUP_DIR, exist_ok=True)
 
 with open(REPORT_PATH, encoding="utf-8") as f:
     invalid_imports = json.load(f)
 
-# Agrupar por archivo
-files_to_fix = {}
+# Group by file
+files_to_fix: dict[str, list[dict]] = {}
 for entry in invalid_imports:
     fname = entry["file"]
     files_to_fix.setdefault(fname, []).append(entry)
@@ -57,9 +57,9 @@ for fname, entries in files_to_fix.items():
         orig_line = lines[lineno]
         new_line = orig_line
         for pat, repl in REPLACEMENTS:
-            # Solo reemplazar si el patrón está al inicio del import
+            # Only replace if the pattern is at the beginning of the import
             new_line = re.sub(pat, repl, new_line)
-        # Validar con AST si sigue siendo un import válido
+        # Validate with AST if it still is a valid import
         try:
             node = ast.parse(new_line.strip())
             if not (
@@ -95,4 +95,4 @@ for fname, entries in files_to_fix.items():
 with open(LOG_PATH, "w", encoding="utf-8") as f:
     json.dump(log, f, indent=2, ensure_ascii=False)
 
-print(f"Autofix terminado. Log en {LOG_PATH}. Backups en {BACKUP_DIR}")
+print(f"Autofix finished. Log in {LOG_PATH}. Backups in {BACKUP_DIR}")

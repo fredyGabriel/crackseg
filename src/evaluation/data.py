@@ -1,4 +1,5 @@
-from typing import Any
+from collections.abc import Sized
+from typing import Any, cast
 
 from omegaconf import DictConfig, OmegaConf
 from torch.utils.data import DataLoader
@@ -68,8 +69,11 @@ def get_evaluation_dataloader(
         if test_loader is None:
             raise DataError("Test dataloader could not be created")
 
+        if not isinstance(test_loader, DataLoader):
+            raise DataError("Test dataloader is not a DataLoader instance")
         log.info(
-            "Test dataset loaded with %d samples", len(test_loader.dataset)
+            "Test dataset loaded with %d samples",
+            len(cast(Sized, test_loader.dataset)),
         )
         return test_loader
 

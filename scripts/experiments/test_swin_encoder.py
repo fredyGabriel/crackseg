@@ -76,19 +76,13 @@ def main(cfg: DictConfig):
     encoder_cfg = OmegaConf.load(encoder_cfg_path)
     logger.info("Encoder configuration:")
     logger.info(OmegaConf.to_yaml(encoder_cfg))
-
     # Instantiate the encoder with the configuration file parameters
+    encoder_params = OmegaConf.to_container(encoder_cfg, resolve=True)
+    if not isinstance(encoder_params, dict):
+        raise ValueError("Encoder configuration must be a dictionary")
+    encoder_params.pop("in_channels", None)
     encoder = SwinTransformerEncoder(
-        in_channels=3,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=True,
-        features_only=True,
-        out_indices=[0, 1, 2, 3],
-        img_size=256,
-        patch_size=4,
-        use_abs_pos_embed=True,
-        output_norm=True,
-        handle_input_size="resize",
+        in_channels=encoder_cfg.in_channels, **dict(encoder_params)
     )
     logger.info(f"Encoder created: {type(encoder).__name__}")
 

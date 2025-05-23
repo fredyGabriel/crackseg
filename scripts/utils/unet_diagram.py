@@ -10,7 +10,6 @@ import os
 import sys
 
 import hydra
-from omegaconf import OmegaConf
 
 # Add the project root directory to the Python path
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -31,8 +30,7 @@ def main():
     hydra.core.global_hydra.GlobalHydra.instance().clear()
 
     # Convert config to dictionary
-    config_dict = OmegaConf.to_container(cfg.model, resolve=True)
-    unet = create_unet(config_dict)
+    unet = create_unet(cfg.model)
 
     # Visualize architecture (will save as PNG and open it)
     print("Generando diagrama de arquitectura U-Net...")

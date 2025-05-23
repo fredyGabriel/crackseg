@@ -4,7 +4,7 @@ import pickle  # Import pickle for specific exceptions
 import zipfile  # Import zipfile for specific exceptions
 from dataclasses import dataclass  # Import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import torch
 from torch import nn
@@ -303,7 +303,7 @@ def load_checkpoint_dict(
             weights_only=False,  # Ensure this is intended
         )
         logger.info(f"Loaded checkpoint dict from {checkpoint_path}")
-        return checkpoint
+        return cast(dict[str, Any], checkpoint)
     except (
         OSError,
         RuntimeError,

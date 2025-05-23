@@ -39,7 +39,7 @@ class CrackSegmentationDataset(Dataset[Any]):
         self,
         mode: str,  # Mode is required for transforms
         image_size: tuple[int, int] | None = None,
-        # data_root: str | None = None, # Keep for potential future use?
+        # data_root: Optional[str] = None, # Keep for potential future use?
         samples_list: list[tuple[str, str]] | None = None,
         seed: int | None = None,
         in_memory_cache: bool = False,
@@ -57,13 +57,13 @@ class CrackSegmentationDataset(Dataset[Any]):
                 method (e.g., via data_root, currently implies scanning,
                 which is removed).
                 If provided, these paths are used directly.
-            seed (int | None): Random seed for reproducibility.
+            seed (Optional[int]): Random seed for reproducibility.
             in_memory_cache (bool): If True, cache all data in RAM.
                 Note: Cache stores raw PIL Images.
                 Transforms applied after cache load.
             config_transform (dict[str, Any] | None): Dict with transform
             config (Hydra YAML).
-            max_samples (int | None): If set and > 0, limits the number
+            max_samples (Optional[int]): If set and > 0, limits the number
                 of samples loaded for this dataset (for fast testing).
         """
         if mode not in ["train", "val", "test"]:
@@ -167,7 +167,8 @@ class CrackSegmentationDataset(Dataset[Any]):
                     "L"
                 )
 
-                self._cache.append((image.copy(), mask.copy()))
+                if self._cache is not None:
+                    self._cache.append((image.copy(), mask.copy()))
                 # Close files after copying
                 image.close()
                 mask.close()
@@ -185,7 +186,8 @@ class CrackSegmentationDataset(Dataset[Any]):
                     stacklevel=2,
                 )
                 # Placeholder for failed cache
-                self._cache.append((None, None))
+                if self._cache is not None:
+                    self._cache.append((None, None))
 
     def __len__(self) -> int:
         """Return the total number of samples."""
@@ -249,7 +251,11 @@ class CrackSegmentationDataset(Dataset[Any]):
                     mask = (mask > 127).astype(np.uint8)
 
                     # Apply transformations
-                    transformed = self.transforms(image=image, mask=mask)
+                    transformed = (
+                        self.transforms(image=image, mask=mask)
+                        if self.transforms is not None
+                        else {"image": None, "mask": None}
+                    )
                     image_tensor = transformed["image"]
                     mask_tensor = transformed["mask"]
 
@@ -315,7 +321,7 @@ def create_crackseg_dataset(  # noqa: PLR0913
         samples_list (list[tuple[str, str]]): List of (image_path, mask_path)
             tuples
         in_memory_cache (bool): Whether to cache images in RAM
-        max_samples (int | None): Maximum number of samples for the dataset
+        max_samples (Optional[int]): Maximum number of samples for the dataset
     Returns:
         CrackSegmentationDataset: Configured dataset instance
     """

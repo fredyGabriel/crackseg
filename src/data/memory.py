@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from typing import cast
 
 import torch
+import torch.nn as nn
+from torch.cuda.amp import GradScaler
 
 
 def get_available_gpu_memory(
@@ -104,7 +106,7 @@ def get_gpu_memory_usage(
 class BatchSizeEstimationArgs:
     """Arguments for estimating maximum batch size."""
 
-    model: torch.nn.Module
+    model: nn.Module
     input_shape: tuple[int, ...]
     target_shape: tuple[int, ...] | None = None
     max_memory_mb: float | None = None
@@ -247,7 +249,7 @@ def calculate_gradient_accumulation_steps(
     return math.ceil(target_batch_size / actual_batch_size)
 
 
-def enable_mixed_precision() -> torch.cuda.amp.GradScaler | None:
+def enable_mixed_precision() -> GradScaler | None:
     """
     Enable mixed precision training.
 
@@ -261,7 +263,7 @@ def enable_mixed_precision() -> torch.cuda.amp.GradScaler | None:
         )
         return None
 
-    return torch.cuda.amp.GradScaler()
+    return GradScaler()
 
 
 def format_memory_stats(stats: dict[str, float]) -> str:
@@ -281,7 +283,7 @@ def format_memory_stats(stats: dict[str, float]) -> str:
     )
 
 
-def memory_summary(model: torch.nn.Module | None = None) -> str:
+def memory_summary(model: nn.Module | None = None) -> str:
     """
     Create a summary of memory usage, optionally including model details.
 

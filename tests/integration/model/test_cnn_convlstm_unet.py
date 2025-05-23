@@ -1,4 +1,5 @@
 import logging
+from typing import Any, cast
 
 import pytest
 import torch
@@ -84,7 +85,7 @@ class SimpleConvLSTMBottleneck(BottleneckBase):
         Returns:
             torch.Tensor: Output tensor (B, Cout, H, W).
         """
-        return self.bottleneck(x)
+        return cast(torch.Tensor, self.bottleneck(x))
 
     @property
     def out_channels(self) -> int:
@@ -122,7 +123,7 @@ def test_cnn_encoder_init(encoder_params):
 
     # Check channel progression
     current_ch = encoder_params["in_channels"]
-    expected_skip_channels = []
+    expected_skip_channels: list[Any] = []
     for i, block in enumerate(encoder.encoder_blocks):
         expected_out_ch = encoder_params["base_filters"] * (2**i)
         assert block.conv1.in_channels == current_ch
@@ -293,7 +294,6 @@ def decoder_params(encoder_params, bottleneck_params):
         "skip_channels_list": list(reversed(skip_channels_list)),
         "out_channels": 1,  # Binary segmentation
         "depth": encoder_params["depth"],
-        "use_cbam": False,  # Simplify tests
         "batch_size": encoder_params["batch_size"],
         "bottleneck_height": bottleneck_params["height"],
         "bottleneck_width": bottleneck_params["width"],
@@ -304,10 +304,9 @@ def test_cnn_decoder_init(decoder_params):
     """Tests CNNDecoder initialization."""
     decoder = CNNDecoder(
         in_channels=decoder_params["in_channels"],
-        skip_channels=decoder_params["skip_channels_list"],
+        skip_channels_list=decoder_params["skip_channels_list"],
         out_channels=decoder_params["out_channels"],
         depth=decoder_params["depth"],
-        use_cbam=decoder_params["use_cbam"],
     )
 
     assert isinstance(decoder, DecoderBase)
@@ -320,7 +319,7 @@ def test_cnn_decoder_forward_shape(decoder_params, encoder_params):
     # Create decoder with correct parameters
     decoder = CNNDecoder(
         in_channels=decoder_params["in_channels"],
-        skip_channels=decoder_params["skip_channels_list"],
+        skip_channels_list=decoder_params["skip_channels_list"],
         out_channels=decoder_params["out_channels"],
     )
 
@@ -335,7 +334,7 @@ def test_cnn_decoder_forward_shape(decoder_params, encoder_params):
     # In CNNDecoder, skips must go from LOW->HIGH resolution
     # Each skip must have double the size of the previous one, and the first
     # skip matches the upsample output
-    skips = []
+    skips: list[Any] = []
     for i in range(decoder_params["depth"]):
         h = decoder_params["bottleneck_height"] * (2 ** (i + 1))
         w = decoder_params["bottleneck_width"] * (2 ** (i + 1))
@@ -410,7 +409,7 @@ def test_cnn_decoder_forward_mismatch_skips(decoder_params):
     )
 
     # Create insufficient skip connections
-    skips = []
+    skips: list[Any] = []
     for i in range(decoder_params["depth"] - 1):  # One less skip connection
         h = decoder_params["bottleneck_height"] * (2**i)
         w = decoder_params["bottleneck_width"] * (2**i)
@@ -453,7 +452,7 @@ def assembled_unet(encoder_params, bottleneck_params, decoder_params):
 
     decoder = CNNDecoder(
         in_channels=decoder_params["in_channels"],
-        skip_channels=decoder_params["skip_channels_list"],
+        skip_channels_list=decoder_params["skip_channels_list"],
         out_channels=decoder_params["out_channels"],
         depth=decoder_params["depth"],
     )
@@ -525,18 +524,20 @@ def test_cnn_convlstm_unet_init_type_mismatch():
     # Test with invalid encoder type
     with pytest.raises(TypeError, match="Expected EncoderBase"):
         CNNConvLSTMUNet(
-            encoder=torch.nn.Conv2d(3, 16, 3),  # Not an EncoderBase
+            # Not an EncoderBase
+            encoder=torch.nn.Conv2d(3, 16, 3),  # type: ignore[arg-type]
             bottleneck=bottleneck,
             decoder=decoder,
-        )
+        )  # type: ignore
 
     # Test with invalid bottleneck type
     with pytest.raises(TypeError, match="Expected BottleneckBase"):
         CNNConvLSTMUNet(
+            # Not a BottleneckBase
             encoder=encoder,
-            bottleneck=torch.nn.Conv2d(128, 256, 3),  # Not a BottleneckBase
+            bottleneck=torch.nn.Conv2d(128, 256, 3),  # type: ignore[arg-type]
             decoder=decoder,
-        )
+        )  # type: ignore
 
     # Create a mock for the decoder that exposes exactly the required
     # attributes to pass the validations, but is not a complete
@@ -555,8 +556,7 @@ def test_cnn_convlstm_unet_init_type_mismatch():
         CNNConvLSTMUNet(
             encoder=encoder,
             bottleneck=bottleneck,
-            # This doesn't fully implement the required interface
-            decoder=MockDecoder(),
+            decoder=MockDecoder(),  # type: ignore[arg-type]
         )
 
 

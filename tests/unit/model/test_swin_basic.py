@@ -4,14 +4,22 @@ import pytest
 import torch
 
 from src.model import EncoderBase
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+from src.model.encoder.swin_transformer_encoder import (
+    SwinTransformerEncoder,
+    SwinTransformerEncoderConfig,
+)
 
 
 def test_swin_transformer_encoder_instantiation():
     """Test basic instantiation of SwinTransformerEncoder."""
     # Create a simple encoder instance
+    config = SwinTransformerEncoderConfig(
+        model_name="swinv2_tiny_window16_256",
+        pretrained=False,
+    )
     encoder = SwinTransformerEncoder(
-        in_channels=3, model_name="swinv2_tiny_window16_256", pretrained=False
+        in_channels=3,
+        config=config,
     )
 
     # Verify basic properties
@@ -32,8 +40,13 @@ def test_swin_transformer_encoder_forward():
         pytest.skip("CUDA not available for testing")
 
     # Create encoder
+    config = SwinTransformerEncoderConfig(
+        model_name="swinv2_tiny_window16_256",
+        pretrained=False,
+    )
     encoder = SwinTransformerEncoder(
-        in_channels=3, model_name="swinv2_tiny_window16_256", pretrained=False
+        in_channels=3,
+        config=config,
     )
 
     # Move to CUDA for testing

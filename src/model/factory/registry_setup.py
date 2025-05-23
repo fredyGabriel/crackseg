@@ -8,27 +8,21 @@ SwinV2, ASPP, and CBAM attention.
 """
 
 import logging
+from typing import Any
 
 from torch import nn
 
-# Actualizar la importación para reflejar la nueva estructura
-from src.model.base.abstract import (
-    BottleneckBase,
-    DecoderBase,
-    EncoderBase,
-    UNetBase,
-)
-
+# Update the import to reflect the new structure
 from .registry import Registry
 
 # Create logger
 log = logging.getLogger(__name__)
 
 # Initialize registries for main component types
-encoder_registry = Registry(EncoderBase, "Encoder")
-bottleneck_registry = Registry(BottleneckBase, "Bottleneck")
-decoder_registry = Registry(DecoderBase, "Decoder")
-architecture_registry = Registry(UNetBase, "Architecture")
+encoder_registry = Registry(nn.Module, "Encoder")
+bottleneck_registry = Registry(nn.Module, "Bottleneck")
+decoder_registry = Registry(nn.Module, "Decoder")
+architecture_registry = Registry(nn.Module, "Architecture")
 
 # Initialize registries for specialized components
 component_registries = {
@@ -38,7 +32,7 @@ component_registries = {
 
 
 def register_component(
-    registry_type: str, name: str = None, tags: list[str] = None
+    registry_type: str, name: str | None = None, tags: list[str] | None = None
 ):
     """
     Decorator to register a component with specified registry type.
@@ -67,16 +61,15 @@ def register_component(
     }
 
     registry = registry_map.get(registry_type.lower())
-    if registry is None:
+    if registry is None or not isinstance(registry, Registry):
         raise ValueError(
-            f"Unknown registry type: {registry_type}. "
+            f"Unknown or invalid registry type: {registry_type}. "
             f"Available types: {', '.join(registry_map.keys())}"
         )
-
     return registry.register(name=name, tags=tags)
 
 
-def get_registry(registry_type: str) -> Registry:
+def get_registry(registry_type: str) -> Registry[Any]:
     """
     Get a specific registry by type.
 
@@ -99,13 +92,14 @@ def get_registry(registry_type: str) -> Registry:
     }
 
     registry = registry_map.get(registry_type.lower())
-    if registry is None:
+    if registry is None or not isinstance(registry, Registry):
         raise ValueError(
-            f"Unknown registry type: {registry_type}. "
+            f"Unknown or invalid registry type: {registry_type}. "
             f"Available types: {', '.join(registry_map.keys())}"
         )
+    from typing import cast
 
-    return registry
+    return cast(Registry[Any], registry)
 
 
 def list_available_components() -> dict[str, list[str]]:
@@ -116,22 +110,21 @@ def list_available_components() -> dict[str, list[str]]:
         Dict[str, List[str]]: Dictionary mapping registry types to component
                              lists.
     """
-    return {
+    result = {
         "encoders": encoder_registry.list(),
         "decoders": decoder_registry.list(),
         "bottlenecks": bottleneck_registry.list(),
         "architectures": architecture_registry.list(),
-        "attention": (
-            component_registries.get("attention").list()
-            if "attention" in component_registries
-            else []
-        ),
-        "convlstm": (
-            component_registries.get("convlstm").list()
-            if "convlstm" in component_registries
-            else []
-        ),
+        "attention": [],
+        "convlstm": [],
     }
+    attention_registry = component_registries.get("attention")
+    if isinstance(attention_registry, Registry):
+        result["attention"] = attention_registry.list()
+    convlstm_registry = component_registries.get("convlstm")
+    if isinstance(convlstm_registry, Registry):
+        result["convlstm"] = convlstm_registry.list()
+    return result
 
 
 def register_hybrid_architecture(
@@ -139,7 +132,7 @@ def register_hybrid_architecture(
     encoder_type: str,
     bottleneck_type: str,
     decoder_type: str,
-    tags: list[str] = None,
+    tags: list[str] | None = None,
 ) -> bool:
     """
     Register a hybrid architecture model configuration.

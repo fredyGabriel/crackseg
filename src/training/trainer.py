@@ -189,6 +189,7 @@ class Trainer:
         self, early_stopper_arg: EarlyStopping | None
     ):
         """Sets up the early stopping mechanism."""
+        self.early_stopper: EarlyStopping | None = None
         if early_stopper_arg is not None:
             self.early_stopper = early_stopper_arg
         else:
@@ -208,14 +209,16 @@ class Trainer:
 
     def _log_initialization_summary(self):
         """Logs a summary of the trainer's configuration."""
+        early_stopping_enabled = self.early_stopper is not None and getattr(
+            self.early_stopper, "enabled", False
+        )
         config_summary = (
             f"Trainer initialized. Device: {self.device}. "
             f"Epochs: {self.epochs}. AMP: {self.use_amp}. "
             f"Grad Accum: {self.grad_accum_steps}. "
             f"Starting Epoch: {self.start_epoch}. "
             f"Save Best: {self.save_best_enabled}. "
-            "Early Stopping: "
-            f"{self.early_stopper is not None and self.early_stopper.enabled}."
+            f"Early Stopping: {early_stopping_enabled}."
         )
         safe_log(self.internal_logger, "info", config_summary)
         if self.logger_instance:
@@ -281,11 +284,11 @@ class Trainer:
             )
 
             # --- Early Stopping Check ---
-            if self.early_stopper:
-                current_metric = val_results.get(
-                    self.early_stopper.monitor_metric
-                )
-                if self.early_stopper.step(current_metric):
+            if self.early_stopper is not None and getattr(
+                self.early_stopper, "enabled", False
+            ):
+                current_metric = val_results.get(self.monitor_metric)
+                if self.early_stopper(current_metric):
                     safe_log(
                         self.internal_logger,
                         "info",
@@ -326,7 +329,9 @@ class Trainer:
                     metrics_dict=self.metrics_dict,
                 )
                 batch_loss = metrics["loss"]
-            # Convert loss tensor to float for accumulation
+            # Convert loss to tensor if needed
+            if not isinstance(batch_loss, torch.Tensor):
+                batch_loss = torch.tensor(batch_loss)
             total_loss += batch_loss.item()
             optimizer_step_with_accumulation(
                 optimizer=self.optimizer,

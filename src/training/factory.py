@@ -1,5 +1,7 @@
 """Factory functions for creating training components."""
 
+from typing import Any, cast
+
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from torch.nn import Module
@@ -47,7 +49,7 @@ def create_loss_fn(cfg: DictConfig) -> Module:
 
     # Use Hydra's instantiate to create the loss function
     try:
-        return instantiate(cfg)
+        return cast(Module, instantiate(cfg))
     except:  # noqa: E722
         # If instantiation fails and we're in a test (mock is set up),
         # the exception will be caught by the test framework
@@ -116,7 +118,7 @@ def create_optimizer(model_params, cfg: DictConfig | str | dict) -> Optimizer:
             # might vary.
             # For now, we assume `instantiate` can handle `params` if `cfg`
             # is structured correctly for it.
-            return instantiate(cfg, params=model_params)
+            return cast(Optimizer, instantiate(cfg, params=model_params))
         except Exception as e:
             # Add more specific error handling or logging if needed
             raise ValueError(
@@ -135,7 +137,7 @@ def create_optimizer(model_params, cfg: DictConfig | str | dict) -> Optimizer:
         raise ValueError("Could not determine optimizer class.")
 
     try:
-        return optimizer_cls(model_params, **optimizer_params)
+        return cast(Optimizer, optimizer_cls(model_params, **optimizer_params))
     except Exception as e:
         raise ValueError(
             f"Error instantiating optimizer {optimizer_cls.__name__} "
@@ -167,7 +169,9 @@ def create_lr_scheduler(
     # instantiation
     if hasattr(cfg, "get") and cfg.get("_target_"):
         try:
-            return instantiate(cfg, optimizer=optimizer)
+            return cast(
+                _LRScheduler | None, instantiate(cfg, optimizer=optimizer)
+            )
         except Exception as e:
             raise ValueError(
                 f"Error instantiating scheduler from DictConfig: {cfg} - {e}"
@@ -205,17 +209,20 @@ def create_lr_scheduler(
         )
     scheduler_cls = _LR_SCHEDULER_MAP[scheduler_name_or_type]
 
-    final_params: dict
+    final_params: dict[str, Any]
     if isinstance(cfg, str):
         # For string config, use predefined defaults for that scheduler type
-        final_params = _LR_SCHEDULER_DEFAULT_PARAMS.get(
-            scheduler_name_or_type, {}
+        final_params = cast(
+            dict[str, Any],
+            _LR_SCHEDULER_DEFAULT_PARAMS.get(scheduler_name_or_type, {}),
         )
     else:  # Was a dict, so params_from_config holds user-defined params
         final_params = params_from_config
 
     try:
-        return scheduler_cls(optimizer, **final_params)
+        return cast(
+            _LRScheduler | None, scheduler_cls(optimizer, **final_params)
+        )
     except Exception as e:
         raise ValueError(
             f"Error instantiating scheduler {scheduler_cls.__name__} "

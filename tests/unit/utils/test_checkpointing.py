@@ -10,7 +10,11 @@ from unittest.mock import ANY, MagicMock, patch
 import pytest
 import torch
 
-from src.utils.checkpointing import load_checkpoint, save_checkpoint
+from src.utils.checkpointing import (
+    CheckpointSaveConfig,
+    load_checkpoint,
+    save_checkpoint,
+)
 
 # from torch.cuda.amp import GradScaler # Removed unused import
 
@@ -80,14 +84,16 @@ def test_save_checkpoint_creates_file_and_calls_torch_save(  # noqa: PLR0913
     # Pass metrics via additional_data
     additional_data = {"metrics": metrics, "best_metric_value": 0.9}
 
-    save_checkpoint(
-        epoch=epoch,
-        model=mock_model,
-        optimizer=mock_optimizer,
-        # scaler=mock_scaler, # Removed scaler
-        additional_data=additional_data,  # Use additional_data
+    config = CheckpointSaveConfig(
         checkpoint_dir=checkpoint_dir,
         filename="test_last.pth",
+        additional_data=additional_data,
+    )
+    save_checkpoint(
+        model=mock_model,
+        optimizer=mock_optimizer,
+        epoch=epoch,
+        config=config,
     )
 
     # Check directory was created
@@ -134,13 +140,16 @@ def test_save_checkpoint_keep_last_n(
     # Save the new checkpoint that triggers cleanup (epoch 5)
     new_epoch = 5
     new_filename = f"ckpt_epoch_{new_epoch}.pth"
-    save_checkpoint(
-        epoch=new_epoch,
-        model=mock_model,
-        optimizer=mock_optimizer,
+    config = CheckpointSaveConfig(
         checkpoint_dir=checkpoint_dir,
         filename=new_filename,
         keep_last_n=keep_n,
+    )
+    save_checkpoint(
+        model=mock_model,
+        optimizer=mock_optimizer,
+        epoch=new_epoch,
+        config=config,
     )
 
     # Check the number of files remaining
@@ -161,7 +170,7 @@ def test_save_checkpoint_keep_last_n(
             remaining_epochs.append(file_epoch)
         except (IndexError, ValueError):
             fail_msg = (
-                "Could not parse epoch from remaining file: " f"{f_path.name}"
+                f"Could not parse epoch from remaining file: {f_path.name}"
             )
             pytest.fail(fail_msg)
 
@@ -187,16 +196,16 @@ def test_save_checkpoint_is_best(
     # Pass None for additional_data when metrics is None
     additional_data = None
 
-    save_checkpoint(
-        epoch=epoch,
-        model=mock_model,
-        optimizer=mock_optimizer,
-        # scaler=mock_scaler, # Removed scaler
-        additional_data=additional_data,  # Use additional_data
+    config = CheckpointSaveConfig(
         checkpoint_dir=checkpoint_dir,
         filename="last.pth",
-        # is_best=True, # Removed
-        # best_filename="best.pth" # Removed
+        additional_data=additional_data,
+    )
+    save_checkpoint(
+        model=mock_model,
+        optimizer=mock_optimizer,
+        epoch=epoch,
+        config=config,
     )
 
     # Should be called ONCE for last.pth

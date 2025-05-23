@@ -1,6 +1,6 @@
 """Helper functions for learning rate schedulers."""
 
-from typing import Any
+from typing import Any, cast
 
 import torch
 
@@ -56,5 +56,5 @@ def step_scheduler_helper(
                 "info",
                 f"LR Scheduler step. Current LR: {current_lr:.6f}",
             )
-        return current_lr
+        return cast(float, current_lr)
     return None

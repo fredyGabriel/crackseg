@@ -11,6 +11,7 @@ from src.training.losses import (
     DiceLoss,
     FocalLoss,
 )
+from src.training.losses.bce_dice_loss import BCEDiceLossConfig
 
 
 def test_bce_loss_perfect_prediction():
@@ -99,13 +100,13 @@ def test_focal_loss_parameters():
     target = torch.tensor([[1.0]], dtype=torch.float32)
 
     # Default parameters
-    loss_default = FocalLoss(sigmoid=False)(pred, target)
+    loss_default = FocalLoss()(pred, target)
 
     # High gamma (more focus on hard examples)
-    loss_high_gamma = FocalLoss(gamma=4.0, sigmoid=False)(pred, target)
+    loss_high_gamma = FocalLoss(gamma=4.0)(pred, target)
 
     # Different alpha (changes class weight)
-    loss_diff_alpha = FocalLoss(alpha=0.75, sigmoid=False)(pred, target)
+    loss_diff_alpha = FocalLoss(alpha=0.75)(pred, target)
 
     assert not torch.isnan(loss_default)
     assert not torch.isnan(loss_high_gamma)
@@ -122,7 +123,7 @@ def test_focal_loss_parameters():
 
 def test_focal_loss_edge_cases():
     """Test Focal Loss with edge cases."""
-    loss_fn = FocalLoss(sigmoid=False)
+    loss_fn = FocalLoss()
 
     # Perfect prediction
     pred_perfect = torch.tensor([[1.0]], dtype=torch.float32)
@@ -150,12 +151,18 @@ def test_combined_loss():
 
     # Combined loss with equal weights
     combined_equal = CombinedLoss(
-        losses=[BCELoss(), DiceLoss(sigmoid=True)], weights=[1.0, 1.0]
+        losses_config=[
+            {"name": "bce_loss", "weight": 1.0},
+            {"name": "dice_loss", "weight": 1.0, "params": {"sigmoid": True}},
+        ]
     )(torch.logit(pred), target)
 
     # Combined loss with more weight on BCE
     combined_bce_heavy = CombinedLoss(
-        losses=[BCELoss(), DiceLoss(sigmoid=True)], weights=[0.8, 0.2]
+        losses_config=[
+            {"name": "bce_loss", "weight": 0.8},
+            {"name": "dice_loss", "weight": 0.2, "params": {"sigmoid": True}},
+        ]
     )(torch.logit(pred), target)
 
     assert not torch.isnan(combined_equal)
@@ -174,12 +181,14 @@ def test_bcedice_loss():
     loss_default = BCEDiceLoss()(torch.logit(pred), target)
 
     # More weight on BCE
-    loss_bce_heavy = BCEDiceLoss(bce_weight=0.8, dice_weight=0.2)(
+    config_bce_heavy = BCEDiceLossConfig(bce_weight=0.8, dice_weight=0.2)
+    loss_bce_heavy = BCEDiceLoss(config=config_bce_heavy)(
         torch.logit(pred), target
     )
 
     # More weight on Dice
-    loss_dice_heavy = BCEDiceLoss(bce_weight=0.2, dice_weight=0.8)(
+    config_dice_heavy = BCEDiceLossConfig(bce_weight=0.2, dice_weight=0.8)
+    loss_dice_heavy = BCEDiceLoss(config=config_dice_heavy)(
         torch.logit(pred), target
     )
 
@@ -203,7 +212,12 @@ def test_loss_with_empty_target():
         DiceLoss(),
         FocalLoss(),
         BCEDiceLoss(),
-        CombinedLoss(losses=[BCELoss(), DiceLoss()]),
+        CombinedLoss(
+            losses_config=[
+                {"name": "bce_loss", "weight": 1.0},
+                {"name": "dice_loss", "weight": 1.0},
+            ]
+        ),
     ]
 
     for loss_fn in losses:

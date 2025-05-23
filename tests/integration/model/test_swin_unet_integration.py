@@ -8,7 +8,10 @@ This test validates the Swin encoder and the CNN decoder separately.
 import torch
 
 from src.model.decoder.cnn_decoder import CNNDecoder
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+from src.model.encoder.swin_transformer_encoder import (
+    SwinTransformerEncoder,
+    SwinTransformerEncoderConfig,
+)
 
 
 def test_swin_encoder():
@@ -18,11 +21,14 @@ def test_swin_encoder():
     height = width = 224
 
     # Configure the encoder
-    encoder = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
         features_only=True,
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config,
     )
 
     # Forward pass

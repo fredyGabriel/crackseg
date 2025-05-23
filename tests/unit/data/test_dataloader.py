@@ -27,4 +27,4 @@ def test_create_dataloader_basic():
 def test_create_dataloader_invalid_batch_size():
     ds = DummyDataset(5)
     with pytest.raises(ValueError):
-        create_dataloader(ds, batch_size=0)
+        create_dataloader(ds, batch_size=0)  # type: ignore

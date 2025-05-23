@@ -5,6 +5,7 @@ These tests verify that the configuration validation, normalization, and
 processing system works correctly with different types of model configurations.
 """
 
+from typing import cast
 from unittest.mock import patch
 
 import hydra
@@ -34,8 +35,10 @@ class DummyCNNEncoder(EncoderBase):
         super().__init__(in_channels=in_channels)
         self.in_channels = in_channels
         self.hidden_dims = hidden_dims or [64 * (2**i) for i in range(depth)]
-        self._out_channels = self.hidden_dims[-1]
-        self._skip_channels = self.hidden_dims[:-1]
+        self._out_channels: int = int(self.hidden_dims[-1])
+        self._skip_channels: list[int] = [
+            int(x) for x in self.hidden_dims[:-1]
+        ]
 
     def forward(self, x):
         # Dummy shapes, assuming batch size 1 for simplicity
@@ -58,18 +61,18 @@ class DummyCNNEncoder(EncoderBase):
 
     @property
     def out_channels(self) -> int:
-        return self._out_channels
+        return cast(int, self._out_channels)
 
     @property
     def skip_channels(self) -> list[int]:
-        return self._skip_channels
+        return cast(list[int], self._skip_channels)
 
 
 class DummyIdentity(BottleneckBase):
     def __init__(self, in_channels, out_channels=None, **kwargs):
         super().__init__(in_channels=in_channels)
         self.in_channels = in_channels
-        self._out_channels = (
+        self._out_channels: int = int(
             out_channels if out_channels is not None else in_channels
         )
 
@@ -84,7 +87,7 @@ class DummyIdentity(BottleneckBase):
 
     @property
     def out_channels(self) -> int:
-        return self._out_channels
+        return cast(int, self._out_channels)
 
 
 class DummyCNNDecoder(DecoderBase):
@@ -93,7 +96,7 @@ class DummyCNNDecoder(DecoderBase):
     ):
         _skip_channels = skip_channels_list or []
         super().__init__(in_channels=in_channels, skip_channels=_skip_channels)
-        self._out_channels = out_channels
+        self._out_channels: int = int(out_channels)
 
     def forward(self, features, skip_connections):
         # Dummy forward, returns tensor with final out_channels
@@ -106,7 +109,7 @@ class DummyCNNDecoder(DecoderBase):
 
     @property
     def out_channels(self) -> int:
-        return self._out_channels
+        return cast(int, self._out_channels)
 
 
 class DummyCBAM(nn.Module):
@@ -119,10 +122,10 @@ class DummyCBAM(nn.Module):
 
 
 class DummyUNet(UNetBase):
-    def __init__(self, in_channels, out_channels, **kwargs):
-        super().__init__()
-        self.in_channels = in_channels
-        self.out_channels = out_channels
+    def __init__(self, encoder, bottleneck, decoder, **kwargs):
+        super().__init__(
+            encoder=encoder, bottleneck=bottleneck, decoder=decoder
+        )
 
     def forward(self, x):
         return x
@@ -147,13 +150,16 @@ class TestComponentConfigParser:
         "Register necessary dummies for these tests."
         # Register CNNEncoder if not present
         if "CNNEncoder" not in encoder_registry:
-            encoder_registry.register("CNNEncoder")(DummyCNNEncoder)
+            encoder_registry.register(name="CNNEncoder")(DummyCNNEncoder)
         # Register Identity if not present
         if "Identity" not in bottleneck_registry:
-            bottleneck_registry.register("Identity")(DummyIdentity)
+            bottleneck_registry.register(name="Identity")(DummyIdentity)
         # Register CNNDecoder if not present
         if "CNNDecoder" not in decoder_registry:
-            decoder_registry.register("CNNDecoder")(DummyCNNDecoder)
+            decoder_registry.register(name="CNNDecoder")(DummyCNNDecoder)
+        # Register DummyUNet if not present
+        if "DummyUNet" not in architecture_registry:
+            architecture_registry.register(name="DummyUNet")(DummyUNet)
 
     def teardown_method(self):
         "Unregister dummies added by setup_method."
@@ -168,6 +174,10 @@ class TestComponentConfigParser:
             pass
         try:
             decoder_registry.unregister("CNNDecoder")
+        except KeyError:
+            pass
+        try:
+            architecture_registry.unregister("DummyUNet")
         except KeyError:
             pass
 
@@ -229,14 +239,14 @@ class TestArchitectureConfigParser:
         "Register necessary dummies."
         # Register UNet if not present
         if "DummyUNet" not in architecture_registry:
-            architecture_registry.register("DummyUNet")(DummyUNet)
+            architecture_registry.register(name="DummyUNet")(DummyUNet)
         # Register components needed for standard UNet test
         if "CNNEncoder" not in encoder_registry:
-            encoder_registry.register("CNNEncoder")(DummyCNNEncoder)
+            encoder_registry.register(name="CNNEncoder")(DummyCNNEncoder)
         if "Identity" not in bottleneck_registry:
-            bottleneck_registry.register("Identity")(DummyIdentity)
+            bottleneck_registry.register(name="Identity")(DummyIdentity)
         if "CNNDecoder" not in decoder_registry:
-            decoder_registry.register("CNNDecoder")(DummyCNNDecoder)
+            decoder_registry.register(name="CNNDecoder")(DummyCNNDecoder)
 
     def teardown_method(self):
         "Unregister dummies added by setup_method."
@@ -500,7 +510,7 @@ class TestModelConfigSchema:
         """Test getting a schema for a model type."""
         # Ensure DummyUNet is registered
         if "DummyUNet" not in architecture_registry:
-            architecture_registry.register("DummyUNet")(DummyUNet)
+            architecture_registry.register(name="DummyUNet")(DummyUNet)
 
         # Get schema for DummyUNet
         schema = get_model_config_schema("DummyUNet")

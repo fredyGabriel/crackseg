@@ -108,7 +108,7 @@ def test_combined_loss_config_post_init_invalid():
     with pytest.raises(ValueError):
         CombinedLossConfig(losses=[])
     with pytest.raises(TypeError):
-        CombinedLossConfig(losses="not_a_list")
+        CombinedLossConfig(losses="not_a_list")  # type: ignore[arg-type]
     with pytest.raises(ValueError):
         CombinedLossConfig(
             losses=[CombinedLossItemConfig(config=BCELossConfig(), weight=0)]

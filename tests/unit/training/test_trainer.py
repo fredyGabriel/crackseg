@@ -12,7 +12,8 @@ from omegaconf import OmegaConf
 from src.training.batch_processing import train_step, val_step
 
 # Assuming the necessary modules exist in these paths
-from src.training.trainer import Trainer
+from src.training.trainer import Trainer, TrainingComponents
+from src.utils.early_stopping import EarlyStopping
 from src.utils.logging import NoOpLogger  # Use NoOpLogger for testing
 
 # --- Mocks and Fixtures ---
@@ -47,9 +48,8 @@ def trainer_mocks_fixture():
 
     metric_mock = MagicMock()
     metric_mock.return_value = torch.tensor(0.8)
-    metrics_dict = {"iou": metric_mock, "f1": metric_mock}
-
-    logger_instance = NoOpLogger()
+    metrics_dict = MagicMock()
+    logger_instance = MagicMock()
 
     return TrainerMocks(
         model=model,
@@ -141,12 +141,15 @@ def test_trainer_initialization(
     mock_create_scheduler.return_value = None
 
     try:
-        trainer = Trainer(
+        components = TrainingComponents(
             model=trainer_mocks_fixture.model,
             train_loader=trainer_mocks_fixture.dataloader,
             val_loader=trainer_mocks_fixture.dataloader,
             loss_fn=trainer_mocks_fixture.loss_fn,
             metrics_dict=trainer_mocks_fixture.metrics_dict,
+        )
+        trainer = Trainer(
+            components=components,
             cfg=base_trainer_cfg,
             logger_instance=trainer_mocks_fixture.logger_instance,
         )
@@ -209,12 +212,15 @@ def test_trainer_train_loop(
         {"_target_": "torch.optim.lr_scheduler.StepLR", "step_size": 1}
     )
 
-    trainer = Trainer(
+    components = TrainingComponents(
         model=trainer_mocks_fixture.model,
         train_loader=trainer_mocks_fixture.dataloader,
         val_loader=trainer_mocks_fixture.dataloader,
         loss_fn=trainer_mocks_fixture.loss_fn,
         metrics_dict=trainer_mocks_fixture.metrics_dict,
+    )
+    trainer = Trainer(
+        components=components,
         cfg=test_cfg,
         logger_instance=trainer_mocks_fixture.logger_instance,
     )
@@ -256,12 +262,15 @@ def test_train_step_computes_loss_and_backward(
         0.8, requires_grad=True
     )
 
-    trainer = Trainer(
+    components = TrainingComponents(
         model=trainer_mocks_fixture.model,
         train_loader=trainer_mocks_fixture.dataloader,
         val_loader=trainer_mocks_fixture.dataloader,
         loss_fn=trainer_mocks_fixture.loss_fn,
         metrics_dict=trainer_mocks_fixture.metrics_dict,
+    )
+    trainer = Trainer(
+        components=components,
         cfg=base_trainer_cfg,
         logger_instance=trainer_mocks_fixture.logger_instance,
     )
@@ -278,7 +287,7 @@ def test_train_step_computes_loss_and_backward(
 
     trainer_mocks_fixture.model.assert_called_once()
     trainer_mocks_fixture.loss_fn.assert_called_once()
-    assert result["loss"].item() == pytest.approx(0.8)
+    assert float(result["loss"]) == pytest.approx(0.8)
 
 
 @pytest.mark.cuda
@@ -309,12 +318,15 @@ def test_train_step_amp_cuda(
         0.5, device="cuda:0", requires_grad=True
     )
 
-    trainer = Trainer(
+    components = TrainingComponents(
         model=trainer_mocks_fixture.model,
         train_loader=trainer_mocks_fixture.dataloader,
         val_loader=trainer_mocks_fixture.dataloader,
         loss_fn=trainer_mocks_fixture.loss_fn,
         metrics_dict=trainer_mocks_fixture.metrics_dict,
+    )
+    trainer = Trainer(
+        components=components,
         cfg=base_trainer_cfg,
         logger_instance=trainer_mocks_fixture.logger_instance,
     )
@@ -331,7 +343,7 @@ def test_train_step_amp_cuda(
 
     trainer_mocks_fixture.model.assert_called_once()
     trainer_mocks_fixture.loss_fn.assert_called_once()
-    assert result["loss"].item() == pytest.approx(0.5)
+    assert float(result["loss"]) == pytest.approx(0.5)
 
 
 @patch("src.training.trainer.get_device", return_value=torch.device("cpu"))
@@ -353,12 +365,15 @@ def test_train_step_raises_on_forward_error(
     mock_scaler.scale.return_value = MagicMock()
     trainer_mocks_fixture.model.side_effect = RuntimeError("Forward error")
 
-    trainer = Trainer(
+    components = TrainingComponents(
         model=trainer_mocks_fixture.model,
         train_loader=trainer_mocks_fixture.dataloader,
         val_loader=trainer_mocks_fixture.dataloader,
         loss_fn=trainer_mocks_fixture.loss_fn,
         metrics_dict=trainer_mocks_fixture.metrics_dict,
+    )
+    trainer = Trainer(
+        components=components,
         cfg=base_trainer_cfg,
         logger_instance=trainer_mocks_fixture.logger_instance,
     )
@@ -405,15 +420,14 @@ def test_epoch_level_logging(
     exp_manager.get_path.return_value = str(checkpoint_dir)
     logger.experiment_manager = exp_manager
 
-    trainer = Trainer(
+    components = TrainingComponents(
         model=model,
         train_loader=dummy_data_loader,
         val_loader=dummy_data_loader,
         loss_fn=dummy_loss,
         metrics_dict=dummy_metrics,
-        cfg=cfg,
-        logger_instance=logger,
     )
+    trainer = Trainer(components=components, cfg=cfg, logger_instance=logger)
     trainer.train()
     assert logger.log_scalar.call_count > 0
 
@@ -447,15 +461,14 @@ def test_batch_level_logging(
     exp_manager.get_path.return_value = str(checkpoint_dir)
     logger.experiment_manager = exp_manager
 
-    trainer = Trainer(
+    components = TrainingComponents(
         model=model,
         train_loader=dummy_data_loader,
         val_loader=dummy_data_loader,
         loss_fn=dummy_loss,
         metrics_dict=dummy_metrics,
-        cfg=cfg,
-        logger_instance=logger,
     )
+    trainer = Trainer(components=components, cfg=cfg, logger_instance=logger)
     trainer.train()
     assert logger.log_scalar.call_count > 0
 
@@ -465,6 +478,18 @@ def test_val_step_returns_metrics(
     base_trainer_cfg,  # Not used directly but keeps consistency if needed
     dummy_batch,
 ):
+    components = TrainingComponents(
+        model=trainer_mocks_fixture.model,
+        train_loader=trainer_mocks_fixture.dataloader,
+        val_loader=trainer_mocks_fixture.dataloader,
+        loss_fn=trainer_mocks_fixture.loss_fn,
+        metrics_dict=trainer_mocks_fixture.metrics_dict,
+    )
+    Trainer(
+        components=components,
+        cfg=base_trainer_cfg,
+        logger_instance=trainer_mocks_fixture.logger_instance,
+    )
     metrics = val_step(
         model=trainer_mocks_fixture.model,
         batch=dummy_batch,
@@ -484,12 +509,15 @@ def test_validate_aggregates_metrics(
 ):
     """Test that validate correctly averages and returns metrics with val_
     prefix."""
-    trainer = Trainer(
+    components = TrainingComponents(
         model=trainer_mocks_fixture.model,
-        train_loader=None,
+        train_loader=MagicMock(),  # Dummy DataLoader
         val_loader=trainer_mocks_fixture.dataloader,  # Use mocked dataloader
         loss_fn=trainer_mocks_fixture.loss_fn,
         metrics_dict=trainer_mocks_fixture.metrics_dict,
+    )
+    trainer = Trainer(
+        components=components,
         cfg=base_trainer_cfg,
         logger_instance=trainer_mocks_fixture.logger_instance,
     )
@@ -562,14 +590,19 @@ def test_trainer_early_stopping(
     test_cfg = base_trainer_cfg.copy()
     test_cfg.training.epochs = 5
 
-    class DummyEarlyStopping:
+    class DummyEarlyStopping(EarlyStopping):
         def __init__(self):
-            self.monitor_metric = "val_loss"
+            super().__init__(
+                patience=7, min_delta=0.0, mode="min", verbose=True
+            )
             self.calls = 0
 
         def step(self, value):
             self.calls += 1
             return self.calls == 3
+
+        def __call__(self, value):
+            return self.step(value)
 
     early_stopper = DummyEarlyStopping()
 
@@ -578,18 +611,21 @@ def test_trainer_early_stopping(
 
     monkeypatch.setattr("src.training.trainer.Trainer.validate", fake_validate)
 
-    trainer = Trainer(
+    components = TrainingComponents(
         model=trainer_mocks_fixture.model,
         train_loader=trainer_mocks_fixture.dataloader,
         val_loader=trainer_mocks_fixture.dataloader,
         loss_fn=trainer_mocks_fixture.loss_fn,
         metrics_dict=trainer_mocks_fixture.metrics_dict,
+    )
+    trainer = Trainer(
+        components=components,
         cfg=test_cfg,
         logger_instance=trainer_mocks_fixture.logger_instance,
-        early_stopper=early_stopper,  # Pass the mock
+        early_stopper=early_stopper,
     )
     trainer.early_stopper = early_stopper  # Ensure it's used
-    trainer._train_epoch = lambda epoch: 0.0
+    monkeypatch.setattr(trainer, "_train_epoch", lambda self, epoch: 0.0)
 
     with patch(
         "src.training.trainer.handle_epoch_checkpointing",
@@ -622,9 +658,13 @@ def test_log_validation_results(caplog):
     logger = DummyLogger()
     metrics = {"val_loss": 0.1, "val_iou": 0.9}
     log_validation_results(logger, 5, metrics)
-    assert logger.last_msg.startswith("Epoch 5 | Validation Results | ")
-    assert "Val_loss: 0.1000" in logger.last_msg
-    assert "Val_iou: 0.9000" in logger.last_msg
+    assert logger.last_msg is not None and logger.last_msg.startswith(
+        "Epoch 5 | Validation Results | "
+    )
+    assert (
+        logger.last_msg is not None and "Val_loss: 0.1000" in logger.last_msg
+    )
+    assert logger.last_msg is not None and "Val_iou: 0.9000" in logger.last_msg
 
 
 def test_amp_autocast_context_manager():
@@ -648,11 +688,21 @@ def test_optimizer_step_with_accumulation_no_amp():
     loss = torch.tensor(1.0, requires_grad=True)
     grad_accum_steps = 2
     optimizer_step_with_accumulation(
-        optimizer, scaler, loss, grad_accum_steps, 0, False
+        optimizer=optimizer,
+        scaler=scaler,
+        loss=loss,
+        grad_accum_steps=grad_accum_steps,
+        batch_idx=0,
+        use_amp=False,
     )
     optimizer.step.assert_not_called()
     optimizer_step_with_accumulation(
-        optimizer, scaler, loss, grad_accum_steps, 1, False
+        optimizer=optimizer,
+        scaler=scaler,
+        loss=loss,
+        grad_accum_steps=grad_accum_steps,
+        batch_idx=1,
+        use_amp=False,
     )
     optimizer.step.assert_called_once()
     optimizer.zero_grad.assert_called()
@@ -666,12 +716,22 @@ def test_optimizer_step_with_accumulation_amp():
     loss = torch.tensor(1.0, requires_grad=True)
     grad_accum_steps = 2
     optimizer_step_with_accumulation(
-        optimizer, scaler, loss, grad_accum_steps, 0, True
+        optimizer=optimizer,
+        scaler=scaler,
+        loss=loss,
+        grad_accum_steps=grad_accum_steps,
+        batch_idx=0,
+        use_amp=True,
     )
     scaler.scale.assert_called_with(loss / grad_accum_steps)
     scaler.step.assert_not_called()
     optimizer_step_with_accumulation(
-        optimizer, scaler, loss, grad_accum_steps, 1, True
+        optimizer=optimizer,
+        scaler=scaler,
+        loss=loss,
+        grad_accum_steps=grad_accum_steps,
+        batch_idx=1,
+        use_amp=True,
     )
     scaler.step.assert_called_once_with(optimizer)
     scaler.update.assert_called()

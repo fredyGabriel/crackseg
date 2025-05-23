@@ -454,15 +454,17 @@ def assign_priority(row):
 
 with open(CSV_PATH, newline="", encoding="utf-8") as f:
     reader = list(csv.reader(f))
-    explanation = reader[0]
+    explanation: list[str] = reader[0]
     header = reader[1]
     data = reader[2:]
 
 # Documentar el criterio en la explicación
-explanation = "# Priority assigned as: critical (pipeline, training, "
-explanation += "evaluation, slowest tests), high (core components), "
-explanation += "medium (utils/helpers), low (accessory). See script for "
-explanation += "details."
+explanation = [
+    "# Priority assigned as: critical (pipeline, training, "
+    "evaluation, slowest tests), high (core components), "
+    "medium (utils/helpers), low (accessory). See script for "
+    "details."
+]
 
 # Añadir columna si no existe
 if "Priority" not in header:

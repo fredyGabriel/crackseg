@@ -4,7 +4,7 @@ import shutil
 import torch
 from omegaconf import OmegaConf
 
-from src.training.trainer import Trainer
+from src.training.trainer import Trainer, TrainingComponents
 from src.utils.logging import NoOpLogger
 
 
@@ -64,12 +64,16 @@ def integration_test_trainer_checkpoint_resume(
     metrics = get_dummy_metrics()
     logger = NoOpLogger()
 
-    trainer = Trainer(
+    components = TrainingComponents(
         model=model,
         train_loader=train_loader,
         val_loader=val_loader,
         loss_fn=loss_fn,
         metrics_dict=metrics,
+    )
+
+    trainer = Trainer(
+        components=components,
         cfg=cfg,
         logger_instance=logger,
     )
@@ -90,12 +94,15 @@ checkpoints"
     cfg.training["epochs"] = 3  # Train one more epoch
 
     model2 = get_dummy_model()
-    trainer2 = Trainer(
+    components2 = TrainingComponents(
         model=model2,
         train_loader=train_loader,
         val_loader=val_loader,
         loss_fn=loss_fn,
         metrics_dict=metrics,
+    )
+    trainer2 = Trainer(
+        components=components2,
         cfg=cfg,
         logger_instance=logger,
     )

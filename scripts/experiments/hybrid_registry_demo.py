@@ -38,7 +38,7 @@ print("-" * 50)
 # Create and register mock components for testing
 class MockDecoder(DecoderBase):
     def __init__(self, in_channels, out_channels):
-        super().__init__()
+        super().__init__(in_channels=in_channels, skip_channels=[in_channels])
 
     def forward(self, x, skip_connections=None):
         return x
@@ -88,7 +88,7 @@ except Exception as e:
 # Step 2: List all registered hybrid architectures
 print("\nListing registered hybrid architectures:")
 print("-" * 50)
-architectures = hybrid_registry.list_architectures()
+architectures = hybrid_registry.list_available()
 if architectures:
     for arch in architectures:
         print(f"- {arch}")
@@ -134,7 +134,7 @@ except Exception as e:
 print("\nVerifying integration with main architecture registry:")
 print("-" * 50)
 try:
-    arch_registry_items = architecture_registry.list()
+    arch_registry_items = architecture_registry.list_available()
     # Check if hybrid architectures are also in the main registry
     hybrid_in_main = [
         arch for arch in architectures if arch in arch_registry_items

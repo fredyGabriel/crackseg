@@ -45,7 +45,7 @@ def parse_component_config(
         raise ValueError(msg)
 
     component_name = config["type"]
-    registry = None
+    registry: Any = None
 
     # Get the appropriate registry
     if component_type == "encoder":
@@ -119,6 +119,10 @@ def _parse_hybrid_components(config: dict[str, Any]) -> dict[str, Any]:
             else:
                 component_type_str = name  # Use name as a fallback
 
+            if component_type_str is None:
+                raise ValueError(
+                    f"Cannot determine component type for '{name}'"
+                )
             config["components"][name] = parse_component_config(
                 comp_config, component_type_str
             )

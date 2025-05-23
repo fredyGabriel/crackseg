@@ -112,9 +112,27 @@ class UNetConfig:
 def load_unet_config_from_yaml(yaml_path: str) -> UNetConfig:
     """Load a UNetConfig from a YAML file."""
     cfg = OmegaConf.load(yaml_path)
-    if "unet" in cfg:
-        return OmegaConf.to_object(cfg["unet"])
-    return OmegaConf.to_object(cfg)
+    obj = OmegaConf.to_object(cfg)
+
+    def normalize_keys(d: dict) -> dict[str, Any]:
+        if not all(isinstance(k, str) for k in d.keys()):
+            raise ValueError(
+                "All keys must be str for UNetConfig construction."
+            )
+        return d  # Ya es dict[str, Any]
+
+    if (
+        isinstance(obj, dict)
+        and "unet" in obj
+        and isinstance(obj["unet"], dict)
+    ):
+        return UNetConfig(**normalize_keys(obj["unet"]))
+    if isinstance(obj, dict):
+        return UNetConfig(**normalize_keys(obj))
+    raise ValueError(
+        "YAML config could not be converted to UNetConfig: unexpected "
+        "structure."
+    )
 
 
 def validate_unet_config(config: UNetConfig) -> None:

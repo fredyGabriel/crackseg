@@ -1,6 +1,6 @@
 # src/training/losses/bce_dice_loss.py
 from dataclasses import dataclass  # Added dataclass and field
-from typing import Any
+from typing import Any, cast
 
 import torch
 
@@ -90,4 +90,4 @@ class BCEDiceLoss(SegmentationLoss):
         Returns:
             Combined BCE and Dice loss value.
         """
-        return self.combined_loss(pred, target)
+        return cast(torch.Tensor, self.combined_loss(pred, target))

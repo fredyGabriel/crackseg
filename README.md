@@ -135,3 +135,7 @@ MIT License. See `LICENSE`.
 - Use `run.py` as the main entry point for training.
 - All configuration is modular and can be overridden via Hydra.
 - For advanced usage, see the documentation in each `configs/` subfolder.
+
+## Requirements
+
+This project requires **Python 3.12** or higher. All dependencies and tools are configured and tested for Python 3.12. Please ensure your environment matches this version for full compatibility.

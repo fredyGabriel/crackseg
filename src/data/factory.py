@@ -147,11 +147,12 @@ def _prepare_dataloader_params(
     drop_last = dataloader_config.get("drop_last", False)
     # Dataloader extra kwargs from the main dataloader_config level, not
     # memory_cfg
+    container = OmegaConf.to_container(dataloader_config, resolve=True)
+    if not isinstance(container, dict):
+        container = {}
     dataloader_extra_kwargs = {
-        k: v
-        for k, v in OmegaConf.to_container(
-            dataloader_config, resolve=True
-        ).items()
+        str(k): v
+        for k, v in container.items()
         if k
         not in [
             "distributed",

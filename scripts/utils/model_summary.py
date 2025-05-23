@@ -10,7 +10,6 @@ import os
 import sys
 
 import hydra
-from omegaconf import OmegaConf
 
 # Add the project root directory to the Python path
 sys.path.append(os.getcwd())
@@ -31,11 +30,8 @@ def main():
     # Clean up hydra state
     hydra.core.global_hydra.GlobalHydra.instance().clear()
 
-    # Convert config to dictionary
-    config_dict = OmegaConf.to_container(cfg.model, resolve=True)
-
     # Create the model
-    model = create_unet(config_dict)
+    model = create_unet(cfg.model)
 
     # Print model summary with example input shape
     model.print_summary(input_shape=(1, 3, 512, 512))

@@ -16,19 +16,22 @@ from src.model import EncoderBase, BottleneckBase, DecoderBase  # noqa E402
 
 # Define and register mock components centrally here
 # Temporarily commented out as registries are also commented out in factory.py
-# @encoder_registry.register("FactoryEncoder")
+# @encoder_registry.register(...) if registry is not None else None
+# "FactoryEncoder")
 # class FactoryEncoder(MockEncoder):
 #     # Override skip_channels if necessary, default is [16, 32]
 #     pass
 #
 #
 # # Keep original name if not conflicting
-# @bottleneck_registry.register("TestBottleneck")
+# @bottleneck_registry.register(...) if registry is not None else None
+# "TestBottleneck")
 # class TestBottleneck(MockBottleneck):
 #     pass
 #
 #
-# @decoder_registry.register("FactoryDecoder")
+# @decoder_registry.register(...) if registry is not None else None
+# "FactoryDecoder")
 # class FactoryDecoder(MockDecoder):
 #     # MockDecoder already stores skip_channels passed in __init__
 #     # The validation expects the *reversed* order compared to the encoder.

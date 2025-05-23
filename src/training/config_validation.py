@@ -1,6 +1,6 @@
 """Helpers for validating Trainer configuration parameters."""
 
-from typing import Any
+from typing import Any, cast
 
 from omegaconf import DictConfig
 
@@ -17,7 +17,7 @@ def validate_trainer_config(cfg: Any) -> None:
         ("gradient_accumulation_steps", int),
     ]
 
-    # Permitir acceso por atributo o clave
+    # Allow access by attribute or key
     def get_field(obj, field):
         if isinstance(obj, dict | DictConfig):
             if field in obj:
@@ -31,13 +31,29 @@ def validate_trainer_config(cfg: Any) -> None:
 
     for field, expected_type in required_fields:
         value = get_field(cfg, field)
-        # Para DictConfig, OmegaConf puede devolver tipos especiales
-        # pero isinstance(value, int) funciona para ambos
-        if not isinstance(value, expected_type):
-            raise TypeError(
-                f"Config field '{field}' must be {expected_type}, "
-                f"got {type(value)}"
+        # For DictConfig, OmegaConf may return special types
+        # but isinstance(value, int) works for both
+        if field == "optimizer":
+            if not (isinstance(value, dict) or isinstance(value, DictConfig)):
+                raise TypeError(
+                    f"Config field '{field}' must be dict or DictConfig, got "
+                    f"{type(value)}"
+                )
+        else:
+            # We ensure that expected_type is a class or tuple of classes
+            if not isinstance(expected_type, tuple):
+                types_tuple = (expected_type,)
+            else:
+                types_tuple = expected_type
+            # We filter only real classes and cast directly in isinstance
+            filtered_types = tuple(
+                t for t in types_tuple if isinstance(t, type)
             )
+            if not isinstance(value, cast(tuple[type, ...], filtered_types)):
+                raise TypeError(
+                    f"Config field '{field}' must be {expected_type}, "
+                    f"got {type(value)}"
+                )
     # Example: epochs must be > 0
     epochs = get_field(cfg, "epochs")
     if epochs <= 0:

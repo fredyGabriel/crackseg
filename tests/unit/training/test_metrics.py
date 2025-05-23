@@ -1,3 +1,5 @@
+from typing import cast
+
 import pytest
 import torch
 
@@ -273,7 +275,7 @@ def test_get_scalar_metrics_basic():
         "iou": torch.tensor(0.75),
         "f1": torch.tensor(0.8),
     }
-    scalars = get_scalar_metrics(metrics_dict)
+    scalars = get_scalar_metrics(cast(dict[str, torch.Tensor], metrics_dict))
     assert scalars == pytest.approx({"loss": 0.5, "iou": 0.75, "f1": 0.8})
 
 
@@ -285,13 +287,13 @@ def test_get_scalar_metrics_mixed_types():
         "lr": 1e-4,  # Float
         "non_scalar": torch.tensor([1.0, 2.0]),  # Non-scalar tensor
     }
-    scalars = get_scalar_metrics(metrics_dict)
+    scalars = get_scalar_metrics(cast(dict[str, torch.Tensor], metrics_dict))
     assert scalars == pytest.approx({"loss": 0.2, "epoch": 3.0, "lr": 1e-4})
     assert "non_scalar" not in scalars  # Should be skipped
 
 
 def test_get_scalar_metrics_empty():
     """Test with an empty dictionary."""
-    metrics_dict = {}
+    metrics_dict: dict[str, torch.Tensor] = {}
     scalars = get_scalar_metrics(metrics_dict)
     assert scalars == {}

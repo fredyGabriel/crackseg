@@ -7,7 +7,7 @@ decoders, and hybrid models, with validation and runtime parameter support.
 """
 
 import logging
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 import hydra.utils
 from omegaconf import DictConfig
@@ -169,8 +169,11 @@ def instantiate_encoder(
             full_config = merge_configs(full_config, runtime_params)
 
         # Try instantiation methods in order
-        return _try_instantiation_methods(
-            full_config, "encoder", encoder_registry, EncoderBase
+        return cast(
+            EncoderBase,
+            _try_instantiation_methods(
+                full_config, "encoder", encoder_registry, nn.Module
+            ),
         )
 
     except Exception as e:
@@ -204,8 +207,11 @@ def instantiate_bottleneck(
             full_config = merge_configs(full_config, runtime_params)
 
         # Try instantiation methods in order
-        return _try_instantiation_methods(
-            full_config, "bottleneck", bottleneck_registry, BottleneckBase
+        return cast(
+            BottleneckBase,
+            _try_instantiation_methods(
+                full_config, "bottleneck", bottleneck_registry, nn.Module
+            ),
         )
 
     except Exception as e:
@@ -241,8 +247,11 @@ def instantiate_decoder(
             full_config = merge_configs(full_config, runtime_params)
 
         # Try instantiation methods in order
-        return _try_instantiation_methods(
-            full_config, "decoder", decoder_registry, DecoderBase
+        return cast(
+            DecoderBase,
+            _try_instantiation_methods(
+                full_config, "decoder", decoder_registry, nn.Module
+            ),
         )
 
     except Exception as e:
@@ -279,7 +288,7 @@ def instantiate_hybrid_model(
             model_cls = architecture_registry.get(model_type)
             model = model_cls(encoder, bottleneck, decoder)
             log_component_creation("Hybrid Model", model_type)
-            return model
+            return cast(UNetBase, model)
 
         # Fallback to direct import
         import importlib
@@ -308,7 +317,7 @@ def instantiate_hybrid_model(
 
         model = model_cls(encoder, bottleneck, decoder)
         log_component_creation("Hybrid Model", model_type)
-        return model
+        return cast(UNetBase, model)
 
     except Exception as e:
         log.error(f"Error instantiating hybrid model: {e}", exc_info=True)
@@ -371,8 +380,8 @@ def _try_instantiation_methods(
     config: dict[str, Any],
     component_type: str,
     registry: Any,
-    base_class: type[ComponentModelType],
-) -> ComponentModelType:
+    base_class: type[nn.Module],
+) -> nn.Module:
     """
     Try multiple methods to instantiate a component.
 
@@ -421,7 +430,7 @@ def _try_instantiation_methods(
                 log_component_creation(
                     component_type.capitalize(), component_name
                 )
-                return component
+                return cast(nn.Module, component)
         except Exception as e:
             log.warning(
                 f"Registry instantiation failed for {component_type}: {e}"

@@ -2,6 +2,7 @@ import logging
 import math
 import os
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -10,6 +11,9 @@ from matplotlib.colors import ListedColormap
 from mpl_toolkits.axes_grid1 import ImageGrid
 from omegaconf import DictConfig
 from PIL import Image
+
+if TYPE_CHECKING:
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 
 @dataclass
@@ -340,10 +344,12 @@ def create_overlay_visualization(
 
     # Convert plot to image
     fig.canvas.draw()
-    overlay_image = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
-    overlay_image = overlay_image.reshape(
-        fig.canvas.get_width_height()[::-1] + (3,)
-    )
+    # Usar buffer_rgba y convertir a RGB
+    canvas = cast("FigureCanvasAgg", fig.canvas)
+    buf = np.asarray(canvas.buffer_rgba())
+    # Convertir de RGBA a RGB
+    overlay_image = buf[..., :3].copy()
+
     plt.close(fig)
 
     return overlay_image
@@ -354,7 +360,10 @@ def get_masked_prediction(
 ) -> np.ma.MaskedArray:
     """Returns a masked array based on a threshold from config."""
     threshold = cfg.thresholds.metric
-    return np.ma.masked_where(pred_array < threshold, pred_array)
+    return cast(
+        np.ma.MaskedArray,
+        np.ma.masked_where(pred_array < threshold, pred_array),
+    )
 
 
 def visualize_segmentation_results(

@@ -6,9 +6,8 @@ class that integrates EncoderBase, BottleneckBase, and DecoderBase
 components into a complete UNet model.
 """
 
-import sys
 from io import StringIO
-from typing import Any
+from typing import Any, cast
 
 import hydra.utils  # Import hydra utils
 import torch
@@ -137,7 +136,7 @@ nn.Module"
         if self.final_activation is not None:
             output = self.final_activation(output)
 
-        return output
+        return cast(torch.Tensor, output)
 
     def get_output_channels(self) -> int:
         """
@@ -352,11 +351,14 @@ nn.Module"
             Optional[str]: Formatted summary string if return_string is True,
                           otherwise None.
         """
+        target_file: Any
         if return_string:
             string_stream = StringIO()
             target_file = string_stream
         else:
-            target_file = file or sys.stdout
+            import sys
+
+            target_file = file if file is not None else sys.stdout
 
         summary_dict = self.summary(input_shape)
 

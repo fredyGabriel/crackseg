@@ -77,13 +77,21 @@ class ConvLSTMCell(nn.Module):
             tuple[torch.Tensor, torch.Tensor]: Tuple containing the next hidden
                 state (h_next) and cell state (c_next).
         """
-        h_cur, c_cur = self._init_hidden(input_tensor, cur_state)
+        h_cur, c_cur = (
+            self._init_hidden(input_tensor, cur_state)
+            if self._init_hidden is not None
+            else None if self._init_hidden is not None else (None, None)
+        )
 
         # Concatenate input and hidden state
         combined = torch.cat([input_tensor, h_cur], dim=1)
 
         # Compute combined gates
-        combined_conv = self.conv(combined)
+        combined_conv = (
+            self.conv(combined)
+            if self.conv is not None
+            else None if self.conv is not None else (None, None)
+        )
 
         # Split combined gates into individual gates
         cc_i, cc_f, cc_o, cc_g = torch.split(
@@ -143,11 +151,15 @@ class ConvLSTM(nn.Module):
         )
 
         # Ensure hidden_dim and kernel_size are lists for iteration
-        hidden_dim_list = self._extend_for_layers(
-            config.hidden_dim, config.num_layers
+        hidden_dim_list = (
+            self._extend_for_layers(config.hidden_dim, config.num_layers)
+            if self._extend_for_layers is not None
+            else None if self._extend_for_layers is not None else (None, None)
         )
-        kernel_size_list = self._extend_for_layers(
-            config.kernel_size, config.num_layers
+        kernel_size_list = (
+            self._extend_for_layers(config.kernel_size, config.num_layers)
+            if self._extend_for_layers is not None
+            else None if self._extend_for_layers is not None else (None, None)
         )
 
         if (
@@ -216,32 +228,62 @@ class ConvLSTM(nn.Module):
         # Initialize hidden states if not provided
         if hidden_state is None:
             hidden_state = self._init_hidden(
-                batch_size=b, image_size=(h, w), device=input_tensor.device
+                batch_size=b,
+                image_size=(
+                    (h, w)
+                    if self._init_hidden is not None
+                    else (
+                        None if self._init_hidden is not None else (None, None)
+                    )
+                ),
+                device=input_tensor.device,
             )
 
         layer_output_list = []
         last_state_list = []
 
         cur_layer_input = input_tensor
-        internal_state = []
+        internal_state: list[tuple[torch.Tensor, torch.Tensor]] = []
 
         for layer_idx in range(self.num_layers):
-            h, c = hidden_state[layer_idx]
-            output_inner = []
+            state = hidden_state[layer_idx]
+            if not (
+                isinstance(state, tuple)
+                and len(state) == 2
+                and isinstance(state[0], torch.Tensor)
+                and isinstance(state[1], torch.Tensor)
+            ):
+                raise TypeError(
+                    f"hidden_state[{layer_idx}] must be a tuple of two "
+                    f"Tensors, got {type(state)}"
+                )
+            h, c = state  # type: ignore[assignment]
+            output_inner: list[torch.Tensor] = []
             for t in range(seq_len):
                 # Input to the current layer is the input tensor for the first
                 # layer, or the output of the previous layer for subsequent
                 # layers
                 h, c = self.cell_list[layer_idx](
                     input_tensor=cur_layer_input[:, t, :, :, :],
-                    cur_state=[h, c],
+                    cur_state=(h, c),
                 )
+                if not isinstance(h, torch.Tensor):
+                    raise TypeError(
+                        f"h debe ser un torch.Tensor, no {type(h)}"
+                    )
                 output_inner.append(h)
 
             layer_output = torch.stack(output_inner, dim=1)
             # Next layer's input is current layer's output
             cur_layer_input = layer_output
 
+            if not (
+                isinstance(h, torch.Tensor) and isinstance(c, torch.Tensor)
+            ):
+                raise TypeError(
+                    f"internal_state must contain tuples of tensors, but "
+                    f"found: {type(h)}, {type(c)}"
+                )
             internal_state.append((h, c))
             if self.return_all_layers:
                 layer_output_list.append(layer_output)

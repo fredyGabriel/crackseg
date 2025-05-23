@@ -5,6 +5,8 @@ This test module verifies that the configuration validation system correctly
 validates configurations for various component types and hybrid architectures.
 """
 
+from typing import Any
+
 from src.model.config.core import ConfigParam, ConfigSchema, ParamType
 from src.model.config.validation import (
     normalize_config,
@@ -68,12 +70,14 @@ class TestBasicValidation:
         invalid_config = {"name": "test"}
         is_valid, errors = test_schema.validate(invalid_config)
         assert is_valid is False
+        assert errors is not None
         assert "count" in errors
 
         # Invalid config - wrong type
         invalid_type_config = {"name": "test", "count": "10"}
         is_valid, errors = test_schema.validate(invalid_type_config)
         assert is_valid is False
+        assert errors is not None
         assert "count" in errors
 
         # Config with unknown parameters
@@ -84,6 +88,7 @@ class TestBasicValidation:
         }
         is_valid, errors = test_schema.validate(unknown_param_config)
         assert is_valid is False
+        assert errors is not None
         assert "_unknown" in errors
 
         # Same config but with allow_unknown=True
@@ -135,6 +140,7 @@ class TestBasicValidation:
         }
         is_valid, errors = outer_schema.validate(invalid_nested_config)
         assert is_valid is False
+        assert errors is not None
         assert "nested" in errors
 
 
@@ -392,8 +398,8 @@ class TestConfigNormalization:
         )
 
         # Normalize a minimal config
-        config = {"name": "test"}
-        normalized = schema.normalize(config)
+        config_minimal: dict[str, Any] = {"name": "test"}
+        normalized = schema.normalize(config_minimal)
 
         assert normalized["name"] == "test"
         assert normalized["count"] == 0
@@ -401,8 +407,12 @@ class TestConfigNormalization:
         assert normalized["factor"] == 1.0
 
         # Ensure original values are preserved
-        config = {"name": "test", "count": 5, "enabled": False}
-        normalized = schema.normalize(config)
+        config_full: dict[str, Any] = {
+            "name": "test",
+            "count": 5,
+            "enabled": False,
+        }
+        normalized = schema.normalize(config_full)
 
         assert normalized["name"] == "test"
         assert normalized["count"] == 5  # noqa: PLR2004

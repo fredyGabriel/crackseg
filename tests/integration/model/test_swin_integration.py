@@ -7,16 +7,20 @@ U-Net components.
 """
 
 import os
+from typing import assert_type
 
 import pytest
 import torch
 from omegaconf import DictConfig, OmegaConf
 
 from src.model import EncoderBase
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+from src.model.encoder.swin_transformer_encoder import (
+    SwinTransformerEncoder,
+    SwinTransformerEncoderConfig,
+)
 
 
-def load_test_config(config_path: str = None) -> DictConfig:
+def load_test_config(config_path: str | None = None) -> DictConfig:
     """Load Hydra config directly from file path."""
     if config_path is None:
         script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -39,17 +43,23 @@ def load_test_config(config_path: str = None) -> DictConfig:
         content = f.read()
 
     cfg = OmegaConf.create(content)
+    if not isinstance(cfg, DictConfig):
+        raise TypeError("Config file must be a DictConfig (YAML dict at root)")
+    assert_type(cfg, DictConfig)
     return cfg
 
 
 def test_swin_transformer_integration_with_unet():
     """Test direct integration of SwinTransformerEncoder with UNet manually."""
     # Create encoder directly
-    encoder = SwinTransformerEncoder(
-        in_channels=3,
+    config = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
         features_only=True,
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=3,
+        config=config,
     )
 
     # Forward pass through encoder
@@ -84,7 +94,11 @@ def test_swin_transformer_memory_usage():
 
     # Create encoder
     encoder = SwinTransformerEncoder(
-        in_channels=3, model_name="swinv2_tiny_window16_256", pretrained=False
+        in_channels=3,
+        config=SwinTransformerEncoderConfig(
+            model_name="swinv2_tiny_window16_256",
+            pretrained=False,
+        ),
     )
     encoder = encoder.to("cuda")
     encoder.eval()

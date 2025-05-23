@@ -1,9 +1,8 @@
 # In src/main.py (Skeleton and checkpointing logic)
-
 import logging
 import math  # For inf
 import os
-from typing import Any  # Added for these types
+from typing import Any, cast
 
 import hydra
 import torch
@@ -11,11 +10,14 @@ from hydra import errors as hydra_errors  # Import Hydra errors
 from omegaconf import DictConfig, OmegaConf
 from omegaconf import errors as omegaconf_errors  # Import OmegaConf errors
 from torch import optim  # For Optimizer
-from torch.optim import lr_scheduler  # For _LRScheduler
+from torch.cuda.amp import GradScaler
+from torch.nn import Module
+from torch.optim.lr_scheduler import _LRScheduler
 from torch.utils.data import DataLoader  # Added for DataLoader
 
 # Project imports
 from src.data.factory import create_dataloaders_from_config  # Import factory
+from src.training.components import TrainingComponents
 from src.training.factory import create_lr_scheduler
 from src.training.trainer import Trainer
 from src.utils import (
@@ -119,6 +121,13 @@ def _load_data(cfg: DictConfig) -> tuple[DataLoader, DataLoader]:
                 "Train or validation dataloader could not be created."
             )
 
+        if not isinstance(train_loader, DataLoader) or not isinstance(
+            val_loader, DataLoader
+        ):
+            raise DataError(
+                "Train or validation loader is not a DataLoader instance"
+            )
+
         log.info("Data loading complete.")
         return train_loader, val_loader
     except (
@@ -139,6 +148,7 @@ def _create_model(cfg: DictConfig, device: torch.device) -> torch.nn.Module:
     log.info("Creating model...")
     try:
         model = hydra.utils.instantiate(cfg.model)
+        model = cast(Module, model)
         model.to(device)
         num_params = sum(p.numel() for p in model.parameters())
         log.info(
@@ -146,6 +156,7 @@ def _create_model(cfg: DictConfig, device: torch.device) -> torch.nn.Module:
             type(model).__name__,
             num_params,
         )
+        assert isinstance(model, Module)
         return model
     except (
         ModelError,
@@ -165,8 +176,8 @@ def _setup_training_components(
     dict[str, Any],
     optim.Optimizer,
     torch.nn.Module,
-    lr_scheduler._LRScheduler | None,
-    torch.cuda.amp.GradScaler | None,
+    _LRScheduler | None,
+    GradScaler | None,
 ]:
     """Sets up metrics, optimizer, loss function, scheduler, and AMP scaler."""
     log.info("Setting up training components...")
@@ -230,7 +241,7 @@ def _setup_training_components(
         )
         loss_fn_instance = torch.nn.BCEWithLogitsLoss()  # Fallback
 
-    scheduler: lr_scheduler._LRScheduler | None = None
+    scheduler = None
     if cfg.training.get("scheduler", None):
         try:
             scheduler = create_lr_scheduler(optimizer, cfg.training.scheduler)
@@ -248,7 +259,7 @@ def _setup_training_components(
             scheduler = None
 
     use_amp = cfg.training.get("amp_enabled", False)
-    scaler: torch.cuda.amp.GradScaler | None = (
+    scaler: GradScaler | None = (
         torch.cuda.amp.GradScaler() if use_amp else None
     )
     log.info("AMP Enabled: %s", scaler is not None)
@@ -267,7 +278,7 @@ def _handle_checkpointing_and_resume(
     """Handles checkpoint loading and resume logic."""
     log.info("Handling checkpointing and resume...")
     start_epoch = 0
-    best_metric_value: float | None = None
+    best_metric_value = None
 
     # Ensure experiment_logger and its manager are valid before use
     if not hasattr(experiment_logger, "experiment_manager"):
@@ -363,7 +374,7 @@ def main(cfg: DictConfig) -> None:
         model = _create_model(cfg, device)
 
         # --- 4. Training Setup ---
-        metrics, optimizer, loss_fn, _scheduler, _scaler = (
+        metrics, optimizer, loss_fn, scheduler, scaler = (
             _setup_training_components(cfg, model)
         )
 
@@ -377,14 +388,15 @@ def main(cfg: DictConfig) -> None:
 
         # --- 6. Training Loop (delegated to Trainer) ---
         log.info("Starting training loop...")
-        trainer = Trainer(
+        components = TrainingComponents(
             model=model,
             train_loader=train_loader,
             val_loader=val_loader,
             loss_fn=loss_fn,
             metrics_dict=metrics,
-            # Trainer will derive optimizer, scheduler,
-            # device, start_epoch etc. from cfg
+        )
+        trainer = Trainer(
+            components=components,
             cfg=cfg,
             logger_instance=experiment_logger,
             # early_stopper can be passed if initialized separately

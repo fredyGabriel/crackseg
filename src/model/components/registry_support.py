@@ -13,6 +13,7 @@ registry_setup.py, making them available to the factory system.
 
 import logging
 
+from src.model.architectures.base_unet import UNet  # For standard UNet
 from src.model.factory.hybrid_registry import (
     register_complex_hybrid,
     register_standard_hybrid,
@@ -28,31 +29,36 @@ from src.model.factory.registry_setup import (
 log = logging.getLogger(__name__)
 
 
+def register_standard_unet() -> None:
+    """Register the standard U-Net architecture."""
+    if "UNet" not in architecture_registry:
+        architecture_registry.register(name="UNet", tags=["standard", "cnn"])(
+            UNet
+        )
+        log.info("Registered standard U-Net architecture")
+
+
 def register_convlstm_components() -> None:
     """
     Register all ConvLSTM-related components with the appropriate registries.
 
     This includes:
-    - ConvLSTMCell
-    - ConvLSTM
-    - ConvLSTM bottleneck
-    - CNN-ConvLSTM architecture
+    - ConvLSTM cell
+    - ConvLSTM layer
+    - ConvLSTM bottleneck (if available)
+    - CNN-ConvLSTM UNet (if available)
     """
-    # Register the components if not already registered
     from src.model.components.convlstm import ConvLSTM, ConvLSTMCell
 
-    # Use the dedicated ConvLSTM registry
     convlstm_registry = component_registries.get("convlstm")
 
     # Check if components are already registered
     if convlstm_registry is not None:
         if "ConvLSTMCell" not in convlstm_registry:
-            # Register with the component registry
             convlstm_registry.register(name="ConvLSTMCell")(ConvLSTMCell)
             log.info("Registered ConvLSTMCell component")
 
         if "ConvLSTM" not in convlstm_registry:
-            # Register with the component registry
             convlstm_registry.register(name="ConvLSTM")(ConvLSTM)
             log.info("Registered ConvLSTM component")
     else:
@@ -63,7 +69,7 @@ def register_convlstm_components() -> None:
 
     # If there's a specific bottleneck implementation using ConvLSTM
     try:
-        from src.model.bottleneck.convlstm_bottleneck import (  # type: ignore
+        from src.model.bottleneck.convlstm_bottleneck import (
             ConvLSTMBottleneck,
         )
 
@@ -85,12 +91,11 @@ def register_convlstm_components() -> None:
             )(CNNConvLSTMUNet)
             log.info("Registered CNN-ConvLSTM UNet architecture")
 
-            # Register as a hybrid architecture
             register_standard_hybrid(
                 name="CNNConvLSTMUNet",
-                encoder_type="CNNEncoder",  # Assuming this exists
+                encoder_type="CNNEncoder",
                 bottleneck_type="ConvLSTMBottleneck",
-                decoder_type="CNNDecoder",  # Assuming this exists
+                decoder_type="CNNDecoder",
                 tags=["temporal", "convlstm"],
             )
             log.info("Registered CNN-ConvLSTM as hybrid architecture")
@@ -109,7 +114,6 @@ def register_swinv2_components() -> None:
     - SwinV2 encoder adapter
     - Hybrid architectures using SwinV2
     """
-    # Register the SwinV2 encoder if not already registered
     try:
         from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
 
@@ -121,7 +125,6 @@ def register_swinv2_components() -> None:
     except ImportError:
         log.debug("SwinV2 encoder adapter not found, skipping registration")
 
-    # Register any hybrid architectures using SwinV2
     try:
         from src.model.architectures.swinv2_cnn_aspp_unet import (
             SwinV2CnnAsppUNet,
@@ -134,12 +137,11 @@ def register_swinv2_components() -> None:
             )(SwinV2CnnAsppUNet)
             log.info("Registered SwinV2-CNN-ASPP hybrid architecture")
 
-            # Register as a hybrid architecture
             register_standard_hybrid(
                 name="SwinV2CNNASPPUNet",
                 encoder_type="SwinV2",
                 bottleneck_type="ASPPModule",
-                decoder_type="CNNDecoder",  # Assuming this exists
+                decoder_type="CNNDecoder",
                 tags=["transformer", "aspp"],
             )
             log.info("Registered SwinV2-CNN-ASPP as hybrid architecture")
@@ -158,7 +160,6 @@ def register_aspp_components() -> None:
     - ASPP module
     - ASPP bottleneck
     """
-    # Register the ASPP component if not already registered
     try:
         from src.model.components.aspp import ASPPModule
 
@@ -180,7 +181,6 @@ def register_cbam_components() -> None:
     - Channel Attention module
     - Spatial Attention module
     """
-    # Register the CBAM components if not already registered
     try:
         from src.model.components.cbam import (
             CBAM,
@@ -190,7 +190,6 @@ def register_cbam_components() -> None:
 
         attention_registry = component_registries.get("attention")
 
-        # Register CBAM (if not already registered)
         if attention_registry is not None:
             if "CBAM" not in attention_registry:
                 attention_registry.register(
@@ -198,14 +197,12 @@ def register_cbam_components() -> None:
                 )(CBAM)
                 log.info("Registered CBAM attention module")
 
-            # Register channel attention (if not already registered)
             if "ChannelAttention" not in attention_registry:
                 attention_registry.register(
                     name="ChannelAttention", tags=["attention", "channel"]
                 )(ChannelAttention)
                 log.info("Registered Channel Attention module")
 
-            # Register spatial attention (if not already registered)
             if "SpatialAttention" not in attention_registry:
                 attention_registry.register(
                     name="SpatialAttention", tags=["attention", "spatial"]
@@ -233,43 +230,62 @@ def register_hybrid_architectures() -> None:
     """
     log.info("Registering hybrid architectures...")
 
-    # Hybrid: SwinV2 encoder + ASPP bottleneck + CNN decoder with CBAM
     try:
         register_complex_hybrid(
             name="SwinV2ASPPCNNWithCBAM",
             components={
                 "encoder": ("encoder", "SwinV2"),
                 "bottleneck": ("bottleneck", "ASPPModule"),
-                "decoder": ("decoder", "CNNDecoder"),  # Assuming this exists
+                "decoder": ("decoder", "CNNDecoder"),
                 "attention": ("attention", "CBAM"),
             },
-            tags=["transformer", "aspp", "attention", "cnn"],
+            tags=["hybrid", "transformer", "aspp", "attention"],
         )
-        log.info("Registered SwinV2ASPPCNNWithCBAM hybrid architecture")
-    except ValueError as e:
-        log.debug(f"Could not register SwinV2ASPPCNNWithCBAM: {e}")
+    except Exception as e:
+        log.warning(f"Failed to register SwinV2ASPPCNNWithCBAM: {e}")
 
-    # Add other hybrid architectures as needed
+    # Example: CNN with a different type of attention in decoder
+    # try:
+    #     register_complex_hybrid(
+    #         name="CNNWithCustomAttention",
+    #         components={
+    #             "encoder": ("encoder", "CNNEncoder"),
+    #             "bottleneck": ("bottleneck", "BottleneckBlock"),
+    #             "decoder": ("decoder", "CNNDecoder"),
+    #             "attention": ("attention", "SomeOtherAttention"), # Fictional
+    #         },
+    #         tags=["hybrid", "cnn", "custom_attention"],
+    #         config_overrides={"decoder_config":
+    #           {"attention_module": "SomeOtherAttention"}}
+    #     )
+    # except Exception as e:
+    #     log.warning(f"Failed to register CNNWithCustomAttention: {e}")
 
 
 def register_all_components() -> None:
-    """
-    Register all component types with their appropriate registries.
-
-    This is a convenience function to initialize all component registrations
-    at once.
-    """
-    log.info("Registering all model components...")
-
-    # Register each component type
+    """Call all registration functions to populate the registries."""
+    log.info("Registering all components and architectures...")
+    register_standard_unet()
     register_convlstm_components()
     register_swinv2_components()
     register_aspp_components()
     register_cbam_components()
-    register_hybrid_architectures()
+    register_hybrid_architectures()  # Call after other components are reg.
+    log.info("Component and architecture registration complete.")
 
-    log.info("Component registration complete")
 
+if __name__ == "__main__":
+    # Basic logging setup for testing registration
+    logging.basicConfig(level=logging.INFO)
+    register_all_components()
 
-# Optional initialization on import
-# register_all_components()
+    # Example: You can try to retrieve a registered component or architecture
+    # try:
+    #     swin_encoder_cls = encoder_registry.get("SwinV2")
+    #     log.info(f"Successfully retrieved SwinV2: {swin_encoder_cls}")
+    #     aspp_bottleneck_cls = bottleneck_registry.get("ASPPModule")
+    #     log.info(f"Successfully retrieved ASPPModule: {aspp_bottleneck_cls}")
+    #     hybrid_arch = architecture_registry.get("SwinV2ASPPCNNWithCBAM")
+    #     log.info(f"Successfully retrieved SwinV2ASPPCNNWithCBAM: {hybrid_arch}")  # noqa: E501
+    # except KeyError as e:
+    #     log.error(f"Failed to retrieve a registered item: {e}")

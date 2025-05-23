@@ -3,6 +3,7 @@ import tempfile
 from unittest.mock import MagicMock, patch
 
 import torch
+from omegaconf import OmegaConf
 
 from src.evaluation.core import evaluate_model
 from src.evaluation.data import get_evaluation_dataloader
@@ -94,7 +95,7 @@ def test_get_evaluation_dataloader(monkeypatch):
         "src.evaluation.data.create_dataloaders_from_config",
         lambda **kwargs: {"test": {"dataloader": dummy_loader}},
     )
-    cfg = {"data": {}}
+    cfg: dict[str, object] = {"data": {}}
     loader = get_evaluation_dataloader(cfg)
     assert loader is dummy_loader
 
@@ -105,11 +106,22 @@ def test_evaluate_model_basic():
             return torch.ones_like(x[:, :1])
 
     model = DummyModel()
-    batch = {"image": torch.zeros(2, 3, 4, 4), "mask": torch.zeros(2, 1, 4, 4)}
-    loader = [batch]
+
+    class DummyDataset(torch.utils.data.Dataset):
+        def __len__(self):
+            return 1
+
+        def __getitem__(self, idx):
+            return {
+                "image": torch.zeros(2, 3, 4, 4),
+                "mask": torch.zeros(2, 1, 4, 4),
+            }
+
+    loader = torch.utils.data.DataLoader(DummyDataset(), batch_size=1)
     metrics = {"dummy": lambda o, t: torch.tensor(1.0)}
+    config = OmegaConf.create({})
     results, (inputs, targets, outputs) = evaluate_model(
-        model, loader, metrics, torch.device("cpu")
+        model, loader, metrics, torch.device("cpu"), config=config
     )
     assert "test_dummy" in results
     assert inputs.shape[0] == 2  # noqa: PLR2004
@@ -165,11 +177,17 @@ def test_ensemble_evaluate_creates_results_and_files(
         mock_load.return_value = (DummyModel(), {"config": {"model": {}}})
 
         # Dummy dataloader: 2 batches of 2 samples
-        batch = {
-            "image": torch.zeros(2, 3, 4, 4),
-            "mask": torch.zeros(2, 1, 4, 4),
-        }
-        dataloader = [batch, batch]
+        class DummyDataset(torch.utils.data.Dataset):
+            def __len__(self):
+                return 2
+
+            def __getitem__(self, idx):
+                return {
+                    "image": torch.zeros(2, 3, 4, 4),
+                    "mask": torch.zeros(2, 1, 4, 4),
+                }
+
+        dataloader = torch.utils.data.DataLoader(DummyDataset(), batch_size=1)
 
         # Dummy metric
         metrics = {"dummy": lambda o, t: torch.tensor(1.0)}
@@ -178,11 +196,9 @@ def test_ensemble_evaluate_creates_results_and_files(
         with patch("src.utils.visualization.visualize_predictions"):
             results = ensemble_evaluate(
                 checkpoint_paths=["ckpt1.pth", "ckpt2.pth"],
-                config={"model": {}},
+                config=OmegaConf.create({"model": {}}),
                 dataloader=dataloader,
                 metrics=metrics,
-                device=torch.device("cpu"),
-                output_dir=str(tmp_path),
             )
 
     # Check that the result key is present

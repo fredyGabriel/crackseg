@@ -5,16 +5,18 @@ CSV_PATH += "test_inventory.csv"
 
 with open(CSV_PATH, newline="", encoding="utf-8") as f:
     reader = list(csv.reader(f))
-    explanation = reader[0]
+    explanation: list[str] = reader[0]
     header = reader[1]
     data = reader[2:]
 
-# Documentar el criterio en la explicación
-explanation = "# Reproducibility Score: 1.0 if test is always passing or "
-explanation += "always failing in both runs; 0.5 if flaky (result changes "
-explanation += "between runs)."
+# Document the criteria in the explanation
+explanation = [
+    "# Reproducibility Score: 1.0 if test is always passing or "
+    "always failing in both runs; 0.5 if flaky (result changes "
+    "between runs)."
+]
 
-# Añadir columna si no existe
+# Add column if it doesn't exist
 if "Reproducibility Score" not in header:
     header.append("Reproducibility Score")
     add_score = True

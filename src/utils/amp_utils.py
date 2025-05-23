@@ -1,19 +1,20 @@
 """AMP and gradient accumulation utilities for training loops."""
 
+from typing import Any
+
 import torch
 from torch import autocast
 
-# Compatibilidad con PyTorch >=2.4 y anteriores
+_GRADSCALER_DEVICE: str | None
 try:
-    from torch.amp import GradScaler  # PyTorch >=2.4
+    from torch.amp import GradScaler  # type: ignore
 
     _GRADSCALER_DEVICE = "cuda"
 except ImportError:
-    from torch.cuda.amp import GradScaler  # PyTorch <2.4
+    from torch.cuda.amp import GradScaler  # type: ignore
 
     _GRADSCALER_DEVICE = None
 
-# Exportar para uso externo
 __all__ = [
     "amp_autocast",
     "optimizer_step_with_accumulation",
@@ -31,7 +32,7 @@ def amp_autocast(enabled: bool):
 def optimizer_step_with_accumulation(  # noqa: PLR0913
     *,
     optimizer: torch.optim.Optimizer,
-    scaler: GradScaler | None,
+    scaler: Any,
     loss: torch.Tensor,
     grad_accum_steps: int,
     batch_idx: int,

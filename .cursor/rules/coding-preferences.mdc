@@ -3,45 +3,52 @@ description:
 globs:
 alwaysApply: true
 ---
-# Code Preferences & Guidelines
+# Code Quality Tools (Obligatory)
 
-These guidelines define the desired characteristics of the code in this project. Adhering to them ensures consistency, readability, maintainability, and reliability of the codebase.
+- **All code must be formatted with Black, type-checked with mypy, and linted with ruff**
+    - Run Black, mypy, and ruff before committing.
+    - Example:
+      ```bash
+      black .
+      mypy .
+      ruff .
+      ```
+    - Configuration: see `configs/linting/config.yaml` and `pyproject.toml`.
+    - Motivation: Ensures code consistency, readability, and early bug detection.
 
-## Core Code Principles
+# Core Code Principles
 
-1.  **Clean and Organized Code:** Write code that is easy to read, understand, and navigate. Structure files, classes, and functions logically.
-2.  **DRY (Don't Repeat Yourself):** Avoid code duplication. Implement functionality once and reuse it. If similar logic exists, refactor to consolidate it.
+- **Clean and Organized Code:** Structure code logically and readably.
+- **DRY (Don't Repeat Yourself):** Avoid code duplication.
 
-## Code Style and Readability
+# Code Style and Documentation
 
-3.  **Adhere to PEP 8:** Follow the PEP 8 style guide for Python code, covering naming, spacing, layout, etc.
-4.  **Line Length:** Aim to keep lines of code within 79 characters, as recommended by PEP 8. Avoid trailing whitespace. However, when using an automatic code formatter like Black, its decisions on line breaks can be respected if they prioritize readability, especially for long strings or complex expressions, even if it results in lines slightly exceeding this ideal limit. The primary goal is maintainable and readable code.
-5.  **Documentation (Docstrings and Comments):**
-    * Write clear, concise, and **very brief** docstrings for all modules, classes, functions, and methods, explaining their purpose, arguments, and return values. **Avoid excessive or verbose docstrings and comments; keep them minimal and to the point.**
-    * Use comments to clarify complex or non-obvious logic, but do not overuse them.
-    * All docstrings and comments **must be in English**. Translate if necessary.
-6.  **Consistent Naming:** Use descriptive and consistent naming for variables, functions, classes, and files.
+- **PEP 8:** Follow PEP 8 for naming, spacing, and layout.
+- **Line Length:** Prefer ≤79 chars, but Black's formatting is accepted.
+- **Docstrings and Comments:** Use brief, English docstrings for all modules, classes, and functions. Only comment non-obvious logic.
 
-## Modularity and Organization
+# Modularity and Organization
 
-**Never create any file or directory that is not present in the official project structure (as defined in guides/project-structure.mdc or guides/structural-guide.mdc) without explicit user confirmation.**
+- **Modular Design:** Small, focused, reusable modules.
+- **File Size:** Prefer 200-300 lines; max 400 with justification.
+- **Code Location:** Place code in appropriate directories; no one-off scripts in `src/`.
+- **UTF-8 Encoding:** All code files must use UTF-8.
 
-7.  **Modular Design:** Structure the codebase into small, focused, and reusable modules and components, separating concerns (e.g., data handling, model building blocks, specific architectures, training logic).
-8.  **File Size:** As a guideline, aim to keep individual files manageable, ideally between 200-300 lines of code. No file should exceed 300 lines except in rare, well-justified cases (which must be documented). Under no circumstances should any file exceed 400 lines.
-9.  **Code Location:** Place code in appropriate directories. Avoid adding one-off scripts directly into core source directories (`src/`); use dedicated `scripts/` or `notebooks/` folders if needed.
-10. **Character Encoding:** Use **UTF-8** encoding for all code files.
+# Reliability
 
-## Reliability Aspects in Code
+- **Test Coverage:** Include unit/integration tests for major functionality.
+- **Environment Data Separation:** No mock data in production code.
+- **Robustness:** Add basic error handling as needed.
 
-11. **Test Coverage:** The codebase should include tests (unit, integration) for major functionality and components to ensure correctness. (The act of *writing* them is in Workflow).
-12. **Environment Data Separation:** Code intended for development or production **must never** contain mocked data, stubbing, or fake data patterns. Test-specific data belongs only in test files.
-13. **Robustness:** Implement basic error handling where necessary to make code more resilient.
+# Dependency and Configuration
 
-## Dependency and Configuration Patterns
+- **Conda for dependencies:** Use `environment.yml`.
+- **Hydra for configuration:** All parameters via Hydra/YAML.
+- **.env for sensitive config:** Never hardcode secrets.
 
-14. **Dependency Management:** Dependencies are managed using **Conda** (`environment.yaml`).
-15. **Configuration via Hydra:** All configuration parameters **must** be defined and loaded using **Hydra** and YAML files. Avoid hardcoding parameters in code.
-16. **Environment Configuration:** Sensitive or environment-specific configurations (`.env`) are external and require explicit confirmation to modify.
+# References
+
+- See also: `project-structure.mdc`, `structural-guide.mdc`, `configs/linting/config.yaml`, `pyproject.toml`.
 
 ## Quick References
 - [general-context.mdc](mdc:.cursor/guides/general-context.mdc): Project Proposal & Technical Discussion

@@ -7,6 +7,9 @@ import sys
 from pathlib import Path
 
 import pytest
+from omegaconf import OmegaConf
+
+from src.data.splitting import DatasetCreationConfig
 
 # Add src/ to sys.path to ensure correct import
 sys.path.insert(
@@ -310,11 +313,12 @@ def test_create_split_datasets_basic(temp_data_dir, monkeypatch):
         os.makedirs(os.path.join(temp_data_dir, split, "masks"), exist_ok=True)
 
     # Mock transform config for all splits
-    transform_cfg = {
+    transform_cfg_dict = {
         "train": {"Resize": {"height": 64, "width": 64}},
         "val": {"Resize": {"height": 64, "width": 64}},
         "test": {"Resize": {"height": 64, "width": 64}},
     }
+    transform_cfg = OmegaConf.create(transform_cfg_dict)
 
     # Create actual sample files for testing
     # Minimal valid PNG file content
@@ -339,13 +343,14 @@ def test_create_split_datasets_basic(temp_data_dir, monkeypatch):
             f.write(png_data)
 
     # Call the function with real files instead of mocking
-    datasets = create_split_datasets(
+    config = DatasetCreationConfig(
         data_root=temp_data_dir,
         transform_cfg=transform_cfg,
+        dataset_cls=CrackSegmentationDataset,
         seed=99,
         cache_flag=False,
-        dataset_cls=CrackSegmentationDataset,
     )
+    datasets = create_split_datasets(config=config)
 
     assert isinstance(datasets, dict)
     assert "train" in datasets
@@ -367,21 +372,24 @@ def test_create_split_datasets_basic(temp_data_dir, monkeypatch):
 
 def test_create_split_datasets_missing_cls():
     """Test error when dataset_cls is not provided."""
-    transform_cfg = {
+    transform_cfg_dict = {
         "train": {"resize": {"height": 64, "width": 64}},
         "val": {"resize": {"height": 64, "width": 64}},
         "test": {"resize": {"height": 64, "width": 64}},
     }
+    transform_cfg = OmegaConf.create(transform_cfg_dict)
 
     with pytest.raises(ValueError, match="dataset_cls must be provided"):
-        create_split_datasets(
-            data_root="dummy", transform_cfg=transform_cfg, dataset_cls=None
+        config = DatasetCreationConfig(
+            data_root="dummy",
+            transform_cfg=transform_cfg,
+            dataset_cls=None,  # type: ignore
         )
+        create_split_datasets(config=config)
 
 
 def test_create_split_datasets_missing_transform(temp_data_dir):
     """Test error when transform config is missing for a split."""
-    # Create basic directory structure
     import os
 
     for split in ["train", "val", "test"]:
@@ -391,17 +399,19 @@ def test_create_split_datasets_missing_transform(temp_data_dir):
         os.makedirs(os.path.join(temp_data_dir, split, "masks"), exist_ok=True)
 
     # Missing 'test' config
-    transform_cfg = {
+    transform_cfg_dict = {
         "train": {"resize": {"height": 64, "width": 64}},
         "val": {"resize": {"height": 64, "width": 64}},
     }
+    transform_cfg = OmegaConf.create(transform_cfg_dict)
 
     with pytest.raises(ValueError, match="Transform config missing for split"):
-        create_split_datasets(
+        config = DatasetCreationConfig(
             data_root=temp_data_dir,
             transform_cfg=transform_cfg,
             dataset_cls=CrackSegmentationDataset,
         )
+        create_split_datasets(config=config)
 
 
 # Test warning for zero samples in a split?

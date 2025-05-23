@@ -48,7 +48,7 @@ class BalancedSampler(Sampler[int]):
         )
         return iter(cast(list[int], indices.tolist()))
 
-    def __len__(self) -> int:
+    def __len__(self) -> Any:
         return len(cast(Sized, self.data_source))
 
 

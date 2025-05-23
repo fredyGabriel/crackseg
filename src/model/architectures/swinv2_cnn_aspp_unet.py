@@ -1,7 +1,7 @@
 # src/model/architectures/swinv2_cnn_aspp_unet.py
 
 import logging
-from typing import Any
+from typing import Any, cast
 
 import torch
 from torch import nn
@@ -124,6 +124,9 @@ class SwinV2CnnAsppUNet(UNetBase):
         )
 
         # 5. Optional Final Activation
+        self.final_activation_layer: (
+            nn.Module
+        )  # Permite cualquier módulo de activación
         if final_activation:
             if final_activation.lower() == "sigmoid":
                 self.final_activation_layer = nn.Sigmoid()
@@ -160,22 +163,50 @@ class SwinV2CnnAsppUNet(UNetBase):
         """
         # Pass input through encoder to get bottleneck features and skips
         # Encoder output: (bottleneck_features, [skip1, skip2, ...]) H->L res
-        bottleneck_features, skip_connections = self.encoder(x)
+        bottleneck_features, skip_connections = (
+            self.encoder(x)
+            if self.encoder is not None
+            else None if self.encoder is not None else (None, None)
+        )
+        if skip_connections is None:
+            raise RuntimeError(
+                "SwinV2CnnAsppUNet: skip_connections is None after encoder "
+                "forward."
+            )
 
         # Pass bottleneck features directly through the bottleneck module
-        bottleneck_output = self.bottleneck(bottleneck_features)
+        bottleneck_output = (
+            self.bottleneck(bottleneck_features)
+            if self.bottleneck is not None
+            else None if self.bottleneck is not None else (None, None)
+        )
 
         # Pass bottleneck output and skip connections through the decoder
         # IMPORTANT: The decoder expects skip_connections in LOW->HIGH res
         # order, but the encoder provides HIGH->LOW. We reverse the order.
         reversed_skips = list(reversed(skip_connections))
 
-        decoder_output = self.decoder(bottleneck_output, reversed_skips)
+        decoder_output = (
+            self.decoder(bottleneck_output, reversed_skips)
+            if self.decoder is not None
+            else None if self.decoder is not None else (None, None)
+        )
 
         # Apply final activation
-        output = self.final_activation_layer(decoder_output)
-
-        return output
+        output = (
+            self.final_activation_layer(decoder_output)
+            if self.final_activation_layer is not None
+            else (
+                None
+                if self.final_activation_layer is not None
+                else (None, None)
+            )
+        )
+        if output is None:
+            raise RuntimeError(
+                "SwinV2CnnAsppUNet: output is None after final activation."
+            )
+        return cast(torch.Tensor, output)
 
 
 # TODO: Add registration logic if needed by a factory

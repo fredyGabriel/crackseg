@@ -75,7 +75,7 @@ class DummyIdentity(BottleneckBase):
     def __init__(self, in_channels, out_channels=None, **kwargs):
         super().__init__(in_channels=in_channels)
         self.in_channels = in_channels
-        self._out_channels = (
+        self._out_channels: int = (
             out_channels if out_channels is not None else in_channels
         )
 
@@ -97,7 +97,7 @@ class TestDecoderImpl(DecoderBase):
         # Contract: skip_channels debe ser el reverse de
         # MockEncoder.skip_channels, i.e., [32, 16] (low->high resolution)
         super().__init__(in_channels, skip_channels)
-        self._out_channels = 1
+        self._out_channels: int = 1
 
     def forward(self, x, skips):
         batch_size = x.shape[0]
@@ -119,28 +119,34 @@ class TestDecoderImpl(DecoderBase):
 @pytest.fixture(scope="function")
 def register_mock_components():  # noqa: PLR0912
     "Temporarily registers mock components for a test function."
-    registered_names = {"encoder": [], "bottleneck": [], "decoder": []}
+    registered_names: dict[str, list[str]] = {
+        "encoder": [],
+        "bottleneck": [],
+        "decoder": [],
+    }
     try:
         # Register Encoder if not present
         if "MockEncoder" not in encoder_registry:
-            encoder_registry.register("MockEncoder")(MockEncoder)
+            encoder_registry.register(name="MockEncoder")(MockEncoder)
             registered_names["encoder"].append("MockEncoder")
         # Register Bottleneck if not present
         if "MockBottleneck" not in bottleneck_registry:
-            bottleneck_registry.register("MockBottleneck")(MockBottleneck)
+            bottleneck_registry.register(name="MockBottleneck")(MockBottleneck)
             registered_names["bottleneck"].append("MockBottleneck")
         # Register Decoder if not present
         if "TestDecoderImpl" not in decoder_registry:
-            decoder_registry.register("TestDecoderImpl")(TestDecoderImpl)
+            decoder_registry.register(name="TestDecoderImpl")(TestDecoderImpl)
             registered_names["decoder"].append("TestDecoderImpl")
 
         # Registro explícito de componentes CNN reales para integración
         if "CNNEncoder" not in encoder_registry:
-            encoder_registry.register("CNNEncoder")(CNNEncoder)
+            encoder_registry.register(name="CNNEncoder")(CNNEncoder)
         if "BottleneckBlock" not in bottleneck_registry:
-            bottleneck_registry.register("BottleneckBlock")(BottleneckBlock)
+            bottleneck_registry.register(name="BottleneckBlock")(
+                BottleneckBlock
+            )
         if "CNNDecoder" not in decoder_registry:
-            decoder_registry.register("CNNDecoder")(CNNDecoder)
+            decoder_registry.register(name="CNNDecoder")(CNNDecoder)
 
         yield  # Test runs here
 
@@ -168,8 +174,8 @@ def pytest_configure(config):
     # ... registro de mocks ...
     # Registro explícito de componentes CNN reales para integración
     if "CNNEncoder" not in encoder_registry:
-        encoder_registry.register("CNNEncoder")(CNNEncoder)
+        encoder_registry.register(name="CNNEncoder")(CNNEncoder)
     if "BottleneckBlock" not in bottleneck_registry:
-        bottleneck_registry.register("BottleneckBlock")(BottleneckBlock)
+        bottleneck_registry.register(name="BottleneckBlock")(BottleneckBlock)
     if "CNNDecoder" not in decoder_registry:
-        decoder_registry.register("CNNDecoder")(CNNDecoder)
+        decoder_registry.register(name="CNNDecoder")(CNNDecoder)

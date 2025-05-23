@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from typing import cast
 
 import torch
 from torch import nn
@@ -93,7 +94,11 @@ class SimpleEncoderBlock(nn.Module):
 
         # Aplicar pooling si está activado
         if self.use_pool:
-            x = self.pool(x)
+            x = (
+                self.pool(x)
+                if self.pool is not None
+                else None if self.pool is not None else (None, None)
+            )
 
         return x, [skip]
 
@@ -148,9 +153,17 @@ class CNNEncoder(EncoderBase):
                 pool_size=pool_size,
                 use_pool=use_pool,
             )
-            self.encoder_blocks.append(block)
+            (
+                self.encoder_blocks.append
+                if self.encoder_blocks is not None
+                else 0(block)
+            )
             # Skip channels are the output channels *before* pooling
-            self._skip_channels.append(out_channels)
+            (
+                self._skip_channels.append
+                if self._skip_channels is not None
+                else 0(out_channels)
+            )
             current_channels = out_channels
 
         # The final output channels of the encoder are the output channels
@@ -244,12 +257,19 @@ class ConvLSTMBottleneck(BottleneckBase):
             x = x.unsqueeze(1)
 
         # Forward pass through ConvLSTM
-        output, _ = self.convlstm(x)
+        output, _ = (
+            self.convlstm(x)
+            if self.convlstm is not None
+            else None if self.convlstm is not None else (None, None)
+        )
 
         # Remove sequence dimension
+        if output is None:
+            raise RuntimeError(
+                "ConvLSTMBottleneck: output is None after ConvLSTM forward."
+            )
         output = output.squeeze(1)
-
-        return output
+        return cast(torch.Tensor, output)
 
     @property
     def out_channels(self) -> int:
@@ -315,9 +335,20 @@ class CNNConvLSTMUNet(UNetBase):
         Returns:
             torch.Tensor: Output segmentation map.
         """
-        encoder_output, skips = self.encoder(x)
-        bottleneck_output = self.bottleneck(encoder_output)
-
+        encoder_output, skips = (
+            self.encoder(x)
+            if self.encoder is not None
+            else None if self.encoder is not None else (None, None)
+        )
+        if skips is None:
+            raise RuntimeError(
+                "CNNConvLSTMUNet: skips is None after encoder forward."
+            )
+        bottleneck_output = (
+            self.bottleneck(encoder_output)
+            if self.bottleneck is not None
+            else None if self.bottleneck is not None else (None, None)
+        )
         # Note: The encoder produces skips in HIGH->LOW resolution order
         # The decoder expects skips in LOW->HIGH resolution order
         # This is why we need to reverse the skip connections before passing
@@ -333,12 +364,27 @@ class CNNConvLSTMUNet(UNetBase):
             }"
         )
 
-        decoder_output = self.decoder(bottleneck_output, reversed_skips)
+        decoder_output = (
+            self.decoder(bottleneck_output, reversed_skips)
+            if self.decoder is not None
+            else None if self.decoder is not None else (None, None)
+        )
+        if decoder_output is None:
+            raise RuntimeError(
+                "CNNConvLSTMUNet: decoder_output is None after decoder forward"
+            )
 
-        # Aplicar activación final
-        output = self.final_activation(decoder_output)
-
-        return output
+        # Apply final activation
+        output = (
+            self.final_activation(decoder_output)
+            if self.final_activation is not None
+            else None if self.final_activation is not None else (None, None)
+        )
+        if output is None:
+            raise RuntimeError(
+                "CNNConvLSTMUNet: output is None after final activation."
+            )
+        return cast(torch.Tensor, output)
 
 
 # Final architecture assembled.

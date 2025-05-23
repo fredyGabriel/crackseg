@@ -1,5 +1,6 @@
 # src/training/losses/bce_loss.py
 
+
 import torch
 from torch import nn
 
@@ -43,4 +44,6 @@ class BCELoss(SegmentationLoss):
         Returns:
             BCE loss value
         """
-        return self.bce(pred, target)
+        result = self.bce(pred, target)
+        assert isinstance(result, torch.Tensor)
+        return result

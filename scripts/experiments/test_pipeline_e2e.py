@@ -312,9 +312,9 @@ def create_synthetic_dataset():
     return train_loader, val_loader, test_loader
 
 
-def get_metrics_from_cfg(metrics_cfg):
+def get_metrics_from_cfg(metrics_cfg) -> dict[str, Any]:
     """Get metrics from config."""
-    metrics = {}
+    metrics: dict[str, Any] = {}
     for name, metric_config in metrics_cfg.items():
         if metric_config.get("_target_", "").endswith("F1Score"):
             metrics[name] = F1Score()
@@ -385,10 +385,24 @@ def _prepare_dataloaders(cfg_data):
     train_loader = dataloaders["train"]["dataloader"]
     val_loader = dataloaders["val"]["dataloader"]
     test_loader = dataloaders["test"]["dataloader"]
+
+    def get_dataset_len(loader):
+        if isinstance(loader, DataLoader):
+            # mypy: asegúrate de que loader.dataset es Sized
+            from collections.abc import Sized
+
+            dataset = loader.dataset
+            if isinstance(dataset, Sized):
+                return len(dataset)
+            return -1
+        elif hasattr(loader, "__len__"):
+            return len(loader)
+        return -1
+
     log.info(
-        f"Data loaded: {len(train_loader.dataset)} train, "
-        f"{len(val_loader.dataset)} val, "
-        f"{len(test_loader.dataset)} test"
+        f"Data loaded: {get_dataset_len(train_loader)} train, "
+        f"{get_dataset_len(val_loader)} val, "
+        f"{get_dataset_len(test_loader)} test"
     )
     return train_loader, val_loader, test_loader
 
@@ -400,7 +414,7 @@ def _initialize_training_components(cfg, device):
     log.info("Creating model and training components...")
     model = create_unet(cfg.model).to(device)
     loss_fn = get_loss_fn(cfg.training.loss)
-    optimizer = get_optimizer(model.parameters(), cfg.training.optimizer)
+    optimizer = get_optimizer(list(model.parameters()), cfg.training.optimizer)
     lr_scheduler = create_lr_scheduler(optimizer, cfg.training.scheduler)
     metrics_dict = get_metrics_from_cfg(cfg.evaluation.metrics)
     use_amp = cfg.training.get("amp_enabled", False)
@@ -565,12 +579,12 @@ def _execute_training_and_validation(
                 f"{args.cfg_training.checkpoints.save_best.monitor_metric}: "
                 f"{best_metric_value:.4f}"
             )
-            save_checkpoint(
-                args.model,
-                args.optimizer,
-                epoch,
-                str(args.checkpoints_dir),
-                "model_best.pth.tar",
+            # Crear configuración de guardado de checkpoint
+            from utils.checkpoint import CheckpointSaveConfig
+
+            checkpoint_config = CheckpointSaveConfig(
+                save_dir=args.checkpoints_dir,
+                filename="model_best.pth.tar",
                 additional_data={
                     "scheduler_state_dict": (
                         args.lr_scheduler.state_dict()
@@ -584,18 +598,22 @@ def _execute_training_and_validation(
                 },
             )
 
+            save_checkpoint(
+                args.model, args.optimizer, epoch, checkpoint_config
+            )
+
         if (
             args.cfg_training.checkpoints.save_interval_epochs
             and (epoch + 1)
             % args.cfg_training.checkpoints.save_interval_epochs
             == 0
         ):
-            save_checkpoint(
-                args.model,
-                args.optimizer,
-                epoch,
-                str(args.checkpoints_dir),
-                f"checkpoint_epoch_{epoch + 1}.pth.tar",
+            # Crear configuración de guardado de checkpoint para intervalos
+            from utils.checkpoint import CheckpointSaveConfig
+
+            checkpoint_config = CheckpointSaveConfig(
+                save_dir=args.checkpoints_dir,
+                filename=f"checkpoint_epoch_{epoch + 1}.pth.tar",
                 additional_data={
                     "scheduler_state_dict": (
                         args.lr_scheduler.state_dict()
@@ -608,13 +626,15 @@ def _execute_training_and_validation(
                     ),
                 },
             )
-        if args.cfg_training.checkpoints.save_last:
+
             save_checkpoint(
-                args.model,
-                args.optimizer,
-                epoch,
-                str(args.checkpoints_dir),
-                "checkpoint_last.pth.tar",
+                args.model, args.optimizer, epoch, checkpoint_config
+            )
+        if args.cfg_training.checkpoints.save_last:
+            # Crear configuración de guardado de checkpoint para el último
+            checkpoint_config = CheckpointSaveConfig(
+                save_dir=args.checkpoints_dir,
+                filename="checkpoint_last.pth.tar",
                 additional_data={
                     "scheduler_state_dict": (
                         args.lr_scheduler.state_dict()
@@ -626,6 +646,10 @@ def _execute_training_and_validation(
                         args.cfg_training, resolve=True
                     ),
                 },
+            )
+
+            save_checkpoint(
+                args.model, args.optimizer, epoch, checkpoint_config
             )
 
     log.info("Training finished.")

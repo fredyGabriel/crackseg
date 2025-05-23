@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from src.training.losses import BCEDiceLoss
 from src.training.metrics import F1Score, IoUScore
-from src.training.trainer import Trainer
+from src.training.trainer import Trainer, TrainingComponents
 
 
 class SimpleSegmentationModel(nn.Module):
@@ -96,11 +96,13 @@ def test_training_loop():
     exp_manager.get_path.return_value = checkpoint_dir
     logger_mock.experiment_manager = exp_manager
     trainer = Trainer(
-        model=model,
-        train_loader=train_loader,
-        val_loader=val_loader,
-        loss_fn=loss_fn,
-        metrics_dict=metrics,
+        components=TrainingComponents(
+            model=model,
+            train_loader=train_loader,
+            val_loader=val_loader,
+            loss_fn=loss_fn,
+            metrics_dict=metrics,
+        ),
         cfg=trainer_cfg,
         logger_instance=logger_mock,
     )

@@ -1,3 +1,5 @@
+from typing import cast
+
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -7,6 +9,9 @@ from src.model.factory.registry_setup import component_registries
 
 # Obtenemos el registro global de atención
 attention_registry = component_registries.get("attention")
+
+if attention_registry is None:
+    raise RuntimeError("Attention registry not found in component_registries.")
 
 
 class ChannelAttention(nn.Module):
@@ -63,7 +68,7 @@ class ChannelAttention(nn.Module):
         # Sum and apply sigmoid
         attn = self.sigmoid(avg_attn + max_attn).view(b, c, 1, 1)
         # Scale input
-        return x * attn
+        return cast(torch.Tensor, x * attn)
 
 
 class SpatialAttention(nn.Module):
@@ -111,7 +116,7 @@ class SpatialAttention(nn.Module):
         # Convolution and sigmoid
         attn = self.sigmoid(self.conv(pooled))
         # Scale input
-        return x * attn
+        return cast(torch.Tensor, x * attn)
 
 
 @attention_registry.register(name="CBAM")

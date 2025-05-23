@@ -1,11 +1,28 @@
 import os
 
 import torch
+from omegaconf import OmegaConf
+from torch.utils.data import DataLoader, Dataset
 
 from src.evaluation.core import evaluate_model
 from src.evaluation.ensemble import ensemble_evaluate
 from src.evaluation.loading import load_model_from_checkpoint
 from src.evaluation.results import save_evaluation_results
+
+
+class DummyDataset(Dataset):
+    def __init__(self, n=2, shape=(3, 4, 4)):
+        self.n = n
+        self.shape = shape
+
+    def __len__(self):
+        return self.n
+
+    def __getitem__(self, idx):
+        return {
+            "image": torch.zeros(*self.shape),
+            "mask": torch.zeros(1, self.shape[1], self.shape[2]),
+        }
 
 
 def test_evaluation_pipeline(tmp_path):
@@ -19,13 +36,14 @@ def test_evaluation_pipeline(tmp_path):
     model = DummyModel()
 
     # 2. Realistic dataloader
-    batch = {"image": torch.zeros(2, 3, 4, 4), "mask": torch.zeros(2, 1, 4, 4)}
-    dataloader = [batch]
+    dataset = DummyDataset(n=2, shape=(3, 4, 4))
+    dataloader = DataLoader(dataset, batch_size=2)
     metrics = {"dummy": lambda o, t: torch.tensor(1.0)}
 
     # 3. Evaluate
+    config = OmegaConf.create({"foo": "bar"})
     results, (inputs, targets, outputs) = evaluate_model(
-        model, dataloader, metrics, torch.device("cpu")
+        model, dataloader, metrics, torch.device("cpu"), config
     )
     assert isinstance(results, dict)
     assert "test_dummy" in results
@@ -33,7 +51,6 @@ def test_evaluation_pipeline(tmp_path):
     assert inputs.shape[0] == 2  # 1 batch x 2 samples  # noqa: PLR2004
 
     # 4. Save results
-    config = {"foo": "bar"}
     checkpoint = "dummy_ckpt.pth"
     save_evaluation_results(results, config, checkpoint, str(tmp_path))
 
@@ -64,18 +81,16 @@ def test_ensemble_evaluation_pipeline(tmp_path):
 
     ensemble_mod.load_model_from_checkpoint = fake_load_model_from_checkpoint
 
-    batch = {"image": torch.zeros(2, 3, 4, 4), "mask": torch.zeros(2, 1, 4, 4)}
-    dataloader = [batch]
+    dataset = DummyDataset(n=2, shape=(3, 4, 4))
+    dataloader = DataLoader(dataset, batch_size=2)
     metrics = {"dummy": lambda o, t: torch.tensor(1.0)}
     checkpoint_paths = ["ckptA.pth", "ckptB.pth"]
-    config = {"model": {}}
+    config = OmegaConf.create({"model": {}})
     results = ensemble_evaluate(
         checkpoint_paths=checkpoint_paths,
         config=config,
         dataloader=dataloader,
         metrics=metrics,
-        device=torch.device("cpu"),
-        output_dir=str(tmp_path),
     )
     assert isinstance(results, dict)
     assert "ensemble_dummy" in results
@@ -114,8 +129,8 @@ def test_evaluation_pipeline_incompatible_metric(tmp_path):
             return torch.ones(x.shape[0], 1, 4, 4)
 
     model = DummyModel()
-    batch = {"image": torch.zeros(2, 3, 4, 4), "mask": torch.zeros(2, 1, 4, 4)}
-    dataloader = [batch]
+    dataset = DummyDataset(n=2, shape=(3, 4, 4))
+    dataloader = DataLoader(dataset, batch_size=2)
 
     # Incompatible metric: expects a different shape
     def incompatible_metric(outputs, targets):
@@ -125,8 +140,9 @@ def test_evaluation_pipeline_incompatible_metric(tmp_path):
     metrics = {"incompatible": incompatible_metric}
     import pytest
 
+    config = OmegaConf.create({})
     with pytest.raises(IndexError):
-        evaluate_model(model, dataloader, metrics, torch.device("cpu"))
+        evaluate_model(model, dataloader, metrics, torch.device("cpu"), config)
 
 
 def test_evaluation_pipeline_multiple_batches_and_visualization(tmp_path):
@@ -138,24 +154,19 @@ def test_evaluation_pipeline_multiple_batches_and_visualization(tmp_path):
             return (x[:, :1] > 0.5).float()  # noqa: PLR2004
 
     model = DummyModel()
-    # Create 3 batches
-    dataloader = [
-        {
-            "image": torch.rand(2, 3, 4, 4),
-            "mask": torch.randint(0, 2, (2, 1, 4, 4)),
-        }
-        for _ in range(3)
-    ]
+    # Create dataset with 6 samples, batch size 2 (3 batches)
+    dataset = DummyDataset(n=6, shape=(3, 4, 4))
+    dataloader = DataLoader(dataset, batch_size=2)
     metrics = {"dummy": lambda o, t: (o == t).float().mean()}
+    config = OmegaConf.create({"foo": "bar"})
     results, (inputs, targets, outputs) = evaluate_model(
-        model, dataloader, metrics, torch.device("cpu")
+        model, dataloader, metrics, torch.device("cpu"), config
     )
     assert isinstance(results, dict)
     assert "test_dummy" in results
     # Only the first 2 batches are stored for visualization (by contract)
     assert inputs.shape[0] == 4  # 2 batches x 2 samples  # noqa: PLR2004
     # Save results and check files
-    config = {"foo": "bar"}
     checkpoint = "dummy_ckpt.pth"
     save_evaluation_results(results, config, checkpoint, str(tmp_path))
     metrics_dir = os.path.join(tmp_path, "metrics")

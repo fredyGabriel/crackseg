@@ -4,7 +4,7 @@ import warnings
 import pytest
 import torch
 
-from src.model.decoder.cnn_decoder import DecoderBlock
+from src.model.decoder.cnn_decoder import DecoderBlock, DecoderBlockConfig
 
 
 def test_decoderblock_forward_shape():
@@ -239,11 +239,12 @@ def test_decoderblock_forward_cbam_and_shapes(  # noqa: PLR0913
     in_channels, skip_channels, out_channels, use_cbam, batch_size, h, w
 ):
     """Test DecoderBlock with CBAM, various batch sizes and shapes."""
+    config = DecoderBlockConfig(use_cbam=use_cbam)
     block = DecoderBlock(
         in_channels=in_channels,
         skip_channels=skip_channels,
         out_channels=out_channels,
-        use_cbam=use_cbam,
+        config=config,
     )
     x = torch.randn(batch_size, in_channels, h, w)
     skip = torch.randn(batch_size, skip_channels, h * 2, w * 2)
@@ -270,11 +271,12 @@ def test_decoderblock_forward_channel_mismatch_error(
     in_channels, skip_channels, out_channels, use_cbam
 ):
     """Test error when skip channels do not match expected value."""
+    config = DecoderBlockConfig(use_cbam=use_cbam)
     block = DecoderBlock(
         in_channels=in_channels,
         skip_channels=skip_channels,
         out_channels=out_channels,
-        use_cbam=use_cbam,
+        config=config,
     )
     x = torch.randn(1, in_channels, 8, 8)
     skip = torch.randn(1, skip_channels + 1, 16, 16)

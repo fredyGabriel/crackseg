@@ -30,6 +30,7 @@ sys.path.insert(0, str(project_root))
 # Import after configuring the path
 from src.model.encoder.swin_transformer_encoder import (  # noqa: E402
     SwinTransformerEncoder,  # noqa: E402
+    SwinTransformerEncoderConfig,  # noqa: E402
 )
 
 # Set up logging
@@ -84,17 +85,13 @@ def display_model_info(encoder, title="Model Information"):
 
 def setup_encoder_with_freezing(freeze_mode):
     """Set up an encoder with different freezing strategies."""
-    encoder = SwinTransformerEncoder(
-        in_channels=3,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=True,
-        img_size=256,
-        patch_size=4,
-        features_only=True,
-        handle_input_size="resize",
+    config = SwinTransformerEncoderConfig(
         freeze_layers=freeze_mode,
     )
-
+    encoder = SwinTransformerEncoder(
+        in_channels=3,
+        config=config,
+    )
     return encoder
 
 
@@ -107,16 +104,13 @@ def setup_encoder_with_differential_lr():
         "stages.1": 0.7,  # Middle stage learns faster (70% of base LR)
         "stages.2": 1.0,  # Final stage learns at full rate (100% of base LR)
     }
-
-    encoder = SwinTransformerEncoder(
-        in_channels=3,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=True,
-        features_only=True,
-        freeze_layers=False,  # Don't freeze, want to train with different LRs
+    config = SwinTransformerEncoderConfig(
         finetune_lr_scale=lr_scales,
     )
-
+    encoder = SwinTransformerEncoder(
+        in_channels=3,
+        config=config,
+    )
     return encoder
 
 

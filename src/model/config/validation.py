@@ -98,7 +98,7 @@ def validate_component_config(
     # Attempt validation with the determined schema
     is_valid, errors = schema.validate(config)
 
-    return is_valid, errors
+    return is_valid, errors if errors is not None else {}
 
 
 def _validate_main_components(

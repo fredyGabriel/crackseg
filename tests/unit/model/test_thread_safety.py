@@ -7,7 +7,9 @@ performed concurrently without race conditions or data corruption.
 
 import random
 import threading
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
+from typing import Any
 
 from torch import nn
 
@@ -150,7 +152,7 @@ class TestRegistryThreadSafety:
         self.errors = []
 
         # Prepare concurrent operations
-        operations = []
+        operations: list[tuple[Callable[..., Any], Any]] = []
 
         # Add registrations
         for name in base_names[100:]:
@@ -205,7 +207,7 @@ class TestRegistryThreadSafety:
             self.registered_components.add(name)
 
         # Prepare operations to list and filter concurrently
-        operations = []
+        operations: list[tuple[Callable[..., Any], list[Any]]] = []
 
         # Add list operations
         for _ in range(50):

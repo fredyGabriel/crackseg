@@ -4,7 +4,10 @@ import sys
 # Añadir el directorio raíz al path para importar desde src
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+from src.model.encoder.swin_transformer_encoder import (
+    SwinTransformerEncoder,
+    SwinTransformerEncoderConfig,
+)
 
 
 def print_model_structure():
@@ -13,9 +16,7 @@ def print_model_structure():
     try:
         encoder = SwinTransformerEncoder(
             in_channels=3,
-            model_name="swinv2_tiny_window16_256",
-            pretrained=False,
-            freeze_layers="all",  # Congelar todo inicialmente
+            config=SwinTransformerEncoderConfig(freeze_layers="all"),
         )
         print("Model initialized successfully!")
 

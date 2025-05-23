@@ -31,8 +31,15 @@ def get_cached_component(cache_key: str) -> nn.Module | None:
         component_ref = _component_cache[cache_key]
         component = component_ref()
         if component is not None:
-            log.debug(f"Cache hit for component: {cache_key}")
-            return component
+            if isinstance(component, nn.Module):
+                log.debug(f"Cache hit for component: {cache_key}")
+                return component
+            else:
+                # Si el objeto no es un nn.Module, lo eliminamos del cache
+                del _component_cache[cache_key]
+                log.debug(
+                    f"Removed invalid cache entry (not nn.Module): {cache_key}"
+                )
         else:
             # Reference has been garbage collected
             del _component_cache[cache_key]

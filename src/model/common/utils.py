@@ -205,7 +205,7 @@ def _create_io_nodes(dot: Any) -> None:
 def _extract_component_info(layer_hierarchy: list) -> dict[str, Any]:
     """Extracts encoder_blocks, decoder_blocks, bottleneck, and final_nodes
     info."""
-    info = {
+    info: dict[str, Any] = {
         "encoder_blocks": [],
         "decoder_blocks": [],
         "bottleneck_info": None,

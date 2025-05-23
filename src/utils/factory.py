@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 from importlib import import_module
+from typing import cast
 
 import torch
 from omegaconf import DictConfig, ListConfig
@@ -27,7 +28,7 @@ def import_class(class_path: str) -> type:
     try:
         module_path, class_name = class_path.rsplit(".", 1)
         module = import_module(module_path)
-        return getattr(module, class_name)
+        return cast(type, getattr(module, class_name))
     except Exception as e:
         raise ConfigError(
             f"Failed to import class '{class_path}'", details=str(e)
@@ -74,7 +75,10 @@ def get_optimizer(
             optimizer_params = {
                 str(k): v for k, v in optimizer_cfg.items() if k != "_target_"
             }
-            return optimizer_class(model_params, **optimizer_params)
+            return cast(
+                torch.optim.Optimizer,
+                optimizer_class(model_params, **optimizer_params),
+            )
 
         else:
             raise ConfigError(
@@ -109,32 +113,33 @@ def get_loss_fn(loss_cfg: DictConfig) -> Callable:
                     "under 'losses'."
                 )
 
-            inner_losses = []
+            # Validar que cada item es un dict de configuración
             for item in inner_loss_configs:
-                if not isinstance(item, DictConfig) or "config" not in item:
+                if not isinstance(item, DictConfig) and not isinstance(
+                    item, dict
+                ):
                     raise ConfigError(
-                        "Each item in CombinedLoss losses needs a "
-                        "'config' sub-dict."
+                        "Each item in CombinedLoss losses must be a dict or "
+                        "DictConfig."
                     )
-                inner_losses.append(get_loss_fn(item.config))
-
             combined_params = {}
             if weights is not None:
                 combined_params["weights"] = weights
-            return CombinedLoss(losses=inner_losses, **combined_params)
+            losses_config = [dict(item) for item in inner_loss_configs]
+            return CombinedLoss(losses_config=losses_config, **combined_params)
 
         elif loss_class is BCEDiceLoss:
             params = {
                 str(k): v for k, v in loss_cfg.items() if k != "_target_"
             }
-            return BCEDiceLoss(**params)
+            return cast(Callable, BCEDiceLoss(**params))
 
         # --- Default Handling ---
         else:
             params = {
                 str(k): v for k, v in loss_cfg.items() if k != "_target_"
             }
-            return loss_class(**params)
+            return cast(Callable, loss_class(**params))
 
     except ConfigError as e:
         raise e  # Re-raise specific config errors
@@ -159,9 +164,9 @@ def get_metrics_from_cfg(metrics_cfg: DictConfig) -> dict[str, Callable]:
         try:
             metric_class = import_class(cfg._target_)
             metric_params = {k: v for k, v in cfg.items() if k != "_target_"}
-            metrics[name] = metric_class(**metric_params)
+            metrics[str(name)] = metric_class(**metric_params)
         except Exception as e:
             raise ConfigError(
-                f"Failed to create metric '{name}'", details=str(e)
+                f"Failed to create metric {name!r}", details=str(e)
             ) from e
-    return metrics
+    return cast(dict[str, Callable], metrics)

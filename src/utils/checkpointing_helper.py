@@ -6,7 +6,7 @@ from typing import Any
 from torch.nn import Module
 from torch.optim import Optimizer
 
-from src.utils.checkpointing import save_checkpoint
+from src.utils.checkpointing import CheckpointSaveConfig, save_checkpoint
 from src.utils.logger_setup import safe_log
 
 
@@ -68,17 +68,18 @@ def handle_epoch_checkpointing(
 
     # Save last checkpoint always
     save_checkpoint(
-        epoch=context.epoch,
         model=model,
         optimizer=optimizer,
-        additional_data={
-            "metrics": context.val_results,
-            # Keep current best before update
-            "best_metric_value": context.best_metric_value,
-        },
-        checkpoint_dir=config.checkpoint_dir,
-        keep_last_n=config.keep_last_n,
-        filename=config.last_filename,
+        epoch=context.epoch,
+        config=CheckpointSaveConfig(
+            checkpoint_dir=config.checkpoint_dir,
+            filename=config.last_filename,
+            additional_data={
+                "metrics": context.val_results,
+                "best_metric_value": context.best_metric_value,
+            },
+            keep_last_n=config.keep_last_n,
+        ),
     )
     if config.logger:
         safe_log(
@@ -93,17 +94,18 @@ def handle_epoch_checkpointing(
         old_best = context.best_metric_value
         updated_best_metric_value = float(current_metric)
         save_checkpoint(
-            epoch=context.epoch,
             model=model,
             optimizer=optimizer,
-            additional_data={
-                "metrics": context.val_results,
-                # Save the new best
-                "best_metric_value": updated_best_metric_value,
-            },
-            checkpoint_dir=config.checkpoint_dir,
-            keep_last_n=1,  # Only keep the best checkpoint
-            filename=config.best_filename,
+            epoch=context.epoch,
+            config=CheckpointSaveConfig(
+                checkpoint_dir=config.checkpoint_dir,
+                filename=config.best_filename,
+                additional_data={
+                    "metrics": context.val_results,
+                    "best_metric_value": updated_best_metric_value,
+                },
+                keep_last_n=1,
+            ),
         )
         if config.logger:
             safe_log(

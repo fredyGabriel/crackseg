@@ -42,7 +42,6 @@ def test_import_implementation_classes_specific():
         CNNConvLSTMUNet,
         CNNDecoder,
         CNNEncoder,
-        ConvLSTMBottleneck,
     )
     from src.model.architectures.swinv2_cnn_aspp_unet import SwinV2CnnAsppUNet
     from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
@@ -50,7 +49,6 @@ def test_import_implementation_classes_specific():
     from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
 
     assert CNNEncoder is not None
-    assert ConvLSTMBottleneck is not None
     assert CNNDecoder is not None
     assert CNNConvLSTMUNet is not None
     assert SwinV2CnnAsppUNet is not None
@@ -68,13 +66,11 @@ def test_import_implementation_classes_global():
         CNNConvLSTMUNet,
         CNNDecoder,
         CNNEncoder,
-        ConvLSTMBottleneck,
         SwinV2CnnAsppUNet,
         SwinV2EncoderAdapter,
     )
 
     assert CNNEncoder is not None
-    assert ConvLSTMBottleneck is not None
     assert CNNDecoder is not None
     assert CNNConvLSTMUNet is not None
     assert SwinV2CnnAsppUNet is not None

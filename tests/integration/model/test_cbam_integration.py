@@ -14,6 +14,16 @@ from tests.integration.model.test_cnn_convlstm_unet import (
 )
 
 
+def get_cbam_instance(out_channels: int):
+    attention_registry = component_registries.get("attention")
+    if attention_registry is None:
+        raise RuntimeError("Attention registry not found")
+    cbam_cls = attention_registry.get("CBAM")
+    if cbam_cls is None:
+        raise RuntimeError("CBAM not registered in attention registry")
+    return cbam_cls(in_channels=out_channels, reduction=1, kernel_size=3)
+
+
 def test_cbam_integration_unet_forward():
     """Test CBAM integration in UNet forward pass (out_channels > 1)."""
     # Test con parámetros simplificados que se ha comprobado que funcionan
@@ -49,10 +59,7 @@ def test_cbam_integration_unet_forward():
     assert base_output.shape == (2, out_channels, h, w)
 
     # Ahora agregar CBAM como post-procesador
-    attention_registry = component_registries.get("attention")
-    cbam = attention_registry.instantiate(
-        "CBAM", in_channels=out_channels, reduction=1, kernel_size=3
-    )
+    cbam = get_cbam_instance(out_channels)
     cbam_model = CBAMPostProcessor(model, cbam)
 
     # Ejecutar modelo con CBAM
@@ -98,10 +105,7 @@ def test_cbam_integration_cnn_convlstm_unet_forward():
     assert base_output.shape == (1, out_channels, h, w)
 
     # Ahora agregar CBAM como post-procesador
-    attention_registry = component_registries.get("attention")
-    cbam = attention_registry.instantiate(
-        "CBAM", in_channels=out_channels, reduction=1, kernel_size=3
-    )
+    cbam = get_cbam_instance(out_channels)
     cbam_model = CBAMPostProcessor(model, cbam)
 
     # Ejecutar modelo con CBAM
@@ -146,10 +150,7 @@ def test_cbam_save_and_load(tmp_path):
     assert base_output.shape == (1, out_channels, h, w)
 
     # Ahora agregar CBAM como post-procesador
-    attention_registry = component_registries.get("attention")
-    cbam = attention_registry.instantiate(
-        "CBAM", in_channels=out_channels, reduction=1, kernel_size=3
-    )
+    cbam = get_cbam_instance(out_channels)
     cbam_model = CBAMPostProcessor(model, cbam)
 
     # Guarda y carga el modelo
@@ -160,7 +161,8 @@ def test_cbam_save_and_load(tmp_path):
     model2 = CNNConvLSTMUNet(
         encoder=encoder, bottleneck=bottleneck, decoder=decoder
     )
-    cbam_model2 = CBAMPostProcessor(model2, cbam)
+    cbam2 = get_cbam_instance(out_channels)
+    cbam_model2 = CBAMPostProcessor(model2, cbam2)
     cbam_model2.load_state_dict(torch.load(path))
 
     # Ejecuta el modelo cargado
@@ -198,10 +200,7 @@ def test_cbam_grad_integration():
     )
 
     # Ahora agregar CBAM como post-procesador
-    attention_registry = component_registries.get("attention")
-    cbam = attention_registry.instantiate(
-        "CBAM", in_channels=out_channels, reduction=1, kernel_size=3
-    )
+    cbam = get_cbam_instance(out_channels)
     cbam_model = CBAMPostProcessor(model, cbam)
 
     # Prepara un tensor con gradientes

@@ -8,7 +8,7 @@ error handling.
 """
 
 import logging
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from torch import nn
 
@@ -173,7 +173,7 @@ def _instantiate_component(
             cache_component(cache_key, component)
         # --- End Cache Update ---
 
-        return component
+        return cast(nn.Module, component)
 
     except (TypeError, ValueError, AttributeError, RuntimeError) as e:
         # Preserve InstantiationError, wrap others
@@ -300,7 +300,7 @@ def instantiate_additional_component(
     component_type = component_config["type"]  # For logging/error later
 
     # Determine registry based on component_name primarily
-    registry = component_registries.get(component_name.lower())
+    registry: Any = component_registries.get(component_name.lower())
 
     if registry is None:
         # Fallback: Try common suffixes (could be expanded)

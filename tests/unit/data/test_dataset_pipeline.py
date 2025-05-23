@@ -63,23 +63,25 @@ def test_dataset_pipeline(test_data_dir):
         }
     )
 
-    # La configuración de transformación debe ser una lista para cada split
-    transform_cfg = [
-        {"name": "Resize", "params": {"height": 64, "width": 64}},
-        {
-            "name": "Normalize",
-            "params": {
-                "mean": [0.485, 0.456, 0.406],
-                "std": [0.229, 0.224, 0.225],
+    # La configuración de transformación debe ser un DictConfig
+    transform_cfg = OmegaConf.create(
+        [
+            {"name": "Resize", "params": {"height": 64, "width": 64}},
+            {
+                "name": "Normalize",
+                "params": {
+                    "mean": [0.485, 0.456, 0.406],
+                    "std": [0.229, 0.224, 0.225],
+                },
             },
-        },
-        {"name": "ToTensorV2", "params": {}},
-    ]
+            {"name": "ToTensorV2", "params": {}},
+        ]
+    )
 
     # Crear dataset para modo 'train'
     dataset = create_crackseg_dataset(
         data_cfg=data_cfg,
-        transform_cfg=transform_cfg,
+        transform_cfg=transform_cfg,  # type: ignore
         mode="train",
         samples_list=samples_list,
     )
@@ -132,9 +134,13 @@ class DummySegmentationDataset(Dataset):
         img = self.images[idx]
         mask = self.masks[idx]
         if self.transform:
-            result = self.transform(img, mask)
-            img = result["image"]
-            mask = result["mask"]
+            result = (
+                self.transform(img, mask)
+                if self.transform is not None
+                else None if self.transform is not None else (None, None)
+            )
+            img = result["image"]  # type: ignore
+            mask = result["mask"]  # type: ignore
         return img, mask
 
 

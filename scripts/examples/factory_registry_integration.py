@@ -14,7 +14,7 @@ Usage:
 import logging
 
 import torch
-from omegaconf import OmegaConf
+from omegaconf import DictConfig, OmegaConf
 from torch import nn
 
 from src.model.base import BottleneckBase, DecoderBase, EncoderBase, UNetBase
@@ -78,6 +78,10 @@ class SimpleBottleneck(BottleneckBase):
         return self.relu(self.conv(x))
 
     @property
+    def in_channels(self):
+        return self._in_channels
+
+    @property
     def out_channels(self):
         return self._out_channels
 
@@ -105,7 +109,7 @@ class SimpleDecoder(DecoderBase):
         features = torch.cat(features, dim=1)
 
         # Apply final convolution
-        output = self.conv(features)
+        output = self.conv(features) if self.conv is not None else None
         return output
 
     @property
@@ -117,20 +121,30 @@ class SimpleUNet(UNetBase):
     """Simple UNet for demonstration purposes."""
 
     def __init__(self, encoder, bottleneck, decoder):
-        super().__init__()
+        super().__init__(encoder, bottleneck, decoder)
         self.encoder = encoder
         self.bottleneck = bottleneck
         self.decoder = decoder
 
     def forward(self, x):
         # Encode
-        encoded_features, skip_connections = self.encoder(x)
+        encoded_features, skip_connections = (
+            self.encoder(x) if self.encoder is not None else (x, None)
+        )
 
         # Apply bottleneck
-        bottleneck_features = self.bottleneck(encoded_features)
+        bottleneck_features = (
+            self.bottleneck(encoded_features)
+            if self.bottleneck is not None
+            else None
+        )
 
         # Decode
-        output = self.decoder(bottleneck_features, skip_connections)
+        output = (
+            self.decoder(bottleneck_features, skip_connections)
+            if self.decoder is not None
+            else None
+        )
 
         return output
 
@@ -200,7 +214,7 @@ def create_demo_configs():
     }
 
     # Create a UNet configuration
-    unet_config = {
+    unet_dict = {
         "_target_": "src.model.unet.BaseUNet",
         "encoder": encoder_config,
         "bottleneck": bottleneck_config,
@@ -208,7 +222,8 @@ def create_demo_configs():
     }
 
     # Convert to OmegaConf for Hydra compatibility
-    unet_config = OmegaConf.create(unet_config)
+    unet_config = OmegaConf.create(unet_dict)
+    assert isinstance(unet_config, DictConfig)
 
     return unet_config
 
@@ -226,7 +241,10 @@ def create_demo_models(config):
 
     # Create a UNet model with CBAM post-processing
     log.info("Creating UNet model with CBAM...")
-    config_with_cbam = OmegaConf.create(OmegaConf.to_container(config))
+    config_with_cbam = OmegaConf.create(
+        OmegaConf.to_container(config, resolve=True)
+    )
+    assert isinstance(config_with_cbam, DictConfig)
     config_with_cbam.cbam_enabled = True
     config_with_cbam.cbam_params = {"reduction": 8, "kernel_size": 7}
 
@@ -252,10 +270,10 @@ def main():
     register_demo_components()
 
     # List registered components
-    log.info(f"Encoders: {encoder_registry.list()}")
-    log.info(f"Bottlenecks: {bottleneck_registry.list()}")
-    log.info(f"Decoders: {decoder_registry.list()}")
-    log.info(f"Architectures: {architecture_registry.list()}")
+    log.info(f"Encoders: {encoder_registry.list_available()}")
+    log.info(f"Bottlenecks: {bottleneck_registry.list_available()}")
+    log.info(f"Decoders: {decoder_registry.list_available()}")
+    log.info(f"Architectures: {architecture_registry.list_available()}")
 
     # Create configurations
     config = create_demo_configs()

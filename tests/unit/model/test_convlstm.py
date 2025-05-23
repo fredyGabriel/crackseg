@@ -1,7 +1,13 @@
+from typing import Any
+
 import pytest
 import torch
 
-from src.model.components.convlstm import ConvLSTM, ConvLSTMCell
+from src.model.components.convlstm import (
+    ConvLSTM,
+    ConvLSTMCell,
+    ConvLSTMConfig,
+)
 
 
 @pytest.fixture
@@ -194,14 +200,18 @@ def layer_params(cell_params):
 
 def test_convlstm_layer_init(layer_params):
     """Tests ConvLSTM layer initialization."""
-    layer = ConvLSTM(
-        input_dim=layer_params["input_dim"],
+    config = ConvLSTMConfig(
         hidden_dim=layer_params["hidden_dim"],
         kernel_size=layer_params["kernel_size"],
         num_layers=layer_params["num_layers"],
+        kernel_expected_dims=2,
         batch_first=layer_params["batch_first"],
         bias=layer_params["bias"],
         return_all_layers=layer_params["return_all_layers"],
+    )
+    layer = ConvLSTM(
+        input_dim=layer_params["input_dim"],
+        config=config,
     )
     assert layer.num_layers == layer_params["num_layers"]
     assert len(layer.cell_list) == layer_params["num_layers"]
@@ -223,14 +233,18 @@ def test_convlstm_layer_init(layer_params):
 def test_convlstm_layer_forward_shape(layer_params, batch_first):
     """Tests the output shape of the ConvLSTM forward pass."""
     layer_params["batch_first"] = batch_first
-    layer = ConvLSTM(
-        input_dim=layer_params["input_dim"],
+    config = ConvLSTMConfig(
         hidden_dim=layer_params["hidden_dim"],
         kernel_size=layer_params["kernel_size"],
         num_layers=layer_params["num_layers"],
+        kernel_expected_dims=2,
         batch_first=layer_params["batch_first"],
         bias=layer_params["bias"],
-        return_all_layers=False,  # Test with return_all_layers=False first
+        return_all_layers=False,
+    )
+    layer = ConvLSTM(
+        input_dim=layer_params["input_dim"],
+        config=config,
     )
 
     if batch_first:
@@ -281,14 +295,18 @@ def test_convlstm_layer_forward_shape(layer_params, batch_first):
 @pytest.mark.parametrize("return_all", [True, False])
 def test_convlstm_layer_return_all_layers(layer_params, return_all):
     """Tests the return_all_layers flag."""
-    layer = ConvLSTM(
-        input_dim=layer_params["input_dim"],
+    config = ConvLSTMConfig(
         hidden_dim=layer_params["hidden_dim"],
         kernel_size=layer_params["kernel_size"],
         num_layers=layer_params["num_layers"],
-        batch_first=True,  # Keep batch_first True for simplicity here
+        kernel_expected_dims=2,
+        batch_first=True,
         bias=layer_params["bias"],
         return_all_layers=return_all,
+    )
+    layer = ConvLSTM(
+        input_dim=layer_params["input_dim"],
+        config=config,
     )
 
     input_tensor = torch.randn(
@@ -347,14 +365,18 @@ def test_convlstm_layer_return_all_layers(layer_params, return_all):
 
 def test_convlstm_layer_initial_state(layer_params):
     """Tests providing an initial hidden state."""
-    layer = ConvLSTM(
-        input_dim=layer_params["input_dim"],
+    config = ConvLSTMConfig(
         hidden_dim=layer_params["hidden_dim"],
         kernel_size=layer_params["kernel_size"],
         num_layers=layer_params["num_layers"],
+        kernel_expected_dims=2,
         batch_first=True,
         bias=layer_params["bias"],
-        return_all_layers=True,  # Return all for easier state checking
+        return_all_layers=True,
+    )
+    layer = ConvLSTM(
+        input_dim=layer_params["input_dim"],
+        config=config,
     )
 
     input_tensor = torch.randn(
@@ -366,7 +388,7 @@ def test_convlstm_layer_initial_state(layer_params):
     )
 
     # Create a non-zero initial state
-    initial_hidden_state = []
+    initial_hidden_state: list[Any] = []
     for i in range(layer_params["num_layers"]):
         h_init = torch.ones(
             layer_params["batch_size"],

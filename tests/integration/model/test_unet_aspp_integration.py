@@ -49,12 +49,11 @@ def test_simple_aspp(
     features, _ = encoder(x)
 
     # Create ASPP module
-    # output_channels is a valid parameter for ASPPModule
-    aspp_args = {
-        "in_channels": encoder.out_channels,
-        "output_channels": encoder.out_channels,
-    }
-    aspp = ASPPModule(**aspp_args)
+    aspp = ASPPModule(
+        in_channels=encoder.out_channels,
+        output_channels=encoder.out_channels,
+        dilation_rates=dilations,
+    )
 
     # Apply ASPP
     aspp_output = aspp(features)
@@ -113,12 +112,11 @@ def test_aspp_simplified_unet(
     features, skips = encoder(x)
 
     # 2. Create ASPP bottleneck
-    # output_channels is a valid parameter for ASPPModule
-    bottleneck_args = {
-        "in_channels": encoder.out_channels,
-        "output_channels": encoder.out_channels,
-    }
-    bottleneck = ASPPModule(**bottleneck_args)
+    bottleneck = ASPPModule(
+        in_channels=encoder.out_channels,
+        output_channels=encoder.out_channels,
+        dilation_rates=dilations,
+    )
 
     # Apply bottleneck
     bottleneck_output = bottleneck(features)

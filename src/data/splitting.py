@@ -233,8 +233,7 @@ def create_split_datasets(
         # Get transform config for this specific split
         if split_name not in config.transform_cfg:
             raise ValueError(
-                f"Transform config missing for split: {split_name}",
-                stacklevel=2,
+                f"Transform config missing for split: {split_name}"
             )
         split_transform_config = config.transform_cfg[split_name]
 

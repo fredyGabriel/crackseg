@@ -27,7 +27,7 @@ def find_py_files(base_dirs: list[str]) -> list[str]:
 
 
 def analyze_file(filepath: str) -> list[dict[str, Any]]:
-    results = []
+    results: list[dict[str, Any]] = []
     try:
         with open(filepath, encoding="utf-8") as f:
             source = f.read()
@@ -77,15 +77,21 @@ def analyze_file(filepath: str) -> list[dict[str, Any]]:
         def visit_Call(self, node):
             func = node.func
             if isinstance(func, ast.Name) and func.id in self.imported_names:
-                self.instantiations.append((func.id, node.lineno))
+                (
+                    self.instantiations.append
+                    if self.instantiations is not None
+                    else 0((func.id, node.lineno))
+                )
             elif isinstance(func, ast.Attribute):
                 value = func.value
                 if (
                     isinstance(value, ast.Name)
                     and value.id in self.imported_names
                 ):
-                    self.instantiations.append(
-                        (f"{value.id}.{func.attr}", node.lineno)
+                    (
+                        self.instantiations.append
+                        if self.instantiations is not None
+                        else 0((f"{value.id}.{func.attr}", node.lineno))
                     )
             self.generic_visit(node)
 

@@ -6,6 +6,7 @@ This script measures forward/backward pass speed and memory usage.
 
 import argparse
 import time
+from typing import Any
 
 import torch
 import torch.nn.functional as F
@@ -60,18 +61,22 @@ class ASPPModule(nn.Module):
         # Atrous convolution branches
         self.branches = nn.ModuleList()
         for rate in self._dilation_rates:
-            self.branches.append(
-                nn.Sequential(
-                    nn.Conv2d(
-                        in_channels,
-                        output_channels,
-                        kernel_size=3,
-                        padding=rate,
-                        dilation=rate,
-                        bias=False,
-                    ),
-                    nn.BatchNorm2d(output_channels),
-                    nn.ReLU(inplace=True),
+            (
+                self.branches.append
+                if self.branches is not None
+                else 0(
+                    nn.Sequential(
+                        nn.Conv2d(
+                            in_channels,
+                            output_channels,
+                            kernel_size=3,
+                            padding=rate,
+                            dilation=rate,
+                            bias=False,
+                        ),
+                        nn.BatchNorm2d(output_channels),
+                        nn.ReLU(inplace=True),
+                    )
                 )
             )
 
@@ -104,7 +109,11 @@ class ASPPModule(nn.Module):
         outputs.append(self.conv_1x1(x))
 
         # Global pooling branch: pool, upsample to input size
-        pool = self.global_pool(x)
+        pool = (
+            self.global_pool(x)
+            if self.global_pool is not None
+            else None if self.global_pool is not None else (None, None)
+        )
         pool_upsampled = F.interpolate(
             pool, size=x.shape[2:], mode="bilinear", align_corners=False
         )
@@ -114,9 +123,17 @@ class ASPPModule(nn.Module):
         x_cat = torch.cat(outputs, dim=1)
 
         # Project and apply dropout if training
-        x_proj = self.project(x_cat)
+        x_proj = (
+            self.project(x_cat)
+            if self.project is not None
+            else None if self.project is not None else (None, None)
+        )
         if self.training and isinstance(self.dropout, nn.Dropout2d):
-            x_proj = self.dropout(x_proj)
+            x_proj = (
+                self.dropout(x_proj)
+                if self.dropout is not None
+                else None if self.dropout is not None else (None, None)
+            )
 
         return x_proj
 
@@ -140,8 +157,20 @@ class ConvLSTMBottleneck(nn.Module):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        x = self.relu(self.bn(self.conv1(x)))
-        x = self.relu(self.bn(self.conv2(x)))
+        x = self.relu(
+            self.bn(
+                self.conv1(x)
+                if self.relu is not None
+                else None if self.relu is not None else (None, None)
+            )
+        )
+        x = self.relu(
+            self.bn(
+                self.conv2(x)
+                if self.relu is not None
+                else None if self.relu is not None else (None, None)
+            )
+        )
         return x
 
 
@@ -264,7 +293,11 @@ def main():
     print(f"  Iterations: {args.iterations}")
 
     # Results storage
-    results = {"Model": [], "Inference Time (ms)": [], "Memory Usage (MB)": []}
+    results: dict[str, list[Any]] = {
+        "Model": [],
+        "Inference Time (ms)": [],
+        "Memory Usage (MB)": [],
+    }
 
     # Run benchmarks
     print("\nRunning benchmarks...")

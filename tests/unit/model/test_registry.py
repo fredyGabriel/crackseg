@@ -65,14 +65,14 @@ class MockDecoder(DecoderBase):
         if skip_channels is None:
             skip_channels = list(reversed(MOCK_SKIP_CHANNELS))
         super().__init__(in_channels, skip_channels=skip_channels)
-        self._out_channels = OUT_CHANNELS_DECODER
+        self._out_channels: int = OUT_CHANNELS_DECODER
 
     def forward(self, x, skips):
         return x
 
     @property
     def out_channels(self) -> int:
-        return self._out_channels
+        return int(self._out_channels)
 
     @classmethod
     def skip_channels_expected(cls):
@@ -87,7 +87,7 @@ class MockDecoder(DecoderBase):
 @pytest.fixture
 def encoder_registry():
     """Create a new EncoderBase registry for testing."""
-    return Registry(EncoderBase, "Encoder")
+    return Registry(EncoderBase, "Encoder")  # type: ignore[type-abstract]
 
 
 @pytest.fixture
@@ -112,7 +112,7 @@ def populated_registry(encoder_registry):
 # Basic registry creation and properties
 def test_registry_creation():
     """Test registry creation and basic properties."""
-    registry = Registry(EncoderBase, "TestRegistry")
+    registry = Registry(EncoderBase, "TestRegistry")  # type: ignore[type-abstract]
     assert registry.name == "TestRegistry"
     assert registry.base_class == EncoderBase
     assert len(registry) == 0
@@ -267,9 +267,9 @@ def test_repr(populated_registry):
 # Multiple registry tests
 def test_multiple_registries():
     """Test that multiple registries can coexist."""
-    encoder_reg = Registry(EncoderBase, "EncoderReg")
-    bottleneck_reg = Registry(BottleneckBase, "BottleneckReg")
-    decoder_reg = Registry(DecoderBase, "DecoderReg")
+    encoder_reg = Registry(EncoderBase, "EncoderReg")  # type: ignore[type-abstract]
+    bottleneck_reg = Registry(BottleneckBase, "BottleneckReg")  # type: ignore[type-abstract]
+    decoder_reg = Registry(DecoderBase, "DecoderReg")  # type: ignore[type-abstract]
 
     @encoder_reg.register()
     class TestEncoder(MockEncoder):
@@ -295,9 +295,9 @@ def test_multiple_registries():
 def test_typical_usage_flow():
     """Test a typical usage flow with registration and instantiation."""
     # Create registries for each component type
-    encoder_reg = Registry(EncoderBase, "Encoder")
-    bottleneck_reg = Registry(BottleneckBase, "Bottleneck")
-    decoder_reg = Registry(DecoderBase, "Decoder")
+    encoder_reg = Registry(EncoderBase, "Encoder")  # type: ignore[type-abstract]
+    bottleneck_reg = Registry(BottleneckBase, "Bottleneck")  # type: ignore[type-abstract]
+    decoder_reg = Registry(DecoderBase, "Decoder")  # type: ignore[type-abstract]
 
     # Register components
     @encoder_reg.register(tags=["lightweight"])

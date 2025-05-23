@@ -49,7 +49,11 @@ class AttentionDecorator(DecoderBase):
             Output after applying decoder and attention
         """
         # First apply decoder with skip connections
-        decoded = self.decoder(x, skip_connections)
+        decoded = (
+            self.decoder(x, skip_connections)
+            if self.decoder is not None
+            else None if self.decoder is not None else (None, None)
+        )
         # Then apply attention module
         return self.attention(decoded)
 
@@ -59,7 +63,7 @@ class AttentionDecorator(DecoderBase):
         Return the number of output channels from the decorated decoder.
         Required implementation of abstract property from DecoderBase.
         """
-        return self.decoder.out_channels
+        return self.decoder.out_channels if self.decoder is not None else 0
 
     @property
     def skip_channels(self):
@@ -68,4 +72,4 @@ class AttentionDecorator(DecoderBase):
         Overrides the base implementation to get the current value from
         the decorated decoder.
         """
-        return self.decoder.skip_channels
+        return self.decoder.skip_channels if self.decoder is not None else 0

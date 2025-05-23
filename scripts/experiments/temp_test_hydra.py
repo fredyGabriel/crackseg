@@ -25,9 +25,10 @@ def run_test(cfg: DictConfig):
     print(OmegaConf.to_yaml(cfg))
 
     try:
-        config_dict = OmegaConf.to_container(cfg, resolve=True)
+        # Convertimos la configuración a un diccionario (no usado actualmente)
+        _ = OmegaConf.to_container(cfg, resolve=True)
         print("\nAttempting to create UNet model from model config...")
-        unet = create_unet(config_dict["model"])
+        unet = create_unet(cfg.model)
         print("UNet model created successfully!")
         assert isinstance(unet, UNetBase)
 

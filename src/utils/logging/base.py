@@ -2,7 +2,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, cast
 
 from omegaconf import DictConfig, OmegaConf
 
@@ -56,18 +56,22 @@ def flatten_dict(d: dict[str, Any], parent_key: str = "") -> dict[str, Any]:
     Returns:
         Flattened dictionary with concatenated keys
     """
-    items = []
+    items: list[tuple[str, Any]] = []
     for k, v in d.items():
         new_key = f"{parent_key}/{k}" if parent_key else k
         if isinstance(v, DictConfig):
             # Convert DictConfig to a standard dict before recursive call
-            items.extend(
-                flatten_dict(
-                    OmegaConf.to_container(v, resolve=True), new_key
-                ).items()
-            )
+            container = OmegaConf.to_container(v, resolve=True)
+            if isinstance(container, dict):
+                items.extend(
+                    flatten_dict(
+                        cast(dict[str, Any], container), new_key
+                    ).items()
+                )
         elif isinstance(v, dict):
-            items.extend(flatten_dict(v, new_key).items())
+            items.extend(
+                flatten_dict(cast(dict[str, Any], v), new_key).items()
+            )
         elif isinstance(v, int | float | str | bool):
             items.append((new_key, v))
     return dict(items)

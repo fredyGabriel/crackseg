@@ -11,7 +11,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 # Create logger
 log = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ class ConfigParam:
     choices: list[Any] | None = None
     validator: Callable[[Any], bool] | None = None
     description: str = ""
-    nested_schema: Optional["ConfigSchema"] = None
+    nested_schema: "ConfigSchema" | None = None
 
     def _validate_value_type(self, value: Any) -> str | None:
         """Validates the type of the given value based on self.param_type."""
@@ -116,7 +116,15 @@ class ConfigParam:
         # Proceed with other checks only if no error has been reported yet.
         if error_to_report is None:
             # 2. Type validation
-            type_error = self._validate_value_type(value)
+            type_error = (
+                self._validate_value_type(value)
+                if self._validate_value_type is not None
+                else (
+                    None
+                    if self._validate_value_type is not None
+                    else (None, None)
+                )
+            )
             if type_error:
                 error_to_report = type_error
 
@@ -197,7 +205,7 @@ class ConfigSchema:
 
             # Validate parameter
             is_valid, error = param.validate(value)
-            if not is_valid:
+            if not is_valid and error is not None:
                 errors[param.name] = error
 
         return len(errors) == 0, errors if errors else None

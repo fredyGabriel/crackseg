@@ -296,7 +296,13 @@ class ExperimentManager:
 
         try:
             with open(self.registry_file, encoding="utf-8") as f:
-                return json.load(f)
+                data = json.load(f)
+                if isinstance(data, list) and all(
+                    isinstance(item, dict) for item in data
+                ):
+                    return data  # type: ignore
+                else:
+                    return []
         except (OSError, json.JSONDecodeError) as e:
             print(f"Warning: Could not load experiment registry: {e}")
             return []

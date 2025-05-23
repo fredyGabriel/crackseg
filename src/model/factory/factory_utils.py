@@ -6,7 +6,7 @@ configuration transformations, and logging to support the factory module.
 """
 
 import logging
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from omegaconf import DictConfig, OmegaConf
 
@@ -144,7 +144,10 @@ def hydra_to_dict(
         Dict[str, Any]: Standard Python dictionary
     """
     if isinstance(config, DictConfig):
-        return OmegaConf.to_container(config, resolve=resolve)
+        result = OmegaConf.to_container(config, resolve=resolve)
+        if not isinstance(result, dict):
+            raise TypeError("Config could not be converted to dict")
+        return cast(dict[str, Any], result)
     # If already a dict, return a copy to avoid modifying the original
     return config.copy()
 

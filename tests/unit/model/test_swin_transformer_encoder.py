@@ -5,16 +5,22 @@ import time
 import pytest
 import torch
 
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+from src.model.encoder.swin_transformer_encoder import (
+    SwinTransformerEncoder,
+    SwinTransformerEncoderConfig,
+)
 
 
 @pytest.mark.parametrize("in_channels", [1, 3, 4])
 def test_swintransformerencoder_init(in_channels):
     """Test initialization with different input channels."""
+    config = SwinTransformerEncoderConfig(
+        model_name="swinv2_tiny_window16_256",
+        pretrained=False,
+    )
     encoder = SwinTransformerEncoder(
         in_channels=in_channels,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=False,  # No need to download weights for tests
+        config=config,
     )
 
     assert encoder.in_channels == in_channels
@@ -31,12 +37,14 @@ def test_swintransformerencoder_forward_shape():
     batch_size = 2
     in_channels = 3
     img_size = 256
-
+    config = SwinTransformerEncoderConfig(
+        model_name="swinv2_tiny_window16_256",
+        pretrained=False,
+        img_size=img_size,
+    )
     encoder = SwinTransformerEncoder(
         in_channels=in_channels,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=False,  # No need to download weights for tests
-        img_size=img_size,
+        config=config,
     )
 
     # Create input tensor with correct dimensions
@@ -100,11 +108,14 @@ def test_swintransformerencoder_variable_input(handle_mode, input_size):
     batch_size = 2
     in_channels = 3
 
-    encoder = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
         handle_input_size=handle_mode,
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config,
     )
 
     # For pad mode, skip any test where the input size doesn't match the
@@ -137,7 +148,11 @@ def test_swintransformerencoder_variable_input(handle_mode, input_size):
 def test_swintransformerencoder_feature_info():
     """Test the get_feature_info method."""
     encoder = SwinTransformerEncoder(
-        in_channels=3, model_name="swinv2_tiny_window16_256", pretrained=False
+        in_channels=3,
+        config=SwinTransformerEncoderConfig(
+            model_name="swinv2_tiny_window16_256",
+            pretrained=False,
+        ),
     )
 
     feature_info = encoder.get_feature_info()
@@ -160,9 +175,11 @@ def test_swintransformerencoder_error_handling():
     """Test error handling for invalid inputs."""
     encoder = SwinTransformerEncoder(
         in_channels=3,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=False,
-        handle_input_size="none",
+        config=SwinTransformerEncoderConfig(
+            model_name="swinv2_tiny_window16_256",
+            pretrained=False,
+            handle_input_size="none",
+        ),
     )
 
     # Test with incorrect input channels
@@ -200,13 +217,14 @@ def test_swintransformerencoder_model_variants(model_name):
     """Test different Swin Transformer model variants."""
     in_channels = 3
     img_size = 256
-
-    # Create encoder with specified model variant
-    encoder = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config = SwinTransformerEncoderConfig(
         model_name=model_name,
         pretrained=False,
         img_size=img_size,
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config,
     )
 
     # Create input tensor
@@ -245,13 +263,15 @@ def test_swintransformerencoder_handle_mode_none():
     """Test encoder with 'none' handle_input_size mode."""
     in_channels = 3
     img_size = 256  # Must be exactly the expected size for none mode
-
-    encoder = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
         handle_input_size="none",
         img_size=img_size,
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config,
     )
 
     # Create input tensor with exact expected dimensions
@@ -273,22 +293,28 @@ def test_swintransformerencoder_memory_usage():
     in_channels = 3
     img_size = 256
     batch_size = 4
+    config = SwinTransformerEncoderConfig(
+        model_name="swinv2_tiny_window16_256",
+        pretrained=False,
+        img_size=img_size,
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config,
+    ).to(torch.device("cuda"))
 
     # Clear cache before test
     torch.cuda.empty_cache()
     gc.collect()
 
-    # Create model on CUDA
-    device = torch.device("cuda")
-    encoder = SwinTransformerEncoder(
-        in_channels=in_channels,
-        model_name="swinv2_tiny_window16_256",
-        pretrained=False,
-        img_size=img_size,
-    ).to(device)
-
     # Create input tensor on CUDA
-    x = torch.randn(batch_size, in_channels, img_size, img_size, device=device)
+    x = torch.randn(
+        batch_size,
+        in_channels,
+        img_size,
+        img_size,
+        device=torch.device("cuda"),
+    )
 
     # Record memory before forward pass
     torch.cuda.synchronize()
@@ -317,12 +343,13 @@ def test_swintransformerencoder_memory_usage():
 def test_swintransformerencoder_fallback_mechanism():
     """Test that the encoder properly falls back to ResNet when needed."""
     in_channels = 3
-
-    # Try to create encoder with non-existent model name to trigger fallback
-    encoder = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config = SwinTransformerEncoderConfig(
         model_name="swinv2_nonexistent_model",
         pretrained=False,
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config,
     )
 
     # The encoder should have initialized with a fallback model
@@ -342,11 +369,13 @@ def test_swintransformerencoder_batch_handling(batch_size):
     """Test that the encoder properly handles different batch sizes."""
     in_channels = 3
     img_size = 256
-
-    encoder = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config,
     )
 
     # Create input with variable batch size
@@ -371,17 +400,23 @@ def test_swintransformerencoder_inference_speed():
     in_channels = 3
     img_size = 256
     batch_size = 1
-
-    # Create model on CUDA
-    device = torch.device("cuda")
-    encoder = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
-    ).to(device)
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config,
+    ).to(torch.device("cuda"))
 
     # Create input tensor on CUDA
-    x = torch.randn(batch_size, in_channels, img_size, img_size, device=device)
+    x = torch.randn(
+        batch_size,
+        in_channels,
+        img_size,
+        img_size,
+        device=torch.device("cuda"),
+    )
 
     # Warmup
     for _ in range(10):
@@ -416,20 +451,23 @@ def test_swintransformerencoder_output_norm_flag():
     """Test that the output_norm flag works as expected."""
     in_channels = 3
     img_size = 256
-
-    # Create two encoders, one with output_norm=True, one with False
-    encoder_with_norm = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config_with_norm = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
         output_norm=True,
     )
-
-    encoder_without_norm = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config_without_norm = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
         output_norm=False,
+    )
+    encoder_with_norm = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config_with_norm,
+    )
+    encoder_without_norm = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config_without_norm,
     )
 
     # Create input tensor - use a fixed seed for reproducibility
@@ -472,10 +510,13 @@ def test_swintransformerencoder_gradient_flow():
 
     # Create model with gradient tracking
     device = torch.device("cuda")
-    encoder = SwinTransformerEncoder(
-        in_channels=in_channels,
+    config = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
         pretrained=False,
+    )
+    encoder = SwinTransformerEncoder(
+        in_channels=in_channels,
+        config=config,
     ).to(device)
 
     # Create input tensor requiring gradients

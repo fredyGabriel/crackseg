@@ -93,15 +93,18 @@ class ExperimentLogger(BaseLogger):
 
         # Save configuration if provided
         if config is not None:
-            self.log_config(config)
+            if isinstance(config, DictConfig):
+                container = OmegaConf.to_container(config, resolve=True)
+                if not isinstance(container, dict):
+                    container = {}
+                config_dict = {str(k): v for k, v in container.items()}
+            elif isinstance(config, dict):
+                config_dict = {str(k): v for k, v in config.items()}
+            else:
+                config_dict = {}
+            self.log_config(config_dict)
             self.logger.info("Experiment configuration:")
-            # Print flattened config for readability
-            container = OmegaConf.to_container(config, resolve=True)
-            if not isinstance(container, dict):
-                container = {}
-            # Convertir claves a str para cumplir con Dict[str, Any]
-            container_str_keys = {str(k): v for k, v in container.items()}
-            flat_config = flatten_dict(container_str_keys)
+            flat_config = flatten_dict(config_dict)
             for key, value in flat_config.items():
                 self.logger.info(f"  {key}: {value}")
 
@@ -221,13 +224,12 @@ class ExperimentLogger(BaseLogger):
         except Exception as e:
             self.logger.warning(f"Failed to log system info: {str(e)}")
 
-    def log_config(self, config: DictConfig) -> None:
+    def log_config(self, config: dict[str, Any]) -> None:
         """Log experiment configuration.
 
         Args:
-            config: Experiment configuration
+            config: Experiment configuration (dict)
         """
-        # First, save config to file
         self.logger.info("Saving configuration to file")
         config_path = self.experiment_manager.save_config(config)
         self.logger.info(f"Configuration saved to: {config_path}")

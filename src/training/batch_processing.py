@@ -15,9 +15,9 @@ def train_step(  # noqa: PLR0913
     loss_fn: Any,
     optimizer: Optimizer,
     device: torch.device,
-    metrics_dict: dict[str, Any] = None,
+    metrics_dict: dict[str, Any] | None = None,
     cfg: DictConfig | None = None,
-) -> dict[str, float]:
+) -> dict[str, torch.Tensor | float]:
     """Performs a single training step on a batch and returns metrics.
     Returns 'loss' as a tensor for backward compatibility.
     Does NOT call backward or optimizer.step (handled externally)."""
@@ -55,9 +55,9 @@ def val_step(  # noqa: PLR0913
     batch: tuple | dict[str, torch.Tensor],
     loss_fn: Any,
     device: torch.device,
-    metrics_dict: dict[str, Any] = None,
+    metrics_dict: dict[str, Any] | None = None,
     cfg: DictConfig | None = None,
-) -> dict[str, float]:
+) -> dict[str, torch.Tensor | float]:
     """Performs a single validation step on a batch and returns metrics.
     Returns 'loss' as a tensor for compatibility with training helpers."""
     model.eval()

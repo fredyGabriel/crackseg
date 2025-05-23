@@ -85,7 +85,7 @@ class CBAMPostProcessor(nn.Module):
 # ======================================================================
 
 
-def create_unet(config: DictConfig) -> UNetBase:
+def create_unet(config: DictConfig) -> nn.Module:
     """
     Create a UNet model from configuration.
 
@@ -100,9 +100,19 @@ def create_unet(config: DictConfig) -> UNetBase:
         ConfigurationError: If configuration is invalid or model creation fails
     """
     required_components = ["encoder", "bottleneck", "decoder"]
+
     # Convert DictConfig to dict for validate_config
+    def normalize_keys(d: Any) -> Any:
+        if isinstance(d, dict):
+            return {str(k): normalize_keys(v) for k, v in d.items()}
+        elif isinstance(d, list):
+            return [normalize_keys(i) for i in d]
+        return d
+
     config_for_validation = (
-        dict(config) if isinstance(config, DictConfig) else config
+        normalize_keys(dict(config))
+        if isinstance(config, DictConfig)
+        else normalize_keys(config)
     )
     validate_config(config_for_validation, required_components, "unet")
 
@@ -112,7 +122,7 @@ def create_unet(config: DictConfig) -> UNetBase:
 
         # Get UNet class and create model
         UnetClass = get_unet_class(config)
-        unet_model = UnetClass(
+        unet_model: nn.Module = UnetClass(
             encoder=encoder,  # type: ignore
             bottleneck=bottleneck,  # type: ignore
             decoder=decoder,  # type: ignore
@@ -137,7 +147,7 @@ def create_unet(config: DictConfig) -> UNetBase:
                 output_channels,
             )
 
-        return unet_model  # type: ignore
+        return unet_model
 
     except Exception as e:
         # Catch all errors, log them, and re-raise as ConfigurationError

@@ -56,6 +56,9 @@ def test_scheduler_instantiation_from_config(
     cfg = OmegaConf.load(abs_config_path)
 
     # Create scheduler based on config
-    scheduler = create_lr_scheduler(dummy_optimizer, cfg)
+    container = OmegaConf.to_container(cfg, resolve=True)
+    if not isinstance(container, dict):
+        raise TypeError("Scheduler config must be a dict")
+    scheduler = create_lr_scheduler(dummy_optimizer, container)
 
     assert isinstance(scheduler, expected_cls)

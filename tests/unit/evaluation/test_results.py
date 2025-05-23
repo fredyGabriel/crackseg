@@ -23,8 +23,8 @@ def test_save_evaluation_results_non_serializable(tmp_path, monkeypatch):
         raise yaml.YAMLError("Serialization failed")
 
     monkeypatch.setattr("yaml.dump", raise_yaml_error)
-    results = {"test_metric": object()}
+    results = {"test_metric": object()}  # type: ignore
     config = {"foo": "bar"}
     checkpoint = "ckpt.pth.tar"
     with pytest.raises(yaml.YAMLError):
-        save_evaluation_results(results, config, checkpoint, str(tmp_path))
+        save_evaluation_results(results, config, checkpoint, str(tmp_path))  # type: ignore
