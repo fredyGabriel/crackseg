@@ -8,7 +8,7 @@ error handling.
 """
 
 import logging
-from typing import Any, TypeVar, cast
+from typing import Any, TypeVar
 
 from torch import nn
 
@@ -113,7 +113,7 @@ def _prepare_component_config(
 
 def _instantiate_component(
     config: dict[str, Any],
-    registry: Registry,
+    registry: Registry[nn.Module],
     component_category: str,  # e.g., 'encoder', 'bottleneck' for log/errors
     runtime_params: dict[str, Any] | None = None,
     use_cache: bool = True,
@@ -173,7 +173,7 @@ def _instantiate_component(
             cache_component(cache_key, component)
         # --- End Cache Update ---
 
-        return cast(nn.Module, component)
+        return component
 
     except (TypeError, ValueError, AttributeError, RuntimeError) as e:
         # Preserve InstantiationError, wrap others

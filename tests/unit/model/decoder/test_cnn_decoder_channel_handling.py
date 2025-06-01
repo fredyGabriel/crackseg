@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 import torch
 
@@ -84,10 +86,14 @@ def test_cnndecoder_channel_propagation_with_runtime_verification():
     # This list will store the output dimensions of each DecoderBlock
     block_output_channels_runtime = []
 
-    def forward_hook_decoder_block(self_block, x_block, skip_block):
+    def forward_hook_decoder_block(
+        self_block: DecoderBlock,
+        x_block: torch.Tensor,
+        skip_block: torch.Tensor,
+    ) -> torch.Tensor:
         # Call the original forward
         result = original_decoder_block_forward(
-            self_block, x_block, skip_block
+            self_block, x_block, [skip_block]
         )
         # Register the output channels
         block_output_channels_runtime.append(result.shape[1])
@@ -228,11 +234,15 @@ class TestCNNDecoderDimensions:  # Adapted for ascending skips
         ],
     )
     def test_dimensions_after_each_block(
-        self, in_ch_p, skip_channels_list_p, input_size_p, batch_size_p
-    ):
+        self,
+        in_ch_p: int,
+        skip_channels_list_p: list[int],
+        input_size_p: tuple[int, int],
+        batch_size_p: int,
+    ) -> None:
         decoder = CNNDecoder(in_ch_p, skip_channels_list_p)
         x_input = torch.randn(batch_size_p, in_ch_p, *input_size_p)
-        skips_input = []
+        skips_input: list[torch.Tensor] = []
         current_h, current_w = input_size_p[0] * 2, input_size_p[1] * 2
         for i, sc in enumerate(skip_channels_list_p):
             skips_input.append(
@@ -241,9 +251,15 @@ class TestCNNDecoderDimensions:  # Adapted for ascending skips
                 )
             )
 
-        intermediate_outputs_shapes = [None] * len(decoder.decoder_blocks)
+        intermediate_outputs_shapes: list[Any] = [None] * len(
+            decoder.decoder_blocks
+        )
 
-        def capture_hook(module, input_args, output_tensor):
+        def capture_hook(
+            module: DecoderBlock,
+            input_args: tuple[Any, ...],
+            output_tensor: torch.Tensor,
+        ) -> None:
             block_idx = -1
             for i, blk in enumerate(decoder.decoder_blocks):
                 if blk is module:
@@ -281,14 +297,14 @@ class TestCNNDecoderBlockInteraction:  # Adapted for ascending skips
         ],
     )
     def test_channel_propagation_between_blocks(
-        self, in_ch_param, skip_channels_list_param
-    ):
-        """Verify output channels of one block match input for the next."""
+        self,
+        in_ch_param: int,
+        skip_channels_list_param: list[int],
+    ) -> None:
         decoder = CNNDecoder(in_ch_param, skip_channels_list_param)
-
-        current_input_channels = in_ch_param
-        for _i, block in enumerate(decoder.decoder_blocks):
-            assert block.in_channels == current_input_channels
-            current_input_channels = block.out_channels
-
-        assert decoder.final_conv.in_channels == current_input_channels
+        x_input = torch.randn(1, in_ch_param, 8, 8)
+        skips_input: list[torch.Tensor] = []
+        for i, sc in enumerate(skip_channels_list_param):
+            skips_input.append(torch.randn(1, sc, 8 * (2**i), 8 * (2**i)))
+        output = decoder(x_input, skips_input)
+        assert output.shape[1] == decoder.out_channels

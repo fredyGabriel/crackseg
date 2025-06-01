@@ -1,67 +1,90 @@
-# Guía de Flujo de Trabajo para Entrenamiento
+# Training Workflow Guide
 
-Este documento proporciona una guía paso a paso para configurar y ejecutar el entrenamiento de modelos de segmentación de grietas en pavimentos usando nuestro framework modular.
+This document provides a step-by-step guide to set up and run training for pavement crack segmentation models using our modular framework.
 
-## Contenido
+**For professional development**, consult our standards in [.cursor/rules/](../../.cursor/rules/) which complement this technical guide.
 
-- [Requisitos Previos](#requisitos-previos)
-- [Estructura del Proyecto](#estructura-del-proyecto)
-- [Configuración](#configuración)
-- [Ejecución del Entrenamiento](#ejecución-del-entrenamiento)
-- [Evaluación de Modelos](#evaluación-de-modelos)
-- [Resolución de Problemas](#resolución-de-problemas)
+## Contents
 
-## Requisitos Previos
+- [Prerequisites](#prerequisites)
+- [Project Structure](#project-structure)
+- [Configuration](#configuration)
+- [Running Training](#running-training)
+- [Model Evaluation](#model-evaluation)
+- [Quality Standards](#quality-standards)
+- [Troubleshooting](#troubleshooting)
 
-Antes de comenzar, asegúrate de tener lo siguiente:
+## Prerequisites
 
-1. **Entorno Conda**: Configura el entorno usando:
+Before you start, make sure you have the following:
 
-   ```bash
-   conda env create -f environment.yml
-   conda activate torch
-   ```
+### 1. Environment and Tools
 
-2. **Datos**: Coloca tus datos en la estructura adecuada:
+```bash
+# Set up conda environment
+conda env create -f environment.yml
+conda activate torch
 
-   ```txt
-   data/
-   ├── train/
-   │   ├── images/
-   │   └── masks/
-   ├── val/
-   │   ├── images/
-   │   └── masks/
-   └── test/
-       ├── images/
-       └── masks/
-   ```
+# Check quality tools (mandatory)
+black --version
+ruff --version
+basedpyright --version
+```
 
-3. **Variables de Entorno**: Copia y configura el archivo `.env`:
+### 2. Data
 
-   ```bash
-   cp .env.example .env
-   # Editar .env según sea necesario
-   ```
+Place your data in the appropriate structure:
 
-## Estructura del Proyecto
+```txt
+data/
+├── train/
+│   ├── images/
+│   └── masks/
+├── val/
+│   ├── images/
+│   └── masks/
+└── test/
+    ├── images/
+    └── masks/
+```
 
-La estructura modular del proyecto permite flexibilidad en la selección de componentes:
+### 3. Environment Variables
 
-- **Arquitecturas**: `configs/model/architectures/`
-- **Codificadores**: `configs/model/encoder/`
-- **Decodificadores**: `configs/model/decoder/`
-- **Funciones de Pérdida**: `configs/training/loss/`
-- **Métricas**: `configs/training/metric/`
-- **Planificadores de LR**: `configs/training/lr_scheduler/`
+```bash
+cp .env.example .env
+# Edit .env as needed
+```
 
-Todos estos componentes se combinan en la configuración principal.
+### 4. Initial Verification
 
-## Configuración
+```bash
+# Ensure code meets professional standards
+black .
+ruff . --fix
+basedpyright .
 
-### Configuración Principal
+# Run tests
+pytest tests/ --cov=src
+```
 
-El archivo principal de configuración es `configs/config.yaml`, que incluye:
+## Project Structure
+
+The modular project structure allows flexibility in component selection. For organizational details, see our [contribution guide](CONTRIBUTING.md).
+
+- **Architectures**: `configs/model/architectures/`
+- **Encoders**: `configs/model/encoder/`
+- **Decoders**: `configs/model/decoder/`
+- **Loss Functions**: `configs/training/loss/` (see [Loss Registry Guide](loss_registry_usage.md))
+- **Metrics**: `configs/training/metric/`
+- **LR Schedulers**: `configs/training/lr_scheduler/`
+
+All these components are combined in the main configuration.
+
+## Configuration
+
+### Main Configuration
+
+The main configuration file is `configs/config.yaml`, which includes:
 
 ```yaml
 defaults:
@@ -72,78 +95,100 @@ defaults:
   - _self_
 ```
 
-Puedes anular cualquier configuración directamente desde la línea de comandos.
+You can override any configuration directly from the command line.
 
-### Ejemplos de Configuración
+### Configuration Examples
 
-1. **Entrenamiento básico con U-Net**:
+1. **Basic training with U-Net**:
 
    ```bash
    python run.py model=architectures/unet
    ```
 
-2. **Cambiar arquitectura a DeepLabV3+**:
+2. **Switch to SwinUNet architecture (Research)**:
 
    ```bash
-   python run.py model=architectures/deeplabv3plus
+   python run.py model=architectures/swin_unet \
+                 model.encoder.embed_dim=96 \
+                 data.batch_size=4  # Optimized for RTX 3070 Ti
    ```
 
-3. **Modificar función de pérdida**:
+3. **Change to combined loss function**:
 
    ```bash
    python run.py training.loss=dice_bce
    ```
 
-4. **Cambiar tamaño de lote y épocas**:
+4. **Configuration optimized for 8GB VRAM**:
 
    ```bash
-   python run.py data.batch_size=16 training.epochs=100
+   python run.py data.batch_size=4 \
+                 training.mixed_precision=true \
+                 training.gradient_accumulation_steps=4
    ```
 
-5. **Configuración completa personalizada**:
+5. **Full research configuration**:
 
    ```bash
    python run.py model=architectures/swin_unet \
                  model.encoder.embed_dim=96 \
-                 data.batch_size=8 \
+                 data.batch_size=4 \
                  training.optimizer.lr=0.0005 \
                  training.loss=dice_focal \
-                 training.epochs=150
+                 training.epochs=150 \
+                 training.mixed_precision=true \
+                 experiment_name="swin_unet_v1"
    ```
 
-## Ejecución del Entrenamiento
+## Running Training
 
-### Entrenamiento Básico
+### Basic Training
 
-Para iniciar un entrenamiento con la configuración predeterminada:
+To start training with the default configuration:
 
 ```bash
 python run.py
 ```
 
-### Monitoreo
+### Training with ML Standards
 
-El entrenamiento genera logs y métricas en:
+Following our [ML standards](../../.cursor/rules/ml-research-standards.mdc):
+
+```bash
+# Set seed for reproducibility
+python run.py seed=42 \
+             training.deterministic=true \
+             experiment_name="baseline_experiment" \
+
+# Monitor VRAM usage during training
+python run.py training.log_gpu_memory=true \
+             data.batch_size=4 \
+             training.mixed_precision=true
+```
+
+### Monitoring
+
+Training generates logs and metrics in:
 
 ```txt
 outputs/
 └── experiments/
     └── {timestamp}-{config_name}/
-        ├── checkpoints/  # Modelos guardados
-        ├── logs/         # Logs de TensorBoard
-        ├── metrics/      # Métricas CSV
-        └── results/      # Predicciones de validación
+        ├── checkpoints/  # Saved models
+        ├── logs/         # TensorBoard logs
+        ├── metrics/      # Metrics CSV
+        └── results/      # Validation predictions
 ```
 
-Para visualizar las métricas de entrenamiento:
+To visualize training metrics:
 
 ```bash
 tensorboard --logdir outputs/experiments/
 ```
 
-## Evaluación de Modelos
+## Model Evaluation
 
-Para evaluar un modelo entrenado:
+To evaluate a trained model:
 
 ```bash
 python -m src.evaluation \
@@ -151,48 +196,131 @@ python -m src.evaluation \
     evaluation.save_predictions=True
 ```
 
-Esto generará métricas e imágenes de predicciones en el directorio de resultados.
+This will generate metrics and prediction images in the results directory.
 
-## Resolución de Problemas
+### Evaluation with Standard Metrics
 
-### Problemas Comunes
+```bash
+# Full evaluation with SOTA metrics
+python -m src.evaluation \
+    model.checkpoint_path=path/to/checkpoint.pth \
+    evaluation.metrics=["iou", "f1", "precision", "recall"] \
+    evaluation.save_confusion_matrix=True
+```
 
-1. **Error de Memoria CUDA**: Reduzca el tamaño de lote o resolución de imagen
+## Quality Standards
 
-   ```python
-   python run.py data.batch_size=4 data.image_size=[384,384]
+### Pre-training
+
+Before each training run, check code quality:
+
+```bash
+# Mandatory verification (based on coding-preferences.mdc)
+black .                    # Auto-formatting
+ruff . --fix              # Linting and autofix
+basedpyright .            # Strict type checking
+pytest tests/ --cov=src   # Tests with coverage
+```
+
+### During Development
+
+Follow our [workflow rules](../../.cursor/rules/workflow-preferences.mdc):
+
+- **Three-option analysis** for major technical decisions
+- **Complete type hints** in all ML code
+- **Comprehensive documentation** of experiments and results
+- **Robust testing** of model components
+
+### For ML Research
+
+See [ML standards](../../.cursor/rules/ml-research-standards.mdc):
+
+- **Reproducibility**: Deterministic seeds, documented configurations
+- **VRAM management**: Optimized for RTX 3070 Ti (8GB)
+- **Experiment tracking**: Detailed logs, SOTA comparisons
+
+## Troubleshooting
+
+### Common Issues
+
+1. **CUDA Memory Error**: Reduce batch size or image resolution
+
+   ```bash
+   python run.py data.batch_size=2 \
+                data.image_size=[384,384] \
+                training.mixed_precision=true
    ```
 
-2. **Gradientes Explotando**: Ajuste la tasa de aprendizaje o active el recorte de gradiente
+2. **Exploding Gradients**: Adjust learning rate or enable gradient clipping
 
-   ```python
-   python run.py training.optimizer.lr=0.0001 training.clip_grad_norm=1.0
+   ```bash
+   python run.py training.optimizer.lr=0.0001 \
+                training.clip_grad_norm=1.0
    ```
 
-3. **Métricas Estancadas**: Pruebe diferentes funciones de pérdida o aumentaciones de datos
+3. **Stagnant Metrics**: Try different loss functions or data augmentations
 
-   ```python
-   python run.py training.loss=dice_focal data.augmentation=strong
+   ```bash
+   python run.py training.loss=dice_focal \
+                data.augmentation=strong
    ```
 
-### Optimización de Rendimiento
+4. **Typing Errors**: Run basedpyright to identify issues
 
-Para mejorar el rendimiento de entrenamiento:
+   ```bash
+   basedpyright src/ --strict
+   ```
 
-1. **Precarga de Datos**: Aumente `num_workers` para el cargador de datos
+### Performance Optimization
 
-   ```python
+To improve training performance:
+
+1. **Data Preloading**: Increase `num_workers` for the dataloader
+
+   ```bash
    python run.py data.num_workers=4
    ```
 
-2. **Precisión Mixta**: Active el entrenamiento con precisión mixta
+2. **Mixed Precision**: Enable mixed precision training
 
-   ```python
+   ```bash
    python run.py training.mixed_precision=true
    ```
 
+3. **Gradient Accumulation**: For larger effective batch sizes
+
+   ```bash
+   python run.py training.gradient_accumulation_steps=4 \
+                data.batch_size=2  # Effective batch: 2*4=8
+   ```
+
+### Code Debugging
+
+If you encounter quality errors:
+
+```bash
+# Step-by-step debugging
+black --check .           # Check formatting
+ruff check .              # Check linting
+basedpyright --stats .    # Typing check with stats
+pytest tests/ -v --tb=short  # Tests with detailed output
+```
+
+## Integration with Professional Development
+
+This training workflow integrates with our professional standards:
+
+- **[Code Standards](../../.cursor/rules/coding-preferences.mdc)**: Mandatory technical quality
+- **[Testing](../../.cursor/rules/testing-standards.mdc)**: ML testing strategies
+- **[Git](../../.cursor/rules/git-standards.mdc)**: Descriptive commits for experiments
+- **[ML Research](../../.cursor/rules/ml-research-standards.mdc)**: Reproducibility and optimization
+
 ---
 
-Para cualquier pregunta adicional, consulte la documentación detallada en la carpeta `docs/` o abra un issue en el repositorio.
+For any additional questions:
 
-**Nota**: Esta guía se actualizará periódicamente con nuevas funciones y optimizaciones.
+- **Technical standards**: See `.cursor/rules/`
+- **Specific issues**: Open an issue in the repository
+- **Related guides**: See `docs/guides/`
+
+**Note**: This guide is updated periodically with new features and optimizations, staying in sync with our professional standards.

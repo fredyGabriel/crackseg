@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 import torch
 from omegaconf import OmegaConf
@@ -7,18 +9,18 @@ from src.data.dataloader import create_dataloader
 from src.data.factory import create_dataloaders_from_config
 
 
-class DummyDataset(Dataset):
-    def __init__(self, length=100):
+class DummyDataset(Dataset[torch.Tensor]):
+    def __init__(self, length: int = 100) -> None:
         self.length = length
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.length
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> torch.Tensor:
         return torch.tensor([idx], dtype=torch.float32)
 
 
-def test_dataloader_basic_init():
+def test_dataloader_basic_init() -> None:
     ds = DummyDataset(10)
     loader = create_dataloader(ds)
     assert isinstance(loader, torch.utils.data.DataLoader)
@@ -27,7 +29,7 @@ def test_dataloader_basic_init():
     assert batch.shape[0] == 10 or batch.shape[0] == 32  # noqa: PLR2004
 
 
-def test_dataloader_custom_batch_size():
+def test_dataloader_custom_batch_size() -> None:
     ds = DummyDataset(50)
     loader = create_dataloader(ds, batch_size=8)
     batches = list(loader)
@@ -35,7 +37,7 @@ def test_dataloader_custom_batch_size():
     assert batches[-1].shape[0] == 2  # 50 % 8 = 2  # noqa: PLR2004
 
 
-def test_dataloader_shuffle():
+def test_dataloader_shuffle() -> None:
     ds = DummyDataset(100)
     loader1 = create_dataloader(ds)  # shuffle no soportado
     loader2 = create_dataloader(ds)
@@ -44,7 +46,7 @@ def test_dataloader_shuffle():
     assert batch1 != batch2 or batch1 == batch2
 
 
-def test_dataloader_num_workers():
+def test_dataloader_num_workers() -> None:
     ds = DummyDataset(20)
     loader = create_dataloader(ds)  # num_workers no soportado
     assert isinstance(loader, torch.utils.data.DataLoader)
@@ -53,7 +55,7 @@ def test_dataloader_num_workers():
 
 
 @pytest.mark.parametrize("batch_size", [1, 8, 16, 64])
-def test_dataloader_various_batch_sizes(batch_size):
+def test_dataloader_various_batch_sizes(batch_size: int) -> None:
     ds = DummyDataset(100)
     loader = create_dataloader(ds, batch_size=batch_size)
     for batch in loader:
@@ -61,38 +63,38 @@ def test_dataloader_various_batch_sizes(batch_size):
 
 
 @pytest.mark.parametrize("prefetch_factor", [1, 2, 4])
-def test_dataloader_prefetch_factor(prefetch_factor):
+def test_dataloader_prefetch_factor(prefetch_factor: int) -> None:
     ds = DummyDataset(20)
     loader = create_dataloader(ds)  # prefetch_factor no soportado
     assert isinstance(loader, torch.utils.data.DataLoader)
 
 
 @pytest.mark.parametrize("pin_memory", [True, False])
-def test_dataloader_pin_memory(pin_memory):
+def test_dataloader_pin_memory(pin_memory: bool) -> None:
     ds = DummyDataset(10)
     loader = create_dataloader(ds)  # pin_memory no soportado
     assert isinstance(loader, torch.utils.data.DataLoader)
 
 
-def test_dataloader_invalid_batch_size():
+def test_dataloader_invalid_batch_size() -> None:
     ds = DummyDataset(10)
     with pytest.raises(ValueError):
         create_dataloader(ds, batch_size=0)
 
 
-def test_dataloader_invalid_prefetch_factor():
+def test_dataloader_invalid_prefetch_factor() -> None:
     ds = DummyDataset(10)
     with pytest.raises(TypeError):
         create_dataloader(ds)  # prefetch_factor no soportado, fuerza error
 
 
-def test_dataloader_invalid_num_workers():
+def test_dataloader_invalid_num_workers() -> None:
     ds = DummyDataset(10)
     with pytest.raises(TypeError):
         create_dataloader(ds)  # num_workers no soportado, fuerza error
 
 
-def test_dataloader_fp16_option():
+def test_dataloader_fp16_option() -> None:
     ds = DummyDataset(10)
     loader = create_dataloader(ds)  # fp16 no soportado
     batch = next(iter(loader))
@@ -102,7 +104,7 @@ def test_dataloader_fp16_option():
     assert batch.dtype == torch.float32
 
 
-def test_dataloader_max_memory_mb():
+def test_dataloader_max_memory_mb() -> None:
     ds = DummyDataset(100)
     loader = create_dataloader(ds)  # max_memory_mb no soportado
     assert isinstance(loader, torch.utils.data.DataLoader)
@@ -110,7 +112,7 @@ def test_dataloader_max_memory_mb():
     assert batch.shape[0] > 0
 
 
-def test_dataloader_adaptive_batch_size():
+def test_dataloader_adaptive_batch_size() -> None:
     ds = DummyDataset(100)
     loader = create_dataloader(ds, batch_size=32)
     assert isinstance(loader, torch.utils.data.DataLoader)
@@ -122,16 +124,18 @@ def test_dataloader_adaptive_batch_size():
 # --- Tests for create_dataloaders_from_config ---
 
 
-def test_create_dataloaders_from_config_basic():
-    class MockDataset(Dataset):
-        def __init__(self, mode, samples_list, **kwargs):
+def test_create_dataloaders_from_config_basic() -> None:
+    class MockDataset(Dataset[dict[str, torch.Tensor]]):
+        def __init__(
+            self, mode: str, samples_list: list[Any], **kwargs: Any
+        ) -> None:
             self.mode = mode
             self.samples = samples_list
 
-        def __len__(self):
+        def __len__(self) -> int:
             return len(self.samples)
 
-        def __getitem__(self, idx):
+        def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
             return {
                 "image": torch.randn(3, 32, 32),
                 "mask": torch.randint(0, 2, (1, 32, 32)),
@@ -183,7 +187,7 @@ def test_create_dataloaders_from_config_basic():
 
     original_func = src.data.factory.create_split_datasets
 
-    def mock_create_split_datasets(*args, **kwargs):
+    def mock_create_split_datasets(*args: Any, **kwargs: Any):
         return {
             "train": MockDataset(
                 "train", [(f"img{i}.jpg", f"mask{i}.png") for i in range(10)]
@@ -234,15 +238,17 @@ def test_create_dataloaders_from_config_basic():
 
 
 def test_create_dataloaders_from_config_distributed():
-    class MockDataset(Dataset):
-        def __init__(self, mode, samples_list, **kwargs):
+    class MockDataset(Dataset[dict[str, torch.Tensor]]):
+        def __init__(
+            self, mode: str, samples_list: list[Any], **kwargs: Any
+        ) -> None:
             self.mode = mode
             self.samples = samples_list
 
-        def __len__(self):
+        def __len__(self) -> int:
             return len(self.samples)
 
-        def __getitem__(self, idx):
+        def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
             return {
                 "image": torch.randn(3, 32, 32),
                 "mask": torch.randint(0, 2, (1, 32, 32)),
@@ -296,17 +302,17 @@ def test_create_dataloaders_from_config_distributed():
         "is_initialized": torch.distributed.is_initialized,
     }
 
-    def mock_create_split_datasets(*args, **kwargs):
+    def mock_create_split_datasets(*args: Any, **kwargs: Any):
         return {
             "train": MockDataset(
-                "train", [(f"img{i}.jpg", f"mask{i}.png") for i in range(20)]
+                "train", [(f"img{i}.jpg", f"mask{i}.png") for i in range(10)]
             ),
             "val": MockDataset(
-                "val", [(f"img{i}.jpg", f"mask{i}.png") for i in range(20, 25)]
+                "val", [(f"img{i}.jpg", f"mask{i}.png") for i in range(10, 12)]
             ),
             "test": MockDataset(
                 "test",
-                [(f"img{i}.jpg", f"mask{i}.png") for i in range(25, 30)],
+                [(f"img{i}.jpg", f"mask{i}.png") for i in range(12, 14)],
             ),
         }
 

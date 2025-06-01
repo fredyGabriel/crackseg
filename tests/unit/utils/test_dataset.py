@@ -1,6 +1,7 @@
 # ruff: noqa: PLR2004
 import os
 import sys
+from pathlib import Path
 
 import pytest
 import torch  # Import torch
@@ -14,8 +15,11 @@ from src.data.dataset import CrackSegmentationDataset  # noqa: E402
 
 
 def create_image(
-    path, size=(16, 16), color=(255, 0, 0), exif_orientation=None
-):
+    path: str,
+    size: tuple[int, int] = (16, 16),
+    color: tuple[int, int, int] = (255, 0, 0),
+    exif_orientation: int | None = None,
+) -> None:
     img = Image.new("RGB", size, color)
     if exif_orientation is not None:
         exif = img.getexif()
@@ -26,12 +30,14 @@ def create_image(
         img.save(path)
 
 
-def create_mask(path, size=(16, 16), value=128):
+def create_mask(
+    path: str, size: tuple[int, int] = (16, 16), value: int = 128
+) -> None:
     mask = Image.new("L", size, value)
     mask.save(path)
 
 
-def test_dataset_basic(tmp_path):
+def test_dataset_basic(tmp_path: Path) -> None:
     # Structure: data_root/mode/images, data_root/mode/masks
     data_root = tmp_path / "data"
     images_dir = data_root / "train" / "images"
@@ -40,8 +46,8 @@ def test_dataset_basic(tmp_path):
     masks_dir.mkdir(parents=True)
     # Create 3 valid pairs
     for i in range(3):
-        create_image(images_dir / f"img{i}.png")
-        create_mask(masks_dir / f"img{i}.png")
+        create_image(str(images_dir / f"img{i}.png"))
+        create_mask(str(masks_dir / f"img{i}.png"))
 
     # Crear lista de muestras manualmente ya que el dataset ahora requiere
     # samples_list
@@ -68,13 +74,13 @@ def test_dataset_basic(tmp_path):
     assert sample["image"].shape[0] == 3  # Canales RGB
 
 
-def test_dataset_missing_mask(tmp_path):
+def test_dataset_missing_mask(tmp_path: Path) -> None:
     data_root = tmp_path / "data"
     images_dir = data_root / "train" / "images"
     masks_dir = data_root / "train" / "masks"
     images_dir.mkdir(parents=True)
     masks_dir.mkdir(parents=True)
-    create_image(images_dir / "img0.png")
+    create_image(str(images_dir / "img0.png"))
     # Don't create the corresponding mask
 
     # Lista vacía, entonces lanzará ValueError
@@ -82,7 +88,7 @@ def test_dataset_missing_mask(tmp_path):
         CrackSegmentationDataset(mode="train", samples_list=None)
 
 
-def test_dataset_missing_dirs(tmp_path):
+def test_dataset_missing_dirs(tmp_path: Path) -> None:
     data_root = tmp_path / "data"
     # Don't create subdirectories
     # Ya que la clase ahora requiere samples_list, debemos probar
@@ -101,19 +107,19 @@ def test_dataset_missing_dirs(tmp_path):
         _ = ds[0]
 
 
-def test_dataset_corrupt_image(tmp_path):
+def test_dataset_corrupt_image(tmp_path: Path) -> None:
     data_root = tmp_path / "data"
     images_dir = data_root / "train" / "images"
     masks_dir = data_root / "train" / "masks"
     images_dir.mkdir(parents=True)
     masks_dir.mkdir(parents=True)
     # Create valid image/mask pair
-    create_image(images_dir / "img0.png")
-    create_mask(masks_dir / "img0.png")
+    create_image(str(images_dir / "img0.png"))
+    create_mask(str(masks_dir / "img0.png"))
     # Create corrupt image and valid mask
-    with open(images_dir / "img1.png", "wb") as f:
+    with open(str(images_dir / "img1.png"), "wb") as f:
         f.write(b"not an image")
-    create_mask(masks_dir / "img1.png")
+    create_mask(str(masks_dir / "img1.png"))
 
     # Crear lista de muestras manualmente
     samples_list = [
@@ -137,15 +143,15 @@ def test_dataset_corrupt_image(tmp_path):
     assert sample["image"].shape[0] == 3  # Canales RGB
 
 
-def test_dataset_exif_orientation(tmp_path):
+def test_dataset_exif_orientation(tmp_path: Path) -> None:
     data_root = tmp_path / "data"
     images_dir = data_root / "train" / "images"
     masks_dir = data_root / "train" / "masks"
     images_dir.mkdir(parents=True)
     masks_dir.mkdir(parents=True)
     # Create image with EXIF orientation
-    create_image(images_dir / "img0.png", exif_orientation=3)
-    create_mask(masks_dir / "img0.png")
+    create_image(str(images_dir / "img0.png"), exif_orientation=3)
+    create_mask(str(masks_dir / "img0.png"))
 
     # Crear lista de muestras manualmente
     samples_list = [
@@ -160,14 +166,14 @@ def test_dataset_exif_orientation(tmp_path):
     assert isinstance(sample["mask"], torch.Tensor)
 
 
-def test_dataset_with_transform(tmp_path):
+def test_dataset_with_transform(tmp_path: Path) -> None:
     data_root = tmp_path / "data"
     images_dir = data_root / "train" / "images"
     masks_dir = data_root / "train" / "masks"
     images_dir.mkdir(parents=True)
     masks_dir.mkdir(parents=True)
-    create_image(images_dir / "img0.png", size=(16, 16))
-    create_mask(masks_dir / "img0.png", size=(16, 16))
+    create_image(str(images_dir / "img0.png"), size=(16, 16))
+    create_mask(str(masks_dir / "img0.png"), size=(16, 16))
 
     samples_list = [
         (str(images_dir / "img0.png"), str(masks_dir / "img0.png"))
@@ -183,17 +189,17 @@ def test_dataset_with_transform(tmp_path):
     assert sample["mask"].shape == (1, 8, 8)
 
 
-def test_dataset_all_samples_corrupt(tmp_path):
+def test_dataset_all_samples_corrupt(tmp_path: Path) -> None:
     data_root = tmp_path / "data"
     images_dir = data_root / "train" / "images"
     masks_dir = data_root / "train" / "masks"
     images_dir.mkdir(parents=True)
     masks_dir.mkdir(parents=True)
     # Create only corrupt files
-    with open(images_dir / "img0.png", "wb") as f:
+    with open(str(images_dir / "img0.png"), "wb") as f:
         f.write(b"not an image")
     # Corresponding mask is needed for scan
-    create_mask(masks_dir / "img0.png")
+    create_mask(str(masks_dir / "img0.png"))
 
     # Crear lista de muestras manualmente
     samples_list = [

@@ -16,17 +16,19 @@ class TestBaseUNet:
     """Test cases for the BaseUNet model implementation."""
 
     @pytest.fixture
-    def encoder(self):
+    def encoder(self) -> MockEncoder:
         """Create a mock encoder for testing."""
         return MockEncoder(in_channels=3)
 
     @pytest.fixture
-    def bottleneck(self, encoder):
+    def bottleneck(self, encoder: MockEncoder) -> MockBottleneck:
         """Create a mock bottleneck for testing."""
         return MockBottleneck(in_channels=encoder.out_channels)
 
     @pytest.fixture
-    def decoder(self, bottleneck, encoder):
+    def decoder(
+        self, bottleneck: MockBottleneck, encoder: MockEncoder
+    ) -> MockDecoder:
         """
         Create a mock decoder for testing.
 
@@ -39,18 +41,28 @@ class TestBaseUNet:
         )
 
     @pytest.fixture
-    def base_unet(self, encoder, bottleneck, decoder):
+    def base_unet(
+        self,
+        encoder: MockEncoder,
+        bottleneck: MockBottleneck,
+        decoder: MockDecoder,
+    ) -> BaseUNet:
         """Create a BaseUNet instance for testing."""
         return BaseUNet(encoder, bottleneck, decoder)
 
     @pytest.fixture
-    def base_unet_with_activation(self, encoder, bottleneck, decoder):
+    def base_unet_with_activation(
+        self,
+        encoder: MockEncoder,
+        bottleneck: MockBottleneck,
+        decoder: MockDecoder,
+    ) -> BaseUNet:
         """Create a BaseUNet instance with final activation for testing."""
         return BaseUNet(
             encoder, bottleneck, decoder, final_activation=nn.Sigmoid()
         )
 
-    def test_initialization(self, base_unet):
+    def test_initialization(self, base_unet: BaseUNet) -> None:
         """Test that the BaseUNet initializes correctly."""
         assert isinstance(base_unet, BaseUNet)
         assert isinstance(base_unet.encoder, EncoderBase)
@@ -58,21 +70,27 @@ class TestBaseUNet:
         assert isinstance(base_unet.decoder, DecoderBase)
         assert base_unet.final_activation is None
 
-    def test_initialization_with_activation(self, base_unet_with_activation):
+    def test_initialization_with_activation(
+        self, base_unet_with_activation: BaseUNet
+    ) -> None:
         """Test initialization with final activation."""
         assert isinstance(
             base_unet_with_activation.final_activation, nn.Sigmoid
         )
 
-    def test_get_input_channels(self, base_unet, encoder):
+    def test_get_input_channels(
+        self, base_unet: BaseUNet, encoder: MockEncoder
+    ) -> None:
         """Test get_input_channels method."""
         assert base_unet.get_input_channels() == encoder.in_channels
 
-    def test_get_output_channels(self, base_unet, decoder):
+    def test_get_output_channels(
+        self, base_unet: BaseUNet, decoder: MockDecoder
+    ) -> None:
         """Test get_output_channels method."""
         assert base_unet.get_output_channels() == decoder.out_channels
 
-    def test_forward_pass(self, base_unet):
+    def test_forward_pass(self, base_unet: BaseUNet) -> None:
         """Test the forward pass through the model."""
         # Create a test input tensor - batch of 2, 3 channels, 64x64
         x = torch.randn(2, base_unet.get_input_channels(), 64, 64)
@@ -82,7 +100,9 @@ class TestBaseUNet:
         # so the output matches the input shape
         assert output.shape == x.shape
 
-    def test_forward_with_activation(self, base_unet_with_activation):
+    def test_forward_with_activation(
+        self, base_unet_with_activation: BaseUNet
+    ) -> None:
         """Test forward pass with activation."""
         # Create a test input tensor
         x = torch.randn(
@@ -95,7 +115,7 @@ class TestBaseUNet:
         # Check the output is in the range [0, 1] due to sigmoid
         assert torch.all(output >= 0) and torch.all(output <= 1)
 
-    def test_summary(self, base_unet):
+    def test_summary(self, base_unet: BaseUNet) -> None:
         """Test the summary method."""
         summary = base_unet.summary()
 
@@ -135,7 +155,9 @@ class TestBaseUNet:
         assert "estimated_activation_mb" in detailed_summary["memory_usage"]
         assert "total_estimated_mb" in detailed_summary["memory_usage"]
 
-    def test_summary_with_activation(self, base_unet_with_activation):
+    def test_summary_with_activation(
+        self, base_unet_with_activation: BaseUNet
+    ) -> None:
         """Test the summary method with activation."""
         summary = base_unet_with_activation.summary()
 
@@ -147,7 +169,7 @@ class TestBaseUNet:
         # encoder, bottleneck, decoder, activation
         assert len(summary["layer_hierarchy"]) >= 4  # noqa: PLR2004
 
-    def test_print_summary(self, base_unet):
+    def test_print_summary(self, base_unet: BaseUNet) -> None:
         """Test the print_summary method (return as string)."""
         summary_str = base_unet.print_summary(
             input_shape=(1, 3, 256, 256), return_string=True
@@ -170,7 +192,12 @@ class TestBaseUNet:
         assert "Bottleneck" in summary_str
         assert "Decoder" in summary_str
 
-    def test_component_compatibility(self, encoder, bottleneck, decoder):
+    def test_component_compatibility(
+        self,
+        encoder: MockEncoder,
+        bottleneck: MockBottleneck,
+        decoder: MockDecoder,
+    ) -> None:
         """Test that component compatibility is correctly validated."""
         # This should work fine with compatible components
         BaseUNet(encoder, bottleneck, decoder)

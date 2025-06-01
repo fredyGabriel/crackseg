@@ -19,11 +19,11 @@ from src.model.factory.registry import Registry
 class SimpleComponent(nn.Module):
     """A simple component for testing registry thread safety."""
 
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         super().__init__()
         self.name = name
 
-    def forward(self, x):
+    def forward(self, x: Any) -> Any:
         return x
 
 
@@ -37,7 +37,7 @@ class TestRegistryThreadSafety:
         self.errors = []
         self.lock = threading.Lock()
 
-    def register_component(self, name):
+    def register_component(self, name: str) -> None:
         """Thread-safe registration of a component."""
         try:
             # Create component with unique name
@@ -54,7 +54,7 @@ class TestRegistryThreadSafety:
             with self.lock:
                 self.errors.append((name, str(e)))
 
-    def unregister_component(self, name):
+    def unregister_component(self, name: str) -> None:
         """Thread-safe unregistration of a component."""
         try:
             # Only attempt to unregister if we know it was registered
@@ -66,7 +66,7 @@ class TestRegistryThreadSafety:
             with self.lock:
                 self.errors.append((name, str(e)))
 
-    def get_component(self, name):
+    def get_component(self, name: str) -> None:
         """Thread-safe retrieval of a component."""
         try:
             # Only attempt to get if we know it was registered

@@ -3,6 +3,7 @@
 # import os # Unused
 # import sys # Unused
 from pathlib import Path
+from typing import Any
 
 # import time  # Removed unused import
 from unittest.mock import ANY, MagicMock, patch
@@ -23,7 +24,7 @@ from src.utils.checkpointing import (
 
 
 @pytest.fixture
-def mock_model():
+def mock_model() -> MagicMock:
     """Fixture to create a mock torch.nn.Module."""
     model = MagicMock(spec=torch.nn.Module)
     model.state_dict.return_value = {
@@ -36,7 +37,7 @@ def mock_model():
 
 
 @pytest.fixture
-def mock_optimizer():
+def mock_optimizer() -> MagicMock:
     """Fixture to create a mock torch.optim.Optimizer."""
     optimizer = MagicMock(spec=torch.optim.Optimizer)
     optimizer.state_dict.return_value = {
@@ -50,13 +51,13 @@ def mock_optimizer():
 
 
 @pytest.fixture
-def mock_model_state(mock_model):
+def mock_model_state(mock_model: MagicMock) -> dict[str, torch.Tensor]:
     """Fixture for a sample model state_dict."""
     return mock_model.state_dict()
 
 
 @pytest.fixture
-def mock_optimizer_state(mock_optimizer):
+def mock_optimizer_state(mock_optimizer: MagicMock) -> dict[str, Any]:
     """Fixture for a sample optimizer state_dict."""
     return mock_optimizer.state_dict()
 
@@ -67,16 +68,14 @@ def mock_optimizer_state(mock_optimizer):
 
 
 @patch("torch.save")
-def test_save_checkpoint_creates_file_and_calls_torch_save(  # noqa: PLR0913
-    mock_torch_save,
+def test_save_checkpoint_creates_file_and_calls_torch_save(
+    mock_torch_save: MagicMock,
     tmp_path: Path,
-    mock_model,
-    mock_optimizer,
-    # mock_scaler, # Removed scaler
-    mock_model_state,
-    mock_optimizer_state,
-    # mock_scaler_state # Removed scaler state
-):
+    mock_model: MagicMock,
+    mock_optimizer: MagicMock,
+    mock_model_state: dict[str, torch.Tensor],
+    mock_optimizer_state: dict[str, Any],
+) -> None:
     """Test save_checkpoint creates dir/file and calls torch.save."""
     checkpoint_dir = tmp_path / "test_ckpts"
     epoch = 5
@@ -117,11 +116,10 @@ def test_save_checkpoint_creates_file_and_calls_torch_save(  # noqa: PLR0913
 
 
 def test_save_checkpoint_keep_last_n(
-    # mock_torch_save, # Removed argument
     tmp_path: Path,
-    mock_model,
-    mock_optimizer,
-):
+    mock_model: MagicMock,
+    mock_optimizer: MagicMock,
+) -> None:
     """Test that only the last N checkpoints are kept
     (by epoch in filename)."""  # Updated docstring hint
     checkpoint_dir = tmp_path / "keep_last_n"
@@ -183,12 +181,11 @@ def test_save_checkpoint_keep_last_n(
 
 @patch("torch.save")
 def test_save_checkpoint_is_best(
-    mock_torch_save,
+    mock_torch_save: MagicMock,
     tmp_path: Path,
-    mock_model,
-    mock_optimizer,
-    # mock_scaler # Removed scaler
-):
+    mock_model: MagicMock,
+    mock_optimizer: MagicMock,
+) -> None:
     """Test save_checkpoint saves the normal checkpoint (best logic is
     external)."""
     checkpoint_dir = tmp_path / "test_ckpts_best"
@@ -216,7 +213,7 @@ def test_save_checkpoint_is_best(
 # --- Tests for load_checkpoint ---
 
 
-def test_load_checkpoint_file_not_found(mock_model):
+def test_load_checkpoint_file_not_found(mock_model: MagicMock) -> None:
     """
     Test load_checkpoint raises FileNotFoundError when file doesn't exist.
     """
@@ -228,10 +225,9 @@ def test_load_checkpoint_file_not_found(mock_model):
 
 def test_load_checkpoint_loads_state(
     tmp_path: Path,
-    mock_model_state,
-    mock_optimizer_state,
-    # mock_scaler_state # Removed scaler state
-):
+    mock_model_state: dict[str, torch.Tensor],
+    mock_optimizer_state: dict[str, Any],
+) -> None:
     """Test load_checkpoint correctly loads states into components."""
     checkpoint_dir = tmp_path / "load_test_ckpts"
     checkpoint_dir.mkdir()
@@ -306,8 +302,8 @@ def test_load_checkpoint_loads_state(
 
 
 def test_load_checkpoint_handles_missing_keys(
-    tmp_path: Path, mock_model_state
-):
+    tmp_path: Path, mock_model_state: dict[str, torch.Tensor]
+) -> None:
     """Test load_checkpoint handles checkpoints with missing optional keys."""
     checkpoint_dir = tmp_path / "missing_keys_ckpts"
     checkpoint_dir.mkdir()
@@ -355,7 +351,9 @@ def test_load_checkpoint_handles_missing_keys(
     assert "best_metric_value" not in loaded_state_metadata
 
 
-def test_load_checkpoint_on_device(tmp_path: Path, mock_model_state):
+def test_load_checkpoint_on_device(
+    tmp_path: Path, mock_model_state: dict[str, torch.Tensor]
+) -> None:
     """Test loading checkpoint onto a specific device."""
     checkpoint_dir = tmp_path / "device_ckpts"
     checkpoint_dir.mkdir()

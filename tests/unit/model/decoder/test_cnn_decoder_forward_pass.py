@@ -4,7 +4,7 @@ import torch
 from src.model.decoder.cnn_decoder import CNNDecoder
 
 
-def test_cnndecoder_forward_shape():
+def test_cnndecoder_forward_shape() -> None:
     """Test forward pass output shape."""
     batch_size = 2
     bottleneck_channels = 64
@@ -33,7 +33,7 @@ def test_cnndecoder_forward_shape():
     )
 
 
-def test_cnndecoder_output_shape_various_configs():
+def test_cnndecoder_output_shape_various_configs() -> None:
     """Test output shape for various channel and depth configurations."""
     configs = [
         # (in_ch, skip_channels_list (ASC), out_channels_final)
@@ -70,7 +70,7 @@ def test_cnndecoder_output_shape_various_configs():
 class CNNDecoderForwardTests:
     """Tests adapted for ascending skips and increasing dimensions."""
 
-    def test_forward_standard_skip_shape_completes(self):
+    def test_forward_standard_skip_shape_completes(self) -> None:
         in_ch = 64
         skip_list = [8, 16, 32]
         h_in, w_in = 8, 8
@@ -84,7 +84,7 @@ class CNNDecoderForwardTests:
         assert output.shape[1] == decoder.out_channels
         assert output.shape[2:] == skips[-1].shape[2:]
 
-    def test_forward_varied_skip_shapes_completes(self):
+    def test_forward_varied_skip_shapes_completes(self) -> None:
         in_ch = 32
         skip_list = [4, 8, 16, 32]
         h_in, w_in = 4, 4
@@ -101,7 +101,7 @@ class CNNDecoderForwardTests:
         assert output.shape[1] == decoder.out_channels
         assert output.shape[2:] == skips[-1].shape[2:]
 
-    def test_forward_edge_case_skip_shapes_completes(self):
+    def test_forward_edge_case_skip_shapes_completes(self) -> None:
         in_ch = 128
         skip_list = [64]  # Single skip
         h_in, w_in = 16, 16
@@ -113,7 +113,7 @@ class CNNDecoderForwardTests:
         assert output.shape[2:] == skips[-1].shape[2:]
 
 
-def test_cnndecoder_different_input_sizes():
+def test_cnndecoder_different_input_sizes() -> None:
     """Test CNNDecoder with different input spatial sizes (ascending skips)."""
     in_ch = 64
     skip_channels_list = [8, 16, 32]  # Ascending
@@ -135,7 +135,7 @@ def test_cnndecoder_different_input_sizes():
         assert output.shape[2:] == (expected_h, expected_w)
 
 
-def test_cnndecoder_segmentation_output_dimensions():
+def test_cnndecoder_segmentation_output_dimensions() -> None:
     """Test CNNDecoder output for a typical segmentation task."""
     batch_size = 4
     bottleneck_depth_channels = 512  # Bottleneck channels
@@ -179,7 +179,7 @@ def test_cnndecoder_segmentation_output_dimensions():
     )
 
 
-def test_cnndecoder_end_to_end_flow():
+def test_cnndecoder_end_to_end_flow() -> None:
     """Test end-to-end flow with a typical U-Net like configuration."""
     batch_size = 2
     bottleneck_channels = 256
@@ -234,12 +234,12 @@ def test_cnndecoder_end_to_end_flow():
     ],
 )
 def test_final_output_dimensions_parametrized(
-    in_ch_param,
-    skip_channels_list_param,
-    input_size_param,
-    batch_size_param,
-    out_channels_param,
-):
+    in_ch_param: int,
+    skip_channels_list_param: list[int],
+    input_size_param: tuple[int, int],
+    batch_size_param: int,
+    out_channels_param: int,
+) -> None:
     decoder = CNNDecoder(
         in_ch_param, skip_channels_list_param, out_channels=out_channels_param
     )
@@ -277,8 +277,11 @@ def test_final_output_dimensions_parametrized(
     ],
 )
 def test_information_flow_pipeline_parametrized(
-    in_ch_param, skip_channels_list_param, input_size_param, batch_size_param
-):
+    in_ch_param: int,
+    skip_channels_list_param: list[int],
+    input_size_param: tuple[int, int],
+    batch_size_param: int,
+) -> None:
     # Default out_channels
     decoder = CNNDecoder(in_ch_param, skip_channels_list_param)
     h_in, w_in = input_size_param

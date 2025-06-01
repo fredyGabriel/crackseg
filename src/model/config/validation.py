@@ -40,14 +40,6 @@ def validate_component_config(
     #     f"[DEBUG] validate_component_config: type={type(config)}, "
     #     f"value={config}"
     # ) # Keep commented out unless debugging
-    if not isinstance(config, dict):
-        return False, {
-            "_general": (
-                f"Configuration must be a dictionary, got {type(config)}: "
-                f"{config}"
-            )
-        }
-
     # Get component-specific validator
     comp_type_from_config = config.get(
         "type"
@@ -109,12 +101,6 @@ def _validate_main_components(
     for comp_name in ["encoder", "bottleneck", "decoder"]:
         if comp_name in config:
             comp_cfg = config[comp_name]
-            if not isinstance(comp_cfg, dict):
-                # Skip validation if not a dict (avoids bug of passing str)
-                # errors[comp_name] = f"Component '{comp_name}' config must be
-                # a dictionary, got {type(comp_cfg)}"
-                # all_main_components_valid = False # Or handle as error
-                continue
             comp_valid, comp_err = validate_component_config(
                 comp_cfg, comp_name
             )
@@ -122,7 +108,8 @@ def _validate_main_components(
                 all_main_components_valid = False
                 if comp_name in errors:
                     if isinstance(errors[comp_name], dict) and isinstance(
-                        comp_err, dict
+                        comp_err,
+                        dict,  # type: ignore[reportUnnecessaryIsInstance]
                     ):
                         errors[comp_name].update(comp_err)
                     else:
@@ -202,27 +189,14 @@ def _normalize_hybrid_additional_components(
     """Normalizes the 'components' dictionary within a hybrid architecture
     config."""
     normalized_additional_components = {}
-    if isinstance(components_section, dict):
-        for comp_name, comp_config in components_section.items():
-            if isinstance(comp_config, dict) and "type" in comp_config:
-                # Extract base component type for recursive normalization call
-                # This heuristic assumes types like "SpecificEncoder_v1" ->
-                # "encoder"
-                base_comp_type = comp_config["type"].split("_")[0].lower()
-                normalized_additional_components[comp_name] = normalize_config(
-                    comp_config, base_comp_type
-                )
-            else:
-                # Pass through if not a typical component structure or type is
-                # missing
-                normalized_additional_components[comp_name] = comp_config
-    else:
-        # If 'components' is not a dict, return it as is or log a warning
-        log.warning(
-            "Expected 'components' section to be a dict, got "
-            f"{type(components_section)}"
-        )
-        return components_section
+    for comp_name, comp_config in components_section.items():
+        if "type" in comp_config:
+            base_comp_type = comp_config["type"].split("_")[0].lower()
+            normalized_additional_components[comp_name] = normalize_config(
+                comp_config, base_comp_type
+            )
+        else:
+            normalized_additional_components[comp_name] = comp_config
     return normalized_additional_components
 
 
@@ -243,11 +217,7 @@ def _normalize_full_architecture(
 
     # Normalize main nested components (encoder, bottleneck, decoder)
     for comp_key in ["encoder", "bottleneck", "decoder"]:
-        if comp_key in normalized_arch and isinstance(
-            normalized_arch[comp_key], dict
-        ):
-            # Use the main normalize_config for these, as it routes to
-            # _normalize_individual_component
+        if comp_key in normalized_arch:
             normalized_arch[comp_key] = normalize_config(
                 normalized_arch[comp_key], comp_key
             )
@@ -275,12 +245,6 @@ def normalize_config(
     Returns:
         Dict: Normalized configuration
     """
-    if not isinstance(config, dict):
-        log.warning(
-            f"Cannot normalize non-dictionary configuration: {type(config)}"
-        )
-        return config
-
     # Work on a copy to avoid modifying the original config dict in-place
     # This is important if the same config object is used elsewhere.
     current_config_state = dict(config)

@@ -1,7 +1,9 @@
 import os
 import tempfile
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
 import torch
 from omegaconf import OmegaConf
 
@@ -14,7 +16,7 @@ from src.evaluation.setup import parse_args, setup_output_directory
 from src.utils.visualization import visualize_predictions
 
 
-def test_parse_args_defaults(monkeypatch):
+def test_parse_args_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "sys.argv", ["evaluate.py", "--checkpoint", "ckpt.pth.tar"]
     )
@@ -35,8 +37,10 @@ def test_setup_output_directory_creates_dirs():
 @patch("src.utils.checkpointing.torch.load")
 @patch("src.evaluation.loading.create_unet")
 def test_load_model_from_checkpoint(
-    mock_create_unet, mock_torch_load, mock_exists
-):
+    mock_create_unet: MagicMock,
+    mock_torch_load: MagicMock,
+    mock_exists: MagicMock,
+) -> None:
     # Create a dummy model and test data
     dummy_model = torch.nn.Linear(2, 2)
     mock_create_unet.return_value = dummy_model
@@ -88,7 +92,7 @@ def test_load_model_from_checkpoint(
     mock_exists.assert_called()
 
 
-def test_get_evaluation_dataloader(monkeypatch):
+def test_get_evaluation_dataloader(monkeypatch: pytest.MonkeyPatch) -> None:
     dummy_loader = MagicMock()
     dummy_loader.dataset = [1, 2, 3]  # Simulate a dataset with 3 samples
     monkeypatch.setattr(
@@ -100,18 +104,18 @@ def test_get_evaluation_dataloader(monkeypatch):
     assert loader is dummy_loader
 
 
-def test_evaluate_model_basic():
+def test_evaluate_model_basic() -> None:
     class DummyModel(torch.nn.Module):
-        def forward(self, x):
+        def forward(self, x: torch.Tensor) -> torch.Tensor:
             return torch.ones_like(x[:, :1])
 
     model = DummyModel()
 
-    class DummyDataset(torch.utils.data.Dataset):
-        def __len__(self):
+    class DummyDataset(torch.utils.data.Dataset[dict[str, torch.Tensor]]):
+        def __len__(self) -> int:
             return 1
 
-        def __getitem__(self, idx):
+        def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
             return {
                 "image": torch.zeros(2, 3, 4, 4),
                 "mask": torch.zeros(2, 1, 4, 4),
@@ -127,7 +131,7 @@ def test_evaluate_model_basic():
     assert inputs.shape[0] == 2  # noqa: PLR2004
 
 
-def test_visualize_predictions_creates_files(tmp_path):
+def test_visualize_predictions_creates_files(tmp_path: Path) -> None:
     inputs = torch.zeros(2, 3, 4, 4)
     targets = torch.zeros(2, 1, 4, 4)
     outputs = torch.zeros(2, 1, 4, 4)
@@ -138,7 +142,7 @@ def test_visualize_predictions_creates_files(tmp_path):
     assert any(f.endswith(".png") for f in os.listdir(vis_dir))
 
 
-def test_save_evaluation_results_creates_files(tmp_path):
+def test_save_evaluation_results_creates_files(tmp_path: Path) -> None:
     results = {"test_metric": 1.0}
     config = {"foo": "bar"}
     checkpoint = "ckpt.pth.tar"
@@ -152,11 +156,11 @@ def test_save_evaluation_results_creates_files(tmp_path):
 @patch("pathlib.Path.exists", return_value=True)
 @patch("torch.load")
 def test_ensemble_evaluate_creates_results_and_files(
-    mock_torch_load, mock_exists, tmp_path
-):
+    mock_torch_load: MagicMock, mock_exists: MagicMock, tmp_path: Path
+) -> None:
     # Dummy model for ensemble
     class DummyModel(torch.nn.Module):
-        def forward(self, x):
+        def forward(self, x: torch.Tensor) -> torch.Tensor:
             return torch.ones_like(x[:, :1])
 
     # Create a simulated checkpoint
@@ -177,11 +181,11 @@ def test_ensemble_evaluate_creates_results_and_files(
         mock_load.return_value = (DummyModel(), {"config": {"model": {}}})
 
         # Dummy dataloader: 2 batches of 2 samples
-        class DummyDataset(torch.utils.data.Dataset):
-            def __len__(self):
+        class DummyDataset(torch.utils.data.Dataset[dict[str, torch.Tensor]]):
+            def __len__(self) -> int:
                 return 2
 
-            def __getitem__(self, idx):
+            def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
                 return {
                     "image": torch.zeros(2, 3, 4, 4),
                     "mask": torch.zeros(2, 1, 4, 4),

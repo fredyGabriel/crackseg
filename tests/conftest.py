@@ -12,7 +12,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 
-def pytest_configure(config):
+def pytest_configure(config: pytest.Config) -> None:
     """Register custom pytest markers."""
     config.addinivalue_line(
         "markers", "cuda: mark test as requiring CUDA capable device"
@@ -25,7 +25,7 @@ def pytest_configure(config):
 
 # Added fixture
 @pytest.fixture(scope="session")
-def hydra_config_dir():
+def hydra_config_dir() -> str:
     """Provides the absolute path to the Hydra configuration directory."""
     # Path(__file__).parent is tests/
     # Path(__file__).parent.parent is the project root (crackseg/)

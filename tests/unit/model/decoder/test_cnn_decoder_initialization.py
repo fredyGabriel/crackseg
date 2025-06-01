@@ -4,7 +4,7 @@ import torch
 from src.model.decoder.cnn_decoder import CNNDecoder, DecoderBlock
 
 
-def test_cnndecoder_init():
+def test_cnndecoder_init() -> None:
     """Test initialization with matching depth and skip channels."""
     in_ch = 128
     skip_channels_list = [16, 32, 64]  # Ascending
@@ -43,7 +43,7 @@ def test_cnndecoder_init():
     assert decoder.out_channels == 1  # Default value
 
 
-def test_cnndecoder_skip_channels_mismatch_init_error():
+def test_cnndecoder_skip_channels_mismatch_init_error() -> None:
     """Test error during init if skip_channels_list length != depth if depth
     is provided."""
     # If CNNDecoder does not accept 'depth' as an argument, this test should be
@@ -60,7 +60,7 @@ def test_cnndecoder_skip_channels_mismatch_init_error():
         )  # 3 skips, but if the logic expects 2, this should fail
 
 
-def test_cnndecoder_minimal_depth():
+def test_cnndecoder_minimal_depth() -> None:
     """Test CNNDecoder with minimal depth (1 block)."""
     in_ch = 8
     skip_channels_list = [4]
@@ -74,7 +74,7 @@ def test_cnndecoder_minimal_depth():
     assert decoder.final_conv.out_channels == 1
 
 
-def test_cnndecoder_variable_depth_initialization():
+def test_cnndecoder_variable_depth_initialization() -> None:
     """
     Test CNNDecoder initialization with variable depths (ascending skips).
     """
@@ -103,7 +103,7 @@ def test_cnndecoder_variable_depth_initialization():
 
 
 @pytest.mark.parametrize("out_ch_final", [1, 3, 5, 10])
-def test_cnndecoder_final_output_channels(out_ch_final):
+def test_cnndecoder_final_output_channels(out_ch_final: int) -> None:
     """Test CNNDecoder with varying final output channels (ascending skips)."""
     in_ch = 32
     skip_channels_list = [8, 16]  # Ascending
@@ -134,7 +134,9 @@ def test_cnndecoder_final_output_channels(out_ch_final):
         (256, [2, 4, 8, 16, 32, 64, 128, 256]),  # Many small skips
     ],
 )
-def test_edge_cases_block_numbers(in_ch_param, skip_channels_list_param):
+def test_edge_cases_block_numbers(
+    in_ch_param: int, skip_channels_list_param: list[int]
+) -> None:
     """Test CNNDecoder with edge cases for number of blocks."""
     decoder = CNNDecoder(in_ch_param, skip_channels_list_param)
     assert len(decoder.decoder_blocks) == len(skip_channels_list_param)

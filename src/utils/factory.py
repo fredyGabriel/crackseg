@@ -1,8 +1,8 @@
 """Factory functions for creating objects from configuration."""
 
-from collections.abc import Callable
+from collections.abc import Callable as TypingCallable
 from importlib import import_module
-from typing import cast
+from typing import Any, TypeVar, cast
 
 import torch
 from omegaconf import DictConfig, ListConfig
@@ -14,6 +14,8 @@ from src.utils.exceptions import ConfigError
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
+
+T = TypeVar("T")
 
 
 def import_class(class_path: str) -> type:
@@ -37,7 +39,7 @@ def import_class(class_path: str) -> type:
 
 def get_optimizer(
     model_params: list[nn.Parameter],
-    optimizer_cfg: DictConfig | str | dict,
+    optimizer_cfg: DictConfig | str | dict[str, Any],
 ) -> torch.optim.Optimizer:
     """Create an optimizer from config.
 
@@ -68,10 +70,10 @@ def get_optimizer(
                 )
 
         elif (
-            isinstance(optimizer_cfg, DictConfig | dict)
+            hasattr(optimizer_cfg, "__getitem__")
             and "_target_" in optimizer_cfg
         ):
-            optimizer_class = import_class(optimizer_cfg["_target_"])
+            optimizer_class = import_class(str(optimizer_cfg["_target_"]))
             optimizer_params = {
                 str(k): v for k, v in optimizer_cfg.items() if k != "_target_"
             }
@@ -91,7 +93,7 @@ with type",
         raise ConfigError("Failed to create optimizer", details=str(e)) from e
 
 
-def get_loss_fn(loss_cfg: DictConfig) -> Callable:
+def get_loss_fn(loss_cfg: DictConfig) -> TypingCallable[..., object]:
     """Create a loss function from config."""
     try:
         target_path = loss_cfg.get("_target_")
@@ -113,33 +115,39 @@ def get_loss_fn(loss_cfg: DictConfig) -> Callable:
                     "under 'losses'."
                 )
 
-            # Validar que cada item es un dict de configuración
-            for item in inner_loss_configs:
-                if not isinstance(item, DictConfig) and not isinstance(
-                    item, dict
-                ):
-                    raise ConfigError(
-                        "Each item in CombinedLoss losses must be a dict or "
-                        "DictConfig."
-                    )
+            # Convertir cada item a dict[str, Any] para evitar Unknown
+            losses_config: list[dict[str, Any]] = []
+            for item in cast(list[Any], inner_loss_configs):
+                # Forzar tipado explícito para el linter
+                if isinstance(item, dict):
+                    losses_config.append(cast(dict[str, Any], item))
+                else:
+                    item_obj = cast(object, item)  # Para el linter
+                    if hasattr(item_obj, "__dict__"):
+                        # Para dataclasses/configs
+                        losses_config.append(dict(item_obj.__dict__))
+                    else:
+                        raise ConfigError(
+                            "Each item in CombinedLoss losses must be a dict "
+                            "or convertible to dict."
+                        )
             combined_params = {}
             if weights is not None:
                 combined_params["weights"] = weights
-            losses_config = [dict(item) for item in inner_loss_configs]
-            return CombinedLoss(losses_config=losses_config, **combined_params)
+            return CombinedLoss(losses_config=losses_config, **combined_params)  # type: ignore
 
         elif loss_class is BCEDiceLoss:
             params = {
                 str(k): v for k, v in loss_cfg.items() if k != "_target_"
             }
-            return cast(Callable, BCEDiceLoss(**params))
+            return cast(TypingCallable[..., object], BCEDiceLoss(**params))
 
         # --- Default Handling ---
         else:
             params = {
                 str(k): v for k, v in loss_cfg.items() if k != "_target_"
             }
-            return cast(Callable, loss_class(**params))
+            return cast(TypingCallable[..., object], loss_class(**params))
 
     except ConfigError as e:
         raise e  # Re-raise specific config errors
@@ -150,7 +158,9 @@ def get_loss_fn(loss_cfg: DictConfig) -> Callable:
         ) from e
 
 
-def get_metrics_from_cfg(metrics_cfg: DictConfig) -> dict[str, Callable]:
+def get_metrics_from_cfg(
+    metrics_cfg: DictConfig,
+) -> dict[str, TypingCallable[..., object]]:
     """Create metric functions from config.
 
     Args:
@@ -169,4 +179,4 @@ def get_metrics_from_cfg(metrics_cfg: DictConfig) -> dict[str, Callable]:
             raise ConfigError(
                 f"Failed to create metric {name!r}", details=str(e)
             ) from e
-    return cast(dict[str, Callable], metrics)
+    return cast(dict[str, TypingCallable[..., object]], metrics)

@@ -5,7 +5,7 @@ These tests verify that the configuration validation, normalization, and
 processing system works correctly with different types of model configurations.
 """
 
-from typing import cast
+from typing import Any
 from unittest.mock import patch
 
 import hydra
@@ -31,7 +31,13 @@ from src.model.factory.registry_setup import (
 
 # --- Dummy Components for Testing ---
 class DummyCNNEncoder(EncoderBase):
-    def __init__(self, in_channels, hidden_dims=None, depth=4, **kwargs):
+    def __init__(
+        self,
+        in_channels: int,
+        hidden_dims: list[int] | None = None,
+        depth: int = 4,
+        **kwargs: Any,
+    ):
         super().__init__(in_channels=in_channels)
         self.in_channels = in_channels
         self.hidden_dims = hidden_dims or [64 * (2**i) for i in range(depth)]
@@ -40,7 +46,9 @@ class DummyCNNEncoder(EncoderBase):
             int(x) for x in self.hidden_dims[:-1]
         ]
 
-    def forward(self, x):
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, list[torch.Tensor]]:
         # Dummy shapes, assuming batch size 1 for simplicity
         dummy_output = torch.randn(
             1,
@@ -61,22 +69,24 @@ class DummyCNNEncoder(EncoderBase):
 
     @property
     def out_channels(self) -> int:
-        return cast(int, self._out_channels)
+        return self._out_channels
 
     @property
     def skip_channels(self) -> list[int]:
-        return cast(list[int], self._skip_channels)
+        return self._skip_channels
 
 
 class DummyIdentity(BottleneckBase):
-    def __init__(self, in_channels, out_channels=None, **kwargs):
+    def __init__(
+        self, in_channels: int, out_channels: int | None = None, **kwargs: Any
+    ):
         super().__init__(in_channels=in_channels)
         self.in_channels = in_channels
         self._out_channels: int = int(
             out_channels if out_channels is not None else in_channels
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Need to return tensor potentially with different out_channels
         if self.in_channels != self._out_channels:
             # Simple linear layer to adjust channels if needed, or just randn
@@ -87,47 +97,57 @@ class DummyIdentity(BottleneckBase):
 
     @property
     def out_channels(self) -> int:
-        return cast(int, self._out_channels)
+        return self._out_channels
 
 
 class DummyCNNDecoder(DecoderBase):
     def __init__(
-        self, in_channels, skip_channels_list=None, out_channels=1, **kwargs
+        self,
+        in_channels: int,
+        skip_channels_list: list[int] | None = None,
+        out_channels: int = 1,
+        **kwargs: Any,
     ):
         _skip_channels = skip_channels_list or []
         super().__init__(in_channels=in_channels, skip_channels=_skip_channels)
         self._out_channels: int = int(out_channels)
 
-    def forward(self, features, skip_connections):
+    def forward(
+        self, x: torch.Tensor, skips: list[torch.Tensor]
+    ) -> torch.Tensor:
         # Dummy forward, returns tensor with final out_channels
-        # Assume final size is doubled compared to input bottleneck features
-        # This is a simplification
-        batch_size = features.shape[0]
-        h = features.shape[2] * 2
-        w = features.shape[3] * 2
+        batch_size = x.shape[0]
+        h = x.shape[2] * 2
+        w = x.shape[3] * 2
         return torch.randn(batch_size, self._out_channels, h, w)
 
     @property
     def out_channels(self) -> int:
-        return cast(int, self._out_channels)
+        return self._out_channels
 
 
 class DummyCBAM(nn.Module):
-    def __init__(self, channels, **kwargs):
-        super().__init__()
+    def __init__(self, channels: int, **kwargs: Any):
+        super().__init__()  # type: ignore
         self.channels = channels
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x
 
 
 class DummyUNet(UNetBase):
-    def __init__(self, encoder, bottleneck, decoder, **kwargs):
+    def __init__(
+        self,
+        encoder: EncoderBase,
+        bottleneck: BottleneckBase,
+        decoder: DecoderBase,
+        **kwargs: Any,
+    ):
         super().__init__(
             encoder=encoder, bottleneck=bottleneck, decoder=decoder
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x
 
 
@@ -181,7 +201,7 @@ class TestComponentConfigParser:
         except KeyError:
             pass
 
-    def test_encoder_config_parsing(self, cfg):
+    def test_encoder_config_parsing(self, cfg: Any):
         """Test parsing encoder configurations."""
         # Use config values
         in_channels = cfg.data.num_channels_rgb
@@ -216,7 +236,7 @@ class TestComponentConfigParser:
             parse_component_config(unknown_config, "encoder")
         assert "Unknown encoder type" in str(excinfo.value)
 
-    def test_bottleneck_config_parsing(self, cfg):
+    def test_bottleneck_config_parsing(self, cfg: Any):
         """Test parsing bottleneck configurations."""
         in_channels = 512  # Si existe en config usarlo
         out_channels = 512
@@ -268,7 +288,7 @@ class TestArchitectureConfigParser:
         except KeyError:
             pass
 
-    def test_standard_architecture_parsing(self, cfg):
+    def test_standard_architecture_parsing(self, cfg: Any):
         """Test parsing standard architecture configurations."""
         in_channels = cfg.data.num_channels_rgb
         out_channels = 1  # Si existe en config usarlo
@@ -418,7 +438,7 @@ class TestArchitectureConfigParser:
 class TestConfigNormalization:
     """Test configuration normalization with defaults."""
 
-    def test_encoder_normalization(self, cfg):
+    def test_encoder_normalization(self, cfg: Any):
         """Test encoder configuration normalization."""
         # Minimal encoder config
         encoder_config = {
@@ -466,7 +486,7 @@ class TestConfigNormalization:
         ]
         assert normalized["dropout"] == 0.0
 
-    def test_architecture_normalization(self, cfg):
+    def test_architecture_normalization(self, cfg: Any):
         """Test architecture configuration normalization."""
         # This test relies on the normalize_config function which uses
         # the schemas defined in config_validation.py
@@ -506,7 +526,7 @@ class TestConfigNormalization:
 class TestModelConfigSchema:
     """Test model configuration schema generation."""
 
-    def test_get_model_schema(self, cfg):
+    def test_get_model_schema(self, cfg: Any):
         """Test getting a schema for a model type."""
         # Ensure DummyUNet is registered
         if "DummyUNet" not in architecture_registry:

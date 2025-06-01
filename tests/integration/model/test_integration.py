@@ -2,10 +2,12 @@
 
 import os
 import traceback
+from typing import Any
 
 import hydra
 import torch
 from omegaconf import DictConfig, OmegaConf
+from torch.nn import Sequential
 
 # Ensure mock components are registered before tests run
 # pylint: disable=unused-import
@@ -17,19 +19,10 @@ from src.model.decoder.cnn_decoder import CNNDecoder
 from src.model.encoder.cnn_encoder import CNNEncoder
 from src.model.factory import create_unet
 
-# Import BaseUNet separately if needed for type hints/checks
-# Import Mock classes from conftest
-# Use absolute import from tests directory
-from tests.integration.model.conftest import (  # noqa: F401
-    MockBottleneck,
-    MockEncoder,
-    TestDecoderImpl,
-)
-
 # --- Helper Functions ---
 
 
-def extract_unet_core(unet_model):
+def extract_unet_core(unet_model: Any) -> Any:
     """
     Extract the UNetBase instance from a model that might be wrapped in
     Sequential.
@@ -41,13 +34,13 @@ def extract_unet_core(unet_model):
     Returns:
         UNetBase: The core UNet model
     """
-    if isinstance(unet_model, torch.nn.Sequential):
+    if isinstance(unet_model, Sequential):
         # The UNet is always the first component in Sequential
         return unet_model[0]
     return unet_model
 
 
-def get_input_channels(model):
+def get_input_channels(model: Any) -> int:
     """
     Safely get input channels from a model that might be UNetBase or
     Sequential.
@@ -58,12 +51,12 @@ def get_input_channels(model):
     Returns:
         int: Number of input channels
     """
-    if isinstance(model, torch.nn.Sequential):
+    if isinstance(model, Sequential):
         return model[0].get_input_channels()
     return model.get_input_channels()
 
 
-def get_output_channels(model):
+def get_output_channels(model: Any) -> int:
     """
     Safely get output channels from a model that might be UNetBase or
     Sequential.
@@ -74,7 +67,7 @@ def get_output_channels(model):
     Returns:
         int: Number of output channels
     """
-    if isinstance(model, torch.nn.Sequential):
+    if isinstance(model, Sequential):
         return model[0].get_output_channels()
     return model.get_output_channels()
 
@@ -88,8 +81,8 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
     """
     if config_name == "unet_mock":
         # Clear Hydra global state if already initialized
-        if hydra.core.global_hydra.GlobalHydra.instance().is_initialized():
-            hydra.core.global_hydra.GlobalHydra.instance().clear()
+        if hydra.core.global_hydra.GlobalHydra.instance().is_initialized():  # type: ignore
+            hydra.core.global_hydra.GlobalHydra.instance().clear()  # type: ignore
 
         try:
             # Calcular ruta absoluta a 'configs' desde este archivo de test
@@ -120,7 +113,7 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
             cfg = hydra.compose(config_name="model/architectures/unet_mock")
 
             # Clean up Hydra global state
-            hydra.core.global_hydra.GlobalHydra.instance().clear()
+            hydra.core.global_hydra.GlobalHydra.instance().clear()  # type: ignore
             return cfg
         except Exception as e:
             # --- ADDED DETAILED EXCEPTION PRINTING ---
@@ -130,8 +123,8 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
             # --- END ADDED CODE ---
 
             # Clean up Hydra state even if compose fails
-            if hydra.core.global_hydra.GlobalHydra.instance().is_initialized():
-                hydra.core.global_hydra.GlobalHydra.instance().clear()
+            if hydra.core.global_hydra.GlobalHydra.instance().is_initialized():  # type: ignore
+                hydra.core.global_hydra.GlobalHydra.instance().clear()  # type: ignore
             # Re-raise exception to make test fail clearly
             raise FileNotFoundError(
                 f"Hydra initialize/compose failed for 'unet_mock'. "
@@ -176,7 +169,7 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
 # --- Test Cases ---
 
 
-def test_unet_instantiation_from_manual_config(register_mock_components):
+def test_unet_instantiation_from_manual_config(register_mock_components: Any):
     """Test instantiating UNet from a manually created config using mocks."""
     cfg = load_test_config()  # Load the config that uses Mock* _target_
     # No need to manually register here, fixture handles it
@@ -189,7 +182,7 @@ def test_unet_instantiation_from_manual_config(register_mock_components):
     assert unet_core.decoder.__class__.__name__ == "TestDecoderImpl"
 
 
-def test_unet_forward_pass_from_manual_config(register_mock_components):
+def test_unet_forward_pass_from_manual_config(register_mock_components: Any):
     """Test the forward pass of a UNet instantiated from manually loaded
     config."""
     cfg = load_test_config()

@@ -1,118 +1,256 @@
 ---
 description: General context for what the project is being developed for
-globs: 
+globs:
 alwaysApply: false
 ---
-# Subject: Project Proposal & Technical Discussion:
+# Project Overview: CrackSeg - SOTA Pavement Crack Segmentation
 
-Exploring U-Net Based Architectures for SOTA Pavement Crack Segmentation
+Advanced deep learning research project focused on achieving state-of-the-art performance in pavement crack segmentation using modular U-Net architectures and Transformer-based approaches.
 
-See also: [Glossary of Key Terms](mdc:glossary.mdc)
+**Professional Development**: This project follows strict quality standards defined in [.cursor/rules/](mdc:../../.cursor/rules) for code quality, testing, and ML research practices.
 
-## Table of Contents
+## Contents
 
-- [Project Overview](mdc:#project-overview)
-- [Problem Domain & Data](mdc:#problem-domain--data)
-- [Proposed Technical Approach: Architectural Variant Exploration](mdc:#proposed-technical-approach-architectural-variant-exploration)
-- [Performance Goals & SOTA Context](mdc:#performance-goals--sota-context)
-- [SOTA Criteria and Benchmarks](mdc:#sota-criteria-and-benchmarks)
-- [Computational Environment](mdc:#computational-environment)
+- [Research Objectives](mdc:#research-objectives)
+- [Technical Domain](mdc:#technical-domain)
+- [Modular Architecture Strategy](mdc:#modular-architecture-strategy)
+- [Performance Benchmarks](mdc:#performance-benchmarks)
+- [Hardware Constraints](mdc:#hardware-constraints)
+- [Development Standards](mdc:#development-standards)
 
-## Project Overview
+## Research Objectives
 
-We are initiating a computer vision project focused on semantic segmentation of cracks in asphalt pavement. The primary objective is to explore, develop, and train various Deep Learning models based on the U-Net architecture to identify the configuration that achieves state-of-the-art (SOTA) performance on this task, guided by benchmarks and recent literature.
+### Primary Goal
+Develop and evaluate modular U-Net architectures to achieve state-of-the-art performance in pavement crack segmentation, with emphasis on:
 
-## Problem Domain & Data
+- **Modular Design**: Interchangeable encoder/decoder components following Abstract Base Classes (ABCs)
+- **SOTA Performance**: Target IoU > 0.8 on standard benchmarks
+- **Reproducible Research**: Following [ML research standards](mdc:../../.cursor/rules/ml-research-standards.mdc)
+- **Professional Code Quality**: Adhering to [coding standards](mdc:../../.cursor/rules/coding-preferences.mdc)
 
-- Task: Semantic Segmentation (pixel-level classification: crack vs. background).
-- Input Data: Color images of asphalt surfaces exhibiting cracks.
-- Output/Labels: Binary segmentation masks (single channel).
-- Resolution: Both input images and output masks are standardized to 512x512 pixels.
-- Datasets:
-  - Start using a public dataset of 130 image/mask pairs (SUT-dataset), resized to 512x512.
-  - A custom dataset of approximately 1000 image/mask pairs (not currently public).
-  - Plan to augment training data using publicly available datasets (e.g., Crack500, CFD, DeepCrack, etc.) to improve generalization and cover diverse crack types and conditions.
+### Research Questions
+1. Which encoder-decoder combinations achieve optimal crack detection performance?
+2. How do Transformer-based encoders (SwinV2) compare to CNN approaches for crack segmentation?
+3. What attention mechanisms provide the most benefit for fine-grained crack features?
+4. How can we optimize performance within 8GB VRAM constraints?
 
-## Proposed Technical Approach: Architectural Variant Exploration
+## Technical Domain
 
-The project will focus on exploring various architectures under the umbrella of the general U-Net encoder-decoder structure. We will seek the optimal combination of components to achieve SOTA performance.
+### Problem Specification
+- **Task**: Semantic segmentation (pixel-level binary classification)
+- **Input**: RGB images of asphalt surfaces (512×512 pixels)
+- **Output**: Binary segmentation masks (crack vs. background)
+- **Challenge**: High class imbalance (cracks are minority class)
 
-### Base Structure
-Encoder-decoder framework with U-Net style skip connections between corresponding encoder and decoder stages, initially using feature concatenation.
+### Datasets
+```python
+# Data structure following project standards
+data/
+├── train/          # Training split
+├── val/            # Validation split
+└── test/           # Test split
+    ├── images/     # Input RGB images (512×512)
+    └── masks/      # Binary masks (512×512)
+```
 
-### Abstract Base Classes (ABCs)
-A key aspect of this modular approach is the planned use of **Abstract Base Classes (ABCs)** for defining standard interfaces for components such as Encoders, Bottlenecks, and Decoders. This enforces a clear contract for component implementations, facilitating interchangeability and improving code maintainability and testability.
+**Available Datasets**:
+- **SUT Dataset**: 130 image/mask pairs (baseline)
+- **Custom Dataset**: ~1000 image/mask pairs (internal validation)
+- **Public Augmentation**: Crack500, CFD, DeepCrack (generalization)
 
-### Modular Components to Explore
-We will have the flexibility to configure the model by choosing from different types for each main part:
+### Evaluation Metrics
+Following [ML standards](mdc:../../.cursor/rules/ml-research-standards.mdc):
+- **Primary**: Intersection over Union (IoU), F1-Score
+- **Secondary**: Precision, Recall, Accuracy
+- **Reproducibility**: Multiple runs with different seeds (reported as mean ± std)
 
-- **Encoder Backbone:** Responsible for extracting hierarchical features and reducing spatial resolution.
-    - **Convolutional Networks (CNN):** Implementations based on standard convolutional blocks, with the potential to use well-known pre-trained backbones (e.g., ResNet, EfficientNet) as a starting point.
-    - **Swin Transformer V2:** Utilizing Swin Transformer V2 blocks (specifically the **Tiny** variant due to VRAM constraints) to capture long-range dependencies and efficient hierarchical representations.
+## Modular Architecture Strategy
 
-- **Bottleneck:** Connects the encoder and decoder, processing the lowest-level, most semantically dense features.
-    - **Standard Convolutional Layers/Blocks:** A block of convolutions and potentially pooling to process features before the decoder.
-    - **Atrous Spatial Pyramid Pooling (ASPP):** To capture multi-scale context by applying parallel dilated convolutions with different rates.
-    - **ConvLSTM:** ConvLSTM blocks to potentially introduce the ability to model sequences or recurrent spatial dependencies (though less conventional for static images, included for exploration).
+### Core Framework
+```python
+# Abstract architecture following coding-preferences.mdc
+from abc import ABC, abstractmethod
+import torch.nn as nn
 
-- **Decoder Path:** Responsible for upsampling features and reconstructing the segmentation mask to the original resolution, integrating information from skip connections.
-    - **Convolutional Networks (CNN):** Standard decoder path based on upsampling layers (transpose convolutions or bilinear upsampling + convolutions) and convolutional blocks.
-    - **Swin Transformer V2:** Exploring the use of Swin Transformer V2 blocks in the decoder path for architectural symmetry or potential benefits in feature fusion.
+class BaseEncoder(nn.Module, ABC):
+    """Abstract base class for all encoder implementations."""
 
-### Attention Mechanisms
-To enhance feature discriminability and focus the model's attention on critical crack features, we plan to explore the integration of **attention mechanisms**. Specifically, the **Convolutional Block Attention Module (CBAM)** is a promising candidate due to its effectiveness and relative efficiency. Potential integration points for CBAM include applying it after convolutional blocks, particularly within the Decoder path, and incorporating it into the Skip Connections to refine the features passed from the encoder to the decoder, a strategy inspired by successful attention-based U-Net variants for detailed segmentation tasks.
+    @abstractmethod
+    def forward(self, x: torch.Tensor) -> List[torch.Tensor]:
+        """Return multi-scale features for skip connections."""
+        pass
 
-### Initial Architectural Variants to Implement/Consider
-Based on component combinations and known structures:
+class BaseDecoder(nn.Module, ABC):
+    """Abstract base class for all decoder implementations."""
 
-1.  **Traditional CNN U-Net:** CNN Encoder, Standard Conv Bottleneck, CNN Decoder.
-2.  **CNN-ConvLSTM U-Net:** CNN Encoder, ConvLSTM Bottleneck, CNN Decoder.
-3.  **CNN U-Net with Residual Connections (RSC-UNET):** CNN Encoder, Standard Conv Bottleneck, CNN Decoder, incorporating residual connections within blocks or in skip paths to improve gradient flow and performance.
-4.  **Hybrid SwinV2-CNN U-Net (Original Proposal):** Swin Transformer V2 (Tiny) Encoder, ASPP Bottleneck, CNN Decoder.
-5.  **Full SwinV2 U-Net:** Swin Transformer V2 (Tiny) Encoder, (possibly a simple transition/conv bottleneck), Swin Transformer V2 Decoder.
+    @abstractmethod
+    def forward(self, features: List[torch.Tensor]) -> torch.Tensor:
+        """Reconstruct segmentation from multi-scale features."""
+        pass
+```
 
-### Other Architectural Variants for Future or Advanced Exploration
-- **Attention U-Net:** Incorporating attention mechanisms (Attention Gates) in the skip connections to allow the decoder to selectively focus on the most relevant features from the encoder. (Note: This is distinct from integrating a standard CBAM into skips, offering another avenue for attention exploration).
-- **U-Net with Different CNN Backbones:** Exploring more advanced and pre-trained CNN backbones (e.g., EfficientNet-B0/B1) as the "Convolutional Networks" option for the encoder.
-- **Advanced Decoder Structures:** Investigating decoders that use more sophisticated feature fusion mechanisms than simple concatenation (e.g., Feature Pyramid Network - FPN concepts).
+### Component Categories
 
-## Performance Goals & SOTA Context
+#### 1. Encoder Backbones
+- **CNN-based**: ResNet, EfficientNet variants (pre-trained)
+- **Transformer-based**: Swin Transformer V2 (Tiny variant for VRAM efficiency)
+- **Hybrid**: Combined CNN-Transformer approaches
 
-- Primary Goal: Surpass current SOTA performance in pavement crack segmentation across the tested architectures.
-- SOTA Reference: Our understanding of current SOTA methods, performance benchmarks, and relevant architectures is informed by the survey paper: "A state-of-the-art survey of deep learning models for automated pavement crack segmentation.pdf" and ongoing literature review.
-- Key Metrics: Intersection over Union (IoU) and F1-Score.
-- Target Benchmark: Achieve an IoU score significantly exceeding baseline models and aiming for > 0.8 on relevant test sets (informed by the survey paper), striving for the highest score possible with the best-performing architecture variant.
+#### 2. Bottleneck Modules
+- **Standard**: Convolutional blocks with batch normalization
+- **ASPP**: Atrous Spatial Pyramid Pooling for multi-scale context
+- **ConvLSTM**: Spatial-temporal modeling (experimental)
 
-## SOTA Criteria and Benchmarks
+#### 3. Decoder Architectures
+- **CNN**: Standard upsampling + convolution blocks
+- **Transformer**: Swin V2 blocks for symmetric encoder-decoder
+- **Attention-enhanced**: CBAM integration for feature refinement
 
-To objectively assess whether a model achieves or surpasses the state-of-the-art (SOTA) in pavement crack segmentation, the following criteria and benchmarks will be used:
+#### 4. Skip Connection Strategies
+- **Standard**: Feature concatenation
+- **Attention Gates**: Selective feature focusing
+- **CBAM-enhanced**: Channel and spatial attention
 
-- **Evaluation Metrics:**
-    - Intersection over Union (IoU) and F1-Score are the primary metrics for comparison.
-    - Additional metrics (e.g., Precision, Recall) may be reported for completeness but are not the main SOTA criteria.
+### Planned Architecture Variants
 
-- **Benchmark Datasets:**
-    - Public datasets such as SUT, Crack500, CFD, and DeepCrack will be used for evaluation, with a focus on standardized splits and preprocessing (e.g., 512x512 resolution).
-    - The custom dataset will be used for internal validation and to test generalization, but SOTA claims will be based on public datasets for comparability.
+```yaml
+# Example configuration (configs/model/architectures/)
+architectures:
+  1_cnn_unet:
+    encoder: resnet34
+    bottleneck: standard_conv
+    decoder: cnn_decoder
 
-- **Reference Values:**
-    - SOTA is defined by the best results reported in recent literature, especially as summarized in the referenced survey paper.
-    - The target is to achieve an IoU > 0.8 on the main public test sets, or to exceed the best published value for a given dataset/metric.
+  2_swin_unet:
+    encoder: swin_v2_tiny
+    bottleneck: aspp
+    decoder: cnn_decoder
 
-- **Evaluation Protocol:**
-    - All models must be evaluated using the same data splits, preprocessing, and metric calculation scripts to ensure fair comparison.
-    - Results should be averaged over multiple runs (with different seeds) to account for variability.
-    - Any claim of SOTA must be supported by reproducible code, configuration, and a clear comparison table versus published results.
+  3_hybrid_attention:
+    encoder: swin_v2_tiny
+    bottleneck: aspp
+    decoder: attention_decoder
+    skip_attention: cbam
+```
 
-- **Documentation:**
-    - For each experiment aiming at SOTA, document the configuration, dataset, metrics, and comparison to previous works in a summary table or report.
+## Performance Benchmarks
 
-These criteria ensure that SOTA claims are robust, transparent, and comparable to the current best in the field.
+### SOTA Targets
+Based on literature review and survey analysis:
 
-## Computational Environment
+| Metric | Baseline | Target | SOTA Goal |
+|--------|----------|--------|-----------|
+| IoU | 0.65-0.75 | > 0.80 | > 0.85 |
+| F1-Score | 0.70-0.80 | > 0.85 | > 0.90 |
+| Precision | Variable | > 0.85 | > 0.90 |
+| Recall | Variable | > 0.80 | > 0.85 |
 
-- GPU: NVIDIA GeForce RTX 3070 Ti Laptop GPU with 8GB GDDR6 VRAM.
-- CPU: 12th Gen Intel Core i7-12650H
-- RAM: 32 GB
-- OS: Windows 11
-- Consideration: The 8GB VRAM imposes significant limitations on model size (favoring SwinV2-Tiny and careful CNN design) and batch size, especially with 512x512 inputs. Strategies such as **gradient accumulation** and **mixed-precision training (AMP)** will be necessary and implemented across all evaluated architectures where beneficial.
+### Evaluation Protocol
+Following [testing standards](mdc:../../.cursor/rules/testing-standards.mdc):
+
+```python
+# Standard evaluation pipeline
+def evaluate_model(model: nn.Module, test_loader: DataLoader) -> Dict[str, float]:
+    """Evaluate model following project standards."""
+    metrics = {
+        'iou': [],
+        'f1_score': [],
+        'precision': [],
+        'recall': []
+    }
+
+    # Implementation with proper typing and validation
+    # See: src/evaluation/metrics.py
+```
+
+### Benchmark Datasets
+- **Primary**: Public datasets (SUT, Crack500) for SOTA comparison
+- **Secondary**: Custom dataset for internal validation
+- **Reproducibility**: Fixed splits, standardized preprocessing
+
+## Hardware Constraints
+
+### Computational Environment
+- **GPU**: NVIDIA RTX 3070 Ti Laptop (8GB GDDR6 VRAM)
+- **CPU**: Intel Core i7-12650H (12th Gen)
+- **RAM**: 32GB DDR4
+- **OS**: Windows 11
+
+### VRAM Optimization Strategies
+Following [ML research standards](mdc:../../.cursor/rules/ml-research-standards.mdc):
+
+```python
+# Example optimization configuration
+training:
+  batch_size: 4                    # Optimized for 8GB VRAM
+  mixed_precision: true            # AMP for memory efficiency
+  gradient_accumulation_steps: 4   # Effective batch size: 16
+  gradient_checkpointing: true     # Trade compute for memory
+
+model:
+  encoder:
+    variant: swin_v2_tiny         # Smallest Transformer variant
+    pretrained: true              # Transfer learning
+  decoder:
+    channels: [256, 128, 64, 32]  # Progressive channel reduction
+```
+
+### Performance Monitoring
+```bash
+# VRAM monitoring during training
+python run.py training.log_gpu_memory=true \
+             training.mixed_precision=true \
+             data.batch_size=4
+```
+
+## Development Standards
+
+### Code Quality Integration
+This project integrates with our professional development standards:
+
+- **[Code Quality](mdc:../../.cursor/rules/coding-preferences.mdc)**: Mandatory type hints, Black formatting, Ruff linting
+- **[Testing](mdc:../../.cursor/rules/testing-standards.mdc)**: >80% coverage, ML-specific test strategies
+- **[Git Workflow](mdc:../../.cursor/rules/git-standards.mdc)**: Conventional commits, descriptive experiment documentation
+- **[ML Research](mdc:../../.cursor/rules/ml-research-standards.mdc)**: Reproducibility, VRAM optimization, experiment tracking
+
+### Quality Verification Workflow
+```bash
+# Pre-commit quality checks (mandatory)
+black .                    # Auto-formatting
+ruff . --fix              # Linting with autofix
+basedpyright .            # Type checking
+pytest tests/ --cov=src   # Test coverage
+
+# ML-specific validation
+python -m src.evaluation.validate_configs
+python -m src.utils.memory_profiler
+```
+
+### Research Documentation Standards
+Each experiment must include:
+
+1. **Configuration**: Complete Hydra configs with hyperparameters
+2. **Results**: Metrics with statistical significance testing
+3. **Reproducibility**: Seeds, environment details, exact commands
+4. **Comparison**: Baseline comparison and SOTA positioning
+5. **Code Quality**: All quality gates passed
+
+---
+
+## Quick References
+
+### 📚 Essential Documentation
+- **Architecture Guide**: [structural-guide.mdc](mdc:structural-guide.mdc)
+- **Development Process**: [development-guide.mdc](mdc:development-guide.mdc)
+- **Project Structure**: [project-structure.mdc](mdc:project-structure.mdc)
+- **Glossary**: [glossary.mdc](mdc:glossary.mdc)
+
+### 🛠️ Core Rules
+- **Coding Standards**: [coding-preferences.mdc](mdc:../../.cursor/rules/coding-preferences.mdc)
+- **Testing Guidelines**: [testing-standards.mdc](mdc:../../.cursor/rules/testing-standards.mdc)
+- **ML Research**: [ml-research-standards.mdc](mdc:../../.cursor/rules/ml-research-standards.mdc)
+- **Git Workflow**: [git-standards.mdc](mdc:../../.cursor/rules/git-standards.mdc)
+
+---
+
+**This document provides the technical foundation for professional crack segmentation research following industrial ML development standards.**

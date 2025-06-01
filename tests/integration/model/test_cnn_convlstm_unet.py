@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 # --- Helper Functions ---
 
 
-def extract_unet_core(unet_model):
+def extract_unet_core(unet_model: Any) -> UNetBase:
     """
     Extract the UNetBase instance from a model that might be wrapped in
     Sequential.
@@ -36,7 +36,7 @@ def extract_unet_core(unet_model):
     """
     if isinstance(unet_model, torch.nn.Sequential):
         # UNet is always the first component in Sequential
-        return unet_model[0]
+        return cast(UNetBase, unet_model[0])
     return unet_model
 
 
@@ -49,9 +49,9 @@ class SimpleConvLSTMBottleneck(BottleneckBase):
         self,
         in_channels: int,
         hidden_dim: int,
-        kernel_size=(3, 3),
-        num_layers=1,
-        bias=True,
+        kernel_size: tuple[int, int] = (3, 3),
+        num_layers: int = 1,
+        bias: bool = True,
     ):
         super().__init__(in_channels=in_channels)
         self.hidden_dim = hidden_dim
@@ -109,7 +109,7 @@ def encoder_params():
     }
 
 
-def test_cnn_encoder_init(encoder_params):
+def test_cnn_encoder_init(encoder_params: dict[str, Any]):
     """Tests CNNEncoder initialization."""
     encoder = CNNEncoder(
         in_channels=encoder_params["in_channels"],
@@ -140,7 +140,7 @@ def test_cnn_encoder_init(encoder_params):
     assert encoder.out_channels == current_ch  # Final output channels
 
 
-def test_cnn_encoder_forward_shapes(encoder_params):
+def test_cnn_encoder_forward_shapes(encoder_params: dict[str, Any]):
     """Tests the output shapes of the CNNEncoder forward pass."""
     encoder = CNNEncoder(
         in_channels=encoder_params["in_channels"],
@@ -185,7 +185,7 @@ def test_cnn_encoder_forward_shapes(encoder_params):
         )
 
 
-def test_cnn_encoder_invalid_depth(encoder_params):
+def test_cnn_encoder_invalid_depth(encoder_params: dict[str, Any]):
     """Tests that initializing with depth < 1 raises ValueError."""
     with pytest.raises(ValueError, match="Encoder depth must be at least 1."):
         CNNEncoder(
@@ -199,7 +199,7 @@ def test_cnn_encoder_invalid_depth(encoder_params):
 
 
 @pytest.fixture
-def bottleneck_params(encoder_params):
+def bottleneck_params(encoder_params: dict[str, Any]) -> dict[str, Any]:
     """Provides common parameters for ConvLSTMBottleneck tests."""
     # Calculate expected input channels from the encoder fixture
     encoder_depth = encoder_params["depth"]
@@ -225,7 +225,7 @@ def bottleneck_params(encoder_params):
     }
 
 
-def test_convlstm_bottleneck_init(bottleneck_params):
+def test_convlstm_bottleneck_init(bottleneck_params: dict[str, Any]):
     """Tests SimpleConvLSTMBottleneck initialization."""
     bottleneck = SimpleConvLSTMBottleneck(
         in_channels=bottleneck_params["in_channels"],
@@ -241,7 +241,9 @@ def test_convlstm_bottleneck_init(bottleneck_params):
 
 
 @pytest.mark.parametrize("num_layers", [1, 2])
-def test_convlstm_bottleneck_forward_shape(bottleneck_params, num_layers):
+def test_convlstm_bottleneck_forward_shape(
+    bottleneck_params: dict[str, Any], num_layers: int
+):
     """Tests the output shape of the SimpleConvLSTMBottleneck forward pass."""
     hidden_dim = bottleneck_params["hidden_dim"]
     # Use list if multiple layers
@@ -281,7 +283,9 @@ def test_convlstm_bottleneck_forward_shape(bottleneck_params, num_layers):
 
 
 @pytest.fixture
-def decoder_params(encoder_params, bottleneck_params):
+def decoder_params(
+    encoder_params: dict[str, Any], bottleneck_params: dict[str, Any]
+) -> dict[str, Any]:
     """Provides common parameters for CNNDecoder tests."""
     # Skip channels from encoder (high-res to low-res)
     encoder_depth = encoder_params["depth"]
@@ -300,13 +304,16 @@ def decoder_params(encoder_params, bottleneck_params):
     }
 
 
-def test_cnn_decoder_init(decoder_params):
+def test_cnn_decoder_init(decoder_params: dict[str, Any]):
     """Tests CNNDecoder initialization."""
-    decoder = CNNDecoder(
-        in_channels=decoder_params["in_channels"],
-        skip_channels_list=decoder_params["skip_channels_list"],
-        out_channels=decoder_params["out_channels"],
-        depth=decoder_params["depth"],
+    decoder = cast(
+        DecoderBase,
+        CNNDecoder(
+            in_channels=decoder_params["in_channels"],
+            skip_channels_list=decoder_params["skip_channels_list"],
+            out_channels=decoder_params["out_channels"],
+            depth=decoder_params["depth"],
+        ),
     )
 
     assert isinstance(decoder, DecoderBase)
@@ -314,13 +321,19 @@ def test_cnn_decoder_init(decoder_params):
     assert decoder.out_channels == decoder_params["out_channels"]
 
 
-def test_cnn_decoder_forward_shape(decoder_params, encoder_params):
+def test_cnn_decoder_forward_shape(
+    decoder_params: dict[str, Any], encoder_params: dict[str, Any]
+):
     """Tests the output shape of the CNNDecoder forward pass."""
     # Create decoder with correct parameters
-    decoder = CNNDecoder(
-        in_channels=decoder_params["in_channels"],
-        skip_channels_list=decoder_params["skip_channels_list"],
-        out_channels=decoder_params["out_channels"],
+    decoder = cast(
+        DecoderBase,
+        CNNDecoder(
+            in_channels=decoder_params["in_channels"],
+            skip_channels_list=decoder_params["skip_channels_list"],
+            out_channels=decoder_params["out_channels"],
+            depth=decoder_params["depth"],
+        ),
     )
 
     # Create input and skip connections
@@ -373,7 +386,7 @@ def test_cnn_decoder_forward_shape(decoder_params, encoder_params):
     }, got {output.shape}"
 
 
-def test_cnn_decoder_init_mismatch_depth(decoder_params):
+def test_cnn_decoder_init_mismatch_depth(decoder_params: dict[str, Any]):
     """
     Tests that initializing with mismatch skip channels raises ValueError.
     """
@@ -381,23 +394,29 @@ def test_cnn_decoder_init_mismatch_depth(decoder_params):
         ValueError, match="Length of skip_channels_list must match depth"
     ):
         # Provide fewer skip connections than depth
-        CNNDecoder(
-            in_channels=decoder_params["in_channels"],
-            skip_channels_list=decoder_params["skip_channels_list"][
-                :-1
-            ],  # One less
-            out_channels=decoder_params["out_channels"],
-            depth=decoder_params["depth"],
+        cast(
+            DecoderBase,
+            CNNDecoder(
+                in_channels=decoder_params["in_channels"],
+                skip_channels_list=decoder_params["skip_channels_list"][
+                    :-1
+                ],  # One less
+                out_channels=decoder_params["out_channels"],
+                depth=decoder_params["depth"],
+            ),
         )
 
 
-def test_cnn_decoder_forward_mismatch_skips(decoder_params):
+def test_cnn_decoder_forward_mismatch_skips(decoder_params: dict[str, Any]):
     """Tests that forward with wrong number of skips raises ValueError."""
-    decoder = CNNDecoder(
-        in_channels=decoder_params["in_channels"],
-        skip_channels_list=decoder_params["skip_channels_list"],
-        out_channels=decoder_params["out_channels"],
-        depth=decoder_params["depth"],
+    decoder = cast(
+        DecoderBase,
+        CNNDecoder(
+            in_channels=decoder_params["in_channels"],
+            skip_channels_list=decoder_params["skip_channels_list"],
+            out_channels=decoder_params["out_channels"],
+            depth=decoder_params["depth"],
+        ),
     )
 
     # Create input tensor
@@ -429,7 +448,11 @@ def test_cnn_decoder_forward_mismatch_skips(decoder_params):
 
 
 @pytest.fixture
-def assembled_unet(encoder_params, bottleneck_params, decoder_params):
+def assembled_unet(
+    encoder_params: dict[str, Any],
+    bottleneck_params: dict[str, Any],
+    decoder_params: dict[str, Any],
+):
     """
     Provides a fully assembled U-Net model with mocked components.
 
@@ -450,11 +473,14 @@ def assembled_unet(encoder_params, bottleneck_params, decoder_params):
         num_layers=bottleneck_params["num_layers"],
     )
 
-    decoder = CNNDecoder(
-        in_channels=decoder_params["in_channels"],
-        skip_channels_list=decoder_params["skip_channels_list"],
-        out_channels=decoder_params["out_channels"],
-        depth=decoder_params["depth"],
+    decoder = cast(
+        DecoderBase,
+        CNNDecoder(
+            in_channels=decoder_params["in_channels"],
+            skip_channels_list=decoder_params["skip_channels_list"],
+            out_channels=decoder_params["out_channels"],
+            depth=decoder_params["depth"],
+        ),
     )
 
     # Create UNet
@@ -467,17 +493,19 @@ def assembled_unet(encoder_params, bottleneck_params, decoder_params):
     return (unet, encoder, bottleneck, decoder)
 
 
-def test_cnn_convlstm_unet_init(assembled_unet):
+def test_cnn_convlstm_unet_init(assembled_unet: tuple[Any, Any, Any, Any]):
     """Tests CNNConvLSTMUNet initialization."""
-    unet, encoder, bottleneck, decoder = assembled_unet
+    unet, _, _, _ = assembled_unet
     assert isinstance(unet, UNetBase)
 
 
 def test_cnn_convlstm_unet_forward_shape(
-    assembled_unet, encoder_params, decoder_params
+    assembled_unet: tuple[Any, Any, Any, Any],
+    encoder_params: dict[str, Any],
+    decoder_params: dict[str, Any],
 ):
     """Tests the output shape of the CNNConvLSTMUNet forward pass."""
-    unet, encoder, bottleneck, decoder = assembled_unet
+    unet, _, _, _ = assembled_unet
 
     # Create input tensor
     x = torch.randn(
@@ -515,10 +543,14 @@ def test_cnn_convlstm_unet_init_type_mismatch():
     )
 
     # Create valid decoder
-    decoder = CNNDecoder(
-        in_channels=bottleneck.out_channels,
-        skip_channels_list=list(reversed(encoder.skip_channels)),
-        out_channels=1,
+    decoder = cast(
+        DecoderBase,
+        CNNDecoder(
+            in_channels=bottleneck.out_channels,
+            skip_channels_list=list(reversed(encoder.skip_channels)),
+            out_channels=1,
+            depth=4,
+        ),
     )
 
     # Test with invalid encoder type
@@ -548,7 +580,7 @@ def test_cnn_convlstm_unet_init_type_mismatch():
             self.in_channels = bottleneck.out_channels
             self.skip_channels = list(reversed(encoder.skip_channels))
 
-        def forward(self, x, skips):
+        def forward(self, x: Any, skips: Any) -> Any:
             return x
 
     # Test with invalid decoder type
@@ -583,11 +615,14 @@ def test_cnn_convlstm_unet_direct_assembly():
     )
 
     # Decoder - needs skip_channels reversed (LOW to HIGH)
-    decoder = CNNDecoder(
-        in_channels=bottleneck.out_channels,
-        skip_channels_list=list(reversed(encoder.skip_channels)),
-        out_channels=1,  # Binary segmentation
-        depth=depth,
+    decoder = cast(
+        DecoderBase,
+        CNNDecoder(
+            in_channels=bottleneck.out_channels,
+            skip_channels_list=list(reversed(encoder.skip_channels)),
+            out_channels=1,  # Binary segmentation
+            depth=depth,
+        ),
     )
 
     # Create UNet
@@ -615,10 +650,12 @@ def test_cnn_convlstm_unet_direct_assembly():
 
 
 def test_cnn_convlstm_unet_with_realistic_data(
-    assembled_unet, encoder_params, decoder_params
+    assembled_unet: tuple[Any, Any, Any, Any],
+    encoder_params: dict[str, Any],
+    decoder_params: dict[str, Any],
 ):
     """Tests CNNConvLSTMUNet with realistic input data."""
-    unet, encoder, bottleneck, decoder = assembled_unet
+    unet, _, _, _ = assembled_unet
 
     # Create realistic input: batch of RGB images, values in [0, 1]
     batch_size = 2
@@ -655,11 +692,14 @@ def test_cnn_convlstm_unet_with_realistic_data(
         in_channels=encoder_gray.out_channels,
         hidden_dim=encoder_gray.out_channels * 2,
     )
-    decoder_gray = CNNDecoder(
-        in_channels=bottleneck_gray.out_channels,
-        skip_channels_list=list(reversed(encoder_gray.skip_channels)),
-        out_channels=1,
-        depth=4,
+    decoder_gray = cast(
+        DecoderBase,
+        CNNDecoder(
+            in_channels=bottleneck_gray.out_channels,
+            skip_channels_list=list(reversed(encoder_gray.skip_channels)),
+            out_channels=1,
+            depth=4,
+        ),
     )
     unet_gray = CNNConvLSTMUNet(
         encoder=encoder_gray,
@@ -680,7 +720,7 @@ def test_cnn_convlstm_unet_with_realistic_data(
     ],
 )
 def test_cnn_convlstm_unet_configurations(
-    base_filters, depth, in_channels, out_channels
+    base_filters: int, depth: int, in_channels: int, out_channels: int
 ):
     """Tests CNNConvLSTMUNet with various configurations."""
     # Create encoder
@@ -697,11 +737,14 @@ def test_cnn_convlstm_unet_configurations(
     )
 
     # Create decoder
-    decoder = CNNDecoder(
-        in_channels=bottleneck.out_channels,
-        skip_channels_list=list(reversed(encoder.skip_channels)),
-        out_channels=out_channels,
-        depth=depth,
+    decoder = cast(
+        DecoderBase,
+        CNNDecoder(
+            in_channels=bottleneck.out_channels,
+            skip_channels_list=list(reversed(encoder.skip_channels)),
+            out_channels=out_channels,
+            depth=depth,
+        ),
     )
 
     # Create UNet

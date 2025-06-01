@@ -27,22 +27,19 @@ def calculate_decoder_channels(
     Raises:
         ValueError: If input values are invalid or inconsistent.
     """
-    if not isinstance(in_channels, int) or in_channels <= 0:
+    if not in_channels or in_channels <= 0:
         raise ValueError(
-            "in_channels must be a positive integer, got " f"{in_channels}"
+            f"in_channels must be a positive integer, got {in_channels}"
         )
-    if not skip_channels_list or not all(
-        isinstance(c, int) and c > 0 for c in skip_channels_list
-    ):
+    if not skip_channels_list or not all(c > 0 for c in skip_channels_list):
         raise ValueError(
-            "skip_channels_list must be a non-empty list of "
-            "positive integers"
+            "skip_channels_list must be a non-empty list of positive integers"
         )
     n_blocks = len(skip_channels_list)
     if scaling_factors is not None:
         if len(scaling_factors) != n_blocks:
             raise ValueError(
-                "scaling_factors must match skip_channels_list " "length"
+                "scaling_factors must match skip_channels_list length"
             )
     else:
         scaling_factors = [0.5] * n_blocks
@@ -51,8 +48,7 @@ def calculate_decoder_channels(
         next_ch = int(channels[-1] * scaling_factors[i])
         if next_ch <= 0:
             raise ValueError(
-                f"Calculated channel at block {i} is not "
-                f"positive: {next_ch}"
+                f"Calculated channel at block {i} is not positive: {next_ch}"
             )
         channels.append(next_ch)
     return channels[1:]

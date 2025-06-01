@@ -54,11 +54,7 @@ class CombinedLoss(SegmentationLoss):
 
         parsed_weights = []
         for config in losses_config:
-            if (
-                not isinstance(config, dict)
-                or "name" not in config
-                or "weight" not in config
-            ):
+            if "name" not in config or "weight" not in config:
                 raise ValueError(
                     "Each item in losses_config must be a dict "
                     "with 'name' and 'weight' keys."

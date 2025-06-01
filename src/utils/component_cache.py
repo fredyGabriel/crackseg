@@ -8,7 +8,7 @@ and key generation logic.
 
 import logging
 import weakref
-from typing import Any
+from typing import Any, cast
 
 from torch import nn
 
@@ -16,7 +16,7 @@ from torch import nn
 log = logging.getLogger(__name__)
 
 # Component cache system (using weak references)
-_component_cache: dict[str, weakref.ref] = {}
+_component_cache: dict[str, weakref.ReferenceType[nn.Module]] = {}
 
 
 def clear_component_cache() -> None:
@@ -31,15 +31,8 @@ def get_cached_component(cache_key: str) -> nn.Module | None:
         component_ref = _component_cache[cache_key]
         component = component_ref()
         if component is not None:
-            if isinstance(component, nn.Module):
-                log.debug(f"Cache hit for component: {cache_key}")
-                return component
-            else:
-                # Si el objeto no es un nn.Module, lo eliminamos del cache
-                del _component_cache[cache_key]
-                log.debug(
-                    f"Removed invalid cache entry (not nn.Module): {cache_key}"
-                )
+            log.debug(f"Cache hit for component: {cache_key}")
+            return component
         else:
             # Reference has been garbage collected
             del _component_cache[cache_key]
@@ -56,7 +49,7 @@ def cache_component(cache_key: str, component: nn.Module) -> None:
 def generate_cache_key(component_type: str, config: dict[str, Any]) -> str:
     """Generate a unique cache key based on type and config."""
     key_parts = [component_type]
-    for k, v in sorted(config.items()):
+    for k, v in sorted(config.items()):  # type: ignore[reportUnknownParameterType]
         # Skip 'type' key as it's already part of the key
         if k == "type":
             continue
@@ -66,10 +59,13 @@ def generate_cache_key(component_type: str, config: dict[str, Any]) -> str:
             key_parts.append(f"{k}:{v}")
         elif isinstance(v, list | tuple):
             # Convert list/tuple elements to string
-            key_parts.append(f"{k}:{','.join(map(str, v))}")
+            key_parts.append(f"{k}:{','.join(map(str, cast(list[Any], v)))}")
         elif isinstance(v, dict):
             # Handle nested dictionaries recursively or flatten them
-            nested_parts = [f"{nk}:{nv}" for nk, nv in sorted(v.items())]
+            v_dict = cast(dict[str, Any], v)
+            nested_parts = [
+                f"{str(nk)}:{str(nv)}" for nk, nv in sorted(v_dict.items())
+            ]
             key_parts.append(f"{k}:{{{','.join(nested_parts)}}}")
         # Add handling for other types if necessary
         # else:

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import torch
 
 from src.model.common.utils import (
@@ -10,14 +12,14 @@ from src.model.common.utils import (
 
 
 class DummyBlock(torch.nn.Module):
-    def __init__(self, in_channels=1, out_channels=1):
+    def __init__(self, in_channels: int = 1, out_channels: int = 1) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
 
 
 class DummyModule(torch.nn.Module):
-    def __init__(self, requires_grad=True):
+    def __init__(self, requires_grad: bool = True) -> None:
         super().__init__()
         self.param = torch.nn.Parameter(
             torch.ones(10), requires_grad=requires_grad
@@ -55,7 +57,7 @@ class DummyActivation(DummyModule):
     pass
 
 
-def test_count_parameters():
+def test_count_parameters() -> None:
     model = DummyModule()
     trainable, non_trainable = count_parameters(model)
     assert trainable == 10  # noqa: PLR2004
@@ -66,7 +68,7 @@ def test_count_parameters():
     assert trainable == 10  # noqa: PLR2004
 
 
-def test_estimate_receptive_field():
+def test_estimate_receptive_field() -> None:
     encoder = DummyEncoder()
     rf = estimate_receptive_field(encoder)
     assert "theoretical_rf_size" in rf
@@ -78,7 +80,7 @@ def test_estimate_receptive_field():
     assert "note" in rf2
 
 
-def test_estimate_memory_usage():
+def test_estimate_memory_usage() -> None:
     model = DummyModule()
     encoder = DummyEncoder()
 
@@ -93,7 +95,7 @@ def test_estimate_memory_usage():
     assert "note" in mem2
 
 
-def test_get_layer_hierarchy():
+def test_get_layer_hierarchy() -> None:
     encoder = DummyEncoder()
     bottleneck = DummyBottleneck()
     decoder = DummyDecoder()
@@ -106,7 +108,7 @@ def test_get_layer_hierarchy():
     assert any(layer["name"] == "FinalActivation" for layer in hierarchy)
 
 
-def test_render_unet_architecture_diagram(tmp_path):
+def test_render_unet_architecture_diagram(tmp_path: Path) -> None:
     encoder = DummyEncoder()
     bottleneck = DummyBottleneck()
     decoder = DummyDecoder()

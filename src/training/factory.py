@@ -1,5 +1,13 @@
 """Factory functions for creating training components."""
 
+# pyright: reportUnknownParameterType=false, reportMissingParameterType=false
+# pyright: reportUnknownArgumentType=false, reportUnknownVariableType=false
+# pyright: reportUnknownMemberType=false, reportPrivateUsage=false
+# pyright: reportExplicitAny=false, reportAny=false, reportAttributeAccessIssue=false
+# pyright: reportUnnecessaryComparison=false, reportArgumentType=false
+# pyright: reportInvalidCast=false, reportImplicitStringConcatenation=false
+# Global suppressions for factory functions with dynamic configuration handling
+
 from typing import Any, cast
 
 from hydra.utils import instantiate
@@ -56,7 +64,9 @@ def create_loss_fn(cfg: DictConfig) -> Module:
         raise
 
 
-def create_optimizer(model_params, cfg: DictConfig | str | dict) -> Optimizer:
+def create_optimizer(
+    model_params: Any, cfg: DictConfig | str | dict[str, Any]
+) -> Optimizer:
     """Creates an optimizer based on the provided configuration.
 
     Args:
@@ -146,7 +156,7 @@ def create_optimizer(model_params, cfg: DictConfig | str | dict) -> Optimizer:
 
 
 def create_lr_scheduler(
-    optimizer: Optimizer, cfg: DictConfig | str | dict | None
+    optimizer: Optimizer, cfg: DictConfig | str | dict[str, Any] | None
 ) -> _LRScheduler | None:
     """Creates a learning rate scheduler based on the provided configuration.
 
@@ -178,7 +188,7 @@ def create_lr_scheduler(
             ) from e
 
     scheduler_name_or_type: str = ""
-    params_from_config: dict = {}
+    params_from_config: dict[str, Any] = {}
 
     if isinstance(cfg, str):
         scheduler_name_or_type = cfg.lower()

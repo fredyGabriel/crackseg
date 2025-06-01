@@ -1,15 +1,32 @@
 """Helper for setting up EarlyStopping from config."""
 
+from collections.abc import Mapping
+from typing import Any, Protocol
+
 from hydra import errors as hydra_errors  # Import Hydra errors
 from hydra.utils import instantiate
 
 
-def setup_early_stopping(cfg, monitor_metric, monitor_mode, verbose, logger):
+# Protocolo mínimo para logger
+class LoggerProtocol(Protocol):
+    def info(self, *args: Any, **kwargs: Any) -> None: ...
+    def error(self, *args: Any, **kwargs: Any) -> None: ...
+
+
+def setup_early_stopping(
+    cfg: Mapping[str, Any],
+    monitor_metric: str,
+    monitor_mode: str,
+    verbose: bool,
+    logger: LoggerProtocol,
+) -> object | None:
     """
     Sets up EarlyStopping from config. Returns early_stopper or None.
     """
 
-    def safe_log(logger, level, *args, **kwargs):
+    def safe_log(
+        logger: LoggerProtocol, level: str, *args: Any, **kwargs: Any
+    ) -> None:
         fn = getattr(logger, level, None)
         if callable(fn):
             fn(*args, **kwargs)

@@ -3,70 +3,142 @@ description: Guidelines for creating and maintaining Cursor rules to ensure cons
 globs: .cursor/rules/*.mdc
 alwaysApply: true
 ---
-- **Required Rule Structure:**
+# Cursor Rule Creation Guidelines
+
+These meta-guidelines ensure consistency, quality, and effectiveness across all Cursor rules in the project.
+
+## Required Rule Structure
+
+- **Standard Rule Header:**
   ```markdown
   ---
   description: Clear, one-line description of what the rule enforces
   globs: path/to/files/*.ext, other/path/**/*
   alwaysApply: boolean
   ---
+  ```
 
+- **Content Organization:**
+  ```markdown
+  # Rule Title
+
+  Brief introduction explaining the rule's purpose.
+
+  ## Section 1
   - **Main Points in Bold**
     - Sub-points with details
     - Examples and explanations
+
+  ## Section 2
+  - **Another Main Point**
+    - Supporting details
   ```
 
-- **File References:**
-  - Use `[filename](mdc:path/to/file)` ([filename](mdc:filename)) to reference files
-  - Example: [prisma.mdc](mdc:.cursor/rules/prisma.mdc) for rule references
-  - Example: [schema.prisma](mdc:prisma/schema.prisma) for code references
+## Content Guidelines
+
+- **Rule Quality Standards:**
+  - Start with high-level overview explaining the rule's purpose
+  - Include specific, actionable requirements that can be followed immediately
+  - Provide concrete examples from the actual project codebase
+  - Use consistent formatting and structure across all rules
+  - Keep rules DRY by cross-referencing related rules
 
 - **Code Examples:**
-  - Use language-specific code blocks
-  ```typescript
-  // ✅ DO: Show good examples
-  const goodExample = true;
-  
-  // ❌ DON'T: Show anti-patterns
-  const badExample = false;
-  ```
+  - Use language-specific code blocks with proper syntax highlighting
+  - Include both positive (✅ DO) and negative (❌ DON'T) examples
+  - Ensure examples are relevant to the project domain (ML/PyTorch/crack segmentation)
+  - Example format:
+    ```python
+    # ✅ Good: Clear tensor shape validation
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if x.shape[1] != 3:
+            raise ValueError(f"Expected 3 channels, got {x.shape[1]}")
+        return self._process(x)
 
-- **Rule Content Guidelines:**
-  - Start with high-level overview
-  - Include specific, actionable requirements
-  - Show examples of correct implementation
-  - Reference existing code when possible
-  - Keep rules DRY by referencing other rules
-
-- **Rule Maintenance:**
-  - Update rules when new patterns emerge
-  - Add examples from actual codebase
-  - Remove outdated patterns
-  - Cross-reference related rules
-
-- **Best Practices:**
-  - Use bullet points for clarity
-  - Keep descriptions concise
-  - Include both DO and DON'T examples
-  - Reference actual code over theoretical examples
-  - Use consistent formatting across rules
-
----
-description: Enforce that all Git commit messages must be written in English
-globs: ../../*.*, ../../**/*
-alwaysApply: true
----
-
-- **Commit messages must always be written in clear, correct English**
-  - This applies to all commits, including documentation, code, configuration, and rule updates.
-  - The subject and body of the commit message must be in English, regardless of the language used in code comments or documentation.
-  - Example:
-    ```bash
-    git commit -m "fix(model): Correct off-by-one error in encoder output\n\n- Adjusted index calculation in forward method\n- Added test for edge case"
+    # ❌ Bad: No validation or unclear error messages
+    def forward(self, x):
+        return self._process(x)
     ```
-  - ❌ DON'T:
-    ```bash
-    git commit -m "arreglo bug en el encoder"
-    ```
-  - If a non-English message is required for legal or compliance reasons, add an English translation in the body.
-  - This rule ensures consistency and accessibility for all contributors and reviewers. 
+
+## File References and Links
+
+- **Internal Rule References:**
+  - Use `[rule-name.mdc](mdc:.cursor/rules/rule-name.mdc)` format
+  - Example: [coding-preferences.mdc](mdc:.cursor/rules/coding-preferences.mdc)
+
+- **Project File References:**
+  - Use `[filename](mdc:path/to/file)` for project files
+  - Example: [project-structure.mdc](mdc:.cursor/guides/project-structure.mdc)
+
+- **Cross-Reference Strategy:**
+  - Create a web of interconnected rules that support each other
+  - Reference specific sections when relevant
+  - Maintain bidirectional references where appropriate
+
+## Rule Categories and Organization
+
+- **Core Rule Types:**
+  - **Code Quality**: [coding-preferences.mdc](mdc:.cursor/rules/coding-preferences.mdc) - Technical standards
+  - **Development Process**: [workflow-preferences.mdc](mdc:.cursor/rules/workflow-preferences.mdc) - Methodology
+  - **Testing Standards**: [testing-standards.mdc](mdc:.cursor/rules/testing-standards.mdc) - Quality assurance
+  - **Git Standards**: [git-standards.mdc](mdc:.cursor/rules/git-standards.mdc) - Version control practices
+  - **Meta-Rules**: [self_improve.mdc](mdc:.cursor/rules/self_improve.mdc) - Rule evolution
+
+- **Specialized Rules:**
+  - Domain-specific patterns (ML, data processing, etc.)
+  - Tool-specific guidelines (Task Master, PyTorch, etc.)
+  - Project-specific conventions
+
+## Rule Maintenance Process
+
+- **Regular Review Criteria:**
+  - Update examples when codebase patterns evolve
+  - Add new examples from actual implementation
+  - Remove outdated patterns or deprecated practices
+  - Ensure cross-references remain valid
+
+- **Quality Assurance:**
+  - Rules should be testable and enforceable
+  - Examples should compile/run successfully
+  - References should point to existing files
+  - Formatting should be consistent across all rules
+
+- **Evolution Integration:**
+  - Follow [self_improve.mdc](mdc:.cursor/rules/self_improve.mdc) for systematic updates
+  - Document significant rule changes in commit messages
+  - Maintain backward compatibility when possible
+  - Provide migration guidance for breaking changes
+
+## Best Practices for Rule Writing
+
+- **Clarity and Actionability:**
+  - Use clear, imperative language ("Use X", "Avoid Y")
+  - Provide specific steps or commands where applicable
+  - Include concrete examples over abstract descriptions
+  - Make rules immediately applicable by developers
+
+- **Project Context Integration:**
+  - Tailor examples to crack segmentation domain
+  - Reference actual project tools (PyTorch, basedpyright, Black, Ruff)
+  - Align with project architecture and patterns
+  - Consider ML/deep learning specific concerns
+
+- **Professional Standards:**
+  - Follow the three-option analysis approach for significant decisions
+  - Justify rule choices with clear reasoning
+  - Maintain consistency with industry best practices
+  - Document edge cases and exceptions clearly
+
+## References and Integration
+
+- **Core Project Rules:**
+  - **Quality Standards**: [coding-preferences.mdc](mdc:.cursor/rules/coding-preferences.mdc)
+  - **Development Workflow**: [workflow-preferences.mdc](mdc:.cursor/rules/workflow-preferences.mdc)
+  - **Testing Guidelines**: [testing-standards.mdc](mdc:.cursor/rules/testing-standards.mdc)
+  - **Git Practices**: [git-standards.mdc](mdc:.cursor/rules/git-standards.mdc)
+  - **Continuous Improvement**: [self_improve.mdc](mdc:.cursor/rules/self_improve.mdc)
+
+- **Project Documentation:**
+  - **Architecture**: [structural-guide.mdc](mdc:.cursor/guides/structural-guide.mdc)
+  - **Project Structure**: [project-structure.mdc](mdc:.cursor/guides/project-structure.mdc)
+  - **Development Guide**: [development-guide.mdc](mdc:.cursor/guides/development-guide.mdc)

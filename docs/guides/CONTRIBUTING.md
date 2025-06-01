@@ -1,301 +1,240 @@
-# Guía de Contribución
+# Contribution Guide
 
-Gracias por tu interés en contribuir al proyecto CrackSeg. Este documento proporciona directrices para contribuir al proyecto de manera efectiva, asegurando la calidad y la coherencia del código.
+Thank you for your interest in contributing to the CrackSeg project. This document provides specific guidelines to contribute effectively, complementing our professional development standards.
 
-## Índice
+## Table of Contents
 
-- [Configuración del Entorno](#configuración-del-entorno)
-- [Estructura del Proyecto](#estructura-del-proyecto)
-- [Flujo de Desarrollo](#flujo-de-desarrollo)
-- [Estilo de Código](#estilo-de-código)
-- [Pruebas](#pruebas)
-- [Documentación](#documentación)
-- [Envío de Cambios](#envío-de-cambios)
-- [Revisión de Código](#revisión-de-código)
+- [Environment Setup](#environment-setup)
+- [Project Structure](#project-structure)
+- [Development Workflow](#development-workflow)
+- [Quality Standards](#quality-standards)
+- [Submitting Changes](#submitting-changes)
+- [Code Review](#code-review)
 
-## Configuración del Entorno
+## Environment Setup
 
-1. **Clonar el Repositorio**:
+### 1. Clone and Configure
 
-   ```bash
-   git clone https://github.com/tu-usuario/crackseg.git
-   cd crackseg
-   ```
+```bash
+git clone https://github.com/your-user/crackseg.git
+cd crackseg
 
-2. **Crear Entorno Conda**:
+# Create conda environment
+conda env create -f environment.yml
+conda activate torch
 
-   ```bash
-   conda env create -f environment.yml
-   conda activate torch
-   ```
+# Configure environment variables
+cp .env.example .env
+# Edit .env as needed
+```
 
-3. **Configuración para Desarrollo**:
+### 2. Verify Setup
 
-   ```bash
-   # Instalar dependencias en modo desarrollo
-   pip install -e .
+```bash
+# Check quality tools (mandatory)
+black --version
+ruff --version
+basedpyright --version
 
-   # Configurar herramientas de linting
-   python scripts/utils/lint_manager.py hooks
-   ```
+# Run initial checks
+black .
+ruff . --fix
+basedpyright .
+```
 
-## Estructura del Proyecto
+## Project Structure
 
-El proyecto está organizado de manera modular para facilitar la extensibilidad:
+The project follows a modular architecture for extensibility:
 
 ```txt
 crackseg/
-├── configs/             # Configuraciones Hydra
-│   ├── data/            # Configuración del dataset y dataloaders
-│   ├── model/           # Configuración de arquitecturas y componentes
-│   └── training/        # Configuración de entrenamiento y evaluación
-├── data/                # Directorio para datos (git-ignorado)
-├── docs/                # Documentación
-├── scripts/             # Scripts de utilidad
-├── src/                 # Código fuente principal
-│   ├── data/            # Módulos de datos y transformaciones
-│   ├── model/           # Implementación de modelos y componentes
-│   │   ├── architectures/  # Arquitecturas completas
-│   │   ├── encoder/     # Módulos codificadores
-│   │   ├── decoder/     # Módulos decodificadores
-│   │   └── bottleneck/  # Módulos de cuello de botella
-│   ├── training/        # Módulos de entrenamiento
-│   └── utils/           # Utilidades comunes
-└── tests/               # Pruebas unitarias e integración
+├── .cursor/rules/        # Professional development rules
+├── configs/             # Hydra configurations by component
+│   ├── data/            # Dataset and dataloaders
+│   ├── model/           # Architectures and components
+│   └── training/        # Training and evaluation
+├── src/                 # Main source code
+│   ├── data/            # Data modules and transforms
+│   ├── model/           # Modular models and components
+│   ├── training/        # Training and loss modules
+│   ├── evaluation/      # Evaluation and metrics
+│   └── utils/           # Common utilities
+├── tests/               # Unit and integration tests
+└── docs/guides/         # Project-specific documentation
 ```
 
-### Principios de Organización
+### Architectural Principles
 
-1. **Modularidad**: Cada componente debe tener una responsabilidad única y bien definida
-2. **Extensibilidad**: Facilitar la adición de nuevos componentes sin modificar el código existente
-3. **Configurabilidad**: Todos los parámetros deben ser configurables a través de archivos YAML
+1. **Modularity**: Each component has a unique, well-defined responsibility
+2. **Extensibility**: New components can be added without modifying existing code
+3. **Configurability**: All parameters are configurable via YAML files
+4. **Quality**: Code must pass basedpyright, Black, and Ruff with no errors
 
-## Flujo de Desarrollo
+## Development Workflow
 
-### 1. Planificación
+### 1. Planning
 
-Antes de comenzar a codificar:
+Before you start coding:
 
-- Revisa los issues existentes y elige uno para trabajar o crea uno nuevo
-- Discute el enfoque con el equipo si es un cambio significativo
-- Define claramente el alcance del cambio
+- Review existing issues or create a new one
+- Discuss the approach if it is a significant change
+- Clearly define the scope of the change
+- **See our [development rules](../../.cursor/rules/workflow-preferences.mdc) for the detailed process**
 
-### 2. Desarrollo
+### 2. Implementation
 
-Sigue estos pasos para cada contribución:
+```bash
+# Create a branch for your work
+git checkout -b feature/feature-name  # For new features
+git checkout -b fix/bug-name         # For bug fixes
 
-1. **Crear una Rama**:
+# During development, follow our professional standards
+# See: .cursor/rules/coding-preferences.mdc for full details
+```
 
-   ```bash
-   # Para nuevas características
-   git checkout -b feature/nombre-caracteristica
+### 3. Continuous Verification
 
-   # Para correcciones de errores
-   git checkout -b fix/nombre-error
-   ```
+```bash
+# Run quality checks (mandatory before commit)
+black .
+ruff . --fix
+basedpyright .
 
-2. **Implementación**:
-   - Escribe código limpio y bien documentado
-   - Sigue las convenciones de estilo (ver [Estilo de Código](#estilo-de-código))
-   - Incluye pruebas para la nueva funcionalidad
+# Run tests
+pytest tests/ --cov=src --cov-report=term-missing
+```
 
-3. **Pruebas Locales**:
+## Quality Standards
 
-   ```bash
-   # Ejecutar pruebas
-   pytest
+**The project maintains strict professional standards. See our specific rules:**
 
-   # Verificar estilo de código
-   python scripts/utils/lint_manager.py full
-   ```
+### 📋 Mandatory Development Rules
 
-### 3. Envío de Cambios
+- **[Code Preferences](../../.cursor/rules/coding-preferences.mdc)**: Technical standards, mandatory typing, quality tools
+- **[Testing Standards](../../.cursor/rules/testing-standards.mdc)**: Testing strategies, coverage, mocking
+- **[Git Standards](../../.cursor/rules/git-standards.mdc)**: Commit format, branching, collaboration
+- **[ML Standards](../../.cursor/rules/ml-research-standards.mdc)**: Reproducibility, experiments, VRAM optimization
 
-1. **Commit de Cambios**:
+### ⚡ Quick Verification
 
-   ```bash
-   git add .
-   git commit -m "tipo(alcance): descripción corta"
+```bash
+# All tools must pass with no errors
+black .                    # Auto-formatting
+ruff . --fix              # Linting and autofix
+basedpyright .            # Strict type checking
+pytest tests/ --cov=src   # Tests with coverage
+```
 
-   ```txt
-   Seguimos la convención de [Commits Convencionales](https://www.conventionalcommits.org/):
-   - `feat`: Nueva característica
-   - `fix`: Corrección de error
-   - `docs`: Cambios en documentación
-   - `style`: Cambios que no afectan el significado del código
-   - `refactor`: Refactorización del código
-   - `test`: Adición o corrección de pruebas
-   - `chore`: Cambios en el proceso de construcción o herramientas auxiliares
+### 🎯 ML-Specific Requirements
 
-2. **Actualizar la Rama Principal**:
+- **Complete type annotations**: All tensors, models, and functions
+- **VRAM management**: Optimized for RTX 3070 Ti (8GB)
+- **Reproducibility**: Seeds, deterministic configurations
+- **Documentation**: Detailed docstrings for model architectures
+
+## Submitting Changes
+
+### Commit Process
+
+```bash
+# Mandatory pre-commit verification
+black .
+ruff . --fix
+basedpyright .
+pytest
+
+# Commit following conventions (see git-standards.mdc)
+git add .
+git commit -m "feat(model): Implement SwinV2-Tiny encoder
+
+- Add hierarchical attention for long-range dependencies
+- Optimize for 8GB VRAM with gradient accumulation
+- Achieve IoU: 0.847 on validation set"
+```
+
+### Creating a Pull Request
+
+1. **Update your branch**:
 
    ```bash
    git fetch origin
    git rebase origin/main
+   git push origin branch-name
    ```
 
-3. **Enviar Cambios**:
+2. **PR format**:
+   - Title: `type(scope): short description`
+   - Detailed description of technical changes
+   - Link issue: `Fixes #issueNum`
+   - Include performance metrics if applicable
 
-   ```bash
-   git push origin nombre-rama
-   ```
+## Code Review
 
-4. **Crear Pull Request**:
-   - Usa el formato: `tipo(alcance): descripción`
-   - Incluye una descripción detallada de los cambios
-   - Enlaza el issue relacionado usando `Fixes #issueNum`
+### Automatic Checks
 
-## Estilo de Código
+All contributions must pass:
 
-Seguimos una versión personalizada de PEP 8 con algunas especificaciones adicionales:
+- ✅ **basedpyright**: No typing errors
+- ✅ **Black**: Consistent formatting
+- ✅ **Ruff**: No linting violations
+- ✅ **pytest**: All tests pass
+- ✅ **Coverage**: >80% on modified modules
 
-### Generales
+### Manual Review Criteria
 
-- **Longitud de línea**: Máximo 79 caracteres
-- **Indentación**: 4 espacios (no tabs)
-- **Longitud máxima de archivo**: 400 líneas
-- **Longitud máxima de función**: 40 líneas
+- **Functionality**: Does it meet technical requirements?
+- **Architecture**: Does it follow established modular patterns?
+- **ML/Research**: Does it maintain reproducibility and optimization?
+- **Documentation**: Are relevant docs updated?
+- **Integration**: Does it integrate correctly with existing components?
 
-### Nomenclatura
+### ML-Specific Standards
 
-- **Módulos**: `snake_case`
-- **Clases**: `CamelCase`
-- **Funciones/Variables**: `snake_case`
-- **Constantes**: `MAYUSCULAS_CON_GUIONES`
+- **Model Validation**: Tests with synthetic data
+- **Memory Management**: VRAM usage monitoring
+- **Metrics**: IoU, F1-Score, baseline comparison
+- **Configurability**: Parameters accessible via Hydra configs
 
-### Docstrings
+## Development Resources
 
-Usamos docstrings en formato NumPy para documentar todos los módulos, clases y funciones:
+### 📚 Essential Documentation
 
-```python
-def function_example(param1, param2):
-    """
-    Breve descripción en una línea.
+- **Configuration**: [WORKFLOW_TRAINING.md](WORKFLOW_TRAINING.md) - Training workflow
+- **Loss Registry**: [loss_registry_usage.md](loss_registry_usage.md) - Loss system
+- **Project Context**: [general-context.mdc](../../.cursor/guides/general-context.mdc)
 
-    Descripción más detallada que puede
-    abarcar múltiples líneas.
-
-    Parameters
-    ----------
-    param1 : type
-        Descripción del parámetro 1
-    param2 : type
-        Descripción del parámetro 2
-
-    Returns
-    -------
-    type
-        Descripción del valor de retorno
-
-    Raises
-    ------
-    ExceptionType
-        Descripción de cuándo se lanza la excepción
-    """
-    # Implementación
-```
-
-### Herramientas de Linting
-
-Usamos varias herramientas para mantener la calidad del código:
-
-1. **Pylint**: Para análisis estático de código
-
-   ```bash
-   python scripts/utils/lint_manager.py critical  # Verificar errores críticos
-   python scripts/utils/lint_manager.py full      # Verificación completa
-   ```
-
-2. **Black**: Para formateo automático
-
-   ```bash
-   python scripts/utils/lint_manager.py format
-   ```
-
-3. **isort**: Para ordenar importaciones
-
-   ```bash
-   isort .
-   ```
-
-## Pruebas
-
-Todos los cambios deben incluir pruebas adecuadas:
-
-### Tipos de Pruebas
-
-1. **Pruebas Unitarias**: Para componentes individuales
-2. **Pruebas de Integración**: Para interacciones entre componentes
-3. **Pruebas End-to-End**: Para flujos completos (opcional)
-
-### Ejecución de Pruebas
+### 🛠️ Development Tools
 
 ```bash
-# Todas las pruebas
-pytest
-
-# Pruebas específicas
-pytest tests/unit/
-pytest tests/integration/
-
-# Con cobertura
-pytest --cov=src
+# Main tools (installed with environment.yml)
+basedpyright    # Type checker (replaces mypy)
+black           # Formatter
+ruff            # Linter (replaces flake8, isort, pylint)
+pytest          # Testing framework
+tensorboard     # Experiment monitoring
 ```
 
-### Pautas para Pruebas
+### 🔧 Utility Scripts
 
-- Cada módulo debe tener al menos 70% de cobertura
-- Las pruebas deben ser independientes (no depender de otras pruebas)
-- Utiliza fixtures y mocks para datos y dependencias
-- Crea casos de prueba para caminos felices y casos de borde
-
-## Documentación
-
-La documentación es fundamental para la mantenibilidad del proyecto:
-
-### Tipos de Documentación
-
-1. **Docstrings**: Para API interna y uso programático
-2. **Archivos Markdown**: Para guías de usuario y desarrollador
-3. **Ejemplos de Código**: Para demostrar el uso
-
-### Pautas para Documentación
-
-- Actualiza la documentación junto con los cambios de código
-- Usa lenguaje claro y conciso
-- Incluye ejemplos prácticos cuando sea posible
-- Escribe documentación pensando en nuevos usuarios
-
-## Envío de Cambios
-
-Para enviar contribuciones al proyecto:
-
-1. Asegúrate de que todas las pruebas pasen
-2. Actualiza la documentación si es necesario
-3. Crea un pull request con una descripción clara
-
-## Revisión de Código
-
-Todas las contribuciones pasan por un proceso de revisión:
-
-### Proceso de Revisión
-
-1. **Verificación Automática**:
-   - Las pruebas deben pasar
-   - El análisis de código debe ser aprobado
-   - La cobertura de pruebas debe cumplir con los umbrales
-
-2. **Revisión Manual**:
-   - Al menos un revisor debe aprobar el PR
-   - Se pueden solicitar cambios antes de la aprobación
-
-### Criterios de Revisión
-
-- **Funcionalidad**: ¿El código hace lo que se supone que debe hacer?
-- **Calidad**: ¿El código es limpio, eficiente y mantenible?
-- **Pruebas**: ¿Hay pruebas adecuadas para los cambios?
-- **Documentación**: ¿Los cambios están bien documentados?
+```bash
+# Full quality check
+python -c "
+import subprocess
+tools = ['black .', 'ruff . --fix', 'basedpyright .']
+for tool in tools:
+    result = subprocess.run(tool.split(), capture_output=True, text=True)
+    print(f'{tool}: {'✅ PASS' if result.returncode == 0 else '❌ FAIL'}')
+"
+```
 
 ---
 
-Agradecemos tu contribución al proyecto CrackSeg. Si tienes alguna pregunta o sugerencia sobre estas directrices, por favor abre un issue o contacta al equipo de mantenimiento.
+## Contact and Support
+
+For questions about:
+
+- **Technical standards**: See rules in `.cursor/rules/`
+- **Specific issues**: Open an issue in the repository
+- **Implementation doubts**: See documentation in `docs/guides/`
+
+**Thank you for contributing to the advancement of crack segmentation research!** 🚀

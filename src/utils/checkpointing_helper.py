@@ -1,13 +1,22 @@
 """Helper functions for checkpointing logic in training loops."""
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Protocol, cast
 
 from torch.nn import Module
 from torch.optim import Optimizer
 
 from src.utils.checkpointing import CheckpointSaveConfig, save_checkpoint
 from src.utils.logger_setup import safe_log
+
+
+class SafeLogProtocol(Protocol):
+    def __call__(
+        self, logger: Any, level: str, *args: Any, **kwargs: Any
+    ) -> None: ...
+
+
+safe_log = cast(SafeLogProtocol, safe_log)
 
 
 @dataclass

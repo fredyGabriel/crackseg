@@ -1,9 +1,10 @@
 """Helper for setting up internal logger for Trainer and safe logging."""
 
 import logging
+from typing import Any
 
 
-def setup_internal_logger(logger):
+def setup_internal_logger(logger: Any) -> logging.Logger:
     """
     Returns a logger instance. If logger is None or a string, uses
     logging.getLogger.
@@ -15,7 +16,7 @@ def setup_internal_logger(logger):
     return logger
 
 
-def safe_log(logger, level, *args, **kwargs):
+def safe_log(logger: Any, level: str, *args: Any, **kwargs: Any) -> None:
     """
     Calls logger.<level>(*args, **kwargs) if exists, else does nothing.
     """

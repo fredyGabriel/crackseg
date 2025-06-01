@@ -1,6 +1,7 @@
 import logging
 import os
 from pathlib import Path
+from typing import Any, cast
 
 from omegaconf import DictConfig
 
@@ -45,18 +46,18 @@ def initialize_experiment(
         os.makedirs(base_dir, exist_ok=True)
 
         # Get experiment name from config, or use a default
-        experiment_name = "default"
+        experiment_name: str = "default"
         if hasattr(cfg, "experiment") and hasattr(cfg.experiment, "name"):
-            experiment_name = cfg.experiment.name
+            experiment_name = cast(str, cfg.experiment.name)
 
         # Leer constantes de timestamp desde la configuración
-        ts_cfg = cfg.get("timestamp_parsing", {})
-        min_parts = ts_cfg.get("min_parts", 2)
-        date_len = ts_cfg.get("date_len", 8)
-        time_len = ts_cfg.get("time_len", 6)
+        ts_cfg = cast(dict[str, Any], cfg.get("timestamp_parsing", {}))
+        min_parts: int = cast(int, ts_cfg.get("min_parts", 2))
+        date_len: int = cast(int, ts_cfg.get("date_len", 8))
+        time_len: int = cast(int, ts_cfg.get("time_len", 6))
 
         # Extract timestamp from current directory if possible
-        timestamp = None
+        timestamp: str | None = None
         current_dir = Path(os.getcwd())
         if current_dir.name.startswith("20") and "-" in current_dir.name:
             # Try to extract timestamp (YYYYMMDD-HHMMSS) from directory name
@@ -89,8 +90,8 @@ def initialize_experiment(
             log_dir=base_dir,
             experiment_name=experiment_name,
             config=cfg,
-            log_level=cfg.get("log_level", "INFO"),
-            log_to_file=cfg.get("log_to_file", True),
+            log_level=cast(str, cfg.get("log_level", "INFO")),
+            log_to_file=cast(bool, cfg.get("log_to_file", True)),
         )
 
         return experiment_dir, logger

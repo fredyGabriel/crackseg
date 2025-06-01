@@ -5,18 +5,18 @@ from torch.utils.data import Dataset
 from src.data.dataloader import create_dataloader
 
 
-class DummyDataset(Dataset):
-    def __init__(self, length=10):
+class DummyDataset(Dataset[torch.Tensor]):
+    def __init__(self, length: int = 10):
         self.length = length
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.length
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> torch.Tensor:
         return torch.tensor([idx], dtype=torch.float32)
 
 
-def test_create_dataloader_basic():
+def test_create_dataloader_basic() -> None:
     ds = DummyDataset(5)
     loader = create_dataloader(ds)
     assert isinstance(loader, torch.utils.data.DataLoader)
@@ -24,7 +24,7 @@ def test_create_dataloader_basic():
     assert batch.shape[0] == 5 or batch.shape[0] == 32  # noqa: PLR2004
 
 
-def test_create_dataloader_invalid_batch_size():
+def test_create_dataloader_invalid_batch_size() -> None:
     ds = DummyDataset(5)
     with pytest.raises(ValueError):
         create_dataloader(ds, batch_size=0)  # type: ignore

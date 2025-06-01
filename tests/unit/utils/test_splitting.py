@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 from omegaconf import OmegaConf
+from pytest import MonkeyPatch
 
 from src.data.splitting import DatasetCreationConfig
 
@@ -26,7 +27,7 @@ from src.data.splitting import (  # noqa: E402
 
 
 @pytest.fixture
-def temp_data_dir(tmp_path):
+def temp_data_dir(tmp_path: Path) -> str:
     """Creates a temporary directory structure for testing get_all_samples."""
     data_dir = tmp_path / "test_data"
     images_dir = data_dir / "images"
@@ -212,7 +213,7 @@ def test_split_indices_rounding_adjustment():
 # --- Tests for get_all_samples ---
 
 
-def test_get_all_samples_finds_pairs(temp_data_dir):
+def test_get_all_samples_finds_pairs(temp_data_dir: str) -> None:
     """Test that get_all_samples finds correct image/mask pairs."""
     all_samples = get_all_samples(temp_data_dir)
 
@@ -232,7 +233,7 @@ def test_get_all_samples_finds_pairs(temp_data_dir):
     assert set(all_samples) == set(expected_pairs)
 
 
-def test_get_all_samples_ignores_missing_masks(temp_data_dir):
+def test_get_all_samples_ignores_missing_masks(temp_data_dir: str) -> None:
     """
     Test that images without corresponding masks are ignored (with warning).
     """
@@ -244,7 +245,7 @@ def test_get_all_samples_ignores_missing_masks(temp_data_dir):
     assert not any("img4_no_mask.jpeg" in pair[0] for pair in all_samples)
 
 
-def test_get_all_samples_ignores_missing_images(temp_data_dir):
+def test_get_all_samples_ignores_missing_images(temp_data_dir: str) -> None:
     """Test that masks without corresponding images are ignored."""
     all_samples = get_all_samples(temp_data_dir)
     # Should only find img1 and img2 pairs
@@ -252,7 +253,9 @@ def test_get_all_samples_ignores_missing_images(temp_data_dir):
     assert not any("mask_only.png" in pair[1] for pair in all_samples)
 
 
-def test_get_all_samples_ignores_unsupported_extensions(temp_data_dir):
+def test_get_all_samples_ignores_unsupported_extensions(
+    temp_data_dir: str,
+) -> None:
     """Test that images with unsupported extensions are ignored."""
     # img5.txt exists, but is not in image_extensions
     # img5.png mask exists
@@ -262,7 +265,7 @@ def test_get_all_samples_ignores_unsupported_extensions(temp_data_dir):
     assert not any("img5.txt" in pair[0] for pair in all_samples)
 
 
-def test_get_all_samples_missing_images_dir(tmp_path):
+def test_get_all_samples_missing_images_dir(tmp_path: Path) -> None:
     """Test error handling when the 'images' directory is missing."""
     data_dir = tmp_path / "missing_images"
     masks_dir = data_dir / "masks"
@@ -273,7 +276,7 @@ def test_get_all_samples_missing_images_dir(tmp_path):
         get_all_samples(str(data_dir))
 
 
-def test_get_all_samples_missing_masks_dir(tmp_path):
+def test_get_all_samples_missing_masks_dir(tmp_path: Path) -> None:
     """Test error handling when the 'masks' directory is missing."""
     data_dir = tmp_path / "missing_masks"
     images_dir = data_dir / "images"
@@ -284,7 +287,7 @@ def test_get_all_samples_missing_masks_dir(tmp_path):
         get_all_samples(str(data_dir))
 
 
-def test_get_all_samples_empty_dirs(tmp_path):
+def test_get_all_samples_empty_dirs(tmp_path: Path) -> None:
     """Test handling of empty 'images' and 'masks' directories."""
     data_dir = tmp_path / "empty_dirs"
     images_dir = data_dir / "images"
@@ -300,7 +303,9 @@ def test_get_all_samples_empty_dirs(tmp_path):
 # --- Tests for create_split_datasets ---
 
 
-def test_create_split_datasets_basic(temp_data_dir, monkeypatch):
+def test_create_split_datasets_basic(
+    temp_data_dir: str, monkeypatch: MonkeyPatch
+) -> None:
     """Test basic creation of split datasets."""
     # Setup temp directories for train/val/test structure
     import os
@@ -388,7 +393,7 @@ def test_create_split_datasets_missing_cls():
         create_split_datasets(config=config)
 
 
-def test_create_split_datasets_missing_transform(temp_data_dir):
+def test_create_split_datasets_missing_transform(temp_data_dir: str) -> None:
     """Test error when transform config is missing for a split."""
     import os
 

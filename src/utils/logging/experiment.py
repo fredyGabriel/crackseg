@@ -93,7 +93,9 @@ class ExperimentLogger(BaseLogger):
 
         # Save configuration if provided
         if config is not None:
-            if isinstance(config, DictConfig):
+            config_dict: dict[str, Any]
+            if hasattr(config, "__dict__") and hasattr(config, "keys"):
+                # Probablemente DictConfig
                 container = OmegaConf.to_container(config, resolve=True)
                 if not isinstance(container, dict):
                     container = {}
@@ -135,7 +137,7 @@ class ExperimentLogger(BaseLogger):
         self.logger.info(f"[{step}] {tag}: {value}")
 
     def log_metric(
-        self, name: str, value: Any, step: int | None = None, **kwargs
+        self, name: str, value: Any, step: int | None = None, **kwargs: Any
     ) -> None:
         """Log a metric.
 
@@ -170,7 +172,7 @@ class ExperimentLogger(BaseLogger):
         self,
         metrics_dict: dict[str, Any],
         step: int | None = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> None:
         """Log multiple metrics.
 

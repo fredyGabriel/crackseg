@@ -169,7 +169,7 @@ def extract_runtime_params(
     for src_attr, target_param in param_mappings.items():
         if hasattr(component, src_attr):
             runtime_params[target_param] = getattr(component, src_attr)
-    return runtime_params
+    return cast(dict[str, Any], runtime_params)
 
 
 def merge_configs(
@@ -221,7 +221,7 @@ def filter_config(
             if key not in exclude_keys:
                 result[key] = value
 
-    return result
+    return cast(dict[str, Any], result)
 
 
 #
@@ -260,7 +260,7 @@ def log_configuration_error(
     if config is not None:
         # Log first N key-value pairs to avoid overwhelming logs
         limit = get_max_items_to_log_in_config_repr()
-        if isinstance(config, dict):
+        if isinstance(config, dict):  # type: ignore[unnecessary-isinstance]
             config_items = list(config.items())
             # Log first 'limit' key-value pairs
             config_str = str(

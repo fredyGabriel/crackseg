@@ -1,5 +1,7 @@
 """Configuration and fixtures for model integration tests."""
 
+from collections.abc import Generator
+
 import pytest
 import torch
 
@@ -22,13 +24,15 @@ from src.model.factory.registry_setup import (
 
 
 class MockEncoder(EncoderBase):
-    def __init__(self, in_channels):
+    def __init__(self, in_channels: int):
         super().__init__(in_channels)
         self._out_channels = 64
         # Contract: skip_channels = [16, 32] (high->low resolution)
         self._skip_channels = [16, 32]
 
-    def forward(self, x):
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, list[torch.Tensor]]:
         # Return dummy output and list of skips
         batch_size = x.shape[0]
         output_features = torch.randn(
@@ -46,40 +50,45 @@ class MockEncoder(EncoderBase):
         return output_features, skips
 
     @property
-    def out_channels(self):
+    def out_channels(self) -> int:
         return self._out_channels
 
     @property
-    def skip_channels(self):
+    def skip_channels(self) -> list[int]:
         return self._skip_channels
 
 
 class MockBottleneck(BottleneckBase):
-    def __init__(self, in_channels):
+    def __init__(self, in_channels: int):
         super().__init__(in_channels)
         self._out_channels = 128
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         batch_size = x.shape[0]
         return torch.randn(
             batch_size, self._out_channels, x.shape[2], x.shape[3]
         )
 
     @property
-    def out_channels(self):
+    def out_channels(self) -> int:
         return self._out_channels
 
 
 # Dummy for Identity Bottleneck
 class DummyIdentity(BottleneckBase):
-    def __init__(self, in_channels, out_channels=None, **kwargs):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int | None = None,
+        **kwargs: object,
+    ):
         super().__init__(in_channels=in_channels)
         self.in_channels = in_channels
         self._out_channels: int = (
             out_channels if out_channels is not None else in_channels
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.in_channels != self._out_channels:
             # Simple way to change channels if needed for testing
             return torch.randn(
@@ -93,13 +102,15 @@ class DummyIdentity(BottleneckBase):
 
 
 class TestDecoderImpl(DecoderBase):
-    def __init__(self, in_channels, skip_channels):
+    def __init__(self, in_channels: int, skip_channels: list[int]):
         # Contract: skip_channels debe ser el reverse de
         # MockEncoder.skip_channels, i.e., [32, 16] (low->high resolution)
         super().__init__(in_channels, skip_channels)
         self._out_channels: int = 1
 
-    def forward(self, x, skips):
+    def forward(
+        self, x: torch.Tensor, skips: list[torch.Tensor]
+    ) -> torch.Tensor:
         batch_size = x.shape[0]
         return torch.randn(
             batch_size, self._out_channels, x.shape[2] * 4, x.shape[3] * 4
@@ -117,8 +128,8 @@ class TestDecoderImpl(DecoderBase):
 
 
 @pytest.fixture(scope="function")
-def register_mock_components():  # noqa: PLR0912
-    "Temporarily registers mock components for a test function."
+def register_mock_components() -> Generator[None, None, None]:  # noqa: PLR0912
+    """Temporarily registers mock components for a test function."""
     registered_names: dict[str, list[str]] = {
         "encoder": [],
         "bottleneck": [],
@@ -170,7 +181,7 @@ def register_mock_components():  # noqa: PLR0912
                 pass  # Ignore if already unregistered
 
 
-def pytest_configure(config):
+def pytest_configure(config: object) -> None:
     # ... registro de mocks ...
     # Registro explícito de componentes CNN reales para integración
     if "CNNEncoder" not in encoder_registry:

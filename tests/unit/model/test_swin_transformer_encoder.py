@@ -12,7 +12,7 @@ from src.model.encoder.swin_transformer_encoder import (
 
 
 @pytest.mark.parametrize("in_channels", [1, 3, 4])
-def test_swintransformerencoder_init(in_channels):
+def test_swintransformerencoder_init(in_channels: int) -> None:
     """Test initialization with different input channels."""
     config = SwinTransformerEncoderConfig(
         model_name="swinv2_tiny_window16_256",
@@ -32,7 +32,7 @@ def test_swintransformerencoder_init(in_channels):
     assert len(encoder.skip_channels) > 0  # Should have valid skip channels
 
 
-def test_swintransformerencoder_forward_shape():
+def test_swintransformerencoder_forward_shape() -> None:
     """Test forward pass output and skip shapes."""
     batch_size = 2
     in_channels = 3
@@ -91,7 +91,9 @@ def test_swintransformerencoder_forward_shape():
 @pytest.mark.parametrize(
     "input_size", [(128, 128), (224, 224), (256, 256), (225, 225)]
 )
-def test_swintransformerencoder_variable_input(handle_mode, input_size):
+def test_swintransformerencoder_variable_input(
+    handle_mode: str, input_size: tuple[int, int]
+) -> None:
     """
     Test forward pass with different input sizes and handling modes.
 
@@ -145,7 +147,7 @@ def test_swintransformerencoder_variable_input(handle_mode, input_size):
     assert len(skip_connections) > 0
 
 
-def test_swintransformerencoder_feature_info():
+def test_swintransformerencoder_feature_info() -> None:
     """Test the get_feature_info method."""
     encoder = SwinTransformerEncoder(
         in_channels=3,
@@ -171,7 +173,7 @@ def test_swintransformerencoder_feature_info():
     assert feature_info[-1]["channels"] > 0
 
 
-def test_swintransformerencoder_error_handling():
+def test_swintransformerencoder_error_handling() -> None:
     """Test error handling for invalid inputs."""
     encoder = SwinTransformerEncoder(
         in_channels=3,
@@ -213,7 +215,7 @@ def test_swintransformerencoder_error_handling():
         ),
     ],
 )
-def test_swintransformerencoder_model_variants(model_name):
+def test_swintransformerencoder_model_variants(model_name: str) -> None:
     """Test different Swin Transformer model variants."""
     in_channels = 3
     img_size = 256
@@ -365,7 +367,7 @@ def test_swintransformerencoder_fallback_mechanism():
 
 
 @pytest.mark.parametrize("batch_size", [1, 2, 4])
-def test_swintransformerencoder_batch_handling(batch_size):
+def test_swintransformerencoder_batch_handling(batch_size: int) -> None:
     """Test that the encoder properly handles different batch sizes."""
     in_channels = 3
     img_size = 256

@@ -61,7 +61,7 @@ def register_component(
     }
 
     registry = registry_map.get(registry_type.lower())
-    if registry is None or not isinstance(registry, Registry):
+    if registry is None:
         raise ValueError(
             f"Unknown or invalid registry type: {registry_type}. "
             f"Available types: {', '.join(registry_map.keys())}"
@@ -92,7 +92,7 @@ def get_registry(registry_type: str) -> Registry[Any]:
     }
 
     registry = registry_map.get(registry_type.lower())
-    if registry is None or not isinstance(registry, Registry):
+    if registry is None:
         raise ValueError(
             f"Unknown or invalid registry type: {registry_type}. "
             f"Available types: {', '.join(registry_map.keys())}"

@@ -1,19 +1,19 @@
 """AMP and gradient accumulation utilities for training loops."""
 
-from typing import Any
-
 import torch
 from torch import autocast
 
-_GRADSCALER_DEVICE: str | None
+_gradscaler_device_value: str | None
 try:
-    from torch.amp import GradScaler  # type: ignore
+    from torch.amp import GradScaler  # type: ignore[reportMissingImports]
 
-    _GRADSCALER_DEVICE = "cuda"
+    _gradscaler_device_value = "cuda"
 except ImportError:
-    from torch.cuda.amp import GradScaler  # type: ignore
+    from torch.cuda.amp import GradScaler  # type: ignore[reportMissingImports]
 
-    _GRADSCALER_DEVICE = None
+    _gradscaler_device_value = None
+
+_GRADSCALER_DEVICE: str | None = _gradscaler_device_value
 
 __all__ = [
     "amp_autocast",
@@ -23,7 +23,7 @@ __all__ = [
 ]
 
 
-def amp_autocast(enabled: bool):
+def amp_autocast(enabled: bool) -> autocast:
     """Context manager for autocast, enabled only if specified."""
     device_type = "cuda" if torch.cuda.is_available() else "cpu"
     return autocast(device_type=device_type, enabled=enabled)
@@ -32,7 +32,7 @@ def amp_autocast(enabled: bool):
 def optimizer_step_with_accumulation(  # noqa: PLR0913
     *,
     optimizer: torch.optim.Optimizer,
-    scaler: Any,
+    scaler: GradScaler | None,
     loss: torch.Tensor,
     grad_accum_steps: int,
     batch_idx: int,
@@ -49,16 +49,16 @@ def optimizer_step_with_accumulation(  # noqa: PLR0913
         batch_idx: Current batch index (0-based).
         use_amp: Whether to use AMP.
     """
-    is_update_step = (batch_idx + 1) % grad_accum_steps == 0
+    is_update_step: bool = (batch_idx + 1) % grad_accum_steps == 0
     loss = loss / grad_accum_steps
     if use_amp and scaler is not None:
-        scaler.scale(loss).backward()
+        scaler.scale(loss).backward()  # type: ignore[reportUnknownMemberType]
         if is_update_step:
             scaler.step(optimizer)
             scaler.update()
             optimizer.zero_grad()
     else:
-        loss.backward()
+        loss.backward()  # type: ignore[reportUnknownMemberType]
         if is_update_step:
             optimizer.step()
             optimizer.zero_grad()

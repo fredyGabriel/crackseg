@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 import torch
 
@@ -29,7 +31,7 @@ def test_cnndecoder_skip_mismatch_error():
         # out_channels, expected_error_msg_regex)
     ],
 )
-def test_cnndecoder_cbam_reduction_error(params):
+def test_cnndecoder_cbam_reduction_error(params: tuple[Any, ...]):
     (
         in_channels_param,
         skip_channels_list_param,

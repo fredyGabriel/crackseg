@@ -7,6 +7,7 @@ decoders, and hybrid models, with validation and runtime parameter support.
 """
 
 import logging
+from collections.abc import Mapping
 from typing import Any, TypeVar, cast
 
 import hydra.utils
@@ -41,7 +42,7 @@ class InstantiationError(Exception):
 
 
 def validate_component_config(
-    config: dict[str, Any], component_type: str
+    config: Mapping[str, Any], component_type: str
 ) -> None:
     """
     Validate that a component configuration is valid.
@@ -71,7 +72,7 @@ def validate_component_config(
         # skip_channels_list)
 
 
-def validate_architecture_config(config: dict[str, Any]) -> None:
+def validate_architecture_config(config: Mapping[str, Any]) -> None:
     """
     Validate that a complete architecture configuration is valid.
 
@@ -95,8 +96,8 @@ def validate_architecture_config(config: dict[str, Any]) -> None:
 
 
 def normalize_config(
-    config: dict[str, Any] | DictConfig,
-    defaults: dict[str, Any] | None = None,
+    config: Mapping[str, Any] | DictConfig,
+    defaults: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Normalize a configuration dictionary for consistency.
@@ -108,23 +109,19 @@ def normalize_config(
     Returns:
         Normalized dictionary
     """
-    # Convert to regular dict if OmegaConf
     if isinstance(config, DictConfig):
-        config_dict = hydra_to_dict(config)
+        config_dict: dict[str, Any] = hydra_to_dict(config)
     else:
         config_dict = dict(config)
-
-    # Apply defaults if provided
     if defaults:
         for key, value in defaults.items():
             if key not in config_dict:
                 config_dict[key] = value
-
     return config_dict
 
 
 def parse_architecture_config(
-    config: dict[str, Any],
+    config: Mapping[str, Any],
 ) -> dict[str, dict[str, Any]]:
     """
     Parse a complete architecture configuration into component configs.
@@ -137,14 +134,14 @@ def parse_architecture_config(
     """
     validate_architecture_config(config)
     return {
-        "encoder": config["encoder"],
-        "bottleneck": config["bottleneck"],
-        "decoder": config["decoder"],
+        "encoder": dict(config["encoder"]),
+        "bottleneck": dict(config["bottleneck"]),
+        "decoder": dict(config["decoder"]),
     }
 
 
 def instantiate_encoder(
-    config: dict[str, Any], runtime_params: dict[str, Any] | None = None
+    config: Mapping[str, Any], runtime_params: Mapping[str, Any] | None = None
 ) -> EncoderBase:
     """
     Instantiate an encoder component from configuration.
@@ -166,7 +163,7 @@ def instantiate_encoder(
 
         # Apply runtime parameters if provided
         if runtime_params:
-            full_config = merge_configs(full_config, runtime_params)
+            full_config = merge_configs(full_config, dict(runtime_params))
 
         # Try instantiation methods in order
         return cast(
@@ -182,7 +179,7 @@ def instantiate_encoder(
 
 
 def instantiate_bottleneck(
-    config: dict[str, Any], runtime_params: dict[str, Any] | None = None
+    config: Mapping[str, Any], runtime_params: Mapping[str, Any] | None = None
 ) -> BottleneckBase:
     """
     Instantiate a bottleneck component from configuration.
@@ -204,7 +201,7 @@ def instantiate_bottleneck(
 
         # Apply runtime parameters if provided
         if runtime_params:
-            full_config = merge_configs(full_config, runtime_params)
+            full_config = merge_configs(full_config, dict(runtime_params))
 
         # Try instantiation methods in order
         return cast(
@@ -222,7 +219,7 @@ def instantiate_bottleneck(
 
 
 def instantiate_decoder(
-    config: dict[str, Any], runtime_params: dict[str, Any] | None = None
+    config: Mapping[str, Any], runtime_params: Mapping[str, Any] | None = None
 ) -> DecoderBase:
     """
     Instantiate a decoder component from configuration.
@@ -244,7 +241,7 @@ def instantiate_decoder(
 
         # Apply runtime parameters if provided
         if runtime_params:
-            full_config = merge_configs(full_config, runtime_params)
+            full_config = merge_configs(full_config, dict(runtime_params))
 
         # Try instantiation methods in order
         return cast(
@@ -326,7 +323,7 @@ def instantiate_hybrid_model(
         ) from e
 
 
-def create_model_from_config(config: dict[str, Any]) -> UNetBase:
+def create_model_from_config(config: Mapping[str, Any]) -> UNetBase:
     """
     Create a complete model from a comprehensive configuration.
 

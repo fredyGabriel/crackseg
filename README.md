@@ -56,7 +56,7 @@ El proyecto utiliza las siguientes herramientas para mantener la calidad del có
 
 - **Black**: Formateo automático de código.
 - **Ruff**: Linter y verificación de estilo.
-- **Mypy**: Verificación de tipos estáticos.
+- **Basedpyright**: Verificación de tipos estáticos (sustituye a mypy en el flujo principal).
 
 El hook de pre-commit ejecuta automáticamente estas herramientas sobre los archivos Python staged.
 
@@ -72,6 +72,20 @@ Para instalar y activar el hook de pre-commit (opcional):
 ```bash
 conda install -c conda-forge pre-commit
 pre-commit install
+```
+
+El flujo de pre-commit ejecuta:
+
+```bash
+black <archivos>
+ruff check <archivos>
+basedpyright <archivos>
+```
+
+Si quieres seguir usando mypy para análisis adicionales, puedes ejecutarlo manualmente:
+
+```bash
+mypy .
 ```
 
 For a detailed plan on code quality improvements, see [docs/LINTING_PLAN.md](docs/LINTING_PLAN.md).

@@ -7,6 +7,8 @@ Provides the base classes and enumerations for validating model configurations:
 - ConfigSchema: Schema for validating component configurations
 """
 
+from __future__ import annotations
+
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -52,7 +54,7 @@ class ConfigParam:
     choices: list[Any] | None = None
     validator: Callable[[Any], bool] | None = None
     description: str = ""
-    nested_schema: "ConfigSchema" | None = None
+    nested_schema: ConfigSchema | None = None
 
     def _validate_value_type(self, value: Any) -> str | None:
         """Validates the type of the given value based on self.param_type."""
@@ -101,30 +103,14 @@ class ConfigParam:
             tuple: (is_valid, error_message)
         """
         error_to_report: str | None = None
-
-        # 1. Check if value is None
         if value is None:
             if self.required:
                 error_to_report = f"Parameter '{self.name}' is required"
             else:
-                # Not required and value is None, so it's valid.
-                # No further checks are needed for a None value.
                 return True, None
-
-        # If value is not None, or if it was None but required
-        # (error_to_report is set)
-        # Proceed with other checks only if no error has been reported yet.
         if error_to_report is None:
             # 2. Type validation
-            type_error = (
-                self._validate_value_type(value)
-                if self._validate_value_type is not None
-                else (
-                    None
-                    if self._validate_value_type is not None
-                    else (None, None)
-                )
-            )
+            type_error = self._validate_value_type(value)
             if type_error:
                 error_to_report = type_error
 
@@ -184,11 +170,6 @@ class ConfigSchema:
             tuple: (is_valid, error_dict)
             Where error_dict maps parameter names to error messages
         """
-        if not isinstance(config, dict):
-            error_msg = "Configuration must be a dictionary, got "
-            error_msg += f"{type(config)}"
-            return False, {"_general": error_msg}
-
         errors = {}
         param_names = {p.name for p in self.params}
 

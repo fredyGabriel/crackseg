@@ -150,27 +150,34 @@ def _prepare_dataloader_params(
     container = OmegaConf.to_container(dataloader_config, resolve=True)
     if not isinstance(container, dict):
         container = {}
-    dataloader_extra_kwargs = {
-        str(k): v
-        for k, v in container.items()
-        if k
-        not in [
-            "distributed",
-            "sampler",
-            "memory",
-            "batch_size",
-            "num_workers",
-            "shuffle",
-            "pin_memory",
-            "prefetch_factor",
-            "drop_last",
-            "max_train_samples",
-            "max_val_samples",
-            "max_test_samples",
-        ]
-    }
+    str_items = cast(
+        list[tuple[str, Any]],
+        [
+            (k, v)
+            for k, v in container.items()  # type: ignore[reportUnknownVariableType]
+            if isinstance(k, str)
+            and k
+            not in [
+                "distributed",
+                "sampler",
+                "memory",
+                "batch_size",
+                "num_workers",
+                "shuffle",
+                "pin_memory",
+                "prefetch_factor",
+                "drop_last",
+                "max_train_samples",
+                "max_val_samples",
+                "max_test_samples",
+            ]
+        ],
+    )
+    dataloader_extra_kwargs: dict[str, Any] = dict(str_items)
     if drop_last:
         dataloader_extra_kwargs["drop_last"] = drop_last
+
+    dataloader_extra_kwargs = cast(dict[str, Any], dataloader_extra_kwargs)  # type: ignore
 
     loader_config = DataLoaderConfig(
         num_workers=num_workers,

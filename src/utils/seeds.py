@@ -1,5 +1,8 @@
 """Random seed utilities for reproducibility."""
 
+# pyright: reportUnknownMemberType=false
+# Suppression for PyTorch manual_seed methods with incomplete type stubs
+
 import random
 
 import numpy as np
@@ -28,7 +31,7 @@ def set_random_seeds(
 
     random.seed(seed)
     np.random.seed(seed)
-    torch.manual_seed(seed)
+    _ = torch.manual_seed(seed)
 
     if torch.cuda.is_available():
         torch.cuda.manual_seed(seed)

@@ -31,14 +31,12 @@ def validate_data_config(data_cfg: dict[str, Any] | DictConfig) -> None:
         raise ValueError(f"train/val/test splits must sum to 1.0, got {total}")
     # Check image_size is a list/tuple of length 2
     img_size = data_cfg["image_size"]
-    img_size_for_len: list[Any] | tuple[Any, ...] | ListConfig = img_size
     if isinstance(img_size, ListConfig):
         img_size_for_len = list(img_size)
+    else:
+        img_size_for_len = img_size
 
-    if not (
-        isinstance(img_size, list | tuple | ListConfig)
-        and len(img_size_for_len) == 2  # noqa: PLR2004
-    ):
+    if not (len(img_size_for_len) == 2):  # noqa: PLR2004
         raise ValueError(
             "image_size must be a list, tuple, or ListConfig of length 2"
         )
@@ -68,7 +66,7 @@ def _normalize_transform_config_input(
             else:
                 # We cast here after ensuring it's a dict
                 actual_transform_list.append(cast(dict[str, Any], item_any))
-    elif isinstance(transform_config, dict | DictConfig):
+    else:
         actual_transform_list = []
         for name, params_data in transform_config.items():
             # Correctly handle DictConfig items if transform_config is a
@@ -77,10 +75,6 @@ def _normalize_transform_config_input(
             actual_transform_list.append(
                 {"name": str(name), "params": current_params}
             )
-    else:
-        raise ValueError(
-            "Transform config must be a list, ListConfig, dict, or DictConfig."
-        )
     return actual_transform_list
 
 
@@ -95,11 +89,11 @@ def _validate_resize_params(params: dict[str, Any] | DictConfig) -> None:
         )
     if "size" in params:
         size_val = params["size"]
-        size_val_for_len: list[Any] | tuple[Any, ...] | ListConfig = size_val
+        size_val_for_len: list[Any] | tuple[Any, ...] = size_val
         if isinstance(size_val, ListConfig):
             size_val_for_len = list(size_val)
         if not (
-            isinstance(size_val, list | ListConfig | tuple)
+            isinstance(size_val, list | tuple)
             and len(size_val_for_len) == 2  # noqa: PLR2004
         ):
             raise ValueError(
@@ -124,21 +118,21 @@ def _validate_normalize_params(params: dict[str, Any] | DictConfig) -> None:
         raise ValueError("Missing 'mean' or 'std' in Normalize params.")
     mean_val = params["mean"]
     std_val = params["std"]
-    mean_val_for_len: list[Any] | tuple[Any, ...] | ListConfig = mean_val
+    mean_val_for_len: list[Any] | tuple[Any, ...] = mean_val
     if isinstance(mean_val, ListConfig):
         mean_val_for_len = list(mean_val)
-    std_val_for_len: list[Any] | tuple[Any, ...] | ListConfig = std_val
+    std_val_for_len: list[Any] | tuple[Any, ...] = std_val
     if isinstance(std_val, ListConfig):
         std_val_for_len = list(std_val)
     if not (
-        isinstance(mean_val, list | ListConfig | tuple)
+        isinstance(mean_val, list | tuple)
         and len(mean_val_for_len) == 3  # noqa: PLR2004
     ):
         raise ValueError(
             "Normalize 'mean' must be list, tuple or ListConfig of 3 values."
         )
     if not (
-        isinstance(std_val, list | ListConfig | tuple)
+        isinstance(std_val, list | tuple)
         and len(std_val_for_len) == 3  # noqa: PLR2004
     ):
         raise ValueError(

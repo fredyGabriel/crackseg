@@ -23,6 +23,7 @@ import yaml
 from omegaconf import OmegaConf
 from omegaconf import errors as omegaconf_errors
 from omegaconf.dictconfig import DictConfig
+from torch.utils.data import DataLoader
 
 from src.evaluation.core import evaluate_model
 from src.evaluation.data import get_evaluation_dataloader
@@ -140,10 +141,9 @@ def _load_and_prepare_config(
 
 def _get_evaluation_components(
     cfg: DictConfig,
-    # For data_dir, batch_size, num_workers if not overridden in cfg directly
     args: argparse.Namespace,
     output_dir: Path,
-) -> tuple[torch.utils.data.DataLoader, dict[str, Any], ExperimentLogger]:
+) -> tuple[DataLoader[Any], dict[str, Any], ExperimentLogger]:
     """Gets dataloader, metrics, and experiment logger."""
     test_loader = get_evaluation_dataloader(
         config=cfg,
@@ -200,10 +200,8 @@ def _get_evaluation_components(
 class EvaluationRunParameters:
     is_ensemble: bool
     checkpoint_paths: list[str]
-    # Assumes cfg.device_str, cfg.output_dir_str,
-    # cfg.evaluation.visualize_samples exist
     cfg: DictConfig
-    test_loader: torch.utils.data.DataLoader
+    test_loader: DataLoader[Any]
     metrics_dict: dict[str, Any]
     model_for_single_eval: torch.nn.Module | None
     experiment_logger: ExperimentLogger

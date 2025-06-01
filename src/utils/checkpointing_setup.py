@@ -1,16 +1,30 @@
 """Helper for setting up checkpoint directory and experiment manager."""
 
 import os
+from collections.abc import Mapping
+from typing import Any, Protocol
 
 
-def setup_checkpointing(cfg, logger_instance, internal_logger):
+# Protocolo mínimo para logger
+class LoggerProtocol(Protocol):
+    def info(self, *args: Any, **kwargs: Any) -> None: ...
+    def warning(self, *args: Any, **kwargs: Any) -> None: ...
+
+
+def setup_checkpointing(
+    cfg: Mapping[str, Any],
+    logger_instance: Any,
+    internal_logger: LoggerProtocol,
+) -> tuple[str, Any | None]:
     """
     Sets up checkpoint directory and experiment manager.
     Returns (checkpoint_dir, experiment_manager or None)
     """
     experiment_manager = None
 
-    def safe_log(logger, level, *args, **kwargs):
+    def safe_log(
+        logger: LoggerProtocol, level: str, *args: Any, **kwargs: Any
+    ) -> None:
         fn = getattr(logger, level, None)
         if callable(fn):
             fn(*args, **kwargs)
@@ -56,9 +70,7 @@ def setup_checkpointing(cfg, logger_instance, internal_logger):
         )
 
     # Ensure the value is always a valid string for os.makedirs
-    if not isinstance(checkpoint_dir, str) or (
-        isinstance(checkpoint_dir, str) and "<MagicMock" in checkpoint_dir
-    ):
+    if not isinstance(checkpoint_dir, str) or "<MagicMock" in checkpoint_dir:
         checkpoint_dir = "outputs/checkpoints"
         safe_log(
             internal_logger,

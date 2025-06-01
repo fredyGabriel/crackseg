@@ -5,6 +5,8 @@ Integration test for Swin-UNet architecture
 This test validates the Swin encoder and the CNN decoder separately.
 """
 
+from typing import Any
+
 import torch
 
 from src.model.decoder.cnn_decoder import CNNDecoder
@@ -39,15 +41,15 @@ def test_swin_encoder():
     # Validations
     assert isinstance(features, torch.Tensor)
     assert isinstance(skips, list)
-    assert len(skips) > 0
-    assert all(isinstance(skip, torch.Tensor) for skip in skips)
+    assert len(skips) > 0  # type: ignore
+    assert all(isinstance(skip, torch.Tensor) for skip in skips)  # type: ignore
 
     # Debug log
     print(f"Features shape: {features.shape}")
-    for i, skip in enumerate(skips):
-        print(f"Skip {i} shape: {skip.shape}")
+    for i, skip in enumerate(skips):  # type: ignore
+        print(f"Skip {i} shape: {skip.shape}")  # type: ignore
     print(f"Skip channels from encoder.skip_channels: {encoder.skip_channels}")
-    real_skip_channels = [s.shape[1] for s in skips]
+    real_skip_channels = [s.shape[1] for s in skips]  # type: ignore
     print(f"Skip channels from tensor shapes: {real_skip_channels}")
 
     # Check that skip_channels matches the real skip tensor channels
@@ -56,8 +58,8 @@ def test_swin_encoder():
     ), "skip_channels property should match actual skip tensor channels"
 
 
-@torch.no_grad()
-def test_vanilla_cnn_decoder():
+@torch.no_grad()  # type: ignore
+def test_vanilla_cnn_decoder(_: Any = None) -> None:
     """Simple test of CNN Decoder with known channels."""
     # Only check that the decoder initializes without errors
     in_channels = 128

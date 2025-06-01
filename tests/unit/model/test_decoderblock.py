@@ -65,8 +65,11 @@ def test_decoderblock_multiple_skips_error():
     ],
 )
 def test_decoderblock_channel_calculation(
-    in_channels, skip_channels, out_channels, expected
-):
+    in_channels: int,
+    skip_channels: int,
+    out_channels: int | None,
+    expected: int,
+) -> None:
     block = DecoderBlock(in_channels, skip_channels, out_channels)
     assert block.out_channels == expected
     x = torch.randn(2, in_channels, 16, 16)
@@ -94,8 +97,8 @@ def test_decoderblock_channel_calculation(
     ],
 )
 def test_decoderblock_consistency_multiple_blocks(
-    in_channels, skip_channels_list
-):
+    in_channels: int, skip_channels_list: list[int]
+) -> None:
     x = torch.randn(1, in_channels, 8, 8)
     for skip_channels in skip_channels_list:
         block = DecoderBlock(in_channels, skip_channels)
@@ -136,8 +139,11 @@ def test_decoderblock_consistency_multiple_blocks(
     ],
 )
 def test_decoderblock_input_skip_shapes(
-    input_shape, skip_shape, expected_output_shape, expect_error
-):
+    input_shape: tuple[int, ...],
+    skip_shape: tuple[int, ...],
+    expected_output_shape: tuple[int, ...],
+    expect_error: bool,
+) -> None:
     block = DecoderBlock(in_channels=64, skip_channels=32, out_channels=32)
     x = torch.randn(*input_shape)
     skip = torch.randn(*skip_shape)
@@ -170,7 +176,11 @@ def test_decoderblock_skip_connection_preservation():
         ((2, 64, 5, 5), (2, 32, 16, 16), ValueError),
     ],
 )
-def test_decoderblock_input_skip_errors(input_shape, skip_shape, error):
+def test_decoderblock_input_skip_errors(
+    input_shape: tuple[int, ...],
+    skip_shape: tuple[int, ...],
+    error: type[BaseException],
+) -> None:
     block = DecoderBlock(in_channels=64, skip_channels=32, out_channels=32)
     x = torch.randn(*input_shape)
     skip = torch.randn(*skip_shape)
@@ -235,9 +245,15 @@ def test_decoderblock_extreme_upsampling():
         (64, 32, 32, True, 1, 32, 32),  # CBAM, batch=1
     ],
 )
-def test_decoderblock_forward_cbam_and_shapes(  # noqa: PLR0913
-    in_channels, skip_channels, out_channels, use_cbam, batch_size, h, w
-):
+def test_decoderblock_forward_cbam_and_shapes(
+    in_channels: int,
+    skip_channels: int,
+    out_channels: int | None,
+    use_cbam: bool,
+    batch_size: int,
+    h: int,
+    w: int,
+) -> None:
     """Test DecoderBlock with CBAM, various batch sizes and shapes."""
     config = DecoderBlockConfig(use_cbam=use_cbam)
     block = DecoderBlock(
@@ -268,8 +284,8 @@ def test_decoderblock_forward_cbam_and_shapes(  # noqa: PLR0913
     ],
 )
 def test_decoderblock_forward_channel_mismatch_error(
-    in_channels, skip_channels, out_channels, use_cbam
-):
+    in_channels: int, skip_channels: int, out_channels: int, use_cbam: bool
+) -> None:
     """Test error when skip channels do not match expected value."""
     config = DecoderBlockConfig(use_cbam=use_cbam)
     block = DecoderBlock(
@@ -297,7 +313,9 @@ def test_decoderblock_forward_channel_mismatch_error(
         ((1, 8, 1, 1), (1, 4, 2, 2)),  # Minimal spatial size
     ],
 )
-def test_decoderblock_spatial_dimension_mismatch(input_shape, skip_shape):
+def test_decoderblock_spatial_dimension_mismatch(
+    input_shape: tuple[int, ...], skip_shape: tuple[int, ...]
+) -> None:
     """Test error is raised for incompatible spatial dimensions
     (accepts ValueError or RuntimeError)."""
     block = DecoderBlock(8, 4, 4)
@@ -319,7 +337,7 @@ def test_decoderblock_spatial_dimension_mismatch(input_shape, skip_shape):
     "value",
     [0.0, 1.0, -1.0, float("nan"), float("inf"), -float("inf"), 1e10, -1e10],
 )
-def test_decoderblock_extreme_input_values(value):
+def test_decoderblock_extreme_input_values(value: float) -> None:
     """Test DecoderBlock with extreme input values (zeros, ones, NaNs, infs,
     large/small). Accepts NaN output for inf input."""
     block = DecoderBlock(8, 4, 4)
@@ -341,7 +359,7 @@ def test_decoderblock_extreme_input_values(value):
 
 # Adapt mixed precision test: only test float32, skip others unless supported
 @pytest.mark.parametrize("dtype", [torch.float32])
-def test_decoderblock_mixed_precision(dtype):
+def test_decoderblock_mixed_precision(dtype: torch.dtype) -> None:
     """Test DecoderBlock with float32 precision only (float16/float64 skipped
     unless supported)."""
     block = DecoderBlock(8, 4, 4)

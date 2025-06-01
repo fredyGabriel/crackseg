@@ -1,17 +1,20 @@
 import logging
 from dataclasses import dataclass
+from typing import Any
 
 import torch
 import torch.nn.functional as F
 from torch import nn
 
 from src.model.base.abstract import DecoderBase
-from src.model.components.cbam import CBAM
 from src.model.decoder.common.channel_utils import (
     calculate_decoder_channels,
     validate_skip_channels_order,
 )
-from src.model.factory.registry_setup import decoder_registry
+from src.model.factory.registry_setup import (
+    component_registries,
+    decoder_registry,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -56,35 +59,15 @@ class DecoderBlock(DecoderBase):
             ("out_channels", out_channels),
             ("middle_channels", middle_channels),
         ]:
-            if not isinstance(value, int):
-                raise TypeError(
-                    f"{name} must be an integer, got {type(value).__name__}"
-                )
             if value <= 0:
                 raise ValueError(f"{name} must be positive, got {value}")
-
-        if not isinstance(skip_channels, int):
-            raise TypeError(
-                "skip_channels must be an integer, got "
-                f"{type(skip_channels).__name__}"
-            )
         if skip_channels < 0:
             raise ValueError(
                 f"skip_channels must be >= 0, got {skip_channels}"
             )
-
-        concat_channels = (
-            out_channels + skip_channels
-        )  # Assuming out_channels is derived from upsample(in_channels)
+        concat_channels = out_channels + skip_channels
         if concat_channels <= 0:
-            # This check might be more complex if up_conv changes out_channels
-            # significantly from in_channels
-            # For now, assumes out_channels (after up_conv) is a positive value
-            # related to in_channels.
-            # Silently pass if decoder doesn't have in_channels for now for
-            # test mocks
             pass
-
         if middle_channels < out_channels:
             raise ValueError(
                 f"middle_channels ({middle_channels}) should be >= "
@@ -167,7 +150,7 @@ class DecoderBlock(DecoderBase):
 
         # Store actual operating channels
         self.in_channels = in_channels
-        self._skip_channels = [skip_channels]  # type: list[int]
+        self._skip_channels: list[int] = [skip_channels]
         self._out_channels = (
             effective_out_channels  # Output of this block's convolutions
         )
@@ -231,7 +214,13 @@ class DecoderBlock(DecoderBase):
                     f"({concat_channels_for_cbam_and_conv1}) when "
                     "skip_channels > 0"
                 )
-            self.cbam = CBAM(
+            # Get CBAM from attention registry
+            attention_registry = component_registries.get("attention")
+            if attention_registry is None:
+                raise RuntimeError("Attention registry not found for CBAM.")
+
+            self.cbam = attention_registry.instantiate(
+                "CBAM",
                 in_channels=(
                     concat_channels_for_cbam_and_conv1
                     if self._skip_channels[0] > 0
@@ -466,7 +455,7 @@ class CNNDecoder(DecoderBase):
 
         # Validate skip_channels_list is not empty and ordered
         if not skip_channels_list or not all(
-            isinstance(c, int) and c > 0 for c in skip_channels_list
+            c > 0 for c in skip_channels_list
         ):
             raise ValueError(
                 "skip_channels_list must be a non-empty list of positive "
@@ -505,12 +494,12 @@ class CNNDecoder(DecoderBase):
         for i, (skip_ch, dec_ch) in enumerate(
             zip(skip_channels_list, decoder_block_out_channels, strict=False)
         ):
-            if not isinstance(skip_ch, int) or skip_ch <= 0:
+            if skip_ch <= 0:
                 raise ValueError(
                     f"Skip channel at index {i} must be a "
                     "positive integer, got {skip_ch}"
                 )
-            if not isinstance(dec_ch, int) or dec_ch <= 0:
+            if dec_ch <= 0:
                 raise ValueError(
                     f"Decoder channel at index {i} must be a "
                     "positive integer, got {dec_ch}"
@@ -571,10 +560,6 @@ class CNNDecoder(DecoderBase):
             skip_channels_list).
         """
         # Validate skip connections
-        if not isinstance(skips, list | tuple):
-            raise TypeError(
-                f"skips must be a list or tuple, got {type(skips)}"
-            )
         if len(skips) != len(self.skip_channels_list):
             raise ValueError(
                 f"Expected {len(self.skip_channels_list)} skip connections, "
@@ -585,11 +570,6 @@ class CNNDecoder(DecoderBase):
         for i, (skip, expected_ch) in enumerate(
             zip(skips, self.skip_channels_list, strict=False)
         ):
-            if skip is None:
-                raise ValueError(
-                    f"Skip connection {i} is None. All skips "
-                    "must be valid tensors."
-                )
             if skip.shape[1] != expected_ch:
                 raise ValueError(
                     f"Skip connection {i} has {skip.shape[1]} channels, "
@@ -619,27 +599,25 @@ class CNNDecoder(DecoderBase):
         return self._out_channels
 
 
-def migrate_decoder_state_dict(old_state_dict, decoder, verbose=True):
+def migrate_decoder_state_dict(
+    old_state_dict: dict[str, Any],
+    decoder: nn.Module,
+    verbose: bool = True,
+) -> dict[str, Any]:
     """
     Migrate a state_dict from an old DecoderBlock/CNNDecoder format to the new
     static channel alignment format.
 
     Args:
-        old_state_dict (dict): The state_dict from the old model checkpoint.
+        old_state_dict (dict[str, Any]): The state_dict from the old model
+        checkpoint.
         decoder (nn.Module): The new DecoderBlock or CNNDecoder instance.
         verbose (bool): If True, print mapping and warnings.
 
     Returns:
-        dict: A new state_dict compatible with the new decoder structure.
-
-    Notes:
-        - This function attempts to map parameter names from old checkpoints
-        to the new static structure.
-        - If mapping is not possible, a warning is issued and the parameter is
-        skipped.
-        - The user should verify the loaded model for correctness.
+        dict[str, Any]: A new state_dict compatible with the new decoder
+        structure.
     """
-
     new_state_dict = decoder.state_dict()
     mapped = 0
     skipped = 0

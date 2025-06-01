@@ -8,7 +8,7 @@ ensuring a consistent structure across all runs.
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from omegaconf import DictConfig, OmegaConf
 
@@ -125,10 +125,10 @@ class ExperimentManager:
 
         # Add configuration if available
         if self.config is not None:
-            if isinstance(self.config, DictConfig):
+            if isinstance(self.config, DictConfig):  # type: ignore[redundant-isinstance]
                 config_dict = OmegaConf.to_container(self.config, resolve=True)
                 info["config"] = str(config_dict)
-            elif self.config is not None:
+            else:
                 info["config"] = str(self.config)
 
         # Save as JSON
@@ -157,6 +157,7 @@ class ExperimentManager:
                 registry = []
 
         # Add this experiment
+        registry = cast(list[dict[str, Any]], registry)
         registry.append(
             {
                 "id": self.experiment_id,
@@ -192,7 +193,7 @@ class ExperimentManager:
 
         return self.paths[key]
 
-    def save_config(self, config: dict | DictConfig) -> Path:
+    def save_config(self, config: dict[str, Any] | DictConfig) -> Path:
         """
         Save configuration to a JSON file.
 
@@ -207,6 +208,7 @@ class ExperimentManager:
             config_dict = OmegaConf.to_container(config, resolve=True)
         else:
             config_dict = config
+        config_dict = cast(dict[str, Any], config_dict)
 
         # Save to JSON file
         config_path = self.config_dir / "config.json"
@@ -277,6 +279,7 @@ class ExperimentManager:
             meta = info.get("metadata")
             if not isinstance(meta, dict):
                 meta = {}
+            meta = cast(dict[str, Any], meta)
             meta.update(metadata)
             info["metadata"] = json.dumps(meta)
 
@@ -298,9 +301,9 @@ class ExperimentManager:
             with open(self.registry_file, encoding="utf-8") as f:
                 data = json.load(f)
                 if isinstance(data, list) and all(
-                    isinstance(item, dict) for item in data
+                    isinstance(item, dict) for item in cast(list[Any], data)
                 ):
-                    return data  # type: ignore
+                    return cast(list[dict[str, Any]], data)
                 else:
                     return []
         except (OSError, json.JSONDecodeError) as e:

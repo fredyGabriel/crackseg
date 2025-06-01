@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import override
 
 import torch
 
@@ -20,10 +21,10 @@ class Metric(ABC):
         # Default to 3 for backward compatibility / tests
         expected_dims_after_squeeze: int = 3,
     ):
-        self.smooth = smooth
-        self.threshold = threshold
-        self.expected_dims_before_squeeze = expected_dims_before_squeeze
-        self.expected_dims_after_squeeze = expected_dims_after_squeeze
+        self.smooth: float = smooth
+        self.threshold: float | None = threshold
+        self.expected_dims_before_squeeze: int = expected_dims_before_squeeze
+        self.expected_dims_after_squeeze: int = expected_dims_after_squeeze
 
     def _validate_and_preprocess(
         self, pred: torch.Tensor, target: torch.Tensor
@@ -75,6 +76,7 @@ class Metric(ABC):
 class IoUScore(Metric):
     """Calculates Intersection over Union (IoU) score."""
 
+    @override
     def forward(
         self, pred: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
@@ -94,6 +96,7 @@ class IoUScore(Metric):
 class PrecisionScore(Metric):
     """Calculates Precision score."""
 
+    @override
     def forward(
         self, pred: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
@@ -109,6 +112,7 @@ class PrecisionScore(Metric):
 class RecallScore(Metric):
     """Calculates Recall score."""
 
+    @override
     def forward(
         self, pred: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
@@ -124,6 +128,7 @@ class RecallScore(Metric):
 class F1Score(Metric):
     """Calculates F1 score (Dice coefficient)."""
 
+    @override
     def forward(
         self, pred: torch.Tensor, target: torch.Tensor
     ) -> torch.Tensor:
@@ -151,9 +156,9 @@ def get_scalar_metrics(
     Returns:
         Dictionary with the same keys but float values.
     """
-    scalar_metrics = {}
+    scalar_metrics: dict[str, float] = {}
     for name, value in metrics_dict.items():
-        if isinstance(value, torch.Tensor) and value.numel() == 1:
+        if hasattr(value, "numel") and value.numel() == 1:
             scalar_metrics[name] = value.item()
         elif isinstance(value, float | int):
             scalar_metrics[name] = float(value)

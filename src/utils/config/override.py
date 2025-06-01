@@ -1,7 +1,6 @@
 """Configuration override utilities."""
 
 from copy import deepcopy
-from typing import Any
 
 from omegaconf import DictConfig, OmegaConf
 from omegaconf import errors as omegaconf_errors  # Import OmegaConf errors
@@ -13,7 +12,7 @@ logger = get_logger(__name__)
 
 
 def override_config(  # noqa: PLR0912
-    config: DictConfig, overrides: dict[str, Any], strict: bool = True
+    config: DictConfig, overrides: dict[str, object], strict: bool = True
 ) -> DictConfig:
     """Override configuration values.
 
@@ -82,8 +81,8 @@ def override_config(  # noqa: PLR0912
                     f"Failed to override config at {path}", details=str(e)
                 ) from e  # Preserve original exception context
             logger.warning(
-                f"Failed to override config at {path} ({type(e).__name__}): "
-                f"{e}"
+                f"Failed to override config at {path} "
+                f"({type(e).__name__}): {e}"
             )
         except Exception as e_general:
             # Catch any other unexpected error
@@ -136,12 +135,10 @@ def save_config(cfg: DictConfig, path: str) -> None:
 def example_override_usage() -> None:
     """Example: how to use overrides with Hydra from the command line."""
     print("Command-line override example:")
+    print("python main.py training.epochs=100 model.model_name=deeplabv3+")
     print(
-        "python main.py " "training.epochs=100 " "model.model_name=deeplabv3+"
-    )
-    print(
-        "This will override the values of epochs and "
-        "model_name in the configuration."
+        "This will override the values of epochs and model_name in the "
+        "configuration."
     )
 
 

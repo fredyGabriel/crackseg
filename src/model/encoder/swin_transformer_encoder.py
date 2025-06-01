@@ -4,11 +4,13 @@
 
 import logging
 import re
+import typing
 from dataclasses import dataclass, field
 from typing import Any
 
 import timm
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
 from src.model.base import EncoderBase
@@ -55,6 +57,8 @@ class SwinTransformerEncoder(EncoderBase):
     resolution by 2x, similar to max pooling in CNNs.
     """
 
+    swin: nn.Module  # Explicit type annotation for the attribute
+
     def _initialize_attributes(
         self, config: SwinTransformerEncoderConfig
     ) -> None:
@@ -98,12 +102,15 @@ class SwinTransformerEncoder(EncoderBase):
                 f"Attempting to initialize {config.model_name} with "
                 f"img_size={self.img_size}"
             )
-            self.swin = timm.create_model(
-                config.model_name,
-                pretrained=config.pretrained,
-                in_chans=in_channels,
-                features_only=config.features_only,
-                out_indices=self.out_indices,
+            self.swin = typing.cast(
+                nn.Module,
+                timm.create_model(  # type: ignore[reportUnknownArgumentType]
+                    config.model_name,
+                    pretrained=config.pretrained,
+                    in_chans=in_channels,
+                    features_only=config.features_only,
+                    out_indices=self.out_indices,
+                ),
             )
             logger.info(f"Successfully initialized {config.model_name} model")
         except (RuntimeError, ValueError, TypeError, FileNotFoundError) as e:
@@ -111,12 +118,15 @@ class SwinTransformerEncoder(EncoderBase):
             logger.error("Falling back to ResNet-based encoder")
             try:
                 fallback_model = "resnet34"
-                self.swin = timm.create_model(
-                    fallback_model,
-                    pretrained=config.pretrained,
-                    in_chans=in_channels,
-                    features_only=True,
-                    out_indices=self.out_indices,
+                self.swin = typing.cast(
+                    nn.Module,
+                    timm.create_model(  # type: ignore[reportUnknownArgumentType]
+                        fallback_model,
+                        pretrained=config.pretrained,
+                        in_chans=in_channels,
+                        features_only=True,
+                        out_indices=self.out_indices,
+                    ),
                 )
                 logger.info(
                     f"Successfully initialized fallback model {fallback_model}"
@@ -141,10 +151,8 @@ class SwinTransformerEncoder(EncoderBase):
             )
             self.swin.eval()
             with torch.no_grad():
-                dummy_features = self.swin(dummy_input)
-            if not isinstance(dummy_features, list) or not dummy_features:
-                raise RuntimeError(
-                    "Timm model did not return a list of features."
+                dummy_features = typing.cast(
+                    list[torch.Tensor], self.swin(dummy_input)
                 )
             actual_all_channels = [feat.shape[1] for feat in dummy_features]
             logger.info(
@@ -255,7 +263,7 @@ class SwinTransformerEncoder(EncoderBase):
 
     def _preprocess_input(
         self, x: torch.Tensor
-    ) -> tuple[torch.Tensor, dict[str, Any] | None]:
+    ) -> tuple[torch.Tensor, dict[str, Any]]:
         """
         Preprocess input tensor based on configuration.
 
@@ -263,7 +271,7 @@ class SwinTransformerEncoder(EncoderBase):
             x (torch.Tensor): Input tensor of shape (B, C, H, W).
 
         Returns:
-            Tuple[torch.Tensor, Optional[Dict]]:
+            Tuple[torch.Tensor, Dict]:
                 - Preprocessed tensor
                 - Dictionary with metadata for potential post-processing, or
                     None
@@ -298,7 +306,7 @@ class SwinTransformerEncoder(EncoderBase):
         if self.handle_input_size == "resize":
             # Resize to the model's expected size
             if original_size != (self.img_size, self.img_size):
-                x = F.interpolate(
+                x = F.interpolate(  # type: ignore[reportUnknownArgumentType]
                     x,
                     size=(self.img_size, self.img_size),
                     mode="bilinear",
@@ -312,7 +320,7 @@ class SwinTransformerEncoder(EncoderBase):
 
         elif self.handle_input_size == "pad":
             # Calculate padding to make dimensions divisible by patch_size
-            B, C, H, W = x.shape
+            _, _, H, W = x.shape
             pad_h = (self.patch_size - H % self.patch_size) % self.patch_size
             pad_w = (self.patch_size - W % self.patch_size) % self.patch_size
 
@@ -325,7 +333,7 @@ class SwinTransformerEncoder(EncoderBase):
                     f"Padded input from {(H, W)} to {(H + pad_h, W + pad_w)}"
                 )
 
-        return x, metadata
+        return typing.cast(tuple[torch.Tensor, dict[str, Any]], (x, metadata))
 
     def _postprocess_features(
         self,
@@ -346,10 +354,12 @@ class SwinTransformerEncoder(EncoderBase):
         if metadata is None:
             return features
 
-        processed_features = []
+        processed_features: list[torch.Tensor] = []
 
         for feature_item in features:  # Renamed loop variable
-            processed_feature_item = feature_item  # Start with original
+            processed_feature_item: torch.Tensor = (
+                feature_item  # Start with original
+            )
             # Apply post-processing if needed
             if "resized" in metadata and metadata["resized"]:
                 # Resize back to original spatial dimensions adjusted for the
@@ -364,19 +374,20 @@ class SwinTransformerEncoder(EncoderBase):
                     processed_feature_item.shape[3],
                 )
                 if (current_h, current_w) != (feature_h, feature_w):
-                    processed_feature_item = F.interpolate(
-                        processed_feature_item,  # Use the working variable
-                        size=(feature_h, feature_w),
-                        mode="bilinear",
-                        align_corners=False,
+                    processed_feature_item = typing.cast(
+                        torch.Tensor,
+                        F.interpolate(  # type: ignore[reportUnknownArgumentType]
+                            processed_feature_item,  # Use the working variable
+                            size=(feature_h, feature_w),
+                            mode="bilinear",
+                            align_corners=False,
+                        ),
                     )
 
             # If we need to handle padding, we could add logic here to crop
             # the features back to the unpadded size if needed
 
-            processed_features.append(
-                processed_feature_item
-            )  # Append the processed version
+            processed_features.append(processed_feature_item)  # type: ignore[arg-type]
 
         return processed_features
 
@@ -400,7 +411,9 @@ class SwinTransformerEncoder(EncoderBase):
         x, metadata = self._preprocess_input(x)
 
         # Forward pass through the model
-        features = self.swin(x)
+        features: list[torch.Tensor] = typing.cast(
+            list[torch.Tensor], self.swin(x)
+        )
 
         # Sanity check for dimensions - features should come from low to high
         # resolution
@@ -418,12 +431,12 @@ class SwinTransformerEncoder(EncoderBase):
         # Prepare return values - we need to reverse the feature order from
         # Swin's native output
         # The bottleneck is the last feature (lowest resolution)
-        bottleneck = features[-1]
+        bottleneck: torch.Tensor = features[-1]
 
         # Skip connections are the first N-1 features (from higher resolution)
         # We reverse to get from high to low resolution (decoder's expected
         # order)
-        skip_connections = list(reversed(features[:-1]))
+        skip_connections: list[torch.Tensor] = list(reversed(features[:-1]))
 
         return bottleneck, skip_connections
 
@@ -435,7 +448,7 @@ class SwinTransformerEncoder(EncoderBase):
             List[Dict[str, Any]]: Information about each feature map,
                                  including channels and reduction factor.
         """
-        feature_info = []
+        feature_info: list[dict[str, Any]] = []
         num_skips = len(self._skip_channels)
         for i in range(num_skips):
             # reduction_factors[0] corresponds to skip_channels[0]
@@ -508,13 +521,8 @@ Using basic freezing."
                 freeze_patterns = [
                     p.strip() for p in self.freeze_layers.split(",")
                 ]
-        elif isinstance(self.freeze_layers, list):
-            freeze_patterns = self.freeze_layers
         else:
-            logger.warning(
-                f"Unsupported freeze_layers type: {type(self.freeze_layers)}"
-            )
-            return
+            freeze_patterns = self.freeze_layers  # type: ignore[assignment]
 
         # Apply freezing
         frozen_params = 0
@@ -535,7 +543,9 @@ Using basic freezing."
             f"({frozen_percentage:.1f}% of model)"
         )
 
-    def get_optimizer_param_groups(self, base_lr: float = 0.001) -> list[dict]:
+    def get_optimizer_param_groups(
+        self, base_lr: float = 0.001
+    ) -> list[dict[str, Any]]:
         """
         Returns parameter groups with differential learning rates for
         fine-tuning.
@@ -555,8 +565,8 @@ Using basic freezing."
             return [{"params": self.parameters(), "lr": base_lr}]
 
         # Create parameter groups with scaled learning rates
-        param_groups = []
-        default_group_params = []
+        param_groups: list[dict[str, Any]] = []
+        default_group_params: list[Any] = []
 
         for name, param in self.named_parameters():
             if not param.requires_grad:
@@ -604,7 +614,7 @@ Using basic freezing."
         self, current_epoch: int, unfreeze_schedule: dict[int, list[str]]
     ) -> list[str]:
         """Determines patterns to unfreeze for the current epoch."""
-        patterns_to_unfreeze = []
+        patterns_to_unfreeze: list[str] = []
         for epoch, patterns in sorted(unfreeze_schedule.items()):
             if current_epoch >= epoch:
                 patterns_to_unfreeze.extend(patterns)
@@ -612,8 +622,10 @@ Using basic freezing."
 
     def _log_block_prefixes_debug(self) -> None:
         """Logs available parameter block prefixes for debugging."""
-        param_names = [name for name, _ in self.swin.named_parameters()]
-        block_prefixes = set()
+        param_names: list[str] = [
+            name for name, _ in self.swin.named_parameters()
+        ]
+        block_prefixes: set[str] = set()
         for name in param_names:
             parts = name.split(".")
             if len(parts) > 1:
@@ -626,7 +638,7 @@ Using basic freezing."
         self, patterns_to_unfreeze: list[str]
     ) -> list[str]:
         """Adapts user-defined unfreeze patterns to internal model naming."""
-        adapted_patterns = []
+        adapted_patterns: list[str] = []
         for pattern in patterns_to_unfreeze:
             if pattern.startswith("stages."):
                 stage_num = pattern.split(".")[1]

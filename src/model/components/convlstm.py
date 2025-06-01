@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 import torch
 from torch import nn
@@ -34,8 +35,8 @@ class ConvLSTMCell(nn.Module):
         hidden_dim: int,
         kernel_size: tuple[int, int],
         bias: bool,
-    ):
-        super().__init__()
+    ) -> None:
+        super().__init__()  # type: ignore[misc]
 
         self.input_dim = input_dim
         self.hidden_dim = hidden_dim
@@ -77,21 +78,14 @@ class ConvLSTMCell(nn.Module):
             tuple[torch.Tensor, torch.Tensor]: Tuple containing the next hidden
                 state (h_next) and cell state (c_next).
         """
-        h_cur, c_cur = (
-            self._init_hidden(input_tensor, cur_state)
-            if self._init_hidden is not None
-            else None if self._init_hidden is not None else (None, None)
-        )
+        # Initialize hidden state if not provided
+        h_cur, c_cur = self._init_hidden(input_tensor, cur_state)
 
         # Concatenate input and hidden state
         combined = torch.cat([input_tensor, h_cur], dim=1)
 
         # Compute combined gates
-        combined_conv = (
-            self.conv(combined)
-            if self.conv is not None
-            else None if self.conv is not None else (None, None)
-        )
+        combined_conv = self.conv(combined)
 
         # Split combined gates into individual gates
         cc_i, cc_f, cc_o, cc_g = torch.split(
@@ -143,23 +137,19 @@ class ConvLSTM(nn.Module):
         config (ConvLSTMConfig): Configuration object for ConvLSTM parameters.
     """
 
-    def __init__(self, input_dim: int, config: ConvLSTMConfig):
-        super().__init__()
+    def __init__(self, input_dim: int, config: ConvLSTMConfig) -> None:
+        super().__init__()  # type: ignore[misc]
 
         self._check_kernel_size_consistency(
             config.kernel_size, config.kernel_expected_dims
         )
 
         # Ensure hidden_dim and kernel_size are lists for iteration
-        hidden_dim_list = (
-            self._extend_for_layers(config.hidden_dim, config.num_layers)
-            if self._extend_for_layers is not None
-            else None if self._extend_for_layers is not None else (None, None)
+        hidden_dim_list = self._extend_for_layers(
+            config.hidden_dim, config.num_layers
         )
-        kernel_size_list = (
-            self._extend_for_layers(config.kernel_size, config.num_layers)
-            if self._extend_for_layers is not None
-            else None if self._extend_for_layers is not None else (None, None)
+        kernel_size_list = self._extend_for_layers(
+            config.kernel_size, config.num_layers
         )
 
         if (
@@ -178,7 +168,7 @@ class ConvLSTM(nn.Module):
         self.return_all_layers = config.return_all_layers
         self.kernel_expected_dims = config.kernel_expected_dims
 
-        cell_list = []
+        cell_list: list[ConvLSTMCell] = []
         for i in range(self.num_layers):
             cur_input_dim = (
                 self.input_dim if i == 0 else self.hidden_dim[i - 1]
@@ -193,7 +183,7 @@ class ConvLSTM(nn.Module):
                 )
             )
 
-        self.cell_list = nn.ModuleList(cell_list)
+        self.cell_list = nn.ModuleList(cell_list)  # type: ignore[arg-type]
 
     def forward(
         self,
@@ -229,13 +219,7 @@ class ConvLSTM(nn.Module):
         if hidden_state is None:
             hidden_state = self._init_hidden(
                 batch_size=b,
-                image_size=(
-                    (h, w)
-                    if self._init_hidden is not None
-                    else (
-                        None if self._init_hidden is not None else (None, None)
-                    )
-                ),
+                image_size=(h, w),
                 device=input_tensor.device,
             )
 
@@ -246,50 +230,30 @@ class ConvLSTM(nn.Module):
         internal_state: list[tuple[torch.Tensor, torch.Tensor]] = []
 
         for layer_idx in range(self.num_layers):
+            # Initialize layer_output to avoid possibly unbound variable
+            layer_output = torch.empty(0)
+
             state = hidden_state[layer_idx]
-            if not (
-                isinstance(state, tuple)
-                and len(state) == 2
-                and isinstance(state[0], torch.Tensor)
-                and isinstance(state[1], torch.Tensor)
-            ):
-                raise TypeError(
-                    f"hidden_state[{layer_idx}] must be a tuple of two "
-                    f"Tensors, got {type(state)}"
-                )
-            h, c = state  # type: ignore[assignment]
             output_inner: list[torch.Tensor] = []
             for t in range(seq_len):
-                # Input to the current layer is the input tensor for the first
-                # layer, or the output of the previous layer for subsequent
-                # layers
                 h, c = self.cell_list[layer_idx](
                     input_tensor=cur_layer_input[:, t, :, :, :],
-                    cur_state=(h, c),
+                    cur_state=state,
                 )
-                if not isinstance(h, torch.Tensor):
-                    raise TypeError(
-                        f"h debe ser un torch.Tensor, no {type(h)}"
-                    )
-                output_inner.append(h)
+                # Use new state for next timestep
+                state = h, c
+                output_inner.append(h)  # type: ignore[arg-type]
 
             layer_output = torch.stack(output_inner, dim=1)
             # Next layer's input is current layer's output
             cur_layer_input = layer_output
 
-            if not (
-                isinstance(h, torch.Tensor) and isinstance(c, torch.Tensor)
-            ):
-                raise TypeError(
-                    f"internal_state must contain tuples of tensors, but "
-                    f"found: {type(h)}, {type(c)}"
-                )
-            internal_state.append((h, c))
+            internal_state.append((h, c))  # type: ignore[arg-type]
             if self.return_all_layers:
-                layer_output_list.append(layer_output)
+                layer_output_list.append(layer_output)  # type: ignore[arg-type]
 
         if not self.return_all_layers:
-            layer_output_list.append(layer_output)  # Only last layer output
+            layer_output_list.append(layer_output)  # type: ignore[arg-type]
 
         last_state_list = internal_state
 
@@ -315,8 +279,8 @@ class ConvLSTM(nn.Module):
         return init_states
 
     def _check_kernel_size_consistency(
-        self, kernel_size, kernel_expected_dims
-    ):
+        self, kernel_size: Any, kernel_expected_dims: int
+    ) -> Any:
         """Checks if kernel_size format is valid (tuple or list of 2 ints)."""
         # Case 1: Already a tuple of 2 ints
         if (
@@ -364,7 +328,7 @@ class ConvLSTM(nn.Module):
             "or list of tuples/lists for multi-layer ConvLSTM"
         )
 
-    def _extend_for_layers(self, param, num_layers):
+    def _extend_for_layers(self, param: Any, num_layers: int) -> list[Any]:
         """Extends a parameter like hidden_dim or kernel_size for layers."""
         # Simple version: extend if not a list, otherwise validate length.
         # Consistency check for kernel_size contents happens elsewhere.

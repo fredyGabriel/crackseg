@@ -1,4 +1,5 @@
 import abc
+from typing import Any
 
 import torch
 from torch import nn
@@ -13,14 +14,14 @@ class EncoderBase(nn.Module, metaclass=abc.ABCMeta):
     are often passed to the decoder via skip connections.
     """
 
-    def __init__(self, in_channels: int):
+    def __init__(self, in_channels: int, *args: Any, **kwargs: Any) -> None:
         """
         Initializes the EncoderBase.
 
         Args:
             in_channels (int): Number of channels in the input tensor.
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)  # type: ignore
         self.in_channels = in_channels
 
     @abc.abstractmethod
@@ -71,7 +72,7 @@ class BottleneckBase(nn.Module, metaclass=abc.ABCMeta):
     extraction or transformation before features are upsampled by the decoder.
     """
 
-    def __init__(self, in_channels: int):
+    def __init__(self, in_channels: int, *args: Any, **kwargs: Any) -> None:
         """
         Initializes the BottleneckBase.
 
@@ -79,7 +80,7 @@ class BottleneckBase(nn.Module, metaclass=abc.ABCMeta):
             in_channels (int): Number of channels in the input tensor
                                (usually the output channels of the encoder).
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)  # type: ignore
         self.in_channels = in_channels
 
     @abc.abstractmethod
@@ -117,7 +118,13 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
     at the original input resolution.
     """
 
-    def __init__(self, in_channels: int, skip_channels: list[int]):
+    def __init__(
+        self,
+        in_channels: int,
+        skip_channels: list[int],
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         """
         Initializes the DecoderBase.
 
@@ -132,7 +139,7 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
                                        highest resolution while encoder outputs
                                        them from highest to lowest resolution.
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)  # type: ignore
         self.in_channels = in_channels
         self._skip_channels = skip_channels
 
@@ -172,7 +179,7 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
         When connecting an encoder to a decoder, you should use:
             decoder_skip_channels = list(reversed(encoder.skip_channels))
         """
-        if hasattr(self, "_skip_channels") and self._skip_channels is not None:
+        if hasattr(self, "_skip_channels"):
             return self._skip_channels
         raise AttributeError(
             "DecoderBase has not properly initialized _skip_channels"
@@ -205,7 +212,9 @@ class UNetBase(nn.Module, metaclass=abc.ABCMeta):
         encoder: EncoderBase | None,
         bottleneck: BottleneckBase | None,
         decoder: DecoderBase | None,
-    ):
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
         """
         Initializes the UNetBase.
 
@@ -214,7 +223,7 @@ class UNetBase(nn.Module, metaclass=abc.ABCMeta):
             bottleneck (BottleneckBase): Bottleneck for feature processing.
             decoder (DecoderBase): Decoder for segmentation map generation.
         """
-        super().__init__()
+        super().__init__(*args, **kwargs)  # type: ignore
         self._validate_components(encoder, bottleneck, decoder)
         self.encoder = encoder
         self.bottleneck = bottleneck

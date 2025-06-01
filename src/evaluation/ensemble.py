@@ -179,7 +179,7 @@ def _finalize_ensemble_evaluation(
 def ensemble_evaluate(
     checkpoint_paths: list[str],
     config: DictConfig,  # Assuming device and output_dir are in config
-    dataloader: DataLoader,
+    dataloader: DataLoader[Any],
     metrics: dict[str, Callable[[torch.Tensor, torch.Tensor], torch.Tensor]],
 ) -> dict[str, float]:
     """

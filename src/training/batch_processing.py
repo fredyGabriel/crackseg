@@ -11,7 +11,9 @@ from torch.optim import Optimizer
 def train_step(  # noqa: PLR0913
     *,
     model: Module,
-    batch: tuple | dict[str, torch.Tensor],
+    batch: (
+        tuple[torch.Tensor, torch.Tensor] | dict[str, torch.Tensor]
+    ),  # batch=(images, masks) o dict
     loss_fn: Any,
     optimizer: Optimizer,
     device: torch.device,
@@ -52,7 +54,9 @@ def train_step(  # noqa: PLR0913
 def val_step(  # noqa: PLR0913
     *,
     model: Module,
-    batch: tuple | dict[str, torch.Tensor],
+    batch: (
+        tuple[torch.Tensor, torch.Tensor] | dict[str, torch.Tensor]
+    ),  # batch=(images, masks) o dict
     loss_fn: Any,
     device: torch.device,
     metrics_dict: dict[str, Any] | None = None,

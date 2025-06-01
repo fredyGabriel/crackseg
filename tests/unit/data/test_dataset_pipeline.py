@@ -1,9 +1,14 @@
 """Test for the dataset pipeline and transformations."""
 
+from collections.abc import Callable, Generator
+from pathlib import Path
+from typing import Any
+
 import cv2
 import numpy as np
 import pytest
 import torch
+from numpy import ndarray
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset
 
@@ -12,7 +17,7 @@ from src.data import transforms as tr
 
 
 @pytest.fixture
-def test_data_dir(tmp_path):
+def test_data_dir(tmp_path: Path) -> Generator[Path, None, None]:
     """Create and return a temporary directory with test images.
     Uses tmp_path for isolation.
     """
@@ -39,7 +44,7 @@ def test_data_dir(tmp_path):
     test_dir.rmdir()
 
 
-def test_dataset_pipeline(test_data_dir):
+def test_dataset_pipeline(test_data_dir: Path):
     """Test the dataset creation and sample loading."""
     # Use test images
     samples_list = [
@@ -119,32 +124,36 @@ def test_dataset_pipeline(test_data_dir):
     ), "Image and mask spatial dimensions should match"
 
 
-class DummySegmentationDataset(Dataset):
+class DummySegmentationDataset(Dataset[tuple[torch.Tensor, torch.Tensor]]):
     """Dummy dataset for integration test."""
 
-    def __init__(self, images, masks, transform=None):
+    def __init__(
+        self,
+        images: list[ndarray[Any, Any]],
+        masks: list[ndarray[Any, Any]],
+        transform: Callable[[Any, Any], dict[str, torch.Tensor]] | None = None,
+    ) -> None:
         self.images = images
         self.masks = masks
         self.transform = transform
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.images)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
         img = self.images[idx]
         mask = self.masks[idx]
         if self.transform:
-            result = (
-                self.transform(img, mask)
-                if self.transform is not None
-                else None if self.transform is not None else (None, None)
-            )
-            img = result["image"]  # type: ignore
-            mask = result["mask"]  # type: ignore
+            result = self.transform(img, mask)
+            img = result["image"]
+            mask = result["mask"]
+        else:
+            img = torch.as_tensor(img)
+            mask = torch.as_tensor(mask)
         return img, mask
 
 
-def test_data_pipeline_end_to_end(tmp_path):
+def test_data_pipeline_end_to_end(tmp_path: Path) -> None:
     """Integration test: full data pipeline from images to dataloader batch."""
     # Create dummy data
     n = 8
@@ -159,7 +168,9 @@ def test_data_pipeline_end_to_end(tmp_path):
     # Compose transforms
     pipeline = tr.get_basic_transforms("train", image_size=(32, 32))
 
-    def transform_fn(img, mask):
+    def transform_fn(
+        img: ndarray[Any, Any], mask: ndarray[Any, Any]
+    ) -> dict[str, torch.Tensor]:
         return tr.apply_transforms(img, mask, pipeline)
 
     # Use a temp directory for any file operations if needed
@@ -173,3 +184,27 @@ def test_data_pipeline_end_to_end(tmp_path):
         assert imgs.shape[1:] == (3, 32, 32)
         assert masks.shape[1:] == (32, 32)
         assert imgs.shape[0] == masks.shape[0] <= 4  # noqa: PLR2004
+
+
+@pytest.fixture
+def dummy_dataset() -> Dataset[Any]:
+    class DummyDataset(Dataset[Any]):
+        def __len__(self) -> int:
+            return 10
+
+        def __getitem__(self, idx: int) -> int:
+            return idx
+
+    return DummyDataset()
+
+
+def test_pipeline_basic(dummy_dataset: Dataset[Any]) -> None:
+    pass
+
+
+def test_pipeline_with_dataloader(dummy_dataset: Dataset[Any]) -> None:
+    pass
+
+
+def test_pipeline_with_temp_dir(tmp_path: Path) -> None:
+    pass

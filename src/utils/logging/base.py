@@ -100,7 +100,7 @@ def log_metrics_dict(
 
     for name, value in metrics.items():
         # Only log numeric types (int, float), explicitly excluding bool
-        if isinstance(value, int | float) and not isinstance(value, bool):
+        if not isinstance(value, bool):
             tag = f"{prefix}{name}" if prefix else name
             try:
                 # Ensure value is float for logger

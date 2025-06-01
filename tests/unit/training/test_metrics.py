@@ -1,7 +1,6 @@
-from typing import cast
-
 import pytest
 import torch
+from pytest import FixtureRequest
 
 from src.training.metrics import (
     F1Score,
@@ -87,7 +86,13 @@ def threshold_tensor(
         (torch.ones((2, 2, 2)) + 5, torch.ones((2, 2, 2)), 0.5, 1.0),
     ],
 )
-def test_iou_score(pred, target, threshold, expected_iou, request):
+def test_iou_score(
+    pred: torch.Tensor | str,
+    target: torch.Tensor | str,
+    threshold: float | None,
+    expected_iou: float,
+    request: FixtureRequest,
+) -> None:
     # Resolve fixture references
     pred_tensor = (
         request.getfixturevalue(pred) if isinstance(pred, str) else pred
@@ -122,7 +127,13 @@ def test_iou_score(pred, target, threshold, expected_iou, request):
         (torch.ones((2, 2, 2)) + 5, torch.ones((2, 2, 2)), 0.5, 1.0),
     ],
 )
-def test_precision_score(pred, target, threshold, expected_precision, request):
+def test_precision_score(
+    pred: torch.Tensor | str,
+    target: torch.Tensor | str,
+    threshold: float | None,
+    expected_precision: float,
+    request: FixtureRequest,
+) -> None:
     pred_tensor = (
         request.getfixturevalue(pred) if isinstance(pred, str) else pred
     )
@@ -158,7 +169,13 @@ def test_precision_score(pred, target, threshold, expected_precision, request):
         (torch.ones((2, 2, 2)) + 5, torch.ones((2, 2, 2)), 0.5, 1.0),
     ],
 )
-def test_recall_score(pred, target, threshold, expected_recall, request):
+def test_recall_score(
+    pred: torch.Tensor | str,
+    target: torch.Tensor | str,
+    threshold: float | None,
+    expected_recall: float,
+    request: FixtureRequest,
+) -> None:
     pred_tensor = (
         request.getfixturevalue(pred) if isinstance(pred, str) else pred
     )
@@ -190,7 +207,13 @@ def test_recall_score(pred, target, threshold, expected_recall, request):
         (torch.ones((2, 2, 2)) + 5, torch.ones((2, 2, 2)), 0.5, 1.0),
     ],
 )
-def test_f1_score(pred, target, threshold, expected_f1, request):
+def test_f1_score(
+    pred: torch.Tensor | str,
+    target: torch.Tensor | str,
+    threshold: float | None,
+    expected_f1: float,
+    request: FixtureRequest,
+) -> None:
     pred_tensor = (
         request.getfixturevalue(pred) if isinstance(pred, str) else pred
     )
@@ -204,7 +227,7 @@ def test_f1_score(pred, target, threshold, expected_f1, request):
 
 
 # Test smooth parameter
-def test_smoothness(sample_target_mask):
+def test_smoothness(sample_target_mask: torch.Tensor) -> None:
     # Test case where denominator would be zero without smoothing
     # Logits -> all zeros after sigmoid+threshold
     pred_empty = torch.zeros_like(sample_target_mask) - 5
@@ -230,7 +253,7 @@ def test_smoothness(sample_target_mask):
         f1_metric(pred_empty, target_empty), torch.tensor(1.0)
     )
 
-    # Check non-empty pred, empty target (TP=0, FP > 0, FN=0)
+    # Check empty pred, non-empty target (TP=0, FP > 0, FN=0)
     # This case is hard to test reliably with smoothing and random pred
     # pred_non_empty = torch.sigmoid(torch.randn_like(sample_target_mask) * 2)
     # Expected: IoU=0, Prec=0, Rec=1, F1=0
@@ -275,25 +298,25 @@ def test_get_scalar_metrics_basic():
         "iou": torch.tensor(0.75),
         "f1": torch.tensor(0.8),
     }
-    scalars = get_scalar_metrics(cast(dict[str, torch.Tensor], metrics_dict))
-    assert scalars == pytest.approx({"loss": 0.5, "iou": 0.75, "f1": 0.8})
+    metrics = get_scalar_metrics(metrics_dict)
+    assert metrics == pytest.approx({"loss": 0.5, "iou": 0.75, "f1": 0.8})
 
 
-def test_get_scalar_metrics_mixed_types():
-    """Test extracting scalars with mixed tensor/float/int types."""
-    metrics_dict = {
-        "loss": torch.tensor(0.2),  # Tensor
-        "epoch": 3,  # Int
-        "lr": 1e-4,  # Float
+def test_get_scalar_metrics_mixed_types() -> None:
+    """Test with a dict containing mixed types (should skip non-scalars)."""
+    metrics_dict: dict[str, torch.Tensor] = {
+        "loss": torch.tensor(0.2),
+        "epoch": torch.tensor(3.0),
+        "lr": torch.tensor(1e-4),
         "non_scalar": torch.tensor([1.0, 2.0]),  # Non-scalar tensor
     }
-    scalars = get_scalar_metrics(cast(dict[str, torch.Tensor], metrics_dict))
-    assert scalars == pytest.approx({"loss": 0.2, "epoch": 3.0, "lr": 1e-4})
-    assert "non_scalar" not in scalars  # Should be skipped
+    metrics = get_scalar_metrics(metrics_dict)
+    assert metrics == pytest.approx({"loss": 0.2, "epoch": 3.0, "lr": 1e-4})
+    assert "non_scalar" not in metrics  # Should be skipped
 
 
 def test_get_scalar_metrics_empty():
     """Test with an empty dictionary."""
     metrics_dict: dict[str, torch.Tensor] = {}
-    scalars = get_scalar_metrics(metrics_dict)
-    assert scalars == {}
+    metrics = get_scalar_metrics(metrics_dict)
+    assert metrics == {}

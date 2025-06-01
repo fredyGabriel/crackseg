@@ -1,5 +1,7 @@
 """Early stopping implementation for training."""
 
+from collections.abc import Callable
+
 import numpy as np
 
 from src.utils.logging import get_logger
@@ -31,20 +33,24 @@ class EarlyStopping:
                 increasing.
             verbose: If True, prints message when early stopping triggers
         """
-        self.patience = patience
-        self.min_delta = abs(min_delta)
-        self.mode = mode
-        self.verbose = verbose
-        self.counter = 0
+        self.patience: int = patience
+        self.min_delta: float = abs(min_delta)
+        self.mode: str = mode
+        self.verbose: bool = verbose
+        self.counter: int = 0
         self.best_value: float | None = None
-        self.early_stop = False
+        self.early_stop: bool = False
 
         if mode not in ["min", "max"]:
             raise ValueError(f"mode '{mode}' is unknown")
 
-        self.monitor_op = np.less if mode == "min" else np.greater
+        self.monitor_op: Callable[[float, float], bool] = (
+            np.less if mode == "min" else np.greater
+        )
         # Adjust delta based on mode for comparison
-        self.delta_val = -self.min_delta if mode == "min" else self.min_delta
+        self.delta_val: float = (
+            -self.min_delta if mode == "min" else self.min_delta
+        )
         logger.info(
             f"Initialized early stopping (mode={mode}, patience={patience})"
         )

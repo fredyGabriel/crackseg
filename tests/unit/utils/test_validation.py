@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from omegaconf import OmegaConf
+from omegaconf import DictConfig, OmegaConf
 
 from src.utils.config.validation import (
     validate_config,
@@ -12,7 +12,7 @@ from src.utils.config.validation import (
 from src.utils.exceptions import ConfigError, ValidationError
 
 
-def make_valid_config(tmp_path):
+def make_valid_config(tmp_path: Path) -> DictConfig:
     """Create a valid DictConfig for testing validation."""
     data_dir = tmp_path / "data"
     data_dir.mkdir()
@@ -40,7 +40,7 @@ def make_valid_config(tmp_path):
     return config
 
 
-def test_validate_paths_valid(tmp_path):
+def test_validate_paths_valid(tmp_path: Path) -> None:
     """Test validate_paths with valid directories."""
     cfg = make_valid_config(tmp_path)
     # Should not raise
@@ -50,7 +50,7 @@ def test_validate_paths_valid(tmp_path):
     assert log_dir.exists()
 
 
-def test_validate_paths_invalid(tmp_path):
+def test_validate_paths_invalid(tmp_path: Path) -> None:
     """Test validate_paths raises error for missing data dir."""
     cfg = make_valid_config(tmp_path)
     cfg.data.train_dir = str(tmp_path / "nonexistent")
@@ -58,13 +58,13 @@ def test_validate_paths_invalid(tmp_path):
         validate_paths(cfg)
 
 
-def test_validate_training_config_valid(tmp_path):
+def test_validate_training_config_valid(tmp_path: Path) -> None:
     """Test validate_training_config with valid parameters."""
     cfg = make_valid_config(tmp_path)
     validate_training_config(cfg)
 
 
-def test_validate_training_config_invalid(tmp_path):
+def test_validate_training_config_invalid(tmp_path: Path) -> None:
     """Test validate_training_config raises error for invalid params."""
     cfg = make_valid_config(tmp_path)
     cfg.training.epochs = 0
@@ -84,13 +84,13 @@ def test_validate_training_config_invalid(tmp_path):
         validate_training_config(cfg)
 
 
-def test_validate_model_config_valid(tmp_path):
+def test_validate_model_config_valid(tmp_path: Path) -> None:
     """Test validate_model_config with valid parameters."""
     cfg = make_valid_config(tmp_path)
     validate_model_config(cfg)
 
 
-def test_validate_model_config_invalid(tmp_path):
+def test_validate_model_config_invalid(tmp_path: Path) -> None:
     """Test validate_model_config raises error for invalid params."""
     cfg = make_valid_config(tmp_path)
     cfg.model.in_channels = 0
@@ -109,13 +109,13 @@ def test_validate_model_config_invalid(tmp_path):
         validate_model_config(cfg)
 
 
-def test_validate_config_valid(tmp_path):
+def test_validate_config_valid(tmp_path: Path) -> None:
     """Test validate_config with a fully valid config."""
     cfg = make_valid_config(tmp_path)
     validate_config(cfg)
 
 
-def test_validate_config_invalid(tmp_path):
+def test_validate_config_invalid(tmp_path: Path) -> None:
     """Test validate_config raises ConfigError for invalid config."""
     cfg = make_valid_config(tmp_path)
     cfg.model.in_channels = 0

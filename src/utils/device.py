@@ -41,8 +41,8 @@ def get_device(device_str: str | None = None) -> torch.device:
             if device_id >= torch.cuda.device_count():
                 logger.warning(
                     f"GPU {device_id} requested but not available "
-                    f"(count: {torch.cuda.device_count()}), "
-                    f"falling back to GPU 0."
+                    + f"(count: {torch.cuda.device_count()}), "
+                    + "falling back to GPU 0."
                 )
                 device_id = 0
             device = torch.device(f"cuda:{device_id}")
@@ -53,7 +53,7 @@ def get_device(device_str: str | None = None) -> torch.device:
         except (IndexError, ValueError):
             logger.warning(
                 f"Invalid CUDA device string '{device_str}'. "
-                f"Falling back to GPU 0."
+                + "Falling back to GPU 0."
             )
             device_id = 0
             device = torch.device(f"cuda:{device_id}")

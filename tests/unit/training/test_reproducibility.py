@@ -10,6 +10,7 @@ This focuses only on random number generation, not the full training process.
 
 import json
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pytest
@@ -60,12 +61,12 @@ def base_config():
 
 
 @pytest.fixture
-def results_dir(tmp_path):
+def results_dir(tmp_path: Path) -> Path:
     """Temporary directory for test results."""
     return tmp_path / "reproducibility_test"
 
 
-def generate_random_numbers(seed: int, n_samples: int = 10) -> dict:
+def generate_random_numbers(seed: int, n_samples: int = 10) -> dict[str, Any]:
     """Generate random numbers using given seed.
 
     Args:
@@ -92,7 +93,8 @@ def generate_random_numbers(seed: int, n_samples: int = 10) -> dict:
 
 
 def compare_runs(
-    results_same_seed: list[dict], results_diff_seeds: list[dict]
+    results_same_seed: list[dict[str, Any]],
+    results_diff_seeds: list[dict[str, Any]],
 ) -> dict[str, float]:
     """Compare results from runs with same and different seeds.
 
@@ -140,7 +142,7 @@ def compare_runs(
 # --- Test Cases ---
 
 
-def test_exact_reproducibility(base_config, results_dir):
+def test_exact_reproducibility(base_config: Any, results_dir: Path) -> None:
     """Test that multiple runs with the same seed produce identical results."""
     N_RUNS = 3
     results = []
@@ -172,7 +174,7 @@ def test_exact_reproducibility(base_config, results_dir):
             assert diff < 1e-6, msg
 
 
-def test_statistical_similarity(base_config, results_dir):
+def test_statistical_similarity(base_config: Any, results_dir: Path) -> None:
     """Test that runs with different seeds produce statistically similar
     but not identical results."""
     N_RUNS = 5

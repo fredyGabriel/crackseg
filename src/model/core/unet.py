@@ -38,12 +38,6 @@ class BaseUNet(UNetBase):
     complete U-Net architecture for image segmentation tasks.
     """
 
-    # Re-declare attributes as non-Optional for this concrete class
-    encoder: EncoderBase
-    bottleneck: BottleneckBase
-    decoder: DecoderBase
-    final_activation: nn.Module | None  # final_activation puede ser None
-
     def __init__(
         self,
         encoder: EncoderBase,
@@ -67,7 +61,7 @@ class BaseUNet(UNetBase):
         super().__init__(encoder, bottleneck, decoder)
 
         # Instantiate final activation
-        self.final_activation: nn.Module | None = None
+        self.final_activation = None
         if final_activation is not None:
             # If it's already an nn.Module instance, use it directly
             if isinstance(final_activation, nn.Module):
@@ -91,6 +85,9 @@ nn.Module"
                     self.final_activation = None  # Fallback to no activation
 
         # Validar compatibilidad de canales de skip
+        assert self.encoder is not None
+        assert self.decoder is not None
+        assert self.bottleneck is not None
         if hasattr(self.encoder, "skip_channels") and hasattr(
             self.decoder, "skip_channels"
         ):
@@ -123,6 +120,9 @@ nn.Module"
             torch.Tensor: Output segmentation map of shape [B, O, H, W],
                 where O is the number of output channels.
         """
+        assert self.encoder is not None
+        assert self.bottleneck is not None
+        assert self.decoder is not None
         # Pass input through encoder to get features and skip connections
         features, skip_connections = self.encoder(x)
 
@@ -145,6 +145,7 @@ nn.Module"
         Returns:
             int: Number of output channels (from decoder).
         """
+        assert self.decoder is not None
         return self.decoder.out_channels
 
     def get_input_channels(self) -> int:
@@ -154,6 +155,7 @@ nn.Module"
         Returns:
             int: Number of input channels (from encoder).
         """
+        assert self.encoder is not None
         return self.encoder.in_channels
 
     def summary(
@@ -351,9 +353,9 @@ nn.Module"
             Optional[str]: Formatted summary string if return_string is True,
                           otherwise None.
         """
+        string_stream = StringIO()  # Always initialize
         target_file: Any
         if return_string:
-            string_stream = StringIO()
             target_file = string_stream
         else:
             import sys

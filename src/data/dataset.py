@@ -138,7 +138,7 @@ class CrackSegmentationDataset(Dataset[Any]):
         random.seed(self.seed)
         np.random.seed(self.seed)
         try:
-            torch.manual_seed(self.seed)
+            torch.manual_seed(self.seed)  # type: ignore
             if torch.cuda.is_available():
                 torch.cuda.manual_seed_all(self.seed)
         except ImportError:
@@ -153,26 +153,16 @@ class CrackSegmentationDataset(Dataset[Any]):
         for img_path, mask_path in self.samples:
             try:
                 # Load as PIL for caching
-                img_pil_raw = PIL.Image.open(img_path)
-                image_pil = typing.cast(PIL.Image.Image, img_pil_raw)
-                image_intermediate = PIL.ImageOps.exif_transpose(image_pil)
-                image = typing.cast(
-                    PIL.Image.Image, image_intermediate
+                image = PIL.ImageOps.exif_transpose(
+                    PIL.Image.open(img_path)
                 ).convert("RGB")
-
-                mask_pil_raw = PIL.Image.open(mask_path)
-                mask_pil = typing.cast(PIL.Image.Image, mask_pil_raw)
-                mask_intermediate = PIL.ImageOps.exif_transpose(mask_pil)
-                mask = typing.cast(PIL.Image.Image, mask_intermediate).convert(
-                    "L"
-                )
-
-                if self._cache is not None:
-                    self._cache.append((image.copy(), mask.copy()))
+                mask = PIL.ImageOps.exif_transpose(
+                    PIL.Image.open(mask_path)
+                ).convert("L")
+                self._cache.append((image.copy(), mask.copy()))
                 # Close files after copying
                 image.close()
                 mask.close()
-
             except (
                 OSError,
                 FileNotFoundError,
@@ -186,8 +176,7 @@ class CrackSegmentationDataset(Dataset[Any]):
                     stacklevel=2,
                 )
                 # Placeholder for failed cache
-                if self._cache is not None:
-                    self._cache.append((None, None))
+                self._cache.append((None, None))
 
     def __len__(self) -> int:
         """Return the total number of samples."""
@@ -251,15 +240,15 @@ class CrackSegmentationDataset(Dataset[Any]):
                     mask = (mask > 127).astype(np.uint8)
 
                     # Apply transformations
-                    transformed = (
-                        self.transforms(image=image, mask=mask)
-                        if self.transforms is not None
-                        else {"image": None, "mask": None}
-                    )
+                    transformed = self.transforms(image=image, mask=mask)
                     image_tensor = transformed["image"]
                     mask_tensor = transformed["mask"]
 
                     # Ensure mask_tensor is binary (0/1)
+                    if mask_tensor is None:
+                        raise RuntimeError(
+                            "Transform did not return a mask tensor."
+                        )
                     mask_tensor = (mask_tensor > 0.5).float()
                     # Ensure shape (1, H, W)
                     if mask_tensor.ndim == 2:
@@ -272,7 +261,6 @@ class CrackSegmentationDataset(Dataset[Any]):
                         mask=mask_source,
                         transforms=self.transforms,
                     )
-                    # Ensure shape (1, H, W) for the mask
                     mask_tensor = sample["mask"]
                     if mask_tensor.ndim == 2:
                         mask_tensor = mask_tensor.unsqueeze(0)

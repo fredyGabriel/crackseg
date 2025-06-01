@@ -1,5 +1,3 @@
-from typing import cast
-
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -30,7 +28,7 @@ class ChannelAttention(nn.Module):
         >>> out.shape  # (8, 64, 32, 32)
     """
 
-    def __init__(self, in_channels: int, reduction: int = 16):
+    def __init__(self, in_channels: int, reduction: int = 16) -> None:
         super().__init__()
         if reduction <= 0 or reduction >= in_channels:
             raise ValueError(
@@ -68,7 +66,7 @@ class ChannelAttention(nn.Module):
         # Sum and apply sigmoid
         attn = self.sigmoid(avg_attn + max_attn).view(b, c, 1, 1)
         # Scale input
-        return cast(torch.Tensor, x * attn)
+        return x * attn
 
 
 class SpatialAttention(nn.Module):
@@ -88,7 +86,7 @@ class SpatialAttention(nn.Module):
         >>> out.shape  # (8, 64, 32, 32)
     """
 
-    def __init__(self, kernel_size: int = 7):
+    def __init__(self, kernel_size: int = 7) -> None:
         super().__init__()
         if kernel_size % 2 == 0 or kernel_size < 1:
             raise ValueError("kernel_size must be odd and >= 1")
@@ -116,7 +114,7 @@ class SpatialAttention(nn.Module):
         # Convolution and sigmoid
         attn = self.sigmoid(self.conv(pooled))
         # Scale input
-        return cast(torch.Tensor, x * attn)
+        return x * attn
 
 
 @attention_registry.register(name="CBAM")
@@ -140,7 +138,7 @@ class CBAM(nn.Module):
 
     def __init__(
         self, in_channels: int, reduction: int = 16, kernel_size: int = 7
-    ):
+    ) -> None:
         super().__init__()
         self.channel_attn = ChannelAttention(in_channels, reduction)
         self.spatial_attn = SpatialAttention(kernel_size)

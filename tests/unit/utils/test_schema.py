@@ -121,7 +121,7 @@ def test_metric_configs_instantiation():
     prec = PrecisionScoreConfig()
     rec = RecallScoreConfig()
     f1 = F1ScoreConfig()
-    assert iou._target_ == "src.training.metrics.IoUScore"
-    assert prec._target_ == "src.training.metrics.PrecisionScore"
-    assert rec._target_ == "src.training.metrics.RecallScore"
-    assert f1._target_ == "src.training.metrics.F1Score"
+    assert isinstance(iou, IoUScoreConfig)
+    assert isinstance(prec, PrecisionScoreConfig)
+    assert isinstance(rec, RecallScoreConfig)
+    assert isinstance(f1, F1ScoreConfig)

@@ -4,6 +4,7 @@ Uses albumentations to create transforms for different modes (train/val/test)
 with support for resizing and normalization.
 """
 
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, cast
 
@@ -46,7 +47,7 @@ def get_basic_transforms(
         raise ValueError(msg)
 
     # Core transforms
-    core_transforms: list[A.BasicTransform] = [
+    core_transforms: Sequence[Any] = [
         A.Resize(
             height=image_size[0],
             width=image_size[1],
@@ -57,7 +58,7 @@ def get_basic_transforms(
     ]
 
     # Training augmentations
-    image_augmentations: list[A.BasicTransform] = []
+    image_augmentations: Sequence[Any] = []
     if mode == "train":
         image_augmentations = [
             A.HorizontalFlip(p=0.5),
@@ -80,13 +81,13 @@ def get_basic_transforms(
                 p=0.5,
             ),
         ]
-        final_transforms: list[A.BasicTransform] = image_augmentations + [
+        final_transforms: Sequence[Any] = list(image_augmentations) + [
             t for t in core_transforms if not isinstance(t, A.Resize)
         ]
     else:
         final_transforms = core_transforms
 
-    pipeline = A.Compose(final_transforms)
+    pipeline = A.Compose(list(final_transforms))  # type: ignore[arg-type]
 
     return pipeline
 
@@ -96,8 +97,6 @@ def _load_image(
 ) -> np.ndarray[Any, Any]:
     if isinstance(image, str | Path):
         img_array = cv2.imread(str(image))
-        if img_array is None:
-            raise FileNotFoundError(f"Image not found or unreadable: {image}")
         return cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
     return image
 
@@ -107,10 +106,6 @@ def _load_mask(
 ) -> np.ndarray[Any, Any] | None:
     if isinstance(mask, str | Path):
         mask_array_raw = cv2.imread(str(mask), cv2.IMREAD_GRAYSCALE)
-        if mask_array_raw is None:
-            raise FileNotFoundError(
-                f"Mask file not found or unreadable: {mask}"
-            )
         return mask_array_raw
     elif isinstance(mask, np.ndarray):
         return mask
@@ -192,13 +187,7 @@ def _get_transform_specs(
                 {"name": actual_transform_name, "params": params_val}
             )
         return specs_from_mapping
-    elif isinstance(config_list, list):
-        return config_list
-    else:
-        raise TypeError(
-            "config_list must be a list of transform specs or a "
-            f"dict/DictConfig. Got: {type(config_list)}"
-        )
+    return config_list
 
 
 def get_transforms_from_config(
@@ -224,7 +213,7 @@ def get_transforms_from_config(
     """
     transform_specs_list = _get_transform_specs(config_list)
 
-    transforms_pipeline: list[A.BasicTransform] = []
+    transforms_pipeline: list[Any] = []
 
     for transform_item in transform_specs_list:
         name_any = transform_item.get("name")
@@ -236,7 +225,7 @@ def get_transforms_from_config(
             raise ValueError("Each transform item must have a 'name' key.")
 
         try:
-            transform_class: type[A.BasicTransform]
+            transform_class: type[Any]
             if name == "ToTensorV2":
                 transform_class = ToTensorV2
                 params_value = {}

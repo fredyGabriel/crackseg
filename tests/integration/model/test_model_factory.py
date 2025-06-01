@@ -1,5 +1,6 @@
 """Unit tests for model component factory functions."""
 
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import hydra
@@ -13,7 +14,7 @@ from src.model.factory import ConfigurationError, validate_config
 
 # Fixture to load Hydra configuration
 @pytest.fixture(scope="session")
-def cfg():
+def cfg() -> Any:
     with hydra.initialize_config_dir(config_dir="configs", version_base=None):
         config = hydra.compose(config_name="config.yaml")
     return config
@@ -43,11 +44,11 @@ def test_validate_config_missing_key():
         )
 
 
-def test_validate_config_valid(cfg):
+def test_validate_config_valid(cfg: Any):
     """Test validation of a valid config."""
     config = {
         "type": "mock",
-        "in_channels": cfg.data.num_channels_rgb,
+        "in_channels": cfg.data.num_channels_rgb,  # type: ignore
         "out_channels": 64,  # Si existe en config usarlo
     }
     # Should not raise an exception
@@ -69,7 +70,7 @@ def test_validate_config_valid(cfg):
 @patch("src.model.factory.config._try_instantiation_methods")
 @patch("hydra.utils.get_class")
 def test_create_unet_basic(
-    mock_get_class, mock_try_instantiation_methods, cfg
+    mock_get_class: Any, mock_try_instantiation_methods: Any, cfg: Any
 ):
     """Test creation of a basic UNet model, mocking the core instantiation
     helper."""
@@ -82,8 +83,8 @@ def test_create_unet_basic(
 
     # Configure mock properties needed by create_unet
     encoder_out_channels = (
-        cfg.model.encoder.init_features
-        if hasattr(cfg.model.encoder, "init_features")
+        cfg.model.encoder.init_features  # type: ignore
+        if hasattr(cfg.model.encoder, "init_features")  # type: ignore
         else 64
     )  # Default fallback
     # TODO: If available in config, use cfg.model.decoder.skip_channels_list
@@ -101,7 +102,7 @@ def test_create_unet_basic(
 
     # Configure side_effect for the mocked _try_instantiation_methods
     def try_instantiation_side_effect(
-        config, component_type, registry, base_class
+        config: Any, component_type: Any, registry: Any, base_class: Any
     ):
         if component_type == "encoder":
             return mock_encoder
@@ -130,7 +131,7 @@ def test_create_unet_basic(
             "encoder": {
                 "_target_": "e",
                 "type": "E",
-                "in_channels": cfg.data.num_channels_rgb,
+                "in_channels": cfg.data.num_channels_rgb,  # type: ignore
             },
             "bottleneck": {"_target_": "b", "type": "B"},
             "decoder": {"_target_": "d", "type": "D"},
@@ -142,16 +143,18 @@ def test_create_unet_basic(
 
     # Assertions
     assert unet is mock_unet_instance
-    assert mock_try_instantiation_methods.call_count == 3  # noqa: PLR2004
-    calls = mock_try_instantiation_methods.call_args_list
-    assert calls[0].args[1] == "encoder"
-    assert calls[1].args[1] == "bottleneck"
-    assert calls[2].args[1] == "decoder"
+    assert (
+        mock_try_instantiation_methods.call_count == 3
+    )  # noqa: PLR2004  # type: ignore
+    calls = mock_try_instantiation_methods.call_args_list  # type: ignore
+    assert calls[0].args[1] == "encoder"  # type: ignore
+    assert calls[1].args[1] == "bottleneck"  # type: ignore
+    assert calls[2].args[1] == "decoder"  # type: ignore
 
-    mock_get_class.assert_called_once_with("src.model.unet.BaseUNet")
+    mock_get_class.assert_called_once_with("src.model.unet.BaseUNet")  # type: ignore
     MockUnetClass.assert_called_once_with(
         encoder=mock_encoder, bottleneck=mock_bottleneck, decoder=mock_decoder
-    )
+    )  # type: ignore
 
 
 # Patch the correct internal helper
@@ -159,7 +162,10 @@ def test_create_unet_basic(
 @patch("hydra.utils.get_class")
 @patch("hydra.utils.instantiate")
 def test_create_unet_with_final_activation(
-    mock_hydra_instantiate, mock_get_class, mock_try_instantiation_methods, cfg
+    mock_hydra_instantiate: Any,
+    mock_get_class: Any,
+    mock_try_instantiation_methods: Any,
+    cfg: Any,
 ):
     """Test UNet creation with activation, mocking core instantiation."""
     from src.model.factory import create_unet
@@ -169,8 +175,8 @@ def test_create_unet_with_final_activation(
     mock_bottleneck = MagicMock(spec=BottleneckBase)
     mock_decoder = MagicMock(spec=DecoderBase)
     encoder_out_channels = (
-        cfg.model.encoder.init_features
-        if hasattr(cfg.model.encoder, "init_features")
+        cfg.model.encoder.init_features  # type: ignore
+        if hasattr(cfg.model.encoder, "init_features")  # type: ignore
         else 64
     )  # Default fallback
     # TODO: If available in config, use cfg.model.decoder.skip_channels_list
@@ -188,7 +194,7 @@ def test_create_unet_with_final_activation(
 
     # Configure side_effect for the mocked _try_instantiation_methods
     def try_instantiation_side_effect(
-        config, component_type, registry, base_class
+        config: Any, component_type: Any, registry: Any, base_class: Any
     ):
         if component_type == "encoder":
             return mock_encoder
@@ -219,7 +225,7 @@ def test_create_unet_with_final_activation(
             "encoder": {
                 "_target_": "e",
                 "type": "E",
-                "in_channels": cfg.data.num_channels_rgb,
+                "in_channels": cfg.data.num_channels_rgb,  # type: ignore
             },
             "bottleneck": {"_target_": "b", "type": "B"},
             "decoder": {"_target_": "d", "type": "D"},
@@ -235,9 +241,11 @@ def test_create_unet_with_final_activation(
     assert unet[0] is mock_unet_base_instance
     assert unet[1] is mock_activation
 
-    assert mock_try_instantiation_methods.call_count == 3  # noqa: PLR2004
-    mock_get_class.assert_called_once()
+    assert (
+        mock_try_instantiation_methods.call_count == 3
+    )  # noqa: PLR2004  # type: ignore
+    mock_get_class.assert_called_once()  # type: ignore
     MockUnetClass.assert_called_once_with(
         encoder=mock_encoder, bottleneck=mock_bottleneck, decoder=mock_decoder
-    )
-    mock_hydra_instantiate.assert_called_once_with(config.final_activation)
+    )  # type: ignore
+    mock_hydra_instantiate.assert_called_once_with(config.final_activation)  # type: ignore

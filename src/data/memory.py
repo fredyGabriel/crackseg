@@ -6,7 +6,7 @@ from typing import cast
 
 import torch
 import torch.nn as nn
-from torch.cuda.amp import GradScaler
+from torch.amp.grad_scaler import GradScaler
 
 
 def get_available_gpu_memory(
@@ -37,7 +37,8 @@ def get_available_gpu_memory(
     memory_reserved = torch.cuda.memory_reserved(device)
     memory_allocated = torch.cuda.memory_allocated(device)
     max_memory = cast(
-        int, torch.cuda.get_device_properties(device).total_memory
+        int,
+        torch.cuda.get_device_properties(device).total_memory,  # type: ignore[reportUnknownArgumentType]
     )
 
     available = (
@@ -79,7 +80,8 @@ def get_gpu_memory_usage(
     memory_allocated = torch.cuda.memory_allocated(device)
     memory_reserved = torch.cuda.memory_reserved(device)
     max_memory = cast(
-        int, torch.cuda.get_device_properties(device).total_memory
+        int,
+        torch.cuda.get_device_properties(device).total_memory,  # type: ignore[reportUnknownArgumentType]
     )
     available = (
         max_memory - memory_reserved + (memory_reserved - memory_allocated)
@@ -263,7 +265,7 @@ def enable_mixed_precision() -> GradScaler | None:
         )
         return None
 
-    return GradScaler()
+    return GradScaler("cuda")
 
 
 def format_memory_stats(stats: dict[str, float]) -> str:

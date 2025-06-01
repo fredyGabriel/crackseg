@@ -7,7 +7,6 @@ U-Net components.
 """
 
 import os
-from typing import assert_type
 
 import pytest
 import torch
@@ -45,7 +44,6 @@ def load_test_config(config_path: str | None = None) -> DictConfig:
     cfg = OmegaConf.create(content)
     if not isinstance(cfg, DictConfig):
         raise TypeError("Config file must be a DictConfig (YAML dict at root)")
-    assert_type(cfg, DictConfig)
     return cfg
 
 
@@ -121,9 +119,9 @@ def test_swin_transformer_memory_usage():
         start_time = torch.cuda.Event(enable_timing=True)
         end_time = torch.cuda.Event(enable_timing=True)
 
-        start_time.record()
-        bottleneck, skip_connections = encoder(x)
-        end_time.record()
+        start_time.record()  # type: ignore
+        _, _ = encoder(x)
+        end_time.record()  # type: ignore
 
         torch.cuda.synchronize()
 

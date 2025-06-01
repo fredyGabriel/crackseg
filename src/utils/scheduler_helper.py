@@ -12,7 +12,7 @@ def step_scheduler_helper(
     scheduler: Any | None,
     optimizer: Any | None,
     monitor_metric: str,
-    metrics: dict | None = None,
+    metrics: dict[str, float] | None = None,
     logger: Any | None = None,
 ) -> float | None:
     """Steps the learning rate scheduler, handling ReduceLROnPlateau and
@@ -44,7 +44,7 @@ def step_scheduler_helper(
                     "metric for step. Skipping scheduler step.",
                 )
         else:
-            scheduler.step(monitor_value)
+            scheduler.step(monitor_value)  # type: ignore[reportUnknownMemberType]
     else:
         scheduler.step()
 

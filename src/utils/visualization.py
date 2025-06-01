@@ -1,14 +1,22 @@
+"""
+Visualization utilities for model predictions and segmentation results.
+"""
+
+# pyright: reportUnknownMemberType=false, reportUnknownArgumentType=false, reportUnknownVariableType=false, reportAttributeAccessIssue=false
+# The above suppressions are necessary for matplotlib/numpy due to incomplete
+# type stubs
+
 import logging
 import math
 import os
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from matplotlib.colors import ListedColormap
-from mpl_toolkits.axes_grid1 import ImageGrid
+from mpl_toolkits.axes_grid1 import ImageGrid  # type: ignore
 from omegaconf import DictConfig
 from PIL import Image
 
@@ -39,7 +47,7 @@ class BatchDisplayConfig:
 class GridDisplayConfig:
     """Configuration for displaying results in a grid."""
 
-    targets: list[np.ndarray] | None = None
+    targets: list[np.ndarray[Any, Any]] | None = None
     num_cols: int = 3
     fig_size_per_row: tuple[int, int] = (15, 5)
     titles: list[str] | None = None
@@ -128,7 +136,7 @@ def visualize_predictions(  # noqa: PLR0913
         img = np.clip(img, 0, 1)
 
         # Create overlay visualization (prediction contour on image)
-        fig, ax = plt.subplots(figsize=(10, 10))
+        _, ax = plt.subplots(figsize=(10, 10))
         ax.imshow(img)
 
         # Create contour of the prediction
@@ -146,9 +154,9 @@ def visualize_predictions(  # noqa: PLR0913
 
 
 def plot_segmentation_comparison(
-    image: torch.Tensor | np.ndarray,
-    prediction: torch.Tensor | np.ndarray,
-    target: torch.Tensor | np.ndarray,
+    image: torch.Tensor | np.ndarray[Any, Any],
+    prediction: torch.Tensor | np.ndarray[Any, Any],
+    target: torch.Tensor | np.ndarray[Any, Any],
     cfg: DictConfig,
     plot_cfg: PlottingConfig | None = None,
 ):
@@ -164,7 +172,7 @@ def plot_segmentation_comparison(
             cfg.visualization.num_cols_no_targets - 1
         ):  # 3-2+1=2, so if shape[0]==1
             binary_prediction = binary_prediction.squeeze(0)
-    elif isinstance(prediction, np.ndarray):
+    else:
         binary_prediction = (prediction > threshold).astype(float)
         if prediction.ndim == num_channel_dim and prediction.shape[
             0
@@ -172,10 +180,14 @@ def plot_segmentation_comparison(
             cfg.visualization.num_cols_no_targets - 1
         ):  # Check for channel dim
             binary_prediction = binary_prediction.squeeze(0)
-    else:
-        raise TypeError("Prediction must be a PyTorch Tensor or NumPy array.")
 
+    from matplotlib.axes import Axes
+    from matplotlib.figure import Figure
+
+    fig: Figure
+    axs: list[Axes]
     fig, axs = plt.subplots(1, 2, figsize=plot_cfg.fig_size)
+
     axs[0].imshow(image)
     axs[0].set_title(f"{plot_cfg.title_prefix}Original Image")
     axs[0].axis("off")
@@ -210,6 +222,9 @@ def visualize_batch_predictions(
     targets = batch_display_cfg.targets
     max_samples = batch_display_cfg.max_samples
     fig_size_per_sample = batch_display_cfg.fig_size_per_sample
+    titles = getattr(
+        batch_display_cfg, "titles", None
+    )  # Add missing titles variable
 
     num_cols = (
         cfg.visualization.num_cols
@@ -247,7 +262,10 @@ def visualize_batch_predictions(
         img = np.clip(img, 0, 1)
 
         grid[ax_img_idx].imshow(img)
-        grid[ax_img_idx].set_title(f"Image {i + 1}")
+        if titles is None or len(titles) <= i:
+            grid[ax_img_idx].set_title(f"Image {i + 1}")
+        else:
+            grid[ax_img_idx].set_title(titles[i])
         grid[ax_img_idx].axis("off")
 
         ax_pred = grid[ax_pred_idx]
@@ -281,23 +299,19 @@ def visualize_batch_predictions(
 
 
 def create_overlay_visualization(
-    image_rgb: np.ndarray,
-    prediction_mask: np.ndarray,
+    image_rgb: np.ndarray[Any, Any],
+    prediction_mask: np.ndarray[Any, Any],
     cfg: DictConfig,
     alpha: float = 0.4,
     cmap_name: str = "viridis",
 ):
     """Creates an overlay of a prediction mask on an RGB image."""
     if (
-        not isinstance(image_rgb, np.ndarray)
-        or image_rgb.ndim != cfg.visualization.num_cols
+        image_rgb.ndim != cfg.visualization.num_cols
         or image_rgb.shape[2] != cfg.visualization.num_cols
     ):
         raise ValueError("image_rgb must be a HxWx3 NumPy array.")
-    if (
-        not isinstance(prediction_mask, np.ndarray)
-        or prediction_mask.ndim != cfg.visualization.num_cols_no_targets
-    ):
+    if prediction_mask.ndim != cfg.visualization.num_cols_no_targets:
         raise ValueError("prediction_mask must be a HxW NumPy array.")
     if image_rgb.shape[:2] != prediction_mask.shape:
         # Try to resize prediction_mask if shapes don't match
@@ -356,19 +370,16 @@ def create_overlay_visualization(
 
 
 def get_masked_prediction(
-    pred_array: np.ndarray, cfg: DictConfig
-) -> np.ma.MaskedArray:
+    pred_array: np.ndarray[Any, Any], cfg: DictConfig
+) -> np.ma.MaskedArray[Any, Any]:  # type: ignore[reportMissingTypeArgument]
     """Returns a masked array based on a threshold from config."""
     threshold = cfg.thresholds.metric
-    return cast(
-        np.ma.MaskedArray,
-        np.ma.masked_where(pred_array < threshold, pred_array),
-    )
+    return np.ma.masked_where(pred_array < threshold, pred_array)  # type: ignore[reportUnknownMemberType]
 
 
 def visualize_segmentation_results(
-    images: list[np.ndarray],
-    predictions: list[np.ndarray],
+    images: list[np.ndarray[Any, Any]],
+    predictions: list[np.ndarray[Any, Any]],
     cfg: DictConfig,
     plot_cfg: PlottingConfig | None = None,
     grid_cfg: GridDisplayConfig | None = None,
@@ -385,7 +396,7 @@ def visualize_segmentation_results(
         else cfg.visualization.num_cols_no_targets
     )
     fig_size_per_row = grid_cfg.fig_size_per_row
-    titles = grid_cfg.titles
+    titles = grid_cfg.titles if hasattr(grid_cfg, "titles") else None
 
     if targets is not None and len(targets) != num_samples:
         raise ValueError("Length of images and targets must match.")
@@ -425,11 +436,10 @@ def visualize_segmentation_results(
 
         # Original Image
         grid[ax_img_idx].imshow(img)
-        grid[ax_img_idx].set_title(
-            f"Image {i + 1}"
-            if (titles is None or len(titles) <= i)
-            else titles[i]
-        )
+        if titles is None or len(titles) <= i:
+            grid[ax_img_idx].set_title(f"Image {i + 1}")
+        else:
+            grid[ax_img_idx].set_title(titles[i])
         grid[ax_img_idx].axis("off")
 
         # Prediction (binarized or masked)

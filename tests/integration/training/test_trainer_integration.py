@@ -1,5 +1,7 @@
 import os
+import pathlib
 import shutil
+from typing import Any
 
 import torch
 from omegaconf import OmegaConf
@@ -8,32 +10,36 @@ from src.training.trainer import Trainer, TrainingComponents
 from src.utils.logging import NoOpLogger
 
 
-def get_dummy_data_loader(num_batches=4, batch_size=2, shape=(3, 4, 4)):
-    class DummyDataset(torch.utils.data.Dataset):
-        def __len__(self):
+def get_dummy_data_loader(
+    num_batches: int = 4,
+    batch_size: int = 2,
+    shape: tuple[int, ...] = (3, 4, 4),
+) -> torch.utils.data.DataLoader[dict[str, torch.Tensor]]:
+    class DummyDataset(torch.utils.data.Dataset[dict[str, torch.Tensor]]):
+        def __len__(self) -> int:
             return num_batches * batch_size
 
-        def __getitem__(self, idx):
+        def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
             return {"image": torch.randn(*shape), "mask": torch.randn(1, 4, 4)}
 
     return torch.utils.data.DataLoader(DummyDataset(), batch_size=batch_size)
 
 
-def get_dummy_model():
+def get_dummy_model() -> torch.nn.Module:
     return torch.nn.Conv2d(3, 1, 1)
 
 
-def get_dummy_loss():
+def get_dummy_loss() -> torch.nn.Module:
     return torch.nn.MSELoss()
 
 
-def get_dummy_metrics():
+def get_dummy_metrics() -> dict[str, Any]:
     return {}
 
 
 def integration_test_trainer_checkpoint_resume(
-    tmp_path, use_amp=False, grad_accum_steps=1
-):
+    tmp_path: pathlib.Path, use_amp: bool = False, grad_accum_steps: int = 1
+) -> None:
     checkpoint_dir = tmp_path / "checkpoints"
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
@@ -122,19 +128,25 @@ after resuming and training"
     shutil.rmtree(actual_checkpoint_dir, ignore_errors=True)
 
 
-def test_trainer_integration_checkpoint_resume_cpu(tmp_path):
+def test_trainer_integration_checkpoint_resume_cpu(
+    tmp_path: pathlib.Path,
+) -> None:
     integration_test_trainer_checkpoint_resume(
         tmp_path, use_amp=False, grad_accum_steps=1
     )
 
 
-def test_trainer_integration_checkpoint_resume_amp(tmp_path):
+def test_trainer_integration_checkpoint_resume_amp(
+    tmp_path: pathlib.Path,
+) -> None:
     integration_test_trainer_checkpoint_resume(
         tmp_path, use_amp=True, grad_accum_steps=1
     )
 
 
-def test_trainer_integration_checkpoint_resume_accum(tmp_path):
+def test_trainer_integration_checkpoint_resume_accum(
+    tmp_path: pathlib.Path,
+) -> None:
     integration_test_trainer_checkpoint_resume(
         tmp_path, use_amp=False, grad_accum_steps=2
     )

@@ -1,12 +1,17 @@
+from pathlib import Path
+from typing import Any
+
 import pytest
 import yaml
 
 from src.evaluation.results import save_evaluation_results
 
 
-def test_save_evaluation_results_unwritable_dir(tmp_path, monkeypatch):
+def test_save_evaluation_results_unwritable_dir(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
     # Simular error de E/S al abrir el archivo
-    def raise_ioerror(*args, **kwargs):
+    def raise_ioerror(*args: Any, **kwargs: Any) -> None:
         raise OSError("Permission denied")
 
     monkeypatch.setattr("builtins.open", raise_ioerror)
@@ -17,9 +22,11 @@ def test_save_evaluation_results_unwritable_dir(tmp_path, monkeypatch):
         save_evaluation_results(results, config, checkpoint, str(tmp_path))
 
 
-def test_save_evaluation_results_non_serializable(tmp_path, monkeypatch):
+def test_save_evaluation_results_non_serializable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
     # Simular error de serialización en yaml.dump
-    def raise_yaml_error(*args, **kwargs):
+    def raise_yaml_error(*args: Any, **kwargs: Any) -> None:
         raise yaml.YAMLError("Serialization failed")
 
     monkeypatch.setattr("yaml.dump", raise_yaml_error)

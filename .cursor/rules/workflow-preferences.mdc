@@ -3,82 +3,128 @@ description:
 globs:
 alwaysApply: true
 ---
-# Coding Workflow Preferences
+# Development Workflow Guidelines
 
-These preferences guide the approach and process of writing and modifying code in this project. They emphasize thoughtful planning, focused execution, testing, and responsible interaction with the existing codebase and project structure.
+These guidelines establish a systematic approach to code development, emphasizing planning, quality, and responsible integration with the existing codebase.
 
-1.  **Plan Thoroughly Before Coding:**
-    * Before implementing a task, take time to understand its requirements and context within the project.
-    * **Review relevant sections of `guides/structural-guide.mdc` to align with architectural patterns and of `guides/env-preferences.mdc` to consider environmental constraints or configuration details.**
-    * Outline the approach and steps. Consider how your changes will integrate with the existing codebase.
-    * When proposing significant implementations, provide a brief summary (e.g., 2-3 paragraphs or bullet points) explaining the chosen approach and the reasoning.
+## Planning and Analysis
 
-2.  **Prioritize Simple Solutions:**
-    * Always strive for the simplest and most direct solution to a problem. Avoid introducing unnecessary complexity.
+- **Thorough Planning Before Implementation:**
+  - Understand task requirements and project context before coding
+  - Review [structural-guide.mdc](mdc:.cursor/guides/structural-guide.mdc) for architectural patterns
+  - Outline approach and integration strategy with existing codebase
+  - For significant implementations, provide 2-3 paragraph summary explaining chosen approach and reasoning
 
-3.  **Maintain Focus and Limit Scope:**
-    * Limit your code modifications strictly to the areas directly relevant to the task.
-    * **Do not touch or modify code that is unrelated to the current task** to avoid unintended side effects and maintain a clear scope of changes.
+- **Analyze Three Solution Options:**
+  - Before making significant technical decisions (refactoring, architecture changes, test adaptations)
+  - Clearly justify the chosen solution as the most professional, robust, and maintainable
+  - Document reasoning in implementation logs, commit messages, or rule updates
+  - This ensures thoughtful, high-quality decisions and prevents arbitrary fixes
 
-4.  **Consider Impact of Changes:**
-    * Actively think about what other methods, modules, or functionality might be affected by the code you are changing or adding. Anticipate potential side effects or required adjustments elsewhere.
+## Implementation Principles
 
-5.  **Implement Iterative Improvement:**
-    * When adding features or fixing bugs, prioritize integrating with and improving existing patterns in the relevant area (referencing `guides/structural-guide.mdc` as needed).
-    * Introduce significantly new patterns, technologies, or approaches only when existing options are exhausted and after discussion and explicit confirmation.
-    * Ensure that any old or superseded logic/code is removed after a new implementation is in place.
+- **Prioritize Simple Solutions:**
+  - Choose the simplest and most direct solution to problems
+  - Avoid introducing unnecessary complexity or over-engineering
 
-6.  **Write Tests During Development:**
-    * As you implement or modify major functionality and components, **actively write corresponding tests** (unit, integration) to verify their correctness and protect against future regressions. (Complements the "Test Coverage" goal in Code Preferences).
-    * **Scope of Changes During Unit Testing:**
-        * When writing or modifying unit tests, **focus changes primarily on the test file itself and the specific unit of code being evaluated.** The goal is to test the unit in isolation as much as possible.
-        * **Exercise extreme caution if modifications to other files (outside the unit and its test) seem necessary.** While sometimes unavoidable to improve testability (e.g., refactoring for dependency injection, implementing an interface), these external changes can introduce regressions or unexpected side effects elsewhere.
-        * **Managing Necessary External Modifications:** Before modifying external code *just* to make a unit test pass, consider these strategies:
-            * **Prioritize Refactoring the Unit:** Can the unit under test itself be refactored to be more testable (e.g., by receiving dependencies instead of creating them)? This is often the best first step.
-            * **Use Dependency Injection (DI) and Abstraction:** Modify the unit and potentially collaborators to use DI and rely on interfaces/abstract classes. This allows tests to inject mock/fake dependencies without changing the core logic of collaborators, promoting loose coupling.
-            * **Leverage Mocking Frameworks:** Use libraries like `unittest.mock` in Python to replace dependencies dynamically *within the test's scope* whenever possible. This avoids permanent changes to collaborator code.
-            * **Justify and Minimize External Changes:** If modifying external code still seems necessary after considering alternatives, treat it as a significant change. Discuss the need (Point #8), clearly justify *why* it's required for testing, keep the change absolutely minimal, and carefully consider its potential impact (Point #4). Ensure these changes are also covered by tests if applicable.
+- **Maintain Focused Scope:**
+  - Limit modifications strictly to areas directly relevant to the current task
+  - **Do not modify unrelated code** to avoid unintended side effects
+  - Consider impact on other modules, methods, and functionality
 
-7.  **Manage Project Structure and Track Progress:**
-    * Be aware of and respect the existing project structure documented in `guides/project-structure.mdc`.
-    * Before creating new files or significantly restructuring, review `guides/project-structure.mdc` and the codebase to find the most appropriate location and avoid duplicating existing functionality. Consider also the patterns in `guides/structural-guide.mdc`.
-    * **Always ask for and receive user confirmation** before adding, deleting, moving, or significantly restructuring files or directories.
-    * To track the implementation progress of the planned structure, **directly update the `guides/project-structure.mdc` file with status markers** (e.g., `[x]`, ✅, `(DONE)`) as files/directories are created or completed. Use Git to save these status changes, providing a history of the progress.
-    * After structural changes are confirmed and implemented, **propose the necessary updates to the `guides/project-structure.mdc` documentation** to keep it accurate, reflecting the current state of the project structure.
+- **Iterative Improvement:**
+  - Integrate with and improve existing patterns in the relevant area
+  - Reference [structural-guide.mdc](mdc:.cursor/guides/structural-guide.mdc) for consistency
+  - Only introduce new patterns after existing options are exhausted and with explicit confirmation
+  - Remove old or superseded logic after new implementation is in place
 
-8.  **Communicate Ambiguity or Issues:**
-    * If the task, requirements, existing code, or guidelines (including `guides/structural-guide.md` or `guides/env-preferences.md`) are unclear, or if you identify potential problems, conflicts with principles, or alternative approaches, communicate these points and seek clarification *before* proceeding with implementation.
+## Quality Assurance
 
-9.  **Resolve Errors Rather Than Hiding Them:**
-    * Address errors, warnings, and edge cases directly instead of masking or suppressing them.
-    * When encountering errors in code, tests, or linting, prioritize understanding and fixing the root cause rather than disabling checks or adding workarounds.
-    * Consider errors as indicators of potential design issues or misconceptions that need to be addressed.
-    * Document any resolution process for complex errors to help others understand the problem and solution.
-    * Only in exceptional cases where an error cannot be properly resolved (e.g., third-party library issues), provide clear documentation explaining why a particular approach was taken.
+- **Code Quality Integration:**
+  - Follow [coding-preferences.mdc](mdc:.cursor/rules/coding-preferences.mdc) standards
+  - Ensure all code passes `basedpyright .`, `black .`, and `ruff .` before commit
+  - Write comprehensive type annotations for all new code
 
----
-## Cross-Referencing Artifacts in Dependent Tasks
+- **Testing During Development:**
+  - Write unit and integration tests for major functionality and components
+  - Aim for >80% test coverage on core functionality
+  - Focus test changes primarily on test files and units under test
+  - **For external modifications needed for testability:**
+    ```python
+    # ✅ Prefer dependency injection
+    class ModelTrainer:
+        def __init__(self, loss_function: LossFunction) -> None:
+            self.loss_fn = loss_function  # Injected, not created internally
 
-- **All tasks and subtasks that depend on previous work must explicitly reference the location of relevant reports, artifacts, or documentation generated by their dependencies.**
-    - Every task or subtask that depends on another must include, in its `details` or `description`, explicit references (paths and filenames) to the reports, artifacts, or documentation generated by its dependencies.
-    - Example:
-      ```
-      For prior analysis and test results, see:
-      - outputs/prd_project_refinement/test_suite_evaluation/reports/decoder_analysis/decoder_component_analysis.md
-      - outputs/prd_project_refinement/test_suite_evaluation/reports/decoder_analysis/test_results_2_2.txt
-      ```
-    - This ensures that anyone working on or reviewing a task can quickly locate all relevant context and results from previous phases.
+    # ✅ Use mocking for external dependencies
+    @patch('src.model.encoder.SwinEncoder')
+    def test_model_integration(self, mock_encoder):
+        mock_encoder.return_value.forward.return_value = torch.zeros(1, 256, 32, 32)
+    ```
 
-- **Task Creation Template**
-    - When creating a new task or subtask, always add a section:
-      ```
-      ## References to Previous Artifacts
-      - [List here the relevant reports, scripts, or data produced by dependencies]
-      ```
-    - If using Task Master or automated tools, ensure the PRD includes a note in each task/subtask description to reference prior artifacts as needed.
+## Project Structure and Documentation
 
-- **Review Checklist**
-    - Before marking a task as ready or done, verify that all dependencies are referenced and that the referenced artifacts exist and are accessible.
+- **Respect Project Structure:**
+  - Follow directory organization in [project-structure.mdc](mdc:.cursor/guides/project-structure.mdc)
+  - **Always request user confirmation** before adding, deleting, or restructuring files/directories
+  - Update [project-structure.mdc](mdc:.cursor/guides/project-structure.mdc) with status markers (✅, `[x]`, `(DONE)`) as implementation progresses
 
-- **Motivation**
-    - This pattern ensures traceability, reduces onboarding time, and prevents loss of context in complex, multi-phase projects.
+- **Artifact Cross-Referencing:**
+  - All dependent tasks must explicitly reference artifacts from prerequisites
+  - Include paths and filenames in task `details` or `description`
+  - Example:
+    ```markdown
+    ## References to Previous Artifacts
+    - outputs/analysis/model_evaluation_report.md
+    - outputs/test_results/unit_test_coverage.json
+    ```
+
+## Error Resolution and Communication
+
+- **Resolve Errors Directly:**
+  - Address root causes rather than masking symptoms
+  - Understand and fix linting, type checking, and test errors
+  - Document resolution process for complex errors
+  - Only use workarounds for third-party library issues with clear documentation
+
+- **Communicate Ambiguities:**
+  - Seek clarification on unclear requirements, code, or guidelines before implementation
+  - Identify potential problems, conflicts, or alternative approaches early
+  - Reference specific files and line numbers when discussing issues
+
+## Workflow Integration
+
+- **Pre-Commit Checklist:**
+  ```bash
+  # Quality gates (from coding-preferences.mdc)
+  black .
+  ruff . --fix
+  basedpyright .
+
+  # Testing
+  pytest tests/ --cov=src --cov-report=term-missing
+
+  # Only commit if all pass
+  git add . && git commit -m "feat(module): Description"
+  ```
+
+- **Task Management:**
+  - Use Task Master for project organization following [dev_workflow.mdc](mdc:.cursor/rules/dev_workflow.mdc)
+  - Update task status and add implementation notes during development
+  - Reference completed artifacts in dependent tasks
+
+## Professional Solution Analysis
+
+- **Before making a significant technical decision (e.g., refactoring, rule update, pattern change, or test adaptation), you must analyze at least 3 possible options.**
+    - Clearly justify the chosen solution, selecting the most professional, robust, and maintainable approach.
+    - Document the reasoning in the implementation log, commit message, or rule update as appropriate.
+    - This ensures thoughtful, high-quality decisions and prevents arbitrary or rushed fixes.
+    - This principle applies to all code, rules, and workflow improvements, not just tests.
+
+## References
+
+- **Code Quality**: [coding-preferences.mdc](mdc:.cursor/rules/coding-preferences.mdc)
+- **Project Structure**: [project-structure.mdc](mdc:.cursor/guides/project-structure.mdc)
+- **Architecture**: [structural-guide.mdc](mdc:.cursor/guides/structural-guide.mdc)
+- **Task Management**: [dev_workflow.mdc](mdc:.cursor/rules/dev_workflow.mdc)
+- **Self-Improvement**: [self_improve.mdc](mdc:.cursor/rules/self_improve.mdc)

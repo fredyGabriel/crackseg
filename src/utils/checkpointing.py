@@ -3,8 +3,9 @@
 import pickle  # Import pickle for specific exceptions
 import zipfile  # Import zipfile for specific exceptions
 from dataclasses import dataclass  # Import dataclass
+from logging import Logger
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 import torch
 from torch import nn
@@ -26,7 +27,9 @@ class CheckpointSaveConfig:
 
 
 # Helper function to manage directory creation with fallback
-def _ensure_checkpoint_dir(requested_dir: Path, logger_instance) -> Path:
+def _ensure_checkpoint_dir(
+    requested_dir: Path, logger_instance: Logger
+) -> Path:
     """Ensures checkpoint directory exists, with fallback logic."""
     try:
         requested_dir.mkdir(parents=True, exist_ok=True)
@@ -58,8 +61,8 @@ def _save_to_path(
     checkpoint: dict[str, Any],
     checkpoint_path: Path,
     epoch: int,
-    logger_instance,
-):
+    logger_instance: Logger,
+) -> None:
     """Verifies writability and saves checkpoint to the given path."""
     try:
         test_file = checkpoint_path.parent / f"test_write_{epoch}.tmp"
@@ -76,7 +79,7 @@ def _save_to_path(
         ) from e
 
     try:
-        torch.save(checkpoint, checkpoint_path)
+        torch.save(checkpoint, checkpoint_path)  # type: ignore[reportUnknownMemberType]
         logger_instance.info(
             f"Saved checkpoint at epoch {epoch} to {checkpoint_path}"
         )
@@ -89,7 +92,7 @@ def _save_to_path(
             checkpoint_path.parent / f"emergency_checkpoint_epoch_{epoch}.pt"
         )
         try:
-            torch.save(checkpoint, alt_path)
+            torch.save(checkpoint, alt_path)  # type: ignore[reportUnknownMemberType]
             logger_instance.warning(
                 f"Saved emergency checkpoint to {alt_path}"
             )
@@ -100,15 +103,15 @@ def _save_to_path(
 
 # Helper function to clean up old checkpoints
 def _cleanup_old_checkpoints(
-    checkpoint_dir: Path, keep_last_n: int, logger_instance
-):
+    checkpoint_dir: Path, keep_last_n: int, logger_instance: Logger
+) -> None:
     """Cleans up old checkpoints based on filename epoch number."""
     if keep_last_n <= 0:
         return
 
     prefix = "_epoch_"
     suffix = ".pth"
-    checkpoint_files = []
+    checkpoint_files: list[tuple[int, Path]] = []
     glob_pattern = f"*{prefix}*{suffix}"
 
     for f_path in checkpoint_dir.glob(glob_pattern):
@@ -224,7 +227,7 @@ def load_checkpoint(
     # Load checkpoint
     try:
         # Set weights_only=True for security if only loading state_dicts
-        checkpoint = torch.load(
+        checkpoint = torch.load(  # type: ignore[reportUnknownMemberType]
             checkpoint_path,
             map_location=map_location,
             weights_only=False,  # Consider True if applicable
@@ -297,13 +300,13 @@ def load_checkpoint_dict(
 
     map_location = device if device is not None else torch.device("cpu")
     try:
-        checkpoint = torch.load(
+        checkpoint = torch.load(  # type: ignore[reportUnknownMemberType]
             checkpoint_path,
             map_location=map_location,
             weights_only=False,  # Ensure this is intended
         )
         logger.info(f"Loaded checkpoint dict from {checkpoint_path}")
-        return cast(dict[str, Any], checkpoint)
+        return checkpoint
     except (
         OSError,
         RuntimeError,

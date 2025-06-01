@@ -1,6 +1,6 @@
 """Helpers for validating Trainer configuration parameters."""
 
-from typing import Any, cast
+from typing import Any
 
 from omegaconf import DictConfig
 
@@ -18,7 +18,7 @@ def validate_trainer_config(cfg: Any) -> None:
     ]
 
     # Allow access by attribute or key
-    def get_field(obj, field):
+    def get_field(obj: Any, field: str) -> Any:
         if isinstance(obj, dict | DictConfig):
             if field in obj:
                 return obj[field]
@@ -46,10 +46,7 @@ def validate_trainer_config(cfg: Any) -> None:
             else:
                 types_tuple = expected_type
             # We filter only real classes and cast directly in isinstance
-            filtered_types = tuple(
-                t for t in types_tuple if isinstance(t, type)
-            )
-            if not isinstance(value, cast(tuple[type, ...], filtered_types)):
+            if not isinstance(value, types_tuple):
                 raise TypeError(
                     f"Config field '{field}' must be {expected_type}, "
                     f"got {type(value)}"

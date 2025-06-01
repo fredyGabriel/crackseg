@@ -149,19 +149,19 @@ class SwinV2EncoderAdapter(EncoderBase):
         self, L: int, original_input_x: torch.Tensor
     ) -> tuple[int, int]:
         """Determines Height and Width for reshaping a 3D bottleneck tensor."""
-        H, W = -1, -1
+        h, w = -1, -1
         if hasattr(self.encoder.swin, "patch_embed") and hasattr(
             self.encoder.swin.patch_embed, "grid_size"
         ):
             grid_size = self.encoder.swin.patch_embed.grid_size
-            H, W = grid_size[0], grid_size[1]
+            h, w = grid_size[0], grid_size[1]
         elif (
             hasattr(self.encoder, "reduction_factors")
             and self.encoder.reduction_factors
         ):
             final_reduction = self.encoder.reduction_factors[-1]
-            H = original_input_x.shape[2] // final_reduction
-            W = original_input_x.shape[3] // final_reduction
+            h = original_input_x.shape[2] // final_reduction
+            w = original_input_x.shape[3] // final_reduction
         else:
             logger.warning(
                 "Could not reliably determine H, W for (B,L,C) "
@@ -169,8 +169,8 @@ class SwinV2EncoderAdapter(EncoderBase):
             )
             side = int(L**0.5)
             if side * side == L:
-                H, W = side, side
-        return H, W
+                h, w = side, side
+        return h, w
 
     def _reshape_3d_bottleneck(
         self, bottleneck_features: torch.Tensor, original_input_x: torch.Tensor
@@ -184,11 +184,11 @@ class SwinV2EncoderAdapter(EncoderBase):
                 f"C={C_actual} but expected {expected_channels}"
             )
 
-        H, W = self._determine_hw_for_3d_reshape(L, original_input_x)
+        h, w = self._determine_hw_for_3d_reshape(L, original_input_x)
 
-        if H > 0 and W > 0 and L == H * W:
+        if h > 0 and w > 0 and L == h * w:
             bottleneck_features = (
-                bottleneck_features.view(B, H, W, C_actual)
+                bottleneck_features.view(B, h, w, C_actual)
                 .permute(0, 3, 1, 2)
                 .contiguous()
             )
@@ -200,7 +200,7 @@ class SwinV2EncoderAdapter(EncoderBase):
             logger.warning(
                 "Could not reshape (B,L,C) bottleneck "
                 f"features {bottleneck_features.shape} to "
-                "spatial format as H,W were not inferred correctly."
+                "spatial format as h,w were not inferred correctly."
                 "Proceeding with (B,L,C) format if downstream handles it."
             )
         else:
@@ -263,7 +263,9 @@ class SwinV2EncoderAdapter(EncoderBase):
         # skips
         return bottleneck_features, skip_connections
 
-    def get_optimizer_param_groups(self, base_lr: float = 0.001) -> list[dict]:
+    def get_optimizer_param_groups(
+        self, base_lr: float = 0.001
+    ) -> list[dict[str, Any]]:
         """
         Returns parameter groups for differential learning rates.
         Delegates to the underlying encoder's method if available.

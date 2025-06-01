@@ -13,7 +13,7 @@ registry_setup.py, making them available to the factory system.
 
 import logging
 
-from src.model.architectures.base_unet import UNet  # For standard UNet
+from src.model.core.unet import BaseUNet  # For standard UNet
 from src.model.factory.hybrid_registry import (
     register_complex_hybrid,
     register_standard_hybrid,
@@ -31,11 +31,11 @@ log = logging.getLogger(__name__)
 
 def register_standard_unet() -> None:
     """Register the standard U-Net architecture."""
-    if "UNet" not in architecture_registry:
-        architecture_registry.register(name="UNet", tags=["standard", "cnn"])(
-            UNet
-        )
-        log.info("Registered standard U-Net architecture")
+    if "BaseUNet" not in architecture_registry:
+        architecture_registry.register(
+            name="BaseUNet", tags=["standard", "cnn"]
+        )(BaseUNet)
+        log.info("Registered standard BaseUNet architecture")
 
 
 def register_convlstm_components() -> None:
@@ -69,7 +69,7 @@ def register_convlstm_components() -> None:
 
     # If there's a specific bottleneck implementation using ConvLSTM
     try:
-        from src.model.bottleneck.convlstm_bottleneck import (
+        from src.model.architectures.cnn_convlstm_unet import (
             ConvLSTMBottleneck,
         )
 

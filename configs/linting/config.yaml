@@ -6,7 +6,7 @@
 config_files:
   black: "${project_root}/pyproject.toml"
   ruff: "${project_root}/pyproject.toml"
-  mypy: "${project_root}/pyproject.toml"
+  basedpyright: "${project_root}/pyproject.toml"
   pre_commit: "${project_root}/.git/hooks/pre-commit"
 
 # Linting tools
@@ -25,12 +25,12 @@ tools:
     docs_url: "https://docs.astral.sh/ruff/"
     config_section: "tool.ruff"
 
-  # Mypy for static type checking
-  mypy:
-    version_required: ">=1.4.0"
-    command: "mypy"
-    docs_url: "https://mypy.readthedocs.io/en/stable/"
-    config_section: "tool.mypy"
+  # Basedpyright for static type checking
+  basedpyright:
+    version_required: ">=1.0.0"
+    command: "basedpyright"
+    docs_url: "https://github.com/DetachHead/basedpyright"
+    config_section: "tool.basedpyright"
 
 # Improvement plan (example, update as needed)
 improvement_plan:
@@ -46,7 +46,7 @@ improvement_plan:
     typing:
       description: "Type checking issues"
       duration_weeks: 2
-      tools: ["mypy"]
+      tools: ["basedpyright"]
 
 # Scripts available
 scripts:
@@ -54,4 +54,4 @@ scripts:
   # Example usage:
   #   black .
   #   ruff .
-  #   mypy .
+  #   basedpyright .

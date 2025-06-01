@@ -1,0 +1,39 @@
+{
+    // Enable strict type checking for maximum robustness
+    "typeCheckingMode": "strict",
+    // Report missing imports (helps catch missing dependencies)
+    "reportMissingImports": true,
+    // Do not report missing type stubs (optional, reduces noise)
+    "reportMissingTypeStubs": false,
+    // Disable unused import warnings (handled by Ruff)
+    "reportUnusedImport": false,
+    // Disable unused variable warnings (handled by Ruff)
+    "reportUnusedVariable": false,
+    // Allow use of 'Any' type where necessary (e.g., dynamic configs)
+    "reportAny": false,
+    // Suppress unknown type warnings for dynamic code
+    "reportUnknownMemberType": false,
+    "reportUnknownArgumentType": false,
+    "reportUnknownVariableType": false,
+    "reportUnknownLambdaType": false,
+    // Exclude output, virtual environment, and cache directories from analysis
+    "exclude": [
+        "**/outputs",
+        "**/.venv",
+        "**/.mypy_cache",
+        "**/.ruff_cache",
+        "**/.pytest_cache"
+    ],
+    // Include main source, test, and script directories
+    "include": [
+        "src",
+        "tests",
+        "scripts"
+    ],
+    // Set Python version to 3.12 for compatibility with project tools
+    "pythonVersion": "3.12",
+    // Add 'src' to extraPaths for module resolution
+    "extraPaths": [
+        "src"
+    ]
+}

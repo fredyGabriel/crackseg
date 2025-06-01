@@ -19,7 +19,7 @@ def dummy_optimizer():
 
 
 # Helper to get absolute config path regardless of working directory
-def get_absolute_config_path(relative_path):
+def get_absolute_config_path(relative_path: str) -> str:
     """Convert a relative config path to an absolute path regardless of
     working directory."""
     # Get the project root: if we're in scripts/, go up one level
@@ -49,8 +49,10 @@ def get_absolute_config_path(relative_path):
     ],
 )
 def test_scheduler_instantiation_from_config(
-    config_path, expected_cls, dummy_optimizer
-):
+    config_path: str,
+    expected_cls: type,
+    dummy_optimizer: torch.optim.Optimizer,
+) -> None:
     # Use absolute path to find config regardless of working directory
     abs_config_path = get_absolute_config_path(config_path)
     cfg = OmegaConf.load(abs_config_path)
@@ -59,6 +61,6 @@ def test_scheduler_instantiation_from_config(
     container = OmegaConf.to_container(cfg, resolve=True)
     if not isinstance(container, dict):
         raise TypeError("Scheduler config must be a dict")
-    scheduler = create_lr_scheduler(dummy_optimizer, container)
+    scheduler = create_lr_scheduler(dummy_optimizer, dict(container))  # type: ignore[arg-type]
 
     assert isinstance(scheduler, expected_cls)

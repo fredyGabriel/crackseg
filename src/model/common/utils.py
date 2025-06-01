@@ -18,7 +18,7 @@ def count_parameters(model: torch.nn.Module) -> tuple[int, int]:
     return trainable, non_trainable
 
 
-def estimate_receptive_field(encoder) -> dict[str, Any]:
+def estimate_receptive_field(encoder: Any) -> dict[str, Any]:
     """Estimate the receptive field size of the model's encoder."""
     depth = getattr(encoder, "depth", None)
     if depth is not None:
@@ -42,8 +42,8 @@ def estimate_receptive_field(encoder) -> dict[str, Any]:
 
 def estimate_memory_usage(
     model: torch.nn.Module,
-    encoder,
-    get_output_channels_fn,
+    encoder: Any,
+    get_output_channels_fn: Any,
     input_shape: tuple[int, ...] | None = None,
 ) -> dict[str, Any]:
     """Estimate memory usage for the model."""
@@ -52,7 +52,7 @@ def estimate_memory_usage(
     model_size_mb = (param_bytes + buffer_bytes) / (1024 * 1024)
 
     if input_shape:
-        B, C, H, W = input_shape
+        B, _, H, W = input_shape  # C (channels) is unused
         depth = getattr(encoder, "depth", 4)
         encoder_memory = 0
         for i in range(depth):
@@ -88,11 +88,11 @@ def estimate_memory_usage(
 
 
 def get_layer_hierarchy(
-    encoder, bottleneck, decoder, final_activation=None
+    encoder: Any, bottleneck: Any, decoder: Any, final_activation: Any = None
 ) -> list[dict[str, Any]]:
     """Get the hierarchical structure of the model layers."""
-    hierarchy = []
-    encoder_info = {
+    hierarchy: list[dict[str, Any]] = []
+    encoder_info: dict[str, Any] = {
         "name": "Encoder",
         "type": encoder.__class__.__name__,
         "params": sum(p.numel() for p in encoder.parameters()),
@@ -100,7 +100,7 @@ def get_layer_hierarchy(
         "skip_channels": encoder.skip_channels,
     }
     if hasattr(encoder, "encoder_blocks"):
-        blocks_info = []
+        encoder_blocks_info: list[dict[str, Any]] = []
         for i, block in enumerate(encoder.encoder_blocks):
             block_info = {
                 "name": f"EncoderBlock_{i + 1}",
@@ -108,18 +108,18 @@ def get_layer_hierarchy(
                 "in_channels": block.in_channels,
                 "out_channels": block.out_channels,
             }
-            blocks_info.append(block_info)
-        encoder_info["blocks"] = blocks_info
-    hierarchy.append(encoder_info)
-    bottleneck_info = {
+            encoder_blocks_info.append(block_info)  # type: ignore
+        encoder_info["blocks"] = encoder_blocks_info
+    hierarchy.append(encoder_info)  # type: ignore
+    bottleneck_info: dict[str, Any] = {
         "name": "Bottleneck",
         "type": bottleneck.__class__.__name__,
         "params": sum(p.numel() for p in bottleneck.parameters()),
         "in_channels": bottleneck.in_channels,
         "out_channels": bottleneck.out_channels,
     }
-    hierarchy.append(bottleneck_info)
-    decoder_info = {
+    hierarchy.append(bottleneck_info)  # type: ignore
+    decoder_info: dict[str, Any] = {
         "name": "Decoder",
         "type": decoder.__class__.__name__,
         "params": sum(p.numel() for p in decoder.parameters()),
@@ -128,7 +128,7 @@ def get_layer_hierarchy(
         "skip_channels": decoder.skip_channels,
     }
     if hasattr(decoder, "decoder_blocks"):
-        blocks_info = []
+        decoder_blocks_info: list[dict[str, Any]] = []
         for i, block in enumerate(decoder.decoder_blocks):
             block_info = {
                 "name": f"DecoderBlock_{i + 1}",
@@ -136,7 +136,7 @@ def get_layer_hierarchy(
                 "in_channels": block.in_channels,
                 "out_channels": block.out_channels,
             }
-            blocks_info.append(block_info)
+            decoder_blocks_info.append(block_info)  # type: ignore
         if hasattr(decoder, "final_conv"):
             final_conv_info = {
                 "name": "FinalConv",
@@ -146,16 +146,16 @@ def get_layer_hierarchy(
                 "in_channels": decoder.final_conv.in_channels,
                 "out_channels": decoder.final_conv.out_channels,
             }
-            blocks_info.append(final_conv_info)
-        decoder_info["blocks"] = blocks_info
-    hierarchy.append(decoder_info)
+            decoder_blocks_info.append(final_conv_info)  # type: ignore
+        decoder_info["blocks"] = decoder_blocks_info
+    hierarchy.append(decoder_info)  # type: ignore
     if final_activation is not None:
         activation_info = {
             "name": "FinalActivation",
             "type": final_activation.__class__.__name__,
             "params": sum(p.numel() for p in final_activation.parameters()),
         }
-        hierarchy.append(activation_info)
+        hierarchy.append(activation_info)  # type: ignore
     return hierarchy
 
 
@@ -167,14 +167,14 @@ def _init_graphviz_digraph() -> (
 ):  # Returns Digraph, but avoid type dep if not available
     """Initializes and configures a new Graphviz Digraph object."""
     try:
-        from graphviz import Digraph
+        from graphviz import Digraph  # type: ignore
     except ImportError as exc:
         raise ImportError(
             "graphviz is required for visualize_architecture. "
             "Install with 'conda install graphviz python-graphviz'."
         ) from exc
     dot = Digraph(comment="U-Net Architecture", format="png", strict=True)
-    dot.attr(
+    dot.attr(  # type: ignore
         rankdir="TB",
         splines="ortho",
         nodesep="0.5",
@@ -202,7 +202,9 @@ def _create_io_nodes(dot: Any) -> None:
     )
 
 
-def _extract_component_info(layer_hierarchy: list) -> dict[str, Any]:
+def _extract_component_info(
+    layer_hierarchy: list[dict[str, Any]],
+) -> dict[str, Any]:
     """Extracts encoder_blocks, decoder_blocks, bottleneck, and final_nodes
     info."""
     info: dict[str, Any] = {
@@ -231,7 +233,7 @@ def _create_encoder_nodes(
     dot: Any, encoder_blocks: list[dict[str, Any]]
 ) -> list[str]:
     """Creates and returns names of encoder block nodes."""
-    encoder_nodes = []
+    encoder_nodes: list[str] = []
     with dot.subgraph(name="cluster_encoder") as c:  # type: ignore[union-attr]
         c.attr(rank="same")
         if encoder_blocks:
@@ -279,7 +281,7 @@ def _create_decoder_nodes(
     dot: Any, decoder_blocks: list[dict[str, Any]]
 ) -> list[str]:
     """Creates and returns names of decoder block nodes."""
-    decoder_nodes = []
+    decoder_nodes: list[str] = []
     with dot.subgraph(name="cluster_decoder") as c:  # type: ignore[union-attr]
         c.attr(rank="same")
         if decoder_blocks:
@@ -317,7 +319,7 @@ def _create_final_conv_activation_nodes(
 ) -> list[str]:
     """Creates FinalConv and Activation nodes if they exist, returns their
     names."""
-    final_nodes_sequence = []
+    final_nodes_sequence: list[str] = []
     if final_conv_block:
         dot.node(
             "FinalConv",
@@ -435,7 +437,9 @@ def _render_or_view_diagram(
 
 
 def render_unet_architecture_diagram(
-    layer_hierarchy: list, filename: str | None = None, view: bool = False
+    layer_hierarchy: list[dict[str, Any]],
+    filename: str | None = None,
+    view: bool = False,
 ) -> None:
     """Render a U-Net architecture diagram using graphviz from a layer
     hierarchy."""
@@ -479,11 +483,11 @@ def render_unet_architecture_diagram(
 
 
 # Utility to print config with resolved paths
-def print_config(config: dict) -> None:
+def print_config(config: dict[str, Any]) -> None:
     """Print the configuration with resolved paths."""
     for key, value in config.items():
         if isinstance(value, dict):
             print(f"{key}:")
-            print_config(value)
+            print_config(value)  # type: ignore[arg-type]
         else:
             print(f"{key}: {value}")

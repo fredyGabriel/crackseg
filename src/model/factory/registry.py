@@ -5,12 +5,10 @@ Provides functionality to register, retrieve, and list available components
 using a decorator pattern. Ensures type safety with generics.
 """
 
-import builtins
 import threading
 from collections.abc import Callable
 from typing import Any, Generic, TypeVar
 
-# Define a generic type for component base classes
 T = TypeVar("T")
 
 
@@ -23,21 +21,15 @@ class Registry(Generic[T]):
     All operations are thread-safe.
     """
 
-    def __init__(self, base_class: type[T], name: str):
+    def __init__(self, base_class: type[T], name: str) -> None:
         """
         Initialize a Registry for components.
-
-        Args:
-            base_class (Type[T]): Base class that all registered components
-                                 must inherit from.
-            name (str): Name of the registry for identification.
         """
         self._base_class = base_class
         self._name = name
         self._components: dict[str, type[T]] = {}
-        self._tags: dict[str, list[str]] = {}  # For component categorization
-        # Add lock for thread safety
-        self._lock = threading.RLock()  # Reentrant lock for nested operations
+        self._tags: dict[str, list[str]] = {}
+        self._lock = threading.RLock()
 
     #
     # Registration methods
@@ -63,31 +55,19 @@ class Registry(Generic[T]):
         """
 
         def decorator(cls: type[T]) -> type[T]:
-            # Verify that the class inherits from the base class
             if not issubclass(cls, self._base_class):
                 raise TypeError(
                     f"Class {cls.__name__} must inherit from "
                     f"{self._base_class.__name__}"
                 )
-
-            component_name = name if name is not None else cls.__name__
-
-            # Acquire lock for thread-safe operation
+            component_name: str = name if name is not None else cls.__name__
             with self._lock:
                 if component_name in self._components:
                     raise ValueError(
                         f"Component '{component_name}' is already registered"
                     )
-
-                # Register the component
                 self._components[component_name] = cls
-
-                # Add tags if provided (keep order)
-                if tags:
-                    self._tags[component_name] = list(tags)
-                else:
-                    self._tags[component_name] = []
-
+                self._tags[component_name] = list(tags) if tags else []
             return cls
 
         return decorator
@@ -165,26 +145,16 @@ class Registry(Generic[T]):
         with self._lock:
             return list(self._components.keys())
 
-    def list_with_tags(self) -> dict[str, builtins.list[str]]:
+    def list_with_tags(self) -> dict[str, list[str]]:  # type: ignore[reportUnknownVariableType]
         """
         List all registered components with their tags. Thread-safe.
-
-        Returns:
-            Dict[str, List[str]]: Dictionary mapping component names to tags.
         """
         with self._lock:
-            # Return a deep copy to avoid thread safety issues
             return {k: list(v) for k, v in self._tags.items()}
 
-    def filter_by_tag(self, tag: str) -> builtins.list[str]:
+    def filter_by_tag(self, tag: str) -> list[str]:  # type: ignore[reportUnknownVariableType]
         """
         Filter components by tag. Thread-safe.
-
-        Args:
-            tag (str): Tag to filter by.
-
-        Returns:
-            List[str]: List of component names with the specified tag.
         """
         with self._lock:
             return [name for name, tags in self._tags.items() if tag in tags]
@@ -214,4 +184,8 @@ class Registry(Generic[T]):
 
     def __repr__(self) -> str:
         """String representation of the registry."""
-        return f"{self._name} Registry with {len(self)} components"
+        return (
+            f"Registry(name={self._name!r}, "
+            f"base_class={self._base_class.__name__}, "
+            f"components={list(self._components.keys())})"
+        )

@@ -14,14 +14,14 @@ from src.data.sampler import (
 )
 
 
-class DummyDataset(Dataset):
-    def __init__(self, labels):
+class DummyDataset(Dataset[int]):
+    def __init__(self, labels: list[int]):
         self.labels = labels
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.labels)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> int:
         return self.labels[idx]
 
 

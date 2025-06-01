@@ -17,7 +17,11 @@ from .core import ConfigParam, ConfigSchema, ParamType
 
 # Component-specific schema definitions
 def create_encoder_schema() -> ConfigSchema:
-    """Create schema for encoder components."""
+    """Create schema for encoder components.
+
+    Returns:
+        ConfigSchema: The encoder schema definition.
+    """
     return ConfigSchema(
         name="encoder",
         params=[
@@ -52,7 +56,11 @@ def create_encoder_schema() -> ConfigSchema:
 
 
 def create_bottleneck_schema() -> ConfigSchema:
-    """Create schema for bottleneck components."""
+    """Create schema for bottleneck components.
+
+    Returns:
+        ConfigSchema: The bottleneck schema definition.
+    """
     return ConfigSchema(
         name="bottleneck",
         params=[
@@ -101,7 +109,11 @@ def create_bottleneck_schema() -> ConfigSchema:
 
 
 def create_decoder_schema() -> ConfigSchema:
-    """Create schema for decoder components."""
+    """Create schema for decoder components.
+
+    Returns:
+        ConfigSchema: The decoder schema definition.
+    """
     return ConfigSchema(
         name="decoder",
         params=[
@@ -147,7 +159,11 @@ def create_decoder_schema() -> ConfigSchema:
 
 
 def create_architecture_schema() -> ConfigSchema:
-    """Create schema for full architecture configuration."""
+    """Create schema for full architecture configuration.
+
+    Returns:
+        ConfigSchema: The architecture schema definition.
+    """
     encoder_schema = create_encoder_schema()
     bottleneck_schema = create_bottleneck_schema()
     decoder_schema = create_decoder_schema()
@@ -199,7 +215,11 @@ def create_architecture_schema() -> ConfigSchema:
 
 
 def create_hybrid_schema() -> ConfigSchema:
-    """Create schema for hybrid architecture configuration."""
+    """Create schema for hybrid architecture configuration.
+
+    Returns:
+        ConfigSchema: The hybrid architecture schema definition.
+    """
     basic_schema = create_architecture_schema()
 
     # Add hybrid-specific parameters
@@ -229,14 +249,13 @@ def create_hybrid_schema() -> ConfigSchema:
 def validate_swinv2_config(
     config: dict[str, Any],
 ) -> tuple[bool, dict[str, str] | None]:
-    """
-    Validate SwinV2 encoder configuration.
+    """Validate SwinV2 encoder configuration.
 
     Args:
-        config: Configuration dictionary
+        config (dict[str, Any]): Configuration dictionary.
 
     Returns:
-        tuple: (is_valid, errors)
+        tuple[bool, dict[str, str] | None]: (is_valid, errors)
     """
     schema = ConfigSchema(
         name="swinv2_encoder",
@@ -304,14 +323,13 @@ def validate_swinv2_config(
 def validate_aspp_config(
     config: dict[str, Any],
 ) -> tuple[bool, dict[str, str] | None]:
-    """
-    Validate ASPP bottleneck configuration.
+    """Validate ASPP bottleneck configuration.
 
     Args:
-        config: Configuration dictionary
+        config (dict[str, Any]): Configuration dictionary.
 
     Returns:
-        tuple: (is_valid, errors)
+        tuple[bool, dict[str, str] | None]: (is_valid, errors)
     """
     schema = ConfigSchema(
         name="aspp_bottleneck",
@@ -358,14 +376,13 @@ def validate_aspp_config(
 def validate_convlstm_config(
     config: dict[str, Any],
 ) -> tuple[bool, dict[str, str] | None]:
-    """
-    Validate ConvLSTM bottleneck configuration.
+    """Validate ConvLSTM bottleneck configuration.
 
     Args:
-        config: Configuration dictionary
+        config (dict[str, Any]): Configuration dictionary.
 
     Returns:
-        tuple: (is_valid, errors)
+        tuple[bool, dict[str, str] | None]: (is_valid, errors)
     """
     schema = ConfigSchema(
         name="convlstm_bottleneck",
@@ -425,14 +442,13 @@ def validate_convlstm_config(
 def validate_cbam_config(
     config: dict[str, Any],
 ) -> tuple[bool, dict[str, str] | None]:
-    """
-    Validate CBAM attention configuration.
+    """Validate CBAM attention configuration.
 
     Args:
-        config: Configuration dictionary
+        config (dict[str, Any]): Configuration dictionary.
 
     Returns:
-        tuple: (is_valid, errors)
+        tuple[bool, dict[str, str] | None]: (is_valid, errors)
     """
     schema = ConfigSchema(
         name="cbam_attention",

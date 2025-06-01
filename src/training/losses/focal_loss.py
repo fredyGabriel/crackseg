@@ -1,5 +1,4 @@
 # src/training/losses/focal_loss.py
-from typing import cast
 
 import torch
 import torch.nn.functional as F  # For F.binary_cross_entropy_with_logits
@@ -23,7 +22,7 @@ class FocalLoss(SegmentationLoss):
 
     def __init__(
         self,
-        alpha: float = 0.25,  # Alpha balances positive/negative examples
+        alpha: float | None = 0.25,  # Alpha balances pos/neg examples
         gamma: float = 2.0,  # Gamma focuses on hard examples
         reduction: str = "mean",
         eps: float = 1e-6,  # For num. stability if not using BCEWithLogits
@@ -99,10 +98,10 @@ class FocalLoss(SegmentationLoss):
             loss = alpha_t * loss
 
         if self.reduction == "mean":
-            return cast(torch.Tensor, loss.mean())
+            return loss.mean()
         elif self.reduction == "sum":
-            return cast(torch.Tensor, loss.sum())
+            return loss.sum()
         elif self.reduction == "none":
-            return cast(torch.Tensor, loss)
+            return loss
         else:
             raise ValueError(f"Unsupported reduction method: {self.reduction}")

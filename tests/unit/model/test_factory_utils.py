@@ -10,6 +10,7 @@ import logging
 from unittest.mock import MagicMock, patch
 
 import pytest
+from pytest import LogCaptureFixture
 
 from src.model.factory.factory_utils import (
     ConfigurationError,
@@ -229,7 +230,7 @@ class TestConfigTransformation:
 class TestLoggingHelpers:
     """Test logging helper functions."""
 
-    def test_log_component_creation(self, caplog):
+    def test_log_component_creation(self, caplog: LogCaptureFixture):
         """Test log_component_creation function."""
         # Capture log output
         with caplog.at_level(logging.INFO):
@@ -246,7 +247,7 @@ class TestLoggingHelpers:
         # Check log output
         assert "Instantiated Decoder: UNet" in caplog.text
 
-    def test_log_configuration_error(self, caplog):
+    def test_log_configuration_error(self, caplog: LogCaptureFixture):
         """Test log_configuration_error function."""
         # Capture log output
         with caplog.at_level(logging.ERROR):

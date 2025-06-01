@@ -1,6 +1,10 @@
+# pyright: reportUnusedClass=false
 """Unit tests for the model component registry system."""
 
+from typing import Any
+
 import pytest
+import torch
 
 from src.model import BottleneckBase, DecoderBase, EncoderBase
 from src.model.factory.registry import Registry
@@ -22,13 +26,19 @@ REGISTRY_REPR_EXPECTED = (
 class MockEncoder(EncoderBase):
     """Mock implementation of EncoderBase for testing."""
 
-    def __init__(self, in_channels: int = IN_CHANNELS_RGB, skip_channels=None):
+    def __init__(
+        self,
+        in_channels: int = IN_CHANNELS_RGB,
+        skip_channels: list[int] | None = None,
+    ):
         super().__init__(in_channels)
         self._skip_channels = (
             skip_channels if skip_channels is not None else MOCK_SKIP_CHANNELS
         )
 
-    def forward(self, x):
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, list[torch.Tensor]]:
         return x, []
 
     @property
@@ -46,7 +56,7 @@ class MockBottleneck(BottleneckBase):
     def __init__(self, in_channels: int = OUT_CHANNELS_ENCODER):
         super().__init__(in_channels)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return x
 
     @property
@@ -61,13 +71,19 @@ class MockDecoder(DecoderBase):
     then MockDecoder.skip_channels = [32, 16].
     """
 
-    def __init__(self, in_channels=IN_CHANNELS_DECODER, skip_channels=None):
+    def __init__(
+        self,
+        in_channels: int = IN_CHANNELS_DECODER,
+        skip_channels: list[int] | None = None,
+    ):
         if skip_channels is None:
             skip_channels = list(reversed(MOCK_SKIP_CHANNELS))
         super().__init__(in_channels, skip_channels=skip_channels)
         self._out_channels: int = OUT_CHANNELS_DECODER
 
-    def forward(self, x, skips):
+    def forward(
+        self, x: torch.Tensor, skips: list[torch.Tensor]
+    ) -> torch.Tensor:
         return x
 
     @property
@@ -75,7 +91,7 @@ class MockDecoder(DecoderBase):
         return int(self._out_channels)
 
     @classmethod
-    def skip_channels_expected(cls):
+    def skip_channels_expected(cls) -> list[int]:
         """
         Helper for tests: Return the expected skip_channels list after
         reversal.
@@ -85,13 +101,13 @@ class MockDecoder(DecoderBase):
 
 # Fixtures for common test setups
 @pytest.fixture
-def encoder_registry():
+def encoder_registry() -> Registry[Any]:
     """Create a new EncoderBase registry for testing."""
     return Registry(EncoderBase, "Encoder")  # type: ignore[type-abstract]
 
 
 @pytest.fixture
-def populated_registry(encoder_registry):
+def populated_registry(encoder_registry: Registry[Any]) -> Registry[Any]:
     """Create a registry with some pre-registered components."""
 
     @encoder_registry.register()
@@ -121,7 +137,7 @@ def test_registry_creation():
 
 
 # Component registration tests
-def test_register_component(encoder_registry):
+def test_register_component(encoder_registry: Registry[Any]) -> None:
     """Test registering a component using the decorator."""
 
     @encoder_registry.register()
@@ -137,7 +153,7 @@ def test_register_component(encoder_registry):
     assert retrieved_cls == TestEncoder
 
 
-def test_register_with_custom_name(encoder_registry):
+def test_register_with_custom_name(encoder_registry: Registry[Any]) -> None:
     """Test registering a component with a custom name."""
 
     @encoder_registry.register(name="CustomEncoder")
@@ -149,7 +165,7 @@ def test_register_with_custom_name(encoder_registry):
     assert encoder_registry.list() == ["CustomEncoder"]
 
 
-def test_register_with_tags(encoder_registry):
+def test_register_with_tags(encoder_registry: Registry[Any]) -> None:
     """Test registering a component with tags."""
 
     @encoder_registry.register(tags=["tag1", "tag2"])
@@ -162,7 +178,7 @@ def test_register_with_tags(encoder_registry):
     assert encoder_registry.filter_by_tag("tag3") == []
 
 
-def test_register_wrong_type(encoder_registry):
+def test_register_wrong_type(encoder_registry: Registry[Any]) -> None:
     """Test registering a component of the wrong type."""
     with pytest.raises(TypeError, match="must inherit from EncoderBase"):
 
@@ -171,7 +187,7 @@ def test_register_wrong_type(encoder_registry):
             pass
 
 
-def test_duplicate_registration(encoder_registry):
+def test_duplicate_registration(encoder_registry: Registry[Any]) -> None:
     """Test that duplicate registrations are not allowed."""
 
     @encoder_registry.register(name="DuplicateTest")
@@ -187,7 +203,7 @@ def test_duplicate_registration(encoder_registry):
 
 
 # Component retrieval tests
-def test_get_component(populated_registry):
+def test_get_component(populated_registry: Registry[Any]) -> None:
     """Test getting a component by name."""
     cls = populated_registry.get("TestEncoder1")
     assert issubclass(cls, EncoderBase)
@@ -196,13 +212,13 @@ def test_get_component(populated_registry):
     assert issubclass(cls, EncoderBase)
 
 
-def test_get_nonexistent_component(populated_registry):
+def test_get_nonexistent_component(populated_registry: Registry[Any]) -> None:
     """Test that getting a nonexistent component raises KeyError."""
     with pytest.raises(KeyError, match="not found in registry"):
         populated_registry.get("NonexistentComponent")
 
 
-def test_component_instantiation(populated_registry):
+def test_component_instantiation(populated_registry: Registry[Any]) -> None:
     """Test instantiating a component from the registry."""
     instance = populated_registry.instantiate(
         "TestEncoder1", in_channels=IN_CHANNELS_RGB
@@ -218,14 +234,14 @@ def test_component_instantiation(populated_registry):
 
 
 # Component listing and filtering tests
-def test_list_components(populated_registry):
+def test_list_components(populated_registry: Registry[Any]) -> None:
     """Test listing components in the registry."""
     components = populated_registry.list()
     assert len(components) == NUM_ENCODERS_REGISTERED
     assert set(components) == {"TestEncoder1", "CustomName", "TestEncoder3"}
 
 
-def test_list_with_tags(populated_registry):
+def test_list_with_tags(populated_registry: Registry[Any]) -> None:
     """Test listing components with their tags."""
     tags_dict = populated_registry.list_with_tags()
     assert len(tags_dict) == NUM_ENCODERS_REGISTERED
@@ -234,7 +250,7 @@ def test_list_with_tags(populated_registry):
     assert set(tags_dict["TestEncoder3"]) == {"lightweight", "fast"}
 
 
-def test_filter_by_tag(populated_registry):
+def test_filter_by_tag(populated_registry: Registry[Any]) -> None:
     """Test filtering components by tag."""
     lightweight_components = populated_registry.filter_by_tag("lightweight")
     assert lightweight_components == ["TestEncoder3"]
@@ -247,29 +263,29 @@ def test_filter_by_tag(populated_registry):
 
 
 # Special methods tests
-def test_contains(populated_registry):
+def test_contains(populated_registry: Registry[Any]) -> None:
     """Test the __contains__ method."""
     assert "TestEncoder1" in populated_registry
     assert "CustomName" in populated_registry
     assert "NonexistentComponent" not in populated_registry
 
 
-def test_len(populated_registry):
+def test_len(populated_registry: Registry[Any]) -> None:
     """Test the __len__ method."""
     assert len(populated_registry) == NUM_ENCODERS_REGISTERED
 
 
-def test_repr(populated_registry):
+def test_repr(populated_registry: Registry[Any]) -> None:
     """Test the __repr__ method."""
     assert repr(populated_registry) == REGISTRY_REPR_EXPECTED
 
 
 # Multiple registry tests
-def test_multiple_registries():
+def test_multiple_registries() -> None:
     """Test that multiple registries can coexist."""
-    encoder_reg = Registry(EncoderBase, "EncoderReg")  # type: ignore[type-abstract]
-    bottleneck_reg = Registry(BottleneckBase, "BottleneckReg")  # type: ignore[type-abstract]
-    decoder_reg = Registry(DecoderBase, "DecoderReg")  # type: ignore[type-abstract]
+    encoder_reg: Registry[Any] = Registry(EncoderBase, "EncoderReg")  # type: ignore[type-abstract]
+    bottleneck_reg: Registry[Any] = Registry(BottleneckBase, "BottleneckReg")  # type: ignore[type-abstract]
+    decoder_reg: Registry[Any] = Registry(DecoderBase, "DecoderReg")  # type: ignore[type-abstract]
 
     @encoder_reg.register()
     class TestEncoder(MockEncoder):

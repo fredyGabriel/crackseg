@@ -17,8 +17,8 @@ from src.training.trainer import Trainer, TrainingComponents
 class SimpleSegmentationModel(nn.Module):
     """A very simple segmentation model for testing."""
 
-    def __init__(self, in_channels=1, out_channels=1):
-        super().__init__()
+    def __init__(self, in_channels: int = 1, out_channels: int = 1) -> None:
+        super().__init__()  # type: ignore
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels, 16, 3, padding=1),
             nn.ReLU(),
@@ -26,21 +26,23 @@ class SimpleSegmentationModel(nn.Module):
             nn.Sigmoid(),
         )
 
-    def forward(self, x):
-        return self.conv(x)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        out = self.conv(x)
+        assert isinstance(out, torch.Tensor)
+        return out
 
 
-class SyntheticCrackDataset(Dataset):
+class SyntheticCrackDataset(Dataset[dict[str, torch.Tensor]]):
     """Simple synthetic dataset for testing the training loop."""
 
-    def __init__(self, size=100, image_size=64):
+    def __init__(self, size: int = 100, image_size: int = 64) -> None:
         self.size = size
         self.image_size = image_size
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.size
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         """Get a random image and mask pair.
 
         Returns:
@@ -54,13 +56,17 @@ class SyntheticCrackDataset(Dataset):
         return {"image": image, "mask": mask}
 
 
-def test_training_loop():
+def test_training_loop() -> dict[str, float]:
     """Test a training loop with synthetic data."""
     # Create synthetic dataset and dataloaders
     train_dataset = SyntheticCrackDataset()
     val_dataset = SyntheticCrackDataset(size=20)
-    train_loader = DataLoader(train_dataset, batch_size=8, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=8)
+    train_loader: DataLoader[dict[str, torch.Tensor]] = DataLoader(
+        train_dataset, batch_size=8, shuffle=True
+    )
+    val_loader: DataLoader[dict[str, torch.Tensor]] = DataLoader(
+        val_dataset, batch_size=8
+    )
 
     # Create model and loss function
     model = SimpleSegmentationModel()
@@ -117,3 +123,5 @@ def test_training_loop():
     assert "val_loss" in results, "Results should include validation loss"
     assert "val_IoU" in results, "Results should include validation IoU score"
     assert "val_F1" in results, "Results should include validation F1 score"
+
+    return results

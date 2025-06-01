@@ -4,7 +4,7 @@ import torch
 from src.model.decoder.cnn_decoder import CNNDecoder
 
 
-def test_cnndecoder_custom_target_size():
+def test_cnndecoder_custom_target_size() -> None:
     """Test CNNDecoder with custom target_size.
     NOTE: target_size might not be a valid parameter in the refactored API.
     If not, this test should be removed or adapted.
@@ -48,14 +48,14 @@ def test_cnndecoder_custom_target_size():
         # (64, [8, 16, 32], 1, True, 1, 16, 16), # With CBAM
     ],
 )
-def test_cnndecoder_forward_cbam_and_shapes(  # noqa: PLR0913
-    in_channels_test,
-    skip_channels_list_test,
-    out_channels_test,
-    batch_size_test,
-    h_test,
-    w_test,
-):
+def test_cnndecoder_forward_cbam_and_shapes(
+    in_channels_test: int,
+    skip_channels_list_test: list[int],
+    out_channels_test: int,
+    batch_size_test: int,
+    h_test: int,
+    w_test: int,
+) -> None:
     """
     Test forward pass, output shapes, and CBAM integration (if applicable).
     """

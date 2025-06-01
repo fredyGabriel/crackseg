@@ -1,6 +1,7 @@
 import pytest
 import torch
 from torch import nn
+from torch.cuda.amp import GradScaler
 
 from src.data.memory import (
     calculate_gradient_accumulation_steps,
@@ -15,7 +16,9 @@ from src.data.memory import (
 
 # Simple model for testing
 class SimpleModel(nn.Module):
-    def __init__(self, input_size=3, hidden_size=64, num_classes=1):
+    def __init__(
+        self, input_size: int = 3, hidden_size: int = 64, num_classes: int = 1
+    ):
         super().__init__()
         self.features = nn.Sequential(
             nn.Conv2d(input_size, hidden_size, kernel_size=3, padding=1),
@@ -28,17 +31,9 @@ class SimpleModel(nn.Module):
             nn.Conv2d(hidden_size, num_classes, kernel_size=1)
         )
 
-    def forward(self, x):
-        x = (
-            self.features(x)
-            if self.features is not None
-            else None if self.features is not None else (None, None)
-        )
-        x = (
-            self.classifier(x)
-            if self.classifier is not None
-            else None if self.classifier is not None else (None, None)
-        )
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.features(x)
+        x = self.classifier(x)
         return x
 
 
@@ -111,4 +106,4 @@ def test_mixed_precision():
 
     if torch.cuda.is_available():
         assert scaler is not None
-        assert isinstance(scaler, torch.amp.GradScaler)
+        assert isinstance(scaler, GradScaler)

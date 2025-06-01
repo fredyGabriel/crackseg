@@ -5,6 +5,11 @@ This module provides a decorator pattern for adding attention mechanisms
 to decoders while preserving their interface and behavior.
 """
 
+from typing import override
+
+import torch
+from torch import nn
+
 from src.model.base import DecoderBase
 
 
@@ -28,48 +33,51 @@ class AttentionDecorator(DecoderBase):
         >>> output = attention_decoder(x, skip_connections)
     """
 
-    def __init__(self, decoder, attention_module):
+    def __init__(
+        self, decoder: DecoderBase, attention_module: nn.Module
+    ) -> None:
         # Inicializar con los mismos parámetros que el decoder original
         super().__init__(
-            in_channels=getattr(decoder, "in_channels", 0),
-            skip_channels=getattr(decoder, "skip_channels", []),
+            in_channels=decoder.in_channels,
+            skip_channels=decoder.skip_channels,
         )
         self.decoder = decoder
         self.attention = attention_module
 
-    def forward(self, x, skip_connections=None):
+    @override
+    def forward(
+        self, x: torch.Tensor, skips: list[torch.Tensor]
+    ) -> torch.Tensor:
         """
         Apply decoder and then the attention module.
 
         Args:
             x: Input tensor
-            skip_connections: Skip connections from encoder
+            skips: Skip connections from encoder
 
         Returns:
             Output after applying decoder and attention
         """
         # First apply decoder with skip connections
-        decoded = (
-            self.decoder(x, skip_connections)
-            if self.decoder is not None
-            else None if self.decoder is not None else (None, None)
-        )
+        decoded = self.decoder(x, skips)
         # Then apply attention module
         return self.attention(decoded)
 
     @property
-    def out_channels(self):
+    @override
+    def out_channels(self) -> int:
         """
         Return the number of output channels from the decorated decoder.
         Required implementation of abstract property from DecoderBase.
         """
-        return self.decoder.out_channels if self.decoder is not None else 0
+        return self.decoder.out_channels
 
     @property
-    def skip_channels(self):
+    @override
+    def skip_channels(self) -> list[int]:
         """
         Return the skip channels list from the decorated decoder.
         Overrides the base implementation to get the current value from
         the decorated decoder.
         """
-        return self.decoder.skip_channels if self.decoder is not None else 0
+        return self.decoder.skip_channels

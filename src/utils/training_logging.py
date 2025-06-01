@@ -7,7 +7,7 @@ from src.utils.logger_setup import safe_log
 
 def format_metrics(metrics: dict[str, float]) -> str:
     """Formats a dictionary of metrics into a string."""
-    formatted = []
+    formatted: list[str] = []
     for name, value in metrics.items():
         capitalized_name = name[0].upper() + name[1:]
         formatted.append(f"{capitalized_name}: {value:.4f}")

@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 
 def evaluate_model(
     model: torch.nn.Module,
-    dataloader: DataLoader,
+    dataloader: DataLoader[Any],
     metrics: dict[str, Any],
     device: torch.device,
     config: DictConfig,

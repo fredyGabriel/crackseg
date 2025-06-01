@@ -16,10 +16,12 @@ def initialize_hydra(
     cwd = os.getcwd()
     config_dir = os.path.relpath(config_dir, cwd)
 
-    initialize(config_path=config_dir, job_name=job_name, version_base=None)
+    _ = initialize(
+        config_path=config_dir, job_name=job_name, version_base=None
+    )
 
 
-def load_config(overrides: list | None = None) -> DictConfig:
+def load_config(overrides: list[str] | None = None) -> DictConfig:
     """
     Load and compose configuration using Hydra. Optionally apply overrides.
     """
@@ -29,7 +31,7 @@ def load_config(overrides: list | None = None) -> DictConfig:
     return cfg
 
 
-def get_config(overrides: list | None = None) -> DictConfig:
+def get_config(overrides: list[str] | None = None) -> DictConfig:
     """Get the complete configuration object."""
     initialize_hydra()
     cfg = load_config(overrides)

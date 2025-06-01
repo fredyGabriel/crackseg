@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 import torch
 
@@ -11,7 +13,9 @@ def test_load_model_from_checkpoint_file_not_found():
         )
 
 
-def test_load_model_from_checkpoint_corrupt(tmp_path, monkeypatch):
+def test_load_model_from_checkpoint_corrupt(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+):
     # Crear archivo dummy para simular checkpoint corrupto
     corrupt_ckpt = tmp_path / "corrupt.pth"
     corrupt_ckpt.write_bytes(b"not a real checkpoint")

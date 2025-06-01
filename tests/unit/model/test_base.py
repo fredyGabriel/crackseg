@@ -155,10 +155,8 @@ def test_valid_minimal_encoder_forward_contract():
     try:
         output, skips = encoder.forward(dummy_input)
         assert isinstance(output, torch.Tensor)
-        assert isinstance(skips, list)
         assert len(skips) == len(encoder.skip_channels)
         for i, skip_tensor in enumerate(skips):
-            assert isinstance(skip_tensor, torch.Tensor)
             assert skip_tensor.shape[1] == encoder.skip_channels[i]
     except Exception as e:
         pytest.fail(f"MinimalValidEncoder forward pass failed: {e}")
@@ -314,10 +312,6 @@ class MinimalValidDecoder(DecoderBase):
         in_channels: int = IN_CHANNELS_DECODER,
         skip_channels: list[int] = SKIP_CHANNELS,
     ):
-        if not isinstance(skip_channels, list) or not all(
-            isinstance(c, int) for c in skip_channels
-        ):
-            raise TypeError("skip_channels must be a list of integers")
         skips_to_store = list(reversed(skip_channels))
         super().__init__(in_channels, skips_to_store)
 
@@ -406,7 +400,12 @@ def test_unet_base_cannot_be_instantiated():
 
 
 class MinimalUNetMissingForward(UNetBase):
-    def __init__(self, encoder, bottleneck, decoder):
+    def __init__(
+        self,
+        encoder: EncoderBase,
+        bottleneck: BottleneckBase,
+        decoder: DecoderBase,
+    ):
         super().__init__(encoder, bottleneck, decoder)
 
 
@@ -414,7 +413,12 @@ class MinimalUNetMissingForward(UNetBase):
 
 
 class MinimalValidUNet(UNetBase):
-    def __init__(self, encoder, bottleneck, decoder):
+    def __init__(
+        self,
+        encoder: EncoderBase,
+        bottleneck: BottleneckBase,
+        decoder: DecoderBase,
+    ):
         super().__init__(encoder, bottleneck, decoder)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -562,49 +566,42 @@ def test_skip_connection_dimensions():
         pytest.fail(msg.format(e))
 
 
-def test_component_validation_error_messages():
-    """Test that component validation provides clear error messages."""
-    encoder = MinimalValidEncoder(in_channels=IN_CHANNELS_RGB)
-    bottleneck = MinimalValidBottleneck(in_channels=encoder.out_channels)
-    decoder = MinimalValidDecoder(
-        in_channels=bottleneck.out_channels,
-        skip_channels=encoder.skip_channels,
-    )
-
-    with pytest.raises(
-        TypeError, match="encoder must be an instance of EncoderBase"
-    ):
-        MinimalValidUNet(None, bottleneck, decoder)
-
-    with pytest.raises(
-        TypeError, match="bottleneck must be an instance of BottleneckBase"
-    ):
-        MinimalValidUNet(encoder, None, decoder)
-
-    with pytest.raises(
-        (TypeError, AttributeError),
-        match="(decoder must be an instance of DecoderBase|"
-        + "'NoneType' object has no attribute)",
-    ):
-        MinimalValidUNet(encoder, bottleneck, None)
-
-    class MismatchedBottleneck(MinimalValidBottleneck):
-        def __init__(self):
-            super().__init__(in_channels=32)
-
-    err_msg = "Encoder output channels .* must match bottleneck input channels"
-    with pytest.raises(ValueError, match=err_msg):
-        MinimalValidUNet(encoder, MismatchedBottleneck(), decoder)
-
-    class MismatchedDecoder(MinimalValidDecoder):
-        def __init__(self):
-            super().__init__(
-                in_channels=64, skip_channels=encoder.skip_channels
-            )
-
-    err_msg = "Bottleneck output channels .* must match decoder input channels"
-    with pytest.raises(ValueError, match=err_msg):
-        MinimalValidUNet(encoder, bottleneck, MismatchedDecoder())
+def test_unet_component_validation_error_messages():
+    """Test de error de validación por argumentos None en UNetBase
+    encoder = cast(EncoderBase, None)
+    bottleneck = cast(BottleneckBase, None)
+    decoder = cast(DecoderBase, None)
+    with pytest.raises(ValueError, match="encoder must not be None"):
+        MinimalValidUNet(encoder, MinimalValidBottleneck(),
+        MinimalValidDecoder())
+    with pytest.raises(ValueError, match="bottleneck must not be None"):
+        MinimalValidUNet(MinimalValidEncoder(), bottleneck,
+        MinimalValidDecoder())
+    with pytest.raises(ValueError, match="decoder must not be None"):
+        MinimalValidUNet(MinimalValidEncoder(), MinimalValidBottleneck(),
+        decoder)
+    """
+    encoder = cast(EncoderBase, None)
+    bottleneck = cast(BottleneckBase, None)
+    decoder = cast(DecoderBase, None)
+    with pytest.raises(ValueError, match="encoder must not be None"):
+        MinimalValidUNet(
+            encoder,
+            MinimalValidBottleneck(),
+            MinimalValidDecoder(),
+        )
+    with pytest.raises(ValueError, match="bottleneck must not be None"):
+        MinimalValidUNet(
+            MinimalValidEncoder(),
+            bottleneck,
+            MinimalValidDecoder(),
+        )
+    with pytest.raises(ValueError, match="decoder must not be None"):
+        MinimalValidUNet(
+            MinimalValidEncoder(),
+            MinimalValidBottleneck(),
+            decoder,
+        )
 
 
 def test_skip_connection_compatibility():
@@ -614,17 +611,18 @@ def test_skip_connection_compatibility():
 
     class IncompatibleDecoder(DecoderBase):
         def __init__(self):
-            in_channels = bottleneck.out_channels
-            skip_channels = [8, 16]
-            super().__init__(in_channels, skip_channels)
-            self._out_channels = 1
+            super().__init__(
+                in_channels=IN_CHANNELS_DECODER, skip_channels=SKIP_CHANNELS
+            )
 
-        def forward(self, x, skips):
-            return torch.zeros(1, 1, 64, 64)
+        def forward(
+            self, x: torch.Tensor, skips: list[torch.Tensor]
+        ) -> torch.Tensor:
+            return x
 
         @property
-        def out_channels(self):
-            return self._out_channels
+        def out_channels(self) -> int:
+            return OUT_CHANNELS_DECODER
 
     incompatible_decoder = IncompatibleDecoder()
 

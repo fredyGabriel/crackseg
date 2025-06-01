@@ -1,4 +1,9 @@
+# pyright: reportPrivateUsage=false
+# pyright: reportUnusedClass=false
 # ruff: noqa: PLR2004
+
+from collections.abc import Generator
+from typing import Any
 
 import pytest
 import torch
@@ -15,7 +20,7 @@ _original_tags: dict[str, list[str]] = {}
 
 
 @pytest.fixture(autouse=True)
-def isolated_loss_registry(request):
+def isolated_loss_registry(request: Any) -> Generator[None, None, None]:
     """
     Fixture to ensure the global loss_registry is clean for each test.
     It backs up and clears the internal state before each test,
@@ -44,20 +49,24 @@ def isolated_loss_registry(request):
 
 
 class DummyLoss1(nn.Module):
-    def __init__(self, param1: int = 0):
+    def __init__(self, param1: int = 0) -> None:
         super().__init__()
         self.param1 = param1
 
-    def forward(self, pred, target):
+    def forward(
+        self, pred: torch.Tensor, target: torch.Tensor
+    ) -> torch.Tensor:
         return torch.tensor(0.0)
 
 
 class DummyLoss2(nn.Module):
-    def __init__(self, param_a: str = "default"):
+    def __init__(self, param_a: str = "default") -> None:
         super().__init__()
         self.param_a = param_a
 
-    def forward(self, pred, target):
+    def forward(
+        self, pred: torch.Tensor, target: torch.Tensor
+    ) -> torch.Tensor:
         return torch.tensor(1.0)
 
 
@@ -69,25 +78,27 @@ class NotALossModule:  # Does not inherit from nn.Module
 
 
 class TestLossRegistry:
-    def test_registry_instance_properties(self):
+    def test_registry_instance_properties(self) -> None:
         """Test basic properties of the loss_registry instance."""
         assert loss_registry.name == "LossFunctions"
         assert loss_registry.base_class == nn.Module
         assert isinstance(loss_registry, Registry)
 
-    def test_initial_state(self):
+    def test_initial_state(self) -> None:
         """Test that the registry is empty at the start of a test
         (due to fixture)."""
         assert len(loss_registry) == 0
         assert not loss_registry.list()
         assert not loss_registry.list_with_tags()
 
-    def test_register_simple_loss_module(self):
+    def test_register_simple_loss_module(self) -> None:
         """Test basic registration of a valid nn.Module loss."""
 
         @loss_registry.register()
         class MyTestLoss(nn.Module):
-            def forward(self, x, y):
+            def forward(
+                self, x: torch.Tensor, y: torch.Tensor
+            ) -> torch.Tensor:
                 return torch.tensor(0.0)
 
         assert "MyTestLoss" in loss_registry
@@ -95,12 +106,14 @@ class TestLossRegistry:
         retrieved_loss = loss_registry.get("MyTestLoss")
         assert retrieved_loss == MyTestLoss
 
-    def test_register_with_custom_name(self):
+    def test_register_with_custom_name(self) -> None:
         """Test registration with a custom name."""
 
         @loss_registry.register(name="custom_dummy_loss_1")
         class AnotherLoss(nn.Module):
-            def forward(self, x, y):
+            def forward(
+                self, x: torch.Tensor, y: torch.Tensor
+            ) -> torch.Tensor:
                 return torch.tensor(0.0)
 
         assert "custom_dummy_loss_1" in loss_registry
@@ -109,14 +122,16 @@ class TestLossRegistry:
         retrieved_loss = loss_registry.get("custom_dummy_loss_1")
         assert retrieved_loss == AnotherLoss
 
-    def test_register_with_tags(self):
+    def test_register_with_tags(self) -> None:
         """Test registration with tags."""
 
         @loss_registry.register(
             name="tagged_loss", tags=["segmentation", "test"]
         )
         class TaggedLoss(nn.Module):
-            def forward(self, x, y):
+            def forward(
+                self, x: torch.Tensor, y: torch.Tensor
+            ) -> torch.Tensor:
                 return torch.tensor(0.0)
 
         assert "tagged_loss" in loss_registry
@@ -132,14 +147,17 @@ class TestLossRegistry:
         filtered_other = loss_registry.filter_by_tag("other_tag")
         assert not filtered_other
 
-    def test_register_duplicate_name_raises_value_error(self):
+    def test_register_duplicate_name_raises_value_error(self) -> None:
         """Test that registering a duplicate name raises ValueError."""
 
         @loss_registry.register(
             name="shared_name_error"
         )  # Changed name to avoid conflict with other tests
         class LossV1Error(nn.Module):
-            pass
+            def forward(
+                self, x: torch.Tensor, y: torch.Tensor
+            ) -> torch.Tensor:
+                return torch.tensor(0.0)
 
         with pytest.raises(
             ValueError,
@@ -148,12 +166,15 @@ class TestLossRegistry:
 
             @loss_registry.register(name="shared_name_error")
             class LossV2Error(nn.Module):
-                pass
+                def forward(
+                    self, x: torch.Tensor, y: torch.Tensor
+                ) -> torch.Tensor:
+                    return torch.tensor(0.0)
 
         assert len(loss_registry) == 1
         assert loss_registry.get("shared_name_error") == LossV1Error
 
-    def test_register_non_nn_module_raises_type_error(self):
+    def test_register_non_nn_module_raises_type_error(self) -> None:
         """Test that registering a class not inheriting from nn.Module raises
         TypeError."""
         with pytest.raises(
@@ -168,7 +189,7 @@ class TestLossRegistry:
         assert "BadClassNotModule" not in loss_registry
         assert len(loss_registry) == 0
 
-    def test_decorator_returns_class(self):
+    def test_decorator_returns_class(self) -> None:
         """Test that the register decorator returns the class itself."""
 
         class LossToRegisterDec(nn.Module):
@@ -180,20 +201,20 @@ class TestLossRegistry:
         assert registered_class == LossToRegisterDec
         assert "returned_loss_dec" in loss_registry
 
-    def test_get_loss(self):
+    def test_get_loss(self) -> None:
         """Test retrieving a registered loss."""
         loss_registry.register(name="get_test_loss")(DummyLoss1)
         retrieved = loss_registry.get("get_test_loss")
         assert retrieved == DummyLoss1
 
-    def test_get_non_existent_loss_raises_key_error(self):
+    def test_get_non_existent_loss_raises_key_error(self) -> None:
         """Test that getting a non-existent loss raises KeyError."""
         with pytest.raises(
             KeyError, match=r"Component 'non_existent_loss' not found"
         ):
             loss_registry.get("non_existent_loss")
 
-    def test_instantiate_loss_no_args(self):
+    def test_instantiate_loss_no_args(self) -> None:
         """Test instantiating a registered loss with no constructor arguments
         (beyond self)."""
         loss_registry.register(name="instantiate_loss_no_args")(
@@ -203,7 +224,7 @@ class TestLossRegistry:
         assert isinstance(instance, DummyLoss1)
         assert instance.param1 == 0  # Default value
 
-    def test_instantiate_loss_with_args_and_kwargs(self):
+    def test_instantiate_loss_with_args_and_kwargs(self) -> None:
         """Test instantiating a registered loss with positional and keyword
         arguments."""
         loss_registry.register(name="instantiate_loss_args")(DummyLoss1)
@@ -232,14 +253,14 @@ class TestLossRegistry:
         assert isinstance(instance_mixed, DummyLoss1)
         assert instance_mixed.param1 == 50
 
-    def test_instantiate_non_existent_loss_raises_key_error(self):
+    def test_instantiate_non_existent_loss_raises_key_error(self) -> None:
         """Test that instantiating a non-existent loss raises KeyError."""
         with pytest.raises(
             KeyError, match=r"Component 'non_existent_instantiate' not found"
         ):
             loss_registry.instantiate("non_existent_instantiate")
 
-    def test_list_losses(self):
+    def test_list_losses(self) -> None:
         """Test listing registered losses."""
         loss_registry.register(name="list_loss_1")(DummyLoss1)
         loss_registry.register(name="list_loss_2")(DummyLoss2)

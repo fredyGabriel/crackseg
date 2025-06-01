@@ -1,28 +1,178 @@
 ---
 description: Glossary of Key Terms
-globs: 
+globs:
 alwaysApply: false
 ---
 # Glossary of Key Terms
 
-This glossary provides definitions for key terms and acronyms used throughout the project guides and rules.
+Comprehensive glossary of technical terms, acronyms, and concepts used throughout the CrackSeg project, organized by category for easy reference.
 
-- **ABC (Abstract Base Class):** A Python class that cannot be instantiated directly and is intended to be subclassed, enforcing a contract for derived classes.
-- **AMP (Automatic Mixed Precision):** A technique to speed up deep learning training and reduce memory usage by using both 16-bit and 32-bit floating point types.
-- **CBAM (Convolutional Block Attention Module):** A lightweight attention module for convolutional neural networks that enhances feature representation.
-- **CI/CD (Continuous Integration/Continuous Deployment):** Practices for automating the integration, testing, and deployment of code changes.
-- **CNN (Convolutional Neural Network):** A class of deep neural networks commonly used for image analysis tasks.
-- **Conda:** An open-source package and environment management system for Python and other languages.
-- **DVC (Data Version Control):** A tool for versioning datasets and machine learning models, enabling reproducibility and collaboration.
-- **F1-Score:** A metric that combines precision and recall to evaluate the accuracy of a model, especially in classification tasks.
-- **FAQ (Frequently Asked Questions):** A section or document addressing common questions and issues.
-- **Git:** A distributed version control system for tracking changes in source code.
-- **Hydra:** A Python framework for elegantly configuring complex applications, often used for managing experiment configurations.
-- **IoU (Intersection over Union):** A metric for evaluating the accuracy of object detectors and segmentation models, measuring the overlap between predicted and ground truth regions.
-- **LLM (Large Language Model):** An advanced AI model trained on large text corpora, capable of understanding and generating human-like text (e.g., GPT-4).
-- **SOTA (State Of The Art):** The highest level of performance achieved in a particular field or task at a given time.
-- **TOC (Table of Contents):** A list of the sections and subsections in a document, used for navigation.
-- **U-Net:** A convolutional neural network architecture designed for fast and precise image segmentation.
-- **VRAM (Video RAM):** Memory used by GPUs to store image data and model parameters during computation.
-- **YAML:** A human-readable data serialization format commonly used for configuration files.
+**Related**: This glossary supports documentation in [.cursor/guides/](mdc:) and integrates with [coding standards](mdc:../../.cursor/rules/coding-preferences.mdc).
+
+## Contents
+
+- [Machine Learning & Deep Learning](mdc:#machine-learning--deep-learning)
+- [Computer Vision & Segmentation](mdc:#computer-vision--segmentation)
+- [Software Engineering & Tools](mdc:#software-engineering--tools)
+- [Hardware & Performance](mdc:#hardware--performance)
+- [Project-Specific Terms](mdc:#project-specific-terms)
+
+## Machine Learning & Deep Learning
+
+### **ABC (Abstract Base Class)**
+Python class that cannot be instantiated directly and enforces a contract for derived classes. In CrackSeg, used for modular encoder/decoder interfaces following [coding standards](mdc:../../.cursor/rules/coding-preferences.mdc).
+
+```python
+from abc import ABC, abstractmethod
+class BaseEncoder(nn.Module, ABC):
+    @abstractmethod
+    def forward(self, x: torch.Tensor) -> List[torch.Tensor]:
+        pass
+```
+
+### **AMP (Automatic Mixed Precision)**
+Training technique using both 16-bit and 32-bit floating point types to reduce memory usage and accelerate training. Critical for RTX 3070 Ti (8GB VRAM) constraints in CrackSeg.
+
+### **ASPP (Atrous Spatial Pyramid Pooling)**
+Multi-scale feature extraction module using parallel dilated convolutions with different dilation rates. Used in CrackSeg bottleneck modules for capturing crack features at multiple scales.
+
+### **Attention Mechanisms**
+- **CBAM (Convolutional Block Attention Module)**: Lightweight attention combining channel and spatial attention
+- **Attention Gates**: Selective feature focusing in skip connections
+- **Self-Attention**: Core mechanism in Transformer architectures
+
+### **CNN (Convolutional Neural Network)**
+Deep neural network architecture using convolution operations, fundamental for image analysis. CrackSeg uses CNN encoders/decoders and hybrid CNN-Transformer approaches.
+
+### **Transfer Learning**
+Technique using pre-trained models as starting points. CrackSeg employs pre-trained ResNet/EfficientNet encoders and SwinV2 for improved performance.
+
+### **U-Net Architecture**
+Encoder-decoder network with skip connections designed for dense prediction tasks. CrackSeg's core architecture for pavement crack segmentation.
+
+## Computer Vision & Segmentation
+
+### **Binary Segmentation**
+Pixel-level classification into two classes (crack vs. background). CrackSeg's primary task with high class imbalance challenges.
+
+### **Class Imbalance**
+Significant disparity between class frequencies. In crack segmentation, background pixels vastly outnumber crack pixels, requiring specialized loss functions.
+
+### **Feature Maps**
+Intermediate representations at different network layers. CrackSeg uses multi-scale feature maps for skip connections between encoder and decoder.
+
+### **Ground Truth Masks**
+Binary images indicating true crack locations (512×512 pixels). Used for supervised training and evaluation in CrackSeg datasets.
+
+### **Multi-Scale Features**
+Representations capturing information at different spatial resolutions. Essential for detecting cracks of varying widths in pavement images.
+
+### **Semantic Segmentation**
+Dense prediction task assigning class labels to every pixel. CrackSeg performs binary semantic segmentation for crack detection.
+
+## Software Engineering & Tools
+
+### **basedpyright**
+Advanced Python type checker with strict analysis capabilities. Mandatory tool in CrackSeg following [coding standards](mdc:../../.cursor/rules/coding-preferences.mdc), replacing mypy.
+
+### **Black**
+Uncompromising Python code formatter. Mandatory in CrackSeg pre-commit workflow ensuring consistent code style across the project.
+
+### **Conda**
+Package and environment management system. CrackSeg uses conda for reproducible dependency management via `environment.yml`.
+
+### **DVC (Data Version Control)**
+Tool for versioning datasets and ML models. Planned for CrackSeg to ensure reproducible experiments and dataset management.
+
+### **Git**
+Distributed version control system. CrackSeg follows [git standards](mdc:../../.cursor/rules/git-standards.mdc) with conventional commits and English documentation.
+
+### **Hydra**
+Framework for elegantly configuring complex applications. CrackSeg uses Hydra for experiment configuration management and hyperparameter tuning.
+
+### **pytest**
+Python testing framework. CrackSeg uses pytest for unit and integration testing following [testing standards](mdc:../../.cursor/rules/testing-standards.mdc).
+
+### **Ruff**
+Fast Python linter and formatter combining functionality of flake8, isort, and pylint. Mandatory in CrackSeg replacing multiple legacy tools.
+
+### **YAML**
+Human-readable data serialization format. CrackSeg uses YAML for all configuration files (model architectures, training parameters, etc.).
+
+## Hardware & Performance
+
+### **CUDA**
+NVIDIA's parallel computing platform. CrackSeg leverages CUDA for GPU acceleration on RTX 3070 Ti hardware.
+
+### **Gradient Accumulation**
+Technique simulating larger batch sizes by accumulating gradients across multiple forward passes. Used in CrackSeg to overcome VRAM limitations.
+
+### **Gradient Checkpointing**
+Memory optimization trading computation for memory by recomputing activations during backpropagation. Implemented in CrackSeg for large models.
+
+### **Mixed Precision Training**
+Using both 16-bit and 32-bit floats during training. Essential optimization in CrackSeg for RTX 3070 Ti (8GB VRAM) constraints.
+
+### **RTX 3070 Ti**
+NVIDIA GPU with 8GB GDDR6 VRAM. CrackSeg's target hardware requiring specific memory optimizations and batch size limitations.
+
+### **VRAM (Video RAM)**
+GPU memory for storing model parameters and intermediate computations. Primary constraint in CrackSeg requiring careful memory management.
+
+## Project-Specific Terms
+
+### **Crack Segmentation**
+Computer vision task identifying crack pixels in pavement images. CrackSeg's primary research domain focusing on SOTA performance.
+
+### **CrackSeg**
+Project name for state-of-the-art pavement crack segmentation research using modular U-Net architectures and Transformer approaches.
+
+### **Modular Architecture**
+Design approach allowing interchangeable components (encoders, decoders, bottlenecks). Core design principle in CrackSeg enabling systematic architecture exploration.
+
+### **SOTA (State Of The Art)**
+Highest performance level achieved in a field. CrackSeg targets IoU > 0.8 and F1-Score > 0.85 for SOTA crack segmentation performance.
+
+### **SwinV2 (Swin Transformer V2)**
+Hierarchical Vision Transformer architecture. CrackSeg uses SwinV2-Tiny variant as encoder for capturing long-range dependencies in crack patterns.
+
+## Evaluation Metrics
+
+### **F1-Score**
+Harmonic mean of precision and recall: `F1 = 2 × (precision × recall) / (precision + recall)`. Primary evaluation metric in CrackSeg for balanced assessment.
+
+### **IoU (Intersection over Union)**
+Overlap measure between predicted and ground truth regions: `IoU = |A ∩ B| / |A ∪ B|`. Primary metric in CrackSeg segmentation evaluation.
+
+### **Precision**
+Ratio of true positive predictions to total positive predictions: `Precision = TP / (TP + FP)`. Measures crack detection accuracy.
+
+### **Recall (Sensitivity)**
+Ratio of true positive predictions to total actual positives: `Recall = TP / (TP + FN)`. Measures crack detection completeness.
+
+## Dataset Terms
+
+### **CFD Dataset**
+Public crack dataset used for augmenting training data in CrackSeg to improve generalization across different crack types.
+
+### **Crack500 Dataset**
+Standard benchmark dataset containing 500 crack images. Used in CrackSeg for SOTA performance comparison and evaluation.
+
+### **DeepCrack Dataset**
+Public dataset for crack detection. Part of CrackSeg's training data augmentation strategy for improved model generalization.
+
+### **SUT Dataset**
+Baseline dataset with 130 image/mask pairs at 512×512 resolution. Primary dataset for initial CrackSeg model development and testing.
+
+---
+
+## Quick References
+
+- **Development Rules**: [.cursor/rules/](mdc:../../.cursor/rules) - All professional development standards
+- **Project Context**: [general-context.mdc](mdc:general-context.mdc) - Technical project overview
+- **Architecture Guide**: [structural-guide.mdc](mdc:structural-guide.mdc) - Implementation patterns
+
+---
+
+**This glossary is maintained in sync with project evolution and CrackSeg-specific terminology for consistent technical communication.**
 

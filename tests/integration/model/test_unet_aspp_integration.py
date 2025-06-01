@@ -159,16 +159,16 @@ def test_aspp_simplified_unet(
     first_skip = skips[-1]
 
     # Check and adjust spatial dimensions if necessary
-    if upsampled_reduced.shape[2:] != first_skip.shape[2:]:
-        upsampled_reduced = torch.nn.functional.interpolate(
+    if upsampled_reduced.shape[2:] != first_skip.shape[2:]:  # type: ignore
+        upsampled_reduced = torch.nn.functional.interpolate(  # type: ignore
             upsampled_reduced,
             size=first_skip.shape[2:],
             mode="bilinear",
             align_corners=False,
-        )
+        )  # type: ignore
 
-    logger.info("Upsampled shape: %s", upsampled_reduced.shape)
-    logger.info("Skip shape: %s", first_skip.shape)
+    logger.info("Upsampled shape: %s", upsampled_reduced.shape)  # type: ignore
+    logger.info("Skip shape: %s", first_skip.shape)  # type: ignore
 
     # Concatenate with the corresponding skip connection
     concat = torch.cat([upsampled_reduced, first_skip], dim=1)

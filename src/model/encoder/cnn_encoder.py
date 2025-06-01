@@ -63,12 +63,12 @@ class EncoderBlock(EncoderBase):
             x (torch.Tensor): Input tensor of shape (B, C, H, W).
 
         Returns:
-            Tuple[torch.Tensor, List[torch.Tensor]]: (output,
-                                                      [skip_connection])
-                - output: Output tensor after convolutions and pooling
-                        (if used).
+            Tuple[torch.Tensor, List[torch.Tensor]]: (output, [skip_connection]
+            )
+                - output: Output tensor after convolutions and pooling (if used
+                ).
                 - [skip_connection]: List with the pre-pooled feature map for
-                  skip connections.
+                skip connections.
         """
         x = self.conv1(x)
         x = self.bn1(x)
@@ -77,7 +77,8 @@ class EncoderBlock(EncoderBase):
         x = self.bn2(x)
         x = self.relu2(x)
         skip = x  # Pre-pooled feature map for skip connection
-        if self.use_pool and self.pool is not None:
+        if self.use_pool:
+            assert self.pool is not None
             x = self.pool(x)
         return x, [skip]
 

@@ -16,7 +16,7 @@ def get_evaluation_dataloader(
     data_dir: str | None = None,
     batch_size: int | None = None,
     num_workers: int | None = None,
-) -> DataLoader:
+) -> DataLoader[Any]:
     """
     Get dataloader for evaluation.
 

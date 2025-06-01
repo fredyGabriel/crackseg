@@ -1,7 +1,6 @@
 """Configuration schema definitions."""
 
 from dataclasses import dataclass, field
-from typing import Any
 
 from omegaconf import MISSING
 
@@ -59,7 +58,9 @@ class BCEDiceLossConfig(BaseLossConfig):
 @dataclass
 class CombinedLossItemConfig:
     # Holds one loss config and its weight
-    config: Any = MISSING  # Using Any to allow any BaseLossConfig subclass
+    config: BaseLossConfig | dict[str, float | int | str | bool | None] = (
+        MISSING
+    )
     weight: float = 1.0
 
 
@@ -70,22 +71,16 @@ class CombinedLossConfig(BaseLossConfig):
     # Note: Actual weights are normalized in CombinedLoss.__init__
 
     def __post_init__(self):
+        # Validación relevante solo a CombinedLossConfig
         if not self.losses:
             raise ValueError(
-                "CombinedLossConfig must have at least one loss \
-defined in 'losses'."
-            )
-        if not isinstance(self.losses, list):
-            # This check might be redundant due to Hydra/OmegaConf, but good
-            # practice
-            raise TypeError(
-                "CombinedLossConfig 'losses' field must be a list."
+                "CombinedLossConfig must have at least one loss defined in "
+                "'losses'."
             )
         total_weight = sum(item.weight for item in self.losses)
         if total_weight <= 0:
             raise ValueError(
-                "Sum of weights in CombinedLossConfig must be \
-positive."
+                "Sum of weights in CombinedLossConfig must be positive."
             )
 
 
@@ -171,7 +166,7 @@ class TrainingConfig:
     epochs: int = 100
     optimizer: OptimizerConfig = MISSING
     loss: LossConfig = MISSING
-    metrics: dict[str, MetricConfig] = MISSING
+    metrics: dict[str, MetricConfig] = field(default_factory=dict)
     early_stopping_patience: int = 7
     save_checkpoint_freq: int = 1
     validate_freq: int = 1

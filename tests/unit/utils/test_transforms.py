@@ -1,6 +1,9 @@
 # ruff: noqa: PLR2004
 """Unit tests for the transforms module."""
 
+from pathlib import Path
+from typing import Any
+
 import albumentations as A
 import numpy as np
 import pytest
@@ -11,19 +14,21 @@ from src.data.transforms import apply_transforms, get_basic_transforms
 
 
 @pytest.fixture
-def sample_image():
+def sample_image() -> np.ndarray[Any, Any]:
     """Create a sample RGB image for testing."""
     return np.random.randint(0, 255, (64, 64, 3), dtype=np.uint8)
 
 
 @pytest.fixture
-def sample_mask():
+def sample_mask() -> np.ndarray[Any, Any]:
     """Create a sample binary mask for testing."""
     return np.random.randint(0, 2, (64, 64), dtype=np.uint8)
 
 
 @pytest.fixture
-def temp_image_file(tmp_path, sample_image):
+def temp_image_file(
+    tmp_path: "Path", sample_image: np.ndarray[Any, Any]
+) -> str:
     """Create a temporary image file for testing."""
     img_path = tmp_path / "test_image.png"
     Image.fromarray(sample_image).save(img_path)
@@ -31,7 +36,7 @@ def temp_image_file(tmp_path, sample_image):
 
 
 @pytest.fixture
-def temp_mask_file(tmp_path, sample_mask):
+def temp_mask_file(tmp_path: "Path", sample_mask: np.ndarray[Any, Any]) -> str:
     """Create a temporary mask file for testing."""
     mask_path = tmp_path / "test_mask.png"
     Image.fromarray(sample_mask).save(mask_path)
@@ -56,7 +61,7 @@ def test_get_basic_transforms_default_params():
 
 
 @pytest.mark.parametrize("mode", ["train", "val", "test"])
-def test_get_basic_transforms_all_modes(mode):
+def test_get_basic_transforms_all_modes(mode: str) -> None:
     """Test get_basic_transforms for all valid modes."""
     transform = get_basic_transforms(mode=mode)
     transform_names = [type(t).__name__ for t in transform.transforms]
@@ -111,7 +116,9 @@ def test_get_basic_transforms_custom_normalization():
     assert normalize_transform.std == custom_std
 
 
-def test_apply_transforms_with_arrays(sample_image, sample_mask):
+def test_apply_transforms_with_arrays(
+    sample_image: np.ndarray[Any, Any], sample_mask: np.ndarray[Any, Any]
+) -> None:
     """Test apply_transforms with numpy array inputs."""
     transforms = get_basic_transforms(mode="train")
     result = apply_transforms(
@@ -126,7 +133,9 @@ def test_apply_transforms_with_arrays(sample_image, sample_mask):
     assert result["mask"].shape[-2:] == (512, 512)
 
 
-def test_apply_transforms_with_files(temp_image_file, temp_mask_file):
+def test_apply_transforms_with_files(
+    temp_image_file: str, temp_mask_file: str
+) -> None:
     """Test apply_transforms with file path inputs."""
     transforms = get_basic_transforms(mode="val")
     result = apply_transforms(
@@ -139,7 +148,9 @@ def test_apply_transforms_with_files(temp_image_file, temp_mask_file):
     assert isinstance(result["mask"], torch.Tensor)
 
 
-def test_apply_transforms_without_mask(sample_image):
+def test_apply_transforms_without_mask(
+    sample_image: np.ndarray[Any, Any],
+) -> None:
     """Test apply_transforms with image only (no mask)."""
     transforms = get_basic_transforms(mode="test")
     result = apply_transforms(sample_image, transforms=transforms)
@@ -175,7 +186,9 @@ def test_apply_transforms_augmentation_variability():
     )
 
 
-def test_transforms_tensor_output(sample_image, sample_mask):
+def test_transforms_tensor_output(
+    sample_image: np.ndarray[Any, Any], sample_mask: np.ndarray[Any, Any]
+) -> None:
     """Test that transformations output tensors with correct shape and type."""
     transforms = get_basic_transforms(mode="val")
     result = apply_transforms(
@@ -188,7 +201,9 @@ def test_transforms_tensor_output(sample_image, sample_mask):
     assert len(result["mask"].shape) == 2  # H,W
 
 
-def test_transforms_normalization_range(sample_image):
+def test_transforms_normalization_range(
+    sample_image: np.ndarray[Any, Any],
+) -> None:
     """Test that normalization produces values in expected range."""
     transforms = get_basic_transforms(mode="val")
     result = apply_transforms(sample_image, transforms=transforms)
@@ -200,7 +215,9 @@ def test_transforms_normalization_range(sample_image):
     assert -2.15 <= max_val <= 2.65
 
 
-def test_transforms_mask_values(sample_image, sample_mask):
+def test_transforms_mask_values(
+    sample_image: np.ndarray[Any, Any], sample_mask: np.ndarray[Any, Any]
+) -> None:
     """Test that mask values remain binary after transformations."""
     transforms = get_basic_transforms(mode="train")
     result = apply_transforms(
@@ -215,7 +232,7 @@ def test_transforms_mask_values(sample_image, sample_mask):
     assert torch.all(is_close_to_0 | is_close_to_1)
 
 
-def test_transforms_channel_order(sample_image):
+def test_transforms_channel_order(sample_image: np.ndarray[Any, Any]) -> None:
     """Test that image tensor has correct channel order (C,H,W)."""
     transforms = get_basic_transforms(mode="val")
     result = apply_transforms(sample_image, transforms=transforms)
@@ -225,7 +242,9 @@ def test_transforms_channel_order(sample_image):
     assert len(result["image"].shape) == 3  # C,H,W format
 
 
-def test_transforms_mask_shape_consistency(sample_image, sample_mask):
+def test_transforms_mask_shape_consistency(
+    sample_image: np.ndarray[Any, Any], sample_mask: np.ndarray[Any, Any]
+) -> None:
     """Test that mask shape matches image spatial dimensions."""
     transforms = get_basic_transforms(mode="val")
     result = apply_transforms(

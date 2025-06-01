@@ -1,3 +1,4 @@
+# pyright: reportPrivateUsage=false
 """
 Tests for the hybrid architecture registry system.
 
@@ -29,35 +30,37 @@ from src.model.factory.registry_setup import (
 
 # Mock classes for testing
 class MockEncoder(EncoderBase):
-    def __init__(self, in_channels=3):
+    def __init__(self, in_channels: int = 3):
         super().__init__(in_channels)
         self._out_channels = 8
         self._skip_channels = [4, 8]
 
-    def forward(self, x):
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, list[torch.Tensor]]:
         output = torch.randn(1, self._out_channels, 8, 8)
         skips = [torch.randn(1, c, 16, 16) for c in self._skip_channels]
         return output, skips
 
     @property
-    def out_channels(self):
+    def out_channels(self) -> int:
         return self._out_channels
 
     @property
-    def skip_channels(self):
+    def skip_channels(self) -> list[int]:
         return self._skip_channels
 
 
 class MockBottleneck(BottleneckBase):
-    def __init__(self, in_channels=8):
+    def __init__(self, in_channels: int = 8):
         super().__init__(in_channels)
         self._out_channels = 8
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return torch.randn(1, self._out_channels, 8, 8)
 
     @property
-    def out_channels(self):
+    def out_channels(self) -> int:
         return self._out_channels
 
 
@@ -68,7 +71,9 @@ class MockDecoder(DecoderBase):
     entonces MockDecoder.skip_channels = [32, 16].
     """
 
-    def __init__(self, in_channels=64, skip_channels=None):
+    def __init__(
+        self, in_channels: int = 64, skip_channels: list[int] | None = None
+    ):
         # Si no se pasa skip_channels, usar el reverso del default de
         # MockEncoder
         if skip_channels is None:
@@ -77,14 +82,16 @@ class MockDecoder(DecoderBase):
         super().__init__(in_channels, skip_channels=skip_channels)
         self._out_channels = 1
 
-    def forward(self, x, skips):
+    def forward(
+        self, x: torch.Tensor, skips: list[torch.Tensor]
+    ) -> torch.Tensor:
         batch_size = x.shape[0]
         return torch.randn(
             batch_size, self._out_channels, x.shape[2] * 2, x.shape[3] * 2
         )
 
     @property
-    def out_channels(self):
+    def out_channels(self) -> int:
         return self._out_channels
 
 
@@ -93,7 +100,7 @@ class MockAttention(nn.Module):
         super().__init__()
 
 
-def setup_module(module):
+def setup_module(module: object) -> None:
     """Set up test module - register test components."""
     # Unregister test components if already present
     try:
@@ -128,7 +135,7 @@ def setup_module(module):
         attention_registry.register(name="MockAttention")(MockAttention)
 
 
-def teardown_module(module):
+def teardown_module(module: object) -> None:
     """Clean up after tests."""
     # Clear hybrid registry
     hybrid_registry._descriptors = {}
@@ -303,7 +310,9 @@ def test_architecture_registry_integration():
     """Test that hybrid architectures are also in the main architecture
     registry."""
 
-    def get_descriptors(registry):
+    def get_descriptors(
+        registry: object,
+    ) -> dict[str, HybridArchitectureDescriptor]:
         return registry._descriptors  # type: ignore[attr-defined]
 
     arch_registry_items = get_descriptors(architecture_registry)

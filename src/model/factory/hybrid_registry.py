@@ -1,3 +1,4 @@
+# pyright: reportUnknownMemberType=false
 """
 Hybrid Architecture Registry Module.
 
@@ -12,7 +13,7 @@ combine multiple component types. Includes:
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, cast
 
 import torch
 
@@ -146,7 +147,7 @@ class HybridArchitectureDescriptor:
         # Add the descriptor's own tags
         component_tags.extend(self.tags)
 
-        return component_tags
+        return cast(list[str], component_tags)
 
 
 class HybridRegistry:
@@ -192,7 +193,7 @@ class HybridRegistry:
         ):  # Inherit from UNetBase
             """Dummy architecture class for registration purposes."""
 
-            def __init__(self, *args, **kwargs):
+            def __init__(self, *args: Any, **kwargs: Any):
                 # Call super() with None for encoder, bottleneck, decoder
                 # These Nones will be handled by special logic in
                 # UNetBase._validate_components
@@ -248,7 +249,7 @@ class HybridRegistry:
                         matches.append(name)
                         break
 
-        return matches
+        return cast(list[str], matches)
 
     def get_descriptor(self, name: str) -> HybridArchitectureDescriptor:
         """
@@ -354,7 +355,9 @@ def register_complex_hybrid(
 
     # Create the descriptor
     descriptor = HybridArchitectureDescriptor(
-        name=name, components=component_refs, tags=tags or []
+        name=name,
+        components=cast(dict[str, ComponentReference], component_refs),
+        tags=tags or [],
     )
 
     # Register with the hybrid registry
@@ -389,8 +392,8 @@ def query_architectures_by_tag(tag: str) -> list[str]:
     """
     matching = []
 
-    for name, descriptor in hybrid_registry._descriptors.items():
+    for name, descriptor in hybrid_registry._descriptors.items():  # type: ignore[protected-access]
         if tag in descriptor.tags or tag in descriptor.to_tag_list():
             matching.append(name)
 
-    return matching
+    return cast(list[str], matching)

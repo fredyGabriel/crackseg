@@ -11,8 +11,8 @@ class CrackSegError(Exception):
             message: Main error message
             details: Optional additional error details
         """
-        self.message = message
-        self.details = details
+        self.message: str = message
+        self.details: str | None = details
         super().__init__(self.full_message)
 
     @property
@@ -41,8 +41,8 @@ class ConfigError(CrackSegError):
             field: Name of the field that failed validation (optional)
             details: Optional additional error details
         """
-        self.config_path = config_path
-        self.field = field
+        self.config_path: str | None = config_path
+        self.field: str | None = field
         if config_path:
             message = f"Configuration error in {config_path}: {message}"
         if field:
@@ -66,7 +66,7 @@ class DataError(CrackSegError):
             data_path: Path to the problematic data file/directory
             details: Optional additional error details
         """
-        self.data_path = data_path
+        self.data_path: str | None = data_path
         if data_path:
             message = f"Data error in {data_path}: {message}"
         super().__init__(message, details)
@@ -88,7 +88,7 @@ class ModelError(CrackSegError):
             model_name: Name or identifier of the problematic model
             details: Optional additional error details
         """
-        self.model_name = model_name
+        self.model_name: str | None = model_name
         if model_name:
             message = f"Model error in {model_name}: {message}"
         super().__init__(message, details)
@@ -110,7 +110,7 @@ class TrainingError(CrackSegError):
             epoch: Training epoch where the error occurred
             details: Optional additional error details
         """
-        self.epoch = epoch
+        self.epoch: int | None = epoch
         if epoch is not None:
             message = f"Training error at epoch {epoch}: {message}"
         super().__init__(message, details)
@@ -132,7 +132,7 @@ class EvaluationError(CrackSegError):
             checkpoint: Path or name of the checkpoint being evaluated
             details: Optional additional error details
         """
-        self.checkpoint = checkpoint
+        self.checkpoint: str | None = checkpoint
         if checkpoint:
             message = f"Evaluation error with checkpoint {checkpoint}: \
 {message}"
@@ -155,7 +155,7 @@ class ResourceError(CrackSegError):
             resource_type: Type of resource (e.g., 'GPU', 'Memory')
             details: Optional additional error details
         """
-        self.resource_type = resource_type
+        self.resource_type: str | None = resource_type
         if resource_type:
             message = f"{resource_type} resource error: {message}"
         super().__init__(message, details)
@@ -177,7 +177,7 @@ class ValidationError(CrackSegError):
             field: Name of the field that failed validation
             details: Optional additional error details
         """
-        self.field = field
+        self.field: str | None = field
         if field:
             message = f"Validation error for {field}: {message}"
         super().__init__(message, details)

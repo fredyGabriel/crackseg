@@ -18,7 +18,7 @@ from src.model.config.validation import (
 class TestBasicValidation:
     """Test basic validation functionality."""
 
-    def test_param_validation(self):
+    def test_param_validation(self) -> None:
         """Test validation of individual parameters."""
         # String param
         string_param = ConfigParam(
@@ -46,7 +46,7 @@ class TestBasicValidation:
         assert float_param.validate(None)[0] is True  # Uses default
         assert float_param.validate("0.5")[0] is False  # Wrong type
 
-    def test_schema_validation(self):
+    def test_schema_validation(self) -> None:
         """Test validation of complete schemas."""
         # Create a test schema
         test_schema = ConfigSchema(
@@ -97,7 +97,7 @@ class TestBasicValidation:
         assert is_valid is True
         assert errors is None
 
-    def test_nested_schema_validation(self):
+    def test_nested_schema_validation(self) -> None:
         """Test validation of nested schemas."""
         # Create a nested schema
         inner_schema = ConfigSchema(
@@ -147,7 +147,7 @@ class TestBasicValidation:
 class TestComponentValidation:
     """Test validation of specific component configurations."""
 
-    def test_encoder_validation(self):
+    def test_encoder_validation(self) -> None:
         """Test validation of encoder configurations."""
         # Valid CNN encoder config
         valid_cnn_config = {
@@ -189,7 +189,7 @@ class TestComponentValidation:
         assert is_valid is False
         assert errors is not None
 
-    def test_encoder_validation_type_error(self):
+    def test_encoder_validation_type_error(self) -> None:
         """Test encoder config with wrong type for hidden_dims."""
         invalid_config = {
             "type": "CNNEncoder",

@@ -7,14 +7,18 @@ for component lookup.
 """
 
 import logging
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from omegaconf import DictConfig
 from torch import nn
 
 # Actualizar importación para usar ruta correcta al paquete base
-from src.model.base.abstract import DecoderBase, UNetBase
-from src.model.components.cbam import CBAM
+from src.model.base.abstract import (
+    BottleneckBase,
+    DecoderBase,
+    EncoderBase,
+    UNetBase,
+)
 
 # Import instantiation functions usando referencias relativas
 from .config import (
@@ -68,15 +72,13 @@ class CBAMPostProcessor(nn.Module):
         cbam: The CBAM attention module to apply
     """
 
-    def __init__(self, original_model, cbam):
+    def __init__(self, original_model: nn.Module, cbam: nn.Module) -> None:
         super().__init__()
-        self.model = original_model
-        self.cbam = cbam
+        self.model: nn.Module = original_model
+        self.cbam: nn.Module = cbam
 
-    def forward(self, x):
-        # Standard model processing
+    def forward(self, x: Any) -> Any:
         output = self.model(x)
-        # Post-processing with CBAM
         return self.cbam(output)
 
 
@@ -104,61 +106,60 @@ def create_unet(config: DictConfig) -> nn.Module:
     # Convert DictConfig to dict for validate_config
     def normalize_keys(d: Any) -> Any:
         if isinstance(d, dict):
-            return {str(k): normalize_keys(v) for k, v in d.items()}
+            out: dict[str, Any] = {}
+            for k, v in d.items():
+                key: str = str(cast(str, k))
+                value = normalize_keys(cast(Any, v))
+                out[key] = value
+            return out
         elif isinstance(d, list):
-            return [normalize_keys(i) for i in d]
+            return [normalize_keys(cast(Any, i)) for i in d]
         return d
 
-    config_for_validation = (
-        normalize_keys(dict(config))
-        if isinstance(config, DictConfig)
-        else normalize_keys(config)
-    )
+    config_for_validation: dict[str, Any] = normalize_keys(dict(config))
     validate_config(config_for_validation, required_components, "unet")
 
     try:
         # Instantiate components
         encoder, bottleneck, decoder = instantiate_unet_components(config)
 
-        # Get UNet class and create model
-        UnetClass = get_unet_class(config)
-        unet_model: nn.Module = UnetClass(
-            encoder=encoder,  # type: ignore
-            bottleneck=bottleneck,  # type: ignore
-            decoder=decoder,  # type: ignore
+        # Cast a tipos base para satisfacer basedpyright
+        encoder_base = cast(EncoderBase, encoder)
+        bottleneck_base = cast(BottleneckBase, bottleneck)
+        decoder_base = cast(DecoderBase, decoder)
+        UnetClass: type[UNetBase] = get_unet_class(config)
+        unet_model: UNetBase = UnetClass(
+            encoder=encoder_base,
+            bottleneck=bottleneck_base,
+            decoder=decoder_base,
         )
-        log_component_creation("UNet", UnetClass.__name__)
-
-        # Handle optional final activation
+        log_component_creation(
+            "UNet", str(getattr(UnetClass, "__name__", "Unknown"))
+        )
+        # Si se le aplica un wrapper, el tipo es nn.Module
+        model: nn.Module = unet_model
         if "final_activation" in config:
-            unet_model = add_final_activation(
-                unet_model, config.final_activation
-            )
-
-        # Apply CBAM if enabled
-        global_cbam_enabled = config.get("cbam_enabled", False)
+            model = add_final_activation(model, config.final_activation)
+        global_cbam_enabled: bool = config.get("cbam_enabled", False)
         if global_cbam_enabled:
-            global_cbam_params = config.get("cbam_params", {})
-            output_channels = getattr(decoder, "out_channels", None)
-            unet_model = apply_cbam_to_model(
-                unet_model,
+            global_cbam_params: dict[str, Any] = config.get("cbam_params", {})
+            output_channels: int | None = getattr(
+                decoder, "out_channels", None
+            )
+            model = apply_cbam_to_model(
+                model,
                 global_cbam_enabled,
                 global_cbam_params,
                 output_channels,
             )
-
-        return unet_model
+        return model
 
     except Exception as e:
         # Catch all errors, log them, and re-raise as ConfigurationError
         log_configuration_error(
             "UNet Creation",
             str(e),
-            (
-                hydra_to_dict(config)
-                if isinstance(config, DictConfig)
-                else config
-            ),
+            hydra_to_dict(config),
         )
         # Ensure ConfigurationError is raised for consistency
         if isinstance(e, ConfigurationError):
@@ -224,28 +225,35 @@ class FinalCBAMDecoder(DecoderBase):
         cbam: CBAM attention module
     """
 
-    def __init__(self, decoder, cbam):
+    def __init__(self, decoder: nn.Module, cbam: nn.Module) -> None:
         # Initialize DecoderBase with the same parameters as the original
         # decoder
+        in_channels: int = getattr(decoder, "in_channels", 1)
+        skip_channels_raw = getattr(decoder, "skip_channels", [1])
+        skip_channels: list[int] = (
+            cast(list[int], skip_channels_raw)
+            if isinstance(skip_channels_raw, list)
+            else [cast(int, skip_channels_raw)]
+        )
         super().__init__(
-            in_channels=decoder.in_channels,
-            skip_channels=decoder.skip_channels,
+            in_channels=in_channels,
+            skip_channels=skip_channels,
         )
         # Register submodules
         self.add_module("decoder", decoder)
         self.add_module("cbam", cbam)
 
         # Copy out_channels attribute
-        self._out_channels = decoder.out_channels
+        self._out_channels: int = getattr(decoder, "out_channels", 1)
 
-    def forward(self, x, skip_connections=None):
+    def forward(self, x: Any, skips: Any = None) -> Any:
         # First apply the decoder with skip_connections
-        decoded = self.decoder(x, skip_connections)
+        decoded = self.decoder(x, skips)
         # Then apply CBAM at the end
         return self.cbam(decoded)
 
     @property
-    def out_channels(self):
+    def out_channels(self) -> int:
         """
         Returns the number of output channels of the decorated decoder.
         Implementation required by DecoderBase.
@@ -253,7 +261,9 @@ class FinalCBAMDecoder(DecoderBase):
         return self._out_channels
 
 
-def insert_cbam_if_enabled(component: nn.Module, config) -> nn.Module:
+def insert_cbam_if_enabled(
+    component: nn.Module, config: dict[str, Any] | DictConfig
+) -> nn.Module:
     """
     Optionally insert CBAM (Convolutional Block Attention Module) after a
     component, based on a config dict or OmegaConf.
@@ -266,23 +276,24 @@ def insert_cbam_if_enabled(component: nn.Module, config) -> nn.Module:
     Returns:
         The original component or a component wrapped with CBAM
     """
-    cbam_enabled = config.get("cbam_enabled", False)
-    cbam_params = config.get("cbam_params", {})
+    cbam_enabled: bool = config.get("cbam_enabled", False)
+    cbam_params: dict[str, Any] = config.get("cbam_params", {})
     if not cbam_enabled:
         return component
 
     # Determinar número de canales para CBAM
+    channels: int
     if "in_channels" in cbam_params:
         channels = cbam_params["in_channels"]
     elif hasattr(component, "out_channels"):
-        channels = component.out_channels
+        channels = getattr(component, "out_channels", 64)
     else:
         channels = 64  # valor por defecto
 
     # Pasar los parámetros correctos a CBAM
-    cbam_args = dict(cbam_params)
+    cbam_args: dict[str, Any] = dict(cbam_params)
     cbam_args["in_channels"] = channels
-    cbam = CBAM(**cbam_args)
+    cbam = create_cbam_module(channels, cbam_args)
 
     # Para decoders, usar FinalCBAMDecoder
     if hasattr(component, "skip_channels"):
@@ -308,7 +319,7 @@ def create_unet_from_config(config: DictConfig) -> UNetBase:
     Raises:
         TypeError: If config is not a dictionary-like object
     """
-    if not isinstance(config, dict | DictConfig):
+    if not isinstance(config, dict):
         raise TypeError(
             f"Expected dictionary-like config, but got {type(config)}"
         )
@@ -333,16 +344,22 @@ def create_unet_from_config(config: DictConfig) -> UNetBase:
     unet_class = architecture_registry.get_class(arch_type)  # type: ignore
 
     # Instantiate UNet
-    unet = unet_class(encoder, bottleneck, decoder)
-    log_component_creation("UNet", unet_class.__name__)
+    unet = unet_class(encoder, bottleneck, decoder)  # type: ignore[reportUnknownArgumentType]
+    log_component_creation(
+        "UNet",
+        str(getattr(unet_class, "__name__", "Unknown")),  # type: ignore[reportUnknownArgumentType]
+    )
 
     # Apply CBAM if enabled
     global_cbam_enabled = config.get("cbam_enabled", False)
     if global_cbam_enabled:
         global_cbam_params = config.get("cbam_params", {})
         unet = apply_cbam_to_model(
-            unet, global_cbam_enabled, global_cbam_params, decoder.out_channels
-        )
+            cast(nn.Module, unet),
+            global_cbam_enabled,
+            global_cbam_params,
+            decoder.out_channels,  # type: ignore[reportUnknownArgumentType]
+        )  # type: ignore[reportUnknownArgumentType]
 
     return unet  # type: ignore
 
@@ -391,7 +408,7 @@ def instantiate_unet_components(
     encoder_skips = getattr(encoder, "skip_channels", [])
     if isinstance(encoder_skips, list):
         decoder_runtime_params["skip_channels_list"] = list(
-            reversed(encoder_skips)
+            reversed(encoder_skips)  # type: ignore[reportUnknownArgumentType]
         )
 
     decoder = instantiate_decoder(

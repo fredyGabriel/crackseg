@@ -1,4 +1,7 @@
+from typing import Any, cast
+
 import torch
+import torch.nn as nn
 
 from src.model.architectures.cnn_convlstm_unet import (
     CNNConvLSTMUNet,
@@ -18,7 +21,7 @@ def get_cbam_instance(out_channels: int):
     attention_registry = component_registries.get("attention")
     if attention_registry is None:
         raise RuntimeError("Attention registry not found")
-    cbam_cls = attention_registry.get("CBAM")
+    cbam_cls = cast(type[nn.Module] | None, attention_registry.get("CBAM"))
     if cbam_cls is None:
         raise RuntimeError("CBAM not registered in attention registry")
     return cbam_cls(in_channels=out_channels, reduction=1, kernel_size=3)
@@ -42,11 +45,14 @@ def test_cbam_integration_unet_forward():
         kernel_size=(3, 3),
         num_layers=1,
     )
-    decoder = CNNDecoder(
-        in_channels=bottleneck.out_channels,
-        skip_channels_list=list(reversed(encoder.skip_channels)),
-        out_channels=out_channels,
-        depth=1,
+    decoder = cast(
+        Any,
+        CNNDecoder(
+            in_channels=bottleneck.out_channels,
+            skip_channels_list=list(reversed(encoder.skip_channels)),
+            out_channels=out_channels,
+            depth=1,
+        ),
     )
 
     # Modelo base - usar CNNConvLSTMUNet en lugar de BaseUNet
@@ -88,11 +94,14 @@ def test_cbam_integration_cnn_convlstm_unet_forward():
         kernel_size=(3, 3),
         num_layers=1,
     )
-    decoder = CNNDecoder(
-        in_channels=bottleneck.out_channels,
-        skip_channels_list=list(reversed(encoder.skip_channels)),
-        out_channels=out_channels,
-        depth=1,
+    decoder = cast(
+        Any,
+        CNNDecoder(
+            in_channels=bottleneck.out_channels,
+            skip_channels_list=list(reversed(encoder.skip_channels)),
+            out_channels=out_channels,
+            depth=1,
+        ),
     )
 
     # Modelo base
@@ -115,7 +124,7 @@ def test_cbam_integration_cnn_convlstm_unet_forward():
     assert out.shape == (1, out_channels, h, w)
 
 
-def test_cbam_save_and_load(tmp_path):
+def test_cbam_save_and_load(tmp_path: Any):
     """Test saving and loading a model with CBAM (out_channels > 1)."""
     # Test con parámetros simplificados para evitar errores de dimensiones
     in_channels = 3
@@ -133,16 +142,21 @@ def test_cbam_save_and_load(tmp_path):
         kernel_size=(3, 3),
         num_layers=1,
     )
-    decoder = CNNDecoder(
-        in_channels=bottleneck.out_channels,
-        skip_channels_list=list(reversed(encoder.skip_channels)),
-        out_channels=out_channels,
-        depth=1,
+    decoder = cast(
+        Any,
+        CNNDecoder(
+            in_channels=bottleneck.out_channels,
+            skip_channels_list=list(reversed(encoder.skip_channels)),
+            out_channels=out_channels,
+            depth=1,
+        ),
     )
 
     # Modelo base - usar CNNConvLSTMUNet en lugar de BaseUNet
     model = CNNConvLSTMUNet(
-        encoder=encoder, bottleneck=bottleneck, decoder=decoder
+        encoder=encoder,
+        bottleneck=bottleneck,
+        decoder=decoder,  # type: ignore
     )
 
     # Ejecutar primero para verificar que el modelo base funciona
@@ -155,15 +169,17 @@ def test_cbam_save_and_load(tmp_path):
 
     # Guarda y carga el modelo
     path = tmp_path / "cbam_model.pt"
-    torch.save(cbam_model.state_dict(), path)
+    torch.save(cbam_model.state_dict(), str(path))  # type: ignore
 
     # Crea un nuevo modelo idéntico y carga los pesos
     model2 = CNNConvLSTMUNet(
-        encoder=encoder, bottleneck=bottleneck, decoder=decoder
+        encoder=encoder,
+        bottleneck=bottleneck,
+        decoder=decoder,  # type: ignore
     )
     cbam2 = get_cbam_instance(out_channels)
     cbam_model2 = CBAMPostProcessor(model2, cbam2)
-    cbam_model2.load_state_dict(torch.load(path))
+    cbam_model2.load_state_dict(torch.load(str(path)))  # type: ignore
 
     # Ejecuta el modelo cargado
     out = cbam_model2(x)
@@ -187,11 +203,14 @@ def test_cbam_grad_integration():
         kernel_size=(3, 3),
         num_layers=1,
     )
-    decoder = CNNDecoder(
-        in_channels=bottleneck.out_channels,
-        skip_channels_list=list(reversed(encoder.skip_channels)),
-        out_channels=out_channels,
-        depth=1,
+    decoder = cast(
+        Any,
+        CNNDecoder(
+            in_channels=bottleneck.out_channels,
+            skip_channels_list=list(reversed(encoder.skip_channels)),
+            out_channels=out_channels,
+            depth=1,
+        ),
     )
 
     # Modelo base - usar CNNConvLSTMUNet en lugar de BaseUNet

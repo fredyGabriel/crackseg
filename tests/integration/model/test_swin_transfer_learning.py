@@ -1,3 +1,5 @@
+from typing import Any
+
 import torch
 
 from src.model.encoder.swin_transformer_encoder import (
@@ -87,18 +89,18 @@ def test_swin_transformer_encoder_optimizer_param_groups():
         config=config,
     )
     base_lr = 0.001
-    param_groups = encoder.get_optimizer_param_groups(base_lr)
-    assert len(param_groups) >= len(lr_scales), "Missing parameter groups"
+    param_groups = encoder.get_optimizer_param_groups(base_lr)  # type: ignore
+    assert len(param_groups) >= len(lr_scales), "Missing parameter groups"  # type: ignore
     lr_by_group = {}
-    for group in param_groups:
+    for group in param_groups:  # type: ignore
         if "name" in group:
             lr_by_group[group["name"]] = group["lr"]
     for pattern, scale in lr_scales.items():
         if pattern in lr_by_group:
             expected_lr = base_lr * scale
-            assert (
-                abs(lr_by_group[pattern] - expected_lr) < EPSILON
-            ), f"Incorrect learning rate for {pattern}"
+            assert abs(lr_by_group[pattern] - expected_lr) < EPSILON, (  # type: ignore
+                f"Incorrect learning rate for {pattern}"
+            )
 
 
 def test_swin_transformer_encoder_gradual_unfreeze():
@@ -112,7 +114,7 @@ def test_swin_transformer_encoder_gradual_unfreeze():
         in_channels=3,
         config=config,
     )
-    trainable_before, frozen_before = count_trainable_params(encoder)
+    trainable_before, _ = count_trainable_params(encoder)
     assert (
         trainable_before == 0
     ), "Expected all parameters to be frozen \
@@ -120,18 +122,18 @@ initially"
     print("\n=== MODEL STRUCTURE DEBUGGING ===")
     param_names = [name for name, _ in encoder.swin.named_parameters()]
     print(f"Total parameters: {len(param_names)}")
-    prefixes = set()
+    prefixes = set()  # type: ignore
     for name in param_names:
         parts = name.split(".")
         if len(parts) > 0:
-            prefixes.add(parts[0])
-    print(f"Top-level parameter groups: {sorted(prefixes)}")
+            prefixes.add(parts[0])  # type: ignore
+    print(f"Top-level parameter groups: {sorted(prefixes)}")  # type: ignore
     print("\nExamples of parameter names:")
     for i, name in enumerate(sorted(param_names)[:10]):
         print(f"  {i + 1}. {name}")
     unfreeze_schedule = {5: ["stages.0"], 10: ["stages.1"]}
     encoder.gradual_unfreeze(1, unfreeze_schedule)
-    trainable, frozen = count_trainable_params(encoder)
+    trainable, _ = count_trainable_params(encoder)
     assert trainable == 0, "No parameters should be unfrozen at epoch 1"
     print("\n=== APPLYING UNFREEZE AT EPOCH 5 ===")
     encoder.gradual_unfreeze(5, unfreeze_schedule)
@@ -190,19 +192,24 @@ def test_integration_freeze_and_transfer():
             pass
 
 
-def count_trainable_params(model):
+def count_trainable_params(model: Any):
     """Count trainable and frozen parameters in a model."""
     trainable_params = sum(
-        p.numel() for p in model.parameters() if p.requires_grad
+        p.numel()
+        for p in model.parameters()
+        if p.requires_grad  # type: ignore
     )
     frozen_params = sum(
-        p.numel() for p in model.parameters() if not p.requires_grad
+        p.numel()
+        for p in model.parameters()
+        if not p.requires_grad  # type: ignore
     )
     return trainable_params, frozen_params
 
 
-def get_param_status_by_name(model):
+def get_param_status_by_name(model: Any) -> dict[str, bool]:
     """Get a dictionary mapping parameter names to trainable status."""
     return {
-        name: param.requires_grad for name, param in model.named_parameters()
+        name: param.requires_grad  # type: ignore
+        for name, param in model.named_parameters()  # type: ignore
     }

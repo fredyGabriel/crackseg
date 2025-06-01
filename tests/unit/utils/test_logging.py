@@ -3,6 +3,7 @@
 import json
 import logging
 from pathlib import Path
+from typing import cast
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -15,7 +16,7 @@ from src.utils.logging import ExperimentLogger, get_logger
 
 
 @pytest.fixture
-def mock_logger_instance():
+def mock_logger_instance() -> MagicMock:
     """Fixture to create a mock underlying logger instance."""
     logger_instance = MagicMock(spec=logging.Logger)
     logger_instance.level = logging.DEBUG
@@ -23,8 +24,10 @@ def mock_logger_instance():
 
 
 @pytest.fixture
-@patch("src.utils.logging.experiment.get_logger")  # Patch get_logger here
-def experiment_logger(mock_get_logger, tmp_path: Path, mock_logger_instance):
+@patch("src.utils.logging.experiment.get_logger")
+def experiment_logger(
+    mock_get_logger: MagicMock, tmp_path: Path, mock_logger_instance: MagicMock
+) -> ExperimentLogger:
     """Fixture for ExperimentLogger, mocking the internal logger.
 
     Patches get_logger to return a mock instance *before* init.
@@ -59,9 +62,11 @@ def experiment_logger(mock_get_logger, tmp_path: Path, mock_logger_instance):
 # --- Tests for ExperimentLogger ---
 
 
-def test_experiment_logger_init(experiment_logger, tmp_path: Path):
+def test_experiment_logger_init(
+    experiment_logger: ExperimentLogger, tmp_path: Path
+) -> None:
     """Test ExperimentLogger initialization creates files/logs config."""
-    mock_internal_logger = experiment_logger.logger
+    mock_internal_logger = cast(MagicMock, experiment_logger.logger)
 
     assert isinstance(experiment_logger, ExperimentLogger)
     assert experiment_logger.log_dir == tmp_path
@@ -78,9 +83,11 @@ def test_experiment_logger_init(experiment_logger, tmp_path: Path):
     mock_internal_logger.info.assert_any_call("  test_param: value")
 
 
-def test_experiment_logger_log_scalar(experiment_logger, tmp_path: Path):
+def test_experiment_logger_log_scalar(
+    experiment_logger: ExperimentLogger, tmp_path: Path
+) -> None:
     """Test log_scalar writes to file and logs to console."""
-    mock_internal_logger = experiment_logger.logger
+    mock_internal_logger = cast(MagicMock, experiment_logger.logger)
 
     experiment_logger.log_scalar(tag="train/loss", value=0.5, step=10)
 
