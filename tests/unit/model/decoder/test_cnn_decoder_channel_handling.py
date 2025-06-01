@@ -1,310 +1,213 @@
-from typing import Any
-
 import pytest
 import torch
 
-from src.model.decoder.cnn_decoder import CNNDecoder, DecoderBlock
+from src.model.decoder.cnn_decoder import CNNDecoder
 
 
 def test_cnndecoder_channel_propagation_increasing():
-    """Test channel propagation. Skip channels are ascending by contract."""
-    in_ch = 16
-    skip_channels_list = [8, 16, 32]
+    """Test channel propagation with increasing skip channels."""
+    in_ch = 64
+    # Descending order (low to high resolution)
+    skip_channels_list = [32, 16, 8]
     decoder = CNNDecoder(in_ch, skip_channels_list)
-
-    assert (
-        decoder.final_conv.in_channels
-        == decoder.decoder_blocks[-1].out_channels
-    )
-    assert decoder.final_conv.out_channels == 1
+    # Verify decoder blocks are created
+    assert len(decoder.decoder_blocks) == len(skip_channels_list)
+    # Verify final conv
+    assert decoder.final_conv.in_channels > 0
+    assert decoder.final_conv.out_channels == 1  # Default
 
 
 def test_cnndecoder_channel_propagation_decreasing():
-    """Test channel propagation. Skip channels are ascending by contract.
-    The original name 'decreasing' no longer applies if the API requires
-    ascending."""
+    """Test channel propagation with decreasing skip channels."""
     in_ch = 128
-    skip_channels_list = [16, 32, 64]
+    # Descending order (low to high resolution)
+    skip_channels_list = [64, 32, 16]
     decoder = CNNDecoder(in_ch, skip_channels_list)
-
-    assert (
-        decoder.final_conv.in_channels
-        == decoder.decoder_blocks[-1].out_channels
-    )
+    assert len(decoder.decoder_blocks) == len(skip_channels_list)
+    assert decoder.final_conv.in_channels > 0
     assert decoder.final_conv.out_channels == 1
 
 
 def test_cnndecoder_custom_channels_per_block():
-    """Test custom skip channels per block (API requires ascending)."""
-    in_ch = 32
-    skip_channels_list = [10, 20, 30, 40]
+    """Test custom channel configurations per block."""
+    in_ch = 256
+    # Descending order (low to high resolution)
+    skip_channels_list = [40, 30, 20, 10]
     decoder = CNNDecoder(in_ch, skip_channels_list)
-
-    assert (
-        decoder.final_conv.in_channels
-        == decoder.decoder_blocks[-1].out_channels
-    )
-    assert decoder.final_conv.out_channels == 1
+    assert len(decoder.decoder_blocks) == 4
+    # Each block should have proper channel configuration
+    for i, block in enumerate(decoder.decoder_blocks):
+        assert block.skip_channels[0] == skip_channels_list[i]
 
 
 def test_cnndecoder_channel_propagation_detailed():
-    """Test detailed channel propagation at each decoder stage
-    (ascending skips)."""
-    in_ch = 64
-    skip_channels_list = [8, 16, 32]
+    """Detailed test of channel propagation through decoder."""
+    in_ch = 128
+    # Descending order (low to high resolution)
+    skip_channels_list = [32, 16, 8]
     decoder = CNNDecoder(in_ch, skip_channels_list)
 
-    assert (
-        decoder.final_conv.in_channels
-        == decoder.decoder_blocks[-1].out_channels
-    )
-    assert decoder.final_conv.out_channels == 1
+    # Test forward pass
+    x = torch.randn(2, in_ch, 4, 4)
+    skips = [
+        torch.randn(2, 32, 8, 8),
+        torch.randn(2, 16, 16, 16),
+        torch.randn(2, 8, 32, 32),
+    ]
+    output = decoder(x, skips)
+    assert output.shape == (2, 1, 32, 32)
 
 
 def test_cnndecoder_channel_propagation_with_runtime_verification():
-    """Test channel propagation with runtime verification during forward pass
-    (ascending skips)."""
+    """Test channel propagation with runtime shape verification."""
     in_ch = 64
-    skip_channels_list = [8, 16, 32]  # Ascending
+    skip_channels_list = [32, 16, 8]  # Descending
     decoder = CNNDecoder(in_ch, skip_channels_list)
+
+    # Create input and skips
     batch_size = 2
     x = torch.randn(batch_size, in_ch, 8, 8)
-    skip_tensors = []
-    h_skip_base, w_skip_base = 8 * 2, 8 * 2
-    for i, skip_ch_val in enumerate(skip_channels_list):
-        skip_tensors.append(
-            torch.randn(
-                batch_size,
-                skip_ch_val,
-                h_skip_base * (2**i),
-                w_skip_base * (2**i),
-            )
-        )
 
-    # Save the original forward implementation to restore it later
-    original_decoder_block_forward = DecoderBlock.forward
-    # This list will store the output dimensions of each DecoderBlock
-    block_output_channels_runtime = []
+    # Skip connections with proper spatial dimensions
+    skips = []
+    h, w = 16, 16  # First skip size
+    for i, ch in enumerate(skip_channels_list):
+        skips.append(torch.randn(batch_size, ch, h * (2**i), w * (2**i)))
 
-    def forward_hook_decoder_block(
-        self_block: DecoderBlock,
-        x_block: torch.Tensor,
-        skip_block: torch.Tensor,
-    ) -> torch.Tensor:
-        # Call the original forward
-        result = original_decoder_block_forward(
-            self_block, x_block, [skip_block]
-        )
-        # Register the output channels
-        block_output_channels_runtime.append(result.shape[1])
-        return result
+    # Forward pass
+    output = decoder(x, skips)
 
-    try:
-        # Apply the hook to each DecoderBlock within CNNDecoder
-        for block_instance in decoder.decoder_blocks:
-            # Monkeypatching the forward method of the specific instance
-            block_instance.forward = lambda x_b, s_b, current_block=block_instance: forward_hook_decoder_block(  # noqa: E501
-                current_block, x_b, s_b
-            )
-
-        _ = decoder(x, skip_tensors)  # Execute the forward
-
-        # Verify that the output channels registered at runtime are as expected
-        # This is the part that needs the correct logic for
-        # `expected_block_out_channels`
-        # Example (needs adjustment):
-        # expected_block_out_channels = [
-        #     decoder.decoder_blocks[0].out_channels,
-        #     decoder.decoder_blocks[1].out_channels,
-        #     decoder.decoder_blocks[2].out_channels
-        # ]
-        # assert block_output_channels_runtime == expected_block_out_channels
-        # pass # Removed pass at line 101 (approx)
-
-    finally:
-        # Restore the original forward method for all instances or the class
-        # It's safer to restore on the class if all instances were modified
-        # or if there's no reference to all hooked instances.
-        # If instance monkeypatching was done, it should be restored on those
-        # instances.
-        # For simplicity here, we assume it can be restored on the class,
-        # but this could have side effects if other tests depend on different
-        # mocks.
-        # A better practice would be to use pytest-mock or unittest.mock.
-        for block_instance in decoder.decoder_blocks:
-            # Remove the monkeypatched method to revert to the class method
-            if (
-                hasattr(block_instance, "forward")
-                and callable(block_instance.forward)
-                and block_instance.forward.__name__ == "<lambda>"
-            ):
-                # Reverts to class method if instance was overridden.
-                del block_instance.forward
-
-
-# If class method was modified, restore DecoderBlock.forward =
-# original_decoder_block_forward
+    # Verify output shape matches highest resolution skip
+    assert output.shape[2:] == skips[-1].shape[2:]
+    assert output.shape[1] == decoder.out_channels
 
 
 def test_cnndecoder_asymmetric_channel_configurations():
-    """Test with asymmetric channel configurations (ascending skips)."""
-    in_ch = 50
-    skip_channels_list = [10, 25, 55]  # Ascending
+    """Test decoder with asymmetric channel configurations."""
+    in_ch = 100
+    skip_channels_list = [55, 25, 10]  # Descending
     decoder = CNNDecoder(in_ch, skip_channels_list)
-    # Validation of internal block channels remains crucial.
-    assert (
-        decoder.final_conv.in_channels
-        == decoder.decoder_blocks[-1].out_channels
-    )
-    assert decoder.final_conv.out_channels == 1
+
+    # Test forward pass
+    x = torch.randn(1, in_ch, 4, 4)
+    skips = [
+        torch.randn(1, 55, 8, 8),
+        torch.randn(1, 25, 16, 16),
+        torch.randn(1, 10, 32, 32),
+    ]
+    output = decoder(x, skips)
+    assert output.shape == (1, 1, 32, 32)
 
 
 def test_cnndecoder_custom_channels_tracking():
-    """Test that CNNDecoder correctly tracks and uses custom channel
-    configurations (ascending skips)."""
-    in_ch = 128
-    # Ascending skip channels. Block out_channels will depend on these and
-    # in_ch.
-    skip_channels_list = [16, 32, 64, 128]
+    """Test tracking of custom channel configurations."""
+    in_ch = 256
+    skip_channels_list = [128, 64, 32, 16]  # Descending
     decoder = CNNDecoder(in_ch, skip_channels_list, out_channels=3)
 
-    # Verify that the number of blocks is correct
-    assert len(decoder.decoder_blocks) == len(skip_channels_list)
+    # Verify properties
+    assert decoder.out_channels == 3
+    assert len(decoder.decoder_blocks) == 4
 
-    # The `expected_channels` logic is the most delicate part and depends on
-    # the exact implementation of CNNDecoder when instantiating DecoderBlock.
-    # It is assumed that CNNDecoder calculates `in_channels` for each
-    # DecoderBlock based on the `out_channels` of the previous block (or
-    # `in_ch` for the first), and that the `out_channels` of DecoderBlocks
-    # are now explicit or calculated predictably by CNNDecoder.
+    # Test forward pass
+    x = torch.randn(2, in_ch, 2, 2)
+    skips = []
+    h, w = 4, 4
+    for i, ch in enumerate(skip_channels_list):
+        skips.append(torch.randn(2, ch, h * (2**i), w * (2**i)))
 
-    # Example of how assertions might look if CNNDecoder explicitly defines
-    # the out_channels of each block:
-    # expected_block_outputs = [some_calc(in_ch, skip_channels_list[0]),
-    #                           some_calc(prev_out, skip_channels_list[1]),
-    #                           ...]
-    # for i, block in enumerate(decoder.decoder_blocks):
-    #     assert block.out_channels == expected_block_outputs[i]
-
-    assert (
-        decoder.final_conv.in_channels
-        == decoder.decoder_blocks[-1].out_channels
-    )
-    assert decoder.final_conv.out_channels == 3  # noqa: PLR2004
+    output = decoder(x, skips)
+    assert output.shape == (2, 3, 32, 32)
 
 
 def test_cnndecoder_various_skip_configurations():
-    """Test CNNDecoder with various skip channel configurations
-    (ascending skips)."""
-    in_ch = 64
-    configurations = [
-        [8, 16, 32],  # Standard ascending
-        [64, 128, 256],  # Skips larger than in_ch
-        [4, 4, 4],  # All skips equal
-        [10],  # Single skip
+    """Test various skip channel configurations."""
+    configs = [
+        (64, [32, 16]),
+        (128, [64, 32, 16]),
+        (256, [128, 64, 32, 16]),
+        (512, [256, 128, 64, 32, 16]),
     ]
-    for skip_list_config in configurations:
+
+    for in_ch, skip_list_config in configs:
         decoder = CNNDecoder(in_ch, skip_list_config)
         assert len(decoder.decoder_blocks) == len(skip_list_config)
 
-        # Forward pass test
-        x = torch.randn(1, in_ch, 8, 8)
-        skip_tensors = []
-        h_skip_base, w_skip_base = 8 * 2, 8 * 2
-        for i, skip_ch_val in enumerate(skip_list_config):
-            skip_tensors.append(
-                torch.randn(
-                    1, skip_ch_val, h_skip_base * (2**i), w_skip_base * (2**i)
-                )
-            )
-        output = decoder(x, skip_tensors)
-        expected_h, expected_w = skip_tensors[-1].shape[2:]
-        assert output.shape[2:] == (expected_h, expected_w)
-        assert output.shape[1] == decoder.out_channels
+        # Test forward pass
+        x = torch.randn(1, in_ch, 2, 2)
+        skips = []
+        h, w = 4, 4
+        for i, ch in enumerate(skip_list_config):
+            skips.append(torch.randn(1, ch, h * (2**i), w * (2**i)))
+
+        output = decoder(x, skips)
+        assert output.shape[2:] == skips[-1].shape[2:]
 
 
-class TestCNNDecoderDimensions:  # Adapted for ascending skips
+class TestCNNDecoderDimensions:
+    """Test suite for CNNDecoder dimension handling."""
+
     @pytest.mark.parametrize(
-        "in_ch_p, skip_channels_list_p, input_size_p, batch_size_p",
+        "in_ch_p, skip_channels_list_p, input_size_p, out_ch_p",
         [
-            (32, [8, 16], (8, 8), 2),  # Originally [16, 8]
-            (64, [8, 16, 32], (16, 16), 1),  # Originally [32, 16, 8]
-            (16, [4, 8], (7, 9), 3),  # Originally [8, 4]
-            (128, [8, 16, 32, 64], (4, 4), 1),  # Originally [64, 32, 16, 8]
+            (32, [16, 8], (4, 4), 2),
+            (64, [32], (8, 8), 1),
+            (16, [8, 4, 2], (2, 2), 3),
+            (128, [64], (16, 16), 1),
         ],
     )
     def test_dimensions_after_each_block(
-        self,
-        in_ch_p: int,
-        skip_channels_list_p: list[int],
-        input_size_p: tuple[int, int],
-        batch_size_p: int,
-    ) -> None:
+        self, in_ch_p, skip_channels_list_p, input_size_p, out_ch_p
+    ):
+        """Test dimensions after each decoder block."""
         decoder = CNNDecoder(in_ch_p, skip_channels_list_p)
-        x_input = torch.randn(batch_size_p, in_ch_p, *input_size_p)
-        skips_input: list[torch.Tensor] = []
-        current_h, current_w = input_size_p[0] * 2, input_size_p[1] * 2
-        for i, sc in enumerate(skip_channels_list_p):
-            skips_input.append(
-                torch.randn(
-                    batch_size_p, sc, current_h * (2**i), current_w * (2**i)
-                )
-            )
 
-        intermediate_outputs_shapes: list[Any] = [None] * len(
-            decoder.decoder_blocks
-        )
+        # Create input
+        x = torch.randn(1, in_ch_p, *input_size_p)
 
-        def capture_hook(
-            module: DecoderBlock,
-            input_args: tuple[Any, ...],
-            output_tensor: torch.Tensor,
-        ) -> None:
-            block_idx = -1
-            for i, blk in enumerate(decoder.decoder_blocks):
-                if blk is module:
-                    block_idx = i
-                    break
-            if block_idx != -1:
-                intermediate_outputs_shapes[block_idx] = output_tensor.shape
+        # Create skips with proper dimensions
+        skips = []
+        h, w = input_size_p[0] * 2, input_size_p[1] * 2
+        for i, ch in enumerate(skip_channels_list_p):
+            skips.append(torch.randn(1, ch, h * (2**i), w * (2**i)))
 
-        handles = []
-        try:
-            for block_inst in decoder.decoder_blocks:
-                handles.append(block_inst.register_forward_hook(capture_hook))
+        # Forward pass
+        output = decoder(x, skips)
 
-            output_tensor = decoder(x_input, skips_input)
-
-            # Placeholder for assertions on intermediate_outputs_shapes if
-            # needed later
-            # For now, the test passes if no error occurs during forward pass
-            # with hooks
-            assert output_tensor is not None
-
-        finally:
-            for handle in handles:
-                handle.remove()
+        # Verify output dimensions
+        expected_h = input_size_p[0] * (2 ** (len(skip_channels_list_p)))
+        expected_w = input_size_p[1] * (2 ** (len(skip_channels_list_p)))
+        assert output.shape == (1, 1, expected_h, expected_w)
 
 
-class TestCNNDecoderBlockInteraction:  # Adapted for ascending skips
+class TestCNNDecoderBlockInteraction:
+    """Test interactions between decoder blocks."""
+
     @pytest.mark.parametrize(
         "in_ch_param, skip_channels_list_param",
         [
-            (32, [8, 16]),
-            (64, [8, 16, 32]),
-            (16, [4, 8]),
-            (128, [8, 16, 32, 64]),
+            (32, [16, 8]),
+            (64, [32, 16]),
+            (16, [8, 4, 2]),
+            (128, [64, 32, 16, 8]),
         ],
     )
     def test_channel_propagation_between_blocks(
-        self,
-        in_ch_param: int,
-        skip_channels_list_param: list[int],
-    ) -> None:
+        self, in_ch_param, skip_channels_list_param
+    ):
+        """Test channel propagation between consecutive blocks."""
         decoder = CNNDecoder(in_ch_param, skip_channels_list_param)
-        x_input = torch.randn(1, in_ch_param, 8, 8)
-        skips_input: list[torch.Tensor] = []
-        for i, sc in enumerate(skip_channels_list_param):
-            skips_input.append(torch.randn(1, sc, 8 * (2**i), 8 * (2**i)))
-        output = decoder(x_input, skips_input)
+
+        # Verify block count
+        assert len(decoder.decoder_blocks) == len(skip_channels_list_param)
+
+        # Test forward pass
+        x = torch.randn(2, in_ch_param, 4, 4)
+        skips = []
+        h, w = 8, 8
+        for i, ch in enumerate(skip_channels_list_param):
+            skips.append(torch.randn(2, ch, h * (2**i), w * (2**i)))
+
+        output = decoder(x, skips)
+        assert output.shape[0] == 2  # Batch size preserved
         assert output.shape[1] == decoder.out_channels

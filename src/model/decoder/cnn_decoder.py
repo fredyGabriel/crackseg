@@ -1,3 +1,24 @@
+"""
+CNN Decoder implementation for U-Net architecture.
+
+This module provides a flexible CNN-based decoder that can be used in U-Net
+architectures for image segmentation tasks. The decoder consists of multiple
+upsampling blocks that progressively increase spatial resolution while
+incorporating skip connections from the encoder.
+
+Key Features:
+- Configurable number of decoder blocks
+- Skip connections from encoder stages
+- Optional CBAM (Convolutional Block Attention Module) integration
+- Flexible channel configuration
+- Support for various upsampling modes
+
+References:
+- U-Net: Convolutional Networks for Biomedical Image Segmentation
+  (Ronneberger et al., 2015)
+- CBAM: Convolutional Block Attention Module (Woo et al., 2018)
+"""
+
 import logging
 from dataclasses import dataclass
 from typing import Any
@@ -6,6 +27,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
+# Import components to ensure CBAM is registered
+import src.model.components  # noqa: F401
 from src.model.base.abstract import DecoderBase
 from src.model.decoder.common.channel_utils import (
     calculate_decoder_channels,

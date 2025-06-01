@@ -42,7 +42,7 @@ def test_calculate_decoder_channels_invalid_skip_channels():
 def test_calculate_decoder_channels_scaling_length_mismatch():
     with pytest.raises(
         ValueError,
-        match="scaling_factors must match skip_channels_list " "length",
+        match="scaling_factors must match skip_channels_list length",
     ):
         calculate_decoder_channels(64, [32, 16], scaling_factors=[0.5])
 
@@ -68,16 +68,17 @@ def test_validate_channel_dimensions_mismatch():
 
 
 def test_validate_skip_channels_order_valid():
-    validate_skip_channels_order([8, 16, 32])
+    validate_skip_channels_order([32, 16, 8])
+    validate_skip_channels_order([512, 256, 128, 64])
     validate_skip_channels_order([1])
 
 
 def test_validate_skip_channels_order_invalid():
     with pytest.raises(
-        ValueError, match="skip_channels_list must be in ascending order"
+        ValueError, match="skip_channels_list must be in descending order"
     ):
-        validate_skip_channels_order([16, 8, 32])
+        validate_skip_channels_order([8, 16, 32])
     with pytest.raises(
-        ValueError, match="skip_channels_list must be in ascending order"
+        ValueError, match="skip_channels_list must be in descending order"
     ):
-        validate_skip_channels_order([8, 32, 16])
+        validate_skip_channels_order([16, 32, 8])

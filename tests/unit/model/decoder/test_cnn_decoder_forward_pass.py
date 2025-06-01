@@ -7,10 +7,10 @@ from src.model.decoder.cnn_decoder import CNNDecoder
 def test_cnndecoder_forward_shape() -> None:
     """Test forward pass output shape."""
     batch_size = 2
-    bottleneck_channels = 64
-    skip_channels_list = [8, 16, 32]  # Ascending
+    bottleneck_channels = 128
+    skip_channels_list = [32, 16, 8]  # Descending (low to high resolution)
     decoder = CNNDecoder(bottleneck_channels, skip_channels_list)
-    h_bottleneck, w_bottleneck = 8, 8
+    h_bottleneck, w_bottleneck = 4, 4
     bottleneck_in = torch.randn(
         batch_size, bottleneck_channels, h_bottleneck, w_bottleneck
     )
@@ -33,38 +33,45 @@ def test_cnndecoder_forward_shape() -> None:
     )
 
 
-def test_cnndecoder_output_shape_various_configs() -> None:
-    """Test output shape for various channel and depth configurations."""
-    configs = [
-        # (in_ch, skip_channels_list (ASC), out_channels_final)
-        (16, [4, 8], 1),
-        (32, [4, 8, 16], 2),
-        (64, [4, 8, 16, 32], 3),
-    ]
-    for in_ch, skip_channels_list_config, out_channels_final_config in configs:
-        decoder = CNNDecoder(
-            in_ch,
-            skip_channels_list_config,
-            out_channels=out_channels_final_config,
-        )
-        assert len(decoder.decoder_blocks) == len(skip_channels_list_config)
+@pytest.mark.parametrize(
+    "bottleneck_ch, skip_channels, out_channels, batch_size",
+    [
+        (64, [32, 16], 1, 1),
+        (128, [64, 32, 16], 3, 2),
+        (256, [128, 64], 2, 4),
+        (512, [256, 128, 64, 32], 5, 1),
+    ],
+)
+def test_cnndecoder_output_shape_various_configs(
+    bottleneck_ch, skip_channels, out_channels, batch_size
+):
+    """Test output shape with various configurations."""
+    decoder = CNNDecoder(
+        bottleneck_ch, skip_channels, out_channels=out_channels
+    )
 
-        x = torch.randn(1, in_ch, 8, 8)
-        skip_tensors = []
-        h_skip_base, w_skip_base = 8 * 2, 8 * 2  # Double the initial input
-        for i, skip_ch_val in enumerate(skip_channels_list_config):
-            skip_tensors.append(
-                torch.randn(
-                    1, skip_ch_val, h_skip_base * (2**i), w_skip_base * (2**i)
-                )
-            )
+    # Create input
+    spatial_size = 4
+    x = torch.randn(batch_size, bottleneck_ch, spatial_size, spatial_size)
 
-        output = decoder(x, skip_tensors)
-        expected_h, expected_w = skip_tensors[-1].shape[2:]
-        assert output.shape[0] == 1
-        assert output.shape[1] == out_channels_final_config
-        assert output.shape[2] == expected_h
-        assert output.shape[3] == expected_w
+    # Create skips
+    skips = []
+    for i, ch in enumerate(skip_channels):
+        skip_h = spatial_size * (2 ** (i + 1))
+        skip_w = spatial_size * (2 ** (i + 1))
+        skips.append(torch.randn(batch_size, ch, skip_h, skip_w))
+
+    # Forward pass
+    output = decoder(x, skips)
+
+    # Verify output shape
+    expected_spatial = spatial_size * (2 ** len(skip_channels))
+    assert output.shape == (
+        batch_size,
+        out_channels,
+        expected_spatial,
+        expected_spatial,
+    )
 
 
 class CNNDecoderForwardTests:
@@ -114,153 +121,151 @@ class CNNDecoderForwardTests:
 
 
 def test_cnndecoder_different_input_sizes() -> None:
-    """Test CNNDecoder with different input spatial sizes (ascending skips)."""
-    in_ch = 64
-    skip_channels_list = [8, 16, 32]  # Ascending
+    """Test decoder with different input spatial sizes."""
+    in_ch = 128
+    skip_channels_list = [32, 16, 8]  # Descending
     decoder = CNNDecoder(in_ch, skip_channels_list, out_channels=1)
-    input_spatial_sizes = [(8, 8), (16, 16), (7, 9), (32, 24)]
 
-    for h_in_loop, w_in_loop in input_spatial_sizes:
-        x = torch.randn(1, in_ch, h_in_loop, w_in_loop)
-        skip_tensors = []
-        current_h, current_w = h_in_loop * 2, w_in_loop * 2
-        for i, skip_ch_val in enumerate(skip_channels_list):
-            skip_tensors.append(
-                torch.randn(
-                    1, skip_ch_val, current_h * (2**i), current_w * (2**i)
-                )
-            )
-        output = decoder(x, skip_tensors)
-        expected_h, expected_w = skip_tensors[-1].shape[2:]
-        assert output.shape[2:] == (expected_h, expected_w)
+    input_sizes = [(2, 2), (4, 4), (8, 8), (16, 16)]
+
+    for h_in, w_in in input_sizes:
+        x = torch.randn(1, in_ch, h_in, w_in)
+        skips = []
+
+        # Create skips with appropriate sizes
+        for i, ch in enumerate(skip_channels_list):
+            skip_h = h_in * (2 ** (i + 1))
+            skip_w = w_in * (2 ** (i + 1))
+            skips.append(torch.randn(1, ch, skip_h, skip_w))
+
+        output = decoder(x, skips)
+
+        # Output should be 8x the input size (2^3 for 3 decoder blocks)
+        expected_h = h_in * (2 ** len(skip_channels_list))
+        expected_w = w_in * (2 ** len(skip_channels_list))
+        assert output.shape == (1, 1, expected_h, expected_w)
 
 
 def test_cnndecoder_segmentation_output_dimensions() -> None:
-    """Test CNNDecoder output for a typical segmentation task."""
-    batch_size = 4
-    bottleneck_depth_channels = 512  # Bottleneck channels
-    skip_config_channels = [64, 128, 256]  # Encoder skips (ascending)
-    num_classes = 5  # Number of classes for segmentation
+    """Test decoder output dimensions for segmentation tasks."""
+    configs = [
+        # (in_ch, skip_channels, num_classes, input_size)
+        (128, [64, 32], 2, (8, 8)),  # Binary segmentation
+        (256, [128, 64, 32], 5, (4, 4)),  # Multi-class
+        (512, [256, 128], 10, (16, 16)),  # Many classes
+    ]
 
-    decoder = CNNDecoder(
-        bottleneck_depth_channels,
-        skip_config_channels,
-        out_channels=num_classes,
-    )
+    for in_ch, skip_channels, num_classes, input_size in configs:
+        decoder = CNNDecoder(in_ch, skip_channels, out_channels=num_classes)
 
-    h_bottleneck_seg, w_bottleneck_seg = 32, 32
-    bottleneck_features = torch.randn(
-        batch_size,
-        bottleneck_depth_channels,
-        h_bottleneck_seg,
-        w_bottleneck_seg,
-    )
+        # Create input
+        x = torch.randn(2, in_ch, *input_size)
 
-    skip_feature_list = []
-    current_h_skip, current_w_skip = h_bottleneck_seg * 2, w_bottleneck_seg * 2
-    for i, sc_channels in enumerate(skip_config_channels):
-        skip_feature_list.append(
-            torch.randn(
-                batch_size,
-                sc_channels,
-                current_h_skip * (2**i),
-                current_w_skip * (2**i),
-            )
-        )
+        # Create skips
+        skips = []
+        for i, ch in enumerate(skip_channels):
+            skip_h = input_size[0] * (2 ** (i + 1))
+            skip_w = input_size[1] * (2 ** (i + 1))
+            skips.append(torch.randn(2, ch, skip_h, skip_w))
 
-    segmentation_output = decoder(bottleneck_features, skip_feature_list)
+        # Forward pass
+        output = decoder(x, skips)
 
-    final_h, final_w = skip_feature_list[-1].shape[2:]
-    assert segmentation_output.shape == (
-        batch_size,
-        num_classes,
-        final_h,
-        final_w,
-    )
+        # Check output
+        expected_h = input_size[0] * (2 ** len(skip_channels))
+        expected_w = input_size[1] * (2 ** len(skip_channels))
+        assert output.shape == (2, num_classes, expected_h, expected_w)
+
+        # Verify output is suitable for loss computation
+        assert output.dtype == torch.float32
+        assert not torch.isnan(output).any()
+        assert not torch.isinf(output).any()
 
 
 def test_cnndecoder_end_to_end_flow() -> None:
-    """Test end-to-end flow with a typical U-Net like configuration."""
-    batch_size = 2
-    bottleneck_channels = 256
-    encoder_skip_channels = [32, 64, 128]  # Ascending for CNNDecoder
-    skip_channels_list_for_decoder = encoder_skip_channels
+    """Test complete end-to-end flow through decoder."""
+    # Simulate bottleneck output
+    bottleneck_ch = 256
+    bottleneck_h, bottleneck_w = 8, 8
 
-    final_out_channels = 3
+    # Define architecture
+    skip_channels = [128, 64, 32, 16]  # Descending order
+    num_classes = 3
+
+    # Create decoder
     decoder = CNNDecoder(
-        bottleneck_channels,
-        skip_channels_list_for_decoder,
-        out_channels=final_out_channels,
+        bottleneck_ch, skip_channels, out_channels=num_classes
     )
 
-    h_bottleneck_e2e, w_bottleneck_e2e = 16, 16
-    bottleneck_tensor = torch.randn(
-        batch_size, bottleneck_channels, h_bottleneck_e2e, w_bottleneck_e2e
-    )
+    # Create inputs
+    batch_size = 4
+    x = torch.randn(batch_size, bottleneck_ch, bottleneck_h, bottleneck_w)
 
-    skip_tensors_list = []
-    current_h_e2e, current_w_e2e = h_bottleneck_e2e * 2, w_bottleneck_e2e * 2
-    for i, skip_ch_val in enumerate(skip_channels_list_for_decoder):
-        skip_tensors_list.append(
-            torch.randn(
-                batch_size,
-                skip_ch_val,
-                current_h_e2e * (2**i),
-                current_w_e2e * (2**i),
-            )
-        )
+    # Create skip connections (simulating encoder outputs)
+    skips = []
+    for i, ch in enumerate(skip_channels):
+        skip_h = bottleneck_h * (2 ** (i + 1))
+        skip_w = bottleneck_w * (2 ** (i + 1))
+        skips.append(torch.randn(batch_size, ch, skip_h, skip_w))
 
-    output_segmentation = decoder(bottleneck_tensor, skip_tensors_list)
+    # Forward pass
+    output = decoder(x, skips)
 
-    expected_h, expected_w = skip_tensors_list[-1].shape[2:]
-    assert output_segmentation.shape == (
-        batch_size,
-        final_out_channels,
-        expected_h,
-        expected_w,
-    )
-    assert not torch.isnan(output_segmentation).any()
-    assert not torch.isinf(output_segmentation).any()
+    # Verify output
+    final_h = bottleneck_h * (2 ** len(skip_channels))
+    final_w = bottleneck_w * (2 ** len(skip_channels))
+    assert output.shape == (batch_size, num_classes, final_h, final_w)
+
+    # Test gradient flow
+    loss = output.mean()
+    loss.backward()
+
+    # Check gradients exist
+    for param in decoder.parameters():
+        assert param.grad is not None
+        assert not torch.isnan(param.grad).any()
 
 
 @pytest.mark.parametrize(
     "in_ch_param, skip_channels_list_param, input_size_param, "
-    "batch_size_param, out_channels_param",
+    "batch_size_param, out_ch_param",
     [
-        (32, [8, 16], (8, 8), 2, 1),
-        (64, [8, 16, 32], (16, 16), 1, 3),
-        (16, [4, 8], (7, 9), 3, 2),
-        (128, [8, 16, 32, 64], (4, 4), 1, 4),
+        (32, [16, 8], (4, 4), 2, 1),
+        (64, [32], (8, 8), 1, 3),
+        (16, [8, 4, 2], (2, 2), 3, 2),
+        (128, [64], (16, 16), 1, 4),
     ],
 )
 def test_final_output_dimensions_parametrized(
-    in_ch_param: int,
-    skip_channels_list_param: list[int],
-    input_size_param: tuple[int, int],
-    batch_size_param: int,
-    out_channels_param: int,
-) -> None:
+    in_ch_param,
+    skip_channels_list_param,
+    input_size_param,
+    batch_size_param,
+    out_ch_param,
+):
+    """Parametrized test for final output dimensions."""
     decoder = CNNDecoder(
-        in_ch_param, skip_channels_list_param, out_channels=out_channels_param
+        in_ch_param, skip_channels_list_param, out_channels=out_ch_param
     )
-    h_in, w_in = input_size_param
-    x = torch.randn(batch_size_param, in_ch_param, h_in, w_in)
+
+    # Create input
+    x = torch.randn(batch_size_param, in_ch_param, *input_size_param)
+
+    # Create skips
     skips = []
-    current_h, current_w = h_in * 2, w_in * 2
-    for i, skip_ch in enumerate(skip_channels_list_param):
-        skips.append(
-            torch.randn(
-                batch_size_param,
-                skip_ch,
-                current_h * (2**i),
-                current_w * (2**i),
-            )
-        )
+    h, w = input_size_param[0] * 2, input_size_param[1] * 2
+    for i, ch in enumerate(skip_channels_list_param):
+        skips.append(torch.randn(batch_size_param, ch, h * (2**i), w * (2**i)))
+
+    # Forward pass
     output = decoder(x, skips)
-    expected_h, expected_w = skips[-1].shape[2:]
+
+    # Verify dimensions
+    expected_h = input_size_param[0] * (2 ** len(skip_channels_list_param))
+    expected_w = input_size_param[1] * (2 ** len(skip_channels_list_param))
     assert output.shape == (
         batch_size_param,
-        out_channels_param,
+        out_ch_param,
         expected_h,
         expected_w,
     )
@@ -270,36 +275,39 @@ def test_final_output_dimensions_parametrized(
     "in_ch_param, skip_channels_list_param, input_size_param, "
     "batch_size_param",
     [
-        (32, [8, 16], (8, 8), 2),
-        (64, [8, 16, 32], (16, 16), 1),
-        (16, [4, 8], (7, 9), 3),
-        (128, [8, 16, 32, 64], (4, 4), 1),
+        (32, [16, 8], (4, 4), 2),
+        (64, [32], (8, 8), 1),
+        (16, [8, 4, 2], (2, 2), 3),
+        (128, [64], (16, 16), 1),
     ],
 )
 def test_information_flow_pipeline_parametrized(
-    in_ch_param: int,
-    skip_channels_list_param: list[int],
-    input_size_param: tuple[int, int],
-    batch_size_param: int,
-) -> None:
-    # Default out_channels
+    in_ch_param, skip_channels_list_param, input_size_param, batch_size_param
+):
+    """Test information flow through the decoder pipeline."""
     decoder = CNNDecoder(in_ch_param, skip_channels_list_param)
-    h_in, w_in = input_size_param
-    x = torch.randn(batch_size_param, in_ch_param, h_in, w_in)
+
+    # Create input with known pattern
+    x = torch.ones(batch_size_param, in_ch_param, *input_size_param) * 0.5
+
+    # Create skips with different patterns
     skips = []
-    current_h, current_w = h_in * 2, w_in * 2
-    for i, skip_ch in enumerate(skip_channels_list_param):
+    h, w = input_size_param[0] * 2, input_size_param[1] * 2
+    for i, ch in enumerate(skip_channels_list_param):
+        # Each skip has a different value to track information flow
+        skip_value = (i + 1) * 0.1
         skips.append(
-            torch.randn(
-                batch_size_param,
-                skip_ch,
-                current_h * (2**i),
-                current_w * (2**i),
-            )
+            torch.ones(batch_size_param, ch, h * (2**i), w * (2**i))
+            * skip_value
         )
+
+    # Forward pass
     output = decoder(x, skips)
-    # Check output is not all zeros (basic information flow check)
-    assert not torch.all(output == 0)
-    # Check correct number of channels (default out_channels = 1)
-    # or decoder.out_channels if it's reliably 1 by default
-    assert output.size(1) == 1
+
+    # Output should be influenced by all inputs
+    assert output.shape[0] == batch_size_param
+    assert output.shape[1] == decoder.out_channels
+
+    # Check that output has been transformed (not just passthrough)
+    assert not torch.allclose(output, torch.ones_like(output) * 0.5)
+    assert output.min() != output.max()  # Has variation

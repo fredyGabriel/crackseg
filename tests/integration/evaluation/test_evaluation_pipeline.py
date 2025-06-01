@@ -7,10 +7,26 @@ import torch
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset
 
-from src.evaluation.core import evaluate_model  # type: ignore
-from src.evaluation.ensemble import ensemble_evaluate  # type: ignore
+from src.evaluation.core import evaluate_model
+from src.evaluation.ensemble import ensemble_evaluate
 from src.evaluation.loading import load_model_from_checkpoint
 from src.evaluation.results import save_evaluation_results
+
+
+def create_test_config() -> dict[str, Any]:
+    """Create a complete test configuration with all required fields."""
+    return {
+        "data": {
+            "num_dims_image": 4,
+            "num_channels_rgb": 3,
+            "num_dims_mask": 3,
+        },
+        "evaluation": {
+            "num_batches_visualize": 2,
+        },
+        "device_str": "cpu",
+        "output_dir_str": "outputs/test",
+    }
 
 
 class DummyDataset(Dataset[dict[str, torch.Tensor]]):
@@ -48,7 +64,7 @@ def test_evaluation_pipeline(tmp_path: pathlib.Path) -> None:
     ] = {"dummy": lambda o, t: torch.tensor(1.0)}
 
     # 3. Evaluate
-    config = OmegaConf.create({"foo": "bar"})
+    config = OmegaConf.create(create_test_config())
     results, (inputs, _targets, _outputs) = evaluate_model(
         model, dataloader, metrics, torch.device("cpu"), config
     )
@@ -78,13 +94,28 @@ def test_ensemble_evaluation_pipeline(tmp_path: pathlib.Path) -> None:
         def forward(self, x: torch.Tensor) -> torch.Tensor:
             return torch.zeros(x.shape[0], 1, 4, 4)
 
+    # Create checkpoint directories with expected structure
+    ckpt_a_dir = tmp_path / "ckptA.pth"
+    ckpt_b_dir = tmp_path / "ckptB.pth"
+
+    # Create .hydra/config.yaml for each checkpoint
+    for ckpt_dir in [ckpt_a_dir, ckpt_b_dir]:
+        hydra_dir = ckpt_dir / ".hydra"
+        hydra_dir.mkdir(parents=True, exist_ok=True)
+        config_path = hydra_dir / "config.yaml"
+        # Write a minimal config
+        import yaml
+
+        with open(config_path, "w") as f:
+            yaml.dump(create_test_config(), f)
+
     # Simulate checkpoints: monkeypatch load_model_from_checkpoint
     from src.evaluation import ensemble as ensemble_mod
 
     models: list[torch.nn.Module] = [DummyModelA(), DummyModelB()]
 
     def fake_load_model_from_checkpoint(
-        path: str, device: torch.device
+        checkpoint_path: str, device: torch.device
     ) -> tuple[torch.nn.Module, dict[str, Any]]:
         return models.pop(0), {}
 
@@ -97,8 +128,14 @@ def test_ensemble_evaluation_pipeline(tmp_path: pathlib.Path) -> None:
     metrics: dict[
         str, Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
     ] = {"dummy": lambda o, t: torch.tensor(1.0)}
-    checkpoint_paths = ["ckptA.pth", "ckptB.pth"]
-    config = OmegaConf.create({"model": {}})
+    checkpoint_paths = [str(ckpt_a_dir), str(ckpt_b_dir)]
+
+    # Create complete config
+    test_config = create_test_config()
+    test_config["model"] = {}
+    test_config["output_dir_str"] = str(tmp_path)  # Use tmp_path for output
+    config = OmegaConf.create(test_config)
+
     results = ensemble_evaluate(
         checkpoint_paths=checkpoint_paths,
         config=config,
@@ -161,7 +198,7 @@ def test_evaluation_pipeline_incompatible_metric(
     ] = {"incompatible": incompatible_metric}
     import pytest
 
-    config = OmegaConf.create({})
+    config = OmegaConf.create(create_test_config())
     with pytest.raises(IndexError):
         evaluate_model(model, dataloader, metrics, torch.device("cpu"), config)
 
@@ -185,7 +222,8 @@ def test_evaluation_pipeline_multiple_batches_and_visualization(
     metrics: dict[
         str, Callable[[torch.Tensor, torch.Tensor], torch.Tensor]
     ] = {"dummy": lambda o, t: (o == t).float().mean()}
-    config = OmegaConf.create({"foo": "bar"})
+
+    config = OmegaConf.create(create_test_config())
     results, (inputs, _targets, _outputs) = evaluate_model(
         model, dataloader, metrics, torch.device("cpu"), config
     )

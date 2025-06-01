@@ -1,39 +1,53 @@
 {
-    // Enable strict type checking for maximum robustness
+    // Enable strict type checking for maximum robustness with Python 3.12+
     "typeCheckingMode": "strict",
-    // Report missing imports (helps catch missing dependencies)
+    // Core type checking settings aligned with modern Python 3.12+ practices
     "reportMissingImports": true,
-    // Do not report missing type stubs (optional, reduces noise)
     "reportMissingTypeStubs": false,
-    // Disable unused import warnings (handled by Ruff)
+    // Let Ruff handle these (avoid duplication)
     "reportUnusedImport": false,
-    // Disable unused variable warnings (handled by Ruff)
     "reportUnusedVariable": false,
-    // Allow use of 'Any' type where necessary (e.g., dynamic configs)
-    "reportAny": false,
-    // Suppress unknown type warnings for dynamic code
-    "reportUnknownMemberType": false,
-    "reportUnknownArgumentType": false,
-    "reportUnknownVariableType": false,
-    "reportUnknownLambdaType": false,
-    // Exclude output, virtual environment, and cache directories from analysis
-    "exclude": [
-        "**/outputs",
-        "**/.venv",
-        "**/.mypy_cache",
-        "**/.ruff_cache",
-        "**/.pytest_cache"
-    ],
-    // Include main source, test, and script directories
-    "include": [
-        "src",
-        "tests",
-        "scripts"
-    ],
+    "reportUnusedCallResult": false,
+    // Enable important type safety checks for modern Python
+    "reportAny": "warning",
+    "reportUnknownMemberType": "warning",
+    "reportUnknownArgumentType": "warning",
+    "reportUnknownVariableType": "warning",
+    "reportUnknownLambdaType": "warning",
+    "reportUnknownParameterType": "warning",
+    // Modern Python 3.12+ specific settings
+    "reportUnnecessaryTypeIgnoreComment": true,
+    "reportUnnecessaryIsInstance": "warning",
+    "reportUnnecessaryComparison": "warning",
+    "reportDeprecated": "warning",
+    // Enhanced type checking for generics and protocols
+    "reportInvalidTypeVarUse": true,
+    "reportSelfClsParameterName": "warning",
+    // Enable modern Python 3.12+ features
+    "enableTypeIgnoreComments": true,
+    "strictListInference": true,
+    "strictDictionaryInference": true,
+    "strictSetInference": true,
     // Set Python version to 3.12 for compatibility with project tools
     "pythonVersion": "3.12",
     // Add 'src' to extraPaths for module resolution
     "extraPaths": [
         "src"
+    ],
+    // Include main source, test, and script directories
+    "include": [
+        "src/**",
+        "tests/**",
+        "scripts/**"
+    ],
+    // Exclude output, virtual environment, and cache directories from analysis
+    "exclude": [
+        "**/outputs/**",
+        "**/.venv/**",
+        "**/.mypy_cache/**",
+        "**/.ruff_cache/**",
+        "**/.pytest_cache/**",
+        "**/htmlcov/**",
+        "**/old_stuff/**"
     ]
 }

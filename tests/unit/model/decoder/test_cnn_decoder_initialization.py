@@ -7,7 +7,7 @@ from src.model.decoder.cnn_decoder import CNNDecoder, DecoderBlock
 def test_cnndecoder_init() -> None:
     """Test initialization with matching depth and skip channels."""
     in_ch = 128
-    skip_channels_list = [16, 32, 64]  # Ascending
+    skip_channels_list = [64, 32, 16]  # Descending (low to high resolution)
     decoder = CNNDecoder(in_ch, skip_channels_list)
     assert len(decoder.decoder_blocks) == len(skip_channels_list)
     assert isinstance(decoder.decoder_blocks[0], DecoderBlock)
@@ -56,8 +56,10 @@ def test_cnndecoder_skip_channels_mismatch_init_error() -> None:
         # If the API does not support depth, simply pass an incorrect length
         # list
         CNNDecoder(
-            64, [8, 16, 32]
-        )  # 3 skips, but if the logic expects 2, this should fail
+            64,
+            [32, 16, 8],
+            depth=2,  # 3 skips but depth=2 should fail
+        )
 
 
 def test_cnndecoder_minimal_depth() -> None:
@@ -76,14 +78,14 @@ def test_cnndecoder_minimal_depth() -> None:
 
 def test_cnndecoder_variable_depth_initialization() -> None:
     """
-    Test CNNDecoder initialization with variable depths (ascending skips).
+    Test CNNDecoder initialization with variable depths (descending skips).
     """
     configs = [
-        # (in_ch, skip_channels_list (ASC), num_expected_blocks)
+        # (in_ch, skip_channels_list (DESC), num_expected_blocks)
         (64, [32], 1),
-        (128, [16, 32], 2),
-        (256, [16, 32, 64], 3),
-        (512, [16, 32, 64, 128], 4),
+        (128, [32, 16], 2),
+        (256, [64, 32, 16], 3),
+        (512, [128, 64, 32, 16], 4),
     ]
     for in_ch_config, skip_list_config, num_blocks_expected in configs:
         decoder = CNNDecoder(in_ch_config, skip_list_config)
@@ -104,9 +106,9 @@ def test_cnndecoder_variable_depth_initialization() -> None:
 
 @pytest.mark.parametrize("out_ch_final", [1, 3, 5, 10])
 def test_cnndecoder_final_output_channels(out_ch_final: int) -> None:
-    """Test CNNDecoder with varying final output channels (ascending skips)."""
+    """Test CNNDecoder with varying final output channels (desc. skips)."""
     in_ch = 32
-    skip_channels_list = [8, 16]  # Ascending
+    skip_channels_list = [16, 8]  # Descending
     decoder = CNNDecoder(in_ch, skip_channels_list, out_channels=out_ch_final)
     assert decoder.out_channels == out_ch_final
     assert decoder.final_conv.out_channels == out_ch_final
@@ -131,7 +133,7 @@ def test_cnndecoder_final_output_channels(out_ch_final: int) -> None:
     [
         (8, [4]),  # Minimum number of blocks
         # Max reasonable will depend on memory, but test should be fast.
-        (256, [2, 4, 8, 16, 32, 64, 128, 256]),  # Many small skips
+        (256, [256, 128, 64, 32, 16, 8, 4, 2]),  # Many skips descending
     ],
 )
 def test_edge_cases_block_numbers(

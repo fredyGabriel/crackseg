@@ -41,12 +41,12 @@ class Registry(Generic[T]):
         Thread-safe decorator to register a component class in the registry.
 
         Args:
-            name (Optional[str]): Name to register the component with.
-                                 If None, uses the class name.
-            tags (Optional[List[str]]): Tags for categorizing components.
+            name: Name to register the component with.
+                  If None, uses the class name.
+            tags: Tags for categorizing components.
 
         Returns:
-            Callable: Decorator function that registers the component.
+            Decorator function that registers the component.
 
         Example:
             @encoder_registry.register()
@@ -77,7 +77,7 @@ class Registry(Generic[T]):
         Thread-safe removal of a component from the registry.
 
         Args:
-            name (str): Name of the component to remove.
+            name: Name of the component to remove.
 
         Raises:
             KeyError: If component is not found.
@@ -99,10 +99,10 @@ class Registry(Generic[T]):
         Retrieve a component class by name. Thread-safe.
 
         Args:
-            name (str): Name of the component to retrieve.
+            name: Name of the component to retrieve.
 
         Returns:
-            Type[T]: The registered component class.
+            The registered component class.
 
         Raises:
             KeyError: If component is not found.
@@ -114,17 +114,19 @@ class Registry(Generic[T]):
                 )
             return self._components[name]
 
-    def instantiate(self, name: str, *args: Any, **kwargs: Any) -> T:
+    def instantiate(
+        self, name: str, *args: Any, **kwargs: Any
+    ) -> T:  # pyright: ignore[reportAny]
         """
         Instantiate a registered component by name. Thread-safe.
 
         Args:
-            name (str): Name of the component to instantiate.
+            name: Name of the component to instantiate.
             *args: Positional arguments to pass to the constructor.
             **kwargs: Keyword arguments to pass to the constructor.
 
         Returns:
-            T: Instantiated component.
+            Instantiated component.
 
         Raises:
             KeyError: If component is not found.
@@ -135,26 +137,35 @@ class Registry(Generic[T]):
     #
     # Component listing and filtering methods
     #
-    def list(self) -> list[str]:
+    def list_components(self) -> list[str]:
         """
         List all registered component names. Thread-safe.
 
         Returns:
-            List[str]: List of registered component names.
+            List of registered component names.
         """
         with self._lock:
             return list(self._components.keys())
 
-    def list_with_tags(self) -> dict[str, list[str]]:  # type: ignore[reportUnknownVariableType]
+    def list_with_tags(self) -> dict[str, list[str]]:
         """
         List all registered components with their tags. Thread-safe.
+
+        Returns:
+            Dictionary mapping component names to their tags.
         """
         with self._lock:
             return {k: list(v) for k, v in self._tags.items()}
 
-    def filter_by_tag(self, tag: str) -> list[str]:  # type: ignore[reportUnknownVariableType]
+    def filter_by_tag(self, tag: str) -> list[str]:
         """
         Filter components by tag. Thread-safe.
+
+        Args:
+            tag: Tag to filter by.
+
+        Returns:
+            List of component names that have the specified tag.
         """
         with self._lock:
             return [name for name, tags in self._tags.items() if tag in tags]

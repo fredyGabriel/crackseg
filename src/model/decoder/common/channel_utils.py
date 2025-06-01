@@ -75,17 +75,24 @@ def validate_channel_dimensions(
 
 def validate_skip_channels_order(skip_channels_list: list[int]) -> None:
     """
-    Ensure skip_channels_list is in ascending order (low to high resolution).
+    Ensure skip_channels_list is in descending order (low to high resolution).
+
+    In U-Net architecture, "low to high resolution" means:
+    - Low resolution = bottleneck = more channels (e.g., 512)
+    - High resolution = input/output = fewer channels (e.g., 64)
+
+    Therefore, the list should be in descending order: [512, 256, 128, 64]
+
     Args:
         skip_channels_list: List of skip connection channels.
     Raises:
-        ValueError: If the list is not sorted in ascending order.
+        ValueError: If the list is not sorted in descending order.
     """
     if any(
-        skip_channels_list[i] > skip_channels_list[i + 1]
+        skip_channels_list[i] < skip_channels_list[i + 1]
         for i in range(len(skip_channels_list) - 1)
     ):
         raise ValueError(
-            "skip_channels_list must be in ascending order "
-            "(low to high resolution)"
+            "skip_channels_list must be in descending order "
+            "(low to high resolution, e.g., [512, 256, 128, 64])"
         )
