@@ -64,6 +64,9 @@ coverage.*
 *.svg
 coverage.xml
 
+# Test artifacts and mock data
+MagicMock/
+
 # Directories to ignore
 outputs/
 old*/
