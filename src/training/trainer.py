@@ -11,6 +11,7 @@ stopping."""
 
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import torch
@@ -118,11 +119,13 @@ class Trainer:
 
     def _setup_checkpointing_attributes(self):
         """Sets up attributes related to checkpointing."""
-        (self.checkpoint_dir, self.experiment_manager) = setup_checkpointing(
+        (checkpoint_dir_str, self.experiment_manager) = setup_checkpointing(
             self.full_cfg,  # Pass full_cfg for setup_checkpointing
             getattr(self.logger_instance, "experiment_manager", None),
             self.internal_logger,
         )
+        # Convert string to Path object
+        self.checkpoint_dir = Path(checkpoint_dir_str)
         self.save_freq = self.cfg.get("save_freq", 0)
         self.checkpoint_load_path = self.cfg.get("checkpoint_load_path", None)
 
@@ -405,7 +408,7 @@ class Trainer:
                 best_metric_value=self.best_metric_value,
             )
             checkpoint_config = CheckpointConfig(
-                checkpoint_dir=self.checkpoint_dir,
+                checkpoint_dir=str(self.checkpoint_dir),
                 logger=self.internal_logger,
                 keep_last_n=self.cfg.get(
                     "checkpoints.keep_last_n", 1

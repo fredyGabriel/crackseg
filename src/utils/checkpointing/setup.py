@@ -13,12 +13,18 @@ class LoggerProtocol(Protocol):
 
 def setup_checkpointing(
     cfg: Mapping[str, Any],
-    logger_instance: Any,
+    logger_or_experiment_manager: Any,
     internal_logger: LoggerProtocol,
 ) -> tuple[str, Any | None]:
     """
     Sets up checkpoint directory and experiment manager.
     Returns (checkpoint_dir, experiment_manager or None)
+
+    Args:
+        cfg: Configuration dictionary
+        logger_or_experiment_manager: Either a logger with experiment_manager
+                                attribute, or an experiment_manager directly
+        internal_logger: Logger for internal messages
     """
     experiment_manager = None
 
@@ -29,9 +35,19 @@ def setup_checkpointing(
         if callable(fn):
             fn(*args, **kwargs)
 
-    # Get experiment_manager from logger if it exists
-    if logger_instance and hasattr(logger_instance, "experiment_manager"):
-        experiment_manager = logger_instance.experiment_manager
+    # Determine if we received a logger or experiment_manager directly
+    if logger_or_experiment_manager:
+        # Check if it's a logger with experiment_manager attribute
+        if hasattr(logger_or_experiment_manager, "experiment_manager"):
+            experiment_manager = (
+                logger_or_experiment_manager.experiment_manager
+            )
+        # Otherwise assume it's the experiment_manager directly
+        else:
+            experiment_manager = logger_or_experiment_manager
+
+    # Try to get checkpoint directory from experiment_manager
+    if experiment_manager:
         try:
             # Ensure get_path returns a valid string
             checkpoint_dir = experiment_manager.get_path("checkpoints")
