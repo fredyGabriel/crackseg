@@ -119,16 +119,16 @@ def load_unet_config_from_yaml(yaml_path: str) -> UNetConfig:
             raise ValueError(
                 "All keys must be str for UNetConfig construction."
             )
-        return dict(d)  # type: ignore[arg-type]
+        return dict(d)
 
     if (
         isinstance(obj, dict)
         and "unet" in obj
         and isinstance(obj["unet"], dict)
     ):
-        return UNetConfig(**normalize_keys(obj["unet"]))  # type: ignore[arg-type]
+        return UNetConfig(**normalize_keys(obj["unet"]))
     if isinstance(obj, dict):
-        return UNetConfig(**normalize_keys(obj))  # type: ignore[arg-type]
+        return UNetConfig(**normalize_keys(obj))
     raise ValueError(
         "YAML config could not be converted to UNetConfig: unexpected "
         "structure."

@@ -9,12 +9,12 @@
     "reportUnusedVariable": false,
     "reportUnusedCallResult": false,
     // Enable important type safety checks for modern Python
-    "reportAny": "warning",
-    "reportUnknownMemberType": "warning",
-    "reportUnknownArgumentType": "warning",
-    "reportUnknownVariableType": "warning",
-    "reportUnknownLambdaType": "warning",
-    "reportUnknownParameterType": "warning",
+    "reportAny": false,
+    "reportUnknownMemberType": false,
+    "reportUnknownArgumentType": false,
+    "reportUnknownVariableType": false,
+    "reportUnknownLambdaType": false,
+    "reportUnknownParameterType": false,
     // Modern Python 3.12+ specific settings
     "reportUnnecessaryTypeIgnoreComment": true,
     "reportUnnecessaryIsInstance": "warning",

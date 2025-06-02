@@ -341,13 +341,13 @@ def create_unet_from_config(config: DictConfig) -> UNetBase:
         raise ConfigurationError(
             f"Architecture registry not found for type '{arch_type}'."
         )
-    unet_class = architecture_registry.get_class(arch_type)  # type: ignore
+    unet_class = architecture_registry.get(arch_type)
 
     # Instantiate UNet
-    unet = unet_class(encoder, bottleneck, decoder)  # type: ignore[reportUnknownArgumentType]
+    unet = unet_class(encoder, bottleneck, decoder)
     log_component_creation(
         "UNet",
-        str(getattr(unet_class, "__name__", "Unknown")),  # type: ignore[reportUnknownArgumentType]
+        str(getattr(unet_class, "__name__", "Unknown")),
     )
 
     # Apply CBAM if enabled
@@ -355,13 +355,13 @@ def create_unet_from_config(config: DictConfig) -> UNetBase:
     if global_cbam_enabled:
         global_cbam_params = config.get("cbam_params", {})
         unet = apply_cbam_to_model(
-            cast(nn.Module, unet),
+            unet,
             global_cbam_enabled,
             global_cbam_params,
-            decoder.out_channels,  # type: ignore[reportUnknownArgumentType]
-        )  # type: ignore[reportUnknownArgumentType]
+            decoder.out_channels,
+        )
 
-    return unet  # type: ignore
+    return cast(UNetBase, unet)
 
 
 #
@@ -407,9 +407,7 @@ def instantiate_unet_components(
 
     encoder_skips = getattr(encoder, "skip_channels", [])
     if isinstance(encoder_skips, list):
-        decoder_runtime_params["skip_channels_list"] = list(
-            reversed(encoder_skips)  # type: ignore[reportUnknownArgumentType]
-        )
+        list(reversed(encoder_skips))
 
     decoder = instantiate_decoder(
         decoder_cfg, runtime_params=decoder_runtime_params
@@ -498,9 +496,14 @@ def create_cbam_module(
     attention_registry = component_registries.get("attention")
     if attention_registry is None:
         raise ConfigurationError("Attention registry not found for CBAM.")
-    return attention_registry.instantiate(  # type: ignore
-        "CBAM", in_channels=in_channels, **cbam_params
+
+    # Default CBAM configuration
+    attention_type = cbam_params.get("attention_type", "CBAM")
+    attention_params = cbam_params.get(
+        "attention_params", {"channels": in_channels}
     )
+
+    return attention_registry.instantiate(attention_type, **attention_params)
 
 
 def apply_cbam_to_model(

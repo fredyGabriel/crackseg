@@ -18,7 +18,7 @@ class SimpleSegmentationModel(nn.Module):
     """A very simple segmentation model for testing."""
 
     def __init__(self, in_channels: int = 1, out_channels: int = 1) -> None:
-        super().__init__()  # type: ignore
+        super().__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels, 16, 3, padding=1),
             nn.ReLU(),

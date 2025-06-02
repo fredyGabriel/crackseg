@@ -5,15 +5,15 @@ from typing import Any, cast
 
 from omegaconf import DictConfig
 
-from src.utils import ConfigError, ExperimentLogger
-from src.utils.experiment_manager import ExperimentManager
+from src.utils.core.exceptions import ConfigError
+from src.utils.experiment.manager import ExperimentManager
 
 log = logging.getLogger(__name__)
 
 
 def initialize_experiment(
     cfg: DictConfig, base_dir: str | None = None
-) -> tuple[str, ExperimentLogger]:
+) -> tuple[str, Any]:
     """Initialize experiment directory and logging.
 
     Creates experiment directory structure using ExperimentManager
@@ -32,6 +32,9 @@ def initialize_experiment(
         ConfigError: If there are issues with the configuration
     """
     try:
+        # Lazy import to avoid circular dependency
+        from src.utils.logging.experiment import ExperimentLogger
+
         # Use 'outputs' as base_dir if none provided, ensuring all experiments
         # are in a consistent location
         if base_dir is None:

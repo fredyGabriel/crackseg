@@ -87,7 +87,7 @@ def get_basic_transforms(
     else:
         final_transforms = core_transforms
 
-    pipeline = A.Compose(list(final_transforms))  # type: ignore[arg-type]
+    pipeline = A.Compose(list(final_transforms))
 
     return pipeline
 

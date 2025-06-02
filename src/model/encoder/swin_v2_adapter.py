@@ -6,7 +6,7 @@ from typing import Any
 import torch
 
 # Corrected imports based on file search and class definitions
-from src.model.base import EncoderBase
+from src.model.base.abstract import EncoderBase
 from src.model.encoder.swin_transformer_encoder import (
     SwinTransformerEncoder,
     SwinTransformerEncoderConfig,
@@ -120,6 +120,44 @@ class SwinV2EncoderAdapter(EncoderBase):
         """List of channels for skip connections (high to low resolution)."""
         # Directly use the property from the wrapped encoder
         return self.encoder.skip_channels
+
+    def get_feature_info(self) -> list[dict[str, Any]]:
+        """
+        Get feature information for the encoder.
+
+        Returns:
+            list[dict[str, Any]]: List of dictionaries containing feature
+            information for each stage, including channels, reduction
+            factors, and other metadata.
+        """
+        # Delegate to the underlying encoder if it has this method
+        if hasattr(self.encoder, "get_feature_info"):
+            return self.encoder.get_feature_info()
+
+        # Otherwise, construct basic feature info from available properties
+        # using the standardized utility
+        # Import locally to avoid circular imports
+        from src.model.encoder.feature_info_utils import (
+            build_feature_info_from_channels,
+        )
+
+        # Create stage names if they don't exist
+        stage_names = [
+            f"stage_{i}" for i in range(len(self.skip_channels))
+        ] + ["bottleneck"]
+
+        return build_feature_info_from_channels(
+            skip_channels=self.skip_channels,
+            out_channels=self.out_channels,
+            base_reduction=4,  # Typical starting reduction for Swin
+            reduction_factor=2,  # Standard 2x reduction per stage
+            stage_names=stage_names,
+        )
+
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Property accessor for feature information."""
+        return self.get_feature_info()
 
     def _reshape_4d_bottleneck(
         self, bottleneck_features: torch.Tensor

@@ -38,9 +38,9 @@ class DummySegmentationDataset(Dataset[tuple[torch.Tensor, torch.Tensor]]):
             mask = result["mask"]
         # Asegura que ambos sean torch.Tensor
         if not isinstance(img, torch.Tensor):
-            img = torch.from_numpy(np.asarray(img))  # type: ignore
+            img = torch.from_numpy(np.asarray(img))
         if not isinstance(mask, torch.Tensor):
-            mask = torch.from_numpy(np.asarray(mask))  # type: ignore
+            mask = torch.from_numpy(np.asarray(mask))
         return img, mask
 
 

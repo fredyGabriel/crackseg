@@ -119,6 +119,11 @@ class TestBaseUNet:
         """Test the summary method."""
         summary = base_unet.summary()
 
+        # Ensure components are not None before accessing properties
+        assert base_unet.encoder is not None
+        assert base_unet.decoder is not None
+        assert base_unet.bottleneck is not None
+
         # Basic info
         assert summary["model_type"] == "BaseUNet"
         assert summary["input_channels"] == base_unet.encoder.in_channels

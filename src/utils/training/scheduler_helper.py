@@ -4,7 +4,7 @@ from typing import Any, cast
 
 import torch
 
-from src.utils.logger_setup import safe_log
+from src.utils.logging.training import safe_log
 
 
 def step_scheduler_helper(
@@ -44,7 +44,7 @@ def step_scheduler_helper(
                     "metric for step. Skipping scheduler step.",
                 )
         else:
-            scheduler.step(monitor_value)  # type: ignore[reportUnknownMemberType]
+            scheduler.step(monitor_value)
     else:
         scheduler.step()
 

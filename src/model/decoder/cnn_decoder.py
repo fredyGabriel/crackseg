@@ -21,7 +21,7 @@ References:
 
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 import torch
 import torch.nn.functional as F
@@ -68,6 +68,24 @@ class DecoderBlock(DecoderBase):
 
     All channel dimensions are validated and fixed at initialization.
     """
+
+    in_channels: int
+    _out_channels: int
+    middle_channels: int
+    kernel_size: int
+    padding: int
+    upsample_scale_factor: int
+    upsample_mode: str
+    use_cbam: bool
+    cbam_reduction: int
+    upsample: nn.Upsample
+    up_conv: nn.Conv2d
+    conv1: nn.Conv2d
+    bn1: nn.BatchNorm2d
+    relu1: nn.ReLU
+    conv2: nn.Conv2d
+    bn2: nn.BatchNorm2d
+    relu2: nn.ReLU
 
     def _validate_input_channels(
         self,
@@ -196,19 +214,13 @@ class DecoderBlock(DecoderBase):
             align_corners=True if self.upsample_mode == "bilinear" else None,
         )
         # 1x1 conv to project in_channels to out_channels (this is the up_conv)
-        # The output of this up_conv is what gets concatenated with skip
-        # connection
-        # So, the `out_channels` parameter to this block should reflect its
-        # output
         self.up_conv = nn.Conv2d(
             self.in_channels,
             self._out_channels,
-            kernel_size=1,  # Output of up_conv is self._out_channels
+            kernel_size=1,
         )
 
         # CBAM (opcional) - applied after concatenation
-        # Concatenated channels: output of up_conv (self._out_channels) +
-        # self._skip_channels
         concat_channels_for_cbam_and_conv1 = (
             self._out_channels + self._skip_channels[0]
         )
@@ -229,8 +241,6 @@ class DecoderBlock(DecoderBase):
                 concat_channels_for_cbam_and_conv1 <= self.cbam_reduction
                 and self._skip_channels[0] > 0
             ):
-                # This check is only relevant if there's a skip connection to
-                # concatenate
                 raise ValueError(
                     f"CBAM reduction ({self.cbam_reduction}) must be less "
                     "than concatenated channels "
@@ -248,14 +258,13 @@ class DecoderBlock(DecoderBase):
                     concat_channels_for_cbam_and_conv1
                     if self._skip_channels[0] > 0
                     else self._out_channels
-                ),  # CBAM input is different if no skip
+                ),
                 reduction=self.cbam_reduction,
             )
         else:
             self.cbam = nn.Identity()
 
         # Main convolutions
-        # Input to conv1 is different if there's no skip connection
         conv1_in_channels = (
             concat_channels_for_cbam_and_conv1
             if self._skip_channels[0] > 0
@@ -313,7 +322,7 @@ class DecoderBlock(DecoderBase):
             raise ValueError(
                 "DecoderBlock expects exactly one skip connection tensor."
             )
-        skip = skips[0]
+        skip: torch.Tensor = skips[0]
         if x.shape[0] != skip.shape[0]:
             raise ValueError(
                 f"Batch size mismatch: x batch {x.shape[0]}, "
@@ -323,43 +332,45 @@ class DecoderBlock(DecoderBase):
             f"DecoderBlock input: {x.shape}, skip: {skip.shape}, "
             f"expected output: {self.out_channels} channels"
         )
-        x = self.upsample(x)
-        x = self.up_conv(x)
+        x = cast(torch.Tensor, self.upsample(x))
+        x = cast(torch.Tensor, self.up_conv(x))
         if self._skip_channels[0] == 0:
             # No skip connection: omitir concatenación
-            x = self.cbam(x)
-            expected_channels = self.conv1.in_channels
-            actual_channels = x.size(1)
+            x = cast(torch.Tensor, self.cbam(x))
+            expected_channels: int = self.conv1.in_channels
+            actual_channels: int = x.size(1)
             if actual_channels != expected_channels:
                 raise ValueError(
                     f"Critical channel mismatch in DecoderBlock: expected "
                     f"{expected_channels}, got {actual_channels}. This "
                     f"indicates a bug in the DecoderBlock initialization."
                 )
-            x = self.conv1(x)
-            x = self.bn1(x)
-            x = self.relu1(x)
-            x = self.conv2(x)
-            x = self.bn2(x)
-            x = self.relu2(x)
+            x = cast(torch.Tensor, self.conv1(x))
+            x = cast(torch.Tensor, self.bn1(x))
+            x = cast(torch.Tensor, self.relu1(x))
+            x = cast(torch.Tensor, self.conv2(x))
+            x = cast(torch.Tensor, self.bn2(x))
+            x = cast(torch.Tensor, self.relu2(x))
             return x
         # Normal skip connection
-        target_h, target_w = skip.shape[2:]
-        current_h, current_w = x.shape[2:]
         if x.shape[2] != skip.shape[2] or x.shape[3] != skip.shape[3]:
-            h_factor = skip.shape[2] / x.shape[2]
-            w_factor = skip.shape[3] / x.shape[3]
+            h_factor: float = skip.shape[2] / x.shape[2]
+            w_factor: float = skip.shape[3] / x.shape[3]
             if not (h_factor.is_integer() and w_factor.is_integer()):
                 raise ValueError(
                     f"Spatial upsampling factor must be integer. "
                     f"Got x: {x.shape[2:]} -> skip: {skip.shape[2:]} "
                     f"(h_factor={h_factor}, w_factor={w_factor})"
                 )
-            x = F.interpolate(
-                x,
-                size=(skip.shape[2], skip.shape[3]),
-                mode="bilinear",
-                align_corners=False,
+            target_size: tuple[int, int] = (skip.shape[2], skip.shape[3])
+            x = cast(
+                torch.Tensor,
+                F.interpolate(
+                    x,
+                    size=target_size,
+                    mode="bilinear",
+                    align_corners=False,
+                ),
             )
         if x.shape[2:] != skip.shape[2:]:
             raise ValueError(
@@ -374,7 +385,7 @@ class DecoderBlock(DecoderBase):
                 f"skip shape: {skip.shape}. Error: {e}"
             )
             raise e
-        x = self.cbam(x)
+        x = cast(torch.Tensor, self.cbam(x))
         expected_channels = self.conv1.in_channels
         actual_channels = x.size(1)
         if actual_channels != expected_channels:
@@ -383,12 +394,12 @@ class DecoderBlock(DecoderBase):
                 f"{expected_channels}, got {actual_channels}. This "
                 f"indicates a bug in the DecoderBlock initialization."
             )
-        x = self.conv1(x)
-        x = self.bn1(x)
-        x = self.relu1(x)
-        x = self.conv2(x)
-        x = self.bn2(x)
-        x = self.relu2(x)
+        x = cast(torch.Tensor, self.conv1(x))
+        x = cast(torch.Tensor, self.bn1(x))
+        x = cast(torch.Tensor, self.relu1(x))
+        x = cast(torch.Tensor, self.conv2(x))
+        x = cast(torch.Tensor, self.bn2(x))
+        x = cast(torch.Tensor, self.relu2(x))
         return x
 
     @property
@@ -441,6 +452,14 @@ class CNNDecoder(DecoderBase):
         decoder_skip_channels = list(reversed(encoder_skip_channels))
         # Results in [512, 256, 128, 64]
     """
+
+    decoder_blocks: nn.ModuleList
+    final_conv: nn.Conv2d
+    _out_channels: int
+    skip_channels_list: list[int]
+    decoder_channels: list[int]
+    expected_channels: list[int]
+    target_size: tuple[int, int] | None
 
     def __init__(  # noqa: PLR0913
         self,
@@ -560,27 +579,6 @@ class CNNDecoder(DecoderBase):
     ) -> torch.Tensor:
         """
         Forward pass for CNNDecoder with robust skip connection handling.
-
-        Args:
-            x (torch.Tensor): Input tensor from bottleneck, shape (B, C, H, W)
-            skips (List[torch.Tensor]): List of skip tensors from encoder, "
-            "ordered from low to high resolution.
-                Each skip must match the expected channel and spatial "
-                "dimensions after upsampling.
-
-        Returns:
-            torch.Tensor: Output tensor after decoding.
-
-        Raises:
-            ValueError: If skip connections are missing, have wrong number, "
-            "or mismatched channels/dimensions.
-
-        Contract:
-            - Number of skips must match number of decoder blocks.
-            - Each skip must have the expected number of channels and spatial
-            dimensions after upsampling.
-            - Skips must be ordered from low to high resolution (matching
-            skip_channels_list).
         """
         # Validate skip connections
         if len(skips) != len(self.skip_channels_list):
@@ -600,7 +598,7 @@ class CNNDecoder(DecoderBase):
                     f"Check skip_channels_list and encoder output."
                 )
         # Forward through decoder blocks
-        out = x
+        out: torch.Tensor = x
         for _, (block, skip) in enumerate(
             zip(self.decoder_blocks, skips, strict=False)
         ):
@@ -610,10 +608,10 @@ class CNNDecoder(DecoderBase):
             # the block is removed to prevent double upsampling.
 
             # Pass through block
-            out = block(out, [skip])
+            out = cast(torch.Tensor, block(out, [skip]))
         # Final conv (if present)
         if hasattr(self, "final_conv"):
-            out = self.final_conv(out)
+            out = cast(torch.Tensor, self.final_conv(out))
         return out
 
     @property

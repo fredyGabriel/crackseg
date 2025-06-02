@@ -156,7 +156,7 @@ def test_cbam_save_and_load(tmp_path: Any):
     model = CNNConvLSTMUNet(
         encoder=encoder,
         bottleneck=bottleneck,
-        decoder=decoder,  # type: ignore
+        decoder=decoder,
     )
 
     # Ejecutar primero para verificar que el modelo base funciona
@@ -169,17 +169,17 @@ def test_cbam_save_and_load(tmp_path: Any):
 
     # Guarda y carga el modelo
     path = tmp_path / "cbam_model.pt"
-    torch.save(cbam_model.state_dict(), str(path))  # type: ignore
+    torch.save(cbam_model.state_dict(), str(path))
 
     # Crea un nuevo modelo idéntico y carga los pesos
     model2 = CNNConvLSTMUNet(
         encoder=encoder,
         bottleneck=bottleneck,
-        decoder=decoder,  # type: ignore
+        decoder=decoder,
     )
     cbam2 = get_cbam_instance(out_channels)
     cbam_model2 = CBAMPostProcessor(model2, cbam2)
-    cbam_model2.load_state_dict(torch.load(str(path)))  # type: ignore
+    cbam_model2.load_state_dict(torch.load(str(path)))
 
     # Ejecuta el modelo cargado
     out = cbam_model2(x)

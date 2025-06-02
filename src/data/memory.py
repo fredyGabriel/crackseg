@@ -38,7 +38,7 @@ def get_available_gpu_memory(
     memory_allocated = torch.cuda.memory_allocated(device)
     max_memory = cast(
         int,
-        torch.cuda.get_device_properties(device).total_memory,  # type: ignore[reportUnknownArgumentType]
+        torch.cuda.get_device_properties(device).total_memory,
     )
 
     available = (
@@ -81,7 +81,7 @@ def get_gpu_memory_usage(
     memory_reserved = torch.cuda.memory_reserved(device)
     max_memory = cast(
         int,
-        torch.cuda.get_device_properties(device).total_memory,  # type: ignore[reportUnknownArgumentType]
+        torch.cuda.get_device_properties(device).total_memory,
     )
     available = (
         max_memory - memory_reserved + (memory_reserved - memory_allocated)

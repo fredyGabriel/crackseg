@@ -16,8 +16,8 @@ from src.training.batch_processing import train_step, val_step
 
 # Assuming the necessary modules exist in these paths
 from src.training.trainer import Trainer, TrainingComponents
-from src.utils.early_stopping import EarlyStopping
 from src.utils.logging import NoOpLogger  # Use NoOpLogger for testing
+from src.utils.training.early_stopping import EarlyStopping
 
 # --- Mocks and Fixtures ---
 
@@ -40,10 +40,16 @@ def trainer_mocks_fixture() -> TrainerMocks:
     model.parameters.return_value = [torch.nn.Parameter(torch.randn(1))]
     model.to.return_value = model
 
-    dataloader = MagicMock(spec=torch.utils.data.DataLoader[Any])
-    dataloader.__len__.return_value = 10
-    dataloader.__iter__.return_value = iter(
-        [(torch.randn(2, 3, 4, 4), torch.randn(2, 1, 4, 4)) for _ in range(10)]
+    # Create a proper mock for DataLoader
+    dataloader = MagicMock()
+    dataloader.__len__ = MagicMock(return_value=10)
+    dataloader.__iter__ = MagicMock(
+        return_value=iter(
+            [
+                (torch.randn(2, 3, 4, 4), torch.randn(2, 1, 4, 4))
+                for _ in range(10)
+            ]
+        )
     )
 
     loss_fn = MagicMock(spec=torch.nn.Module)
@@ -77,6 +83,16 @@ def base_trainer_cfg() -> DictConfig:
                 "optimizer": {"_target_": "torch.optim.Adam", "lr": 1e-3},
                 "lr_scheduler": None,
                 "scheduler": None,
+                "early_stopping": {
+                    "_target_": (
+                        "src.utils.training.early_stopping.EarlyStopping"
+                    ),
+                    "monitor": "val_loss",
+                    "patience": 2,
+                    "mode": "min",
+                    "min_delta": 0.001,
+                    "verbose": True,
+                },
                 # Add other necessary fields if init requires them
             }
             # Add other top-level keys if needed by mocks (e.g., logging)
@@ -541,12 +557,13 @@ def test_validate_aggregates_metrics(
 
 
 def test_step_scheduler_reduce_on_plateau(monkeypatch: MonkeyPatch) -> None:
-    scheduler = MagicMock(spec=torch.optim.lr_scheduler.ReduceLROnPlateau)
+    scheduler = MagicMock()
+    scheduler.__class__.__name__ = "ReduceLROnPlateau"
     optimizer = MagicMock()
     optimizer.param_groups = [{"lr": 0.01}]
     logger = MagicMock()
     metrics = {"val_loss": 0.5}
-    from src.utils.scheduler_helper import step_scheduler_helper
+    from src.utils.training.scheduler_helper import step_scheduler_helper
 
     lr = step_scheduler_helper(
         scheduler=scheduler,
@@ -578,7 +595,7 @@ def test_step_scheduler_other_scheduler() -> None:
     optimizer = MagicMock()
     optimizer.param_groups = [{"lr": 0.02}]
     logger = MagicMock()
-    from src.utils.scheduler_helper import step_scheduler_helper
+    from src.utils.training.scheduler_helper import step_scheduler_helper
 
     lr = step_scheduler_helper(
         scheduler=scheduler,
@@ -609,6 +626,7 @@ def test_trainer_early_stopping(
                 patience=7, min_delta=0.0, mode="min", verbose=True
             )
             self.calls = 0
+            self.enabled = True
 
         def step(self, value: float) -> bool:
             self.calls += 1
@@ -638,7 +656,7 @@ def test_trainer_early_stopping(
         early_stopper=early_stopper,
     )
     trainer.early_stopper = early_stopper  # Ensure it's used
-    monkeypatch.setattr(trainer, "_train_epoch", lambda self, epoch: 0.0)
+    monkeypatch.setattr(trainer, "_train_epoch", lambda epoch: 0.0)
 
     with patch(
         "src.training.trainer.handle_epoch_checkpointing",
@@ -649,7 +667,7 @@ def test_trainer_early_stopping(
 
 
 def test_format_metrics() -> None:
-    from src.utils.training_logging import format_metrics
+    from src.utils.logging.training import format_metrics
 
     metrics = {"loss": 0.1234, "iou": 0.5678}
     formatted = format_metrics(metrics)
@@ -659,7 +677,7 @@ def test_format_metrics() -> None:
 
 
 def test_log_validation_results(caplog: LogCaptureFixture) -> None:
-    from src.utils.training_logging import log_validation_results
+    from src.utils.logging.training import log_validation_results
 
     class DummyLogger:
         def __init__(self) -> None:
@@ -681,7 +699,7 @@ def test_log_validation_results(caplog: LogCaptureFixture) -> None:
 
 
 def test_amp_autocast_context_manager() -> None:
-    from src.utils.amp_utils import amp_autocast
+    from src.utils.training.amp_utils import amp_autocast
 
     with amp_autocast(False):
         x = torch.tensor([1.0], requires_grad=True)
@@ -694,7 +712,7 @@ def test_amp_autocast_context_manager() -> None:
 
 
 def test_optimizer_step_with_accumulation_no_amp() -> None:
-    from src.utils.amp_utils import optimizer_step_with_accumulation
+    from src.utils.training.amp_utils import optimizer_step_with_accumulation
 
     optimizer = MagicMock()
     scaler = None
@@ -722,7 +740,7 @@ def test_optimizer_step_with_accumulation_no_amp() -> None:
 
 
 def test_optimizer_step_with_accumulation_amp() -> None:
-    from src.utils.amp_utils import optimizer_step_with_accumulation
+    from src.utils.training.amp_utils import optimizer_step_with_accumulation
 
     optimizer = MagicMock()
     scaler = MagicMock()

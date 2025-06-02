@@ -10,7 +10,7 @@ from torch import nn
 
 # Import specific losses for type checking if needed, or rely on name
 from src.training.losses import BCEDiceLoss, CombinedLoss
-from src.utils.exceptions import ConfigError
+from src.utils.core.exceptions import ConfigError
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -134,7 +134,7 @@ def get_loss_fn(loss_cfg: DictConfig) -> TypingCallable[..., object]:
             combined_params = {}
             if weights is not None:
                 combined_params["weights"] = weights
-            return CombinedLoss(losses_config=losses_config, **combined_params)  # type: ignore
+            return CombinedLoss(losses_config=losses_config, **combined_params)
 
         elif loss_class is BCEDiceLoss:
             params = {

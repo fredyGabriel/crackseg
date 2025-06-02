@@ -179,7 +179,7 @@ class ConfigParser:
         for i, component_config in enumerate(components):
             child_path = f"{path}.components[{i}]"
             child_node = self._parse_node(component_config, child_path)
-            children.append(child_node)  # type: ignore[reportUnknownArgumentType]
+            children.append(child_node)
 
         # Extract and validate weights
         weights = self._extract_and_validate_weights(
@@ -273,13 +273,13 @@ class ConfigParser:
             return None
 
         # Check for positive weights
-        if any(w <= 0 for w in weights):  # type: ignore[reportUnknownArgumentType]
+        if any(w <= 0 for w in weights):
             error_msg = f"All weights must be positive at {path}"
             self._parsing_errors.append(error_msg)
             return None
 
         # Normalize weights
-        normalized_weights = self._normalize_weights(weights)  # type: ignore[reportUnknownArgumentType]
+        normalized_weights = self._normalize_weights(weights)
         logger.debug(f"Normalized weights at {path}: {normalized_weights}")
         return normalized_weights
 
@@ -386,23 +386,23 @@ class ConfigParser:
         """Get list of all combinator types used in the tree."""
         types = []
         if node.is_combinator():
-            types.append(node.get_combinator_type())  # type: ignore[reportUnknownArgumentType]
+            types.append(node.get_combinator_type())
 
         for child in node.children:
-            types.extend(self._get_combinator_types(child))  # type: ignore[reportUnknownArgumentType]
+            types.extend(self._get_combinator_types(child))
 
-        return list({cast(str, t) for t in types if t is not None})  # type: ignore[reportUnknownArgumentType]
+        return list({cast(str, t) for t in types if t is not None})
 
     def _get_loss_types(self, node: ParsedNode) -> list[str]:
         """Get list of all loss types used in the tree."""
         types = []
         if node.is_leaf():
-            types.append(node.get_loss_name())  # type: ignore[reportUnknownArgumentType]
+            types.append(node.get_loss_name())
 
         for child in node.children:
-            types.extend(self._get_loss_types(child))  # type: ignore[reportUnknownArgumentType]
+            types.extend(self._get_loss_types(child))
 
-        return list({cast(str, t) for t in types if t is not None})  # type: ignore[reportUnknownArgumentType]
+        return list({cast(str, t) for t in types if t is not None})
 
     def _count_weighted_combinators(self, node: ParsedNode) -> int:
         """Count combinators that use explicit weights."""

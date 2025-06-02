@@ -19,7 +19,7 @@ from hydra import compose, initialize_config_dir
 from hydra.core.global_hydra import GlobalHydra
 from omegaconf import OmegaConf
 
-from src.utils.seeds import set_random_seeds
+from src.utils.core.seeds import set_random_seeds
 
 # --- Fixtures ---
 

@@ -104,7 +104,7 @@ class SwinTransformerEncoder(EncoderBase):
             )
             self.swin = typing.cast(
                 nn.Module,
-                timm.create_model(  # type: ignore[reportUnknownArgumentType]
+                timm.create_model(
                     config.model_name,
                     pretrained=config.pretrained,
                     in_chans=in_channels,
@@ -120,7 +120,7 @@ class SwinTransformerEncoder(EncoderBase):
                 fallback_model = "resnet34"
                 self.swin = typing.cast(
                     nn.Module,
-                    timm.create_model(  # type: ignore[reportUnknownArgumentType]
+                    timm.create_model(
                         fallback_model,
                         pretrained=config.pretrained,
                         in_chans=in_channels,
@@ -306,11 +306,12 @@ class SwinTransformerEncoder(EncoderBase):
         if self.handle_input_size == "resize":
             # Resize to the model's expected size
             if original_size != (self.img_size, self.img_size):
-                x = F.interpolate(  # type: ignore[reportUnknownArgumentType]
+                x = F.interpolate(
                     x,
                     size=(self.img_size, self.img_size),
                     mode="bilinear",
                     align_corners=False,
+                    antialias=True,
                 )
                 metadata["resized"] = True
                 logger.debug(
@@ -374,20 +375,18 @@ class SwinTransformerEncoder(EncoderBase):
                     processed_feature_item.shape[3],
                 )
                 if (current_h, current_w) != (feature_h, feature_w):
-                    processed_feature_item = typing.cast(
-                        torch.Tensor,
-                        F.interpolate(  # type: ignore[reportUnknownArgumentType]
-                            processed_feature_item,  # Use the working variable
-                            size=(feature_h, feature_w),
-                            mode="bilinear",
-                            align_corners=False,
-                        ),
+                    processed_feature_item = F.interpolate(
+                        processed_feature_item,
+                        size=(feature_h, feature_w),
+                        mode="bilinear",
+                        align_corners=False,
+                        antialias=True,
                     )
 
             # If we need to handle padding, we could add logic here to crop
             # the features back to the unpadded size if needed
 
-            processed_features.append(processed_feature_item)  # type: ignore[arg-type]
+            processed_features.append(processed_feature_item)
 
         return processed_features
 
@@ -448,31 +447,39 @@ class SwinTransformerEncoder(EncoderBase):
             List[Dict[str, Any]]: Information about each feature map,
                                  including channels and reduction factor.
         """
+        # Import locally to avoid circular imports
+        from src.model.encoder.feature_info_utils import (
+            create_feature_info_entry,
+        )
+
         feature_info: list[dict[str, Any]] = []
         num_skips = len(self._skip_channels)
+
         for i in range(num_skips):
             # reduction_factors[0] corresponds to skip_channels[0]
             # (highest res skip)
             idx = i  # Index for reduction factor
             channels = self._skip_channels[i]  # High-res to low-res
             feature_info.append(
-                {
-                    "channels": channels,
-                    "reduction_factor": self.reduction_factors[idx],
-                    "stage": idx,  # Use index relative to H->L res skips
-                }
+                create_feature_info_entry(
+                    channels=channels,
+                    reduction=self.reduction_factors[idx],
+                    stage=idx,
+                    name=f"stage_{idx}",
+                )
             )
+
         # Add bottleneck info
         bottleneck_stage_idx = num_skips
         feature_info.append(
-            {
-                "channels": self._out_channels,
-                "reduction_factor": self.reduction_factors[
-                    bottleneck_stage_idx
-                ],
-                "stage": bottleneck_stage_idx,
-            }
+            create_feature_info_entry(
+                channels=self._out_channels,
+                reduction=self.reduction_factors[bottleneck_stage_idx],
+                stage=bottleneck_stage_idx,
+                name="bottleneck",
+            )
         )
+
         return feature_info
 
     @property
@@ -484,6 +491,18 @@ class SwinTransformerEncoder(EncoderBase):
     def skip_channels(self) -> list[int]:
         """List of channels for each skip connection (high to low res)."""
         return self._skip_channels
+
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Information about output features for each stage.
+
+        Returns:
+            List of dictionaries, each containing:
+                - 'channels': Number of output channels
+                - 'reduction': Spatial reduction factor from input
+                - 'stage': Stage index
+        """
+        return self.get_feature_info()
 
     def _apply_layer_freezing(self) -> None:
         """
@@ -522,7 +541,7 @@ Using basic freezing."
                     p.strip() for p in self.freeze_layers.split(",")
                 ]
         else:
-            freeze_patterns = self.freeze_layers  # type: ignore[assignment]
+            freeze_patterns = self.freeze_layers
 
         # Apply freezing
         frozen_params = 0

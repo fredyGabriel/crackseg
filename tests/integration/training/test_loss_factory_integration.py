@@ -48,7 +48,7 @@ def clean_registry() -> Any:
     def mock_dice_loss(**params: Any) -> torch.nn.Module:
         class MockDiceLoss(torch.nn.Module):
             def __init__(self, smooth: float = 1.0):
-                super().__init__()  # type: ignore
+                super().__init__()
                 self.smooth = smooth
 
             def forward(
@@ -61,7 +61,7 @@ def clean_registry() -> Any:
     def mock_bce_loss(**params: Any) -> torch.nn.Module:
         class MockBCELoss(torch.nn.Module):
             def __init__(self, reduction: str = "mean"):
-                super().__init__()  # type: ignore
+                super().__init__()
                 self.reduction = reduction
 
             def forward(

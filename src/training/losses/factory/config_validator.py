@@ -112,7 +112,7 @@ class ConfigValidator:
                     f"({len(cast(list[dict[str, Any]], components))}) at "
                     f"{path}"
                 )
-            if any(w <= 0 for w in cast(list[float], weights)):  # type: ignore[reportUnknownArgumentType]
+            if any(w <= 0 for w in cast(list[float], weights)):
                 raise ConfigValidationError(
                     f"All weights must be positive at {path}"
                 )
@@ -126,8 +126,8 @@ class ConfigValidator:
         loss_name = node["name"]
 
         # Check if loss is registered
-        if not self.registry.is_registered(loss_name):  # type: ignore[reportUnknownMemberType]
-            available = self.registry.list_available()  # type: ignore[reportUnknownMemberType]
+        if not self.registry.is_registered(loss_name):
+            available = self.registry.list_available()
             raise ConfigValidationError(
                 f"Loss '{loss_name}' not registered at {path}. "
                 f"Available losses: {available}"

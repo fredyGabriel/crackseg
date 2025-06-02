@@ -1,10 +1,14 @@
-"""Configuration validation utilities."""
+"""Configuration validation utilities.
+
+This module provides basic validation for Hydra configurations.
+For advanced validation with schema checking, see standardized_storage module.
+"""
 
 from pathlib import Path
 
 from omegaconf import DictConfig
 
-from src.utils.exceptions import ConfigError, ValidationError
+from src.utils.core.exceptions import ConfigError, ValidationError
 
 
 def validate_paths(config: DictConfig) -> None:
@@ -92,6 +96,11 @@ def validate_model_config(config: DictConfig) -> None:
 def validate_config(config: DictConfig) -> None:
     """Validate the complete configuration.
 
+    This function provides basic validation for Hydra configurations.
+    For more advanced validation with schema checking and completeness
+    analysis, use validate_configuration_completeness from the
+    standardized_storage module.
+
     Args:
         config: Configuration to validate
 
@@ -104,3 +113,53 @@ def validate_config(config: DictConfig) -> None:
         validate_model_config(config)
     except ValidationError as e:
         raise ConfigError(e.message, field=e.field, details=e.details) from e
+
+
+def validate_config_with_standardized_checks(
+    config: DictConfig,
+) -> dict[str, bool]:
+    """Perform both basic and standardized validation checks.
+
+    This is a convenience function that combines basic validation with
+    the standardized storage validation approach.
+
+    Args:
+        config: Configuration to validate
+
+    Returns:
+        Dictionary with validation results from both approaches
+
+    Raises:
+        ConfigError: If basic validation fails
+    """
+    # Import here to avoid circular imports
+    try:
+        from .standardized_storage import validate_configuration_completeness
+    except ImportError:
+        # Fallback if standardized_storage is not available
+        validate_configuration_completeness = None
+
+    # Basic validation (raises on failure)
+    validate_config(config)
+
+    results = {"basic_validation": True}
+
+    # Standardized validation (returns detailed results)
+    if validate_configuration_completeness:
+        standardized_results = validate_configuration_completeness(config)
+        results.update(
+            {
+                "standardized_validation": standardized_results["is_valid"],
+                "completeness_score": standardized_results.get(
+                    "completeness_score", 0.0
+                ),
+                "missing_required": standardized_results.get(
+                    "missing_required", []
+                ),
+                "missing_recommended": standardized_results.get(
+                    "missing_recommended", []
+                ),
+            }
+        )
+
+    return results

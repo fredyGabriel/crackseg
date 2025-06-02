@@ -388,7 +388,7 @@ def test_create_split_datasets_missing_cls():
         config = DatasetCreationConfig(
             data_root="dummy",
             transform_cfg=transform_cfg,
-            dataset_cls=None,  # type: ignore
+            dataset_cls=None,  # type: ignore[arg-type]
         )
         create_split_datasets(config=config)
 

@@ -1,6 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import cast
+from typing import Any, cast
 
 import torch
 from torch import nn
@@ -40,7 +40,7 @@ class SimpleEncoderBlock(nn.Module):
     Consiste en dos capas convolucionales y una capa de pooling.
     """
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         in_channels: int,
         out_channels: int,
@@ -181,6 +181,54 @@ class CNNEncoder(EncoderBase):
     def skip_channels(self) -> list[int]:
         """List of channels for each skip connection (high-res to low-res)."""
         return self._skip_channels
+
+    def get_feature_info(self) -> list[dict[str, Any]]:
+        """
+        Get information about feature maps produced by the encoder.
+
+        Returns:
+            List[Dict[str, Any]]: Information about each feature map,
+                                 including channels and reduction factor.
+        """
+        feature_info: list[dict[str, Any]] = []
+
+        # Calculate reduction factors for each stage
+        # CNN encoder with pooling has reduction factor 2^stage
+        pool_factor = 2  # Default pool_size is 2
+
+        for i, channels in enumerate(self._skip_channels):
+            reduction_factor = pool_factor ** (i + 1)
+            feature_info.append(
+                {
+                    "channels": channels,
+                    "reduction": reduction_factor,
+                    "stage": i,
+                }
+            )
+
+        # Add bottleneck info (final output)
+        bottleneck_reduction = pool_factor ** len(self._skip_channels)
+        feature_info.append(
+            {
+                "channels": self._out_channels,
+                "reduction": bottleneck_reduction,
+                "stage": len(self._skip_channels),
+            }
+        )
+
+        return feature_info
+
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Information about output features for each stage.
+
+        Returns:
+            List of dictionaries, each containing:
+                - 'channels': Number of output channels
+                - 'reduction': Spatial reduction factor from input
+                - 'stage': Stage index
+        """
+        return self.get_feature_info()
 
 
 class ConvLSTMBottleneck(BottleneckBase):

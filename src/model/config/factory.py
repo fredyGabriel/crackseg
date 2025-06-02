@@ -67,7 +67,7 @@ def parse_component_config(
 
     # Check if component exists in registry
     if component_name not in registry:
-        available = ", ".join(registry.list())
+        available = ", ".join(registry.list_components())
         raise ValueError(
             f"Unknown {component_type} type '{component_name}'. "
             f"Available types: {available}"
@@ -149,7 +149,7 @@ def parse_architecture_config(config: dict[str, Any]) -> dict[str, Any]:
 
     # Check if architecture exists
     if arch_type not in architecture_registry:
-        available = ", ".join(architecture_registry.list())
+        available = ", ".join(architecture_registry.list_components())
         raise ValueError(
             f"Unknown architecture type '{arch_type}'. "
             f"Available types: {available}"
@@ -246,7 +246,7 @@ def get_model_config_schema(model_type: str) -> dict[str, Any]:
     # information for UI configuration builders or documentation
 
     if model_type not in architecture_registry:
-        available = ", ".join(architecture_registry.list())
+        available = ", ".join(architecture_registry.list_components())
         raise ValueError(
             f"Unknown model type '{model_type}'. Available types: {available}"
         )

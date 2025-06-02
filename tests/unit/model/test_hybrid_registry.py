@@ -6,6 +6,8 @@ Verifies that hybrid architectures can be registered, queried, and validated
 correctly with different component combinations.
 """
 
+from typing import Any
+
 import pytest
 import torch
 from torch import nn
@@ -49,6 +51,51 @@ class MockEncoder(EncoderBase):
     @property
     def skip_channels(self) -> list[int]:
         return self._skip_channels
+
+    def get_feature_info(self) -> list[dict[str, Any]]:
+        """
+        Get information about feature maps produced by the mock encoder.
+
+        Returns:
+            List[Dict[str, Any]]: Information about each feature map,
+                                 including channels and reduction factor.
+        """
+        feature_info: list[dict[str, Any]] = []
+
+        # Mock encoder with 2 stages: reduction factors 2 and 4
+        reduction_factors = [2, 4]
+
+        for i, channels in enumerate(self._skip_channels):
+            feature_info.append(
+                {
+                    "channels": channels,
+                    "reduction": reduction_factors[i],
+                    "stage": i,
+                }
+            )
+
+        # Add bottleneck info (final output)
+        feature_info.append(
+            {
+                "channels": self._out_channels,
+                "reduction": 4,
+                "stage": len(self._skip_channels),
+            }
+        )
+
+        return feature_info
+
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Information about output features for each stage.
+
+        Returns:
+            List of dictionaries, each containing:
+                - 'channels': Number of output channels
+                - 'reduction': Spatial reduction factor from input
+                - 'stage': Stage index
+        """
+        return self.get_feature_info()
 
 
 class MockBottleneck(BottleneckBase):
@@ -217,7 +264,7 @@ def test_register_standard_hybrid():
     )
 
     assert result is True
-    descriptors = hybrid_registry._descriptors  # type: ignore[attr-defined]
+    descriptors = hybrid_registry._descriptors
     assert "StandardHybrid" in descriptors
 
     # Register with attention
@@ -231,7 +278,7 @@ def test_register_standard_hybrid():
     )
 
     assert result is True
-    descriptors = hybrid_registry._descriptors  # type: ignore[attr-defined]
+    descriptors = hybrid_registry._descriptors
     assert "StandardHybridWithAttention" in descriptors
 
     # Try to register duplicate - should raise ValueError
@@ -271,7 +318,7 @@ def test_register_complex_hybrid():
     )
 
     assert result is True
-    descriptors = hybrid_registry._descriptors  # type: ignore[attr-defined]
+    descriptors = hybrid_registry._descriptors
     assert "ComplexHybrid" in descriptors
 
     # Get the descriptor to verify

@@ -26,7 +26,7 @@ def test_enhanced_combinators() -> bool:
 
     class MockDiceLoss(torch.nn.Module, ILossComponent):
         def __init__(self, smooth: float = 1.0):
-            super().__init__()  # type: ignore
+            super().__init__()
             self.smooth = smooth
 
         def forward(self, pred: Any, target: Any) -> torch.Tensor:
@@ -35,7 +35,7 @@ def test_enhanced_combinators() -> bool:
 
     class MockBCELoss(torch.nn.Module, ILossComponent):
         def __init__(self, reduction: str = "mean"):
-            super().__init__()  # type: ignore
+            super().__init__()
             self.reduction = reduction
 
         def forward(self, pred: Any, target: Any) -> torch.Tensor:
@@ -44,7 +44,7 @@ def test_enhanced_combinators() -> bool:
 
     class MockFocalLoss(torch.nn.Module, ILossComponent):
         def __init__(self, alpha: float = 1.0, gamma: float = 2.0):
-            super().__init__()  # type: ignore
+            super().__init__()
             self.alpha = alpha
             self.gamma = gamma
 

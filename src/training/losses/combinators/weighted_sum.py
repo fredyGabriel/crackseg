@@ -36,7 +36,7 @@ class WeightedSumCombinator(nn.Module, ILossCombinator):
             ValueError: If components is empty or weights length doesn't match
             components
         """
-        super().__init__()  # type: ignore[reportUnknownParameterType]
+        super().__init__()
 
         if not components:
             raise ValueError("Components list cannot be empty")

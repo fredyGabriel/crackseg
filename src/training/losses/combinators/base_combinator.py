@@ -69,13 +69,17 @@ class BaseCombinator(nn.Module, ILossCombinator, ABC):
         Raises:
             ValidationError: If components validation fails
         """
-        super().__init__()  # type: ignore[reportUnknownParameterType]
+        super().__init__()
 
         # Validate components
         self._validate_components(components)
 
-        # Store components as ModuleList for proper parameter tracking
-        self.components = nn.ModuleList(cast(list[nn.Module], components))
+        # Store components - use regular list since not all ILossComponent
+        # instances are necessarily nn.Module
+        self.components = list(components)
+
+        # Note: weights and names should be handled by specific combinators
+        # that need them, not by the base class
 
         # Configuration
         self.validate_inputs = validate_inputs
@@ -116,10 +120,10 @@ class BaseCombinator(nn.Module, ILossCombinator, ABC):
 
         # Compute component losses
         component_outputs = []
-        for i, component in enumerate(self.components):
+        for i, loss_fn in enumerate(self.components):
             try:
-                output = component(pred, target)
-                component_outputs.append(output)  # type: ignore[reportUnknownArgumentType]
+                output = loss_fn(pred, target)
+                component_outputs.append(output)
             except Exception as e:
                 raise CombinatorError(
                     f"Error computing loss for component {i}: {e}"
@@ -250,7 +254,7 @@ class BaseCombinator(nn.Module, ILossCombinator, ABC):
                 self._gradient_clips += 1
                 return torch.clamp(grad, -clip_value, clip_value)
 
-            loss.register_hook(clip_grad_hook)  # type: ignore[reportUnknownArgumentType]
+            loss.register_hook(clip_grad_hook)
         return loss
 
     def get_component_outputs(self) -> list[torch.Tensor] | None:

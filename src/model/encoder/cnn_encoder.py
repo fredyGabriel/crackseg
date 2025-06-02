@@ -1,3 +1,5 @@
+from typing import Any
+
 import torch
 from torch import nn
 
@@ -41,6 +43,7 @@ class EncoderBlock(EncoderBase):
         super().__init__(in_channels)
         self._out_channels = out_channels
         self.use_pool = use_pool
+        self.pool_size = pool_size
         self.conv1 = nn.Conv2d(
             in_channels, out_channels, kernel_size, padding=padding
         )
@@ -93,6 +96,44 @@ class EncoderBlock(EncoderBase):
         (single block)."""
         return [self._out_channels]
 
+    def get_feature_info(self) -> list[dict[str, Any]]:
+        """
+        Get information about feature maps produced by the encoder block.
+
+        Returns:
+            List[Dict[str, Any]]: Information about each feature map,
+                                 including channels and reduction factor.
+        """
+        # Import locally to avoid circular imports
+        from src.model.encoder.feature_info_utils import (
+            create_feature_info_entry,
+        )
+
+        # For a single encoder block, reduction depends on whether pooling
+        # is used
+        reduction_factor = self.pool_size if self.use_pool else 1
+
+        return [
+            create_feature_info_entry(
+                channels=self._out_channels,
+                reduction=reduction_factor,
+                stage=0,
+                name="encoder_block",
+            )
+        ]
+
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Information about output features for each stage.
+
+        Returns:
+            List of dictionaries, each containing:
+                - 'channels': Number of output channels
+                - 'reduction': Spatial reduction factor from input
+                - 'stage': Stage index
+        """
+        return self.get_feature_info()
+
 
 # Registration
 # @encoder_registry.register(name="CNNEncoderBlock")
@@ -134,6 +175,7 @@ class CNNEncoder(EncoderBase):
         """
         super().__init__(in_channels)
         self.depth = depth
+        self.pool_size = pool_size
         self.encoder_blocks = nn.ModuleList()
         self._skip_channels: list[int] = []
 
@@ -191,3 +233,38 @@ class CNNEncoder(EncoderBase):
     def skip_channels(self) -> list[int]:
         """List of channels for each skip connection (high-res to low-res)."""
         return self._skip_channels
+
+    def get_feature_info(self) -> list[dict[str, Any]]:
+        """
+        Get information about feature maps produced by the encoder.
+
+        Returns:
+            List[Dict[str, Any]]: Information about each feature map,
+                                 including channels and reduction factor.
+        """
+        # Import locally to avoid circular imports
+        from src.model.encoder.feature_info_utils import (
+            build_feature_info_from_channels,
+        )
+
+        # CNN encoder with pooling has standard reduction progression
+        return build_feature_info_from_channels(
+            skip_channels=self._skip_channels,
+            out_channels=self._out_channels,
+            base_reduction=self.pool_size,  # First stage reduction
+            reduction_factor=self.pool_size,  # Each stage mult. by pool_size
+            stage_names=[f"stage_{i}" for i in range(self.depth)]
+            + ["bottleneck"],
+        )
+
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Information about output features for each stage.
+
+        Returns:
+            List of dictionaries, each containing:
+                - 'channels': Number of output channels
+                - 'reduction': Spatial reduction factor from input
+                - 'stage': Stage index
+        """
+        return self.get_feature_info()

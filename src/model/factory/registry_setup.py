@@ -111,19 +111,19 @@ def list_available_components() -> dict[str, list[str]]:
                              lists.
     """
     result = {
-        "encoders": encoder_registry.list(),
-        "decoders": decoder_registry.list(),
-        "bottlenecks": bottleneck_registry.list(),
-        "architectures": architecture_registry.list(),
+        "encoders": encoder_registry.list_components(),
+        "decoders": decoder_registry.list_components(),
+        "bottlenecks": bottleneck_registry.list_components(),
+        "architectures": architecture_registry.list_components(),
         "attention": [],
         "convlstm": [],
     }
     attention_registry = component_registries.get("attention")
     if isinstance(attention_registry, Registry):
-        result["attention"] = attention_registry.list()
+        result["attention"] = attention_registry.list_components()
     convlstm_registry = component_registries.get("convlstm")
     if isinstance(convlstm_registry, Registry):
-        result["convlstm"] = convlstm_registry.list()
+        result["convlstm"] = convlstm_registry.list_components()
     return result
 
 

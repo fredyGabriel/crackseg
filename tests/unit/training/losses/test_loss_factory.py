@@ -93,7 +93,7 @@ def test_weights_length_mismatch() -> None:
             {"name": "bce_loss"},
         ],
     }
-    with pytest.raises(ValueError, match="El número de pesos debe coincidir"):
+    with pytest.raises(ValueError, match="The number of weights must match"):
         parse_loss_config(config)
 
 
@@ -107,6 +107,6 @@ def test_weights_sum_zero() -> None:
         ],
     }
     with pytest.raises(
-        ValueError, match="La suma de los pesos debe ser positiva"
+        ValueError, match="The sum of the weights must be positive"
     ):
         parse_loss_config(config)

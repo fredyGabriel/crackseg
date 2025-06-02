@@ -107,13 +107,15 @@ class TestArtifactPerformance:
         with tempfile.TemporaryDirectory() as temp_dir:
             experiment_dir = Path(temp_dir) / "perf_test"
             experiment_dir.mkdir(parents=True)
+            checkpoints_dir = experiment_dir / "checkpoints"
+            checkpoints_dir.mkdir(parents=True)  # Ensure checkpoint dir exists
 
             # Set up trainer
             mock_experiment_manager = Mock()
             mock_experiment_manager.experiment_dir = experiment_dir
             mock_experiment_manager.experiment_id = "perf_test_001"
             mock_experiment_manager.get_path.return_value = str(
-                experiment_dir / "checkpoints"
+                checkpoints_dir
             )
 
             mock_logger = Mock()
@@ -289,12 +291,14 @@ class TestArtifactRegression:
         with tempfile.TemporaryDirectory() as temp_dir:
             experiment_dir = Path(temp_dir) / "regression_test"
             experiment_dir.mkdir(parents=True)
+            checkpoints_dir = experiment_dir / "checkpoints"
+            checkpoints_dir.mkdir(parents=True)  # Ensure checkpoint dir exists
 
             mock_experiment_manager = Mock()
             mock_experiment_manager.experiment_dir = experiment_dir
             mock_experiment_manager.experiment_id = "regression_001"
             mock_experiment_manager.get_path.return_value = str(
-                experiment_dir / "checkpoints"
+                checkpoints_dir
             )
 
             mock_logger = Mock()

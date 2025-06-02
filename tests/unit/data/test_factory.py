@@ -201,7 +201,7 @@ def test_create_dataloaders_from_config_basic() -> None:
             ),
         }
 
-    src.data.factory.create_split_datasets = mock_create_split_datasets  # type: ignore
+    src.data.factory.create_split_datasets = mock_create_split_datasets
 
     try:
         result = create_dataloaders_from_config(
@@ -225,7 +225,9 @@ def test_create_dataloaders_from_config_basic() -> None:
         if isinstance(
             result["train"]["dataloader"], torch.utils.data.DataLoader
         ):
-            assert result["train"]["dataloader"].batch_size == 4  # type: ignore  # noqa: PLR2004
+            assert (
+                result["train"]["dataloader"].batch_size == 4
+            )  # noqa: PLR2004
 
         for split in ["train", "val", "test"]:
             batch = next(iter(result[split]["dataloader"]))
@@ -234,7 +236,7 @@ def test_create_dataloaders_from_config_basic() -> None:
             assert batch["image"].shape[0] <= 4  # noqa: PLR2004
 
     finally:
-        src.data.factory.create_split_datasets = original_func  # type: ignore
+        src.data.factory.create_split_datasets = original_func
 
 
 def test_create_dataloaders_from_config_distributed():
@@ -322,9 +324,9 @@ def test_create_dataloaders_from_config_distributed():
     def mock_is_initialized():
         return False
 
-    src.data.factory.create_split_datasets = mock_create_split_datasets  # type: ignore
-    torch.distributed.is_available = mock_is_distributed_available  # type: ignore
-    torch.distributed.is_initialized = mock_is_initialized  # type: ignore
+    src.data.factory.create_split_datasets = mock_create_split_datasets
+    torch.distributed.is_available = mock_is_distributed_available
+    torch.distributed.is_initialized = mock_is_initialized
 
     try:
         result = create_dataloaders_from_config(
@@ -346,6 +348,6 @@ def test_create_dataloaders_from_config_distributed():
     finally:
         src.data.factory.create_split_datasets = original_funcs[
             "create_split_datasets"
-        ]  # type: ignore
-        torch.distributed.is_available = original_funcs["is_distributed"]  # type: ignore
-        torch.distributed.is_initialized = original_funcs["is_initialized"]  # type: ignore
+        ]
+        torch.distributed.is_available = original_funcs["is_distributed"]
+        torch.distributed.is_initialized = original_funcs["is_initialized"]

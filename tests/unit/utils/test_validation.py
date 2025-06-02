@@ -1,3 +1,5 @@
+"""Unit tests for configuration validation utilities."""
+
 from pathlib import Path
 
 import pytest
@@ -9,7 +11,7 @@ from src.utils.config.validation import (
     validate_paths,
     validate_training_config,
 )
-from src.utils.exceptions import ConfigError, ValidationError
+from src.utils.core.exceptions import ConfigError, ValidationError
 
 
 def make_valid_config(tmp_path: Path) -> DictConfig:

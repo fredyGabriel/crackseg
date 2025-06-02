@@ -153,7 +153,7 @@ def _instantiate_component(
     try:
         # Check if the component type exists in the registry
         if component_type not in registry:
-            available = ", ".join(registry.list())
+            available = ", ".join(registry.list_components())
             raise InstantiationError(
                 f"Unknown {component_category} type '{component_type}'. "
                 f"Available types: {available}"
@@ -519,7 +519,7 @@ def instantiate_hybrid_model(  # noqa: PLR0912
 
     arch_type = config["type"]
     if arch_type not in architecture_registry:
-        available = ", ".join(architecture_registry.list())
+        available = ", ".join(architecture_registry.list_components())
         raise InstantiationError(
             f"Unknown architecture type '{arch_type}'. "
             f"Available types: {available}"

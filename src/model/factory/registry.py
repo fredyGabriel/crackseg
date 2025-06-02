@@ -102,7 +102,7 @@ class Registry(Generic[T]):
             name: Name of the component to retrieve.
 
         Returns:
-            The registered component class.
+            The registered component class (not an instance).
 
         Raises:
             KeyError: If component is not found.
@@ -114,9 +114,7 @@ class Registry(Generic[T]):
                 )
             return self._components[name]
 
-    def instantiate(
-        self, name: str, *args: Any, **kwargs: Any
-    ) -> T:  # pyright: ignore[reportAny]
+    def instantiate(self, name: str, *args: Any, **kwargs: Any) -> T:
         """
         Instantiate a registered component by name. Thread-safe.
 
@@ -126,7 +124,7 @@ class Registry(Generic[T]):
             **kwargs: Keyword arguments to pass to the constructor.
 
         Returns:
-            Instantiated component.
+            Instantiated component (instance of type T).
 
         Raises:
             KeyError: If component is not found.

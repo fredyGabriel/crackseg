@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Any, cast
 
 import pytest
 import torch
@@ -16,7 +16,7 @@ OUT_CHANNELS_DECODER = 1
 
 
 # 1. Test that EncoderBase itself cannot be instantiated
-def test_encoder_base_cannot_be_instantiated():
+def test_encoder_base_cannot_be_instantiated() -> None:
     """
     Verify that TypeError is raised when trying to instantiate EncoderBase.
     """
@@ -41,6 +41,15 @@ class MinimalEncoderMissingForward(EncoderBase):
     def skip_channels(self) -> list[int]:
         return SKIP_CHANNELS
 
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Feature info for skip connections and bottleneck."""
+        return [
+            {"channels": SKIP_CHANNELS[0], "reduction": 2, "stage": 0},
+            {"channels": SKIP_CHANNELS[1], "reduction": 4, "stage": 1},
+            {"channels": OUT_CHANNELS_ENCODER, "reduction": 8, "stage": 2},
+        ]
+
 
 class MinimalEncoderMissingOutChannels(EncoderBase):
     """A minimal concrete encoder missing the 'out_channels' property."""
@@ -64,6 +73,15 @@ class MinimalEncoderMissingOutChannels(EncoderBase):
     def skip_channels(self) -> list[int]:
         return SKIP_CHANNELS
 
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Feature info for skip connections and bottleneck."""
+        return [
+            {"channels": SKIP_CHANNELS[0], "reduction": 2, "stage": 0},
+            {"channels": SKIP_CHANNELS[1], "reduction": 4, "stage": 1},
+            {"channels": OUT_CHANNELS_ENCODER, "reduction": 8, "stage": 2},
+        ]
+
 
 class MinimalEncoderMissingSkipChannels(EncoderBase):
     """A minimal concrete encoder missing the 'skip_channels' property."""
@@ -86,6 +104,42 @@ class MinimalEncoderMissingSkipChannels(EncoderBase):
     @property
     def out_channels(self) -> int:
         return OUT_CHANNELS_ENCODER
+
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Feature info for skip connections and bottleneck."""
+        return [
+            {"channels": SKIP_CHANNELS[0], "reduction": 2, "stage": 0},
+            {"channels": SKIP_CHANNELS[1], "reduction": 4, "stage": 1},
+            {"channels": OUT_CHANNELS_ENCODER, "reduction": 8, "stage": 2},
+        ]
+
+
+class MinimalEncoderMissingFeatureInfo(EncoderBase):
+    """A minimal concrete encoder missing the 'feature_info' property."""
+
+    def __init__(self, in_channels: int = IN_CHANNELS_RGB):
+        super().__init__(in_channels)
+
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, list[torch.Tensor]]:
+        return torch.randn(
+            x.size(0), OUT_CHANNELS_ENCODER, x.size(2) // 4, x.size(3) // 4
+        ), [
+            torch.randn(x.size(0), SKIP_CHANNELS[0], x.size(2), x.size(3)),
+            torch.randn(
+                x.size(0), SKIP_CHANNELS[1], x.size(2) // 2, x.size(3) // 2
+            ),
+        ]
+
+    @property
+    def out_channels(self) -> int:
+        return OUT_CHANNELS_ENCODER
+
+    @property
+    def skip_channels(self) -> list[int]:
+        return SKIP_CHANNELS
 
 
 class MinimalValidEncoder(EncoderBase):
@@ -114,41 +168,57 @@ class MinimalValidEncoder(EncoderBase):
     def skip_channels(self) -> list[int]:
         return SKIP_CHANNELS
 
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Feature info for skip connections and bottleneck."""
+        return [
+            {"channels": SKIP_CHANNELS[0], "reduction": 2, "stage": 0},
+            {"channels": SKIP_CHANNELS[1], "reduction": 4, "stage": 1},
+            {"channels": OUT_CHANNELS_ENCODER, "reduction": 8, "stage": 2},
+        ]
+
 
 # 3. Tests for concrete subclasses
 
 
-def test_incomplete_encoder_missing_forward_raises_type_error():
+def test_incomplete_encoder_missing_forward_raises_type_error() -> None:
     """Verify TypeError if 'forward' is not implemented."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         MinimalEncoderMissingForward(in_channels=IN_CHANNELS_RGB)  # type: ignore[abstract]
 
 
-def test_incomplete_encoder_missing_out_channels_raises_type_error():
+def test_incomplete_encoder_missing_out_channels_raises_type_error() -> None:
     """Verify TypeError if 'out_channels' property is not implemented."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         MinimalEncoderMissingOutChannels(in_channels=IN_CHANNELS_RGB)  # type: ignore[abstract]
 
 
-def test_incomplete_encoder_missing_skip_channels_raises_type_error():
+def test_incomplete_encoder_missing_skip_channels_raises_type_error() -> None:
     """Verify TypeError if 'skip_channels' property is not implemented."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         MinimalEncoderMissingSkipChannels(in_channels=IN_CHANNELS_RGB)  # type: ignore[abstract]
 
 
-def test_valid_minimal_encoder_instantiates():
+def test_incomplete_encoder_missing_feature_info_raises_type_error() -> None:
+    """Verify TypeError if 'feature_info' property is not implemented."""
+    with pytest.raises(TypeError, match="Can't instantiate abstract class"):
+        MinimalEncoderMissingFeatureInfo(in_channels=IN_CHANNELS_RGB)  # type: ignore[abstract]
+
+
+def test_valid_minimal_encoder_instantiates() -> None:
     """Verify a valid concrete subclass can be instantiated."""
     try:
         encoder = MinimalValidEncoder(in_channels=IN_CHANNELS_RGB)
         assert isinstance(encoder, EncoderBase)
         assert encoder.out_channels == OUT_CHANNELS_ENCODER
         assert encoder.skip_channels == SKIP_CHANNELS
+        assert len(encoder.feature_info) == 3
     except TypeError:
         pytest.fail("Valid minimal encoder failed to instantiate.")
 
 
 # Optional: Test the forward pass contract (basic shape check)
-def test_valid_minimal_encoder_forward_contract():
+def test_valid_minimal_encoder_forward_contract() -> None:
     """Check if the forward pass returns the expected types and list length."""
     encoder = MinimalValidEncoder(in_channels=IN_CHANNELS_RGB)
     dummy_input = torch.randn(2, IN_CHANNELS_RGB, 128, 128)
@@ -166,7 +236,7 @@ def test_valid_minimal_encoder_forward_contract():
 
 
 # 4. Test that BottleneckBase itself cannot be instantiated
-def test_bottleneck_base_cannot_be_instantiated():
+def test_bottleneck_base_cannot_be_instantiated() -> None:
     """Verify TypeError raised when trying to instantiate BottleneckBase."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         BottleneckBase(in_channels=IN_CHANNELS_BOTTLENECK)  # type: ignore[abstract]
@@ -217,19 +287,21 @@ class MinimalValidBottleneck(BottleneckBase):
 # 6. Tests for concrete Bottleneck subclasses
 
 
-def test_incomplete_bottleneck_missing_forward_raises_type_error():
+def test_incomplete_bottleneck_missing_forward_raises_type_error() -> None:
     """Verify TypeError if 'forward' is not implemented."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         MinimalBottleneckMissingForward(in_channels=IN_CHANNELS_BOTTLENECK)  # type: ignore[abstract]
 
 
-def test_incomplete_bottleneck_missing_out_channels_raises_type_error():
+def test_incomplete_bottleneck_missing_out_channels_raises_type_error() -> (
+    None
+):
     """Verify TypeError if 'out_channels' property is not implemented."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         MinimalBottleneckMissingOutChannels(in_channels=IN_CHANNELS_BOTTLENECK)  # type: ignore[abstract]
 
 
-def test_valid_minimal_bottleneck_instantiates():
+def test_valid_minimal_bottleneck_instantiates() -> None:
     """Verify a valid concrete bottleneck subclass can be instantiated."""
     try:
         bottleneck = MinimalValidBottleneck(in_channels=IN_CHANNELS_BOTTLENECK)
@@ -239,7 +311,7 @@ def test_valid_minimal_bottleneck_instantiates():
         pytest.fail("Valid minimal bottleneck failed to instantiate.")
 
 
-def test_valid_minimal_bottleneck_forward_contract():
+def test_valid_minimal_bottleneck_forward_contract() -> None:
     """Check forward pass returns expected type and channels."""
     bottleneck = MinimalValidBottleneck(in_channels=IN_CHANNELS_BOTTLENECK)
     dummy_input = torch.randn(2, IN_CHANNELS_BOTTLENECK, 16, 16)
@@ -257,7 +329,7 @@ def test_valid_minimal_bottleneck_forward_contract():
 
 
 # 7. Test that DecoderBase itself cannot be instantiated
-def test_decoder_base_cannot_be_instantiated():
+def test_decoder_base_cannot_be_instantiated() -> None:
     """Verify TypeError is raised when trying to instantiate DecoderBase."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         skip_channels_list = SKIP_CHANNELS
@@ -331,7 +403,7 @@ class MinimalValidDecoder(DecoderBase):
 # 9. Tests for concrete Decoder subclasses
 
 
-def test_incomplete_decoder_missing_forward_raises_type_error():
+def test_incomplete_decoder_missing_forward_raises_type_error() -> None:
     """Verify TypeError if 'forward' is not implemented."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         MinimalDecoderMissingForward(
@@ -339,7 +411,7 @@ def test_incomplete_decoder_missing_forward_raises_type_error():
         )  # type: ignore[abstract]
 
 
-def test_incomplete_decoder_missing_out_channels_raises_type_error():
+def test_incomplete_decoder_missing_out_channels_raises_type_error() -> None:
     """Verify TypeError if 'out_channels' property is not implemented."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         MinimalDecoderMissingOutChannels(
@@ -347,7 +419,7 @@ def test_incomplete_decoder_missing_out_channels_raises_type_error():
         )  # type: ignore[abstract]
 
 
-def test_valid_minimal_decoder_instantiates():
+def test_valid_minimal_decoder_instantiates() -> None:
     """Verify a valid concrete decoder subclass can be instantiated."""
     try:
         decoder = MinimalValidDecoder(
@@ -361,7 +433,7 @@ def test_valid_minimal_decoder_instantiates():
         pytest.fail(f"Assertion failed during decoder init: {e}")
 
 
-def test_valid_minimal_decoder_forward_contract():
+def test_valid_minimal_decoder_forward_contract() -> None:
     """Check forward pass accepts skips & returns expected type/channels."""
     skip_channels_list = SKIP_CHANNELS
     decoder = MinimalValidDecoder(
@@ -386,7 +458,7 @@ def test_valid_minimal_decoder_forward_contract():
 # 10. Test that UNetBase itself cannot be instantiated
 
 
-def test_unet_base_cannot_be_instantiated():
+def test_unet_base_cannot_be_instantiated() -> None:
     """Verify that TypeError is raised when trying to instantiate UNetBase."""
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         UNetBase(
@@ -436,7 +508,7 @@ class MinimalValidUNet(UNetBase):
 # 13. Test that missing forward raises TypeError
 
 
-def test_incomplete_unet_missing_forward_raises_type_error():
+def test_incomplete_unet_missing_forward_raises_type_error() -> None:
     with pytest.raises(TypeError, match="Can't instantiate abstract class"):
         MinimalUNetMissingForward(
             encoder=MinimalValidEncoder(),
@@ -448,7 +520,7 @@ def test_incomplete_unet_missing_forward_raises_type_error():
 # 14. Test valid minimal UNet instantiates and forward works
 
 
-def test_valid_minimal_unet_instantiates_and_forward():
+def test_valid_minimal_unet_instantiates_and_forward() -> None:
     encoder = MinimalValidEncoder()
     bottleneck = MinimalValidBottleneck()
     decoder = MinimalValidDecoder()
@@ -466,14 +538,14 @@ def test_valid_minimal_unet_instantiates_and_forward():
 # 15. Test component compatibility validation
 
 
-def test_unet_component_compatibility_checks():
+def test_unet_component_compatibility_checks() -> None:
     encoder = MinimalValidEncoder()
     bottleneck = MinimalValidBottleneck()
     decoder = MinimalValidDecoder()
 
     class BadEncoder(MinimalValidEncoder):
         @property
-        def out_channels(self):
+        def out_channels(self) -> int:
             return 999
 
     with pytest.raises(ValueError, match="output channels"):
@@ -481,7 +553,7 @@ def test_unet_component_compatibility_checks():
 
     class BadBottleneck(MinimalValidBottleneck):
         @property
-        def out_channels(self):
+        def out_channels(self) -> int:
             return 999
 
     with pytest.raises(ValueError, match="output channels"):
@@ -513,7 +585,7 @@ def test_unet_component_compatibility_checks():
 # --- Integration Tests ---
 
 
-def test_full_unet_data_flow():
+def test_full_unet_data_flow() -> None:
     """Test the complete data flow through a valid UNet implementation."""
     encoder = MinimalValidEncoder(in_channels=IN_CHANNELS_RGB)
     bottleneck = MinimalValidBottleneck(in_channels=encoder.out_channels)
@@ -536,7 +608,7 @@ def test_full_unet_data_flow():
         pytest.fail(f"Full UNet forward pass failed: {e}")
 
 
-def test_skip_connection_dimensions():
+def test_skip_connection_dimensions() -> None:
     """Verify skip connection dimensions are preserved through the network."""
     encoder = MinimalValidEncoder(in_channels=IN_CHANNELS_RGB)
     bottleneck = MinimalValidBottleneck(in_channels=encoder.out_channels)
@@ -566,21 +638,8 @@ def test_skip_connection_dimensions():
         pytest.fail(msg.format(e))
 
 
-def test_unet_component_validation_error_messages():
-    """Test de error de validación por argumentos None en UNetBase
-    encoder = cast(EncoderBase, None)
-    bottleneck = cast(BottleneckBase, None)
-    decoder = cast(DecoderBase, None)
-    with pytest.raises(ValueError, match="encoder must not be None"):
-        MinimalValidUNet(encoder, MinimalValidBottleneck(),
-        MinimalValidDecoder())
-    with pytest.raises(ValueError, match="bottleneck must not be None"):
-        MinimalValidUNet(MinimalValidEncoder(), bottleneck,
-        MinimalValidDecoder())
-    with pytest.raises(ValueError, match="decoder must not be None"):
-        MinimalValidUNet(MinimalValidEncoder(), MinimalValidBottleneck(),
-        decoder)
-    """
+def test_unet_component_validation_error_messages() -> None:
+    """Test validation error messages for None arguments in UNetBase."""
     encoder = cast(EncoderBase, None)
     bottleneck = cast(BottleneckBase, None)
     decoder = cast(DecoderBase, None)
@@ -604,13 +663,13 @@ def test_unet_component_validation_error_messages():
         )
 
 
-def test_skip_connection_compatibility():
+def test_skip_connection_compatibility() -> None:
     """Test that skip connection compatibility is properly enforced."""
     encoder = MinimalValidEncoder(in_channels=IN_CHANNELS_RGB)
     bottleneck = MinimalValidBottleneck(in_channels=encoder.out_channels)
 
     class IncompatibleDecoder(DecoderBase):
-        def __init__(self):
+        def __init__(self) -> None:
             super().__init__(
                 in_channels=IN_CHANNELS_DECODER, skip_channels=SKIP_CHANNELS
             )

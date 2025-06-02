@@ -138,7 +138,7 @@ class CrackSegmentationDataset(Dataset[Any]):
         random.seed(self.seed)
         np.random.seed(self.seed)
         try:
-            torch.manual_seed(self.seed)  # type: ignore
+            torch.manual_seed(self.seed)
             if torch.cuda.is_available():
                 torch.cuda.manual_seed_all(self.seed)
         except ImportError:

@@ -1,4 +1,4 @@
-"""Experiment logger implementation."""
+"""Experiment logger for tracking metrics, configuration and system stats."""
 
 import json
 import logging
@@ -11,7 +11,7 @@ import psutil
 import torch
 from omegaconf import DictConfig, OmegaConf
 
-from src.utils.experiment_manager import ExperimentManager
+from src.utils.experiment.manager import ExperimentManager
 from src.utils.logging.base import BaseLogger, flatten_dict, get_logger
 
 

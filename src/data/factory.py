@@ -154,7 +154,7 @@ def _prepare_dataloader_params(
         list[tuple[str, Any]],
         [
             (k, v)
-            for k, v in container.items()  # type: ignore[reportUnknownVariableType]
+            for k, v in container.items()
             if isinstance(k, str)
             and k
             not in [
@@ -176,8 +176,6 @@ def _prepare_dataloader_params(
     dataloader_extra_kwargs: dict[str, Any] = dict(str_items)
     if drop_last:
         dataloader_extra_kwargs["drop_last"] = drop_last
-
-    dataloader_extra_kwargs = cast(dict[str, Any], dataloader_extra_kwargs)  # type: ignore
 
     loader_config = DataLoaderConfig(
         num_workers=num_workers,

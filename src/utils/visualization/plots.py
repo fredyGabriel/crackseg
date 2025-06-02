@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from matplotlib.colors import ListedColormap
-from mpl_toolkits.axes_grid1 import ImageGrid  # type: ignore
+from mpl_toolkits.axes_grid1 import ImageGrid
 from omegaconf import DictConfig
 from PIL import Image
 
@@ -53,7 +53,7 @@ class GridDisplayConfig:
     titles: list[str] | None = None
 
 
-def visualize_predictions(  # noqa: PLR0913
+def visualize_predictions(
     inputs: torch.Tensor,
     targets: torch.Tensor,
     outputs: torch.Tensor,
@@ -371,10 +371,10 @@ def create_overlay_visualization(
 
 def get_masked_prediction(
     pred_array: np.ndarray[Any, Any], cfg: DictConfig
-) -> np.ma.MaskedArray[Any, Any]:  # type: ignore[reportMissingTypeArgument]
+) -> np.ma.MaskedArray[Any, Any]:
     """Returns a masked array based on a threshold from config."""
     threshold = cfg.thresholds.metric
-    return np.ma.masked_where(pred_array < threshold, pred_array)  # type: ignore[reportUnknownMemberType]
+    return np.ma.masked_where(pred_array < threshold, pred_array)
 
 
 def visualize_segmentation_results(

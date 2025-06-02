@@ -1,11 +1,12 @@
 """Configuration override utilities."""
 
 from copy import deepcopy
+from pathlib import Path
 
 from omegaconf import DictConfig, OmegaConf
 from omegaconf import errors as omegaconf_errors  # Import OmegaConf errors
 
-from src.utils.exceptions import ConfigError
+from src.utils.core.exceptions import ConfigError
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -126,10 +127,31 @@ def apply_overrides(
     return merged_conf
 
 
-def save_config(cfg: DictConfig, path: str) -> None:
-    """Save the configuration to a YAML file."""
-    with open(path, "w", encoding="utf-8") as f:
-        OmegaConf.save(config=cfg, f=f.name)
+def save_config(cfg: DictConfig, path: str, format_type: str = "yaml") -> None:
+    """Save the configuration to a file.
+
+    Args:
+        cfg: Configuration to save
+        path: Path where to save the configuration
+        format_type: Format to save ('yaml' or 'json')
+
+    Note:
+        For advanced configuration storage with validation and metadata,
+        consider using StandardizedConfigStorage from .standardized_storage
+    """
+    file_path = Path(path)
+
+    if format_type.lower() == "json":
+        # Save as JSON
+        config_dict = OmegaConf.to_container(cfg, resolve=True)
+        with open(file_path, "w", encoding="utf-8") as f:
+            import json
+
+            json.dump(config_dict, f, indent=2)
+    else:
+        # Default to YAML
+        with open(file_path, "w", encoding="utf-8") as f:
+            OmegaConf.save(config=cfg, f=f.name)
 
 
 def example_override_usage() -> None:

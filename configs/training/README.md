@@ -1,5 +1,5 @@
-# configs/training/
+# Training Configuration
 
-Este directorio contiene archivos de configuración YAML para los parámetros de entrenamiento.
- 
-- `default.yaml`: configuración por defecto para el proceso de entrenamiento. 
+This directory contains YAML configuration files for training parameters.
+
+- `default.yaml`: default configuration for the training process.

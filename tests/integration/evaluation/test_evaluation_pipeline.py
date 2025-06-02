@@ -156,7 +156,7 @@ def test_load_model_from_checkpoint_corrupt(tmp_path: pathlib.Path) -> None:
     # Force torch.load to raise an error only in this context
     import torch as torch_mod
 
-    orig_torch_load = torch_mod.load  # type: ignore
+    orig_torch_load = torch_mod.load
 
     def raise_runtime_error(*args: Any, **kwargs: Any) -> None:
         raise RuntimeError("corrupt")

@@ -39,8 +39,39 @@ Modular, reproducible, and extensible codebase for research and production.
 - `tests/` — Unit/integration tests
 - `scripts/` — Utilities and experiment scripts
 - `tasks/` — TaskMaster task files
+- `docs/reports/` — **Organized project reports and analysis** (see [Reports](#reports))
 
 > Note: Scripts in `scripts/` are for experimentation and utilities only. Do not import them in core modules. Clean up temporary files like `__pycache__` regularly.
+
+## Reports
+
+All project reports, analysis, and documentation are now organized in `docs/reports/` with the following structure:
+
+- **`testing/`** — Test coverage reports, improvement plans, and testing priorities
+- **`coverage/`** — Code coverage analysis and gap reports
+- **`tasks/`** — Task completion summaries and complexity analysis
+- **`models/`** — Model architecture analysis and import catalogs
+- **`project/`** — Project-level plans and verification reports
+- **`archive/`** — Historical reports and deprecated documentation
+
+📊 **Current Metrics:** 66% test coverage (up from 25%), 866 tests implemented
+
+For a complete index and navigation guide, see [`docs/reports/README.md`](docs/reports/README.md).
+
+### Report Organization Tool
+
+Use the automated report organizer to maintain structure:
+
+```bash
+# Check current organization
+python scripts/utils/organize_reports.py --report
+
+# Organize scattered reports (dry run)
+python scripts/utils/organize_reports.py --dry-run
+
+# Actually organize reports
+python scripts/utils/organize_reports.py
+```
 
 ## Configuration
 
@@ -52,37 +83,37 @@ Modular, reproducible, and extensible codebase for research and production.
 
 ## Code Quality & Linting
 
-El proyecto utiliza las siguientes herramientas para mantener la calidad del código:
+The project uses the following tools to maintain code quality:
 
-- **Black**: Formateo automático de código.
-- **Ruff**: Linter y verificación de estilo.
-- **Basedpyright**: Verificación de tipos estáticos (sustituye a mypy en el flujo principal).
+- **Black**: Automatic code formatting.
+- **Ruff**: Linter and style checking.
+- **Basedpyright**: Static type checking (replaces mypy in the main workflow).
 
-El hook de pre-commit ejecuta automáticamente estas herramientas sobre los archivos Python staged.
+The pre-commit hook automatically runs these tools on staged Python files.
 
-Asegúrate de que estas herramientas estén instaladas en tu entorno (ya incluidas en `environment.yml`).
+Make sure these tools are installed in your environment (already included in `environment.yml`).
 
-Configuración:
+Configuration:
 
-- Configuración centralizada: `configs/linting/config.yaml`
-- Configuración de herramientas: `pyproject.toml`
+- Centralized configuration: `configs/linting/config.yaml`
+- Tool configuration: `pyproject.toml`
 
-Para instalar y activar el hook de pre-commit (opcional):
+To install and activate the pre-commit hook (optional):
 
 ```bash
 conda install -c conda-forge pre-commit
 pre-commit install
 ```
 
-El flujo de pre-commit ejecuta:
+The pre-commit workflow runs:
 
 ```bash
-black <archivos>
-ruff check <archivos>
-basedpyright <archivos>
+black <files>
+ruff check <files>
+basedpyright <files>
 ```
 
-Si quieres seguir usando mypy para análisis adicionales, puedes ejecutarlo manualmente:
+If you want to continue using mypy for additional analysis, you can run it manually:
 
 ```bash
 mypy .
@@ -110,6 +141,7 @@ For a comprehensive report on linting optimization, see [docs/reports/LINTING_RE
   ```
 
 - See `tests/README.md` for details.
+- **Current Coverage:** 66% (5,333/8,065 lines) — see [`docs/reports/coverage/`](docs/reports/coverage/) for detailed analysis
 
 ## Environment Variables
 
@@ -149,6 +181,7 @@ MIT License. See `LICENSE`.
 - Use `run.py` as the main entry point for training.
 - All configuration is modular and can be overridden via Hydra.
 - For advanced usage, see the documentation in each `configs/` subfolder.
+- Check [`docs/reports/`](docs/reports/) for the latest project analysis and metrics.
 
 ## Requirements
 

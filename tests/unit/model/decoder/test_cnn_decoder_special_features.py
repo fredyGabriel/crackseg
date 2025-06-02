@@ -43,7 +43,12 @@ def test_cnndecoder_custom_target_size():
     ],
 )
 def test_cnndecoder_forward_cbam_and_shapes(
-    in_ch, skip_channels_list_test, depth_test, batch_size, h_in, w_in
+    in_ch: int,
+    skip_channels_list_test: list[int],
+    depth_test: int,
+    batch_size: int,
+    h_in: int,
+    w_in: int,
 ):
     """Test CNNDecoder with CBAM enabled and various shapes."""
     # Create config with CBAM enabled

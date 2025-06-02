@@ -5,6 +5,7 @@ These tests verify that the configuration validation, normalization, and
 processing system works correctly with different types of model configurations.
 """
 
+import os
 from typing import Any
 from unittest.mock import patch
 
@@ -128,7 +129,7 @@ class DummyCNNDecoder(DecoderBase):
 
 class DummyCBAM(nn.Module):
     def __init__(self, channels: int, **kwargs: Any):
-        super().__init__()  # type: ignore
+        super().__init__()
         self.channels = channels
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -157,8 +158,21 @@ class DummyUNet(UNetBase):
 # Load Hydra config for tests
 @pytest.fixture(scope="session")
 def cfg():
+    # Calculate absolute path to configs directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
+    config_dir = os.path.join(project_root, "configs")
+
+    if not os.path.isdir(config_dir):
+        # Fallback if running from different directory
+        config_dir = os.path.abspath(os.path.join(os.getcwd(), "configs"))
+        if not os.path.isdir(config_dir):
+            raise FileNotFoundError(
+                f"Config directory not found at {config_dir}"
+            )
+
     # Carga la configuración principal de Hydra
-    with hydra.initialize_config_dir(config_dir="configs", version_base=None):
+    with hydra.initialize_config_dir(config_dir=config_dir, version_base=None):
         config = hydra.compose(config_name="config.yaml")
     return config
 

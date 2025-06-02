@@ -135,7 +135,7 @@ class RecursiveLossFactory:
         params = node.get_parameters()
 
         try:
-            return self.registry.instantiate(loss_name, **params)  # type: ignore[reportUnknownMemberType]
+            return self.registry.instantiate(loss_name, **params)
         except Exception as e:
             raise RecursiveFactoryError(
                 f"Failed to instantiate loss '{loss_name}' with params "

@@ -23,25 +23,30 @@ from src.training.config_validation import validate_trainer_config
 # Import factory functions
 from src.training.factory import create_lr_scheduler, create_optimizer
 from src.utils import BaseLogger
-from src.utils.amp_utils import (
+from src.utils.checkpointing import (
+    CheckpointConfig,
+    CheckpointContext,
+    handle_epoch_checkpointing,
+    load_checkpoint,
+    setup_checkpointing,
+)
+from src.utils.config.standardized_storage import (
+    StandardizedConfigStorage,
+    validate_configuration_completeness,
+)
+from src.utils.core.device import get_device
+from src.utils.logging.metrics_manager import MetricsManager
+from src.utils.logging.setup import setup_internal_logger
+from src.utils.logging.training import log_validation_results, safe_log
+from src.utils.training.amp_utils import (
     _GRADSCALER_DEVICE,
     GradScaler,
     amp_autocast,
     optimizer_step_with_accumulation,
 )
-from src.utils.checkpointing import load_checkpoint
-from src.utils.checkpointing_helper import (
-    CheckpointConfig,
-    CheckpointContext,
-    handle_epoch_checkpointing,
-)
-from src.utils.checkpointing_setup import setup_checkpointing
-from src.utils.device import get_device
-from src.utils.early_stopping import EarlyStopping
-from src.utils.early_stopping_setup import setup_early_stopping
-from src.utils.logger_setup import safe_log, setup_internal_logger
-from src.utils.scheduler_helper import step_scheduler_helper
-from src.utils.training_logging import log_validation_results
+from src.utils.training.early_stopping import EarlyStopping
+from src.utils.training.early_stopping_setup import setup_early_stopping
+from src.utils.training.scheduler_helper import step_scheduler_helper
 
 # Placeholder: Checkpointing
 # from src.utils.checkpointing import save_checkpoint, load_checkpoint
@@ -138,6 +143,123 @@ class Trainer:
         )
         self.best_metric_value = (
             float("inf") if self.monitor_mode == "min" else float("-inf")
+        )
+
+        # Initialize MetricsManager for unified metric logging
+        self._setup_metrics_manager()
+
+        # Initialize StandardizedConfigStorage for configuration management
+        self._setup_standardized_config_storage()
+
+    def _setup_metrics_manager(self) -> None:
+        """Initialize the MetricsManager for standardized metric logging."""
+        # Get experiment directory from experiment_manager or checkpoint_dir
+        experiment_dir = (
+            getattr(self.experiment_manager, "experiment_dir", None)
+            if self.experiment_manager
+            else None
+        )
+
+        # Fallback to checkpoint_dir parent if experiment_dir is not available
+        if experiment_dir is None:
+            experiment_dir = self.checkpoint_dir.parent
+
+        # Use get_logger for Python logger instead of BaseLogger
+        from src.utils.logging.base import get_logger
+
+        python_logger = get_logger("trainer.metrics")
+
+        self.metrics_manager = MetricsManager(
+            experiment_dir=experiment_dir,
+            logger=python_logger,
+            config=self.full_cfg,
+        )
+
+        safe_log(
+            self.internal_logger,
+            "info",
+            f"MetricsManager initialized for experiment: {experiment_dir}",
+        )
+
+    def _setup_standardized_config_storage(self) -> None:
+        """Initialize the StandardizedConfigStorage for configuration
+        management.
+
+        Implements action item 10 from subtask 9.3: Add validation to prevent
+        training without proper configuration.
+        """
+        # Get experiment directory for configuration storage
+        experiment_dir = (
+            getattr(self.experiment_manager, "experiment_dir", None)
+            if self.experiment_manager
+            else None
+        )
+
+        # Fallback to checkpoint_dir parent if experiment_dir is not available
+        if experiment_dir is None:
+            experiment_dir = self.checkpoint_dir.parent
+
+        # Initialize configuration storage
+        config_storage_dir = experiment_dir / "configurations"
+        self.config_storage = StandardizedConfigStorage(
+            base_dir=config_storage_dir,
+            include_environment=True,
+            validate_on_save=True,
+        )
+
+        # Validate current configuration completeness
+        validation_result = validate_configuration_completeness(
+            self.full_cfg, strict=False
+        )
+
+        if not validation_result["is_valid"]:
+            missing_required = validation_result["missing_required"]
+            safe_log(
+                self.internal_logger,
+                "warning",
+                f"Configuration validation found missing required fields: "
+                f"{missing_required}",
+            )
+
+            # This implements the "prevent training without proper
+            # configuration" requirement
+            if validation_result.get("has_critical_missing", False):
+                raise ValueError(
+                    f"Training cannot proceed with incomplete configuration. "
+                    f"Missing critical required fields: {missing_required}"
+                )
+
+        # Save the standardized configuration at initialization
+        experiment_id = getattr(
+            self.experiment_manager, "experiment_id", "default_experiment"
+        )
+        try:
+            config_path = self.config_storage.save_configuration(
+                config=self.full_cfg,
+                experiment_id=experiment_id,
+                config_name="training_config",
+                format_type="yaml",
+            )
+            safe_log(
+                self.internal_logger,
+                "info",
+                f"Training configuration saved to: {config_path}",
+            )
+        except Exception as e:
+            safe_log(
+                self.internal_logger,
+                "error",
+                f"Failed to save standardized configuration: {e}",
+            )
+            raise RuntimeError(
+                "Training cannot proceed without proper configuration "
+                f"storage. Configuration save failed: {e}"
+            ) from e
+
+        safe_log(
+            self.internal_logger,
+            "info",
+            f"StandardizedConfigStorage initialized at: {config_storage_dir}",
         )
 
     def _setup_device_and_model(self):
@@ -250,19 +372,29 @@ class Trainer:
                 f"--- Epoch {epoch}/{self.epochs} ---",
             )
 
-            _ = self._train_epoch(epoch)  # train_loss is unused for now
+            train_loss = self._train_epoch(epoch)
             val_results = self.validate(epoch)
             final_val_results = val_results  # Keep track of last results
 
             # --- Handle LR Scheduling ---
+            current_lr = None
             if self.scheduler:
                 current_lr = self._step_scheduler(val_results)
                 if current_lr is not None and self.logger_instance:
                     self.logger_instance.log_scalar(
                         tag="lr", value=current_lr, step=epoch
                     )
-            else:
-                pass
+
+            # Log epoch summary using MetricsManager
+            train_metrics = {"loss": train_loss}
+            self.metrics_manager.log_epoch_summary(
+                epoch=epoch,
+                train_metrics=train_metrics,
+                val_metrics={
+                    k.replace("val_", ""): v for k, v in val_results.items()
+                },
+                learning_rate=current_lr,
+            )
 
             # --- Checkpointing Logic (refactorizado) ---
             checkpoint_context = CheckpointContext(
@@ -291,6 +423,47 @@ class Trainer:
                 optimizer=self.optimizer,
             )
 
+            # Save configuration alongside checkpoints (action item 4 from
+            # subtask 9.3)
+            if hasattr(self, "config_storage"):
+                try:
+                    experiment_id = getattr(
+                        self.experiment_manager,
+                        "experiment_id",
+                        "default_experiment",
+                    )
+
+                    # Save configuration with epoch information
+                    config_filename = f"config_epoch_{epoch:04d}"
+                    self.config_storage.save_configuration(
+                        config=self.full_cfg,
+                        experiment_id=experiment_id,
+                        config_name=config_filename,
+                        format_type="yaml",
+                    )
+
+                    # If this is the best model, also save as "best_config"
+                    if self._check_if_best(val_results):
+                        self.config_storage.save_configuration(
+                            config=self.full_cfg,
+                            experiment_id=experiment_id,
+                            config_name="best_config",
+                            format_type="yaml",
+                        )
+                        safe_log(
+                            self.internal_logger,
+                            "info",
+                            "Best model configuration saved alongside "
+                            "checkpoint",
+                        )
+
+                except Exception as e:
+                    safe_log(
+                        self.internal_logger,
+                        "warning",
+                        f"Failed to save configuration for epoch {epoch}: {e}",
+                    )
+
             # --- Early Stopping Check ---
             if self.early_stopper is not None and getattr(
                 self.early_stopper, "enabled", False
@@ -317,6 +490,15 @@ class Trainer:
             "info",
             f"Training finished in {total_time:.2f}s",
         )
+
+        # Export final metrics summary
+        summary_path = self.metrics_manager.export_metrics_summary()
+        safe_log(
+            self.internal_logger,
+            "info",
+            f"Final metrics summary exported to: {summary_path}",
+        )
+
         return final_val_results
 
     def _train_epoch(self, epoch: int) -> float:
@@ -400,8 +582,19 @@ class Trainer:
                 val_metrics["val_loss"] = value
             else:
                 val_metrics[f"val_{name}"] = value
-        # Usar el helper para logging
+
+        # Use MetricsManager for unified logging
+        self.metrics_manager.log_training_metrics(
+            epoch=epoch,
+            step=0,  # Step 0 for epoch-level validation
+            metrics=val_metrics,
+            phase="val",
+        )
+
+        # Legacy logging for backward compatibility
         log_validation_results(self.internal_logger, epoch, val_metrics)
+
+        # Original logger instance logging (if available)
         if self.logger_instance:
             for name, value in val_metrics.items():
                 self.logger_instance.log_scalar(

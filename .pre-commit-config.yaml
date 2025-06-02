@@ -1,0 +1,87 @@
+# Pre-commit configuration for CrackSeg project
+# Ensures code quality and coverage standards before commits
+
+repos:
+  # Standard code formatting and linting
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: debug-statements
+
+  # Python code formatting with Black
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--line-length=88]
+
+  # Python linting with Ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.287
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # Type checking with basedpyright
+  - repo: https://github.com/RobertCraigie/pyright-python
+    rev: v1.1.324
+    hooks:
+      - id: pyright
+
+  # Local hooks for project-specific checks
+  - repo: local
+    hooks:
+      # Coverage validation hook
+      - id: coverage-check
+        name: Coverage Check
+        entry: python scripts/validate_coverage.py --fail-under=80 --check-only --no-reports
+        language: system
+        pass_filenames: false
+        stages: [commit, push]
+        verbose: true
+
+      # Ensure tests exist for new modules
+      - id: test-coverage-for-new-files
+        name: Test Coverage for New Files
+        entry: python scripts/check_test_files.py
+        language: system
+        files: '^src/.*\.py$'
+        exclude: '^src/.*/__init__\.py$'
+
+      # Validate test quality
+      - id: test-quality-check
+        name: Test Quality Check
+        entry: python scripts/validate_test_quality.py
+        language: system
+        files: '^tests/.*\.py$'
+        pass_filenames: true
+
+# Global settings
+default_language_version:
+  python: python3.11
+
+# Configure which hooks run on which stages
+default_stages: [commit]
+
+# Exclude certain files from all hooks
+exclude: |
+  (?x)^(
+    \.git/.*|
+    \.venv/.*|
+    venv/.*|
+    __pycache__/.*|
+    \.pytest_cache/.*|
+    \.ruff_cache/.*|
+    htmlcov/.*|
+    \.coverage|
+    coverage\..*|
+    outputs/.*|
+    old_stuff/.*|
+    MagicMock/.*
+  )$

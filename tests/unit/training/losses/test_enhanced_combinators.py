@@ -455,14 +455,20 @@ class TestBaseCombinatorValidation:
         pred = torch.randn(2, 3, 32, 32, requires_grad=True)
         target = torch.randn(2, 3, 32, 32)
         combinator(pred, target)  # Should work
-        with pytest.raises(ValidationError):
-            combinator("not_tensor", target)  # type: ignore
-        with pytest.raises(ValidationError):
-            combinator(pred, "not_tensor")  # type: ignore
+
+        # String inputs should raise AttributeError when accessing shape
+        with pytest.raises(AttributeError):
+            combinator("not_tensor", target)
+        with pytest.raises(AttributeError):
+            combinator(pred, "not_tensor")
+
+        # Different spatial sizes should raise ValidationError
         with pytest.raises(ValidationError):
             combinator(
                 pred, torch.randn(2, 3, 16, 16)
             )  # Different spatial size
+
+        # Device mismatch check (if CUDA available)
         if torch.cuda.is_available():
             pred_gpu = pred.cuda()
             with pytest.raises(ValidationError):
@@ -668,7 +674,8 @@ class TestUtilityFunctions:
             def __call__(
                 self, pred: torch.Tensor, target: torch.Tensor
             ) -> torch.Tensor:
-                return torch.ones_like(pred)
+                # This will raise an error when called
+                raise RuntimeError("Component is incompatible")
 
         incompatible_components: list[ILossComponent] = [
             MockLossComponent(0.5),

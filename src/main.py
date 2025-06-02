@@ -15,10 +15,7 @@ from torch.utils.data import DataLoader  # Added for DataLoader
 
 # Project imports
 from src.data.factory import create_dataloaders_from_config  # Import factory
-from src.training.components import (  # type: ignore[reportMissingImports]
-    TrainingComponents,  # type: ignore[reportMissingImports]
-)
-from src.training.trainer import Trainer  # type: ignore[reportMissingImports]
+from src.training.trainer import Trainer, TrainingComponents
 from src.utils import (
     DataError,
     ModelError,
@@ -27,13 +24,11 @@ from src.utils import (
     load_checkpoint,
     set_random_seeds,
 )
-from src.utils.experiment import (
-    initialize_experiment,  # type: ignore[reportMissingImports]
-)
-from src.utils.factory import (  # type: ignore[reportMissingImports]
-    get_loss_fn,  # type: ignore[reportUnknownArgumentType]
-    get_metrics_from_cfg,  # type: ignore[reportUnknownArgumentType]
-    get_optimizer,  # type: ignore[reportUnknownArgumentType]
+from src.utils.experiment import initialize_experiment
+from src.utils.factory import (
+    get_loss_fn,
+    get_metrics_from_cfg,
+    get_optimizer,
 )
 
 # Configure standard logger
@@ -115,7 +110,7 @@ def _load_data(cfg: DictConfig) -> tuple[DataLoader[Any], DataLoader[Any]]:
         dataloaders_dict = create_dataloaders_from_config(
             data_config=data_cfg,
             transform_config=transform_cfg,
-            dataloader_config=dataloader_cfg,  # type: ignore
+            dataloader_config=dataloader_cfg,
         )
         train_loader = dataloaders_dict.get("train", {}).get("dataloader")
         val_loader = dataloaders_dict.get("val", {}).get("dataloader")
@@ -190,7 +185,7 @@ def _setup_training_components(
         try:
             metrics = cast(
                 dict[str, Any],
-                get_metrics_from_cfg(cfg.evaluation.metrics),  # type: ignore[reportUnknownArgumentType]
+                get_metrics_from_cfg(cfg.evaluation.metrics),
             )
             log.info("Loaded metrics: %s", list(metrics.keys()))
         except (
@@ -207,13 +202,13 @@ def _setup_training_components(
 
     optimizer_cfg = cfg.training.get("optimizer", {"type": "adam", "lr": 1e-3})
     # Convert model.parameters() to a list to satisfy get_optimizer
-    optimizer = get_optimizer(list(model.parameters()), optimizer_cfg)  # type: ignore[reportUnknownArgumentType]
+    optimizer = get_optimizer(list(model.parameters()), optimizer_cfg)
     log.info("Created optimizer: %s", type(optimizer).__name__)
 
     loss_fn_instance: torch.nn.Module
     if hasattr(cfg.training, "loss") and cfg.training.loss is not None:
         try:
-            potential_loss_fn = get_loss_fn(cfg.training.loss)  # type: ignore[reportUnknownArgumentType]
+            potential_loss_fn = get_loss_fn(cfg.training.loss)
             if isinstance(potential_loss_fn, torch.nn.Module):
                 loss_fn_instance = potential_loss_fn
                 log.info(
@@ -224,7 +219,7 @@ def _setup_training_components(
                 log.error(
                     "get_loss_fn did not return an nn.Module. "
                     "Got: %s. Using fallback.",
-                    str(type(potential_loss_fn)),  # type: ignore[reportUnknownArgumentType]
+                    str(type(potential_loss_fn)),
                 )
                 loss_fn_instance = torch.nn.BCEWithLogitsLoss()  # Fallback
         except (
@@ -370,7 +365,7 @@ def main(cfg: DictConfig) -> None:
 
         # --- 6. Training Loop (delegated to Trainer) ---
         log.info("Starting training loop...")
-        components = TrainingComponents(  # type: ignore[reportUnknownArgumentType]
+        components = TrainingComponents(
             model=model,
             train_loader=train_loader,
             val_loader=val_loader,
@@ -378,7 +373,7 @@ def main(cfg: DictConfig) -> None:
             metrics_dict=metrics,
         )
         trainer = Trainer(
-            components=components,  # type: ignore[reportUnknownArgumentType]
+            components=components,
             cfg=cfg,
             logger_instance=experiment_logger,
             # early_stopper can be passed if initialized separately

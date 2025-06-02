@@ -88,7 +88,7 @@ class TestLossRegistry:
         """Test that the registry is empty at the start of a test
         (due to fixture)."""
         assert len(loss_registry) == 0
-        assert not loss_registry.list()
+        assert not loss_registry.list_components()
         assert not loss_registry.list_with_tags()
 
     def test_register_simple_loss_module(self) -> None:
@@ -177,14 +177,18 @@ class TestLossRegistry:
     def test_register_non_nn_module_raises_type_error(self) -> None:
         """Test that registering a class not inheriting from nn.Module raises
         TypeError."""
+
+        def register_bad_class() -> None:
+            class BadClassNotModule:
+                pass
+
+            loss_registry.register()(BadClassNotModule)  # type: ignore[arg-type]
+
         with pytest.raises(
             TypeError,
             match=r"Class BadClassNotModule must inherit from Module",
         ):
-
-            @loss_registry.register()  # type: ignore
-            class BadClassNotModule:
-                pass
+            register_bad_class()
 
         assert "BadClassNotModule" not in loss_registry
         assert len(loss_registry) == 0
@@ -266,7 +270,7 @@ class TestLossRegistry:
         loss_registry.register(name="list_loss_2")(DummyLoss2)
 
         expected_list = sorted(["list_loss_1", "list_loss_2"])
-        assert sorted(loss_registry.list()) == expected_list
+        assert sorted(loss_registry.list_components()) == expected_list
 
     def test_list_with_tags_multiple(self):
         """Test listing with tags for multiple items."""

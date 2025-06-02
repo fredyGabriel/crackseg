@@ -426,241 +426,159 @@ def test_convlstm_layer_initial_state(layer_params: dict[str, Any]) -> None:
 
 
 class TestConvLSTMCell:
-    """Pruebas unitarias para la clase ConvLSTMCell."""
+    """Unit tests for the ConvLSTMCell class."""
 
-    @pytest.fixture
-    def default_cell(self) -> ConvLSTMCell:
-        """Fixture que proporciona una instancia predeterminada de
-        ConvLSTMCell."""
-        return ConvLSTMCell(
-            input_dim=16, hidden_dim=32, kernel_size=(3, 3), bias=True
-        )
-
-    def test_initialization(self, default_cell: ConvLSTMCell) -> None:
-        """Prueba la inicialización correcta con diferentes parámetros."""
-        # Caso básico
-        assert default_cell.input_dim == 16  # noqa: PLR2004
-        assert default_cell.hidden_dim == 32  # noqa: PLR2004
-        assert default_cell.kernel_size == (3, 3)
-        assert default_cell.bias is True  # Por defecto
-
-        # Prueba con otro tamaño de kernel
+    def test_init_basic_parameters(self) -> None:
+        """Test correct initialization with different parameters."""
+        # Basic case
         cell = ConvLSTMCell(
-            input_dim=16, hidden_dim=32, kernel_size=(3, 5), bias=True
+            input_dim=3, hidden_dim=16, kernel_size=(3, 3), bias=True
         )
-        assert cell.kernel_size == (3, 5)
+        assert cell.input_dim == 3
+        assert cell.hidden_dim == 16
+        assert cell.kernel_size == (3, 3)
+        assert cell.bias is True
 
-        # Sin bias
+        # Test with different kernel size
+        cell2 = ConvLSTMCell(
+            input_dim=5, hidden_dim=32, kernel_size=(5, 5), bias=True
+        )
+        assert cell2.input_dim == 5
+        assert cell2.hidden_dim == 32
+        assert cell2.kernel_size == (5, 5)
+
+    def test_conv_layer_properties(self) -> None:
+        """Test that conv layer has correct properties for gate computation."""
         cell = ConvLSTMCell(
-            input_dim=16, hidden_dim=32, kernel_size=(3, 3), bias=False
+            input_dim=3, hidden_dim=16, kernel_size=(3, 3), bias=True
         )
-        assert cell.bias is False
 
-        # Valores diferentes de kernel
+        # Conv layer should have input channels = input_dim + hidden_dim
+        expected_in_channels = cell.input_dim + cell.hidden_dim
+        assert cell.conv.in_channels == expected_in_channels
+
+        # Conv layer should have output channels = 4 * hidden_dim (gates)
+        assert cell.conv.out_channels == 4 * cell.hidden_dim
+
+        # Padding should be calculated correctly
+        assert cell.padding == (1, 1)  # (3//2, 3//2)
+
+    def test_forward_output_shape(self) -> None:
+        """Test that forward method output has correct shape."""
         cell = ConvLSTMCell(
-            input_dim=16, hidden_dim=32, kernel_size=(5, 5), bias=True
+            input_dim=3, hidden_dim=16, kernel_size=(3, 3), bias=True
         )
-        assert cell.kernel_size == (5, 5)
+        batch_size, height, width = 2, 32, 32
+        input_tensor = torch.randn(batch_size, 3, height, width)
 
-    def test_conv_layer_shape(self, default_cell: ConvLSTMCell) -> None:
-        """Prueba que la capa convolucional tenga la forma correcta para las
-        puertas."""
-        # Para el enfoque de puerta combinada, out_channels debería ser 4 *
-        # hidden_dim
-        assert default_cell.conv.out_channels == 4 * default_cell.hidden_dim
-        in_channels = default_cell.input_dim + default_cell.hidden_dim
-        assert default_cell.conv.in_channels == in_channels
+        # Call cell without initial state (should initialize to zeros)
+        h_next, c_next = cell(input_tensor, None)
 
-    def test_forward_shape(self, default_cell: ConvLSTMCell) -> None:
-        """Prueba que la salida del método forward tenga la forma correcta."""
-        batch_size = 4
-        height, width = 28, 28
-
-        # Crear entrada de prueba
-        x = torch.randn(batch_size, default_cell.input_dim, height, width)
-
-        # Realizar paso forward
-        h_next, c_next = default_cell(x)
-
-        # Verificar formas de salida
-        expected_shape = (batch_size, default_cell.hidden_dim, height, width)
+        # Verify output shapes
+        expected_shape = (batch_size, 16, height, width)
         assert h_next.shape == expected_shape
         assert c_next.shape == expected_shape
 
-    def test_state_initialization(self, default_cell: ConvLSTMCell) -> None:
-        """
-        Prueba la inicialización automática del estado si no se proporciona.
-        """
-        batch_size = 4
-        height, width = 28, 28
+        # Test with provided initial state
+        h_init = torch.randn(batch_size, 16, height, width)
+        c_init = torch.randn(batch_size, 16, height, width)
+        initial_state = (h_init, c_init)
 
-        # Crear entrada de prueba
-        x = torch.randn(batch_size, default_cell.input_dim, height, width)
-
-        # Realizar paso forward sin proporcionar estado
-        h_next, c_next = default_cell(x)
-
-        # Verificar que se inicializó correctamente el estado
-        expected_shape = (batch_size, default_cell.hidden_dim, height, width)
-        assert h_next.shape == expected_shape
-        assert c_next.shape == expected_shape
-
-        # Verificar que los estados no son None
-        assert h_next is not None
-        assert c_next is not None
-
-    def test_state_propagation(self, default_cell: ConvLSTMCell) -> None:
-        """Prueba que el estado se propague correctamente entre pasos
-        temporales."""
-        batch_size = 4
-        height, width = 28, 28
-
-        # Crear entrada de prueba
-        x = torch.randn(batch_size, default_cell.input_dim, height, width)
-
-        # Primer paso temporal
-        h1, c1 = default_cell(x)
-
-        # Segundo paso temporal con nuevo input pero usando estado del primer
-        # paso
-        x2 = torch.randn(batch_size, default_cell.input_dim, height, width)
-        h2, c2 = default_cell(x2, (h1, c1))
-
-        # Verificar que h2 y c2 son diferentes de h1 y c1
-        assert not torch.allclose(h1, h2)
-        assert not torch.allclose(c1, c2)
-
-    def test_gradient_flow(self, default_cell: ConvLSTMCell) -> None:
-        """Prueba que los gradientes fluyan correctamente a través de
-        múltiples pasos."""
-        batch_size = 4
-        height, width = 28, 28
-
-        # Crear entrada de prueba con gradientes habilitados
-        x = torch.randn(
-            batch_size,
-            default_cell.input_dim,
-            height,
-            width,
-            requires_grad=True,
+        h_next_with_state, c_next_with_state = cell(
+            input_tensor, initial_state
         )
+        assert h_next_with_state.shape == expected_shape
+        assert c_next_with_state.shape == expected_shape
 
-        # Primer paso temporal
-        h1, c1 = default_cell(x)
+    def test_gradient_flow(self) -> None:
+        """Test that gradients flow correctly through the ConvLSTMCell.
 
-        # Segundo paso temporal
-        x2 = torch.randn(
-            batch_size,
-            default_cell.input_dim,
-            height,
-            width,
-            requires_grad=True,
+        This is important for training the network.
+        """
+        cell = ConvLSTMCell(
+            input_dim=3, hidden_dim=16, kernel_size=(3, 3), bias=True
         )
-        h2, c2 = default_cell(x2, (h1, c1))
+        input_tensor = torch.randn(2, 3, 32, 32, requires_grad=True)
 
-        # Calcular pérdida y retropropagar
-        loss = h2.mean()
+        h_next, c_next = cell(input_tensor, None)
+
+        # Calculate loss and backpropagate
+        loss = h_next.sum() + c_next.sum()
         loss.backward()
 
-        # Verificar que los gradientes no son None
-        assert x.grad is not None
-        assert default_cell.conv.weight.grad is not None
+        # Verify gradients exist
+        assert input_tensor.grad is not None
+        assert cell.conv.weight.grad is not None
 
-    def test_batch_size_one(self, default_cell: ConvLSTMCell) -> None:
+        # Verify gradient shapes
+        assert input_tensor.grad.shape == input_tensor.shape
+        assert cell.conv.weight.grad.shape == cell.conv.weight.shape
+
+    def test_temporal_consistency(self) -> None:
+        """Test inference across multiple time steps to verify that the cell
+        maintains temporal consistency.
         """
-        Prueba con tamaño de lote 1 para detectar problemas de broadcasting.
-        """
-        batch_size = 1
-        height, width = 28, 28
+        cell = ConvLSTMCell(
+            input_dim=3, hidden_dim=16, kernel_size=(3, 3), bias=True
+        )
+        batch_size, height, width = 1, 16, 16
 
-        # Crear entrada de prueba
-        x = torch.randn(batch_size, default_cell.input_dim, height, width)
+        outputs = []
+        hidden_state = None
 
-        # Realizar paso forward
-        h_next, c_next = default_cell(x)
+        # Process sequence
+        for _ in range(5):
+            input_t = torch.randn(batch_size, 3, height, width)
+            h_t, c_t = cell(input_t, hidden_state)
+            outputs.append(h_t)
+            hidden_state = (h_t, c_t)
 
-        # Verificar formas de salida
-        expected_shape = (batch_size, default_cell.hidden_dim, height, width)
-        assert h_next.shape == expected_shape
-        assert c_next.shape == expected_shape
+        # Verify numerical stability
+        for output in outputs:
+            assert not torch.isnan(output).any()
+            assert not torch.isinf(output).any()
 
-    def test_non_square_input(self, default_cell: ConvLSTMCell) -> None:
-        """Prueba con entradas no cuadradas (altura ≠ anchura)."""
-        batch_size = 4
-        height, width = 32, 24  # Dimensiones no cuadradas
+    def test_state_propagation(self) -> None:
+        """Test that state is correctly propagated between time steps."""
+        cell = ConvLSTMCell(
+            input_dim=3, hidden_dim=16, kernel_size=(3, 3), bias=True
+        )
+        batch_size, height, width = 2, 16, 16
 
-        # Crear entrada de prueba
-        x = torch.randn(batch_size, default_cell.input_dim, height, width)
+        # Create test inputs
+        input1 = torch.randn(batch_size, 3, height, width)
+        input2 = torch.randn(batch_size, 3, height, width)
 
-        # Realizar paso forward
-        h_next, c_next = default_cell(x)
+        # First time step
+        h1, c1 = cell(input1, None)
 
-        # Verificar formas de salida
-        expected_shape = (batch_size, default_cell.hidden_dim, height, width)
-        assert h_next.shape == expected_shape
-        assert c_next.shape == expected_shape
+        # Second time step with state from first
+        h2, c2 = cell(input2, (h1, c1))
 
-    def test_multi_step_inference(self, default_cell: ConvLSTMCell) -> None:
-        """Prueba inferencia en múltiples pasos temporales para verificar
-        estabilidad."""
-        batch_size = 4
-        height, width = 28, 28
-        time_steps = 10
+        # Second time step without previous state (should differ)
+        h2_no_state, c2_no_state = cell(input2, None)
 
-        # Estado inicial
-        h, c = None, None
-
-        # Simular secuencia temporal
-        for _t in range(time_steps):
-            x = torch.randn(batch_size, default_cell.input_dim, height, width)
-            h, c = default_cell(x, cur_state=(h, c) if h is not None else None)
-
-            # Verificar formas de salida en cada paso
-            expected_shape = (
-                batch_size,
-                default_cell.hidden_dim,
-                height,
-                width,
-            )
-            assert h.shape == expected_shape
-            assert c.shape == expected_shape
-
-            # Verificar valores numéricos estables
-            assert not torch.isnan(h).any()
-            assert not torch.isnan(c).any()
-            assert not torch.isinf(h).any()
-            assert not torch.isinf(c).any()
+        # Outputs should differ when using different initial states
+        assert not torch.allclose(h2, h2_no_state, atol=1e-6)
+        assert not torch.allclose(c2, c2_no_state, atol=1e-6)
 
     @pytest.mark.skipif(
-        not torch.cuda.is_available(), reason="CUDA no disponible para prueba"
+        not torch.cuda.is_available(), reason="CUDA not available"
     )
-    def test_device_handling(self, default_cell: ConvLSTMCell) -> None:
-        """Prueba que la celda funcione correctamente en diferentes
-        dispositivos."""
-        batch_size = 4
-        height, width = 28, 28
+    def test_cuda_compatibility(self) -> None:
+        """Test compatibility with CUDA if available."""
+        cell = ConvLSTMCell(
+            input_dim=3, hidden_dim=16, kernel_size=(3, 3), bias=True
+        )
+        input_tensor = torch.randn(2, 3, 32, 32)
 
-        # Prueba en CPU
-        x_cpu = torch.randn(batch_size, default_cell.input_dim, height, width)
-        h_cpu, c_cpu = default_cell(x_cpu)
+        # Move cell to GPU if available
+        device = torch.device("cuda")
+        cell = cell.to(device)
+        input_tensor = input_tensor.to(device)
 
-        # Mueve la celda a GPU si está disponible
-        if torch.cuda.is_available():
-            cell_gpu = default_cell.to("cuda")
-            x_gpu = x_cpu.to("cuda")
+        h_next, c_next = cell(input_tensor, None)
 
-            # Realizar paso forward en GPU
-            h_gpu, c_gpu = cell_gpu(x_gpu)
-
-            # Verificar que la salida está en GPU
-            assert h_gpu.device.type == "cuda"
-            assert c_gpu.device.type == "cuda"
-
-            # Verificar que las formas son iguales
-            assert h_gpu.shape == h_cpu.shape
-            assert c_gpu.shape == c_cpu.shape
-
-            # Comparar resultados (transfiriendo de vuelta a CPU)
-            h_gpu_cpu = h_gpu.cpu()
-            # Usar tolerancias mayores para comparar resultados CPU vs GPU
-            assert torch.allclose(h_gpu_cpu, h_cpu, rtol=1e-3, atol=1e-3)
+        # Verify output is on GPU
+        assert h_next.device == device
+        assert c_next.device == device

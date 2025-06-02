@@ -1,5 +1,6 @@
 """Unit tests for model component factory functions."""
 
+import os
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -15,7 +16,20 @@ from src.model.factory import ConfigurationError, validate_config
 # Fixture to load Hydra configuration
 @pytest.fixture(scope="session")
 def cfg() -> Any:
-    with hydra.initialize_config_dir(config_dir="configs", version_base=None):
+    # Calculate absolute path to configs directory
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    project_root = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
+    config_dir = os.path.join(project_root, "configs")
+
+    if not os.path.isdir(config_dir):
+        # Fallback if running from different directory
+        config_dir = os.path.abspath(os.path.join(os.getcwd(), "configs"))
+        if not os.path.isdir(config_dir):
+            raise FileNotFoundError(
+                f"Config directory not found at {config_dir}"
+            )
+
+    with hydra.initialize_config_dir(config_dir=config_dir, version_base=None):
         config = hydra.compose(config_name="config.yaml")
     return config
 
@@ -48,7 +62,7 @@ def test_validate_config_valid(cfg: Any):
     """Test validation of a valid config."""
     config = {
         "type": "mock",
-        "in_channels": cfg.data.num_channels_rgb,  # type: ignore
+        "in_channels": cfg.data.num_channels_rgb,
         "out_channels": 64,  # Si existe en config usarlo
     }
     # Should not raise an exception
@@ -83,8 +97,8 @@ def test_create_unet_basic(
 
     # Configure mock properties needed by create_unet
     encoder_out_channels = (
-        cfg.model.encoder.init_features  # type: ignore
-        if hasattr(cfg.model.encoder, "init_features")  # type: ignore
+        cfg.model.encoder.init_features
+        if hasattr(cfg.model.encoder, "init_features")
         else 64
     )  # Default fallback
     # TODO: If available in config, use cfg.model.decoder.skip_channels_list
@@ -131,10 +145,18 @@ def test_create_unet_basic(
             "encoder": {
                 "_target_": "e",
                 "type": "E",
-                "in_channels": cfg.data.num_channels_rgb,  # type: ignore
+                "in_channels": cfg.data.num_channels_rgb,
             },
-            "bottleneck": {"_target_": "b", "type": "B"},
-            "decoder": {"_target_": "d", "type": "D"},
+            "bottleneck": {
+                "_target_": "b",
+                "type": "B",
+                "in_channels": encoder_out_channels,  # Add required field
+            },
+            "decoder": {
+                "_target_": "d",
+                "type": "D",
+                "in_channels": bottleneck_out_channels,  # Add required field
+            },
         }
     )
 
@@ -143,18 +165,16 @@ def test_create_unet_basic(
 
     # Assertions
     assert unet is mock_unet_instance
-    assert (
-        mock_try_instantiation_methods.call_count == 3
-    )  # noqa: PLR2004  # type: ignore
-    calls = mock_try_instantiation_methods.call_args_list  # type: ignore
-    assert calls[0].args[1] == "encoder"  # type: ignore
-    assert calls[1].args[1] == "bottleneck"  # type: ignore
-    assert calls[2].args[1] == "decoder"  # type: ignore
+    assert mock_try_instantiation_methods.call_count == 3
+    calls = mock_try_instantiation_methods.call_args_list
+    assert calls[0].args[1] == "encoder"
+    assert calls[1].args[1] == "bottleneck"
+    assert calls[2].args[1] == "decoder"
 
-    mock_get_class.assert_called_once_with("src.model.unet.BaseUNet")  # type: ignore
+    mock_get_class.assert_called_once_with("src.model.unet.BaseUNet")
     MockUnetClass.assert_called_once_with(
         encoder=mock_encoder, bottleneck=mock_bottleneck, decoder=mock_decoder
-    )  # type: ignore
+    )
 
 
 # Patch the correct internal helper
@@ -175,8 +195,8 @@ def test_create_unet_with_final_activation(
     mock_bottleneck = MagicMock(spec=BottleneckBase)
     mock_decoder = MagicMock(spec=DecoderBase)
     encoder_out_channels = (
-        cfg.model.encoder.init_features  # type: ignore
-        if hasattr(cfg.model.encoder, "init_features")  # type: ignore
+        cfg.model.encoder.init_features
+        if hasattr(cfg.model.encoder, "init_features")
         else 64
     )  # Default fallback
     # TODO: If available in config, use cfg.model.decoder.skip_channels_list
@@ -225,10 +245,18 @@ def test_create_unet_with_final_activation(
             "encoder": {
                 "_target_": "e",
                 "type": "E",
-                "in_channels": cfg.data.num_channels_rgb,  # type: ignore
+                "in_channels": cfg.data.num_channels_rgb,
             },
-            "bottleneck": {"_target_": "b", "type": "B"},
-            "decoder": {"_target_": "d", "type": "D"},
+            "bottleneck": {
+                "_target_": "b",
+                "type": "B",
+                "in_channels": encoder_out_channels,  # Add required field
+            },
+            "decoder": {
+                "_target_": "d",
+                "type": "D",
+                "in_channels": bottleneck_out_channels,  # Add required field
+            },
             "final_activation": final_activation_config,
         }
     )
@@ -241,11 +269,9 @@ def test_create_unet_with_final_activation(
     assert unet[0] is mock_unet_base_instance
     assert unet[1] is mock_activation
 
-    assert (
-        mock_try_instantiation_methods.call_count == 3
-    )  # noqa: PLR2004  # type: ignore
-    mock_get_class.assert_called_once()  # type: ignore
+    assert mock_try_instantiation_methods.call_count == 3
+    mock_get_class.assert_called_once()
     MockUnetClass.assert_called_once_with(
         encoder=mock_encoder, bottleneck=mock_bottleneck, decoder=mock_decoder
-    )  # type: ignore
-    mock_hydra_instantiate.assert_called_once_with(config.final_activation)  # type: ignore
+    )
+    mock_hydra_instantiate.assert_called_once_with(config.final_activation)

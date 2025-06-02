@@ -2,6 +2,7 @@
 configs."""
 
 import os
+from typing import Any
 
 import pytest
 import torch
@@ -57,10 +58,33 @@ def test_scheduler_instantiation_from_config(
     abs_config_path = get_absolute_config_path(config_path)
     cfg = OmegaConf.load(abs_config_path)
 
+    # Provide missing interpolation values that would normally come from
+    # base.yaml. This simulates how the config would be loaded in production
+    # with full context
+    base_values = OmegaConf.create(
+        {
+            "thresholds": {
+                "gamma": 0.5,  # Value from base.yaml
+                "metric": 0.5,
+                "loss_weight": 0.5,
+            }
+        }
+    )
+
+    # Merge base values with scheduler config to resolve interpolations
+    merged_cfg = OmegaConf.merge(base_values, cfg)
+
     # Create scheduler based on config
-    container = OmegaConf.to_container(cfg, resolve=True)
+    container = OmegaConf.to_container(merged_cfg, resolve=True)
     if not isinstance(container, dict):
         raise TypeError("Scheduler config must be a dict")
-    scheduler = create_lr_scheduler(dummy_optimizer, dict(container))  # type: ignore[arg-type]
+
+    # Remove the 'thresholds' key that was only used for interpolation
+    # In production, this wouldn't be passed to the scheduler
+    container_filtered: dict[str, Any] = {
+        str(k): v for k, v in container.items() if k != "thresholds"
+    }
+
+    scheduler = create_lr_scheduler(dummy_optimizer, container_filtered)
 
     assert isinstance(scheduler, expected_cls)

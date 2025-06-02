@@ -211,7 +211,7 @@ class TestRegistryThreadSafety:
 
         # Add list operations
         for _ in range(50):
-            operations.append((self.registry.list, []))
+            operations.append((self.registry.list_components, []))
 
         # Add list_with_tags operations
         for _ in range(50):
@@ -240,7 +240,7 @@ class TestRegistryThreadSafety:
         list_results = [
             r
             for r, (op, _) in zip(results, operations, strict=False)
-            if op == self.registry.list
+            if op == self.registry.list_components
         ]
         for result in list_results:
             assert (

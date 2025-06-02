@@ -66,4 +66,4 @@ defaults:
 3. Use sensible default values
 4. Ensure experiment configurations are reproducible
 5. Version configurations along with code
-6. Use Hydra's override and composition features for flexible experimentation 
+6. Use Hydra's override and composition features for flexible experimentation

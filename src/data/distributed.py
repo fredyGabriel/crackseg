@@ -27,4 +27,4 @@ def get_world_size():
 def sync_distributed():
     """Synchronize all processes (barrier) if in distributed mode."""
     if is_distributed_available_and_initialized():
-        torch.distributed.barrier()  # type: ignore
+        torch.distributed.barrier()

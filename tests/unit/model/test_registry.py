@@ -1,4 +1,5 @@
 # pyright: reportUnusedClass=false
+
 """Unit tests for the model component registry system."""
 
 from typing import Any
@@ -48,6 +49,50 @@ class MockEncoder(EncoderBase):
     @property
     def skip_channels(self) -> list[int]:
         return self._skip_channels
+
+    def get_feature_info(self) -> list[dict[str, Any]]:
+        """
+        Get information about feature maps produced by the mock encoder.
+
+        Returns:
+            List[Dict[str, Any]]: Information about each feature map,
+                                 including channels and reduction factor.
+        """
+        feature_info: list[dict[str, Any]] = []
+
+        # Mock encoder with standard reduction factors
+        for i, channels in enumerate(self._skip_channels):
+            reduction_factor = 2 ** (i + 1)
+            feature_info.append(
+                {
+                    "channels": channels,
+                    "reduction": reduction_factor,
+                    "stage": i,
+                }
+            )
+
+        # Add bottleneck info (final output)
+        feature_info.append(
+            {
+                "channels": self.out_channels,
+                "reduction": 2 ** len(self._skip_channels),
+                "stage": len(self._skip_channels),
+            }
+        )
+
+        return feature_info
+
+    @property
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Information about output features for each stage.
+
+        Returns:
+            List of dictionaries, each containing:
+                - 'channels': Number of output channels
+                - 'reduction': Spatial reduction factor from input
+                - 'stage': Stage index
+        """
+        return self.get_feature_info()
 
 
 class MockBottleneck(BottleneckBase):
@@ -103,7 +148,7 @@ class MockDecoder(DecoderBase):
 @pytest.fixture
 def encoder_registry() -> Registry[Any]:
     """Create a new EncoderBase registry for testing."""
-    return Registry(EncoderBase, "Encoder")  # type: ignore[type-abstract]
+    return Registry(EncoderBase, "Encoder")
 
 
 @pytest.fixture
@@ -128,11 +173,11 @@ def populated_registry(encoder_registry: Registry[Any]) -> Registry[Any]:
 # Basic registry creation and properties
 def test_registry_creation():
     """Test registry creation and basic properties."""
-    registry = Registry(EncoderBase, "TestRegistry")  # type: ignore[type-abstract]
+    registry = Registry(EncoderBase, "TestRegistry")
     assert registry.name == "TestRegistry"
     assert registry.base_class == EncoderBase
     assert len(registry) == 0
-    assert list(registry.list()) == []
+    assert list(registry.list_components()) == []
     assert str(registry) == "TestRegistry Registry with 0 components"
 
 
@@ -146,7 +191,7 @@ def test_register_component(encoder_registry: Registry[Any]) -> None:
 
     assert "TestEncoder" in encoder_registry
     assert len(encoder_registry) == 1
-    assert encoder_registry.list() == ["TestEncoder"]
+    assert encoder_registry.list_components() == ["TestEncoder"]
 
     # Get the registered class
     retrieved_cls = encoder_registry.get("TestEncoder")
@@ -162,7 +207,7 @@ def test_register_with_custom_name(encoder_registry: Registry[Any]) -> None:
 
     assert "CustomEncoder" in encoder_registry
     assert "TestEncoder" not in encoder_registry
-    assert encoder_registry.list() == ["CustomEncoder"]
+    assert encoder_registry.list_components() == ["CustomEncoder"]
 
 
 def test_register_with_tags(encoder_registry: Registry[Any]) -> None:
@@ -236,7 +281,7 @@ def test_component_instantiation(populated_registry: Registry[Any]) -> None:
 # Component listing and filtering tests
 def test_list_components(populated_registry: Registry[Any]) -> None:
     """Test listing components in the registry."""
-    components = populated_registry.list()
+    components = populated_registry.list_components()
     assert len(components) == NUM_ENCODERS_REGISTERED
     assert set(components) == {"TestEncoder1", "CustomName", "TestEncoder3"}
 
@@ -283,9 +328,9 @@ def test_repr(populated_registry: Registry[Any]) -> None:
 # Multiple registry tests
 def test_multiple_registries() -> None:
     """Test that multiple registries can coexist."""
-    encoder_reg: Registry[Any] = Registry(EncoderBase, "EncoderReg")  # type: ignore[type-abstract]
-    bottleneck_reg: Registry[Any] = Registry(BottleneckBase, "BottleneckReg")  # type: ignore[type-abstract]
-    decoder_reg: Registry[Any] = Registry(DecoderBase, "DecoderReg")  # type: ignore[type-abstract]
+    encoder_reg: Registry[Any] = Registry(EncoderBase, "EncoderReg")
+    bottleneck_reg: Registry[Any] = Registry(BottleneckBase, "BottleneckReg")
+    decoder_reg: Registry[Any] = Registry(DecoderBase, "DecoderReg")
 
     @encoder_reg.register()
     class TestEncoder(MockEncoder):
@@ -310,10 +355,9 @@ def test_multiple_registries() -> None:
 # Integration tests
 def test_typical_usage_flow():
     """Test a typical usage flow with registration and instantiation."""
-    # Create registries for each component type
-    encoder_reg = Registry(EncoderBase, "Encoder")  # type: ignore[type-abstract]
-    bottleneck_reg = Registry(BottleneckBase, "Bottleneck")  # type: ignore[type-abstract]
-    decoder_reg = Registry(DecoderBase, "Decoder")  # type: ignore[type-abstract]
+    encoder_reg = Registry(EncoderBase, "Encoder")
+    bottleneck_reg = Registry(BottleneckBase, "Bottleneck")
+    decoder_reg = Registry(DecoderBase, "Decoder")
 
     # Register components
     @encoder_reg.register(tags=["lightweight"])

@@ -9,7 +9,7 @@ try:
 
     _gradscaler_device_value = "cuda"
 except ImportError:
-    from torch.cuda.amp import GradScaler  # type: ignore[reportMissingImports]
+    from torch.cuda.amp import GradScaler
 
     _gradscaler_device_value = None
 
@@ -52,13 +52,13 @@ def optimizer_step_with_accumulation(  # noqa: PLR0913
     is_update_step: bool = (batch_idx + 1) % grad_accum_steps == 0
     loss = loss / grad_accum_steps
     if use_amp and scaler is not None:
-        scaler.scale(loss).backward()  # type: ignore[reportUnknownMemberType]
+        scaler.scale(loss).backward()
         if is_update_step:
             scaler.step(optimizer)
             scaler.update()
             optimizer.zero_grad()
     else:
-        loss.backward()  # type: ignore[reportUnknownMemberType]
+        loss.backward()
         if is_update_step:
             optimizer.step()
             optimizer.zero_grad()

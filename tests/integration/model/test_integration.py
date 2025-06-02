@@ -144,8 +144,9 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
                     "depth": 4,
                 },
                 "bottleneck": {
-                    "_target_": "src.model.bottleneck.cnn_bottleneck.\
-                        BottleneckBlock",
+                    "_target_": (
+                        "src.model.bottleneck.cnn_bottleneck.BottleneckBlock"
+                    ),
                     "in_channels": 512,
                     "out_channels": 1024,
                     "dropout": 0.5,

@@ -1,17 +1,19 @@
-import abc
+from abc import ABC, abstractmethod
 from typing import Any
 
 import torch
 from torch import nn
 
 
-class EncoderBase(nn.Module, metaclass=abc.ABCMeta):
-    """
-    Abstract base class for all encoder modules in the U-Net architecture.
+class EncoderBase(nn.Module, ABC):
+    """Base class for all encoder implementations.
 
-    Encoders are responsible for downsampling the input image and extracting
-    hierarchical features at different spatial resolutions. These features
-    are often passed to the decoder via skip connections.
+    Encoders extract multi-scale features from input images, typically
+    following a hierarchical structure where each stage produces features
+    at different spatial resolutions.
+
+    The encoder output should be a list of feature tensors, ordered from
+    highest to lowest resolution (i.e., from shallow to deep features).
     """
 
     def __init__(self, in_channels: int, *args: Any, **kwargs: Any) -> None:
@@ -21,10 +23,10 @@ class EncoderBase(nn.Module, metaclass=abc.ABCMeta):
         Args:
             in_channels (int): Number of channels in the input tensor.
         """
-        super().__init__(*args, **kwargs)  # type: ignore
+        super().__init__(*args, **kwargs)
         self.in_channels = in_channels
 
-    @abc.abstractmethod
+    @abstractmethod
     def forward(
         self, x: torch.Tensor
     ) -> tuple[torch.Tensor, list[torch.Tensor]]:
@@ -45,7 +47,7 @@ class EncoderBase(nn.Module, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    @abc.abstractmethod
+    @abstractmethod
     def out_channels(self) -> int:
         """
         Number of channels in the final output tensor of the encoder.
@@ -53,7 +55,7 @@ class EncoderBase(nn.Module, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    @abc.abstractmethod
+    @abstractmethod
     def skip_channels(self) -> list[int]:
         """
         List of channel dimensions for each intermediate feature map
@@ -62,14 +64,45 @@ class EncoderBase(nn.Module, metaclass=abc.ABCMeta):
         """
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def feature_info(self) -> list[dict[str, Any]]:
+        """Information about output features for each stage.
 
-class BottleneckBase(nn.Module, metaclass=abc.ABCMeta):
-    """
-    Abstract base class for all bottleneck modules in the U-Net architecture.
+        Returns:
+            List of dictionaries, each containing:
+                - 'channels': Number of output channels
+                - 'reduction': Spatial reduction factor from input
+                - 'name': Optional stage name
+        """
+        raise NotImplementedError
 
-    The bottleneck sits between the encoder and decoder, typically processing
-    features at the lowest spatial resolution. It can perform further feature
-    extraction or transformation before features are upsampled by the decoder.
+    @property
+    def feature_reduction(self) -> list[int]:
+        """Spatial reduction factors for each feature stage.
+
+        Returns:
+            List of integers representing how much each feature map is
+            reduced compared to the input spatial dimensions.
+        """
+        return [info["reduction"] for info in self.feature_info]
+
+    def get_stages(self) -> list[nn.Module]:
+        """Get encoder stages as separate modules if available.
+
+        Returns:
+            List of encoder stage modules. Default implementation returns
+            empty list for encoders that don't expose individual stages.
+        """
+        return []
+
+
+class BottleneckBase(nn.Module, ABC):
+    """Base class for bottleneck implementations.
+
+    Bottlenecks process the deepest features from encoders, often applying
+    additional transformations, attention mechanisms, or feature fusion
+    before passing to the decoder.
     """
 
     def __init__(self, in_channels: int, *args: Any, **kwargs: Any) -> None:
@@ -80,10 +113,10 @@ class BottleneckBase(nn.Module, metaclass=abc.ABCMeta):
             in_channels (int): Number of channels in the input tensor
                                (usually the output channels of the encoder).
         """
-        super().__init__(*args, **kwargs)  # type: ignore
+        super().__init__(*args, **kwargs)
         self.in_channels = in_channels
 
-    @abc.abstractmethod
+    @abstractmethod
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Defines the forward pass for the bottleneck.
@@ -100,7 +133,7 @@ class BottleneckBase(nn.Module, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
     @property
-    @abc.abstractmethod
+    @abstractmethod
     def out_channels(self) -> int:
         """
         Number of channels in the output tensor of the bottleneck.
@@ -108,14 +141,11 @@ class BottleneckBase(nn.Module, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
-class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
-    """
-    Abstract base class for all decoder modules in the U-Net architecture.
+class DecoderBase(nn.Module, ABC):
+    """Base class for all decoder implementations.
 
-    Decoders are responsible for upsampling features from the bottleneck
-    and merging them with corresponding features from the encoder via skip
-    connections. The goal is to gradually reconstruct the segmentation map
-    at the original input resolution.
+    Decoders reconstruct high-resolution output from multi-scale encoder
+    features, typically using skip connections and upsampling operations.
     """
 
     def __init__(
@@ -139,11 +169,11 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
                                        highest resolution while encoder outputs
                                        them from highest to lowest resolution.
         """
-        super().__init__(*args, **kwargs)  # type: ignore
+        super().__init__(*args, **kwargs)
         self.in_channels = in_channels
         self._skip_channels = skip_channels
 
-    @abc.abstractmethod
+    @abstractmethod
     def forward(
         self, x: torch.Tensor, skips: list[torch.Tensor]
     ) -> torch.Tensor:
@@ -186,7 +216,7 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
         )
 
     @property
-    @abc.abstractmethod
+    @abstractmethod
     def out_channels(self) -> int:
         """
         Number of channels in the final output tensor of the decoder.
@@ -195,12 +225,12 @@ class DecoderBase(nn.Module, metaclass=abc.ABCMeta):
         raise NotImplementedError
 
 
-class UNetBase(nn.Module, metaclass=abc.ABCMeta):
-    """
-    Abstract base class for U-Net architectures.
+class UNetBase(nn.Module, ABC):
+    """Base class for UNet-style architectures.
 
-    Integrates encoder, bottleneck, and decoder components into a complete
-    segmentation model. Ensures proper component compatibility and data flow.
+    Combines encoder, bottleneck, and decoder into a complete segmentation
+    model. This abstract base defines the common interface for all UNet
+    variants.
     """
 
     encoder: EncoderBase | None
@@ -223,7 +253,7 @@ class UNetBase(nn.Module, metaclass=abc.ABCMeta):
             bottleneck (BottleneckBase): Bottleneck for feature processing.
             decoder (DecoderBase): Decoder for segmentation map generation.
         """
-        super().__init__(*args, **kwargs)  # type: ignore
+        super().__init__(*args, **kwargs)
         self._validate_components(encoder, bottleneck, decoder)
         self.encoder = encoder
         self.bottleneck = bottleneck
@@ -355,7 +385,7 @@ class UNetBase(nn.Module, metaclass=abc.ABCMeta):
                 # or add logging/warning if this is unexpected in production.
                 pass
 
-    @abc.abstractmethod
+    @abstractmethod
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Defines the forward pass for the U-Net model.

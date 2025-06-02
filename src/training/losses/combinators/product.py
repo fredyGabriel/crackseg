@@ -29,7 +29,7 @@ class ProductCombinator(nn.Module, ILossCombinator):
         Raises:
             ValueError: If components is empty
         """
-        super().__init__()  # type: ignore[reportUnknownParameterType]
+        super().__init__()
 
         if not components:
             raise ValueError("Components list cannot be empty")

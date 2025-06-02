@@ -7,7 +7,7 @@ from torch.nn import Module
 from torch.optim import Optimizer
 
 from src.utils.checkpointing import CheckpointSaveConfig, save_checkpoint
-from src.utils.logger_setup import safe_log
+from src.utils.logging.training import safe_log
 
 
 class SafeLogProtocol(Protocol):

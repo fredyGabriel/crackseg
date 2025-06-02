@@ -1,3 +1,5 @@
+"""Unit tests for configuration override utilities."""
+
 # ruff: noqa: PLR2004
 from pathlib import Path
 
@@ -10,7 +12,7 @@ from src.utils.config.override import (
     override_config,
     save_config,
 )
-from src.utils.exceptions import ConfigError
+from src.utils.core.exceptions import ConfigError
 
 
 def test_override_config_simple():

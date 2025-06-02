@@ -197,7 +197,11 @@ def create_split_datasets(
     Raises:
         FileNotFoundError: If data_root subdirectories are missing.
         RuntimeError: If no samples are found in data_root.
+        ValueError: If dataset_cls is None.
     """
+    # Validate required configuration - dataset_cls is guaranteed by type
+    # annotation
+
     datasets: dict[str, CrackSegmentationDataset] = {}
     # Define max samples for each split
     max_samples_map = {

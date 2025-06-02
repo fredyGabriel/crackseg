@@ -4,7 +4,7 @@
 import pytest
 
 # import numpy as np # Removed unused import
-from src.utils.early_stopping import EarlyStopping
+from src.utils.training.early_stopping import EarlyStopping
 
 # --- Test Cases ---
 

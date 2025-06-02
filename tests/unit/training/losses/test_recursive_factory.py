@@ -10,7 +10,7 @@ This test suite covers all components of the recursive loss factory system:
 - Performance considerations
 """
 
-from typing import Any
+from typing import Any, cast
 
 import pytest
 import torch
@@ -22,6 +22,7 @@ from src.training.losses.factory.recursive_factory import (
 )
 from src.training.losses.interfaces.loss_interface import ILossComponent
 from src.training.losses.registry.clean_registry import CleanLossRegistry
+from src.training.losses.registry.enhanced_registry import EnhancedLossRegistry
 
 
 class MockLoss(nn.Module, ILossComponent):
@@ -65,7 +66,7 @@ def mock_registry() -> CleanLossRegistry:
 def factory(mock_registry: CleanLossRegistry) -> RecursiveLossFactory:
     """Create a recursive factory with mock registry."""
     factory: RecursiveLossFactory = RecursiveLossFactory()
-    factory.registry = mock_registry  # type: ignore[attr-defined]
+    factory.registry = cast(EnhancedLossRegistry, mock_registry)
     return factory
 
 

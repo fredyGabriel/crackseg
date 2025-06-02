@@ -1,13 +1,8 @@
 # @package _global_
 
 # Configuration for a UNet using mock components for testing
+# Standalone configuration without inheritance to avoid parameter conflicts
 
-# Inherit base structure and override components
-defaults:
-  - model: default  # Inherit base UNet schema (_target_, type, final_activation)
-  - _self_
-
-# Override component sections with mock configurations
 model:
   _target_: src.model.core.unet.BaseUNet   # Main UNet implementation
 
@@ -23,7 +18,7 @@ model:
     in_channels: 128  # Must match MockBottleneck output channels
     # Decoder expects skips in low->high resolution order: [32, 16]
     # This should be the reverse of MockEncoder.skip_channels ([16, 32])
-    skip_channels_list: [32, 16]
+    skip_channels: [32, 16]
     _target_: tests.integration.model.conftest.TestDecoderImpl  # Mock decoder
 
   # Optional: Override final activation
@@ -35,4 +30,4 @@ model:
 
 # Example override: Add final activation
 final_activation:
-  _target_: torch.nn.Sigmoid  # Use sigmoid as final activation 
+  _target_: torch.nn.Sigmoid  # Use sigmoid as final activation

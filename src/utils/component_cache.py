@@ -1,74 +1,81 @@
 """
-Component Caching Utilities.
+Component caching utilities for model instantiation.
 
-Provides functions to cache and retrieve instantiated PyTorch modules
-using weak references to avoid memory leaks. Includes cache clearing
-and key generation logic.
+This module provides a caching system for reusing instantiated model components
+to improve performance during repeated instantiations.
 """
 
-import logging
+import hashlib
 import weakref
-from typing import Any, cast
+from typing import Any, TypeVar
 
-from torch import nn
+import torch.nn as nn
 
-# Create logger
-log = logging.getLogger(__name__)
+# Type variable for components
+T = TypeVar("T", bound=nn.Module)
 
-# Component cache system (using weak references)
-_component_cache: dict[str, weakref.ReferenceType[nn.Module]] = {}
-
-
-def clear_component_cache() -> None:
-    """Clear the component cache."""
-    _component_cache.clear()
-    log.info("Component cache cleared")
-
-
-def get_cached_component(cache_key: str) -> nn.Module | None:
-    """Retrieve a component from cache if available."""
-    if cache_key in _component_cache:
-        component_ref = _component_cache[cache_key]
-        component = component_ref()
-        if component is not None:
-            log.debug(f"Cache hit for component: {cache_key}")
-            return component
-        else:
-            # Reference has been garbage collected
-            del _component_cache[cache_key]
-            log.debug(f"Removed expired cache entry: {cache_key}")
-    return None
-
-
-def cache_component(cache_key: str, component: nn.Module) -> None:
-    """Store a component in cache."""
-    _component_cache[cache_key] = weakref.ref(component)
-    log.debug(f"Cached component with key: {cache_key}")
+# Global cache using weak references to avoid memory leaks
+_component_cache: weakref.WeakValueDictionary[str, nn.Module] = (
+    weakref.WeakValueDictionary()
+)
 
 
 def generate_cache_key(component_type: str, config: dict[str, Any]) -> str:
-    """Generate a unique cache key based on type and config."""
-    key_parts = [component_type]
-    for k, v in sorted(config.items()):  # type: ignore[reportUnknownParameterType]
-        # Skip 'type' key as it's already part of the key
-        if k == "type":
-            continue
+    """
+    Generate a unique cache key for a component configuration.
 
-        # Handle different value types consistently
-        if isinstance(v, str | int | float | bool | type(None)):
-            key_parts.append(f"{k}:{v}")
-        elif isinstance(v, list | tuple):
-            # Convert list/tuple elements to string
-            key_parts.append(f"{k}:{','.join(map(str, cast(list[Any], v)))}")
-        elif isinstance(v, dict):
-            # Handle nested dictionaries recursively or flatten them
-            v_dict = cast(dict[str, Any], v)
-            nested_parts = [
-                f"{str(nk)}:{str(nv)}" for nk, nv in sorted(v_dict.items())
-            ]
-            key_parts.append(f"{k}:{{{','.join(nested_parts)}}}")
-        # Add handling for other types if necessary
-        # else:
-        #     log.warning(f"Unhandled type in cache key generation: {type(v)}")
+    Args:
+        component_type: Type of the component (e.g., 'resnet_encoder')
+        config: Configuration dictionary for the component
 
-    return ":".join(key_parts)
+    Returns:
+        Unique cache key string
+    """
+    # Create a deterministic string representation of the config
+    config_str = str(sorted(config.items()))
+    # Combine component type and config
+    key_str = f"{component_type}:{config_str}"
+    # Generate hash for consistent key length
+    return hashlib.md5(key_str.encode()).hexdigest()
+
+
+def get_cached_component(cache_key: str) -> nn.Module | None:
+    """
+    Retrieve a component from the cache.
+
+    Args:
+        cache_key: Cache key for the component
+
+    Returns:
+        Cached component if found, None otherwise
+    """
+    return _component_cache.get(cache_key)
+
+
+def cache_component(cache_key: str, component: nn.Module) -> None:
+    """
+    Store a component in the cache.
+
+    Args:
+        cache_key: Cache key for the component
+        component: Component to cache
+    """
+    _component_cache[cache_key] = component
+
+
+def clear_component_cache() -> None:
+    """Clear all cached components."""
+    _component_cache.clear()
+
+
+def get_cache_info() -> dict[str, Any]:
+    """
+    Get information about the current cache state.
+
+    Returns:
+        Dictionary containing cache statistics
+    """
+    return {
+        "cache_size": len(_component_cache),
+        "cached_keys": list(_component_cache.keys()),
+    }
