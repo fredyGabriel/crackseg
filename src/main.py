@@ -1,3 +1,59 @@
+#!/usr/bin/env python3
+"""
+Main training pipeline for pavement crack segmentation.
+
+This module provides the primary entry point for training crack segmentation
+models using the U-Net architecture with configurable encoders and decoders. It
+integrates with Hydra for configuration management and supports features like:
+
+- Automated experiment tracking and logging
+- Configurable data loading and augmentation
+- Model checkpointing and resume functionality
+- Mixed precision training support
+- Comprehensive error handling and validation
+
+The main training pipeline consists of several stages:
+1. Environment setup (device detection, random seeds)
+2. Data loading (train/validation dataloaders)
+3. Model creation and initialization
+4. Training component setup (optimizer, loss, metrics)
+5. Checkpoint handling and resume logic
+6. Training execution via Trainer class
+7. Cleanup and experiment finalization
+
+Examples:
+    Basic training with default configuration:
+        ```bash
+        python run.py
+        ```
+
+    Training with custom parameters:
+        ```bash
+        python run.py training.epochs=100 data.batch_size=8
+        ```
+
+    Resume from checkpoint:
+        ```bash
+        python run.py training.checkpoints.resume_from_checkpoint=\\
+            path/to/checkpoint.pth
+        ```
+
+Configuration:
+    This module uses Hydra configuration management. The main config file is
+    located at 'configs/config.yaml' with additional configs in subdirectories.
+
+    Key configuration sections:
+    - model: Model architecture and parameters
+    - data: Dataset and dataloader configuration
+    - training: Training hyperparameters and settings
+    - evaluation: Metrics and evaluation settings
+
+Note:
+    This module requires CUDA support for GPU training. CPU training is
+    supported but not recommended for large models due to performance
+    considerations.
+"""
+
 # In src/main.py (Skeleton and checkpointing logic)
 import logging
 import math  # For inf
@@ -36,7 +92,41 @@ log = logging.getLogger(__name__)
 
 
 def _setup_environment(cfg: DictConfig) -> torch.device:
-    """Sets up the environment, seeds, and device."""
+    """
+    Set up the training environment with proper device selection and random
+    seeds.
+
+    This function configures the global training environment including:
+    - Random seed initialization for reproducibility
+    - CUDA availability validation
+    - Device selection and configuration
+
+    Args:
+        cfg: Hydra configuration containing environment settings.
+            Expected keys:
+            - random_seed (int, optional): Random seed for reproducibility.
+              Defaults to 42.
+            - require_cuda (bool, optional): Whether CUDA is required.
+              Defaults to True.
+
+    Returns:
+        torch.device: The selected device for training (e.g., 'cuda:0' or
+        'cpu').
+
+    Raises:
+        ResourceError: If CUDA is required but not available on the system.
+
+    Examples:
+        ```python
+        cfg = OmegaConf.create({"random_seed": 42, "require_cuda": True})
+        device = _setup_environment(cfg)
+        print(f"Training on device: {device}")
+        ```
+
+    Note:
+        The function automatically detects the best available device (GPU vs
+        CPU) and logs the selection for transparency.
+    """
     log.info("Setting up environment...")
     set_random_seeds(cfg.get("random_seed", 42))
 
@@ -52,7 +142,56 @@ def _setup_environment(cfg: DictConfig) -> torch.device:
 
 
 def _load_data(cfg: DictConfig) -> tuple[DataLoader[Any], DataLoader[Any]]:
-    """Loads and creates train and validation dataloaders."""
+    """
+    Load and create training and validation data loaders from configuration.
+
+    This function handles the complete data loading pipeline including:
+    - Configuration validation and path resolution
+    - Transform pipeline creation
+    - DataLoader instantiation with optimized settings
+    - Error handling for missing or invalid data
+
+    Args:
+        cfg: Hydra configuration containing data settings.
+            Expected structure:
+            - cfg.data.data_root (str): Root directory for dataset
+            - cfg.data.transform (DictConfig, optional): Transform
+                configuration
+            - cfg.data.dataloader (DictConfig, optional): DataLoader
+                configuration
+
+    Returns:
+        tuple[DataLoader[Any], DataLoader[Any]]: A tuple containing:
+            - train_loader: DataLoader for training data
+            - val_loader: DataLoader for validation data
+
+    Raises:
+        DataError: If data loading fails due to:
+            - Missing or invalid dataset files
+            - Configuration errors
+            - DataLoader creation failures
+        OSError: If data directory is not accessible
+        FileNotFoundError: If required data files are missing
+
+    Examples:
+        ```python
+        cfg = OmegaConf.load("configs/data/default.yaml")
+        train_loader, val_loader = _load_data(cfg)
+
+        # Check data loader properties
+        print(f"Training batches: {len(train_loader)}")
+        print(f"Validation batches: {len(val_loader)}")
+
+        # Sample a batch
+        images, masks = next(iter(train_loader))
+        print(f"Batch shape: {images.shape}, {masks.shape}")
+        ```
+
+    Note:
+        The function automatically resolves relative paths using Hydra's
+        original working directory and provides fallback configurations
+        for missing transform or dataloader settings.
+    """
     log.info("Loading data...")
     try:
         data_cfg = cfg.data
@@ -144,7 +283,60 @@ def _load_data(cfg: DictConfig) -> tuple[DataLoader[Any], DataLoader[Any]]:
 
 
 def _create_model(cfg: DictConfig, device: torch.device) -> torch.nn.Module:
-    """Creates and loads the model to the specified device."""
+    """
+    Create and initialize the segmentation model from configuration.
+
+    This function instantiates the neural network model using Hydra's
+    instantiation system and prepares it for training by:
+    - Creating the model from configuration
+    - Moving the model to the specified device
+    - Logging model information (type and parameter count)
+    - Validating the model is properly initialized
+
+    Args:
+        cfg: Hydra configuration containing model settings.
+            Expected structure:
+            - cfg.model._target_: Full path to model class
+                (e.g., "src.model.UNet")
+            - cfg.model.**kwargs: Model-specific parameters
+
+        device: Target device for model placement (e.g., 'cuda:0' or 'cpu').
+
+    Returns:
+        torch.nn.Module: The initialized model ready for training.
+
+    Raises:
+        ModelError: If model creation fails due to:
+            - Invalid model configuration
+            - Missing model dependencies
+            - Instantiation errors
+        ImportError: If the specified model class cannot be imported
+        AttributeError: If model configuration is malformed
+
+    Examples:
+        ```python
+        cfg = OmegaConf.create({
+            "model": {
+                "_target_": "src.model.core.unet.UNet",
+                "encoder_name": "resnet34",
+                "encoder_weights": "imagenet",
+                "in_channels": 3,
+                "classes": 1
+            }
+        })
+        device = torch.device("cuda:0")
+        model = _create_model(cfg, device)
+
+        # Check model properties
+        print(f"Model type: {type(model).__name__}")
+        print(f"Parameters: {sum(p.numel() for p in model.parameters()):,}")
+        print(f"Device: {next(model.parameters()).device}")
+        ```
+
+    Note:
+        The function uses Hydra's instantiate method which supports
+        complex configuration patterns and automatic dependency injection.
+    """
     log.info("Creating model...")
     try:
         model = hydra.utils.instantiate(cfg.model)
@@ -177,7 +369,72 @@ def _setup_training_components(
     optim.Optimizer,
     torch.nn.Module,
 ]:
-    """Sets up metrics, optimizer, loss function, scheduler, and AMP scaler."""
+    """
+    Set up training components including metrics, optimizer, and loss function.
+
+    This function configures all components required for training:
+    - Evaluation metrics from configuration
+    - Optimizer with specified parameters
+    - Loss function with appropriate configuration
+    - Error handling and fallback mechanisms
+
+    Args:
+        cfg: Hydra configuration containing training settings.
+            Expected structure:
+            - cfg.evaluation.metrics (DictConfig, optional): Metrics
+            configuration
+            - cfg.training.optimizer (DictConfig): Optimizer configuration
+            - cfg.training.loss (DictConfig): Loss function configuration
+
+        model: The neural network model for parameter optimization.
+
+    Returns:
+        tuple containing:
+            - dict[str, Any]: Dictionary of evaluation metrics
+            - optim.Optimizer: Configured optimizer for training
+            - torch.nn.Module: Loss function module
+
+    Raises:
+        ImportError: If specified components cannot be imported
+        AttributeError: If configuration is malformed
+        ValueError: If configuration values are invalid
+        TypeError: If component types are incompatible
+
+    Examples:
+        ```python
+        cfg = OmegaConf.create({
+            "evaluation": {
+                "metrics": {
+                    "iou": {"_target_": "src.metrics.IoU"},
+                    "dice": {"_target_": "src.metrics.DiceScore"}
+                }
+            },
+            "training": {
+                "optimizer": {
+                    "_target_": "torch.optim.Adam",
+                    "lr": 0.001,
+                    "weight_decay": 1e-4
+                },
+                "loss": {
+                    "_target_": "src.training.losses.BCEDiceLoss",
+                    "bce_weight": 0.5,
+                    "dice_weight": 0.5
+                }
+            }
+        })
+
+        metrics, optimizer, loss_fn = _setup_training_components(cfg, model)
+        print(f"Metrics: {list(metrics.keys())}")
+        print(f"Optimizer: {type(optimizer).__name__}")
+        print(f"Loss function: {type(loss_fn).__name__}")
+        ```
+
+    Note:
+        The function provides robust fallback mechanisms:
+        - Empty metrics dict if metrics config is missing
+        - BCEWithLogitsLoss as fallback loss function
+        - Comprehensive error logging for debugging
+    """
     log.info("Setting up training components...")
 
     metrics: dict[str, Any] = {}
@@ -254,7 +511,73 @@ def _handle_checkpointing_and_resume(
     device: torch.device,
     experiment_logger: Any,
 ) -> tuple[int, float | None]:
-    """Handles checkpoint loading and resume logic."""
+    """
+    Handle checkpoint loading and training resume functionality.
+
+    This function manages the checkpointing system including:
+    - Checkpoint directory setup and validation
+    - Resume logic from existing checkpoints
+    - Best model tracking initialization
+    - Metric monitoring configuration
+
+    Args:
+        cfg: Hydra configuration containing checkpoint settings.
+            Expected structure:
+            - cfg.training.checkpoints.resume_from_checkpoint (str, optional):
+              Path to checkpoint for resuming
+            - cfg.training.checkpoints.save_best (DictConfig, optional):
+              Best model saving configuration
+
+        model: Neural network model for state loading.
+        optimizer: Optimizer for state loading.
+        device: Target device for checkpoint loading.
+        experiment_logger: Experiment logger with checkpoint directory access.
+
+    Returns:
+        tuple containing:
+            - int: Starting epoch number (0 for fresh start,
+            epoch+1 for resume)
+            - float | None: Best metric value from checkpoint (None for fresh
+            start)
+
+    Raises:
+        FileNotFoundError: If specified checkpoint file doesn't exist
+        RuntimeError: If checkpoint loading fails
+        KeyError: If checkpoint format is invalid
+
+    Examples:
+        ```python
+        # Configuration for resuming from checkpoint
+        cfg = OmegaConf.create({
+            "training": {
+                "checkpoints": {
+                    "resume_from_checkpoint": "checkpoints/best_model.pth",
+                    "save_best": {
+                        "enabled": True,
+                        "monitor_metric": "val_iou",
+                        "monitor_mode": "max"
+                    }
+                }
+            }
+        })
+
+        start_epoch, best_metric = _handle_checkpointing_and_resume(
+            cfg, model, optimizer, device, experiment_logger
+        )
+
+        if start_epoch > 0:
+            print(f"Resumed from epoch {start_epoch}, best metric: \
+                {best_metric}")
+        else:
+            print("Starting fresh training")
+        ```
+
+    Note:
+        - Supports both absolute and relative checkpoint paths
+        - Automatically resolves paths relative to original working directory
+        - Provides comprehensive logging for checkpoint operations
+        - Initializes best metric tracking based on monitoring mode
+    """
     log.info("Handling checkpointing and resume...")
     start_epoch = 0
     best_metric_value = None
@@ -335,7 +658,114 @@ def _handle_checkpointing_and_resume(
 
 @hydra.main(version_base=None, config_path="../configs", config_name="config")
 def main(cfg: DictConfig) -> None:
-    """Main training and evaluation entry point."""
+    """
+    Main training pipeline entry point for crack segmentation.
+
+    This function orchestrates the complete training workflow including:
+    1. Environment setup and device configuration
+    2. Experiment initialization and logging setup
+    3. Data loading and validation
+    4. Model creation and initialization
+    5. Training component configuration
+    6. Checkpoint handling and resume logic
+    7. Training execution via Trainer class
+    8. Cleanup and resource management
+
+    The function is decorated with Hydra's main decorator to enable
+    configuration management and CLI parameter overrides.
+
+    Args:
+        cfg: Complete Hydra configuration object containing all settings.
+            Key sections:
+            - model: Neural network architecture and parameters
+            - data: Dataset and dataloader configuration
+            - training: Training hyperparameters and settings
+            - evaluation: Metrics and evaluation configuration
+            - experiment: Experiment tracking and logging settings
+
+    Returns:
+        None: Function handles training execution and cleanup internally.
+
+    Raises:
+        ResourceError: If required hardware resources are unavailable
+        DataError: If data loading or validation fails
+        ModelError: If model creation or initialization fails
+        ConfigurationError: If configuration is invalid or incomplete
+        Exception: Any unhandled exception during training execution
+
+    Examples:
+        Training with default configuration:
+        ```bash
+        python run.py
+        ```
+
+        Training with parameter overrides:
+        ```bash
+        python run.py training.epochs=100 \
+                      data.batch_size=8 \
+                      model.encoder_name=resnet50
+        ```
+
+        Resume from checkpoint:
+        ```bash
+        python run.py training.checkpoints.resume_from_checkpoint=\
+            path/to/checkpoint.pth
+        ```
+
+        GPU-specific training:
+        ```bash
+        python run.py training.device=cuda:1 \
+                      training.use_amp=true \
+                      data.num_workers=8
+        ```
+
+    Configuration Examples:
+        Minimal training configuration:
+        ```yaml
+        model:
+          _target_: src.model.core.unet.UNet
+          encoder_name: resnet34
+          classes: 1
+
+        data:
+          data_root: data/
+          batch_size: 16
+
+        training:
+          epochs: 100
+          optimizer:
+            _target_: torch.optim.Adam
+            lr: 0.001
+        ```
+
+        Production training configuration:
+        ```yaml
+        training:
+          epochs: 200
+          use_amp: true
+          checkpoints:
+            save_freq: 10
+            save_best:
+              enabled: true
+              monitor_metric: val_iou
+              monitor_mode: max
+          early_stopping:
+            patience: 20
+            min_delta: 0.001
+        ```
+
+    Note:
+        - Experiment tracking is automatically initialized with unique
+        timestamps
+        - All training artifacts are saved to structured output directories
+        - Comprehensive error handling ensures graceful failure recovery
+        - Final evaluation should be performed separately using evaluate.py
+
+    See Also:
+        - src.evaluate: For model evaluation and inference
+        - src.training.trainer: Core training loop implementation
+        - configs/: Configuration files and examples
+    """
     experiment_logger = None
     try:
         # --- 1. Initial Setup ---
