@@ -14,7 +14,7 @@ distributed:
   enabled: false         # Enable distributed training
   rank: 0                # Rank of the current process
   world_size: 1          # Total number of processes
-  
+
 # Sampler configuration
 sampler:
   enabled: false         # Enable custom sampler
@@ -34,9 +34,9 @@ memory:
   adaptive_batch_size: false # Adjust batch size based on available memory
   max_memory_mb: null        # Memory limit in MB (null = use all available)
 
-# Sample limits for quick tests
+# Sample limits for quick tests - CONFIGURED FOR FAST TESTING
 # - To limit the number of samples (e.g., for quick tests), set a positive integer.
 # - To use the full dataset, set to null, 0, or remove these lines.
-max_train_samples: 8         # Limit number of training samples (null = use all)
-max_val_samples: 4           # Limit number of validation samples
-max_test_samples: 4          # Limit number of test samples 
+max_train_samples: 16        # Limit number of training samples (quick verification)
+max_val_samples: 8           # Limit number of validation samples
+max_test_samples: 8          # Limit number of test samples

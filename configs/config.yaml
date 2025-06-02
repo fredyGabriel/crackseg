@@ -1,4 +1,4 @@
-# Main Hydra configuration for experiment runner
+# Main Hydra configuration for experiment runner - BASIC VERIFICATION SETUP
 # This file sets up the default configuration structure for the project.
 
 # List of default configuration files to load for each component
@@ -8,21 +8,21 @@ defaults:
   - data: default         # General data config
   - data/transform: augmentations  # Data augmentations
   - data/dataloader: default       # DataLoader config
-  - model: default        # Model config
-  - training: default     # Training config
+  - model: default        # Model config - simplified
+  - training: default     # Training config - 2 epochs
   - evaluation: default   # Evaluation config
   - _self_
 
 # General configuration
 random_seed: 42           # Global random seed for reproducibility
-require_cuda: true        # Require CUDA (GPU) for training/evaluation
+require_cuda: false       # Do NOT require CUDA (allow CPU for testing)
 log_level: "INFO"         # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
 log_to_file: true         # Save logs to file in addition to console
 
 # Experiment configuration
 experiment:
-  name: "crackseg"        # Name of the experiment
-  output_dir: "outputs"   # Directory for all experiment outputs
+  name: "basic_verification"  # Name of the experiment - CHANGED for testing
+  output_dir: "outputs"       # Directory for all experiment outputs
 
 # Configure Hydra to use the same directory structure as ExperimentManager
 hydra:
@@ -43,9 +43,9 @@ data:
   train_dir: "${data.root_dir}/train"  # Training data directory
   val_dir: "${data.root_dir}/val"      # Validation data directory
   test_dir: "${data.root_dir}/test"    # Test data directory
-  batch_size: 16            # Batch size (legacy, overridden by dataloader config)
-  num_workers: 4            # Number of workers (legacy)
-  pin_memory: true          # Pin memory for DataLoader (legacy)
+  batch_size: 4            # Batch size (legacy, overridden by dataloader config) - REDUCED
+  num_workers: 2           # Number of workers (legacy) - REDUCED
+  pin_memory: true         # Pin memory for DataLoader (legacy)
 
 # Model configuration - This entire section will be loaded via defaults
 # (see model/default.yaml and model subfolders for details)

@@ -1,4 +1,4 @@
-# configs/training/trainer.yaml
+# configs/training/trainer.yaml - CONFIGURED FOR BASIC VERIFICATION
 
 defaults:
   # - lr_scheduler: step_lr  # Change to cosine or reduce_on_plateau as needed
@@ -24,8 +24,8 @@ optimizer:
 # Learning Rate Scheduler settings (Optional - define in separate config)
 lr_scheduler: ${lr_scheduler}  # Reference to scheduler config
 
-# Mixed Precision Training (AMP)
-use_amp: true  # Enable/disable Automatic Mixed Precision
+# Mixed Precision Training (AMP) - DISABLED for verification stability
+use_amp: false  # Enable/disable Automatic Mixed Precision
 
 # Gradient Accumulation
 gradient_accumulation_steps: 1  # Number of steps to accumulate gradients (1 = disabled)
@@ -41,16 +41,16 @@ save_best:
   monitor_mode: "min"         # 'min' for minimizing (e.g. loss), 'max' for maximizing (e.g. accuracy)
   best_filename: "model_best.pth.tar"
 
-# Early Stopping settings
+# Early Stopping settings - RELAXED for basic verification
 early_stopping:
   _target_: src.utils.early_stopping.EarlyStopping  # EarlyStopping class
   monitor: "val_loss"      # Metric to monitor for early stopping
-  patience: 2              # Number of epochs with no improvement to wait
+  patience: 5              # Number of epochs with no improvement to wait - INCREASED
   mode: "min"              # 'min' for loss, 'max' for accuracy/metric
-  min_delta: 0.001         # Minimum change to qualify as improvement
+  min_delta: 0.01          # Minimum change to qualify as improvement - RELAXED
   verbose: true            # Print early stopping messages
 
 # Verbosity / Progress reporting
 verbose: true
 progress_bar: true
-log_interval_batches: 50  # Log training batch loss every N batches (0 to disable)
+log_interval_batches: 10  # Log training batch loss every N batches (REDUCED for more feedback)

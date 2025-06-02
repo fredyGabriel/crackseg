@@ -4,18 +4,18 @@ defaults:
   - loss: bce_dice             # Select default loss config from loss/ group
   - _self_
 
-# Default training configuration
+# Default training configuration - CONFIGURED FOR BASIC VERIFICATION
 # Edit these values for your training process
 
-epochs: 2                      # Number of training epochs
+epochs: 2                      # Number of training epochs - FAST for verification
 learning_rate: 0.001           # Initial learning rate
 # optimizer: adam              # Options: adam, sgd, etc. (Need factory/config for this too)
 weight_decay: 0.0001           # Weight decay (L2 regularization)
 scheduler: step_lr             # Learning rate scheduler (step_lr, cosine, etc.)
 step_size: 10                  # Step size for step_lr scheduler
-gamma: ${thresholds.gamma}                     # Decay factor for step_lr scheduler
+gamma: ${thresholds.gamma}     # Decay factor for step_lr scheduler
 
-device: cuda:0                 # Device to use for training (e.g., cuda:0, cpu)
+device: "auto"                 # Device to use for training (auto = GPU if available, else CPU)
 
 # Loss configuration is now handled by the 'loss' default group above
 # loss:

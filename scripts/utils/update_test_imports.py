@@ -14,7 +14,7 @@ BACKUP_EXT = ".bak"
 LOG_FILE = "update_test_imports.log"
 
 
-def update_imports_in_file(filepath, import_map):
+def update_imports_in_file(filepath: str, import_map: dict[str, str]) -> bool:
     changed = False
     with open(filepath, encoding="utf-8") as f:
         lines = f.readlines()

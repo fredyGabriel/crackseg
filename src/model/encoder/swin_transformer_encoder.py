@@ -1,3 +1,65 @@
+"""Swin Transformer V2 Encoder for semantic segmentation tasks.
+
+This module implements a Swin Transformer V2-based encoder that adapts the
+transformer architecture for use in U-Net style segmentation models. It
+provides multi-scale feature extraction with hierarchical representations
+suitable for dense prediction tasks.
+
+Key Features:
+    - Swin Transformer V2 architecture with improved training stability
+    - Multi-scale feature extraction for U-Net decoder compatibility
+    - Flexible input size handling (resize, pad, or none)
+    - Layer freezing and gradual unfreezing for transfer learning
+    - Comprehensive error handling with ResNet fallback
+    - Optimizer parameter grouping for fine-tuning strategies
+
+Architecture Overview:
+    The Swin Transformer uses hierarchical windows that shift between layers
+    to enable cross-window connections while maintaining computational
+    efficiency. Each stage performs patch merging that reduces spatial
+    resolution by 2x while doubling the channel dimensions.
+
+    Typical feature pyramid:
+    - Stage 0: H/4 x W/4 x C (patch size 4)
+    - Stage 1: H/8 x W/8 x 2C
+    - Stage 2: H/16 x W/16 x 4C
+    - Stage 3: H/32 x W/32 x 8C
+
+Integration:
+    - Designed for U-Net decoder integration with skip connections
+    - Compatible with various Swin model variants from timm library
+    - Supports both pretrained and randomly initialized models
+    - Provides channel information for decoder configuration
+
+Error Handling:
+    - Graceful fallback to ResNet encoder if Swin model fails
+    - Comprehensive logging for debugging model initialization
+    - Robust input size validation and adaptation
+    - Channel dimension detection with multiple fallback strategies
+
+Example Usage:
+    # Basic encoder initialization
+    config = SwinTransformerEncoderConfig(
+        model_name="swinv2_tiny_window16_256",
+        pretrained=True,
+        img_size=256
+    )
+    encoder = SwinTransformerEncoder(in_channels=3, config=config)
+
+    # Forward pass with multi-scale features
+    x = torch.randn(2, 3, 256, 256)
+    features, skip_features = encoder(x)
+
+    # Access channel information for decoder setup
+    out_channels = encoder.out_channels
+    skip_channels = encoder.skip_channels
+
+References:
+    - Swin Transformer V2: https://arxiv.org/abs/2111.09883
+    - timm library: https://github.com/rwightman/pytorch-image-models
+    - U-Net architecture: https://arxiv.org/abs/1505.04597
+"""
+
 # a highly cohesive, self-contained SwinTransformerEncoder class. All methods
 # are tightly coupled to the encoder logic and splitting would reduce clarity.
 # This exception is documented as per the coding-preferences guidelines.
@@ -20,7 +82,88 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class SwinTransformerEncoderConfig:
-    """Configuration for SwinTransformerEncoder."""
+    """Configuration class for SwinTransformerEncoder initialization.
+
+    This dataclass contains all configuration parameters needed to initialize
+    and customize a Swin Transformer encoder. It provides sensible defaults
+    while allowing fine-grained control over model behavior.
+
+    Configuration Categories:
+        - Model Selection: Specify which Swin variant to use
+        - Architecture: Control model structure and feature extraction
+        - Input Handling: Configure input size adaptation strategies
+        - Training: Set up layer freezing and fine-tuning parameters
+        - Validation: Parameters for configuration validation
+
+    Attributes:
+        model_name: Name of the Swin Transformer model from timm library.
+            Common options include:
+            - "swinv2_tiny_window16_256": Tiny model with 256x256 input
+            - "swinv2_small_window16_256": Small model variant
+            - "swinv2_base_window16_256": Base model variant
+            - "swinv2_large_window16_256": Large model variant
+        pretrained: Whether to load ImageNet pretrained weights. Recommended
+            for transfer learning and generally better performance.
+        output_hidden_states: Whether to output intermediate hidden states.
+            Set to True for multi-scale feature extraction.
+        features_only: Whether to extract only feature maps without
+            classification head. Should be True for segmentation tasks.
+        out_indices: List of stage indices to extract features from.
+            Default [0,1,2,3] extracts features from all 4 stages for
+            complete feature pyramid.
+        img_size: Expected input image size for model initialization.
+            Must match the size in model_name for optimal performance.
+        patch_size: Size of image patches. Typically 4 for Swin models.
+            Determines the initial downsampling factor.
+        use_abs_pos_embed: Whether to use absolute position embeddings.
+            Recommended for better position awareness.
+        output_norm: Whether to apply normalization to output features.
+            Helps with training stability and feature consistency.
+        handle_input_size: Strategy for handling input size mismatches:
+            - "resize": Resize input to match expected size
+            - "pad": Pad input with zeros to match expected size
+            - "none": Pass input as-is (may cause errors if size mismatches)
+        freeze_layers: Specification for layer freezing during training:
+            - False: No layers frozen
+            - True: All layers frozen
+            - str: Pattern to match layer names for freezing
+            - list[str]: List of patterns for selective freezing
+        finetune_lr_scale: Dictionary mapping layer patterns to learning
+            rate scale factors for differential learning rates during
+            fine-tuning. None means uniform learning rate.
+        min_model_name_parts_for_size_check: Minimum number of parts in
+            model name required for automatic size validation.
+        expected_input_dims: Expected number of dimensions in input tensor.
+            Should be 4 for batched 2D images (N, C, H, W).
+
+    Examples:
+        >>> # Basic configuration for tiny model
+        >>> config = SwinTransformerEncoderConfig(
+        ...     model_name="swinv2_tiny_window16_256",
+        ...     pretrained=True,
+        ...     img_size=256
+        ... )
+
+        >>> # Configuration with layer freezing
+        >>> config = SwinTransformerEncoderConfig(
+        ...     model_name="swinv2_base_window16_256",
+        ...     freeze_layers=["patch_embed", "layers.0"],
+        ...     finetune_lr_scale={"layers.3": 1.0, "layers.2": 0.5}
+        ... )
+
+        >>> # Configuration for different input handling
+        >>> config = SwinTransformerEncoderConfig(
+        ...     handle_input_size="pad",
+        ...     img_size=512,
+        ...     out_indices=[1, 2, 3]  # Skip stage 0
+        ... )
+
+    Notes:
+        - Model name should include size information for automatic validation
+        - Pretrained weights are highly recommended for transfer learning
+        - out_indices should be consecutive for proper feature pyramid
+        - Layer freezing patterns use regex matching for flexibility
+    """
 
     model_name: str = "swinv2_tiny_window16_256"
     pretrained: bool = True
@@ -39,22 +182,113 @@ class SwinTransformerEncoderConfig:
 
 
 class SwinTransformerEncoder(EncoderBase):
-    """
-    Swin Transformer V2 Encoder for segmentation tasks.
+    """Swin Transformer V2 Encoder for U-Net style segmentation networks.
 
-    This encoder uses the Swin Transformer V2 architecture from the timm
-    library and adapts it for use in a U-Net architecture. It extracts
-    multi-scale features from the input and returns them in a format
-    suitable for a decoder with skip connections.
+    This encoder implements the Swin Transformer V2 architecture adapted for
+    semantic segmentation tasks. It provides hierarchical multi-scale feature
+    extraction suitable for decoder networks with skip connections, following
+    the U-Net paradigm.
 
-    Features of Swin Transformer V2:
-    - Post-normalization for improved training stability
-    - Scaled cosine attention for better performance at high resolutions
-    - Log-spaced continuous relative position bias for better transferability
-    - Improved architecture with more flexible parameter configurations
+    Architecture Details:
+        The Swin Transformer uses a hierarchical design with shifted windows
+        that enables efficient computation while maintaining cross-window
+        connections. Key improvements in V2 include:
 
-    Each stage of the Swin Transformer performs patch merging that reduces the
-    resolution by 2x, similar to max pooling in CNNs.
+        - Post-normalization for improved training stability
+        - Scaled cosine attention for better high-resolution performance
+        - Log-spaced continuous relative position bias
+        - More flexible parameter configurations
+
+    Feature Extraction:
+        The encoder extracts features at multiple scales through patch merging
+        operations. Each stage reduces spatial resolution by 2x while typically
+        doubling channel dimensions:
+
+        - Input: H x W x 3
+        - Stage 0: H/4 x W/4 x C (after patch embedding)
+        - Stage 1: H/8 x W/8 x 2C (after first patch merging)
+        - Stage 2: H/16 x W/16 x 4C
+        - Stage 3: H/32 x W/32 x 8C
+
+    Input Handling:
+        Supports flexible input size handling strategies:
+        - Resize: Automatically resizes input to match model expectations
+        - Pad: Pads input with zeros to match expected dimensions
+        - None: Passes input unchanged (may cause errors with size mismatch)
+
+    Training Features:
+        - Layer freezing for transfer learning scenarios
+        - Gradual unfreezing with epoch-based schedules
+        - Differential learning rates for fine-tuning
+        - Comprehensive parameter grouping for optimizers
+
+    Error Recovery:
+        Includes robust fallback mechanisms:
+        - Automatic fallback to ResNet if Swin model fails to load
+        - Multiple strategies for channel dimension detection
+        - Comprehensive error logging for debugging
+
+    Attributes:
+        swin: The underlying timm Swin Transformer model instance
+        out_indices: Indices of stages to extract features from
+        img_size: Expected input image size
+        patch_size: Size of image patches for initial embedding
+        handle_input_size: Strategy for input size handling
+        freeze_layers: Current layer freezing configuration
+        finetune_lr_scale: Learning rate scaling factors by layer
+        reduction_factors: Downsampling factors for each stage
+
+    Examples:
+        >>> # Basic encoder setup
+        >>> config = SwinTransformerEncoderConfig(
+        ...     model_name="swinv2_tiny_window16_256",
+        ...     pretrained=True,
+        ...     img_size=256
+        ... )
+        >>> encoder = SwinTransformerEncoder(in_channels=3, config=config)
+
+        >>> # Forward pass
+        >>> x = torch.randn(2, 3, 256, 256)
+        >>> features, skip_features = encoder(x)
+        >>> print(f"Output features shape: {features.shape}")
+        >>> print(f"Skip features shapes: {[s.shape for s in skip_features]}")
+
+        >>> # Access channel information for decoder
+        >>> out_channels = encoder.out_channels
+        >>> skip_channels = encoder.skip_channels
+        >>> print(f"Output channels: {out_channels}")
+        >>> print(f"Skip channels: {skip_channels}")
+
+        >>> # Layer freezing for transfer learning
+        >>> encoder._apply_layer_freezing()
+        >>>
+        >>> # Gradual unfreezing during training
+        >>> unfreeze_schedule = {
+        ...     5: ["layers.3"],
+        ...     10: ["layers.2", "layers.3"],
+        ...     15: ["layers.1", "layers.2", "layers.3"]
+        ... }
+        >>> encoder.gradual_unfreeze(current_epoch=10,
+        ...                         unfreeze_schedule=unfreeze_schedule)
+
+    Integration:
+        Designed to work seamlessly with:
+        - U-Net decoders expecting multi-scale features
+        - PyTorch Lightning training workflows
+        - Hydra configuration management
+        - timm model ecosystem
+
+    Performance Considerations:
+        - Memory usage scales with input size and model variant
+        - Tiny variants suitable for resource-constrained environments
+        - Base/Large variants for maximum performance
+        - Gradient checkpointing can reduce memory at cost of speed
+
+    Notes:
+        - Requires timm library for model instantiation
+        - Pretrained weights highly recommended for best performance
+        - Input size should match model configuration for optimal results
+        - Channel dimensions are automatically detected from model
     """
 
     swin: nn.Module  # Explicit type annotation for the attribute
@@ -62,7 +296,38 @@ class SwinTransformerEncoder(EncoderBase):
     def _initialize_attributes(
         self, config: SwinTransformerEncoderConfig
     ) -> None:
-        """Initialize instance attributes from the configuration."""
+        """Initialize instance attributes from configuration.
+
+        Sets up all encoder instance attributes based on the provided
+        configuration object. Attributes are categorized into model
+        parameters, training settings, and internal state variables.
+
+        Args:
+            config: Configuration object containing all encoder settings.
+
+        Attributes Set:
+            Model Configuration:
+                - out_indices: Which feature stages to extract
+                - img_size: Expected input image dimensions
+                - patch_size: Size of image patches for initial embedding
+                - handle_input_size: Strategy for input size handling
+                - use_abs_pos_embed: Whether to use absolute position
+                embeddings
+                - output_norm: Whether to normalize output features
+
+            Training Configuration:
+                - freeze_layers: Layer freezing specification
+                - finetune_lr_scale: Learning rate scaling by layer pattern
+
+            Internal State:
+                - _skip_channels: Channel counts for skip connections
+                - _out_channels: Output channel count
+                - reduction_factors: Downsampling factors per stage
+
+            Validation Parameters:
+                - min_model_name_parts_for_size_check: Minimum model name parts
+                - expected_input_dims: Expected input tensor dimensions
+        """
         self.out_indices = config.out_indices
         self._skip_channels: list[int] = []  # To be populated
         self._out_channels: int = 0  # To be populated
@@ -84,7 +349,25 @@ class SwinTransformerEncoder(EncoderBase):
         self.expected_input_dims = config.expected_input_dims
 
     def _validate_config(self, config: SwinTransformerEncoderConfig) -> None:
-        """Validate specific configuration parameters."""
+        """Validate configuration parameters for consistency and correctness.
+
+        Performs comprehensive validation of configuration parameters to catch
+        potential issues early. Includes model name validation, input size
+        checking, and parameter consistency verification.
+
+        Args:
+            config: Configuration object to validate.
+
+        Raises:
+            ValueError: If any configuration parameter is invalid or
+                inconsistent with model requirements.
+
+        Validation Checks:
+            - Model name format and size consistency
+            - Input size handling strategy validity
+            - Parameter ranges and types
+            - Configuration consistency across related parameters
+        """
         self._validate_model_config(config.model_name, self.img_size)
         valid_size_handlers = ["resize", "pad", "none"]
         if self.handle_input_size not in valid_size_handlers:
@@ -96,7 +379,38 @@ class SwinTransformerEncoder(EncoderBase):
     def _initialize_swin_model(
         self, in_channels: int, config: SwinTransformerEncoderConfig
     ) -> None:
-        """Initialize the Swin Transformer model from timm."""
+        """Initialize Swin Transformer model with robust error handling.
+
+        Attempts to create the specified Swin Transformer model from the timm
+        library with automatic fallback to ResNet34 if initialization fails.
+        Provides comprehensive logging for debugging initialization issues.
+
+        Args:
+            in_channels: Number of input channels for model creation.
+            config: Configuration object containing model specifications.
+
+        Raises:
+            ValueError: If both primary and fallback model initialization fail.
+
+        Error Handling:
+            - Primary model initialization with comprehensive exception
+            catching
+            - Automatic fallback to ResNet34 encoder if Swin model fails
+            - Detailed logging of initialization attempts and failures
+            - Graceful error recovery with informative error messages
+
+        Model Creation Parameters:
+            - model_name: Swin variant identifier from config
+            - pretrained: Whether to load ImageNet pretrained weights
+            - in_chans: Input channel count for first conv layer
+            - features_only: Extract features without classification head
+            - out_indices: Which stages to extract features from
+
+        Notes:
+            - Internet connection required for pretrained weight download
+            - First-time model download may take several minutes
+            - Fallback model provides basic functionality if Swin fails
+        """
         try:
             logger.info(
                 f"Attempting to initialize {config.model_name} with "
@@ -205,13 +519,58 @@ class SwinTransformerEncoder(EncoderBase):
         in_channels: int,
         config: SwinTransformerEncoderConfig | None = None,
     ):
-        """
-        Initialize the Swin Transformer V2 Encoder.
+        """Initialize the Swin Transformer V2 Encoder.
+
+        Creates a Swin Transformer encoder adapted for segmentation tasks with
+        comprehensive error handling and automatic fallback mechanisms. The
+        encoder performs multi-stage initialization including model loading,
+        channel detection, and configuration validation.
+
+        Initialization Process:
+            1. Initialize parent EncoderBase class
+            2. Set up configuration with defaults if needed
+            3. Initialize and validate instance attributes
+            4. Load Swin Transformer model from timm library
+            5. Detect output channel dimensions via dummy forward pass
+            6. Calculate reduction factors for each stage
+            7. Apply layer freezing if configured
 
         Args:
-            in_channels (int): Number of input channels (e.g., 3 for RGB).
-            config (SwinTransformerEncoderConfig, optional): Configuration
-                object. If None, default values will be used.
+            in_channels: Number of input channels. Common values:
+                - 3: RGB images
+                - 1: Grayscale images
+                - 4: RGBA images
+            config: Configuration object controlling encoder behavior.
+                If None, uses default SwinTransformerEncoderConfig with
+                sensible defaults for most use cases.
+
+        Raises:
+            ValueError: If model initialization fails for both primary and
+                fallback models, or if configuration validation fails.
+            RuntimeError: If channel dimension detection fails completely.
+
+        Examples:
+            >>> # Basic initialization with RGB input
+            >>> encoder = SwinTransformerEncoder(in_channels=3)
+
+            >>> # Custom configuration
+            >>> config = SwinTransformerEncoderConfig(
+            ...     model_name="swinv2_base_window16_256",
+            ...     img_size=512,
+            ...     pretrained=True,
+            ...     freeze_layers=["patch_embed"]
+            ... )
+            >>> encoder = SwinTransformerEncoder(in_channels=3, config=config)
+
+            >>> # Check initialization results
+            >>> print(f"Output channels: {encoder.out_channels}")
+            >>> print(f"Skip channels: {encoder.skip_channels}")
+
+        Notes:
+            - Initialization may take several seconds for large models
+            - Internet connection required for downloading pretrained weights
+            - Fallback to ResNet34 occurs if Swin model fails to load
+            - Model is automatically set to training mode after initialization
         """
         super().__init__(in_channels)
 

@@ -1,0 +1,59 @@
+# @package _global_
+
+# Basic verification configuration for rapid testing
+# This config is optimized for quick verification of system functionality
+
+defaults:
+  - base                  # Base global settings
+  - data: default         # General data config (with reduced parameters)
+  - data/transform: augmentations  # Data augmentations
+  - data/dataloader: default       # DataLoader config (with sample limits)
+  - model: default        # Simplified model config
+  - training: default     # Fast training config (2 epochs)
+  - evaluation: default   # Evaluation config
+  - _self_
+
+# Override key settings for basic verification
+random_seed: 42
+require_cuda: false        # Allow CPU execution for testing
+log_level: "INFO"
+log_to_file: true
+
+# Experiment configuration for verification
+experiment:
+  name: "basic_verification"
+  output_dir: "outputs"
+
+# Hydra configuration for verification runs
+hydra:
+  run:
+    dir: outputs/verification/${now:%Y%m%d-%H%M%S}-basic_test
+  job:
+    chdir: false
+
+# Data overrides for quick testing
+data:
+  batch_size: 4           # Small batch size for fast processing
+  num_workers: 2          # Reduced workers for stability
+  image_size: [256, 256]  # Smaller images for faster processing
+
+# Training overrides for verification
+training:
+  epochs: 2               # Very short training for verification
+  device: "auto"          # Auto-select device (GPU if available, CPU otherwise)
+  learning_rate: 0.001    # Standard learning rate
+
+# Model stays as configured in model/default.yaml with simplified architecture
+
+# Sample verification targets
+verification:
+  target_train_batches: 4    # Expect ~4 training batches (16 samples / 4 batch_size)
+  target_val_batches: 2      # Expect ~2 validation batches (8 samples / 4 batch_size)
+  expected_duration_minutes: 5  # Should complete in under 5 minutes
+  success_criteria:
+    - "Training loop completes without errors"
+    - "Validation loop runs successfully"
+    - "Model parameters update during training"
+    - "Loss decreases or remains stable"
+    - "Output predictions have correct shape"
+    - "Checkpoint saving works"
