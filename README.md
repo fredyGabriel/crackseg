@@ -8,6 +8,7 @@ Advanced deep learning system for semantic segmentation of cracks in asphalt pav
 Features a modular, reproducible, and extensible codebase designed for both research and production environments.
 
 **Key Features:**
+
 - 🧠 **Modular Architecture**: Composable encoders, decoders, and training components
 - 🔧 **Production Ready**: Type-safe, tested, and documented codebase
 - 📊 **Research Focused**: Experiment tracking, reproducible configurations
@@ -108,6 +109,7 @@ All project reports, analysis, and documentation are organized in `docs/reports/
 - **`archive/`** — Historical reports and deprecated documentation
 
 ### Current Metrics
+
 - 📊 **Test Coverage**: 66% (5,333/8,065 lines) — improved from 25%
 - 🧪 **Tests Implemented**: 866 tests across unit and integration suites
 - 🏗️ **Architecture**: Modular design with factory patterns
@@ -135,6 +137,7 @@ python scripts/utils/organize_reports.py
 The project uses **Hydra** for hierarchical configuration management:
 
 ### Configuration Structure
+
 - **Model Architectures**: `configs/model/architectures/` (U-Net, SwinUNet, etc.)
 - **Training Components**: `configs/training/` (losses, metrics, schedulers)
 - **Data Processing**: `configs/data/` (dataloaders, transforms)
@@ -163,12 +166,14 @@ All configurations are composable and can be overridden via CLI or configuration
 This project maintains strict code quality standards:
 
 ### Quality Tools
+
 - **🔧 Black**: Automatic code formatting (79 char line length)
 - **🔍 Ruff**: Comprehensive linting and style checking
 - **⚡ Basedpyright**: Static type checking (mandatory type annotations)
 - **🧪 Pytest**: Testing framework with coverage reporting
 
 ### Quality Requirements
+
 - **Type Annotations**: Required for all functions, methods, and variables
 - **Test Coverage**: Target >80% for new code, current 66% overall
 - **Code Formatting**: Must pass Black and Ruff checks
@@ -197,6 +202,7 @@ pre-commit install
 ```
 
 Configuration files:
+
 - **Centralized config**: `configs/linting/config.yaml`
 - **Tool configuration**: `pyproject.toml`
 - **Type checking**: `pyrightconfig.json`
@@ -243,6 +249,7 @@ For complete workflow details, see [**Training Workflow Guide**](docs/guides/WOR
 Comprehensive test suite ensuring code reliability:
 
 ### Test Organization
+
 - **Unit Tests**: `tests/unit/` - Individual component testing
 - **Integration Tests**: `tests/integration/` - Module interaction testing
 - **End-to-End Tests**: `tests/integration/end_to_end/` - Complete pipeline testing
@@ -262,6 +269,7 @@ pytest tests/ -v --cov=src --cov-report=term-missing
 ```
 
 ### Test Coverage
+
 - **Current Coverage**: 66% (5,333/8,065 lines)
 - **Test Count**: 866 implemented tests
 - **Coverage Reports**: Available in `htmlcov/` after running with `--cov-report=html`
@@ -278,6 +286,7 @@ cp .env.example .env
 ```
 
 ### Key Variables
+
 - **`ANTHROPIC_API_KEY`**: API key for Task Master integration
 - **`DEBUG`**: Enable/disable debug mode (`true`/`false`)
 - **`CUDA_VISIBLE_DEVICES`**: GPU device selection
@@ -298,16 +307,12 @@ conda env update -f environment.yml --prune
 python -c "import torch; print(f'PyTorch: {torch.__version__}')"
 ```
 
-### System Requirements
-- **Python**: 3.12+ (required for modern type annotations)
-- **CUDA**: Compatible version for PyTorch GPU support
-- **Memory**: 8GB+ RAM recommended, 6GB+ VRAM for training
-
 ## Task Management Integration
 
 This project integrates with **Task Master** for structured development:
 
 ### Key Features
+
 - 📋 **Structured Tasks**: Hierarchical task breakdown with dependencies
 - 📊 **Progress Tracking**: Real-time task status and completion tracking
 - 🤖 **AI Integration**: Automated task generation from PRDs
@@ -355,6 +360,7 @@ For detailed contribution guidelines, see [`docs/guides/CONTRIBUTING.md`](docs/g
 ## Architecture & Design
 
 ### Design Principles
+
 1. **Modularity**: Components with single responsibilities and loose coupling
 2. **Configurability**: All parameters manageable via Hydra configurations
 3. **Testability**: Comprehensive test coverage with clear interfaces
@@ -362,6 +368,7 @@ For detailed contribution guidelines, see [`docs/guides/CONTRIBUTING.md`](docs/g
 5. **Extensibility**: Easy to add new models, losses, and components
 
 ### Key Patterns
+
 - **Factory Pattern**: Dynamic component creation via registries
 - **Configuration Composition**: Hierarchical Hydra configuration system
 - **Dependency Injection**: Testable components with injected dependencies
