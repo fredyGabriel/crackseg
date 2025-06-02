@@ -28,4 +28,4 @@ This directory contains auxiliary, experimental, and example scripts for the pro
 
 ---
 
-_This organization helps keep the repository clean, professional, and easy to navigate for all contributors._ 
+_This organization helps keep the repository clean, professional, and easy to navigate for all contributors._
