@@ -17,12 +17,28 @@ Features a modular, reproducible, and extensible codebase designed for both rese
 
 ## Quickstart
 
+### Prerequisites
+
+**System Dependencies Required:**
+
+- Git, Conda/Miniconda, Graphviz
+- Optional: CUDA Toolkit (for GPU acceleration)
+
+For detailed installation instructions, see [**System Dependencies Guide**](docs/guides/SYSTEM_DEPENDENCIES.md).
+
+**Quick verification:**
+
+```bash
+# Verify all system dependencies
+python scripts/verify_system_dependencies.py
+```
+
 ### 1. Environment Setup
 
 ```bash
 # Create and activate conda environment
 conda env create -f environment.yml
-conda activate torch
+conda activate crackseg
 
 # Copy environment template and configure
 cp .env.example .env  # Edit with your specific settings
