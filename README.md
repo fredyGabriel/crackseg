@@ -14,6 +14,7 @@ Features a modular, reproducible, and extensible codebase designed for both rese
 - 📊 **Research Focused**: Experiment tracking, reproducible configurations
 - 🎯 **High Quality**: 66% test coverage, strict code quality standards
 - ⚙️ **Configurable**: Hydra-based configuration system
+- 📋 **Task Management**: Integrated Task Master AI workflow for development
 
 ## Quickstart
 
@@ -176,6 +177,41 @@ python run.py model=architectures/unet \
 ```
 
 All configurations are composable and can be overridden via CLI or configuration files.
+
+## Task Management & Development Workflow
+
+This project integrates **Task Master AI** for structured, AI-driven development workflow management:
+
+### Key Features
+
+- **🎯 Structured Tasks**: Break down complex features into manageable subtasks
+- **📋 Dependency Management**: Automatic task ordering and prerequisite tracking
+- **🤖 AI Integration**: Task generation from requirements and intelligent progress tracking
+- **📊 Progress Analytics**: Complexity analysis and development insights
+
+### Quick Start
+
+```bash
+# View current tasks and project status
+task-master list
+
+# Find the next task to work on
+task-master next
+
+# View detailed task information
+task-master show <task-id>
+
+# Mark tasks as completed
+task-master set-status --id=<task-id> --status=done
+```
+
+### Documentation
+
+- **📖 Integration Guide**: Task Master commands integrated for structured development workflow
+- **🔧 Command Reference**: CLI commands available through `task-master` package
+- **🏗️ Project Structure**: Task files organized in `tasks/` directory
+
+The Task Master system helps maintain development momentum through structured task management, automated progress tracking, and intelligent workflow guidance.
 
 ## Code Quality & Development Standards
 
