@@ -7,7 +7,7 @@
 Advanced deep learning system for semantic segmentation of cracks in asphalt pavement.
 Features a modular, reproducible, and extensible codebase designed for both research and production environments.
 
-**Key Features:**
+### Key features
 
 - 🧠 **Modular Architecture**: Composable encoders, decoders, and training components
 - 🔧 **Production Ready**: Type-safe, tested, and documented codebase
@@ -363,7 +363,7 @@ python -c "import torch; print(f'PyTorch: {torch.__version__}')"
 
 This project integrates with **Task Master** for structured development:
 
-### Key Features
+### Key Features 3
 
 - 📋 **Structured Tasks**: Hierarchical task breakdown with dependencies
 - 📊 **Progress Tracking**: Real-time task status and completion tracking

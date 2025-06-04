@@ -1,0 +1,27 @@
+{
+  "experiment_start": "2025-06-01T17:12:17.788315",
+  "total_epochs": 1,
+  "best_metrics": {
+    "loss": {
+      "value": 0.4,
+      "epoch": 1,
+      "timestamp": "2025-06-01T17:12:17.789320"
+    },
+    "iou": {
+      "value": 0.8,
+      "epoch": 1,
+      "timestamp": "2025-06-01T17:12:17.789320"
+    }
+  },
+  "metric_history": [
+    {
+      "timestamp": "2025-06-01T17:12:17.789320",
+      "epoch": 1,
+      "train_metrics": {
+        "loss": 0.5
+      },
+      "val_metrics": {
+        "loss": 0.4,
+        "iou": 0.8
+      },
+      "learning_rate": 

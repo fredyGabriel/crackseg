@@ -1,0 +1,165 @@
+
+# ARCHIVO - CÓDIGO OBSOLETO
+# Archivo: project-structure.mdc
+# Fecha de archivo: 2025-06-02 00:02:08
+# Razón: Archivo ya ubicado en old_stuff con baja relevancia
+# Proyecto: CrackSeg - Deep Learning para Segmentación de Grietas
+# Subtarea: 11.3 - Archive Files Marked for Removal
+#
+# IMPORTANTE: Este archivo ha sido marcado como obsoleto durante el proceso
+# de limpieza de código. Se mantiene archivado por precaución y puede ser
+# restaurado si se descubre que aún es necesario.
+#
+# Para restaurar este archivo, contactar al equipo de desarrollo.
+# ===============================================================================
+
+---
+description: Project file structure
+globs: 
+alwaysApply: false
+---
+# Project Structure Guide
+
+## Notes and References
+
+- Always update this file and related guides whenever you make relevant changes to the project structure or workflow. Keeping documentation up to date is essential for team alignment and project maintainability.
+- For structure, coding style, environment, and workflow rules, see `rules/coding-preferences.mdc`, `rules/env-preferences.mdc`, and `rules/workflow-preferences.mdc`.
+- Configuration validation using schemas is MANDATORY and must be integrated at the start of the main flow (`main.py`). If validation fails, execution must abort with a clear message.
+
+## Project Root Layout
+
+```
+project_root/
+├── .env                # Environment variables (sensitive paths, API keys, etc.) - NOT in version control
+├── .env.example        # Template for required environment variables
+├── .gitignore          # Ignores files/dirs (outputs/, __pycache__, .env)
+├── README.md           # Project overview and setup instructions
+├── environment.yaml    # Conda env and dependencies
+├── config/             # Hydra configuration
+│   ├── config.yaml     # Main config (model selection, overrides)
+│   ├── README.md       # Config docs
+│   ├── data/           # Data configs
+│   │   ├── dataset.yaml       # Data pipeline settings
+│   │   └── augmentation.yaml  # Data augmentations pipelines
+│   ├── model/          # Model architecture configs
+│   │   ├── cnn_unet.yaml          # Traditional CNN U-Net config
+│   │   ├── rsc_unet.yaml          # RSC-UNET config
+│   │   ├── cnn_convlstm_unet.yaml # CNN-ConvLSTM U-Net config
+│   │   ├── swinv2_hybrid.yaml     # Hybrid SwinV2-CNN-ASPP config
+│   │   └── full_swinv2.yaml       # Full SwinV2 config
+│   ├── training/         # Training configs
+│   │   └── training.yaml   # Optimizer, scheduler, loss params
+│   ├── logging/          # Logging and checkpoint configs (SEPARATE FILES)
+│   │   └── checkpoints.yaml     # Checkpoints settings (CHECKPOINTS ONLY)
+│   │   └── logging_base.yaml    # Logger settings (LOGGING ONLY)
+│   └── evaluation/       # Eval configs
+│       └── metrics.yaml  # Metrics and eval settings
+│       └── thresholds.yaml  # Thresholds settings
+│
+├── src/                # Source code
+│   ├── __init__.py     # Module exports
+│   ├── main.py         # Entry point - orchestrates execution
+│   │
+│   ├── data/
+│   │   ├── __init__.py   # Minimal
+│   │   ├── loading.py      # Data loading and DataLoader setup
+│   │   ├── dataset.py      # Dataset classes (e.g. CrackDataset)
+│   │   └── transforms.py   # Data transforms (Albumentations)
+│   │
+│   ├── models/
+│   │   ├── __init__.py   # Model exports
+│   │   ├── components/   # Reusable model blocks
+│   │   │   ├── __init__.py      # Component exports
+│   │   │   ├── _base.py           # Abstract base classes
+│   │   │   ├── cnn_blocks.py      # Basic CNN blocks
+│   │   │   ├── unet_blocks.py     # U-Net specific blocks
+│   │   │   ├── aspp.py            # ASPP module
+│   │   │   ├── convlstm.py        # ConvLSTM blocks
+│   │   │   ├── swin_v2_utils.py   # SwinV2 integration helpers
+│   │   │   └── cbam.py            # Convolutional Block Attention Module
+│   │   ├── architectures/  # Model implementations
+│   │   │   ├── __init__.py      # Architecture exports
+│   │   │   ├── cnn_unet.py            # CNN/U-Net model
+│   │   │   ├── rsc_unet.py            # RSC-UNet model
+│   │   │   ├── cnn_convlstm_unet.py   # CNN-ConvLSTM U-Net model
+│   │   │   ├── swinv2_cnn_aspp_unet.py# SwinV2-CNN-ASPP model
+│   │   │   └── full_swinv2_unet.py    # Full SwinV2 model
+│   │   │   # Models inherit from nn.Module and use components/
+│   │   │
+│   │   └── model_factory.py   # Model instantiation factory
+│   │
+│   ├── training/
+│   │   ├── __init__.py   # Trainer export
+│   │   ├── trainer.py      # Main training loop handler
+│   │   ├── training_utils.py # Training helpers
+│   │   ├── losses.py       # Loss functions
+│   │   ├── optimizers.py   # Optimizer setup
+│   │   └── schedulers.py   # Scheduler setup
+│   │
+│   ├── evaluation/
+│   │   ├── __init__.py   # Exports
+│   │   ├── metrics.py      # Metric calculations
+│   │   └── evaluator.py    # Evaluation loop handler
+│   │
+│   └── utils/            # General utilities
+│       ├── __init__.py   # Exports
+│       ├── device.py       # Device management
+│       ├── seeds.py        # Random seed control
+│       ├── logging.py      # Logging setup
+│       ├── checkpointing.py# Model checkpoint handling
+│       ├── config_validation/ # Config validation
+│       │   ├── __init__.py   # Exports
+│       │   ├── validator.py  # Validation logic
+│       │   └── schemas/      # Schema definitions
+│       └── exceptions.py   # Custom exceptions
+│
+├── tests/              # Test suite
+│   ├── __init__.py     # Test init
+│   ├── conftest.py     # Test fixtures
+│   ├── test_main.py    # Entry point tests
+│   │
+│   ├── data/           # Data tests
+│   ├── models/         # Model tests
+│   │   ├── components/   # Component tests
+│   │   ├── architectures/  # Architecture tests
+│   │   └── test_factory.py # Factory tests
+│   │
+│   ├── training/       # Training tests
+│   ├── evaluation/     # Evaluation tests
+│   ├── utils/          # Utility tests
+│   │   ├── config_validation/ # Config validation tests
+│   │   ├── test_logging.py    # Logger tests
+│   │   └── test_checkpointing.py # Checkpoint tests
+│   │   # Other utility tests as needed
+│   │
+│   └── integration/      # Integration tests
+│       ├── test_data_pipeline.py   # Data pipeline tests
+│       ├── test_training_flow.py   # Training flow tests
+│       ├── test_model_inference.py # Inference tests
+│       ├── test_config_integration.py # Config integration tests
+│       └── test_logging_system.py   # Logging system tests
+│
+└── outputs/            # Run outputs (ignored by git)
+    ├── checkpoints/      # Model checkpoints
+    ├── tensorboard/      # TensorBoard data
+    ├── logs/             # Log files
+    ├── images/           # Saved image predictions/visualizations
+    ├── metrics/          # Saved metric data (e.g., CSV, JSON)
+    ├── visualizations/   # Other visualizations
+    ├── validation/       # Detailed validation results/outputs
+    └── system/           # System metrics logs (optional)
+```
+
+## Directory Descriptions
+
+### config/
+- Contains all Hydra configuration files, organized by domain (data, model, training, logging, evaluation).
+
+### src/
+- Main source code, organized by domain (data, models, training, evaluation, utils).
+
+### tests/
+- Test suite, organized to mirror the structure of `src/` for unit, integration, and utility tests.
+
+### outputs/
+- Output directory for checkpoints, logs, metrics, images, and other run artifacts.

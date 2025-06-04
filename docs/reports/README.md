@@ -46,6 +46,14 @@ Project-level reports and planning:
 
 - **`plan_verificacion_post_linting.md`** - Post-linting project verification plan
 
+### 📜 Scripts (`scripts/`)
+
+Example files and configuration templates:
+
+- **`example_prd.txt`** - Product Requirements Document template for Task Master
+- **`hydra_examples.txt`** - Hydra command-line override examples
+- **`README.md`** - Usage instructions for example files
+
 ### 📚 Archive (`archive/`)
 
 Historical and archived reports:
@@ -105,6 +113,10 @@ Historical and archived reports:
 - Temporary reports are cleaned weekly
 - Development reports are maintained until project completion
 
+## 🛠️ Development Tools
+
+Note: Analysis tools and scripts are maintained separately in [`scripts/reports/`](../../scripts/reports/) to distinguish between documentation and development utilities.
+
 ## 📞 Contact and Support
 
 For questions about specific reports or requests for new analysis, consult the project documentation or contact the development team.
@@ -112,4 +124,4 @@ For questions about specific reports or requests for new analysis, consult the p
 ---
 
 *Last updated: January 2025*
-*Organizational structure implemented as part of project report management improvement*
+*Organizational structure updated with scripts section - Task Master compatibility preserved*
