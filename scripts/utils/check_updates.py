@@ -13,7 +13,7 @@ from packaging import version
 HTTP_OK = 200
 
 
-def get_pypi_version(package_name):
+def get_pypi_version(package_name: str) -> str | None:
     """Gets the latest version available on PyPI."""
     try:
         response = requests.get(f"https://pypi.org/pypi/{package_name}/json")
@@ -24,7 +24,7 @@ def get_pypi_version(package_name):
         return None
 
 
-def get_conda_version(package_name):
+def get_conda_version(package_name: str) -> str | None:
     """Gets the latest version available on conda-forge."""
     try:
         result = subprocess.run(
@@ -42,7 +42,7 @@ def get_conda_version(package_name):
         return None
 
 
-def get_current_versions():
+def get_current_versions() -> dict[str, str]:
     """Reads current versions from environment.yml."""
     with open("environment.yml") as f:
         env = yaml.safe_load(f)
@@ -63,7 +63,7 @@ def get_current_versions():
     return deps
 
 
-def main():
+def main() -> None:
     """Main function that compares versions and shows available updates."""
     print("Checking for available updates...")
     print("\nMain dependencies:")

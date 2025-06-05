@@ -1,0 +1,36 @@
+{
+  "assets": {
+    "base_css": {
+      "path": "css/global/base.css",
+      "size": 5564,
+      "hash": "baabc9bc716b0196eae3085d45f7494a",
+      "mime_type": "text/css",
+      "last_modified": 1749087787.6043005,
+      "optimized": false,
+      "cached": false,
+      "load_priority": "critical"
+    },
+    "navigation_css": {
+      "path": "css/components/navigation.css",
+      "size": 6819,
+      "hash": "be4672ba0a97b7071657780a8e820e4f",
+      "mime_type": "text/css",
+      "last_modified": 1749087801.7787936,
+      "optimized": false,
+      "cached": false,
+      "load_priority": "high"
+    },
+    "primary_logo": {
+      "path": "images/logos/primary-logo.png",
+      "size": 5345,
+      "hash": "d6883bd975313456a190611fabf57893",
+      "mime_type": "image/png",
+      "last_modified": 1749012982.5672112,
+      "optimized": false,
+      "cached": false,
+      "load_priority": "critical"
+    }
+  },
+  "version": "1.0.0",
+  "last_updated": 0.0
+}

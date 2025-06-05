@@ -10,6 +10,7 @@ import os
 import sys
 
 import hydra
+from hydra.core.global_hydra import GlobalHydra
 
 # Add the project root directory to the Python path
 sys.path.append(os.getcwd())
@@ -18,7 +19,7 @@ sys.path.append(os.getcwd())
 from src.model.factory import create_unet  # noqa
 
 
-def main():
+def main() -> None:
     """Load a model from config and print its summary."""
     # Initialize Hydra
     config_path = os.path.join(os.getcwd(), "configs")
@@ -28,7 +29,7 @@ def main():
     cfg = hydra.compose(config_name="model/unet_cnn")
 
     # Clean up hydra state
-    hydra.core.global_hydra.GlobalHydra.instance().clear()
+    GlobalHydra.instance().clear()
 
     # Create the model
     model = create_unet(cfg.model)

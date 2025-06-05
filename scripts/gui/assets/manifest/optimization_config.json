@@ -1,0 +1,107 @@
+{
+    "version": "1.0.0",
+    "optimization": {
+        "images": {
+            "compress": true,
+            "quality": 85,
+            "progressive": true,
+            "strip_metadata": true,
+            "formats": {
+                "png": {
+                    "palette_reduction": true,
+                    "dithering": false
+                },
+                "jpeg": {
+                    "optimize": true,
+                    "progressive": true
+                },
+                "webp": {
+                    "lossless": false,
+                    "quality": 85
+                }
+            },
+            "responsive": {
+                "enabled": true,
+                "breakpoints": [
+                    480,
+                    768,
+                    1024,
+                    1200
+                ],
+                "formats": [
+                    "webp",
+                    "png",
+                    "jpeg"
+                ]
+            }
+        },
+        "css": {
+            "minify": true,
+            "autoprefixer": true,
+            "purge_unused": false,
+            "inline_critical": true,
+            "concatenate": false
+        },
+        "javascript": {
+            "minify": true,
+            "compress": true,
+            "mangle": true,
+            "dead_code_elimination": true
+        },
+        "fonts": {
+            "subset": true,
+            "preload_critical": true,
+            "formats": [
+                "woff2",
+                "woff",
+                "ttf"
+            ]
+        }
+    },
+    "caching": {
+        "enabled": true,
+        "strategy": "cache_first",
+        "ttl": 86400,
+        "max_size_mb": 50,
+        "compression": "gzip"
+    },
+    "loading": {
+        "preload_critical": true,
+        "lazy_load_images": true,
+        "progressive_images": true,
+        "critical_css_inline": true,
+        "defer_non_critical": true
+    },
+    "security": {
+        "csp_enabled": true,
+        "sri_hashes": true,
+        "sanitize_svg": true
+    },
+    "performance": {
+        "budget": {
+            "total_size_kb": 1024,
+            "image_size_kb": 512,
+            "css_size_kb": 128,
+            "js_size_kb": 256,
+            "font_size_kb": 128
+        },
+        "metrics": {
+            "track_loading_time": true,
+            "track_cache_hits": true,
+            "track_compression_ratio": true
+        }
+    },
+    "development": {
+        "source_maps": true,
+        "hot_reload": true,
+        "debug_info": true,
+        "skip_optimization": true
+    },
+    "production": {
+        "source_maps": false,
+        "hot_reload": false,
+        "debug_info": false,
+        "skip_optimization": false,
+        "aggressive_optimization": true
+    }
+}

@@ -1,7 +1,9 @@
 import csv
 
-CSV_PATH = "outputs/prd_project_refinement/test_suite_evaluation/reports/"
-CSV_PATH += "test_inventory.csv"
+CSV_PATH = (
+    "outputs/prd_project_refinement/test_suite_evaluation/reports/"
+    "test_inventory.csv"
+)
 
 with open(CSV_PATH, newline="", encoding="utf-8") as f:
     reader = list(csv.reader(f))
@@ -20,6 +22,7 @@ explanation = [
 if "Reproducibility Score" not in header:
     header.append("Reproducibility Score")
     add_score = True
+    idx_score = len(header) - 1  # Last index after append
 else:
     add_score = False
     idx_score = header.index("Reproducibility Score")

@@ -10,6 +10,7 @@ import os
 import sys
 
 import hydra
+from hydra.core.global_hydra import GlobalHydra
 
 # Add the project root directory to the Python path
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +20,7 @@ sys.path.insert(0, os.path.join(project_root, ".."))
 from src.model.factory import create_unet  # noqa: E402
 
 
-def main():
+def main() -> None:
     """Load a CNN U-Net model from config and visualize its architecture."""
     # Initialize Hydra
     config_path = os.path.join(os.getcwd(), "configs")
@@ -27,7 +28,7 @@ def main():
 
     # Load the CNN U-Net config
     cfg = hydra.compose(config_name="model/unet_cnn")
-    hydra.core.global_hydra.GlobalHydra.instance().clear()
+    GlobalHydra.instance().clear()
 
     # Convert config to dictionary
     unet = create_unet(cfg.model)

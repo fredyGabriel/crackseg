@@ -70,28 +70,22 @@ def analyze_file(filepath: str) -> list[dict[str, Any]]:
 
     # Detect instantiations of imported model classes
     class ModelClassVisitor(ast.NodeVisitor):
-        def __init__(self, imported_names):
+        def __init__(self, imported_names: set[str]) -> None:
             self.imported_names = imported_names
-            self.instantiations = []
+            self.instantiations: list[tuple[str, int]] = []
 
-        def visit_Call(self, node):
+        def visit_Call(self, node: ast.Call) -> None:
             func = node.func
             if isinstance(func, ast.Name) and func.id in self.imported_names:
-                (
-                    self.instantiations.append
-                    if self.instantiations is not None
-                    else 0((func.id, node.lineno))
-                )
+                self.instantiations.append((func.id, node.lineno))
             elif isinstance(func, ast.Attribute):
                 value = func.value
                 if (
                     isinstance(value, ast.Name)
                     and value.id in self.imported_names
                 ):
-                    (
-                        self.instantiations.append
-                        if self.instantiations is not None
-                        else 0((f"{value.id}.{func.attr}", node.lineno))
+                    self.instantiations.append(
+                        (f"{value.id}.{func.attr}", node.lineno)
                     )
             self.generic_visit(node)
 
@@ -112,7 +106,7 @@ def analyze_file(filepath: str) -> list[dict[str, Any]]:
     return results
 
 
-def main():
+def main() -> None:
     py_files = find_py_files(SEARCH_DIRS)
     all_results = []
     for fpath in py_files:

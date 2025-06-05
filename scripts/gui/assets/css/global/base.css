@@ -1,0 +1,234 @@
+/* Base Global Styles for CrackSeg Application */
+
+/* Root Variables */
+:root {
+    --primary-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    --monospace-font: 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', Consolas,
+        'Courier New', monospace;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 3rem;
+
+    /* Border radius */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+    /* Transitions */
+    --transition-fast: 150ms ease-in-out;
+    --transition-normal: 300ms ease-in-out;
+    --transition-slow: 500ms ease-in-out;
+}
+
+/* Base font improvements */
+.stApp {
+    font-family: var(--primary-font);
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* Improved code blocks */
+code,
+pre {
+    font-family: var(--monospace-font);
+    font-feature-settings: 'liga' 0;
+}
+
+/* Streamlit component improvements */
+.stSelectbox>div>div {
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.stSelectbox>div>div:hover {
+    box-shadow: var(--shadow-sm);
+}
+
+.stButton>button {
+    border-radius: var(--radius-md);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    border: none;
+    min-height: 2.5rem;
+}
+
+.stButton>button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.stButton>button:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Progress bars */
+.stProgress>div>div>div>div {
+    border-radius: var(--radius-lg);
+    background: linear-gradient(90deg, #007AFF, #00D4FF);
+}
+
+/* Sidebar improvements */
+.css-1d391kg {
+    padding-top: var(--spacing-md);
+}
+
+/* Cards and containers */
+.element-container {
+    transition: all var(--transition-normal);
+}
+
+/* Form elements */
+.stTextInput>div>div>input,
+.stTextArea>div>div>textarea,
+.stNumberInput>div>div>input {
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all var(--transition-fast);
+}
+
+.stTextInput>div>div>input:focus,
+.stTextArea>div>div>textarea:focus,
+.stNumberInput>div>div>input:focus {
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+    border-color: #007AFF;
+}
+
+/* File uploader */
+.stFileUploader>div {
+    border-radius: var(--radius-lg);
+    border: 2px dashed rgba(255, 255, 255, 0.2);
+    transition: all var(--transition-normal);
+}
+
+.stFileUploader>div:hover {
+    border-color: #007AFF;
+    background-color: rgba(0, 122, 255, 0.05);
+}
+
+/* Expander */
+.streamlit-expanderHeader {
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.streamlit-expanderHeader:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Metrics */
+.metric-container {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all var(--transition-normal);
+}
+
+.metric-container:hover {
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: var(--shadow-md);
+}
+
+/* Success/Warning/Error states */
+.stSuccess {
+    border-radius: var(--radius-md);
+    border-left: 4px solid #00C851;
+}
+
+.stWarning {
+    border-radius: var(--radius-md);
+    border-left: 4px solid #FFB347;
+}
+
+.stError {
+    border-radius: var(--radius-md);
+    border-left: 4px solid #FF4444;
+}
+
+.stInfo {
+    border-radius: var(--radius-md);
+    border-left: 4px solid #007AFF;
+}
+
+/* Loading states */
+.stSpinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-xl);
+}
+
+/* Responsive design helpers */
+@media (max-width: 768px) {
+    :root {
+        --spacing-md: 0.75rem;
+        --spacing-lg: 1rem;
+        --spacing-xl: 1.25rem;
+    }
+
+    .stButton>button {
+        min-height: 2.75rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus styles */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #007AFF;
+    outline-offset: 2px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Selection styles */
+::selection {
+    background-color: rgba(0, 122, 255, 0.3);
+    color: inherit;
+}
