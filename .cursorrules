@@ -1,10 +1,54 @@
 # CrackSeg Project – AI Assistant Rules
 
+## Table of Contents
+
+1. [Project Overview](#project-overview)
+2. [Rule Loading Instructions](#rule-loading-instructions)
+3. [Core Development Principles](#core-development-principles)
+4. [Quick Reference](#quick-reference)
+5. [Rule System Reference](#rule-system-reference)
+6. [Domain-Specific Context](#domain-specific-context)
+7. [Implementation Priorities](#implementation-priorities)
+8. [System Integration Guidelines](#system-integration-guidelines)
+9. [Troubleshooting](#troubleshooting)
+
 ## Project Overview
 
 **Domain**: Deep learning-based pavement crack segmentation using PyTorch
 **Goal**: Develop a production-ready, modular, and reproducible crack detection system
 **Architecture**: Encoder-decoder models with configurable components via Hydra
+
+## Rule Loading Instructions
+
+**CRITICAL**: You MUST load relevant rules based on task context using `fetch_rules`:
+
+### Automatic Rule Loading Triggers
+
+- **Coding Python files**: `fetch_rules(["coding-standards", "core-principles"])`
+- **PyTorch/ML work**: `fetch_rules(["ml-pytorch-standards"])`
+- **Writing/running tests**: `fetch_rules(["testing-standards"])`
+- **Task management**: `fetch_rules(["taskmaster-guide"])`
+- **Git operations**: `fetch_rules(["git-standards"])`
+- **Project planning**: `fetch_rules(["development-workflow"])`
+- **File organization**: `fetch_rules(["project-structure"])`
+
+### When to Load Rules
+
+- **Before** implementing any code changes
+- **Before** suggesting architectural decisions
+- **Before** creating tests or documentation
+- **When** user asks about project standards or workflows
+
+### Rule Loading Validation Checklist
+
+After loading rules, verify your understanding of:
+
+- [ ] **Quality Gates**: Can execute `black .`, `ruff . --fix`, `basedpyright .` commands
+- [ ] **Three-Option Analysis**: Document 3+ approaches for any decision requiring >2 hours of work
+- [ ] **Evidence Requirements**: Reference specific files/lines (e.g., `src/model/encoder.py:45-52`)
+- [ ] **Crack Detection Specifics**: Handle <5% positive pixels, detect 1-5px width structures
+- [ ] **Hardware Constraints**: Optimize for RTX 3070 Ti with 8GB VRAM limit
+- [ ] **Testing Coverage**: Maintain >80% coverage on core functionality
 
 ## Core Development Principles
 
@@ -13,28 +57,30 @@
 - **Autonomous Expert**: Act as a senior ML engineer with minimal interruptions
 - **Evidence-Based**: Support decisions with code references and documentation
 - **Professional Analysis**: Always analyze 3+ options for significant decisions
-- See [core-principles.mdc](.cursor/rules/core-principles.mdc) for detailed guidelines
+- See [core-principles.mdc](/.cursor/rules/core-principles.mdc) for detailed guidelines
 
 ### 2. **Code Quality Standards**
 
 - **Mandatory Quality Gates**: `basedpyright`, `black`, `ruff` must pass
 - **Type Safety**: Complete type annotations using Python 3.12+ features
 - **Documentation**: English docstrings for all public APIs
-- See [coding-standards.mdc](.cursor/rules/coding-standards.mdc) for implementation details
+- See [coding-standards.mdc](/.cursor/rules/coding-standards.mdc) for implementation details
 
 ### 3. **ML/PyTorch Standards**
 
 - **Reproducibility**: Seed control, versioning, configuration storage
 - **Model Architecture**: Modular encoder-decoder with factory patterns
 - **Training Pipeline**: Checkpoint management, metric tracking, loss registry
-- See [ml-pytorch-standards.mdc](.cursor/rules/ml-pytorch-standards.mdc) for specifics
+- **Hardware Optimization**: RTX 3070 Ti considerations (8GB VRAM limit)
+- See [ml-pytorch-standards.mdc](/.cursor/rules/ml-pytorch-standards.mdc) for specifics
 
 ### 4. **Project Workflow**
 
 - **Task Management**: Use Task Master for planning and progress tracking
 - **Development Process**: Plan → Implement → Test → Document → Review
 - **Testing Strategy**: Unit tests for components, integration for pipelines
-- See [development-workflow.mdc](.cursor/rules/development-workflow.mdc) for process
+- **Quality Assurance**: Continuous verification at each step
+- See [development-workflow.mdc](/.cursor/rules/development-workflow.mdc) for process
 
 ## Quick Reference
 
@@ -47,41 +93,70 @@
 
 ### Key Development Rules
 
-- **Code Standards**: [coding-standards.mdc](.cursor/rules/coding-standards.mdc)
-- **Testing**: [testing-standards.mdc](.cursor/rules/testing-standards.mdc)
-- **Git Practices**: [git-standards.mdc](.cursor/rules/git-standards.mdc)
-- **ML Specifics**: [ml-pytorch-standards.mdc](.cursor/rules/ml-pytorch-standards.mdc)
+- **Code Standards**: [coding-standards.mdc](/.cursor/rules/coding-standards.mdc)
+- **Testing**: [testing-standards.mdc](/.cursor/rules/testing-standards.mdc)
+- **Git Practices**: [git-standards.mdc](/.cursor/rules/git-standards.mdc)
+- **ML Specifics**: [ml-pytorch-standards.mdc](/.cursor/rules/ml-pytorch-standards.mdc)
 
 ### Task Management
 
-- **TaskMaster Guide**: [taskmaster-guide.mdc](.cursor/rules/taskmaster-guide.mdc)
-- **Workflow Integration**: [development-workflow.mdc](.cursor/rules/development-workflow.mdc)
+- **TaskMaster Guide**: [taskmaster-guide.mdc](/.cursor/rules/taskmaster-guide.mdc)
+- **Workflow Integration**: [development-workflow.mdc](/.cursor/rules/development-workflow.mdc)
+- **Windows Path Format**: Use absolute paths like `C:/Users/youruser/.taskmaster/tasks.json`
+(no leading slash, no double slash, no URL encoding).
+See [taskmaster.mdc](/.cursor/rules/taskmaster.mdc) for details.
 
 ## Rule System Reference
 
-### Agent-Requested Rules
+### Development & Quality Rules
 
 *These rules are loaded automatically by the AI agent based on context:*
 
 | Rule | Load When | Key Contents |
 |------|-----------|--------------|
-| **[core-principles.mdc](@/rules/core-principles.mdc)** | Autonomous behavior, decision-making, minimal interruption philosophy | AI conduct principles, research-first approach, crack segmentation expertise |
-| **[coding-standards.mdc](@/rules/coding-standards.mdc)** | Writing Python code, implementing functions/classes | Type annotations (Python 3.12+), quality gates, naming conventions, error handling |
-| **[ml-pytorch-standards.mdc](@/rules/ml-pytorch-standards.mdc)** | PyTorch models, training pipelines, loss functions | Encoder-decoder patterns, VRAM optimization (RTX 3070 Ti), SOTA comparisons |
-| **[development-workflow.mdc](@/rules/development-workflow.mdc)** | Planning tasks, implementation process, Task Master integration | Three-option analysis, quality assurance, documentation requirements |
-| **[testing-standards.mdc](@/rules/testing-standards.mdc)** | Writing unit/integration tests, testing ML models | Pytest patterns, mock strategies, test organization, coverage requirements |
-| **[git-standards.mdc](@/rules/git-standards.mdc)** | Git commits, branches, version control | Conventional commits, English-only, ML experiment tracking |
-| **[taskmaster-guide.mdc](@/rules/taskmaster-guide.mdc)** | Task Master MCP tools, task management | Quick command reference, workflows, status management |
-| **[project-structure.mdc](@/rules/project-structure.mdc)** | Navigating codebase, creating files, finding components | Directory organization, naming conventions, file placement guidelines |
+| **[core-principles.mdc](/.cursor/rules/core-principles.mdc)** | Autonomous behavior, decision-making, minimal interruption philosophy | AI conduct principles, research-first approach, crack segmentation expertise |
+| **[coding-standards.mdc](/.cursor/rules/coding-standards.mdc)** | Writing Python code, implementing functions/classes | Type annotations (Python 3.12+), quality gates, naming conventions, error handling |
+| **[ml-pytorch-standards.mdc](/.cursor/rules/ml-pytorch-standards.mdc)** | PyTorch models, training pipelines, loss functions | Encoder-decoder patterns, VRAM optimization (RTX 3070 Ti), SOTA comparisons |
+
+### Process & Testing Rules
+
+| Rule | Load When | Key Contents |
+|------|-----------|--------------|
+| **[development-workflow.mdc](/.cursor/rules/development-workflow.mdc)** | Planning tasks, implementation process, Task Master integration | Three-option analysis, quality assurance, documentation requirements |
+| **[testing-standards.mdc](/.cursor/rules/testing-standards.mdc)** | Writing unit/integration tests, testing ML models | Pytest patterns, mock strategies, test organization, coverage requirements |
+| **[git-standards.mdc](/.cursor/rules/git-standards.mdc)** | Git commits, branches, version control | Conventional commits, English-only, ML experiment tracking |
+
+### Project Management Rules
+
+| Rule | Load When | Key Contents |
+|------|-----------|--------------|
+| **[taskmaster-guide.mdc](/.cursor/rules/taskmaster-guide.mdc)** | Task Master MCP tools, task management | Quick command reference, workflows, status management |
+| **[project-structure.mdc](/.cursor/rules/project-structure.mdc)** | Navigating codebase, creating files, finding components | Directory organization, naming conventions, file placement guidelines |
 
 ### Manual Reference Rules
 
 *Load these only when explicitly requested:*
 
-- **[taskmaster.mdc](@/rules/taskmaster.mdc)**: Complete TaskMaster documentation (extensive reference)
-- **[cursor_rules.mdc](@/rules/cursor_rules.mdc)**: Guidelines for creating and maintaining Cursor rules
-- **[self_improve.mdc](@/rules/self_improve.mdc)**: Process for evolving the rule system
-- **[rules_checklist.mdc](@/rules/rules_checklist.mdc)**: Quality checklist for auditing rules
+- **[taskmaster.mdc](/.cursor/rules/taskmaster.mdc)**: Complete TaskMaster documentation (extensive reference)
+- **[cursor_rules.mdc](/.cursor/rules/cursor_rules.mdc)**: Guidelines for creating and maintaining rules
+- **[self_improve.mdc](/.cursor/rules/self_improve.mdc)**: Process for evolving the rule system
+- **[rules_checklist.mdc](/.cursor/rules/rules_checklist.mdc)**: Quality checklist for auditing rules
+
+## Domain-Specific Context
+
+### Crack Segmentation Challenges
+
+- **Class Imbalance**: Typically <5% positive pixels in crack images
+- **Thin Structures**: Cracks are often 1-5 pixels wide requiring precise detection
+- **Multi-Scale Features**: Crack patterns vary from hairline to large structural damage
+- **Edge Preservation**: Boundary accuracy is critical for engineering applications
+
+### Technical Constraints
+
+- **Hardware**: RTX 3070 Ti with 8GB VRAM limitations
+- **Framework**: PyTorch with Hydra configuration system
+- **Quality Gates**: All code must pass `basedpyright`, `black`, `ruff`
+- **Testing**: >80% coverage on core functionality
 
 ## Implementation Priorities
 
@@ -91,7 +166,60 @@
 4. **Performance**: Optimize only after correctness is verified
 5. **Documentation**: Keep code self-documenting with clear naming and structure
 
+## System Integration Guidelines
+
+### Development Workflow Integration
+
+- Always start with Task Master task review
+- Load appropriate rules before implementation
+- Follow three-option analysis for significant decisions
+- Ensure all quality gates pass before completion
+- Update documentation and task status continuously
+
+### Rule Evolution Process
+
+- Rules should evolve based on project experience
+- Use [self_improve.mdc](/.cursor/rules/self_improve.mdc) for systematic updates
+- Follow [rules_checklist.mdc](/.cursor/rules/rules_checklist.mdc) for quality
+- Document rule changes in project history
+
+## Troubleshooting
+
+### Rule Loading Issues
+
+#### Rule Not Found
+
+- **Verify exact rule name** (case-sensitive): Rules use lowercase with hyphens
+- **Check file exists**: Ensure file is present in `/.cursor/rules/`
+- **Try manual loading first**: Test with single rule before multiple
+- **Example**: `fetch_rules(["coding-standards"])` not `fetch_rules(["Coding-Standards"])`
+
+#### Partial Rule Loading
+
+- **Check for syntax errors** in rule files using markdown linters
+- **Verify no circular dependencies** between rules
+- **Ensure rule file size** is under 100KB for optimal loading
+- **Test incrementally**: Load rules one by one to identify problematic file
+
+#### Rules Not Applied
+
+- **Confirm rule was loaded**: Check if content appears in context
+- **Verify trigger conditions**: Ensure you're in the right context for auto-load
+- **Check for conflicts**: Some rules may override others if loaded together
+- **Reset and reload**: Clear context and reload rules if needed
+
+### Common Error Messages
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| "No rules found" | Incorrect rule name or path | Verify exact filename without `.mdc` extension |
+| "fetch_rules is not defined" | Tool not available | Ensure using AI assistant with MCP tools enabled |
+| "Rule too large" | File exceeds size limit | Split rule into smaller focused files |
+| "Invalid rule format" | Markdown syntax errors | Validate rule file with markdown linter |
+
 ---
 
 **Remember**: This project aims to create a state-of-the-art crack segmentation system.
 Every decision should advance this goal while maintaining code quality and reproducibility.
+
+**Rule System Version**: 1.2 - Refined with improved consistency and troubleshooting

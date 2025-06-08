@@ -9,6 +9,7 @@ from pathlib import Path
 
 import streamlit as st
 
+from scripts.gui.components.file_upload_component import FileUploadComponent
 from scripts.gui.components.theme_component import ThemeComponent
 from scripts.gui.utils.session_state import SessionStateManager
 
@@ -82,6 +83,25 @@ def page_config() -> None:
                         st.rerun()
                 else:
                     st.caption(f"⚪ {example} (no existe)")
+
+        # File upload section
+        upload_result = FileUploadComponent.render_upload_section(
+            title="📤 Upload Configuration from Computer",
+            help_text=(
+                "Upload a YAML configuration file from your local computer. "
+                "The file will be validated automatically and saved to the "
+                "`generated_configs/` directory with a timestamp."
+            ),
+            target_directory="generated_configs",
+            key_suffix="_config_page",
+            show_validation=True,
+            show_preview=True,
+        )
+
+        if upload_result:
+            file_path, config_dict, validation_errors = upload_result
+            # The session state is already updated by the component
+            st.rerun()
 
         config_input = st.text_input(
             "Ruta del Archivo de Configuración",

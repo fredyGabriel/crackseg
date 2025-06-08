@@ -1,6 +1,7 @@
 # System Dependencies - CrackSeg Project
 
-This document lists all system (non-Python) dependencies required for the CrackSeg pavement crack segmentation project.
+This document lists all system (non-Python) dependencies required for the CrackSeg pavement crack
+segmentation project.
 
 ## 📋 System Dependencies Overview
 

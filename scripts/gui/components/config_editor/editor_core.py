@@ -65,7 +65,7 @@ class ConfigEditorCore:
             )
 
         with col_validation:
-            st.subheader("✅ Validación en Vivo")
+            st.subheader("✅ Real-time Validation")
             self._render_basic_validation(content)
 
         return content
@@ -79,26 +79,20 @@ class ConfigEditorCore:
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
-            if st.button(
-                "📄 Nuevo", key=f"{key}_new", help="Crear nuevo archivo"
-            ):
+            if st.button("📄 New", key=f"{key}_new", help="Create new file"):
                 self._create_new_config(key)
 
         with col2:
-            if st.button(
-                "📂 Cargar", key=f"{key}_load", help="Cargar archivo"
-            ):
+            if st.button("📂 Load", key=f"{key}_load", help="Load file"):
                 self._show_load_dialog(key)
 
         with col3:
-            if st.button(
-                "💾 Guardar", key=f"{key}_save", help="Guardar archivo"
-            ):
+            if st.button("💾 Save", key=f"{key}_save", help="Save file"):
                 self._show_save_dialog(key)
 
         with col4:
             if st.button(
-                "📋 Ejemplo", key=f"{key}_example", help="Cargar ejemplo"
+                "📋 Example", key=f"{key}_example", help="Load example"
             ):
                 self._load_example_config(key)
 
@@ -109,23 +103,23 @@ class ConfigEditorCore:
             content: Current YAML content to validate
         """
         if not content.strip():
-            st.info("💡 Escribe YAML para ver validación en tiempo real")
+            st.info("💡 Write YAML to see real-time validation")
             return
 
         # Basic syntax validation
         try:
             yaml.safe_load(content)
-            st.success("✅ Sintaxis YAML correcta")
+            st.success("✅ Correct YAML syntax")
         except yaml.YAMLError as e:
-            st.error("❌ Error de sintaxis YAML")
+            st.error("❌ YAML syntax error")
             st.caption(f"Error: {str(e)}")
 
         # Advanced validation
         is_valid, errors = validate_yaml_advanced(content)
         if is_valid:
-            st.success("✅ Configuración válida para CrackSeg")
+            st.success("✅ Configuration valid for CrackSeg")
         else:
-            st.error(f"❌ {len(errors)} problemas encontrados")
+            st.error(f"❌ {len(errors)} issues found")
             for error in errors[:3]:  # Show first 3 errors
                 st.error(f"• {error}")
 
@@ -135,37 +129,37 @@ class ConfigEditorCore:
         Args:
             key: Base key for the editor component
         """
-        template_content = """# Configuración CrackSeg
+        template_content = """# CrackSeg Configuration
 defaults:
   - data: default
   - model: default
   - training: default
 
-# Configuración del modelo
+# Model configuration
 model:
   _target_: src.model.UNet
   num_classes: 2
 
-# Configuración de entrenamiento
+# Training configuration
 training:
   epochs: 100
   optimizer:
     _target_: torch.optim.Adam
     lr: 0.001
 
-# Configuración de datos
+# Data configuration
 data:
   root_dir: data/
   batch_size: 16
   image_size: [512, 512]
 
-# Configuración del experimento
+# Experiment configuration
 experiment:
-  name: nuevo_experimento
+  name: new_experiment
   random_seed: 42
 """
         st.session_state[key] = template_content
-        st.success("✅ Nuevo archivo creado con template básico")
+        st.success("✅ New file created with basic template")
         st.rerun()
 
     def _show_load_dialog(self, key: str) -> None:
@@ -174,15 +168,15 @@ experiment:
         Args:
             key: Base key for the editor component
         """
-        with st.expander("📂 Cargar Archivo de Configuración", expanded=True):
+        with st.expander("📂 Load Configuration File", expanded=True):
             file_path = st.text_input(
-                "Ruta del archivo:",
+                "File path:",
                 key=f"{key}_load_path",
                 placeholder="configs/model/default.yaml",
             )
 
             if st.button(
-                "📂 Cargar Archivo",
+                "📂 Load File",
                 key=f"{key}_load_confirm",
                 use_container_width=True,
             ):
@@ -192,16 +186,14 @@ experiment:
                         if config_path.exists():
                             content = config_path.read_text(encoding="utf-8")
                             st.session_state[key] = content
-                            st.success(
-                                f"✅ Archivo cargado: {config_path.name}"
-                            )
+                            st.success(f"✅ File loaded: {config_path.name}")
                             st.rerun()
                         else:
-                            st.error(f"❌ Archivo no encontrado: {file_path}")
+                            st.error(f"❌ File not found: {file_path}")
                     except Exception as e:
-                        st.error(f"❌ Error cargando archivo: {str(e)}")
+                        st.error(f"❌ Error loading file: {str(e)}")
                 else:
-                    st.error("⚠️ Por favor especifica una ruta de archivo")
+                    st.error("⚠️ Please specify a file path")
 
     def _show_save_dialog(self, key: str) -> None:
         """Show dialog for saving configuration files.
@@ -224,7 +216,7 @@ experiment:
             key: Base key for the editor component
         """
         examples = {
-            "U-Net Básico": """defaults:
+            "Basic U-Net": """defaults:
   - data: default
   - model: architectures/unet_cnn
   - training: default
@@ -241,7 +233,7 @@ training:
 data:
   batch_size: 8
 """,
-            "SwinUNet Avanzado": """defaults:
+            "Advanced SwinUNet": """defaults:
   - data: default
   - model: architectures/unet_swin
   - training: default
@@ -265,18 +257,18 @@ data:
 """,
         }
 
-        with st.expander("📋 Cargar Ejemplo", expanded=True):
+        with st.expander("📋 Load Example", expanded=True):
             example_choice = st.selectbox(
-                "Selecciona un ejemplo:",
+                "Select an example:",
                 list(examples.keys()),
                 key=f"{key}_example_choice",
             )
 
             if st.button(
-                f"📋 Cargar '{example_choice}'",
+                f"📋 Load '{example_choice}'",
                 key=f"{key}_load_example",
                 use_container_width=True,
             ):
                 st.session_state[key] = examples[example_choice]
-                st.success(f"✅ Ejemplo cargado: {example_choice}")
+                st.success(f"✅ Example loaded: {example_choice}")
                 st.rerun()

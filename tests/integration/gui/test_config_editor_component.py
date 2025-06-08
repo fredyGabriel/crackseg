@@ -70,14 +70,14 @@ class TestConfigEditorComponent:
     def test_create_new_config_logic(self) -> None:
         """Test the logic for creating new configuration template."""
         # Test the template content that would be generated
-        template_content = """# Configuración CrackSeg
+        template_content = """# CrackSeg Configuration
 defaults:
   - data: default
   - model: default
   - training: default
 
 experiment:
-  name: mi_experimento
+  name: my_experiment
   random_seed: 42
 
 model:
@@ -87,7 +87,7 @@ training:
   epochs: 50
 """
         # Verify template has required sections
-        assert "# Configuración CrackSeg" in template_content
+        assert "# CrackSeg Configuration" in template_content
         assert "defaults:" in template_content
         assert "model:" in template_content
         assert "training:" in template_content

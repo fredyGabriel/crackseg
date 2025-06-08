@@ -12,10 +12,15 @@ from .cache import ConfigCache
 from .exceptions import ConfigError, ValidationError
 from .formatters import format_validation_report, get_validation_suggestions
 from .io import (
+    create_upload_progress_placeholder,
     get_config_metadata,
+    get_upload_file_info,
     load_and_validate_config,
     load_config_file,
     scan_config_directories,
+    update_upload_progress,
+    upload_config_file,
+    validate_uploaded_content,
 )
 from .templates import create_config_from_template
 from .validation import (
@@ -38,6 +43,12 @@ __all__ = [
     "scan_config_directories",
     "get_config_metadata",
     "load_and_validate_config",
+    # File upload operations
+    "upload_config_file",
+    "get_upload_file_info",
+    "validate_uploaded_content",
+    "create_upload_progress_placeholder",
+    "update_upload_progress",
     # Validation
     "validate_yaml_syntax",
     "validate_yaml_advanced",

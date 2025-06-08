@@ -1,0 +1,53 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.9, pytest-8.4.0, pluggy-1.5.0 -- C:\Users\fgrv\miniconda3\envs\crackseg\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\fgrv\OneDrive\Documentos\PythonProjects\doctorado\crackseg
+configfile: pyproject.toml
+plugins: hydra-core-1.3.2, cov-6.1.1, mock-3.14.0
+collecting ... collected 43 items
+
+tests/integration/gui/test_config_editor_component.py::TestConfigEditorComponent::test_render_editor_basic PASSED [  2%]
+tests/integration/gui/test_config_editor_component.py::TestConfigEditorComponent::test_yaml_validation_valid PASSED [  4%]
+tests/integration/gui/test_config_editor_component.py::TestConfigEditorComponent::test_yaml_validation_invalid PASSED [  6%]
+tests/integration/gui/test_config_editor_component.py::TestConfigEditorComponent::test_create_new_config_logic PASSED [  9%]
+tests/integration/gui/test_config_editor_component.py::TestConfigEditorComponent::test_file_operations_with_temp_directory PASSED [ 11%]
+tests/integration/gui/test_config_editor_component.py::TestConfigEditorComponent::test_load_dialog_interface PASSED [ 13%]
+tests/integration/gui/test_config_editor_component.py::TestConfigEditorComponent::test_example_configs_are_valid_yaml PASSED [ 16%]
+tests/integration/gui/test_config_editor_component.py::TestConfigEditorComponent::test_file_browser_integration PASSED [ 18%]
+tests/integration/gui/test_config_editor_component.py::TestConfigEditorComponent::test_component_initialization PASSED [ 20%]
+tests/integration/gui/test_config_io.py::test_scan_directories PASSED    [ 23%]
+tests/integration/gui/test_config_io.py::test_load_config PASSED         [ 25%]
+tests/integration/gui/test_config_io.py::test_yaml_validation PASSED     [ 27%]
+tests/integration/gui/test_config_io.py::test_metadata PASSED            [ 30%]
+tests/integration/gui/test_file_browser_component.py::TestFileBrowserComponent::test_component_initialization PASSED [ 32%]
+tests/integration/gui/test_file_browser_component.py::TestFileBrowserComponent::test_get_selected_action_no_action PASSED [ 34%]
+tests/integration/gui/test_file_browser_component.py::TestFileBrowserComponent::test_supported_extensions_filtering PASSED [ 37%]
+tests/integration/gui/test_file_browser_component.py::TestFileBrowserComponent::test_component_state_keys PASSED [ 39%]
+tests/integration/gui/test_file_browser_component.py::TestFileBrowserIntegration::test_integration_with_scan_config_directories PASSED [ 41%]
+tests/integration/gui/test_file_browser_component.py::TestFileBrowserIntegration::test_integration_with_get_config_metadata PASSED [ 44%]
+tests/integration/gui/test_file_browser_component.py::TestFileBrowserIntegration::test_component_handles_config_io_errors PASSED [ 46%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_valid_yaml_syntax PASSED [ 48%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_invalid_yaml_syntax PASSED [ 51%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_structure_validation_valid PASSED [ 53%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_structure_validation_missing_sections PASSED [ 55%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_type_validation_valid PASSED [ 58%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_type_validation_invalid_types PASSED [ 60%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_value_validation_valid_architecture PASSED [ 62%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_value_validation_invalid_architecture PASSED [ 65%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_value_validation_negative_values PASSED [ 67%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_comprehensive_validation_valid PASSED [ 69%]
+tests/integration/gui/test_yaml_validation.py::TestYAMLValidator::test_comprehensive_validation_multiple_errors PASSED [ 72%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_validate_yaml_advanced_valid PASSED [ 74%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_validate_yaml_advanced_invalid PASSED [ 76%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_validate_config_structure_direct PASSED [ 79%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_validate_config_types_direct PASSED [ 81%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_validate_config_values_direct PASSED [ 83%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_get_validation_suggestions PASSED [ 86%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_format_validation_report_success PASSED [ 88%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_format_validation_report_errors PASSED [ 90%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_nested_value_extraction PASSED [ 93%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_suggestion_generation PASSED [ 95%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_type_examples PASSED [ 97%]
+tests/integration/gui/test_yaml_validation.py::TestValidationFunctions::test_field_examples PASSED [100%]
+
+============================= 43 passed in 2.07s ==============================

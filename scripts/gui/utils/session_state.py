@@ -37,6 +37,14 @@ class SessionState:
     model_loaded: bool = False
     model_architecture: str | None = None
     model_parameters: dict[str, Any] | None = None
+    current_model: Any | None = (
+        None  # Stores the actual PyTorch model instance
+    )
+    model_summary: dict[str, Any] = field(default_factory=dict)
+    model_device: str | None = None
+    architecture_diagram_path: str | None = (
+        None  # Path to generated architecture diagram
+    )
 
     # Results state
     last_evaluation: dict[str, Any] | None = None
@@ -169,6 +177,13 @@ class SessionStateManager:
         for key, value in updates.items():
             if hasattr(state, key):
                 setattr(state, key, value)
+        state.last_updated = datetime.now()
+
+    @staticmethod
+    def notify_change(change_type: str) -> None:
+        """Notify of a state change for debugging/logging."""
+        state = SessionStateManager.get()
+        state.add_notification(f"State change: {change_type}")
         state.last_updated = datetime.now()
 
     @staticmethod

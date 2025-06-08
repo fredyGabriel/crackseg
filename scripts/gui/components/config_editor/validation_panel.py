@@ -13,11 +13,17 @@ import yaml
 
 from scripts.gui.utils.config import validate_yaml_advanced
 
+from ..error_console import ErrorConsole
+
 logger = logging.getLogger(__name__)
 
 
 class ValidationPanel:
     """Advanced validation panel for YAML configurations."""
+
+    def __init__(self) -> None:
+        """Initialize the validation panel."""
+        self.error_console = ErrorConsole()
 
     def render_advanced_validation(self, content: str, key: str) -> None:
         """Render enhanced live validation feedback for YAML content.
@@ -27,44 +33,55 @@ class ValidationPanel:
             key: Base key for the editor component
         """
         if not content.strip():
-            st.info("💡 Escribe YAML para ver validación en tiempo real")
+            st.info("💡 Write YAML to see real-time validation")
             return
 
         # Enhanced syntax validation with detailed feedback
         with st.container():
-            st.markdown("**🔍 Validación de Sintaxis:**")
+            st.markdown("**🔍 Syntax Validation:**")
             try:
                 yaml.safe_load(content)
-                st.success("✅ Sintaxis YAML correcta")
+                st.success("✅ Correct YAML syntax")
 
                 # Additional syntax quality checks
                 warnings = self._check_yaml_quality(content)
                 if warnings:
-                    with st.expander(
-                        "⚠️ Advertencias de formato", expanded=False
-                    ):
+                    with st.expander("⚠️ Format warnings", expanded=False):
                         for warning in warnings[:3]:  # Show first 3
                             st.warning(f"• {warning}")
 
             except yaml.YAMLError as e:
-                st.error("❌ Error de sintaxis YAML")
+                st.error("❌ YAML syntax error")
                 self._render_error_details(e, content)
 
-        # Enhanced advanced validation
+        # Enhanced advanced validation with new error console
         with st.container():
-            st.markdown("**🛡️ Validación Avanzada:**")
+            st.markdown("**🛡️ Advanced Validation:**")
             is_valid, errors = validate_yaml_advanced(content)
 
             if is_valid:
-                st.success("✅ Configuración válida para CrackSeg")
+                st.success("✅ Configuration valid for CrackSeg")
                 self._render_config_metrics(content)
             else:
-                st.error(f"❌ {len(errors)} problemas encontrados")
-                self._render_categorized_errors(errors)
+                # Use the new comprehensive error console
+                self.error_console.render_error_summary(
+                    errors, content, key=f"{key}_validation_errors"
+                )
+
+                # Add interactive fix suggestions for users
+                st.markdown("---")
+                categorized_errors = (
+                    self.error_console.categorizer.categorize_errors(
+                        errors, content
+                    )
+                )
+                self.error_console.render_fix_suggestions_interactive(
+                    categorized_errors, key=f"{key}_fix_suggestions"
+                )
 
         # Enhanced configuration preview
         with st.container():
-            st.markdown("**📋 Vista Previa Interactiva:**")
+            st.markdown("**📋 Interactive Preview:**")
             self._render_config_preview(content)
 
     def _check_yaml_quality(self, content: str) -> list[str]:
@@ -92,13 +109,13 @@ class ValidationPanel:
                     and not lines[i].startswith(" ")
                 ):
                     warnings.append(
-                        f"Línea {i}: Posible problema de indentación "
-                        f"después de '{line.strip()}'"
+                        f"Line {i}: Possible indentation issue "
+                        f"after '{line.strip()}'"
                     )
 
             # Check for tabs (should use spaces)
             if "\t" in line:
-                warnings.append(f"Línea {i}: Usa espacios en lugar de tabs")
+                warnings.append(f"Line {i}: Use spaces instead of tabs")
 
         return warnings
 
@@ -115,16 +132,16 @@ class ValidationPanel:
 
         if error_info["line"] and error_info["column"]:
             st.caption(
-                f"📍 **Ubicación**: Línea {error_info['line']}, "
-                f"Columna {error_info['column']}"
+                f"📍 **Location**: Line {error_info['line']}, "
+                f"Column {error_info['column']}"
             )
 
         if error_info["suggestion"]:
-            st.info(f"💡 **Sugerencia**: {error_info['suggestion']}")
+            st.info(f"💡 **Suggestion**: {error_info['suggestion']}")
 
         # Show context around the error
         if error_info["context"]:
-            with st.expander("🔍 Contexto del error", expanded=True):
+            with st.expander("🔍 Error context", expanded=True):
                 st.code(error_info["context"], language="yaml")
 
     def _parse_yaml_error(
@@ -172,22 +189,19 @@ class ValidationPanel:
                 and "that cannot start" in error_str
             ):
                 info["suggestion"] = (
-                    "Revisa caracteres especiales o comillas mal cerradas"
+                    "Check special characters or unclosed quotes"
                 )
             elif "mapping values are not allowed" in error_str:
-                info["suggestion"] = "Verifica la indentación y el uso de ':'"
+                info["suggestion"] = "Check indentation and usage of ':'"
             elif "found undefined alias" in error_str:
-                info["suggestion"] = (
-                    "Alias YAML no definido, revisa referencias"
-                )
+                info["suggestion"] = "Undefined YAML alias, check references"
             elif "expected" in error_str and "but found" in error_str:
                 info["suggestion"] = (
-                    "Problema de sintaxis, revisa brackets, comillas o "
-                    "indentación"
+                    "Syntax issue, check brackets, quotes or indentation"
                 )
             else:
                 info["suggestion"] = (
-                    "Revisa la sintaxis YAML cerca de la línea indicada"
+                    "Check YAML syntax near the indicated line"
                 )
 
         except Exception:
@@ -208,11 +222,11 @@ class ValidationPanel:
 
                 col1, col2, col3 = st.columns(3)
                 with col1:
-                    st.metric("Secciones", metrics["sections"])
+                    st.metric("Sections", metrics["sections"])
                 with col2:
-                    st.metric("Parámetros", metrics["parameters"])
+                    st.metric("Parameters", metrics["parameters"])
                 with col3:
-                    st.metric("Profundidad", metrics["max_depth"])
+                    st.metric("Depth", metrics["max_depth"])
         except Exception:
             pass
 
@@ -338,7 +352,7 @@ class ValidationPanel:
             if config_data:
                 # Tabs for different views
                 tab1, tab2, tab3 = st.tabs(
-                    ["🌳 Estructura", "📊 JSON", "🔍 Resumen"]
+                    ["🌳 Structure", "📊 JSON", "🔍 Summary"]
                 )
 
                 with tab1:
@@ -351,9 +365,9 @@ class ValidationPanel:
                     self._render_config_summary(config_data)
 
             else:
-                st.info("💡 Configuración vacía")
+                st.info("💡 Empty configuration")
         except Exception as e:
-            st.error(f"❌ Error al procesar configuración: {str(e)}")
+            st.error(f"❌ Error processing configuration: {str(e)}")
 
     def _render_config_tree(self, config_data: dict[str, Any]) -> None:
         """Render configuration as an expandable tree structure.

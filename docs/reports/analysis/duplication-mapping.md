@@ -1,109 +1,109 @@
-# Mapeo Exacto de Duplicaciones
+# Exact Duplication Mapping
 
-**Fase 1 de Consolidación**: Identificación precisa de contenido duplicado
+**Consolidation Phase 1**: Precise identification of duplicated content
 
-## 🔍 **Duplicaciones en `always_applied_workspace_rules`**
+## 🔍 Duplications in `always_applied_workspace_rules`
 
-### 1. **Estándares de Calidad de Código** (DUPLICACIÓN COMPLETA)
+### 1. **Code Quality Standards** (COMPLETE DUPLICATION)
 
-**Origen**: `coding-preferences.mdc` líneas 1-200+
-**Duplicado en**: `always_applied_workspace_rules` ~300 líneas
+**Source**: `coding-preferences.mdc` lines 1-200+
+**Duplicated in**: `always_applied_workspace_rules` ~300 lines
 
-**Contenido duplicado exacto**:
+**Exact duplicated content:**
 
-- Sección "Code Quality Standards (Mandatory)"
-- Reglas de Type checking: `basedpyright .`
+- Section "Code Quality Standards (Mandatory)"
+- Type checking rules: `basedpyright .`
 - Formatting: `black .`
 - Linting: `ruff .`
 - "Type annotations are mandatory for all code"
-- Sección completa "Modern Generic Type Syntax (Python 3.12+ PEP 695)"
+- Section "Modern Generic Type Syntax (Python 3.12+ PEP 695)"
 - "Built-in Generic Types (Python 3.9+ PEP 585)"
-- Ejemplos de código idénticos
-- "Pre-commit workflow" con comandos bash exactos
-- Sección "Code Structure and Organization"
+- Identical code examples
+- "Pre-commit workflow" with exact bash commands
+- Section "Code Structure and Organization"
 - "Documentation and Comments"
 - "Reliability and Error Handling"
 - "Configuration and Dependencies"
 - "Advanced Type Patterns for Python 3.12+"
 
-### 2. **Development Workflow Guidelines** (DUPLICACIÓN MASIVA)
+### 2. **Development Workflow Guidelines** (MASSIVE DUPLICATION)
 
-**Origen**: `workflow-preferences.mdc` líneas 1-125
-**Duplicado en**: `always_applied_workspace_rules` ~200 líneas
+**Source**: `workflow-preferences.mdc` lines 1-125
+**Duplicated in**: `always_applied_workspace_rules` ~200 lines
 
-**Contenido duplicado exacto**:
+**Exact duplicated content:**
 
-- "Development Workflow Guidelines" título y descripción
-- "Planning and Analysis" sección completa
-- "Analyze Three Solution Options" princicipio
-- "Implementation Principles" completo
-- "Quality Assurance" sección
+- "Development Workflow Guidelines" title and description
+- "Planning and Analysis" full section
+- "Analyze Three Solution Options" principle
+- "Implementation Principles" full section
+- "Quality Assurance" section
 - "Project Structure and Documentation"
 - "Error Resolution and Communication"
-- "Workflow Integration" con Pre-Commit Checklist
-- "Professional Solution Analysis" párrafo completo
+- "Workflow Integration" with Pre-Commit Checklist
+- "Professional Solution Analysis" full paragraph
 
-### 3. **Task Master Development Workflow** (DUPLICACIÓN MEGA)
+### 3. **Task Master Development Workflow** (MEGA DUPLICATION)
 
-**Origen**: `dev_workflow.mdc` líneas 1-210
-**Duplicado en**: `always_applied_workspace_rules` ~400 líneas
+**Source**: `dev_workflow.mdc` lines 1-210
+**Duplicated in**: `always_applied_workspace_rules` ~400 lines
 
-**Contenido duplicado exacto**:
+**Exact duplicated content:**
 
-- "Task Master Development Workflow" título completo
-- "Primary Interaction: MCP Server vs. CLI" sección entera
-- "Standard Development Workflow Process" lista completa de ~20 elementos
-- "Task Complexity Analysis" sección
+- "Task Master Development Workflow" full title
+- "Primary Interaction: MCP Server vs. CLI" full section
+- "Standard Development Workflow Process" full list of ~20 items
+- "Task Complexity Analysis" section
 - "Task Breakdown Process"
 - "Implementation Drift Handling"
 - "Task Status Management"
-- "Task Structure Fields" con todos los ejemplos
-- "Environment Variables Configuration" lista completa
+- "Task Structure Fields" with all examples
+- "Environment Variables Configuration" full list
 - "Determining the Next Task"
 - "Viewing Specific Task Details"
 - "Managing Task Dependencies"
-- "Iterative Subtask Implementation" proceso de 10 pasos
+- "Iterative Subtask Implementation" 10-step process
 
-### 4. **Cursor Rule Creation Guidelines** (DUPLICACIÓN PARCIAL)
+### 4. **Cursor Rule Creation Guidelines** (PARTIAL DUPLICATION)
 
-**Origen**: `cursor_rules.mdc` líneas 1-144
-**Duplicado en**: `always_applied_workspace_rules` ~100 líneas
+**Source**: `cursor_rules.mdc` lines 1-144
+**Duplicated in**: `always_applied_workspace_rules` ~100 lines
 
-**Contenido duplicado**:
+**Duplicated content:**
 
-- "Cursor Rule Creation Guidelines" principios
-- "Required Rule Structure" estándares
-- "Content Guidelines" con ejemplos de código
+- "Cursor Rule Creation Guidelines" principles
+- "Required Rule Structure" standards
+- "Content Guidelines" with code examples
 - "Rule Categories and Organization"
 
-## 📊 **Métricas de Duplicación**
+## 📊 Duplication Metrics
 
-| Archivo Origen | Líneas Origen | Líneas Duplicadas | % Duplicación | Impacto |
-|----------------|---------------|-------------------|---------------|---------|
-| `coding-preferences.mdc` | 244 | ~300 | 123% | CRÍTICO |
-| `workflow-preferences.mdc` | 125 | ~200 | 160% | ALTO |
+| Source File | Source Lines | Duplicated Lines | % Duplication | Impact |
+|-------------|-------------|------------------|--------------|--------|
+| `coding-preferences.mdc` | 244 | ~300 | 123% | CRITICAL |
+| `workflow-preferences.mdc` | 125 | ~200 | 160% | HIGH |
 | `dev_workflow.mdc` | 210 | ~400 | 190% | MEGA |
-| `cursor_rules.mdc` | 144 | ~100 | 69% | MODERADO |
-| **TOTAL** | **723** | **~1000** | **138%** | **MASIVO** |
+| `cursor_rules.mdc` | 144 | ~100 | 69% | MODERATE |
+| **TOTAL** | **723** | **~1000** | **138%** | **MASSIVE** |
 
-## 🎯 **Contenido que DEBE permanecer en `always_applied_workspace_rules`**
+## 🎯 Content that MUST remain in `always_applied_workspace_rules`
 
-### Reglas Críticas Mínimas (3-4 líneas máximo)
+### Critical Minimal Rules (3-4 lines max)
 
+```txt
+- **Python code**: Must pass basedpyright, black, and ruff before commit
+- **Type annotations**: Mandatory using modern Python 3.12+ generics
+- **References**: See [consolidated-workspace-rules.mdc](mdc:.cursor/rules/consolidated-workspace-rules.mdc)
+- **Respond in Spanish**: Use English only for code
 ```
-- **Código Python**: Debe pasar basedpyright, black, y ruff antes del commit
-- **Type annotations**: Obligatorias usando generics Python 3.12+ modernos
-- **Referencias**: Ver [consolidated-workspace-rules.mdc](mdc:.cursor/rules/consolidated-workspace-rules.mdc)
-- **Responder en español**: Usar inglés solo para código
-```
 
-### Todo lo demás → ELIMINAR y referenciar archivos específicos
+### Everything else → REMOVE and reference specific files
 
-## 🚀 **Plan de Eliminación**
+## 🚀 Elimination Plan
 
-1. **Reducir `always_applied_workspace_rules`** de ~1000 líneas a ~50 líneas
-2. **Eliminar duplicaciones** internas entre archivos .mdc
-3. **Optimizar referencias** en `consolidated-workspace-rules.mdc`
-4. **Validar navegación** completa
+1. **Reduce `always_applied_workspace_rules`** from ~1000 lines to ~50 lines
+2. **Remove internal duplications** between .mdc files
+3. **Optimize references** in `consolidated-workspace-rules.mdc`
+4. **Validate complete navigation**
 
-**Reducción objetivo**: **95% menos contenido duplicado**
+**Target reduction**: **95% less duplicated content**
