@@ -1,6 +1,7 @@
 # CrackSeg Project Reports Index
 
-This directory contains all reports, analysis, and technical documentation generated during the development of the pavement crack segmentation project.
+This directory contains all reports, analysis, and technical documentation generated during the
+development of the pavement crack segmentation project.
 
 ## 📊 Organizational Structure
 
@@ -115,11 +116,13 @@ Historical and archived reports:
 
 ## 🛠️ Development Tools
 
-Note: Analysis tools and scripts are maintained separately in [`scripts/reports/`](../../scripts/reports/) to distinguish between documentation and development utilities.
+Note: Analysis tools and scripts are maintained separately in
+[`scripts/reports/`](../../scripts/reports/) to distinguish between documentation and development utilities.
 
 ## 📞 Contact and Support
 
-For questions about specific reports or requests for new analysis, consult the project documentation or contact the development team.
+For questions about specific reports or requests for new analysis, consult the project documentation
+or contact the development team.
 
 ---
 

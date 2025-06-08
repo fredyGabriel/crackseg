@@ -18,6 +18,10 @@
 **Goal**: Develop a production-ready, modular, and reproducible crack detection system
 **Architecture**: Encoder-decoder models with configurable components via Hydra
 
+> **Important Note:** The main Task Master tasks file (`tasks.json`) is located at
+> `.taskmaster/tasks/tasks.json`. All tools, scripts, and workflows must refer to this location
+> to access and modify project tasks.
+
 ## Rule Loading Instructions
 
 **CRITICAL**: You MUST load relevant rules based on task context using `fetch_rules`:
@@ -102,8 +106,9 @@ After loading rules, verify your understanding of:
 
 - **TaskMaster Guide**: [taskmaster-guide.mdc](/.cursor/rules/taskmaster-guide.mdc)
 - **Workflow Integration**: [development-workflow.mdc](/.cursor/rules/development-workflow.mdc)
-- **Windows Path Format**: Use absolute paths like `C:/Users/youruser/.taskmaster/tasks.json`
-(no leading slash, no double slash, no URL encoding).
+- **Windows Path Format**: Use absolute paths like `C:/Users/youruser/.taskmaster/tasks/tasks.json`
+  (no leading slash, no double slash, no URL encoding). The tasks file MUST ALWAYS be at
+  `.taskmaster/tasks/tasks.json`.
 See [taskmaster.mdc](/.cursor/rules/taskmaster.mdc) for details.
 
 ## Rule System Reference
@@ -117,6 +122,9 @@ See [taskmaster.mdc](/.cursor/rules/taskmaster.mdc) for details.
 | **[core-principles.mdc](/.cursor/rules/core-principles.mdc)** | Autonomous behavior, decision-making, minimal interruption philosophy | AI conduct principles, research-first approach, crack segmentation expertise |
 | **[coding-standards.mdc](/.cursor/rules/coding-standards.mdc)** | Writing Python code, implementing functions/classes | Type annotations (Python 3.12+), quality gates, naming conventions, error handling |
 | **[ml-pytorch-standards.mdc](/.cursor/rules/ml-pytorch-standards.mdc)** | PyTorch models, training pipelines, loss functions | Encoder-decoder patterns, VRAM optimization (RTX 3070 Ti), SOTA comparisons |
+
+> **IMPORTANT:** For all Task Master operations, use the path
+> `.taskmaster/tasks/tasks.json` as the tasks file.
 
 ### Process & Testing Rules
 

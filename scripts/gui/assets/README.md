@@ -159,7 +159,8 @@ logging.getLogger('asset_manager').setLevel(logging.DEBUG)
 
 ## 🔄 Migration from Legacy
 
-The asset system maintains compatibility with existing components while providing enhanced functionality through the centralized manager.
+The asset system maintains compatibility with existing components while providing enhanced
+functionality through the centralized manager.
 
 ## ⚡ Performance Tips
 

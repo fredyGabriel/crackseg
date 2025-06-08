@@ -398,6 +398,7 @@
     │   │   ├── artifact_testing_plan.md
     │   │   └── test_patterns_and_best_practices.md
     │   └── tools/
+    ├── generated_configs/
     ├── htmlcov/
     ├── outputs/
     ├── scripts/
@@ -450,11 +451,16 @@
     │   │   │   │   └── validation_panel.py
     │   │   │   ├── __init__.py
     │   │   │   ├── config_editor_component.py
+    │   │   │   ├── error_console.py
     │   │   │   ├── file_browser_component.py
+    │   │   │   ├── file_upload_component.py
     │   │   │   ├── logo_component.py
     │   │   │   ├── page_router.py
     │   │   │   ├── sidebar_component.py
     │   │   │   └── theme_component.py
+    │   │   ├── docs/
+    │   │   │   ├── error_messaging_system.md
+    │   │   │   └── file_upload_guide.md
     │   │   ├── pages/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
@@ -470,6 +476,7 @@
     │   │   │   │   ├── validation/
     │   │   │   │   │   ├── __pycache__/
     │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── error_categorizer.py
     │   │   │   │   │   └── yaml_engine.py
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── cache.py
@@ -477,11 +484,58 @@
     │   │   │   │   ├── formatters.py
     │   │   │   │   ├── io.py
     │   │   │   │   └── templates.py
+    │   │   │   ├── parsing/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── exceptions.py
+    │   │   │   │   └── override_parser.py
+    │   │   │   ├── process/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── abort_system.py
+    │   │   │   │   ├── core.py
+    │   │   │   │   ├── log_integration.py
+    │   │   │   │   ├── manager_backup.py
+    │   │   │   │   ├── monitoring.py
+    │   │   │   │   ├── override_parser.py
+    │   │   │   │   └── states.py
+    │   │   │   ├── run_manager/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── abort_api.py
+    │   │   │   │   ├── orchestrator.py
+    │   │   │   │   ├── session_api.py
+    │   │   │   │   ├── streaming_api.py
+    │   │   │   │   └── ui_integration.py
+    │   │   │   ├── streaming/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── sources/
+    │   │   │   │   │   ├── __pycache__/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── file_watcher.py
+    │   │   │   │   │   └── stdout_reader.py
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── core.py
+    │   │   │   │   └── exceptions.py
+    │   │   │   ├── threading/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── cancellation.py
+    │   │   │   │   ├── coordinator.py
+    │   │   │   │   ├── progress_tracking.py
+    │   │   │   │   ├── task_results.py
+    │   │   │   │   ├── task_status.py
+    │   │   │   │   ├── ui_responsive_backup.py
+    │   │   │   │   └── ui_wrapper.py
     │   │   │   ├── __init__.py
+    │   │   │   ├── architecture_viewer.py
     │   │   │   ├── config_io.py
     │   │   │   ├── gui_config.py
+    │   │   │   ├── override_examples.py
     │   │   │   ├── save_dialog.py
     │   │   │   ├── session_state.py
+    │   │   │   ├── session_sync.py
+    │   │   │   ├── streaming_examples.py
     │   │   │   └── theme.py
     │   │   ├── app.py
     │   │   ├── app_legacy.py
@@ -849,6 +903,14 @@
     │   │   │   ├── test_evaluation_main.py
     │   │   │   ├── test_loading.py
     │   │   │   └── test_results.py
+    │   │   ├── gui/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── test_enhanced_abort.py
+    │   │   │   ├── test_error_console.py
+    │   │   │   ├── test_error_console_simple.py
+    │   │   │   ├── test_file_upload.py
+    │   │   │   ├── test_session_state_updates.py
+    │   │   │   └── test_threading_integration.py
     │   │   ├── model/
     │   │   │   ├── __pycache__/
     │   │   │   ├── config/
@@ -924,6 +986,8 @@
     │   └── README.md
     ├── CHANGELOG.md
     ├── environment.yml
+    ├── gui_test_results.txt
+    ├── gui_unit_test_results.txt
     ├── pyproject.toml
     ├── pyrightconfig.json
     ├── README.md

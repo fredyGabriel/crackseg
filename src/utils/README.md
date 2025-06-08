@@ -1,6 +1,8 @@
 # Utils Module
 
-This directory contains utility functions and helper modules that support the core functionality of the pavement crack segmentation project. The utilities are organized by purpose and provide reusable components across the entire codebase.
+This directory contains utility functions and helper modules that support the core functionality of
+the pavement crack segmentation project. The utilities are organized by purpose and provide reusable
+components across the entire codebase.
 
 ## Directory Structure
 
