@@ -33,7 +33,8 @@ target_keywords = [
 ]
 
 
-def parse_test_errors(xml_path):
+def parse_test_errors(xml_path: str) -> dict[tuple[str, str], str]:
+    """Parses test errors from an XML file and returns a mapping from (classname, test name) to error message."""
     tree = ET.parse(xml_path)
     root = tree.getroot()
     errors = {}

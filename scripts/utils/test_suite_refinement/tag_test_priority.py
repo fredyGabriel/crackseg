@@ -433,7 +433,7 @@ except FileNotFoundError:
     pass
 
 
-def assign_priority(row):
+def assign_priority(row: list[str]) -> str:
     test_name = row[idx_name].lower()
     file_path = row[idx_file].lower()
     # Critical si es test lento o contiene palabra clave critical
@@ -470,6 +470,7 @@ explanation = [
 if "Priority" not in header:
     header.append("Priority")
     add_priority = True
+    idx_priority = len(header) - 1  # Last index after append
 else:
     add_priority = False
     idx_priority = header.index("Priority")

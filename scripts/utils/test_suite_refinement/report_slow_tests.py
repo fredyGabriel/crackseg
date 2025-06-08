@@ -6,7 +6,8 @@ REPORT_PATH = "outputs/prd_project_refinement/test_suite_evaluation/reports/slow
 
 
 # Parse test durations from XML
-def get_test_durations(xml_path):
+def get_test_durations(xml_path: str) -> list[tuple[float, str, str]]:
+    """Parses test durations from XML and returns a sorted list of (time, classname, name)."""
     tree = ET.parse(xml_path)
     root = tree.getroot()
     durations = []
@@ -19,7 +20,10 @@ def get_test_durations(xml_path):
     return sorted(durations, reverse=True)
 
 
-def write_slow_tests_report(durations, report_path, top_n=10):
+def write_slow_tests_report(
+    durations: list[tuple[float, str, str]], report_path: str, top_n: int
+) -> None:
+    """Writes a report of the top N slowest tests to a file."""
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("# Top 10 slowest tests (by duration, descending)\n")
         f.write("Duration (s)\tClassname\tTest Name\n")
@@ -29,4 +33,4 @@ def write_slow_tests_report(durations, report_path, top_n=10):
 
 if __name__ == "__main__":
     durations = get_test_durations(XML_PATH)
-    write_slow_tests_report(durations, REPORT_PATH)
+    write_slow_tests_report(durations, REPORT_PATH, 10)

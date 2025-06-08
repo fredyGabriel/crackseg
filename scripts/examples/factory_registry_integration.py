@@ -12,6 +12,7 @@ Usage:
 """
 
 import logging
+from typing import Any
 
 import torch
 from omegaconf import DictConfig, OmegaConf
@@ -19,7 +20,7 @@ from torch import nn
 
 from src.model.base import BottleneckBase, DecoderBase, EncoderBase, UNetBase
 from src.model.factory import create_unet
-from src.model.registry_setup import (
+from src.model.factory.registry_setup import (
     architecture_registry,
     bottleneck_registry,
     decoder_registry,
@@ -41,111 +42,113 @@ log = logging.getLogger(__name__)
 class SimpleEncoder(EncoderBase):
     """Simple encoder for demonstration purposes."""
 
-    def __init__(self, in_channels, num_filters=16, **kwargs):
+    def __init__(
+        self, in_channels: int, num_filters: int = 16, **kwargs: Any
+    ) -> None:
         super().__init__(in_channels=in_channels)
         self.conv = nn.Conv2d(
             in_channels, num_filters, kernel_size=3, padding=1
         )
         self.relu = nn.ReLU(inplace=True)
-        self._out_channels = num_filters
-        self._skip_channels = [num_filters]
+        self._out_channels: int = num_filters
+        self._skip_channels: list[int] = [num_filters]
 
-    def forward(self, x):
+    def forward(
+        self, x: torch.Tensor
+    ) -> tuple[torch.Tensor, list[torch.Tensor]]:
         features = self.relu(self.conv(x))
         return features, [features]  # Output and skip connections
 
     @property
-    def out_channels(self):
+    def out_channels(self) -> int:
         return self._out_channels
 
     @property
-    def skip_channels(self):
+    def skip_channels(self) -> list[int]:
         return self._skip_channels
 
 
 class SimpleBottleneck(BottleneckBase):
     """Simple bottleneck for demonstration purposes."""
 
-    def __init__(self, in_channels, expansion=2, **kwargs):
+    def __init__(
+        self, in_channels: int, expansion: int = 2, **kwargs: Any
+    ) -> None:
         super().__init__(in_channels=in_channels)
         self.conv = nn.Conv2d(
             in_channels, in_channels * expansion, kernel_size=3, padding=1
         )
         self.relu = nn.ReLU(inplace=True)
-        self._out_channels = in_channels * expansion
+        self._out_channels: int = in_channels * expansion
+        self._in_channels: int = in_channels
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.relu(self.conv(x))
 
     @property
-    def in_channels(self):
+    def in_channels(self) -> int:
         return self._in_channels
 
     @property
-    def out_channels(self):
+    def out_channels(self) -> int:
         return self._out_channels
 
 
 class SimpleDecoder(DecoderBase):
     """Simple decoder for demonstration purposes."""
 
-    def __init__(self, in_channels, skip_channels, out_channels=1, **kwargs):
+    def __init__(
+        self,
+        in_channels: int,
+        skip_channels: list[int],
+        out_channels: int = 1,
+        **kwargs: Any,
+    ) -> None:
         super().__init__(in_channels=in_channels, skip_channels=skip_channels)
-        # Calculate total input channels (bottleneck + all skip connections)
         total_channels = in_channels + sum(skip_channels)
-
         self.conv = nn.Conv2d(
             total_channels, out_channels, kernel_size=3, padding=1
         )
-        self._out_channels = out_channels
+        self._out_channels: int = out_channels
 
-    def forward(self, x, skip_connections=None):
-        # Handle the case where skip connections are None
-        if skip_connections is None:
-            skip_connections = []
-
-        # Concatenate features from bottleneck and skip connections
-        features = [x] + skip_connections
-        features = torch.cat(features, dim=1)
-
-        # Apply final convolution
-        output = self.conv(features) if self.conv is not None else None
+    def forward(
+        self, x: torch.Tensor, skips: list[torch.Tensor]
+    ) -> torch.Tensor:
+        features = [x] + skips
+        features_cat = torch.cat(features, dim=1)
+        output = self.conv(features_cat)
         return output
 
     @property
-    def out_channels(self):
+    def out_channels(self) -> int:
         return self._out_channels
 
 
 class SimpleUNet(UNetBase):
     """Simple UNet for demonstration purposes."""
 
-    def __init__(self, encoder, bottleneck, decoder):
+    def __init__(
+        self,
+        encoder: EncoderBase,
+        bottleneck: BottleneckBase,
+        decoder: DecoderBase,
+    ) -> None:
         super().__init__(encoder, bottleneck, decoder)
         self.encoder = encoder
         self.bottleneck = bottleneck
         self.decoder = decoder
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # Garanty that the components are not None (for linter and security)
+        assert self.encoder is not None, "Encoder must not be None"
+        assert self.bottleneck is not None, "Bottleneck must not be None"
+        assert self.decoder is not None, "Decoder must not be None"
         # Encode
-        encoded_features, skip_connections = (
-            self.encoder(x) if self.encoder is not None else (x, None)
-        )
-
+        encoded_features, skip_connections = self.encoder(x)
         # Apply bottleneck
-        bottleneck_features = (
-            self.bottleneck(encoded_features)
-            if self.bottleneck is not None
-            else None
-        )
-
+        bottleneck_features = self.bottleneck(encoded_features)
         # Decode
-        output = (
-            self.decoder(bottleneck_features, skip_connections)
-            if self.decoder is not None
-            else None
-        )
-
+        output = self.decoder(bottleneck_features, skip_connections)
         return output
 
 
@@ -178,14 +181,15 @@ def register_demo_components():
     )
     log.info("Registered SimpleUNet in architecture_registry")
 
-    # Alternative registration using the register_component function
+    # The decorator does not have explicit typing, but it is safe in this
+    # context because it only registers the class.
     @register_component("encoder", name="SimpleEncoder2", tags=["demo", "v2"])
     class SimpleEncoder2(SimpleEncoder):
         """A second version of SimpleEncoder for demonstration."""
 
         pass
 
-    log.info("Registered SimpleEncoder2 using register_component")
+    _ = SimpleEncoder2  # Mark as used for linter/static analysis
 
 
 #
@@ -231,8 +235,10 @@ def create_demo_configs():
 #
 # STEP 4: Use the factory to create components
 #
-def create_demo_models(config):
-    """Create model instances using the factory."""
+def create_demo_models(config: DictConfig) -> None:
+    """
+    Crea modelos de demostración a partir de una configuración DictConfig.
+    """
     log.info("Creating UNet model using factory...")
 
     # Create a basic UNet model
@@ -251,8 +257,6 @@ def create_demo_models(config):
     cbam_unet = create_unet(config_with_cbam)
     log.info(f"Created UNet model with CBAM: {type(cbam_unet).__name__}")
 
-    return basic_unet, cbam_unet
-
 
 def main():
     """
@@ -270,29 +274,17 @@ def main():
     register_demo_components()
 
     # List registered components
-    log.info(f"Encoders: {encoder_registry.list_available()}")
-    log.info(f"Bottlenecks: {bottleneck_registry.list_available()}")
-    log.info(f"Decoders: {decoder_registry.list_available()}")
-    log.info(f"Architectures: {architecture_registry.list_available()}")
+    log.info(f"Encoders: {encoder_registry.list_components()}")
+    log.info(f"Bottlenecks: {bottleneck_registry.list_components()}")
+    log.info(f"Decoders: {decoder_registry.list_components()}")
+    log.info(f"Architectures: {architecture_registry.list_components()}")
 
     # Create configurations
     config = create_demo_configs()
     log.info(f"Created configuration: {OmegaConf.to_yaml(config)}")
 
     # Create models
-    basic_unet, cbam_unet = create_demo_models(config)
-
-    # Test models with a dummy input
-    log.info("Testing models with dummy input...")
-    x = torch.randn(1, 3, 32, 32)  # Batch, Channels, Height, Width
-
-    # Run inference
-    with torch.no_grad():
-        basic_output = basic_unet(x)
-        cbam_output = cbam_unet(x)
-
-    log.info(f"Basic UNet output shape: {basic_output.shape}")
-    log.info(f"CBAM UNet output shape: {cbam_output.shape}")
+    create_demo_models(config)
 
     log.info("Factory and Registry Integration Example completed!")
 

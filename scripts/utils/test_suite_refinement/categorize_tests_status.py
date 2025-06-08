@@ -8,7 +8,8 @@ XML2_PATH = "outputs/prd_project_refinement/test_suite_evaluation/reports/test_r
 
 
 # Parse test results from XML
-def parse_test_results(xml_path):
+def parse_test_results(xml_path: str) -> dict[tuple[str, str], str]:
+    """Parses test results from an XML file and returns a mapping from (classname, test name) to status."""
     tree = ET.parse(xml_path)
     root = tree.getroot()
     results = {}
@@ -28,7 +29,8 @@ def parse_test_results(xml_path):
     return results
 
 
-def categorize_status(status1, status2):
+def categorize_status(status1: str, status2: str) -> str:
+    """Categoriza el estado de un test en passing, failing o flaky según los resultados de dos ejecuciones."""
     # Estrictamente: passing (ambas passed), failing (ambas failed/error),
     # flaky (cualquier otro caso)
     passing = {"passed"}
@@ -40,7 +42,12 @@ def categorize_status(status1, status2):
     return "flaky"
 
 
-def update_inventory(csv_path, results1, results2):
+def update_inventory(
+    csv_path: str,
+    results1: dict[tuple[str, str], str],
+    results2: dict[tuple[str, str], str],
+) -> None:
+    """Actualiza el inventario de tests en el CSV con el estado categorizado a partir de dos ejecuciones."""
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = list(csv.reader(f))
         explanation = reader[0]

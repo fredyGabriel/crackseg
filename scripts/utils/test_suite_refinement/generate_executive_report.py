@@ -12,7 +12,11 @@ EXEC_REPORT = os.path.join(REPORTS_DIR, "executive_report.md")
 
 
 # 1. Parse coverage.xml
-def parse_coverage_xml(path):
+def parse_coverage_xml(path: str) -> tuple[float, float]:
+    """
+    Parses a coverage.xml file and returns line and branch coverage as
+    percentages.
+    """
     tree = ET.parse(path)
     root = tree.getroot()
     line_rate = float(root.attrib.get("line-rate", "0"))
@@ -21,7 +25,10 @@ def parse_coverage_xml(path):
 
 
 # 2. Parse test_inventory.csv
-def parse_test_inventory(path):
+def parse_test_inventory(path: str) -> dict[str, int]:
+    """
+    Parses the test inventory CSV and returns a dictionary with test status
+    counts."""
     with open(path, newline="", encoding="utf-8") as f:
         reader = list(csv.reader(f))
         header = reader[1]
@@ -38,7 +45,11 @@ def parse_test_inventory(path):
 
 
 # 3. Parse slow_tests.txt
-def parse_slow_tests(path):
+def parse_slow_tests(path: str) -> list[str]:
+    """
+    Parses the slow_tests.txt file and returns a list of the top 5 slowest
+    tests.
+    """
     if not os.path.exists(path):
         return []
     with open(path, encoding="utf-8") as f:
@@ -51,7 +62,13 @@ def parse_slow_tests(path):
 
 
 # 4. Render Markdown report
-def render_report(line_cov, branch_cov, stats, slow_tests):
+def render_report(
+    line_cov: float,
+    branch_cov: float,
+    stats: dict[str, int],
+    slow_tests: list[str],
+) -> str:
+    """Renders the executive report as a Markdown string."""
     template = Template(
         """
 # Executive Test & Coverage Report

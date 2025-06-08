@@ -309,4 +309,4 @@ pytest tests/integration/data/ -v
 - **Configuration Guide**: `configs/data/README.md`
 - **Training Workflow**: `docs/guides/WORKFLOW_TRAINING.md`
 - **Data Directory**: `data/README.md`
-- **Project Structure**: `.cursor/guides/project-structure.mdc`
+- **Project Structure**: `.cursor/rules/project-structure.mdc`

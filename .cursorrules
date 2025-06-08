@@ -1,0 +1,97 @@
+# CrackSeg Project – AI Assistant Rules
+
+## Project Overview
+
+**Domain**: Deep learning-based pavement crack segmentation using PyTorch
+**Goal**: Develop a production-ready, modular, and reproducible crack detection system
+**Architecture**: Encoder-decoder models with configurable components via Hydra
+
+## Core Development Principles
+
+### 1. **AI Assistant Behavior**
+
+- **Autonomous Expert**: Act as a senior ML engineer with minimal interruptions
+- **Evidence-Based**: Support decisions with code references and documentation
+- **Professional Analysis**: Always analyze 3+ options for significant decisions
+- See [core-principles.mdc](.cursor/rules/core-principles.mdc) for detailed guidelines
+
+### 2. **Code Quality Standards**
+
+- **Mandatory Quality Gates**: `basedpyright`, `black`, `ruff` must pass
+- **Type Safety**: Complete type annotations using Python 3.12+ features
+- **Documentation**: English docstrings for all public APIs
+- See [coding-standards.mdc](.cursor/rules/coding-standards.mdc) for implementation details
+
+### 3. **ML/PyTorch Standards**
+
+- **Reproducibility**: Seed control, versioning, configuration storage
+- **Model Architecture**: Modular encoder-decoder with factory patterns
+- **Training Pipeline**: Checkpoint management, metric tracking, loss registry
+- See [ml-pytorch-standards.mdc](.cursor/rules/ml-pytorch-standards.mdc) for specifics
+
+### 4. **Project Workflow**
+
+- **Task Management**: Use Task Master for planning and progress tracking
+- **Development Process**: Plan → Implement → Test → Document → Review
+- **Testing Strategy**: Unit tests for components, integration for pipelines
+- See [development-workflow.mdc](.cursor/rules/development-workflow.mdc) for process
+
+## Quick Reference
+
+### Essential Project Files
+
+- **Training Guide**: [WORKFLOW_TRAINING.md](docs/guides/WORKFLOW_TRAINING.md)
+- **Checkpoint Format**: [checkpoint_format_specification.md](docs/guides/checkpoint_format_specification.md)
+- **Config Storage**: [configuration_storage_specification.md](docs/guides/configuration_storage_specification.md)
+- **Project Tree**: [project_tree.md](docs/reports/project_tree.md)
+
+### Key Development Rules
+
+- **Code Standards**: [coding-standards.mdc](.cursor/rules/coding-standards.mdc)
+- **Testing**: [testing-standards.mdc](.cursor/rules/testing-standards.mdc)
+- **Git Practices**: [git-standards.mdc](.cursor/rules/git-standards.mdc)
+- **ML Specifics**: [ml-pytorch-standards.mdc](.cursor/rules/ml-pytorch-standards.mdc)
+
+### Task Management
+
+- **TaskMaster Guide**: [taskmaster-guide.mdc](.cursor/rules/taskmaster-guide.mdc)
+- **Workflow Integration**: [development-workflow.mdc](.cursor/rules/development-workflow.mdc)
+
+## Rule System Reference
+
+### Agent-Requested Rules
+
+*These rules are loaded automatically by the AI agent based on context:*
+
+| Rule | Load When | Key Contents |
+|------|-----------|--------------|
+| **[core-principles.mdc](@/rules/core-principles.mdc)** | Autonomous behavior, decision-making, minimal interruption philosophy | AI conduct principles, research-first approach, crack segmentation expertise |
+| **[coding-standards.mdc](@/rules/coding-standards.mdc)** | Writing Python code, implementing functions/classes | Type annotations (Python 3.12+), quality gates, naming conventions, error handling |
+| **[ml-pytorch-standards.mdc](@/rules/ml-pytorch-standards.mdc)** | PyTorch models, training pipelines, loss functions | Encoder-decoder patterns, VRAM optimization (RTX 3070 Ti), SOTA comparisons |
+| **[development-workflow.mdc](@/rules/development-workflow.mdc)** | Planning tasks, implementation process, Task Master integration | Three-option analysis, quality assurance, documentation requirements |
+| **[testing-standards.mdc](@/rules/testing-standards.mdc)** | Writing unit/integration tests, testing ML models | Pytest patterns, mock strategies, test organization, coverage requirements |
+| **[git-standards.mdc](@/rules/git-standards.mdc)** | Git commits, branches, version control | Conventional commits, English-only, ML experiment tracking |
+| **[taskmaster-guide.mdc](@/rules/taskmaster-guide.mdc)** | Task Master MCP tools, task management | Quick command reference, workflows, status management |
+| **[project-structure.mdc](@/rules/project-structure.mdc)** | Navigating codebase, creating files, finding components | Directory organization, naming conventions, file placement guidelines |
+
+### Manual Reference Rules
+
+*Load these only when explicitly requested:*
+
+- **[taskmaster.mdc](@/rules/taskmaster.mdc)**: Complete TaskMaster documentation (extensive reference)
+- **[cursor_rules.mdc](@/rules/cursor_rules.mdc)**: Guidelines for creating and maintaining Cursor rules
+- **[self_improve.mdc](@/rules/self_improve.mdc)**: Process for evolving the rule system
+- **[rules_checklist.mdc](@/rules/rules_checklist.mdc)**: Quality checklist for auditing rules
+
+## Implementation Priorities
+
+1. **Correctness First**: Ensure mathematical accuracy in loss functions and metrics
+2. **Type Safety**: Leverage Python 3.12+ type system for reliability
+3. **Modularity**: Design components for reusability and testing
+4. **Performance**: Optimize only after correctness is verified
+5. **Documentation**: Keep code self-documenting with clear naming and structure
+
+---
+
+**Remember**: This project aims to create a state-of-the-art crack segmentation system.
+Every decision should advance this goal while maintaining code quality and reproducibility.

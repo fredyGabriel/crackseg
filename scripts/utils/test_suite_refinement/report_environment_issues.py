@@ -32,7 +32,8 @@ env_keywords = [
 ]
 
 
-def extract_environment_issues(xml_path):
+def extract_environment_issues(xml_path: str) -> list[str]:
+    """Extrae problemas de entorno de un archivo XML de resultados de tests."""
     tree = ET.parse(xml_path)
     root = tree.getroot()
     issues = []
@@ -52,14 +53,15 @@ def extract_environment_issues(xml_path):
                     for kw in env_keywords:
                         if kw.lower() in msg.lower():
                             issues.append(
-                                f'- {classname}.{name}: {
-                                    msg.strip().replace(chr(10), "; ")}'
+                                f"- {classname}.{name}: {
+                                    msg.strip().replace(chr(10), '; ')
+                                }"
                             )
                             break
     return issues
 
 
-def write_report(issues, report_path):
+def write_report(issues: list[str], report_path: str) -> None:
     with open(report_path, "w", encoding="utf-8") as f:
         f.write("# Environment-specific issues detected in test suite\n")
         if not issues:

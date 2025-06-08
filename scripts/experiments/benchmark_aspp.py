@@ -17,7 +17,9 @@ from torch import nn
 class SimpleBottleneck(nn.Module):
     """Simple bottleneck with a single convolutional block."""
 
-    def __init__(self, in_channels, out_channels, dropout=0.1):
+    def __init__(
+        self, in_channels: int, out_channels: int, dropout: float = 0.1
+    ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -29,7 +31,7 @@ class SimpleBottleneck(nn.Module):
             nn.Dropout2d(dropout) if dropout > 0 else nn.Identity(),
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.bottleneck(x)
 
 
@@ -38,12 +40,12 @@ class ASPPModule(nn.Module):
 
     def __init__(
         self,
-        in_channels,
-        output_channels,
-        dilation_rates=None,
-        dropout_rate=0.1,
-        output_stride=16,
-    ):
+        in_channels: int,
+        output_channels: int,
+        dilation_rates: list[int] | None = None,
+        dropout_rate: float = 0.1,
+        output_stride: int = 16,
+    ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = output_channels
@@ -61,22 +63,18 @@ class ASPPModule(nn.Module):
         # Atrous convolution branches
         self.branches = nn.ModuleList()
         for rate in self._dilation_rates:
-            (
-                self.branches.append
-                if self.branches is not None
-                else 0(
-                    nn.Sequential(
-                        nn.Conv2d(
-                            in_channels,
-                            output_channels,
-                            kernel_size=3,
-                            padding=rate,
-                            dilation=rate,
-                            bias=False,
-                        ),
-                        nn.BatchNorm2d(output_channels),
-                        nn.ReLU(inplace=True),
-                    )
+            self.branches.append(
+                nn.Sequential(
+                    nn.Conv2d(
+                        in_channels,
+                        output_channels,
+                        kernel_size=3,
+                        padding=rate,
+                        dilation=rate,
+                        bias=False,
+                    ),
+                    nn.BatchNorm2d(output_channels),
+                    nn.ReLU(inplace=True),
                 )
             )
 
@@ -103,17 +101,13 @@ class ASPPModule(nn.Module):
             nn.Dropout2d(p=dropout_rate) if dropout_rate > 0 else nn.Identity()
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Collect outputs from all branches
         outputs = [branch(x) for branch in self.branches]
         outputs.append(self.conv_1x1(x))
 
         # Global pooling branch: pool, upsample to input size
-        pool = (
-            self.global_pool(x)
-            if self.global_pool is not None
-            else None if self.global_pool is not None else (None, None)
-        )
+        pool = self.global_pool(x)
         pool_upsampled = F.interpolate(
             pool, size=x.shape[2:], mode="bilinear", align_corners=False
         )
@@ -123,17 +117,9 @@ class ASPPModule(nn.Module):
         x_cat = torch.cat(outputs, dim=1)
 
         # Project and apply dropout if training
-        x_proj = (
-            self.project(x_cat)
-            if self.project is not None
-            else None if self.project is not None else (None, None)
-        )
+        x_proj = self.project(x_cat)
         if self.training and isinstance(self.dropout, nn.Dropout2d):
-            x_proj = (
-                self.dropout(x_proj)
-                if self.dropout is not None
-                else None if self.dropout is not None else (None, None)
-            )
+            x_proj = self.dropout(x_proj)
 
         return x_proj
 
@@ -141,7 +127,9 @@ class ASPPModule(nn.Module):
 class ConvLSTMBottleneck(nn.Module):
     """Simple ConvLSTM bottleneck for comparison."""
 
-    def __init__(self, in_channels, out_channels, kernel_size=3):
+    def __init__(
+        self, in_channels: int, out_channels: int, kernel_size: int = 3
+    ) -> None:
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -156,25 +144,18 @@ class ConvLSTMBottleneck(nn.Module):
         self.bn = nn.BatchNorm2d(out_channels)
         self.relu = nn.ReLU(inplace=True)
 
-    def forward(self, x):
-        x = self.relu(
-            self.bn(
-                self.conv1(x)
-                if self.relu is not None
-                else None if self.relu is not None else (None, None)
-            )
-        )
-        x = self.relu(
-            self.bn(
-                self.conv2(x)
-                if self.relu is not None
-                else None if self.relu is not None else (None, None)
-            )
-        )
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.relu(self.bn(self.conv1(x)))
+        x = self.relu(self.bn(self.conv2(x)))
         return x
 
 
-def measure_inference_time(model, input_tensor, num_iterations=100, warmup=10):
+def measure_inference_time(
+    model: nn.Module,
+    input_tensor: torch.Tensor,
+    num_iterations: int = 100,
+    warmup: int = 10,
+) -> float:
     """Measure average inference time over multiple iterations."""
     # Warmup iterations
     for _ in range(warmup):
@@ -196,7 +177,9 @@ def measure_inference_time(model, input_tensor, num_iterations=100, warmup=10):
     return avg_time
 
 
-def measure_memory_usage(model, input_tensor):
+def measure_memory_usage(
+    model: nn.Module, input_tensor: torch.Tensor
+) -> float:
     """Measure peak memory usage during forward and backward pass."""
     if not input_tensor.is_cuda:
         print("Memory measurement only supported on CUDA devices")

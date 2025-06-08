@@ -26,7 +26,7 @@ CSV_HEADER = [
 CSV_EXPLANATION = "# Test inventory for all unit and integration tests. Each row describes a test function, its location, and key metadata for tracking and analysis."
 
 
-def get_test_functions(file_path):
+def get_test_functions(file_path: str) -> list[tuple[str, str]]:
     """Extrae funciones de test y sus docstrings de un archivo Python."""
     with open(file_path, encoding="utf-8") as f:
         node = ast.parse(f.read(), filename=file_path)
@@ -38,7 +38,8 @@ def get_test_functions(file_path):
     return tests
 
 
-def get_type_from_path(path):
+def get_type_from_path(path: str) -> str:
+    """Devuelve el tipo de test (unit, integration o N/A) según el path."""
     if "unit" in path:
         return "unit"
     if "integration" in path:
@@ -64,7 +65,7 @@ def main():
                         test_functions, 1
                     ):
                         test_id = f"{test_type}-{os.path.basename(root)}-"
-                        f"{fname.replace('.py','')}-{idx}"
+                        f"{fname.replace('.py', '')}-{idx}"
                         row = [
                             test_id,
                             rel_path.replace("\\", "/"),

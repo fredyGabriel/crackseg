@@ -184,3 +184,15 @@ verification_outputs/
 .roomodes
 .windsurfrules
 docs/tools/task-master-guide.md
+
+# --- Cursor AI rules versioning ---
+# Versiona solo las reglas y archivos de configuración, ignora el resto
+
+# Permitir reglas y configuración principal
+!.cursor/rules/
+!.cursorrules
+
+# Ignorar todo lo demás de .cursor
+.cursor/*
+!.cursor/rules/
+!.cursorrules

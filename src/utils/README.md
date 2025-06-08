@@ -219,5 +219,5 @@ The utils module has minimal external dependencies:
 
 - **Configuration Guide**: `docs/guides/configuration_storage_specification.md`
 - **Training Workflow**: `docs/guides/WORKFLOW_TRAINING.md`
-- **Project Structure**: `.cursor/guides/project-structure.mdc`
+- **Project Structure**: `.cursor/rules/project-structure.mdc`
 - **Code Standards**: `.cursor/rules/coding-preferences.mdc`

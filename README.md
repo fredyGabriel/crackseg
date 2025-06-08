@@ -92,7 +92,7 @@ For detailed workflow and advanced configuration options, see [**Training Workfl
 
 ## Project Structure
 
-For a comprehensive view of the project organization, see [**Project Structure Guide**](.cursor/guides/project-structure.mdc).
+For a comprehensive view of the project organization, see [**Project Structure Guide**](.cursor/rules/project-structure.mdc).
 
 ### Core Directories
 
@@ -425,8 +425,6 @@ For detailed contribution guidelines, see [`docs/guides/CONTRIBUTING.md`](docs/g
 - **Configuration Composition**: Hierarchical Hydra configuration system
 - **Dependency Injection**: Testable components with injected dependencies
 - **Abstract Base Classes**: Clear interfaces for extensibility
-
-For architectural details, see [**Structural Guide**](.cursor/guides/structural-guide.mdc).
 
 ## License
 

@@ -201,7 +201,7 @@ All contributions must pass:
 
 - **Configuration**: [WORKFLOW_TRAINING.md](WORKFLOW_TRAINING.md) - Training workflow
 - **Loss Registry**: [loss_registry_usage.md](loss_registry_usage.md) - Loss system
-- **Project Context**: [general-context.mdc](../../.cursor/guides/general-context.mdc)
+- **Project Structure**: [project-structure.mdc](../../.cursor/rules/project-structure.mdc)
 
 ### 🛠️ Development Tools
 

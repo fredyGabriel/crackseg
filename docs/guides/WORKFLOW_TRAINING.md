@@ -82,7 +82,7 @@ pytest tests/ --cov=src --cov-report=term-missing
 
 ## Project Structure
 
-The modular project structure allows flexibility in component selection. For detailed organizational information, see our [Project Structure Guide](../../.cursor/guides/project-structure.mdc).
+The modular project structure allows flexibility in component selection. For detailed organizational information, see our [Project Structure Guide](../../.cursor/rules/project-structure.mdc).
 
 ### Configuration Components
 
@@ -491,8 +491,7 @@ task-master update-subtask --id=training_task_id \
 ## Additional Resources
 
 - **Technical Standards**: See [.cursor/rules/](../../.cursor/rules/) for comprehensive guidelines
-- **Project Structure**: [Project Structure Guide](../../.cursor/guides/project-structure.mdc)
-- **Architecture Details**: [Structural Guide](../../.cursor/guides/structural-guide.mdc)
+- **Project Structure**: [Project Structure Guide](../../.cursor/rules/project-structure.mdc)
 - **Contribution Guidelines**: [Contributing Guide](CONTRIBUTING.md)
 - **Loss Functions**: [Loss Registry Usage Guide](loss_registry_usage.md)
 

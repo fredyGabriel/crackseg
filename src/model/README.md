@@ -253,4 +253,4 @@ The modular structure of `src.model` was adopted to maximize maintainability, ex
 - Do not introduce new files or directories without explicit confirmation and documentation updates.
 - When adding new modules, update the mermaid diagram and this section.
 
-For more details, see the [project-structure.mdc](../../.cursor/guides/project-structure.mdc) and [development-guide.mdc](../../.cursor/guides/development-guide.mdc).
+For more details, see the [project-structure.mdc](../../.cursor/rules/project-structure.mdc).

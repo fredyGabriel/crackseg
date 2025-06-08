@@ -7,7 +7,8 @@ XML_PATH = "outputs/prd_project_refinement/test_suite_evaluation/reports/test_re
 
 
 # Parse test results from XML
-def parse_test_results(xml_path):
+def parse_test_results(xml_path: str) -> dict[tuple[str, str], str]:
+    """Parses test results from an XML file and returns a mapping from (classname, test name) to status."""
     tree = ET.parse(xml_path)
     root = tree.getroot()
     results = {}
@@ -27,7 +28,10 @@ def parse_test_results(xml_path):
     return results
 
 
-def update_inventory(csv_path, results):
+def update_inventory(
+    csv_path: str, results: dict[tuple[str, str], str]
+) -> None:
+    """Actualiza el inventario de tests en el CSV con el estado a partir de los resultados XML."""
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = list(csv.reader(f))
         explanation = reader[0]

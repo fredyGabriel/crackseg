@@ -16,15 +16,20 @@ import logging
 import os
 import sys
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import matplotlib.pyplot as plt
 import torch
 import yaml
-from omegaconf import OmegaConf
+from omegaconf import DictConfig, OmegaConf
+from torch.amp.autocast_mode import autocast
+from torch.amp.grad_scaler import GradScaler
 from torch.utils.data import DataLoader, TensorDataset, random_split
+
+from src.utils.checkpointing import CheckpointSaveConfig
 
 # Add project root to path for module imports
 project_root = str(Path(__file__).parent.parent.absolute())
@@ -215,7 +220,7 @@ def create_mini_config():
     return OmegaConf.create(config)
 
 
-def save_config(config, path):
+def save_config(config: Any, path: str) -> None:
     """Save config to YAML file."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as f:
@@ -242,7 +247,12 @@ def create_experiment_dir():
     return exp_dir
 
 
-def visualize_results(images, masks, predictions, output_path):
+def visualize_results(
+    images: list[torch.Tensor],
+    masks: list[torch.Tensor],
+    predictions: list[torch.Tensor],
+    output_path: str,
+) -> None:
     """Save visualizations of predictions vs ground truth."""
     num_samples = min(4, len(images))
     fig, axs = plt.subplots(num_samples, 3, figsize=(15, 4 * num_samples))
@@ -312,7 +322,7 @@ def create_synthetic_dataset():
     return train_loader, val_loader, test_loader
 
 
-def get_metrics_from_cfg(metrics_cfg) -> dict[str, Any]:
+def get_metrics_from_cfg(metrics_cfg: dict[str, Any]) -> dict[str, Any]:
     """Get metrics from config."""
     metrics: dict[str, Any] = {}
     for name, metric_config in metrics_cfg.items():
@@ -326,10 +336,17 @@ def get_metrics_from_cfg(metrics_cfg) -> dict[str, Any]:
     return metrics
 
 
-def _setup_experiment_resources(base_cfg_callable):
-    """Handles creation of config, experiment dirs, logger, and seed/device
-    setup."""
+def _setup_experiment_resources(
+    base_cfg_callable: Callable[[], Any],
+) -> tuple[Any, Path, torch.device, ExperimentLogger, Path, Path, Path]:
+    """
+    Handles creation of config, experiment dirs, logger, and seed/device setup.
+    """
     cfg = OmegaConf.create(base_cfg_callable())
+    # Forzamos el tipo a DictConfig para ExperimentLogger
+    # (OmegaConf.create puede retornar ListConfig,
+    # pero aquí debe ser DictConfig)
+    cfg = cast(DictConfig, cfg)
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
     # Ensure exp_dir is absolute, joining with project_root or a robust base
     # path
@@ -356,10 +373,10 @@ def _setup_experiment_resources(base_cfg_callable):
         log_to_file=True,
     )
     set_random_seeds(cfg.random_seed)
+    # OmegaConf get workaround for require_cuda
+    require_cuda = cfg.require_cuda if hasattr(cfg, "require_cuda") else False
     device = torch.device(
-        "cuda"
-        if torch.cuda.is_available() and cfg.get("require_cuda", False)
-        else "cpu"
+        "cuda" if torch.cuda.is_available() and require_cuda else "cpu"
     )
     log.info(f"Using device: {device}")
     return (
@@ -373,7 +390,9 @@ def _setup_experiment_resources(base_cfg_callable):
     )
 
 
-def _prepare_dataloaders(cfg_data):
+def _prepare_dataloaders(
+    cfg_data: Any,
+) -> tuple[DataLoader[Any], DataLoader[Any], DataLoader[Any]]:
     """Loads and returns train, val, and test dataloaders."""
     log.info("Loading data...")
     dataloaders = create_dataloaders_from_config(
@@ -386,7 +405,7 @@ def _prepare_dataloaders(cfg_data):
     val_loader = dataloaders["val"]["dataloader"]
     test_loader = dataloaders["test"]["dataloader"]
 
-    def get_dataset_len(loader):
+    def get_dataset_len(loader: Any) -> int:
         if isinstance(loader, DataLoader):
             # mypy: asegúrate de que loader.dataset es Sized
             from collections.abc import Sized
@@ -404,31 +423,52 @@ def _prepare_dataloaders(cfg_data):
         f"{get_dataset_len(val_loader)} val, "
         f"{get_dataset_len(test_loader)} test"
     )
+    assert isinstance(train_loader, DataLoader)
+    assert isinstance(val_loader, DataLoader)
+    assert isinstance(test_loader, DataLoader)
     return train_loader, val_loader, test_loader
 
 
-def _initialize_training_components(cfg, device):
+def _initialize_training_components(cfg: Any, device: torch.device) -> tuple[
+    torch.nn.Module,
+    torch.nn.Module,
+    torch.optim.Optimizer,
+    Any,
+    dict[str, Any],
+    Any,
+]:
     """
     Initializes model, loss, optimizer, scheduler, metrics, and AMP scaler.
     """
     log.info("Creating model and training components...")
     model = create_unet(cfg.model).to(device)
     loss_fn = get_loss_fn(cfg.training.loss)
+    # Si loss_fn no es nn.Module, lo envuelvo en nn.Module para
+    # cumplir el tipado estricto
+    if not isinstance(loss_fn, torch.nn.Module):
+
+        class LossWrapper(torch.nn.Module):
+            def __init__(self, fn: Callable[..., Any]) -> None:
+                super().__init__()
+                self.fn = fn
+
+            def forward(self, *args: Any, **kwargs: dict[str, Any]) -> Any:
+                return self.fn(*args, **kwargs)
+
+        loss_fn = LossWrapper(loss_fn)
     optimizer = get_optimizer(list(model.parameters()), cfg.training.optimizer)
     lr_scheduler = create_lr_scheduler(optimizer, cfg.training.scheduler)
     metrics_dict = get_metrics_from_cfg(cfg.evaluation.metrics)
     use_amp = cfg.training.get("amp_enabled", False)
-    scaler = (
-        torch.cuda.amp.GradScaler()
-        if use_amp and device.type == "cuda"
-        else None
-    )
+    scaler = GradScaler() if use_amp and device.type == "cuda" else None
     log.info(f"AMP Enabled: {scaler is not None}")
     log.info("Training components initialized.")
     return model, loss_fn, optimizer, lr_scheduler, metrics_dict, scaler
 
 
-def _run_train_epoch(args: TrainingRunArgs, train_loader: DataLoader):
+def _run_train_epoch(
+    args: TrainingRunArgs, train_loader: DataLoader[Any]
+) -> tuple[float, dict[str, float]]:
     """Runs a single training epoch and returns loss and metrics."""
     args.model.train()
     epoch_loss = 0.0
@@ -445,7 +485,7 @@ def _run_train_epoch(args: TrainingRunArgs, train_loader: DataLoader):
             targets = targets.unsqueeze(1)
 
         args.optimizer.zero_grad()
-        with torch.cuda.amp.autocast(enabled=(args.scaler is not None)):
+        with autocast(device_type="cuda", enabled=(args.scaler is not None)):
             outputs = args.model(inputs)
             loss = args.loss_fn(outputs, targets)
 
@@ -475,7 +515,9 @@ def _run_train_epoch(args: TrainingRunArgs, train_loader: DataLoader):
     return avg_epoch_loss, avg_epoch_metrics
 
 
-def _run_val_epoch(args: TrainingRunArgs, val_loader: DataLoader):
+def _run_val_epoch(
+    args: TrainingRunArgs, val_loader: DataLoader[Any]
+) -> tuple[float, dict[str, float]]:
     """Runs a single validation epoch and returns loss and metrics."""
     args.model.eval()
     epoch_loss = 0.0
@@ -506,9 +548,9 @@ def _run_val_epoch(args: TrainingRunArgs, val_loader: DataLoader):
 
 def _execute_training_and_validation(
     args: TrainingRunArgs,
-    train_loader: DataLoader,
-    val_loader: DataLoader,
-):
+    train_loader: DataLoader[Any],
+    val_loader: DataLoader[Any],
+) -> tuple[float, float, dict[str, float], float, dict[str, float]]:
     """Runs the main training and validation loop for all epochs."""
     log.info("Starting training loop...")
     best_metric_value = 0.0
@@ -580,10 +622,8 @@ def _execute_training_and_validation(
                 f"{best_metric_value:.4f}"
             )
             # Crear configuración de guardado de checkpoint
-            from utils.checkpoint import CheckpointSaveConfig
-
             checkpoint_config = CheckpointSaveConfig(
-                save_dir=args.checkpoints_dir,
+                checkpoint_dir=args.checkpoints_dir,
                 filename="model_best.pth.tar",
                 additional_data={
                     "scheduler_state_dict": (
@@ -609,10 +649,8 @@ def _execute_training_and_validation(
             == 0
         ):
             # Crear configuración de guardado de checkpoint para intervalos
-            from utils.checkpoint import CheckpointSaveConfig
-
             checkpoint_config = CheckpointSaveConfig(
-                save_dir=args.checkpoints_dir,
+                checkpoint_dir=args.checkpoints_dir,
                 filename=f"checkpoint_epoch_{epoch + 1}.pth.tar",
                 additional_data={
                     "scheduler_state_dict": (
@@ -633,7 +671,7 @@ def _execute_training_and_validation(
         if args.cfg_training.checkpoints.save_last:
             # Crear configuración de guardado de checkpoint para el último
             checkpoint_config = CheckpointSaveConfig(
-                save_dir=args.checkpoints_dir,
+                checkpoint_dir=args.checkpoints_dir,
                 filename="checkpoint_last.pth.tar",
                 additional_data={
                     "scheduler_state_dict": (
@@ -664,8 +702,8 @@ def _execute_training_and_validation(
 
 def _evaluate_model_on_test_set(
     args: EvaluationArgs,
-    test_loader: DataLoader,
-):
+    test_loader: DataLoader[Any],
+) -> tuple[float, dict[str, float], str]:
     """Loads the specified model and evaluates it on the test set."""
     log.info(
         f"Loading model '{args.cfg_model_to_load}' for test evaluation..."
@@ -767,7 +805,7 @@ def _finalize_and_save_results(args: FinalResultsData):
     return final_results_data
 
 
-def run_e2e_test():
+def run_e2e_test() -> tuple[Any, Any]:
     """Run end-to-end test of the full pipeline."""
     exp_dir_final, results_final = None, None  # Initialize for finally block
     experiment_logger_instance = None  # Initialize for finally block
@@ -871,5 +909,8 @@ if __name__ == "__main__":
     print(f"\n{'=' * 80}")
     print(" End-to-End Test Completed")
     print(f" Experiment directory: {experiment_dir}")
-    print(f" Test metrics: {results['test']['metrics']}")
+    # Acceso seguro a los resultados
+    if results and isinstance(results, dict):
+        test_metrics = results.get("test_summary", {}).get("metrics", {})
+        print(f" Test metrics: {test_metrics}")
     print(f"{'=' * 80}")
