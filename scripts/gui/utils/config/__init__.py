@@ -66,7 +66,7 @@ __all__ = [
 ]
 
 # Global instances for backward compatibility
-from .cache import _config_cache  # pyright: ignore[reportPrivateUsage]
-from .validation import _yaml_validator  # pyright: ignore[reportPrivateUsage]
+from .cache import _config_cache
+from .validation import _yaml_validator
 
 __version__ = "1.0.0"

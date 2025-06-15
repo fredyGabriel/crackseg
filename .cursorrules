@@ -111,6 +111,10 @@ After loading rules, verify your understanding of:
   `.taskmaster/tasks/tasks.json`.
 See [taskmaster.mdc](/.cursor/rules/taskmaster.mdc) for details.
 
+> **MCP Workaround**: Due to a bug in Task Master MCP server v0.16.2, always include the
+> full file path parameter in MCP calls:
+> `file="C:/Users/youruser/project/.taskmaster/tasks/tasks.json"`
+
 ## Rule System Reference
 
 ### Development & Quality Rules

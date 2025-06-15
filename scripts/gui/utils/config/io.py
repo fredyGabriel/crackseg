@@ -12,7 +12,7 @@ from typing import Any
 import streamlit as st
 import yaml
 
-from .cache import _config_cache  # pyright: ignore[reportPrivateUsage]
+from .cache import _config_cache
 from .exceptions import ConfigError, ValidationError
 
 logger = logging.getLogger(__name__)

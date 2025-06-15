@@ -15,6 +15,12 @@ from typing import Any
 
 from ..parsing import AdvancedOverrideParser
 from ..streaming import LogStreamManager, OutputStreamReader
+from .error_handling import (
+    ErrorCategory,
+    ErrorSeverity,
+    error_recovery_context,
+    get_process_error_handler,
+)
 from .states import ProcessInfo, ProcessState, TrainingProcessError
 
 
@@ -29,6 +35,7 @@ class ProcessManager:
     - Secure subprocess execution (never uses shell=True)
     - Cross-platform process group management
     - Thread-safe operations with proper locking
+    - Enhanced error handling with recovery mechanisms
     - Integration with monitoring and log streaming
 
     Example:
@@ -48,6 +55,7 @@ class ProcessManager:
         self._stop_event = threading.Event()
         self._lock = threading.Lock()
         self._override_parser = AdvancedOverrideParser()
+        self._error_handler = get_process_error_handler()
 
         # Log streaming components
         self._stream_manager = LogStreamManager(max_buffer_size=2000)
@@ -55,7 +63,7 @@ class ProcessManager:
 
     @property
     def process_info(self) -> ProcessInfo:
-        """Get current process information (thread-safe)."""
+        """Get process information (thread-safe copy)."""
         with self._lock:
             return ProcessInfo(
                 pid=self._process_info.pid,
@@ -70,29 +78,27 @@ class ProcessManager:
     @property
     def is_running(self) -> bool:
         """Check if process is currently running."""
-        return self.process_info.state in {
-            ProcessState.STARTING,
-            ProcessState.RUNNING,
-        }
+        with self._lock:
+            return self._process_info.state == ProcessState.RUNNING
 
     @property
     def stream_manager(self) -> LogStreamManager:
-        """Get the log stream manager for callback registration."""
+        """Get log stream manager."""
         return self._stream_manager
 
     @property
     def subprocess_handle(self) -> subprocess.Popen[str] | None:
-        """Get the subprocess handle (for monitoring access)."""
+        """Get subprocess handle for monitoring."""
         return self._process
 
     @property
     def stop_event(self) -> threading.Event:
-        """Get the stop event (for monitoring access)."""
+        """Get stop event for threading coordination."""
         return self._stop_event
 
     @property
     def lock(self) -> threading.Lock:
-        """Get the thread lock (for monitoring access)."""
+        """Get process lock for thread synchronization."""
         return self._lock
 
     def start_training(
@@ -122,59 +128,81 @@ class ProcessManager:
         if self.is_running:
             raise TrainingProcessError("Training process is already running")
 
-        # Build command safely (no shell=True)
-        command = self._build_command(config_path, config_name, overrides)
-
-        # Validate working directory
-        work_dir = working_dir or Path.cwd()
-        if not work_dir.exists():
-            raise TrainingProcessError(
-                f"Working directory does not exist: {work_dir}"
-            )
-
+        # Use error recovery context for robust startup
         try:
-            with self._lock:
-                self._process_info = ProcessInfo(
-                    command=command,
-                    working_directory=work_dir,
-                    state=ProcessState.STARTING,
-                    start_time=time.time(),
+            with error_recovery_context(
+                operation="start_training",
+                component="ProcessManager",
+                category=ErrorCategory.PROCESS_STARTUP,
+                severity=ErrorSeverity.HIGH,
+                config_path=config_path,
+                config_name=config_name,
+                overrides=overrides or [],
+            ) as _:
+                # Build command safely (no shell=True)
+                command = self._build_command(
+                    config_path, config_name, overrides
                 )
 
-            # Start subprocess with secure configuration
-            self._process = subprocess.Popen(
-                command,
-                cwd=work_dir,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-                bufsize=1,  # Line buffered
-                universal_newlines=True,
-                # Security: Never use shell=True with user input
-                shell=False,
-                # Prevent inheriting file descriptors
-                close_fds=True,
-                # Set process group for clean termination
-                preexec_fn=os.setsid if os.name != "nt" else None,
-                creationflags=(
-                    subprocess.CREATE_NEW_PROCESS_GROUP
-                    if os.name == "nt"
-                    else 0
-                ),
-            )
+                # Validate working directory
+                work_dir = working_dir or Path.cwd()
+                if not work_dir.exists():
+                    raise TrainingProcessError(
+                        f"Working directory does not exist: {work_dir}"
+                    )
 
-            with self._lock:
-                self._process_info.pid = self._process.pid
-                self._process_info.state = ProcessState.RUNNING
+                # Update context with working directory
+                # Note: context enrichment handled automatically
 
-            return True
+                with self._lock:
+                    self._process_info = ProcessInfo(
+                        command=command,
+                        working_directory=work_dir,
+                        state=ProcessState.STARTING,
+                        start_time=time.time(),
+                    )
+
+                # Start subprocess with secure configuration
+                self._process = subprocess.Popen(
+                    command,
+                    cwd=work_dir,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1,  # Line buffered
+                    universal_newlines=True,
+                    # Security: Never use shell=True with user input
+                    shell=False,
+                    # Prevent inheriting file descriptors
+                    close_fds=True,
+                    # Set process group for clean termination
+                    preexec_fn=os.setsid if os.name != "nt" else None,
+                    creationflags=(
+                        subprocess.CREATE_NEW_PROCESS_GROUP
+                        if os.name == "nt"
+                        else 0
+                    ),
+                )
+
+                with self._lock:
+                    self._process_info.pid = self._process.pid
+                    self._process_info.state = ProcessState.RUNNING
+
+                # Update context with process info
+                # Note: process info tracked automatically by context manager
+
+                return True
 
         except (subprocess.SubprocessError, OSError, PermissionError) as e:
+            # Enhanced error handling
+            enhanced_error = self._error_handler.handle_process_startup_error(
+                e, config_path, config_name, overrides or []
+            )
+
             with self._lock:
                 self._process_info.state = ProcessState.FAILED
-                self._process_info.error_message = (
-                    f"Failed to start process: {e}"
-                )
+                self._process_info.error_message = str(enhanced_error)
+
             self._cleanup()
             return False
 
@@ -190,36 +218,46 @@ class ProcessManager:
         if not self.is_running:
             return True
 
-        with self._lock:
-            self._process_info.state = ProcessState.STOPPING
-
         try:
-            if self._process is None:
+            with error_recovery_context(
+                operation="stop_training",
+                component="ProcessManager",
+                category=ErrorCategory.USER_INTERRUPTION,
+                severity=ErrorSeverity.MEDIUM,
+                process_id=self._process_info.pid,
+            ) as _:
+                with self._lock:
+                    self._process_info.state = ProcessState.STOPPING
+
+                if self._process is None:
+                    return True
+
+                # Try graceful termination first
+                self._terminate_gracefully(timeout)
+
+                if self._process.poll() is None:  # Force kill if necessary
+                    self._force_kill()
+
+                # Wait for monitoring thread to finish
+                self._stop_event.set()
+                if self._monitor_thread and self._monitor_thread.is_alive():
+                    self._monitor_thread.join(timeout=5.0)
+
+                with self._lock:
+                    self._process_info.state = ProcessState.ABORTED
+                    self._process_info.return_code = self._process.returncode
+
+                self._cleanup()
                 return True
 
-            # Try graceful termination first
-            self._terminate_gracefully(timeout)
-
-            if self._process.poll() is None:  # Force kill if necessary
-                self._force_kill()
-
-            # Wait for monitoring thread to finish
-            self._stop_event.set()
-            if self._monitor_thread and self._monitor_thread.is_alive():
-                self._monitor_thread.join(timeout=5.0)
-
-            with self._lock:
-                self._process_info.state = ProcessState.ABORTED
-                self._process_info.return_code = self._process.returncode
-
-            self._cleanup()
-            return True
-
         except Exception as e:
+            # Enhanced error handling for stop failures
+            enhanced_error = self._error_handler.handle_user_interruption(
+                e, "stop"
+            )
+
             with self._lock:
-                self._process_info.error_message = (
-                    f"Error stopping process: {e}"
-                )
+                self._process_info.error_message = str(enhanced_error)
             return False
 
     def update_process_info(self, **kwargs: Any) -> None:

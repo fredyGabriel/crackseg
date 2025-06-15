@@ -200,6 +200,68 @@ class ThemeManager:
         }
 
     @staticmethod
+    def get_current_theme_as_json() -> str:
+        """Get the current theme configuration as a JSON string."""
+        import json
+
+        current_theme_name = ThemeManager.get_current_theme()
+        theme_config = ThemeManager.get_theme_config(current_theme_name)
+        # Convert dataclass to dict for serialization
+        theme_dict = {
+            "name": theme_config.name,
+            "display_name": theme_config.display_name,
+            "description": theme_config.description,
+            "colors": theme_config.colors.__dict__,
+            "logo_style": theme_config.logo_style,
+            "custom_css": theme_config.custom_css,
+            "streamlit_theme": theme_config.streamlit_theme,
+        }
+        return json.dumps(theme_dict, indent=2)
+
+    @staticmethod
+    def import_theme_from_json(json_string: str) -> bool:
+        """Import a theme from a JSON string and apply it."""
+        import json
+
+        try:
+            theme_data = json.loads(json_string)
+            theme_name = theme_data.get("name", "custom_theme")
+
+            # Create ThemeConfig from data
+            colors = ColorScheme(**theme_data["colors"])
+            new_config = ThemeConfig(
+                name=theme_name,
+                display_name=theme_data.get("display_name", "Custom Theme"),
+                description=theme_data.get(
+                    "description", "A user-imported theme."
+                ),
+                colors=colors,
+                logo_style=theme_data.get("logo_style", "default"),
+                custom_css=theme_data.get("custom_css", ""),
+                streamlit_theme=theme_data.get("streamlit_theme", {}),
+            )
+
+            # Add to themes and switch
+            ThemeManager._themes[theme_name] = new_config
+            ThemeManager.switch_theme(theme_name)
+            return True
+        except (json.JSONDecodeError, KeyError) as e:
+            st.error(f"Error importing theme: Invalid JSON format. {e}")
+            return False
+
+    @staticmethod
+    def update_current_theme_config(updates: dict[str, Any]) -> None:
+        """Update the configuration of the current theme."""
+        current_theme_name = ThemeManager.get_current_theme()
+        if current_theme_name in ThemeManager._themes:
+            theme_config = ThemeManager._themes[current_theme_name]
+            for key, value in updates.items():
+                if hasattr(theme_config, key):
+                    setattr(theme_config, key, value)
+            # Re-apply the theme to reflect changes
+            ThemeManager.apply_theme(current_theme_name)
+
+    @staticmethod
     def apply_theme(theme_name: str) -> ThemeConfig:
         """Apply theme and return the configuration."""
         from scripts.gui.utils.session_state import SessionStateManager

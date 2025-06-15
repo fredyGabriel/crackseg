@@ -10,7 +10,9 @@
 
 ## Executive Summary
 
-Este plan detallado establece un roadmap para incrementar la cobertura de tests del proyecto CrackSeg desde el actual 23% hasta el objetivo del 80%. El plan está estructurado en 4 fases progresivas con tareas específicas, métricas de seguimiento y criterios de éxito claros.
+Este plan detallado establece un roadmap para incrementar la cobertura de tests del proyecto
+CrackSeg desde el actual 23% hasta el objetivo del 80%. El plan está estructurado en 4 fases
+progresivas con tareas específicas, métricas de seguimiento y criterios de éxito claros.
 
 ### Key Metrics
 
@@ -975,7 +977,9 @@ coverage-badge -o coverage.svg
 
 ## Conclusion
 
-Este plan de mejora de cobertura está diseñado para ser ejecutable, medible y sostenible. Con un enfoque sistemático en 4 fases, el proyecto CrackSeg puede alcanzar el objetivo del 80% de cobertura mientras mejora significativamente la calidad, confiabilidad y mantenibilidad del código.
+Este plan de mejora de cobertura está diseñado para ser ejecutable, medible y sostenible. Con un
+enfoque sistemático en 4 fases, el proyecto CrackSeg puede alcanzar el objetivo del 80% de cobertura
+mientras mejora significativamente la calidad, confiabilidad y mantenibilidad del código.
 
 **Próximos pasos inmediatos:**
 
@@ -984,4 +988,5 @@ Este plan de mejora de cobertura está diseñado para ser ejecutable, medible y 
 3. **Team Alignment:** Establecer procesos de review y quality gates
 4. **Progress Tracking:** Implementar métricas semanales de seguimiento
 
-La implementación exitosa de este plan no solo mejorará las métricas de cobertura, sino que establecerá una base sólida para el desarrollo futuro y la calidad a largo plazo del proyecto CrackSeg.
+La implementación exitosa de este plan no solo mejorará las métricas de cobertura, sino que
+establecerá una base sólida para el desarrollo futuro y la calidad a largo plazo del proyecto CrackSeg.

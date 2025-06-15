@@ -5,8 +5,12 @@ This module contains the training dashboard content for launching
 and monitoring model training.
 """
 
+from pathlib import Path
+from typing import Any
+
 import streamlit as st
 
+from scripts.gui.components.tensorboard_component import TensorBoardComponent
 from scripts.gui.utils.session_state import SessionStateManager
 
 
@@ -63,3 +67,31 @@ def page_train() -> None:
         st.markdown("### Current Metrics")
         for metric, value in state.training_metrics.items():
             st.metric(metric.capitalize(), f"{value:.4f}")
+
+    # TensorBoard integration during training
+    if state.training_active:
+        st.markdown("---")
+        _render_training_tensorboard(state)
+
+
+def _render_training_tensorboard(state: Any) -> None:
+    """Render compact TensorBoard integration during training."""
+    run_dir = getattr(state, "run_dir", None)
+
+    if run_dir is None:
+        return
+
+    log_dir = Path(run_dir) / "logs" / "tensorboard"
+
+    # Compact TensorBoard component for training page
+    with st.expander("📊 TensorBoard Live Monitoring", expanded=False):
+        tb_component = TensorBoardComponent(
+            default_height=500,  # Smaller for training page
+            auto_startup=True,  # Auto-start when available
+            show_controls=False,  # Minimal controls during training
+            show_status=True,  # Show status
+        )
+
+        tb_component.render(
+            log_dir=log_dir, title="Live Training Metrics", show_refresh=True
+        )

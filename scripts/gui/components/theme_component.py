@@ -235,77 +235,63 @@ class ThemeComponent:
         current_theme = ThemeManager.get_current_theme()
         theme_config = ThemeManager.get_theme_config(current_theme)
 
-        # Theme customization options
-        with st.expander("⚙️ Customization Options", expanded=False):
-            st.markdown("**Current Theme Configuration**")
-            st.json(theme_config.streamlit_theme)
+        # Theme customization options - Expander removed to prevent nesting
+        st.markdown("**Current Theme Configuration**")
+        st.json(theme_config.streamlit_theme)
 
-            # Logo style selection
-            logo_styles = ["default", "light", "minimal"]
-            current_logo_style = theme_config.logo_style
+        # Logo style selection
+        logo_styles = ["default", "light", "minimal"]
+        current_logo_style = theme_config.logo_style
 
-            selected_logo_style = st.selectbox(
-                "Logo Style",
-                options=logo_styles,
-                index=logo_styles.index(current_logo_style),
-                key="logo_style_selector",
-                help="Choose the logo style for this theme",
+        selected_logo_style = st.selectbox(
+            "Logo Style",
+            options=logo_styles,
+            index=logo_styles.index(current_logo_style),
+            key="logo_style_selector",
+            help="Choose the logo style for this theme",
+        )
+
+        if selected_logo_style != current_logo_style:
+            ThemeManager.update_current_theme_config(
+                {"logo_style": selected_logo_style}
             )
+            st.rerun()
 
-            if selected_logo_style != current_logo_style:
-                st.info(
-                    f"Logo style will be updated to '{selected_logo_style}' "
-                    "on next theme application."
-                )
+        # Custom CSS input
+        st.markdown("**Custom CSS**")
+        st.text_area(
+            "Additional CSS",
+            value=theme_config.custom_css,
+            height=100,
+            key="custom_css_input",
+            help="Add custom CSS rules for this theme",
+        )
 
-            # Custom CSS input
-            st.markdown("**Custom CSS**")
-            st.text_area(
-                "Additional CSS",
-                value=theme_config.custom_css,
-                height=100,
-                key="custom_css_input",
-                help="Add custom CSS rules for this theme",
+        if st.button("Apply Custom Settings", key="apply_custom_theme"):
+            st.success("Custom theme settings would be applied here")
+            st.info("This feature will be implemented in future updates")
+
+        # Remove the expander for export/import to prevent nesting issues
+        st.markdown("#### Export/Import Theme")
+        col1, col2 = st.columns(2)
+        with col1:
+            theme_json = ThemeManager.get_current_theme_as_json()
+            st.download_button(
+                label="📥 Export Current Theme",
+                data=theme_json,
+                file_name="crackseg_theme.json",
+                mime="application/json",
             )
-
-            if st.button("Apply Custom Settings", key="apply_custom_theme"):
-                st.success("Custom theme settings would be applied here")
-                st.info("This feature will be implemented in future updates")
-
-        # Theme export/import
-        with st.expander("📤 Export/Import Theme", expanded=False):
-            # Export current theme
-            if st.button("Export Current Theme", key="export_theme"):
-                import json
-
-                theme_data = {
-                    "name": theme_config.name,
-                    "display_name": theme_config.display_name,
-                    "description": theme_config.description,
-                    "colors": theme_config.colors.__dict__,
-                    "logo_style": theme_config.logo_style,
-                    "custom_css": theme_config.custom_css,
-                    "streamlit_theme": theme_config.streamlit_theme,
-                }
-
-                st.download_button(
-                    label="Download Theme JSON",
-                    data=json.dumps(theme_data, indent=2),
-                    file_name=f"crackseg_theme_{theme_config.name}.json",
-                    mime="application/json",
-                    key="download_theme",
-                )
-
-            # Import theme
-            uploaded_theme = st.file_uploader(
-                "Import Theme JSON",
-                type="json",
-                key="upload_theme",
-                help="Upload a custom theme configuration file",
+        with col2:
+            uploaded_file = st.file_uploader(
+                "📤 Import Theme from JSON", type=["json"]
             )
-
-            if uploaded_theme is not None:
-                st.info(
-                    "Theme import functionality will be implemented "
-                    "in future updates"
+            if uploaded_file is not None:
+                success = ThemeManager.import_theme_from_json(
+                    uploaded_file.getvalue().decode("utf-8")
                 )
+                if success:
+                    st.success("Theme imported and applied successfully!")
+                    st.rerun()
+                else:
+                    st.error("Failed to import theme from JSON.")

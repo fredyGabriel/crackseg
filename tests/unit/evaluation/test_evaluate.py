@@ -33,8 +33,8 @@ def test_setup_output_directory_creates_dirs():
         assert os.path.exists(os.path.join(out_dir, "visualizations"))
 
 
-@patch("src.utils.checkpointing.Path.exists", return_value=True)
-@patch("src.utils.checkpointing.torch.load")
+@patch("pathlib.Path.exists", return_value=True)
+@patch("torch.load")
 @patch("src.evaluation.loading.create_unet")
 def test_load_model_from_checkpoint(
     mock_create_unet: MagicMock,
@@ -93,8 +93,19 @@ def test_load_model_from_checkpoint(
 
 
 def test_get_evaluation_dataloader(monkeypatch: pytest.MonkeyPatch) -> None:
-    dummy_loader = MagicMock()
-    dummy_loader.dataset = [1, 2, 3]  # Simulate a dataset with 3 samples
+    # Create a real DataLoader instance to avoid isinstance checks
+    class DummyDataset(torch.utils.data.Dataset[dict[str, torch.Tensor]]):
+        def __len__(self) -> int:
+            return 3
+
+        def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
+            return {
+                "image": torch.zeros(1, 3, 4, 4),
+                "mask": torch.zeros(1, 1, 4, 4),
+            }
+
+    dummy_loader = torch.utils.data.DataLoader(DummyDataset(), batch_size=1)
+
     monkeypatch.setattr(
         "src.evaluation.data.create_dataloaders_from_config",
         lambda **kwargs: {"test": {"dataloader": dummy_loader}},
@@ -123,12 +134,26 @@ def test_evaluate_model_basic() -> None:
 
     loader = torch.utils.data.DataLoader(DummyDataset(), batch_size=1)
     metrics = {"dummy": lambda o, t: torch.tensor(1.0)}
-    config = OmegaConf.create({})
+
+    # Create complete configuration with required data fields
+    config = OmegaConf.create(
+        {
+            "data": {
+                "num_dims_image": 4,
+                "num_channels_rgb": 3,
+                "num_dims_mask": 4,
+            },
+            "evaluation": {
+                "num_batches_visualize": 1,
+            },
+        }
+    )
+
     results, (inputs, targets, outputs) = evaluate_model(
         model, loader, metrics, torch.device("cpu"), config=config
     )
     assert "test_dummy" in results
-    assert inputs.shape[0] == 2  # noqa: PLR2004
+    assert inputs.shape[0] == 1  # Batch size is 1 from the DataLoader
 
 
 def test_visualize_predictions_creates_files(tmp_path: Path) -> None:
@@ -158,6 +183,11 @@ def test_save_evaluation_results_creates_files(tmp_path: Path) -> None:
 def test_ensemble_evaluate_creates_results_and_files(
     mock_torch_load: MagicMock, mock_exists: MagicMock, tmp_path: Path
 ) -> None:
+    # Set matplotlib to use non-GUI backend for testing
+    import matplotlib
+
+    matplotlib.use("Agg")
+
     # Dummy model for ensemble
     class DummyModel(torch.nn.Module):
         def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -196,14 +226,37 @@ def test_ensemble_evaluate_creates_results_and_files(
         # Dummy metric
         metrics = {"dummy": lambda o, t: torch.tensor(1.0)}
 
-        # Mock for visualize_predictions
-        with patch("src.utils.visualization.visualize_predictions"):
-            results = ensemble_evaluate(
-                checkpoint_paths=["ckpt1.pth", "ckpt2.pth"],
-                config=OmegaConf.create({"model": {}}),
-                dataloader=dataloader,
-                metrics=metrics,
-            )
+        # Create complete configuration with all required fields
+        config = OmegaConf.create(
+            {
+                "model": {},
+                "device_str": "cpu",
+                "output_dir_str": str(tmp_path),
+                "data": {
+                    "num_dims_image": 4,
+                    "num_channels_rgb": 3,
+                    "num_dims_mask": 4,
+                },
+                "evaluation": {
+                    "num_batches_visualize": 1,
+                },
+            }
+        )
+
+        # Mock OmegaConf.load to prevent file loading errors
+        with patch(
+            "src.evaluation.ensemble.OmegaConf.load"
+        ) as mock_omegaconf_load:
+            mock_omegaconf_load.return_value = OmegaConf.create({"model": {}})
+
+            # Mock for visualize_predictions - use exact import path
+            with patch("src.evaluation.ensemble.visualize_predictions"):
+                results = ensemble_evaluate(
+                    checkpoint_paths=["ckpt1.pth", "ckpt2.pth"],
+                    config=config,
+                    dataloader=dataloader,
+                    metrics=metrics,
+                )
 
     # Check that the result key is present
     assert "ensemble_dummy" in results

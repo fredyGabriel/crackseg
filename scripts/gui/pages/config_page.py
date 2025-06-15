@@ -249,17 +249,18 @@ def page_config() -> None:
                 SessionStateManager.update(
                     {"run_directory": str(demo_run.absolute())}
                 )
-
-                # Add notification for demo setup
-                state.add_notification("Configuración demo lista")
-                st.success("✅ Configuración demo establecida")
-                st.info(
-                    "💡 Puedes modificar estos valores según tus necesidades"
+                SessionStateManager.update(
+                    {"config_path": str(demo_config.absolute())}
+                )
+                state.update_config(
+                    str(demo_config.absolute()), {"loaded": True}
+                )
+                state.add_notification(
+                    "🚀 Configuración de demostración cargada!"
                 )
                 st.rerun()
-
             except Exception as e:
-                st.error(f"Error en configuración automática: {e}")
+                st.error(f"❌ Error en configuración rápida: {e}")
 
     # Configuration preview
     st.markdown("---")

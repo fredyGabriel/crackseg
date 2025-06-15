@@ -2,7 +2,8 @@
 
 This directory contains JavaScript for enhanced component functionality.
 
-## Files:
+## Files
+
 - Component-specific interactive features
 - Streamlit custom components
 - Third-party integrations

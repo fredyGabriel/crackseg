@@ -1,0 +1,1369 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="API Documentation and User Guide for the CrackSeg Professional GUI.">
+      
+      
+        <meta name="author" content="AI Assistant & fgrv">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Clean Environment Installation Guide - CrackSeg Professional GUI</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#clean-environment-installation-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CrackSeg Professional GUI" class="md-header__button md-logo" aria-label="CrackSeg Professional GUI" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CrackSeg Professional GUI
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Clean Environment Installation Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fgrv/crackseg" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fgrv/crackseg
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Project Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../INSTALL/" class="md-tabs__link">
+          
+  
+  
+  User Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../DEVELOPMENT/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/gui_components/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CrackSeg Professional GUI" class="md-nav__button md-logo" aria-label="CrackSeg Professional GUI" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CrackSeg Professional GUI
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fgrv/crackseg" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fgrv/crackseg
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Project Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../INSTALL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../USAGE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../WORKFLOW_TRAINING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Training Workflow
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DEVELOPMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../loss_registry_usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Function Registry
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/gui_components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GUI Components
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/gui_services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GUI Services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GUI Utilities
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-system-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required System Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-but-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional but Recommended
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-by-step-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step-by-Step Installation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step-by-Step Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clone-the-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Clone the Repository
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-conda-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Create Conda Environment
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-install-additional-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Install Additional Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-verify-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Verify Installation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Verify Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-system-dependencies-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run System Dependencies Check
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-python-compatibility-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run Python Compatibility Check
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-complete-installation-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run Complete Installation Test
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-verify-project-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Verify Project Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-test-development-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Test Development Tools
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verification Checklist
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Verification Checklist">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ System Prerequisites
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Environment Setup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#project-functionality" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Project Functionality
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      ✅ Development Workflow
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-issues-and-solutions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Common Issues and Solutions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Issues and Solutions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-conda-environment-creation-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: Conda Environment Creation Fails
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-streamlit-installation-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: Streamlit Installation Problems
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-cuda-not-detected" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: CUDA Not Detected
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-import-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: Import Errors
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-type-checking-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      Issue: Type Checking Errors
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#performance-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Performance Optimization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Performance Optimization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#for-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      For Development
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#for-gpu-workloads" class="md-nav__link">
+    <span class="md-ellipsis">
+      For GPU Workloads
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#automated-installation-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automated Installation Verification
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="clean-environment-installation-guide">Clean Environment Installation Guide</h1>
+<p>This guide provides step-by-step instructions for installing the CrackSeg project from scratch in a clean environment.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Before starting, ensure you have the following system dependencies installed:</p>
+<h3 id="required-system-dependencies">Required System Dependencies</h3>
+<ul>
+<li><strong>Git</strong>: Version control system</li>
+<li><strong>Conda/Miniconda</strong>: Package and environment management</li>
+<li><strong>Python 3.12</strong>: Specified Python version (managed via Conda)</li>
+</ul>
+<h3 id="optional-but-recommended">Optional but Recommended</h3>
+<ul>
+<li><strong>CUDA Toolkit</strong>: For GPU acceleration (if using NVIDIA GPU)</li>
+<li><strong>Graphviz</strong>: For visualization capabilities</li>
+</ul>
+<p>For detailed installation instructions for these prerequisites, see <a href="../SYSTEM_DEPENDENCIES/">SYSTEM_DEPENDENCIES.md</a>.</p>
+<h2 id="step-by-step-installation">Step-by-Step Installation</h2>
+<h3 id="1-clone-the-repository">1. Clone the Repository</h3>
+<pre><code class="language-bash"># Clone the project repository
+git clone https://github.com/fredyGabriel/crackseg.git
+cd crackseg
+</code></pre>
+<h3 id="2-create-conda-environment">2. Create Conda Environment</h3>
+<pre><code class="language-bash"># Create the conda environment from environment.yml
+conda env create -f environment.yml
+
+# Activate the environment
+conda activate crackseg
+</code></pre>
+<p><strong>Expected Output:</strong></p>
+<ul>
+<li>Environment creation should complete without errors</li>
+<li>You should see package installation progress</li>
+<li>Environment should activate successfully</li>
+</ul>
+<h3 id="3-install-additional-dependencies">3. Install Additional Dependencies</h3>
+<pre><code class="language-bash"># Install pip-only dependencies
+pip install -r requirements.txt
+</code></pre>
+<p><strong>Note:</strong> Some packages (like Streamlit components) are only available via pip and are automatically installed from requirements.txt.</p>
+<h3 id="4-verify-installation">4. Verify Installation</h3>
+<h4 id="run-system-dependencies-check">Run System Dependencies Check</h4>
+<pre><code class="language-bash">python scripts/verify_system_dependencies.py
+</code></pre>
+<h4 id="run-python-compatibility-check">Run Python Compatibility Check</h4>
+<pre><code class="language-bash">python scripts/verify_python_compatibility.py
+</code></pre>
+<h4 id="run-complete-installation-test">Run Complete Installation Test</h4>
+<pre><code class="language-bash">python scripts/test_clean_installation.py
+</code></pre>
+<h3 id="5-verify-project-structure">5. Verify Project Structure</h3>
+<p>Ensure all key directories and files are present:</p>
+<pre><code class="language-txt">crackseg/
+├── src/                     # Main source code
+├── tests/                   # Test suites
+├── configs/                 # Configuration files
+├── scripts/                 # Utility scripts
+├── docs/                    # Documentation
+├── environment.yml          # Conda environment specification
+├── requirements.txt         # Pip requirements
+├── pyproject.toml          # Project configuration
+└── README.md               # Project overview
+</code></pre>
+<h3 id="6-test-development-tools">6. Test Development Tools</h3>
+<pre><code class="language-bash"># Check code formatting
+black --check .
+
+# Check linting
+ruff check .
+
+# Check type annotations
+basedpyright .
+
+# Run tests
+pytest tests/ --cov=src --cov-report=term-missing
+</code></pre>
+<h2 id="verification-checklist">Verification Checklist</h2>
+<p>Use this checklist to ensure your installation is complete and functional:</p>
+<h3 id="system-prerequisites">✅ System Prerequisites</h3>
+<ul>
+<li>[ ] Git installed and accessible</li>
+<li>[ ] Conda/Miniconda installed</li>
+<li>[ ] Python 3.12 available through Conda</li>
+</ul>
+<h3 id="environment-setup">✅ Environment Setup</h3>
+<ul>
+<li>[ ] Conda environment 'crackseg' created successfully</li>
+<li>[ ] Environment activated without errors</li>
+<li>[ ] All conda dependencies installed</li>
+</ul>
+<h3 id="dependencies">✅ Dependencies</h3>
+<ul>
+<li>[ ] Core ML libraries (PyTorch, NumPy, OpenCV) working</li>
+<li>[ ] Configuration management (Hydra, OmegaConf) available</li>
+<li>[ ] Development tools (Black, Ruff, basedpyright) functional</li>
+<li>[ ] Testing framework (pytest) operational</li>
+</ul>
+<h3 id="project-functionality">✅ Project Functionality</h3>
+<ul>
+<li>[ ] Project modules import correctly</li>
+<li>[ ] CUDA functionality working (if GPU available)</li>
+<li>[ ] Verification scripts run successfully</li>
+<li>[ ] Quality gates pass</li>
+</ul>
+<h3 id="development-workflow">✅ Development Workflow</h3>
+<ul>
+<li>[ ] Code formatting with Black works</li>
+<li>[ ] Linting with Ruff produces no errors</li>
+<li>[ ] Type checking with basedpyright passes</li>
+<li>[ ] Basic tests can be executed</li>
+</ul>
+<h2 id="common-issues-and-solutions">Common Issues and Solutions</h2>
+<h3 id="issue-conda-environment-creation-fails">Issue: Conda Environment Creation Fails</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Error during <code>conda env create -f environment.yml</code></li>
+<li>Missing package conflicts</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Update conda: <code>conda update conda</code></li>
+<li>Clear conda cache: <code>conda clean --all</code></li>
+<li>Try creating with specific channel: <code>conda env create -f environment.yml -c conda-forge</code></li>
+</ol>
+<h3 id="issue-streamlit-installation-problems">Issue: Streamlit Installation Problems</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Streamlit components fail to install</li>
+<li>Import errors with streamlit modules</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Ensure you're in the crackseg environment: <code>conda activate crackseg</code></li>
+<li>Install via pip: <code>pip install streamlit streamlit-option-menu streamlit-ace</code></li>
+<li>If conflicts persist, install specific versions from requirements.txt</li>
+</ol>
+<h3 id="issue-cuda-not-detected">Issue: CUDA Not Detected</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li><code>torch.cuda.is_available()</code> returns False</li>
+<li>GPU not being utilized</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Verify GPU drivers are installed</li>
+<li>Check CUDA toolkit installation</li>
+<li>Ensure PyTorch CUDA version matches your CUDA installation</li>
+<li>Reinstall PyTorch with correct CUDA version:</li>
+</ol>
+<p><code>bash
+   conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia</code></p>
+<h3 id="issue-import-errors">Issue: Import Errors</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>Cannot import project modules</li>
+<li>ModuleNotFoundError for src.* modules</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Ensure you're in the project root directory</li>
+<li>Set PYTHONPATH: <code>export PYTHONPATH=$PWD</code> (Linux/Mac) or <code>$env:PYTHONPATH = $PWD</code> (Windows PowerShell)</li>
+<li>Run scripts with proper environment:</li>
+</ol>
+<p><code>bash
+   PYTHONPATH=$PWD python scripts/verify_python_compatibility.py</code></p>
+<h3 id="issue-type-checking-errors">Issue: Type Checking Errors</h3>
+<p><strong>Symptoms:</strong></p>
+<ul>
+<li>basedpyright reports errors</li>
+<li>Type annotations not recognized</li>
+</ul>
+<p><strong>Solutions:</strong></p>
+<ol>
+<li>Ensure basedpyright is installed: <code>pip install basedpyright</code></li>
+<li>Check pyrightconfig.json exists and is properly configured</li>
+<li>Verify Python version is 3.12: <code>python --version</code></li>
+</ol>
+<h2 id="performance-optimization">Performance Optimization</h2>
+<h3 id="for-development">For Development</h3>
+<ul>
+<li>Use <code>conda-libmamba-solver</code> for faster dependency resolution:</li>
+</ul>
+<p><code>bash
+  conda install -n base conda-libmamba-solver
+  conda config --set solver libmamba</code></p>
+<h3 id="for-gpu-workloads">For GPU Workloads</h3>
+<ul>
+<li>Verify GPU memory is sufficient for your models</li>
+<li>Monitor GPU utilization: <code>nvidia-smi</code></li>
+<li>Adjust batch sizes based on available GPU memory</li>
+</ul>
+<h2 id="next-steps">Next Steps</h2>
+<p>After successful installation:</p>
+<ol>
+<li><strong>Read the Project Documentation</strong>: Review README.md and docs/ directory</li>
+<li><strong>Run Example Scripts</strong>: Test basic functionality with provided examples</li>
+<li><strong>Configure for Your Environment</strong>: Adjust configurations in configs/ directory</li>
+<li><strong>Start Development</strong>: Follow the development workflow in the main README</li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>If you encounter issues not covered here:</p>
+<ol>
+<li><strong>Check the Logs</strong>: Review error messages carefully</li>
+<li><strong>Verify Prerequisites</strong>: Ensure all system dependencies are correctly installed</li>
+<li><strong>Environment Isolation</strong>: Make sure no conflicting packages from other environments</li>
+<li><strong>Update Documentation</strong>: If you solve a new issue, consider contributing to this guide</li>
+</ol>
+<h2 id="automated-installation-verification">Automated Installation Verification</h2>
+<p>For a comprehensive check of your installation, run:</p>
+<pre><code class="language-bash">python scripts/test_clean_installation.py
+</code></pre>
+<p>This script will:</p>
+<ul>
+<li>Verify all prerequisites are available</li>
+<li>Check project structure completeness</li>
+<li>Test conda environment setup</li>
+<li>Validate all dependencies</li>
+<li>Confirm project imports work</li>
+<li>Test development tools</li>
+<li>Run quality gates</li>
+<li>Execute basic functionality tests</li>
+</ul>
+<p>The script provides a complete report of your installation status and highlights any issues that need attention.</p>
+<hr />
+<p><strong>Installation Support</strong>: If you continue to experience issues, please check the project's issue tracker or contact the development team.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

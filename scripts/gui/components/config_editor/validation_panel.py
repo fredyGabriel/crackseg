@@ -379,6 +379,13 @@ class ValidationPanel:
         def render_tree_node(
             obj: Any, prefix: str = "", key: str = "root"
         ) -> None:
+            """Recursively render a node in the configuration tree.
+
+            Args:
+                obj: The current object (dict, list, or value) to render.
+                prefix: The prefix for indentation.
+                key: The key for the current node.
+            """
             if isinstance(obj, dict):
                 st.markdown(f"{prefix}📁 **{key}**")
                 for k, v in obj.items():

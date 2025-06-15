@@ -144,10 +144,54 @@ class SessionState:
     def set_training_active(self, active: bool) -> None:
         """Set training active state."""
         with self._update_lock:
+            was_active = self.training_active
             self.training_active = active
             if not active:
                 self.training_progress = 0.0
             self.last_updated = datetime.now()
+
+            # Notify TensorBoard lifecycle manager of state change
+            if was_active != active:
+                self._notify_tensorboard_lifecycle_change()
+
+    def _notify_tensorboard_lifecycle_change(self) -> None:
+        """Notify TensorBoard lifecycle manager of training state changes."""
+        try:
+            # Import here to avoid circular imports
+            from pathlib import Path
+
+            from scripts.gui.utils.tb_manager import (
+                get_global_lifecycle_manager,
+            )
+
+            lifecycle_manager = get_global_lifecycle_manager()
+
+            # Determine training state for lifecycle manager
+            if self.training_active:
+                training_state = "running"
+            elif self.process_state in ["completed", "failed", "aborted"]:
+                training_state = self.process_state
+            else:
+                training_state = "idle"
+
+            # Get log directory if available
+            log_dir = None
+            if self.run_directory:
+                log_dir = Path(self.run_directory) / "logs" / "tensorboard"
+
+            # Handle state change
+            lifecycle_manager.handle_training_state_change(
+                training_state=training_state,
+                log_dir=log_dir,
+            )
+
+        except ImportError:
+            # TensorBoard lifecycle not available, continue without
+            # notification
+            pass
+        except Exception:
+            # Log error but don't break training state updates
+            pass
 
     # NEW methods for subtask 5.6: Process lifecycle management
     def update_process_state(
@@ -198,6 +242,9 @@ class SessionState:
                 self.training_active = False
 
             self.last_updated = datetime.now()
+
+            # Notify TensorBoard lifecycle manager of process state change
+            self._notify_tensorboard_lifecycle_change()
 
     def update_log_streaming_state(
         self,
@@ -354,32 +401,54 @@ class SessionState:
 
 
 class SessionStateManager:
-    """Manager class for handling session state operations."""
+    """Facade for interacting with Streamlit's session state in a structured
+    way."""
+
+    _STATE_KEY = "_crackseg_state"
 
     @staticmethod
-    def initialize() -> None:
+    def _get_state_container(
+        session_state_proxy: dict[str, Any] | None = None,
+    ) -> dict[str, Any] | Any:
+        """Get the container for the app state, allowing for DI."""
+        if session_state_proxy is not None:
+            return session_state_proxy
+        # In the real application, this will be st.session_state
+        return st.session_state
+
+    @staticmethod
+    def initialize(
+        session_state_proxy: dict[str, Any] | Any | None = None,
+    ) -> None:
         """Initialize session state if not already present."""
-        if "app_state" not in st.session_state:
-            st.session_state.app_state = SessionState()
-
-        # Ensure backward compatibility with existing code
-        SessionStateManager._sync_legacy_state()
-
-    @staticmethod
-    def get() -> SessionState:
-        """Get current session state."""
-        if "app_state" not in st.session_state:
-            SessionStateManager.initialize()
-        return st.session_state.app_state
+        state_container = SessionStateManager._get_state_container(
+            session_state_proxy
+        )
+        if SessionStateManager._STATE_KEY not in state_container:
+            state_container[SessionStateManager._STATE_KEY] = SessionState()
 
     @staticmethod
-    def update(updates: dict[str, Any]) -> None:
-        """Update session state with new values."""
-        state = SessionStateManager.get()
+    def get(
+        session_state_proxy: dict[str, Any] | Any | None = None,
+    ) -> SessionState:
+        """Get the current session state."""
+        state_container = SessionStateManager._get_state_container(
+            session_state_proxy
+        )
+        if SessionStateManager._STATE_KEY not in state_container:
+            SessionStateManager.initialize(state_container)
+        return state_container[SessionStateManager._STATE_KEY]
+
+    @staticmethod
+    def update(
+        updates: dict[str, Any],
+        session_state_proxy: dict[str, Any] | Any | None = None,
+    ) -> None:
+        """Update session state with a dictionary of values."""
+        state = SessionStateManager.get(session_state_proxy)
         for key, value in updates.items():
             if hasattr(state, key):
                 setattr(state, key, value)
-        state.last_updated = datetime.now()
 
     @staticmethod
     def notify_change(change_type: str) -> None:
@@ -541,31 +610,36 @@ class SessionStateManager:
         st.session_state.theme = state.theme
 
     @staticmethod
-    def save_to_file(filepath: Path) -> bool:
-        """Save session state to file."""
+    def save_to_file(
+        filepath: Path, session_state_proxy: dict[str, Any] | Any | None = None
+    ) -> bool:
+        """Save current session state to a JSON file."""
+        state = SessionStateManager.get(session_state_proxy)
         try:
-            state = SessionStateManager.get()
-            with open(filepath, "w") as f:
-                json.dump(state.to_dict(), f, indent=2)
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(state.to_dict(), f, indent=4)
             return True
-        except Exception as e:
-            st.error(f"Failed to save session state: {e}")
+        except (OSError, TypeError) as e:
+            st.error(f"Error saving session state: {e}")
             return False
 
     @staticmethod
-    def load_from_file(filepath: Path) -> bool:
-        """Load session state from file."""
+    def load_from_file(
+        filepath: Path, session_state_proxy: dict[str, Any] | Any | None = None
+    ) -> bool:
+        """Load session state from a JSON file."""
+        state_container = SessionStateManager._get_state_container(
+            session_state_proxy
+        )
+        if not filepath.exists():
+            return False
         try:
-            if not filepath.exists():
-                return False
-
-            with open(filepath) as f:
+            with open(filepath, encoding="utf-8") as f:
                 data = json.load(f)
-
-            state = SessionState.from_dict(data)
-            st.session_state.app_state = state
-            SessionStateManager._sync_legacy_state()
+            state_container[SessionStateManager._STATE_KEY] = (
+                SessionState.from_dict(data)
+            )
             return True
-        except Exception as e:
-            st.error(f"Failed to load session state: {e}")
+        except (OSError, json.JSONDecodeError, TypeError) as e:
+            st.error(f"Error loading session state: {e}")
             return False

@@ -228,17 +228,25 @@ class ErrorCategorizer:
         Returns:
             Categorized error with user-friendly messaging.
         """
-        # Get the original message (first argument passed to ValidationError)
         error_message = (
             error.args[0].lower() if error.args else str(error).lower()
         )
 
-        # Determine category and severity
         category, severity = self._determine_category_and_severity(
             error_message
         )
 
-        # Generate user-friendly message and suggestions
+        # Refine category based on the error's field if it's a generic value
+        # error
+        if category == ErrorCategory.VALUE and error.field:
+            if (
+                "model" in error.field
+                or "data" in error.field
+                or "training" in error.field
+            ):
+                category = ErrorCategory.STRUCTURE
+                severity = ErrorSeverity.CRITICAL
+
         user_message, suggestions, quick_fixes = self._generate_messaging(
             error, error_message, content
         )
@@ -370,8 +378,8 @@ class ErrorCategorizer:
         ):
             return ErrorCategory.PERFORMANCE, ErrorSeverity.SUGGESTION
 
-        # Default to structure/info for unrecognized errors
-        return ErrorCategory.STRUCTURE, ErrorSeverity.INFO
+        # Default fallback for any unhandled errors
+        return ErrorCategory.VALUE, ErrorSeverity.WARNING
 
     def _generate_messaging(
         self, error: ValidationError, error_message: str, content: str

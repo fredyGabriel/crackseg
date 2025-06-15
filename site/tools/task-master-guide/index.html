@@ -1,0 +1,1855 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="API Documentation and User Guide for the CrackSeg Professional GUI.">
+      
+      
+        <meta name="author" content="AI Assistant & fgrv">
+      
+      
+      
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.14">
+    
+    
+      
+        <title>Task Master - CrackSeg Professional GUI</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#task-master" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="CrackSeg Professional GUI" class="md-header__button md-logo" aria-label="CrackSeg Professional GUI" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CrackSeg Professional GUI
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Task Master
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/fgrv/crackseg" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fgrv/crackseg
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Project Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/INSTALL/" class="md-tabs__link">
+          
+  
+  
+  User Guides
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../guides/DEVELOPMENT/" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/gui_components/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="CrackSeg Professional GUI" class="md-nav__button md-logo" aria-label="CrackSeg Professional GUI" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    CrackSeg Professional GUI
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/fgrv/crackseg" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81"/></svg>
+  </div>
+  <div class="md-source__repository">
+    fgrv/crackseg
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Project Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    User Guides
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            User Guides
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/INSTALL/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/USAGE/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/WORKFLOW_TRAINING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Training Workflow
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Development
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Development
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/DEVELOPMENT/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Development Setup
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contributing Guide
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guides/loss_registry_usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Loss Function Registry
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/gui_components/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GUI Components
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/gui_services/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GUI Services
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GUI Utilities
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#by-eyaltoledano" class="md-nav__link">
+    <span class="md-ellipsis">
+      by @eyaltoledano
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      Requirements
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Required Configuration
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Optional Configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Installation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initialize-a-new-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initialize a new project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#important-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Important Notes
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-with-global-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start with Global Commands
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#if-task-master-init-doesnt-respond" class="md-nav__link">
+    <span class="md-ellipsis">
+      If task-master init doesn't respond
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Task Structure
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#integrating-with-cursor-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      Integrating with Cursor AI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Integrating with Cursor AI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#setup-with-cursor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setup with Cursor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-up-mcp-in-cursor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setting up MCP in Cursor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initial-task-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initial Task Generation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-individual-task-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate Individual Task Files
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-driven-development-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      AI-Driven Development Workflow
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="AI-Driven Development Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-task-discovery-and-selection" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. Task Discovery and Selection
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-task-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. Task Implementation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-task-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      3. Task Verification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-task-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      4. Task Completion
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-handling-implementation-drift" class="md-nav__link">
+    <span class="md-ellipsis">
+      5. Handling Implementation Drift
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-breaking-down-complex-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      6. Breaking Down Complex Tasks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Command Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Command Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parse-prd" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parse PRD
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#list-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      List Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#show-next-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Show Next Task
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#show-specific-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Show Specific Task
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#update-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Update Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generate-task-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Generate Task Files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-task-status" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set Task Status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expand-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expand Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#clear-subtasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Clear Subtasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analyze-task-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analyze Task Complexity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#view-complexity-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      View Complexity Report
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-task-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing Task Dependencies
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-a-new-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Add a New Task
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feature-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Feature Details
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Feature Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#analyzing-task-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analyzing Task Complexity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-complexity-report" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing Complexity Report
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#smart-task-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Smart Task Expansion
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#finding-the-next-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Finding the Next Task
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-specific-task-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing Specific Task Details
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices-for-ai-driven-development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Best Practices for AI-Driven Development
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-cursor-ai-interactions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Cursor AI Interactions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Cursor AI Interactions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#starting-a-new-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      Starting a new project
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#working-on-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Working on tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#implementing-a-specific-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Implementing a specific task
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-subtasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Managing subtasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#handling-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Handling changes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completing-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      Completing work
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#analyzing-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Analyzing complexity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#viewing-complexity-report_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Viewing complexity report
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="task-master">Task Master</h1>
+<h2 id="by-eyaltoledano">by <a href="https://x.com/eyaltoledano">@eyaltoledano</a></h2>
+<p>A task management system for AI-driven development with Claude, designed to work seamlessly with Cursor AI.</p>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>Node.js 14.0.0 or higher</li>
+<li>Anthropic API key (Claude API)</li>
+<li>Anthropic SDK version 0.39.0 or higher</li>
+<li>OpenAI SDK (for Perplexity API integration, optional)</li>
+</ul>
+<h2 id="configuration">Configuration</h2>
+<p>The script can be configured through environment variables in a <code>.env</code> file at the root of the project:</p>
+<h3 id="required-configuration">Required Configuration</h3>
+<ul>
+<li><code>ANTHROPIC_API_KEY</code>: Your Anthropic API key for Claude</li>
+</ul>
+<h3 id="optional-configuration">Optional Configuration</h3>
+<ul>
+<li><code>MODEL</code>: Specify which Claude model to use (default: "claude-3-7-sonnet-20250219")</li>
+<li><code>MAX_TOKENS</code>: Maximum tokens for model responses (default: 4000)</li>
+<li><code>TEMPERATURE</code>: Temperature for model responses (default: 0.7)</li>
+<li><code>PERPLEXITY_API_KEY</code>: Your Perplexity API key for research-backed subtask generation</li>
+<li><code>PERPLEXITY_MODEL</code>: Specify which Perplexity model to use (default: "sonar-medium-online")</li>
+<li><code>DEBUG</code>: Enable debug logging (default: false)</li>
+<li><code>LOG_LEVEL</code>: Log level - debug, info, warn, error (default: info)</li>
+<li><code>DEFAULT_SUBTASKS</code>: Default number of subtasks when expanding (default: 3)</li>
+<li><code>DEFAULT_PRIORITY</code>: Default priority for generated tasks (default: medium)</li>
+<li><code>PROJECT_NAME</code>: Override default project name in tasks.json</li>
+<li><code>PROJECT_VERSION</code>: Override default version in tasks.json</li>
+</ul>
+<h2 id="installation">Installation</h2>
+<pre><code class="language-bash"># Install globally
+npm install -g task-master-ai
+
+# OR install locally within your project
+npm install task-master-ai
+</code></pre>
+<h3 id="initialize-a-new-project">Initialize a new project</h3>
+<pre><code class="language-bash"># If installed globally
+task-master init
+
+# If installed locally
+npx task-master-init
+</code></pre>
+<p>This will prompt you for project details and set up a new project with the necessary files and structure.</p>
+<h3 id="important-notes">Important Notes</h3>
+<ol>
+<li>
+<p><strong>ES Modules Configuration:</strong></p>
+</li>
+<li>
+<p>This project uses ES Modules (ESM) instead of CommonJS.</p>
+</li>
+<li>This is set via <code>"type": "module"</code> in your package.json.</li>
+<li>Use <code>import/export</code> syntax instead of <code>require()</code>.</li>
+<li>Files should use <code>.js</code> or <code>.mjs</code> extensions.</li>
+<li>To use a CommonJS module, either:<ul>
+<li>Rename it with <code>.cjs</code> extension</li>
+<li>Use <code>await import()</code> for dynamic imports</li>
+</ul>
+</li>
+<li>
+<p>If you need CommonJS throughout your project, remove <code>"type": "module"</code> from package.json, but Task Master scripts expect ESM.</p>
+</li>
+<li>
+<p>The Anthropic SDK version should be 0.39.0 or higher.</p>
+</li>
+</ol>
+<h2 id="quick-start-with-global-commands">Quick Start with Global Commands</h2>
+<p>After installing the package globally, you can use these CLI commands from any directory:</p>
+<pre><code class="language-bash"># Initialize a new project
+task-master init
+
+# Parse a PRD and generate tasks
+task-master parse-prd your-prd.txt
+
+# List all tasks
+task-master list
+
+# Show the next task to work on
+task-master next
+
+# Generate task files
+task-master generate
+</code></pre>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="if-task-master-init-doesnt-respond">If <code>task-master init</code> doesn't respond</h3>
+<p>Try running it with Node directly:</p>
+<pre><code class="language-bash">node node_modules/claude-task-master/scripts/init.js
+</code></pre>
+<p>Or clone the repository and run:</p>
+<pre><code class="language-bash">git clone https://github.com/eyaltoledano/claude-task-master.git
+cd claude-task-master
+node scripts/init.js
+</code></pre>
+<h2 id="task-structure">Task Structure</h2>
+<p>Tasks in tasks.json have the following structure:</p>
+<ul>
+<li><code>id</code>: Unique identifier for the task (Example: <code>1</code>)</li>
+<li><code>title</code>: Brief, descriptive title of the task (Example: <code>"Initialize Repo"</code>)</li>
+<li><code>description</code>: Concise description of what the task involves (Example: <code>"Create a new repository, set up initial structure."</code>)</li>
+<li><code>status</code>: Current state of the task (Example: <code>"pending"</code>, <code>"done"</code>, <code>"deferred"</code>)</li>
+<li><code>dependencies</code>: IDs of tasks that must be completed before this task (Example: <code>[1, 2]</code>)</li>
+<li>Dependencies are displayed with status indicators (✅ for completed, ⏱️ for pending)</li>
+<li>This helps quickly identify which prerequisite tasks are blocking work</li>
+<li><code>priority</code>: Importance level of the task (Example: <code>"high"</code>, <code>"medium"</code>, <code>"low"</code>)</li>
+<li><code>details</code>: In-depth implementation instructions (Example: <code>"Use GitHub client ID/secret, handle callback, set session token."</code>)</li>
+<li><code>testStrategy</code>: Verification approach (Example: <code>"Deploy and call endpoint to confirm 'Hello World' response."</code>)</li>
+<li><code>subtasks</code>: List of smaller, more specific tasks that make up the main task (Example: <code>[{"id": 1, "title": "Configure OAuth", ...}]</code>)</li>
+</ul>
+<h2 id="integrating-with-cursor-ai">Integrating with Cursor AI</h2>
+<p>Claude Task Master is designed to work seamlessly with <a href="https://www.cursor.so/">Cursor AI</a>, providing a structured workflow for AI-driven development.</p>
+<h3 id="setup-with-cursor">Setup with Cursor</h3>
+<ol>
+<li>After initializing your project, open it in Cursor</li>
+<li>The <code>.cursor/rules/dev_workflow.mdc</code> file is automatically loaded by Cursor, providing the AI with knowledge about the task management system</li>
+<li>Place your PRD document in the <code>scripts/</code> directory (e.g., <code>scripts/prd.txt</code>)</li>
+<li>Open Cursor's AI chat and switch to Agent mode</li>
+</ol>
+<h3 id="setting-up-mcp-in-cursor">Setting up MCP in Cursor</h3>
+<p>To enable enhanced task management capabilities directly within Cursor using the Model Control Protocol (MCP):</p>
+<ol>
+<li>Go to Cursor settings</li>
+<li>Navigate to the MCP section</li>
+<li>Click on "Add New MCP Server"</li>
+<li>Configure with the following details:</li>
+<li>Name: "Task Master"</li>
+<li>Type: "Command"</li>
+<li>Command: "npx -y task-master-ai"</li>
+<li>Save the settings</li>
+</ol>
+<p>Once configured, you can interact with Task Master's task management commands directly through Cursor's interface, providing a more integrated experience.</p>
+<h3 id="initial-task-generation">Initial Task Generation</h3>
+<p>In Cursor's AI chat, instruct the agent to generate tasks from your PRD:</p>
+<pre><code class="language-prompt">Please use the task-master parse-prd command to generate tasks from my PRD. The PRD is located at scripts/prd.txt.
+</code></pre>
+<p>The agent will execute:</p>
+<pre><code class="language-bash">task-master parse-prd scripts/prd.txt
+</code></pre>
+<p>This will:</p>
+<ul>
+<li>Parse your PRD document</li>
+<li>Generate a structured <code>tasks.json</code> file with tasks, dependencies, priorities, and test strategies</li>
+<li>The agent will understand this process due to the Cursor rules</li>
+</ul>
+<h3 id="generate-individual-task-files">Generate Individual Task Files</h3>
+<p>Next, ask the agent to generate individual task files:</p>
+<pre><code class="language-prompt">Please generate individual task files from tasks.json
+</code></pre>
+<p>The agent will execute:</p>
+<pre><code class="language-bash">task-master generate
+</code></pre>
+<p>This creates individual task files in the <code>tasks/</code> directory (e.g., <code>task_001.txt</code>, <code>task_002.txt</code>), making it easier to reference specific tasks.</p>
+<h2 id="ai-driven-development-workflow">AI-Driven Development Workflow</h2>
+<p>The Cursor agent is pre-configured (via the rules file) to follow this workflow:</p>
+<h3 id="1-task-discovery-and-selection">1. Task Discovery and Selection</h3>
+<p>Ask the agent to list available tasks:</p>
+<pre><code class="language-prompt">What tasks are available to work on next?
+</code></pre>
+<p>The agent will:</p>
+<ul>
+<li>Run <code>task-master list</code> to see all tasks</li>
+<li>Run <code>task-master next</code> to determine the next task to work on</li>
+<li>Analyze dependencies to determine which tasks are ready to be worked on</li>
+<li>Prioritize tasks based on priority level and ID order</li>
+<li>Suggest the next task(s) to implement</li>
+</ul>
+<h3 id="2-task-implementation">2. Task Implementation</h3>
+<p>When implementing a task, the agent will:</p>
+<ul>
+<li>Reference the task's details section for implementation specifics</li>
+<li>Consider dependencies on previous tasks</li>
+<li>Follow the project's coding standards</li>
+<li>Create appropriate tests based on the task's testStrategy</li>
+</ul>
+<p>You can ask:</p>
+<pre><code class="language-prompt">Let's implement task 3. What does it involve?
+</code></pre>
+<h3 id="3-task-verification">3. Task Verification</h3>
+<p>Before marking a task as complete, verify it according to:</p>
+<ul>
+<li>The task's specified testStrategy</li>
+<li>Any automated tests in the codebase</li>
+<li>Manual verification if required</li>
+</ul>
+<h3 id="4-task-completion">4. Task Completion</h3>
+<p>When a task is completed, tell the agent:</p>
+<pre><code class="language-prompt">Task 3 is now complete. Please update its status.
+</code></pre>
+<p>The agent will execute:</p>
+<pre><code class="language-bash">task-master set-status --id=3 --status=done
+</code></pre>
+<h3 id="5-handling-implementation-drift">5. Handling Implementation Drift</h3>
+<p>If during implementation, you discover that:</p>
+<ul>
+<li>The current approach differs significantly from what was planned</li>
+<li>Future tasks need to be modified due to current implementation choices</li>
+<li>New dependencies or requirements have emerged</li>
+</ul>
+<p>Tell the agent:</p>
+<pre><code class="language-prompt">We've changed our approach. We're now using Express instead of Fastify. Please update all future tasks to reflect this change.
+</code></pre>
+<p>The agent will execute:</p>
+<pre><code class="language-bash">task-master update --from=4 --prompt=&quot;Now we are using Express instead of Fastify.&quot;
+</code></pre>
+<p>This will rewrite or re-scope subsequent tasks in tasks.json while preserving completed work.</p>
+<h3 id="6-breaking-down-complex-tasks">6. Breaking Down Complex Tasks</h3>
+<p>For complex tasks that need more granularity:</p>
+<pre><code class="language-prompt">Task 5 seems complex. Can you break it down into subtasks?
+</code></pre>
+<p>The agent will execute:</p>
+<pre><code class="language-bash">task-master expand --id=5 --num=3
+</code></pre>
+<p>You can provide additional context:</p>
+<pre><code class="language-prompt">Please break down task 5 with a focus on security considerations.
+</code></pre>
+<p>The agent will execute:</p>
+<pre><code class="language-bash">task-master expand --id=5 --prompt=&quot;Focus on security aspects&quot;
+</code></pre>
+<p>You can also expand all pending tasks:</p>
+<pre><code class="language-prompt">Please break down all pending tasks into subtasks.
+</code></pre>
+<p>The agent will execute:</p>
+<pre><code class="language-bash">task-master expand --all
+</code></pre>
+<p>For research-backed subtask generation using Perplexity AI:</p>
+<pre><code class="language-prompt">Please break down task 5 using research-backed generation.
+</code></pre>
+<p>The agent will execute:</p>
+<pre><code class="language-bash">task-master expand --id=5 --research
+</code></pre>
+<h2 id="command-reference">Command Reference</h2>
+<p>Here's a comprehensive reference of all available commands:</p>
+<h3 id="parse-prd">Parse PRD</h3>
+<pre><code class="language-bash"># Parse a PRD file and generate tasks
+task-master parse-prd &lt;prd-file.txt&gt;
+
+# Limit the number of tasks generated
+task-master parse-prd &lt;prd-file.txt&gt; --num-tasks=10
+</code></pre>
+<h3 id="list-tasks">List Tasks</h3>
+<pre><code class="language-bash"># List all tasks
+task-master list
+
+# List tasks with a specific status
+task-master list --status=&lt;status&gt;
+
+# List tasks with subtasks
+task-master list --with-subtasks
+
+# List tasks with a specific status and include subtasks
+task-master list --status=&lt;status&gt; --with-subtasks
+</code></pre>
+<h3 id="show-next-task">Show Next Task</h3>
+<pre><code class="language-bash"># Show the next task to work on based on dependencies and status
+task-master next
+</code></pre>
+<h3 id="show-specific-task">Show Specific Task</h3>
+<pre><code class="language-bash"># Show details of a specific task
+task-master show &lt;id&gt;
+# or
+task-master show --id=&lt;id&gt;
+
+# View a specific subtask (e.g., subtask 2 of task 1)
+task-master show 1.2
+</code></pre>
+<h3 id="update-tasks">Update Tasks</h3>
+<pre><code class="language-bash"># Update tasks from a specific ID and provide context
+task-master update --from=&lt;id&gt; --prompt=&quot;&lt;prompt&gt;&quot;
+</code></pre>
+<h3 id="generate-task-files">Generate Task Files</h3>
+<pre><code class="language-bash"># Generate individual task files from tasks.json
+task-master generate
+</code></pre>
+<h3 id="set-task-status">Set Task Status</h3>
+<pre><code class="language-bash"># Set status of a single task
+task-master set-status --id=&lt;id&gt; --status=&lt;status&gt;
+
+# Set status for multiple tasks
+task-master set-status --id=1,2,3 --status=&lt;status&gt;
+
+# Set status for subtasks
+task-master set-status --id=1.1,1.2 --status=&lt;status&gt;
+</code></pre>
+<p>When marking a task as "done", all of its subtasks will automatically be marked as "done" as well.</p>
+<h3 id="expand-tasks">Expand Tasks</h3>
+<pre><code class="language-bash"># Expand a specific task with subtasks
+task-master expand --id=&lt;id&gt; --num=&lt;number&gt;
+
+# Expand with additional context
+task-master expand --id=&lt;id&gt; --prompt=&quot;&lt;context&gt;&quot;
+
+# Expand all pending tasks
+task-master expand --all
+
+# Force regeneration of subtasks for tasks that already have them
+task-master expand --all --force
+
+# Research-backed subtask generation for a specific task
+task-master expand --id=&lt;id&gt; --research
+
+# Research-backed generation for all tasks
+task-master expand --all --research
+</code></pre>
+<h3 id="clear-subtasks">Clear Subtasks</h3>
+<pre><code class="language-bash"># Clear subtasks from a specific task
+task-master clear-subtasks --id=&lt;id&gt;
+
+# Clear subtasks from multiple tasks
+task-master clear-subtasks --id=1,2,3
+
+# Clear subtasks from all tasks
+task-master clear-subtasks --all
+</code></pre>
+<h3 id="analyze-task-complexity">Analyze Task Complexity</h3>
+<pre><code class="language-bash"># Analyze complexity of all tasks
+task-master analyze-complexity
+
+# Save report to a custom location
+task-master analyze-complexity --output=my-report.json
+
+# Use a specific LLM model
+task-master analyze-complexity --model=claude-3-opus-20240229
+
+# Set a custom complexity threshold (1-10)
+task-master analyze-complexity --threshold=6
+
+# Use an alternative tasks file
+task-master analyze-complexity --file=custom-tasks.json
+
+# Use Perplexity AI for research-backed complexity analysis
+task-master analyze-complexity --research
+</code></pre>
+<h3 id="view-complexity-report">View Complexity Report</h3>
+<pre><code class="language-bash"># Display the task complexity analysis report
+task-master complexity-report
+
+# View a report at a custom location
+task-master complexity-report --file=my-report.json
+</code></pre>
+<h3 id="managing-task-dependencies">Managing Task Dependencies</h3>
+<pre><code class="language-bash"># Add a dependency to a task
+task-master add-dependency --id=&lt;id&gt; --depends-on=&lt;id&gt;
+
+# Remove a dependency from a task
+task-master remove-dependency --id=&lt;id&gt; --depends-on=&lt;id&gt;
+
+# Validate dependencies without fixing them
+task-master validate-dependencies
+
+# Find and fix invalid dependencies automatically
+task-master fix-dependencies
+</code></pre>
+<h3 id="add-a-new-task">Add a New Task</h3>
+<pre><code class="language-bash"># Add a new task using AI
+task-master add-task --prompt=&quot;Description of the new task&quot;
+
+# Add a task with dependencies
+task-master add-task --prompt=&quot;Description&quot; --dependencies=1,2,3
+
+# Add a task with priority
+task-master add-task --prompt=&quot;Description&quot; --priority=high
+</code></pre>
+<h2 id="feature-details">Feature Details</h2>
+<h3 id="analyzing-task-complexity">Analyzing Task Complexity</h3>
+<p>The <code>analyze-complexity</code> command:</p>
+<ul>
+<li>Analyzes each task using AI to assess its complexity on a scale of 1-10</li>
+<li>Recommends optimal number of subtasks based on configured DEFAULT_SUBTASKS</li>
+<li>Generates tailored prompts for expanding each task</li>
+<li>Creates a comprehensive JSON report with ready-to-use commands</li>
+<li>Saves the report to scripts/task-complexity-report.json by default</li>
+</ul>
+<p>The generated report contains:</p>
+<ul>
+<li>Complexity analysis for each task (scored 1-10)</li>
+<li>Recommended number of subtasks based on complexity</li>
+<li>AI-generated expansion prompts customized for each task</li>
+<li>Ready-to-run expansion commands directly within each task analysis</li>
+</ul>
+<h3 id="viewing-complexity-report">Viewing Complexity Report</h3>
+<p>The <code>complexity-report</code> command:</p>
+<ul>
+<li>Displays a formatted, easy-to-read version of the complexity analysis report</li>
+<li>Shows tasks organized by complexity score (highest to lowest)</li>
+<li>Provides complexity distribution statistics (low, medium, high)</li>
+<li>Highlights tasks recommended for expansion based on threshold score</li>
+<li>Includes ready-to-use expansion commands for each complex task</li>
+<li>If no report exists, offers to generate one on the spot</li>
+</ul>
+<h3 id="smart-task-expansion">Smart Task Expansion</h3>
+<p>The <code>expand</code> command automatically checks for and uses the complexity report:</p>
+<p>When a complexity report exists:</p>
+<ul>
+<li>Tasks are automatically expanded using the recommended subtask count and prompts</li>
+<li>When expanding all tasks, they're processed in order of complexity (highest first)</li>
+<li>Research-backed generation is preserved from the complexity analysis</li>
+<li>You can still override recommendations with explicit command-line options</li>
+</ul>
+<p>Example workflow:</p>
+<pre><code class="language-bash"># Generate the complexity analysis report with research capabilities
+task-master analyze-complexity --research
+
+# Review the report in a readable format
+task-master complexity-report
+
+# Expand tasks using the optimized recommendations
+task-master expand --id=8
+# or expand all tasks
+task-master expand --all
+</code></pre>
+<h3 id="finding-the-next-task">Finding the Next Task</h3>
+<p>The <code>next</code> command:</p>
+<ul>
+<li>Identifies tasks that are pending/in-progress and have all dependencies satisfied</li>
+<li>Prioritizes tasks by priority level, dependency count, and task ID</li>
+<li>Displays comprehensive information about the selected task:</li>
+<li>Basic task details (ID, title, priority, dependencies)</li>
+<li>Implementation details</li>
+<li>Subtasks (if they exist)</li>
+<li>Provides contextual suggested actions:</li>
+<li>Command to mark the task as in-progress</li>
+<li>Command to mark the task as done</li>
+<li>Commands for working with subtasks</li>
+</ul>
+<h3 id="viewing-specific-task-details">Viewing Specific Task Details</h3>
+<p>The <code>show</code> command:</p>
+<ul>
+<li>Displays comprehensive details about a specific task or subtask</li>
+<li>Shows task status, priority, dependencies, and detailed implementation notes</li>
+<li>For parent tasks, displays all subtasks and their status</li>
+<li>For subtasks, shows parent task relationship</li>
+<li>Provides contextual action suggestions based on the task's state</li>
+<li>Works with both regular tasks and subtasks (using the format taskId.subtaskId)</li>
+</ul>
+<h2 id="best-practices-for-ai-driven-development">Best Practices for AI-Driven Development</h2>
+<ol>
+<li>
+<p><strong>Start with a detailed PRD</strong>: The more detailed your PRD, the better the generated tasks will be.</p>
+</li>
+<li>
+<p><strong>Review generated tasks</strong>: After parsing the PRD, review the tasks to ensure they make sense and have appropriate dependencies.</p>
+</li>
+<li>
+<p><strong>Analyze task complexity</strong>: Use the complexity analysis feature to identify which tasks should be broken down further.</p>
+</li>
+<li>
+<p><strong>Follow the dependency chain</strong>: Always respect task dependencies - the Cursor agent will help with this.</p>
+</li>
+<li>
+<p><strong>Update as you go</strong>: If your implementation diverges from the plan, use the update command to keep future tasks aligned with your current approach.</p>
+</li>
+<li>
+<p><strong>Break down complex tasks</strong>: Use the expand command to break down complex tasks into manageable subtasks.</p>
+</li>
+<li>
+<p><strong>Regenerate task files</strong>: After any updates to tasks.json, regenerate the task files to keep them in sync.</p>
+</li>
+<li>
+<p><strong>Communicate context to the agent</strong>: When asking the Cursor agent to help with a task, provide context about what you're trying to achieve.</p>
+</li>
+<li>
+<p><strong>Validate dependencies</strong>: Periodically run the validate-dependencies command to check for invalid or circular dependencies.</p>
+</li>
+</ol>
+<h2 id="example-cursor-ai-interactions">Example Cursor AI Interactions</h2>
+<h3 id="starting-a-new-project">Starting a new project</h3>
+<pre><code class="language-prompt">I've just initialized a new project with Claude Task Master. I have a PRD at scripts/prd.txt.
+Can you help me parse it and set up the initial tasks?
+</code></pre>
+<h3 id="working-on-tasks">Working on tasks</h3>
+<pre><code class="language-prompt">What's the next task I should work on? Please consider dependencies and priorities.
+</code></pre>
+<h3 id="implementing-a-specific-task">Implementing a specific task</h3>
+<pre><code class="language-prompt">I'd like to implement task 4. Can you help me understand what needs to be done and how to approach it?
+</code></pre>
+<h3 id="managing-subtasks">Managing subtasks</h3>
+<pre><code class="language-prompt">I need to regenerate the subtasks for task 3 with a different approach. Can you help me clear and regenerate them?
+</code></pre>
+<h3 id="handling-changes">Handling changes</h3>
+<pre><code class="language-prompt">We've decided to use MongoDB instead of PostgreSQL. Can you update all future tasks to reflect this change?
+</code></pre>
+<h3 id="completing-work">Completing work</h3>
+<pre><code class="language-prompt">I've finished implementing the authentication system described in task 2. All tests are passing.
+Please mark it as complete and tell me what I should work on next.
+</code></pre>
+<h3 id="analyzing-complexity">Analyzing complexity</h3>
+<pre><code class="language-prompt">Can you analyze the complexity of our tasks to help me understand which ones need to be broken down further?
+</code></pre>
+<h3 id="viewing-complexity-report_1">Viewing complexity report</h3>
+<pre><code class="language-prompt">Can you show me the complexity report in a more readable format?
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.13a4f30d.min.js"></script>
+      
+    
+  </body>
+</html>

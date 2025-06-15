@@ -1,18 +1,24 @@
 # Registering and Using Loss Functions
 
-This guide explains how to register custom loss functions with the project's registry system and how to instantiate them, typically via a loss factory.
+This guide explains how to register custom loss functions with the project's registry system and how
+to instantiate them, typically via a loss factory.
 
-The project uses a generic, type-safe, and thread-safe `Registry` system (defined in `src.model.factory.registry.py`). A specific instance of this registry is configured for loss functions in `src.training.losses.loss_registry_setup.py`.
+The project uses a generic, type-safe, and thread-safe `Registry` system (defined in
+`src.model.factory.registry.py`). A specific instance of this registry is configured for loss
+functions in `src.training.losses.loss_registry_setup.py`.
 
 ## Key Principles for Loss Functions
 
-- **Must be `torch.nn.Module` classes**: To be registered, your loss function must be a class that inherits from `torch.nn.Module`.
-- **Registry Instance**: Import the dedicated loss registry instance: `from src.training.losses.loss_registry_setup import loss_registry`.
-- **Mandatory Type Annotations**: Follow our [code standards](../../.cursor/rules/coding-preferences.mdc) with complete type hints.
+- **Must be `torch.nn.Module` classes**: To be registered, your loss function must be a class that
+inherits from `torch.nn.Module`.
+- **Registry Instance**: Import the dedicated loss registry instance:
+`from src.training.losses.loss_registry_setup import loss_registry`.
+- **Mandatory Type Annotations**: Follow our code standards with complete type hints.
 
 ## Registering a New Loss Function (Module)
 
-To make your custom loss function (as an `nn.Module`) available, use the `register` decorator from the `loss_registry` instance.
+To make your custom loss function (as an `nn.Module`) available, use the `register` decorator from
+the `loss_registry` instance.
 
 ### Steps
 
@@ -21,11 +27,13 @@ To make your custom loss function (as an `nn.Module`) available, use the `regist
    - Place `@loss_registry.register()` directly above your class definition.
    - By default, the class's `__name__` will be used as its registration name.
    - You can provide a custom name: `@loss_registry.register(name="my_custom_loss")`.
-   - You can also provide `tags` for categorization: `@loss_registry.register(name="dice_loss", tags=["segmentation", "binary"])`.
+   - You can also provide `tags` for categorization:
+   `@loss_registry.register(name="dice_loss", tags=["segmentation", "binary"])`.
 
 ### Naming Convention for Registration
 
-- Use `snake_case` for registration names if providing a custom name (e.g., `dice_loss`). If not providing a name, the class name (e.g., `DiceLoss`) will be used.
+- Use `snake_case` for registration names if providing a custom name (e.g., `dice_loss`). If not
+providing a name, the class name (e.g., `DiceLoss`) will be used.
 - Tags should also be `snake_case`.
 
 ### Example: Registering a Class-based Loss
@@ -155,9 +163,12 @@ class FocalLoss(nn.Module):
 
 ## Using Registered Losses
 
-Registered losses are typically instantiated via a Loss Factory, which uses this registry internally. You generally will not call `loss_registry.get()` or `loss_registry.instantiate()` directly in training scripts, but rather define your desired loss in configuration files.
+Registered losses are typically instantiated via a Loss Factory, which uses this registry
+internally. You generally will not call `loss_registry.get()` or `loss_registry.instantiate()`
+directly in training scripts, but rather define your desired loss in configuration files.
 
-The factory will look up loss functions by their registered names and instantiate them with parameters from the configuration files.
+The factory will look up loss functions by their registered names and instantiate them with
+parameters from the configuration files.
 
 ### YAML Configuration Example
 
@@ -181,7 +192,8 @@ loss:
 
 ### Integration with Quality Standards
 
-All loss functions must comply with our [code standards](../../.cursor/rules/coding-preferences.mdc):
+All loss functions must comply with our established code standards for type safety, documentation,
+and reliability.
 
 ```python
 # ✅ Correct: Complete type hints, validation, documentation
@@ -248,65 +260,23 @@ for loss_name in segmentation_losses:
 
 ## Testing Loss Functions
 
-Following our [testing standards](../../.cursor/rules/testing-standards.mdc), all loss functions must include tests:
+All new loss functions must include comprehensive unit tests. These tests should verify:
 
-```python
-# tests/unit/training/losses/test_custom_losses.py
-import torch
-import pytest
-from src.training.losses.custom_losses import DiceLoss, FocalLoss
+- Correctness of the loss calculation with known inputs.
+- Robustness to different input shapes and edge cases.
+- Proper handling of parameters (e.g., weights, alpha, gamma).
 
-class TestDiceLoss:
-    """Tests for DiceLoss following project standards."""
+Refer to the project's testing standards for detailed guidelines on writing effective tests.
 
-    def test_dice_loss_perfect_prediction(self) -> None:
-        """Test with perfect prediction should yield loss ≈ 0."""
-        loss_fn = DiceLoss(smooth=1.0)
-        predictions = torch.ones(2, 1, 4, 4)
-        targets = torch.ones(2, 1, 4, 4)
+## ML Research Standards Alignment
 
-        loss = loss_fn(predictions, targets)
+Loss functions are a critical part of our research. They must align with our ML standards:
 
-        assert loss.item() < 0.1  # Almost zero with smooth=1.0
-
-    def test_dice_loss_worst_prediction(self) -> None:
-        """Test with opposite prediction should yield loss ≈ 1."""
-        loss_fn = DiceLoss(smooth=1.0)
-        predictions = torch.ones(2, 1, 4, 4)
-        targets = torch.zeros(2, 1, 4, 4)
-
-        loss = loss_fn(predictions, targets)
-
-        assert loss.item() > 0.9  # Almost one
-
-    def test_dice_loss_shape_compatibility(self) -> None:
-        """Test automatic shape compatibility."""
-        loss_fn = DiceLoss()
-        predictions = torch.rand(2, 1, 4, 4)  # (N, C, H, W)
-        targets = torch.randint(0, 2, (2, 4, 4)).float()  # (N, H, W)
-
-        # Should not raise exception
-        loss = loss_fn(predictions, targets)
-        assert isinstance(loss, torch.Tensor)
-
-    def test_dice_loss_invalid_shapes(self) -> None:
-        """Test with incompatible shapes should fail."""
-        loss_fn = DiceLoss()
-        predictions = torch.rand(2, 1, 4, 4)
-        targets = torch.rand(3, 4, 4)  # Different batch size
-
-        with pytest.raises(ValueError, match="Incompatible shapes"):
-            loss_fn(predictions, targets)
-```
-
-## Integration with ML Research Standards
-
-For research-specific loss functions, see our [ML standards](../../.cursor/rules/ml-research-standards.mdc):
-
-- **Reproducibility**: Document hyperparameters and behavior
-- **Evaluation**: Include performance metrics and comparisons
-- **VRAM Optimization**: Consider memory usage for RTX 3070 Ti
+- **Reproducibility**: Loss calculations must be deterministic.
+- **VRAM Optimization**: Be mindful of memory usage in complex loss computations.
+- **Comparative Analysis**: When proposing a new loss, compare its performance against existing baselines.
 
 ---
 
-**Note**: This guide is kept in sync with our professional development standards. For updates or specific questions, see the rules in `.cursor/rules/` or open an issue in the repository.
+This guide provides the necessary information to extend and utilize the loss system in a way that
+maintains code quality and supports our research goals.

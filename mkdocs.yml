@@ -1,0 +1,60 @@
+site_name: CrackSeg Professional GUI
+site_description: "API Documentation and User Guide for the CrackSeg Professional GUI."
+site_author: "AI Assistant & fgrv"
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for light and dark mode
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+repo_url: https://github.com/fgrv/crackseg  # Placeholder
+repo_name: fgrv/crackseg # Placeholder
+
+nav:
+  - 'Project Home': 'index.md'
+  - 'User Guides':
+    - 'Installation': 'guides/INSTALL.md'
+    - 'Usage': 'guides/USAGE.md'
+    - 'Training Workflow': 'guides/WORKFLOW_TRAINING.md'
+  - 'Development':
+    - 'Development Setup': 'guides/DEVELOPMENT.md'
+    - 'Contributing Guide': 'guides/CONTRIBUTING.md'
+    - 'Loss Function Registry': 'guides/loss_registry_usage.md'
+  - 'API Reference':
+    - 'GUI Components': 'api/gui_components.md'
+    - 'GUI Services': 'api/gui_services.md'
+    - 'GUI Utilities': 'api/utilities.md'
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_root_heading: true
+            show_source: true
+          paths: [scripts]
+
+extra_css:
+  - stylesheets/extra.css

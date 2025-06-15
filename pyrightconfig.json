@@ -16,7 +16,7 @@
     "reportUnknownLambdaType": false,
     "reportUnknownParameterType": false,
     // Modern Python 3.12+ specific settings
-    "reportUnnecessaryTypeIgnoreComment": true,
+    "reportUnnecessaryTypeIgnoreComment": "error",
     "reportUnnecessaryIsInstance": "warning",
     "reportUnnecessaryComparison": "warning",
     "reportDeprecated": "warning",
@@ -36,18 +36,14 @@
     ],
     // Include main source, test, and script directories
     "include": [
-        "src/**",
-        "tests/**",
-        "scripts/**"
+        "src",
+        "scripts",
+        "tests"
     ],
     // Exclude output, virtual environment, and cache directories from analysis
     "exclude": [
-        "**/outputs/**",
-        "**/.venv/**",
-        "**/.mypy_cache/**",
-        "**/.ruff_cache/**",
-        "**/.pytest_cache/**",
-        "**/htmlcov/**",
-        "**/old_stuff/**"
-    ]
+        "**/__pycache__",
+        "**/node_modules"
+    ],
+    "reportPrivateUsage": "none"
 }

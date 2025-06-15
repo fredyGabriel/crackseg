@@ -1,3 +1,10 @@
+[project]
+name = "crackseg"
+version = "0.1.0"
+description = "A project for pavement crack segmentation using PyTorch."
+readme = "README.md"
+requires-python = ">=3.12"
+
 [tool.black]
 line-length = 79
 target-version = ['py312']
@@ -16,6 +23,13 @@ exclude = """
   | outputs
 )/
 """
+
+[tool.basedpyright]
+pythonVersion = "3.12"
+include = ["src", "scripts", "tests"]
+exclude = ["**/__pycache__"]
+reportPrivateUsage = "none"  # Allow private usage in tests
+reportUnnecessaryTypeIgnoreComment = "error"
 
 [tool.ruff]
 line-length = 79
@@ -36,7 +50,7 @@ lint.ignore = []
 # The 'sections' and 'default_section' from your previous isort config
 # align well with Ruff's defaults when 'known-first-party' is set.
 [tool.ruff.lint.isort]
-known-first-party = ["src"]
+known-first-party = ["src", "scripts"]
 # section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.mypy]
@@ -51,3 +65,8 @@ plugins = ["numpy.typing.mypy_plugin"]
 
 # If you use NumPy extensively and have its stubs (e.g., via numpy[typing]),
 # you might enable its MyPy plugin for better type checking of NumPy code.
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["scripts*"]
+exclude = ["tests*", "docs*"]

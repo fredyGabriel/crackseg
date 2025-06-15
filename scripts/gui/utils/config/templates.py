@@ -59,7 +59,7 @@ def create_config_from_template(
 def _apply_overrides(
     config: dict[str, object], overrides: dict[str, object]
 ) -> None:
-    """Apply overrides to a configuration dictionary (in-place).
+    """Recursively apply overrides to a configuration dictionary (in-place).
 
     Args:
         config: Configuration dictionary to modify.
@@ -71,19 +71,15 @@ def _apply_overrides(
             parts = key.split(".")
             current: dict[str, object] = config
 
-            # Navigate to the parent of the target key
             for part in parts[:-1]:
-                if part not in current or not isinstance(current[part], dict):
+                if not isinstance(current.get(part), dict):
                     current[part] = {}
-                # Safe cast for mypy/pyright
-                next_level = current[part]
-                if not isinstance(next_level, dict):
-                    next_level = {}
-                    current[part] = next_level
-                current = next_level
+                current = current[part]  # type: ignore
 
-            # Set the value
             current[parts[-1]] = value
+        elif isinstance(config.get(key), dict) and isinstance(value, dict):
+            # If both existing and override values are dicts, merge them
+            _apply_overrides(config[key], value)  # type: ignore
         else:
-            # Simple key
+            # Simple key or type mismatch replacement
             config[key] = value

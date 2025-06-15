@@ -393,7 +393,8 @@
     │   │   ├── organization_summary.md
     │   │   ├── project_tree.md
     │   │   ├── README.md
-    │   │   └── reorganization_summary.md
+    │   │   ├── reorganization_summary.md
+    │   │   └── tensorboard_component_refactoring_summary.md
     │   ├── testing/
     │   │   ├── artifact_testing_plan.md
     │   │   └── test_patterns_and_best_practices.md
@@ -404,7 +405,8 @@
     ├── scripts/
     │   ├── __pycache__/
     │   ├── examples/
-    │   │   └── factory_registry_integration.py
+    │   │   ├── factory_registry_integration.py
+    │   │   └── tensorboard_port_management_demo.py
     │   ├── experiments/
     │   ├── gui/
     │   │   ├── assets/
@@ -449,6 +451,7 @@
     │   │   │   │   ├── editor_core.py
     │   │   │   │   ├── file_browser_integration.py
     │   │   │   │   └── validation_panel.py
+    │   │   │   ├── tensorboard/
     │   │   │   ├── __init__.py
     │   │   │   ├── config_editor_component.py
     │   │   │   ├── error_console.py
@@ -457,10 +460,12 @@
     │   │   │   ├── logo_component.py
     │   │   │   ├── page_router.py
     │   │   │   ├── sidebar_component.py
+    │   │   │   ├── tensorboard_component.py
     │   │   │   └── theme_component.py
     │   │   ├── docs/
     │   │   │   ├── error_messaging_system.md
-    │   │   │   └── file_upload_guide.md
+    │   │   │   ├── file_upload_guide.md
+    │   │   │   └── tensorboard_integration_summary.md
     │   │   ├── pages/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
@@ -494,19 +499,25 @@
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── abort_system.py
     │   │   │   │   ├── core.py
+    │   │   │   │   ├── error_handling.py
     │   │   │   │   ├── log_integration.py
     │   │   │   │   ├── manager_backup.py
     │   │   │   │   ├── monitoring.py
     │   │   │   │   ├── override_parser.py
     │   │   │   │   └── states.py
+    │   │   │   ├── results_scanning/
+    │   │   │   │   └── __init__.py
     │   │   │   ├── run_manager/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── abort_api.py
     │   │   │   │   ├── orchestrator.py
     │   │   │   │   ├── session_api.py
+    │   │   │   │   ├── status_integration.py
+    │   │   │   │   ├── status_updates.py
     │   │   │   │   ├── streaming_api.py
-    │   │   │   │   └── ui_integration.py
+    │   │   │   │   ├── ui_integration.py
+    │   │   │   │   └── ui_status_helpers.py
     │   │   │   ├── streaming/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── sources/
@@ -517,6 +528,7 @@
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── core.py
     │   │   │   │   └── exceptions.py
+    │   │   │   ├── tensorboard/
     │   │   │   ├── threading/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
@@ -530,12 +542,21 @@
     │   │   │   ├── __init__.py
     │   │   │   ├── architecture_viewer.py
     │   │   │   ├── config_io.py
+    │   │   │   ├── DELETED_FILE_ANALYSIS.md
+    │   │   │   ├── demo_results_scanner.py
+    │   │   │   ├── demo_tensorboard.py
     │   │   │   ├── gui_config.py
     │   │   │   ├── override_examples.py
+    │   │   │   ├── results
+    │   │   │   ├── results_core.py
+    │   │   │   ├── results_scanner.py
+    │   │   │   ├── results_scanner_backup.py
+    │   │   │   ├── results_validation.py
     │   │   │   ├── save_dialog.py
     │   │   │   ├── session_state.py
     │   │   │   ├── session_sync.py
     │   │   │   ├── streaming_examples.py
+    │   │   │   ├── tb_manager.py
     │   │   │   └── theme.py
     │   │   ├── app.py
     │   │   ├── app_legacy.py

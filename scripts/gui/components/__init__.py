@@ -20,6 +20,7 @@ from scripts.gui.components.file_upload_component import (
 from scripts.gui.components.logo_component import LogoComponent
 from scripts.gui.components.page_router import PageRouter
 from scripts.gui.components.sidebar_component import render_sidebar
+from scripts.gui.components.tensorboard_component import TensorBoardComponent
 from scripts.gui.components.theme_component import ThemeComponent
 
 __all__ = [
@@ -32,5 +33,6 @@ __all__ = [
     "render_file_browser",
     "render_sidebar",
     "render_upload_widget",
+    "TensorBoardComponent",
     "ThemeComponent",
 ]

@@ -65,6 +65,23 @@ from .session_api import (
     get_session_state_status,
     initialize_session_state_sync,
 )
+from .status_integration import (
+    add_status_update_callback,
+    broadcast_manual_status_update,
+    cleanup_status_integration,
+    get_comprehensive_status,
+    get_status_integration_coordinator,
+    initialize_status_integration,
+    remove_status_update_callback,
+)
+from .status_updates import (
+    StatusUpdate,
+    StatusUpdateCallback,
+    StatusUpdateManager,
+    StatusUpdateType,
+    cleanup_status_update_manager,
+    get_status_update_manager,
+)
 from .streaming_api import (
     add_log_callback,
     clear_log_buffer,
@@ -77,6 +94,16 @@ from .ui_integration import (
     execute_training_async,
     execute_with_progress,
     get_ui_wrapper,
+)
+from .ui_status_helpers import (
+    check_status_changes_since,
+    cleanup_ui_status_callback,
+    create_status_callback_for_ui,
+    display_metrics_summary,
+    display_status_updates_feed,
+    display_training_status,
+    get_training_status_indicator,
+    initialize_ui_status_system,
 )
 
 # Complete public API for backward compatibility
@@ -112,6 +139,29 @@ __all__ = [
     "get_session_sync_coordinator",
     "cleanup_session_sync_coordinator",
     "initialize_session_sync",
+    # Status updates system
+    "StatusUpdate",
+    "StatusUpdateCallback",
+    "StatusUpdateManager",
+    "StatusUpdateType",
+    "get_status_update_manager",
+    "cleanup_status_update_manager",
+    "get_status_integration_coordinator",
+    "initialize_status_integration",
+    "cleanup_status_integration",
+    "add_status_update_callback",
+    "remove_status_update_callback",
+    "broadcast_manual_status_update",
+    "get_comprehensive_status",
+    # UI status helpers
+    "initialize_ui_status_system",
+    "display_training_status",
+    "display_status_updates_feed",
+    "display_metrics_summary",
+    "get_training_status_indicator",
+    "create_status_callback_for_ui",
+    "cleanup_ui_status_callback",
+    "check_status_changes_since",
     # Main functions
     "get_process_manager",
     "cleanup_global_manager",

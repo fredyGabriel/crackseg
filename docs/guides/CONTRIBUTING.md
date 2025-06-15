@@ -1,6 +1,7 @@
 # Contribution Guide
 
-Thank you for your interest in contributing to the CrackSeg project. This document provides specific guidelines to contribute effectively, complementing our professional development standards.
+Thank you for your interest in contributing to the CrackSeg project. This document provides
+specific guidelines to contribute effectively, complementing our professional development standards.
 
 ## Table of Contents
 
@@ -79,7 +80,7 @@ Before you start coding:
 - Review existing issues or create a new one
 - Discuss the approach if it is a significant change
 - Clearly define the scope of the change
-- **See our [development rules](../../.cursor/rules/workflow-preferences.mdc) for the detailed process**
+- **Refer to our development rules located in the `.cursor/rules/` directory for the detailed process.**
 
 ### 2. Implementation
 
@@ -88,8 +89,8 @@ Before you start coding:
 git checkout -b feature/feature-name  # For new features
 git checkout -b fix/bug-name         # For bug fixes
 
-# During development, follow our professional standards
-# See: .cursor/rules/coding-preferences.mdc for full details
+# During development, follow our professional standards.
+# See the files in `.cursor/rules/` for full details.
 ```
 
 ### 3. Continuous Verification
@@ -106,14 +107,17 @@ pytest tests/ --cov=src --cov-report=term-missing
 
 ## Quality Standards
 
-**The project maintains strict professional standards. See our specific rules:**
+**The project maintains strict professional standards. See our specific rule files in the
+`.cursor/rules/` directory for details.**
 
 ### 📋 Mandatory Development Rules
 
-- **[Code Preferences](../../.cursor/rules/coding-preferences.mdc)**: Technical standards, mandatory typing, quality tools
-- **[Testing Standards](../../.cursor/rules/testing-standards.mdc)**: Testing strategies, coverage, mocking
-- **[Git Standards](../../.cursor/rules/git-standards.mdc)**: Commit format, branching, collaboration
-- **[ML Standards](../../.cursor/rules/ml-research-standards.mdc)**: Reproducibility, experiments, VRAM optimization
+The following topics are covered by our rule system:
+
+- **Code Preferences**: Technical standards, mandatory typing, quality tools.
+- **Testing Standards**: Testing strategies, coverage, mocking.
+- **Git Standards**: Commit format, branching, collaboration.
+- **ML Standards**: Reproducibility, experiments, VRAM optimization.
 
 ### ⚡ Quick Verification
 
@@ -201,7 +205,7 @@ All contributions must pass:
 
 - **Configuration**: [WORKFLOW_TRAINING.md](WORKFLOW_TRAINING.md) - Training workflow
 - **Loss Registry**: [loss_registry_usage.md](loss_registry_usage.md) - Loss system
-- **Project Structure**: [project-structure.mdc](../../.cursor/rules/project-structure.mdc)
+- **Project Structure**: Refer to our project structure guidelines for file organization.
 
 ### 🛠️ Development Tools
 
