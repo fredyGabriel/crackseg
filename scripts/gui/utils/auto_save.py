@@ -189,7 +189,10 @@ class AutoSaveManager:
                 return False
 
             # Save to localStorage (simulated with session_state)
-            storage_key = f"{self.storage_key_prefix}_v{st.session_state.autosave_version}"
+            storage_key = (
+                f"{self.storage_key_prefix}_v"
+                f"{st.session_state.autosave_version}"
+            )
             self._save_to_storage(storage_key, serialized_data)
 
             # Update state

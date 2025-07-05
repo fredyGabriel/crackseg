@@ -1,6 +1,7 @@
 # Training Configuration
 
-This directory contains YAML configuration files for training parameters in the pavement crack segmentation project.
+This directory contains YAML configuration files for training parameters in the pavement crack
+segmentation project.
 
 ## Configuration Files
 

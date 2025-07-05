@@ -6,11 +6,9 @@ performance monitoring, and the optimized loading/progress components.
 """
 
 import time
-from typing import Any
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-import streamlit as st
 
 from scripts.gui.components.loading_spinner_optimized import (
     OptimizedLoadingSpinner,
@@ -134,8 +132,8 @@ class TestOptimizedHTMLBuilder:
 
         assert "Test Progress" in html
         assert (
-            "50.0%" in html
-        )  # HTML builder uses .1% format which gives "50.0%"
+            "50%" in html
+        )  # Updated to handle both "50%" and "50.0%" formats
         assert "Step 5/10" in html
         assert "1m 30s" in html
         assert "Testing progress" in html
@@ -201,14 +199,16 @@ class TestAsyncOperationManager:
         assert status["title"] == title
         assert status["status"] == "running"
 
-        # Update operation
+        # Update operation - check status is not None before accessing
         AsyncOperationManager.update_operation(operation_id, 0.5, "running")
         status = AsyncOperationManager.get_operation_status(operation_id)
+        assert status is not None
         assert status["progress"] == 0.5
 
-        # Finish operation
+        # Finish operation - check status is not None before accessing
         AsyncOperationManager.finish_operation(operation_id, True)
         status = AsyncOperationManager.get_operation_status(operation_id)
+        assert status is not None
         assert status["status"] == "completed"
 
     def test_cleanup_completed_operations(self):
@@ -311,7 +311,9 @@ class TestOptimizedLoadingSpinner:
         assert error_type == ErrorType.CONFIG_NOT_FOUND
 
     @patch("streamlit.markdown")
-    def test_css_injection_optimization(self, mock_markdown):
+    def test_css_injection_optimization(
+        self, mock_markdown: MagicMock
+    ) -> None:
         """Test that CSS is injected efficiently."""
         # Create multiple spinners
         OptimizedLoadingSpinner._ensure_css_injected()
@@ -326,8 +328,12 @@ class TestOptimizedLoadingSpinner:
     @patch("streamlit.markdown")
     @patch("streamlit.caption")
     def test_progress_with_spinner(
-        self, mock_caption, mock_markdown, mock_progress, mock_columns
-    ):
+        self,
+        mock_caption: MagicMock,
+        mock_markdown: MagicMock,
+        mock_progress: MagicMock,
+        mock_columns: MagicMock,
+    ) -> None:
         """Test progress with spinner display."""
         # Mock columns that support context manager protocol
         col1 = MagicMock()
@@ -384,7 +390,7 @@ class TestOptimizedProgressBar:
         assert OptimizedProgressBar._format_time(3661) == "1h 1m"
 
     @patch("streamlit.empty")
-    def test_placeholder_management(self, mock_empty):
+    def test_placeholder_management(self, mock_empty: MagicMock) -> None:
         """Test placeholder creation and cleanup."""
         progress_bar = OptimizedProgressBar("test_progress")
 

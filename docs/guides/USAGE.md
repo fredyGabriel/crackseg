@@ -1,50 +1,136 @@
-# Usage Guide
+# CrackSeg Professional GUI - User Guide
 
-This guide explains how to use the CrackSeg Professional GUI to perform inference and visualize results.
+This guide provides a comprehensive walkthrough of the CrackSeg Professional Graphical User
+Interface (GUI). It is designed to help users navigate the application, configure experiments,
+run training, and analyze results effectively.
 
-## Running the Application
+## 1. Getting Started
 
-To start the application, ensure your conda environment is activated and run the following command
-from the project root:
+### 1.1. Launching the Application
+
+Before launching, ensure your Conda environment is activated. Run the following command from
+the project's root directory:
 
 ```bash
-streamlit run scripts/gui/app.py
+conda activate crackseg && streamlit run scripts/gui/app.py
 ```
 
-The application will open in your default web browser.
+The application will open in your default web browser, presenting the main interface.
 
-## Main Features
+> **[Screenshot: The initial loading screen of the CrackSeg application, showing the title and
+> a welcome message.]**
 
-The GUI is organized into several pages, accessible from the sidebar.
+---
 
-### 1. Configuration
+## 2. Navigating the Interface
 
-- **Load Configuration**: Load a model and training configuration from a `.yaml` file.
-- **Select Checkpoint**: Choose a specific model checkpoint (`.pth.tar`) for inference.
-- **Adjust Parameters**: Modify inference parameters such as image processing settings.
+The GUI is structured around a main sidebar for navigation and a central content area where
+each page's functionality is displayed.
 
-### 2. Inference
+### 2.1. Sidebar Navigation
 
-- **Upload Images**: Upload one or more images for crack segmentation.
-- **Run Inference**: Process the images using the selected model.
-- **View Results**: The predicted segmentation masks will be displayed alongside the original images.
+The sidebar on the left provides access to all major pages of the application.
 
-### 3. Results Gallery
+> **[Screenshot: A close-up of the sidebar, highlighting the navigation links: 'Config',
+> 'Architecture', 'Train', and 'Results'.]**
 
-- **Browse History**: View a gallery of past inference results.
-- **Inspect Details**: Click on a result to see the original image, the mask, and an overlay.
-- **Export Results**: Export individual or all results to a local directory.
+The navigation breadcrumbs at the top of the page show your current location within the app.
 
-## Example Workflow
+> **[Screenshot: The top section of a page, showing the breadcrumb trail, e.g.,
+> 'Navigation: 🏠 > 🔧 Config'.]**
 
-1. **Start the GUI**:
+---
 
-    ```bash
-    streamlit run scripts/gui/app.py
-    ```
+## 3. Configuration (`Config` Page)
 
-2. **Navigate to Configuration**: Select the model configuration and a trained checkpoint.
-3. **Navigate to Inference**: Upload a set of pavement images.
-4. **Click "Run Inference"**: Wait for the model to process the images.
-5. **Analyze Results**: View the generated masks on the page.
-6. **Go to Gallery**: Browse and export the results you wish to save.
+This is the starting point for any workflow. Here, you define the model, data, and training
+parameters.
+
+### 3.1. Loading Configuration
+
+- **Load Config File**: Click the "Upload a YAML file" button to load a pre-defined Hydra
+  configuration. This populates all the necessary fields for a reproducible experiment.
+- **Run Directory**: Specify or create a directory where all outputs (checkpoints, logs,
+  results) for this run will be saved.
+
+> **[Screenshot: The 'Config' page with the file uploader and run directory input field
+> clearly visible. An arrow points to the "Upload" button.]**
+
+### 3.2. Auto-Save and Drafts
+
+The application automatically saves your configuration changes in your browser's local
+storage as a draft. If you accidentally close the tab, your changes can be recovered.
+
+---
+
+## 4. Model Architecture (`Architecture` Page)
+
+This page provides a visual representation of the currently loaded model architecture.
+
+- **Visualization**: An interactive graph shows the layers and connections within the model.
+  This is useful for verifying that your configuration has been loaded correctly.
+
+> **[Screenshot: The 'Architecture' page displaying a Graphviz visualization of a U-Net model.
+> Key components like 'Encoder', 'Bottleneck', and 'Decoder' are visible.]**
+
+---
+
+## 5. Training (`Train` Page)
+
+This is where you launch, monitor, and manage the model training process.
+
+### 5.1. Device Selection
+
+Before starting, select the hardware for training:
+
+- **GPU (CUDA)**: If a compatible NVIDIA GPU is detected, this option will be available for
+  accelerated training.
+- **CPU**: If no GPU is available, training will run on the CPU.
+
+> **[Screenshot: The 'Device Selector' component on the 'Train' page, showing options for
+> 'cuda' and 'cpu'.]**
+
+### 5.2. Launching and Monitoring
+
+- **Start Training**: Click this button to begin the training process.
+- **Progress Monitoring**: Real-time updates are provided through:
+  - A main progress bar for the total training epochs.
+  - Live metrics for loss and accuracy.
+  - An integrated TensorBoard panel for detailed analysis.
+
+> **[Screenshot: The 'Train' page during a training session. The progress bar is partially
+> filled, metric charts are updating, and the TensorBoard component is active.]**
+
+### 5.3. Confirmation Dialogs
+
+Critical actions, such as starting or stopping a training run, will trigger a confirmation
+dialog to prevent accidental clicks.
+
+> **[Screenshot: A confirmation dialog pop-up asking "Are you sure you want to start the
+> training session?". The 'Confirm' and 'Cancel' buttons are visible.]**
+
+---
+
+## 6. Results (`Results` Page)
+
+After training, this page is your hub for analyzing model performance and visualizing
+predictions.
+
+### 6.1. Results Gallery
+
+- **Image Predictions**: View a gallery of original images, their ground truth masks, and the
+  model's predicted masks side-by-side. This allows for qualitative assessment of the model's
+  performance.
+
+> **[Screenshot: The 'Results Gallery' showing a triplet of images (original, ground truth,
+> prediction) for a single test sample. A crack is clearly segmented in the prediction.]**
+
+### 6.2. Metrics and Analysis
+
+- **Quantitative Metrics**: Review detailed performance metrics like IoU, Dice Score,
+  Precision, and Recall.
+- **TensorBoard Integration**: Dive deeper into the training history, analyze learning curves,
+  and inspect model graphs using the embedded TensorBoard interface.
+
+> **[Screenshot: The 'TensorBoard' tab on the 'Results' page, displaying loss curves and
+> IoU metrics over training epochs.]**

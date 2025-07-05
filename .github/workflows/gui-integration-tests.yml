@@ -1,0 +1,53 @@
+name: GUI Integration Tests
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'scripts/gui/**'
+      - 'tests/integration/gui/**'
+      - '.github/workflows/gui-integration-tests.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'scripts/gui/**'
+      - 'tests/integration/gui/**'
+      - '.github/workflows/gui-integration-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  run-gui-tests:
+    name: Run GUI Integration Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Conda Environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+
+      - name: Verify Environment and Run Tests
+        run: |
+          echo "conda-prefix=$CONDA_PREFIX"
+          conda info --envs
+          conda list
+          pytest tests/integration/gui/ --cov=scripts/gui --cov-report=xml
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gui-integration-test-results
+          path: test-results/
+          retention-days: 7
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4

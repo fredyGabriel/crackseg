@@ -517,8 +517,9 @@ class OptimizedStepBasedProgress:
 
                 if error_info.retry_possible:
                     st.info(
-                        "💡 Consider restarting the operation from the beginning. "
-                        "The system is optimized for efficient retries."
+                        "💡 Consider restarting the operation from the "
+                        "beginning. The system is optimized for efficient "
+                        "retries."
                     )
 
         # Clean up resources

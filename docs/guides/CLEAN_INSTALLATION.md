@@ -1,6 +1,7 @@
 # Clean Environment Installation Guide
 
-This guide provides step-by-step instructions for installing the CrackSeg project from scratch in a clean environment.
+This guide provides step-by-step instructions for installing the CrackSeg project from scratch in a
+clean environment.
 
 ## Prerequisites
 
@@ -52,7 +53,8 @@ conda activate crackseg
 pip install -r requirements.txt
 ```
 
-**Note:** Some packages (like Streamlit components) are only available via pip and are automatically installed from requirements.txt.
+**Note:** Some packages (like Streamlit components) are only available via pip and are automatically
+installed from requirements.txt.
 
 ### 4. Verify Installation
 
@@ -274,8 +276,10 @@ This script will:
 - Run quality gates
 - Execute basic functionality tests
 
-The script provides a complete report of your installation status and highlights any issues that need attention.
+The script provides a complete report of your installation status and highlights any issues that
+need attention.
 
 ---
 
-**Installation Support**: If you continue to experience issues, please check the project's issue tracker or contact the development team.
+**Installation Support**: If you continue to experience issues, please check the project's issue
+tracker or contact the development team.

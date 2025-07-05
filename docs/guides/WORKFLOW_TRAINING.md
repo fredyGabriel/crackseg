@@ -1,17 +1,42 @@
 # Training Workflow Guide
 
 This document provides a step-by-step guide to set up and run training for pavement
-crack segmentation models using our modular framework.
+crack segmentation models using our modular framework. It covers both the command-line
+(CLI) and Graphical User Interface (GUI) workflows.
 
 **For professional development**, consult our standards in the `.cursor/rules/` directory,
 which complement this technical guide.
+
+## Workflow Overview
+
+```mermaid
+graph TD
+    A[Start] --> B{Choose Workflow};
+    B --> C[GUI Workflow];
+    B --> D[CLI Workflow];
+
+    subgraph GUI Workflow
+        C --> C1[Launch Streamlit App];
+        C1 --> C2[Configure via UI];
+        C2 --> C3[Start & Monitor Training];
+        C3 --> C4[View & Export Results];
+    end
+
+    subgraph CLI Workflow
+        D --> D1[Set up Config Files];
+        D1 --> D2[Run Training Command];
+        D2 --> D3[Monitor Terminal Output];
+        D3 --> D4[Evaluate & Analyze Results];
+    end
+```
 
 ## Contents
 
 - [Prerequisites](#prerequisites)
 - [Project Structure](#project-structure)
+- [GUI Workflow](#gui-workflow)
 - [Configuration](#configuration)
-- [Running Training](#running-training)
+- [Running Training (CLI Workflow)](#running-training-cli-workflow)
 - [Model Evaluation](#model-evaluation)
 - [Quality Standards](#quality-standards)
 - [Troubleshooting](#troubleshooting)
@@ -26,16 +51,16 @@ Before you start, make sure you have the following:
 ```bash
 # Set up conda environment
 conda env create -f environment.yml
-conda activate torch
+conda activate crackseg
 
 # Verify Python version (required: 3.12+)
 python --version
 
 # Check quality tools (mandatory)
-black --version
-ruff --version
-basedpyright --version
-pytest --version
+conda activate crackseg && black --version
+conda activate crackseg && ruff --version
+conda activate crackseg && basedpyright --version
+conda activate crackseg && pytest --version
 ```
 
 ### 2. Data Structure
@@ -54,10 +79,10 @@ cp .env.example .env
 
 ```bash
 # Ensure code meets professional standards (mandatory before training)
-black .
-ruff . --fix
-basedpyright .
-pytest tests/ --cov=src --cov-report=term-missing
+conda activate crackseg && black .
+conda activate crackseg && ruff . --fix
+conda activate crackseg && basedpyright .
+conda activate crackseg && pytest tests/ --cov=src --cov-report=term-missing
 ```
 
 ## Project Structure
@@ -76,6 +101,41 @@ organizational information, refer to the project's development standards.
 - **LR Schedulers**: `configs/training/lr_scheduler/`
 
 For loss function details, see [Loss Registry Guide](loss_registry_usage.md).
+
+## GUI Workflow
+
+For an interactive experience, the project includes a Streamlit-based Graphical User Interface (GUI).
+
+### 1. Launch the GUI
+
+To start the application, ensure your conda environment is activated and run the following command
+from the project root:
+
+```bash
+conda activate crackseg && streamlit run scripts/gui/app.py
+```
+
+The application will open in your default web browser.
+
+### 2. Configure Training in the GUI
+
+- **Configuration Page**: Navigate to the `Config` page from the sidebar. Here you can load a base
+  YAML configuration and select a model checkpoint if you are resuming training.
+- **Architecture Page**: Visualize the model architecture to ensure it matches your expectations.
+- **Advanced Config Page**: Fine-tune specific parameters for the training session.
+
+### 3. Start and Monitor Training
+
+- **Train Page**: Once configured, go to the `Train` page.
+- **Device Selection**: Choose the appropriate device (CPU or GPU).
+- **Launch**: Click the "Start Training" button.
+- **Monitoring**: The GUI provides real-time progress bars, metric charts (via TensorBoard
+  integration), and log outputs.
+
+### 4. View and Analyze Results
+
+- **Results Page**: After training (or for a completed run), this page allows you to view prediction
+  masks, analyze metrics, and browse a gallery of results.
 
 ## Configuration
 
@@ -112,7 +172,9 @@ configuration directly from the command line using Hydra.
                   training.gradient_accumulation_steps=4
     ```
 
-## Running Training
+## Running Training (CLI Workflow)
+
+For automated scripts and command-line enthusiasts, the CLI remains a powerful option.
 
 ### Basic Training
 
@@ -163,7 +225,7 @@ Git, and ML standards.
 
 - **`CUDA out of memory`**: Reduce `data.batch_size`, enable `training.use_amp=true`,
   or use `training.gradient_accumulation_steps`.
-- **`ModuleNotFoundError`**: Ensure you have activated the `torch` conda environment.
+- **`ModuleNotFoundError`**: Ensure you have activated the `crackseg` conda environment.
 - **`basedpyright` errors**: Check for complete and correct type annotations.
 
 ### Getting Help

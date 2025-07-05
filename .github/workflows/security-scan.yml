@@ -1,0 +1,46 @@
+name: Security Vulnerability Scan
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '30 5 * * 1' # Run every Monday at 5:30 AM
+  workflow_dispatch:
+
+jobs:
+  vulnerability-scan:
+    name: Run OSV-Scanner
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install OSV-Scanner
+        run: go install github.com/google/osv-scanner/cmd/osv-scanner@v1
+
+      - name: Set up Conda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+
+      - name: Generate requirements.txt from environment.yml
+        shell: bash -el {0}
+        run: |
+          conda list --export > requirements.txt
+          # Remove conda-specific header and package versions for cleaner scan
+          sed -i '/^# This file may be used to create an environment using:/d' requirements.txt
+          sed -i '/^#$conda create --name <env> --file <this file>/d' requirements.txt
+          sed -i 's/=.*//' requirements.txt
+          echo "Generated requirements.txt for scanning:"
+          cat requirements.txt
+
+      - name: Run OSV-Scanner
+        run: |
+          ~/go/bin/osv-scanner --sbom=requirements.txt .

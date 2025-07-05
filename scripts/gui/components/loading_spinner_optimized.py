@@ -303,7 +303,8 @@ class OptimizedLoadingSpinner:
                         # Show timeout warning with optimized rendering
                         timeout_html = f"""
                         <div class="crackseg-timeout-warning">
-                            ⚠️ Operation took longer than expected ({elapsed_time:.1f}s).<br/>
+                            ⚠️ Operation took longer than expected
+                            ({elapsed_time:.1f}s).<br/>
                             The process may still be running in the background.
                         </div>
                         """
@@ -314,7 +315,8 @@ class OptimizedLoadingSpinner:
                         # Show success message with optimized rendering
                         success_html = f"""
                         <div class="crackseg-success-message">
-                            ✅ {message} completed successfully ({elapsed_time:.1f}s)
+                            ✅ {message} completed successfully
+                            ({elapsed_time:.1f}s)
                         </div>
                         """
                         spinner_placeholder.markdown(

@@ -477,13 +477,21 @@
     │   │   │   │   └── state_manager.py
     │   │   │   ├── tensorboard/
     │   │   │   ├── __init__.py
+    │   │   │   ├── auto_save_manager.py
     │   │   │   ├── config_editor_component.py
+    │   │   │   ├── confirmation_dialog.py
+    │   │   │   ├── confirmation_renderer.py
+    │   │   │   ├── confirmation_utils.py
+    │   │   │   ├── device_selector.py
     │   │   │   ├── error_console.py
     │   │   │   ├── file_browser_component.py
     │   │   │   ├── file_upload_component.py
     │   │   │   ├── loading_spinner.py
+    │   │   │   ├── loading_spinner_optimized.py
     │   │   │   ├── logo_component.py
     │   │   │   ├── page_router.py
+    │   │   │   ├── progress_bar.py
+    │   │   │   ├── progress_bar_optimized.py
     │   │   │   ├── results_display.py
     │   │   │   ├── results_gallery_component.py
     │   │   │   ├── sidebar_component.py
@@ -499,6 +507,7 @@
     │   │   │   ├── advanced_config_page.py
     │   │   │   ├── architecture_page.py
     │   │   │   ├── config_page.py
+    │   │   │   ├── page_train.py
     │   │   │   ├── results_page.py
     │   │   │   └── train_page.py
     │   │   ├── services/
@@ -577,11 +586,14 @@
     │   │   │   │   └── ui_wrapper.py
     │   │   │   ├── __init__.py
     │   │   │   ├── architecture_viewer.py
+    │   │   │   ├── auto_save.py
     │   │   │   ├── config_io.py
     │   │   │   ├── demo_tensorboard.py
+    │   │   │   ├── error_state.py
     │   │   │   ├── export_manager.py
     │   │   │   ├── gui_config.py
     │   │   │   ├── override_examples.py
+    │   │   │   ├── performance_optimizer.py
     │   │   │   ├── save_dialog.py
     │   │   │   ├── session_state.py
     │   │   │   ├── session_sync.py
@@ -1256,7 +1268,13 @@
     │   │       └── README.md
     │   ├── gui/
     │   │   ├── __pycache__/
+    │   │   ├── test_auto_save.py
+    │   │   ├── test_confirmation_dialog.py
+    │   │   ├── test_device_selector.py
+    │   │   ├── test_error_state.py
     │   │   ├── test_loading_spinner.py
+    │   │   ├── test_performance_optimization.py
+    │   │   ├── test_progress_bar.py
     │   │   └── test_results_gallery_component.py
     │   ├── integration/
     │   │   ├── __pycache__/

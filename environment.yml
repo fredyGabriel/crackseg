@@ -194,6 +194,7 @@ dependencies:
   - pixman=0.44.2=had0cd8c_0
   - platformdirs=4.3.7=pyh29332c3_0
   - pluggy=1.5.0=pyhd8ed1ab_1
+  - pre-commit=3.7.1=pyhd8ed1ab_0
   - protobuf=5.28.3=py312h275cf98_0
   - psutil=7.0.0=py312h4389bb4_0
   - pthread-stubs=0.4=hcd874cb_1001

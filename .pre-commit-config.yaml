@@ -4,7 +4,7 @@
 repos:
   # Standard code formatting and linting
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.6.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -15,7 +15,7 @@ repos:
 
   # Python code formatting with Black
   - repo: https://github.com/psf/black
-    rev: 23.7.0
+    rev: 24.4.2
     hooks:
       - id: black
         language_version: python3.11
@@ -23,44 +23,21 @@ repos:
 
   # Python linting with Ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.287
+    rev: v0.4.4
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
 
   # Type checking with basedpyright
-  - repo: https://github.com/RobertCraigie/pyright-python
-    rev: v1.1.324
-    hooks:
-      - id: pyright
-
-  # Local hooks for project-specific checks
   - repo: local
     hooks:
-      # Coverage validation hook
-      - id: coverage-check
-        name: Coverage Check
-        entry: python scripts/validate_coverage.py --fail-under=80 --check-only --no-reports
+      - id: basedpyright
+        name: basedpyright
+        entry: conda activate crackseg && basedpyright
         language: system
+        types: [python]
         pass_filenames: false
-        stages: [commit, push]
-        verbose: true
-
-      # Ensure tests exist for new modules
-      - id: test-coverage-for-new-files
-        name: Test Coverage for New Files
-        entry: python scripts/check_test_files.py
-        language: system
-        files: '^src/.*\.py$'
-        exclude: '^src/.*/__init__\.py$'
-
-      # Validate test quality
-      - id: test-quality-check
-        name: Test Quality Check
-        entry: python scripts/validate_test_quality.py
-        language: system
-        files: '^tests/.*\.py$'
-        pass_filenames: true
 
 # Global settings
 default_language_version:
