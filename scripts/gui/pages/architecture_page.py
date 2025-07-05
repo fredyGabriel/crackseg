@@ -13,10 +13,15 @@ instantiation.
 
 import logging
 from pathlib import Path
+from typing import Any
 
 import streamlit as st
 import torch
 
+from scripts.gui.components.loading_spinner import LoadingSpinner
+from scripts.gui.components.progress_bar import (
+    create_step_progress,
+)
 from scripts.gui.utils.architecture_viewer import (
     ArchitectureViewerError,
     GraphvizNotInstalledError,
@@ -163,6 +168,7 @@ def _render_model_instantiation_section() -> None:
         # Instantiate button
         instantiate_button = st.button(
             "🚀 Load Model",
+            key="instantiate_model",
             help="Instantiate model from selected configuration",
             use_container_width=True,
         )
@@ -179,50 +185,13 @@ def _render_model_instantiation_section() -> None:
                 _clear_model_state()
                 st.rerun()
 
-    # Model instantiation logic
+        # Model instantiation logic
     if instantiate_button:
         if not state.config_path:
             st.error("No configuration file selected")
             return
 
-        with st.spinner("🔄 Instantiating model..."):
-            try:
-                # Instantiate model
-                model = viewer.instantiate_model_from_config_path(
-                    state.config_path, device=selected_device
-                )
-
-                # Get model summary
-                summary = viewer.get_model_summary(model)
-
-                # Update session state
-                state.current_model = model
-                state.model_loaded = True
-                state.model_summary = summary
-                state.model_device = selected_device
-                state.model_architecture = summary.get("model_type", "Unknown")
-
-                SessionStateManager.notify_change("model_instantiated")
-                st.success(
-                    f"✅ Model successfully loaded on {selected_device}"
-                )
-                st.rerun()
-
-            except GraphvizNotInstalledError:
-                # This shouldn't happen during instantiation, but handle it
-                # just in case
-                st.warning("⚠️ Graphviz not available for visualization")
-                logger.warning("Graphviz not available")
-
-            except ModelInstantiationError as e:
-                st.error(f"❌ Model instantiation failed: {e}")
-                logger.error(f"Model instantiation error: {e}", exc_info=True)
-
-            except Exception as e:
-                st.error(f"❌ Unexpected error: {e}")
-                logger.error(
-                    f"Unexpected instantiation error: {e}", exc_info=True
-                )
+        _instantiate_model_with_progress(state, selected_device, viewer)
 
     # Display current model status
     if state.model_loaded and state.current_model is not None:
@@ -232,6 +201,99 @@ def _render_model_instantiation_section() -> None:
         )
     elif state.config_path:
         st.info("📋 Configuration loaded - ready to instantiate model")
+
+
+def _instantiate_model_with_progress(
+    state: Any, selected_device: str, viewer: Any
+) -> None:
+    """Instantiate model with progress tracking for complex models."""
+    # Use LoadingSpinner for quick initialization
+    message, subtext, spinner_type = LoadingSpinner.get_contextual_message(
+        "model"
+    )
+
+    try:
+        with LoadingSpinner.spinner(
+            message="Initializing model loading...",
+            subtext="Preparing model instantiation",
+            spinner_type=spinner_type,
+            timeout_seconds=5,
+        ):
+            # Quick initialization checks
+            config_path = Path(state.config_path)
+            if not config_path.exists():
+                st.error("Configuration file not found")
+                return
+
+        # Use ProgressBar for the actual model instantiation process
+        model_steps = [
+            "Loading configuration file",
+            "Parsing model architecture",
+            "Initializing model components",
+            "Allocating memory buffers",
+            "Finalizing model setup",
+        ]
+
+        # Create step-based progress for model loading
+        with create_step_progress(
+            title="Model Instantiation",
+            steps=model_steps,
+            operation_id="model_loading",
+        ) as progress:
+            # Step 1: Load configuration
+            progress.next_step("Loading and validating configuration")
+            # Simulate config loading time
+            import time
+
+            time.sleep(0.5)
+
+            # Step 2: Parse architecture
+            progress.next_step("Parsing model architecture definitions")
+            time.sleep(0.5)
+
+            # Step 3: Initialize components
+            progress.next_step("Initializing model components")
+            # Actual model instantiation
+            model = viewer.instantiate_model_from_config_path(
+                state.config_path, device=selected_device
+            )
+            time.sleep(0.5)
+
+            # Step 4: Allocate memory
+            progress.next_step("Allocating memory and setting up device")
+            time.sleep(0.5)
+
+            # Step 5: Finalize setup
+            progress.next_step("Finalizing model setup and validation")
+            # Get model summary
+            summary = viewer.get_model_summary(model)
+            time.sleep(0.5)
+
+        # Update session state
+        state.current_model = model
+        state.model_loaded = True
+        state.model_summary = summary
+        state.model_device = selected_device
+        state.model_architecture = summary.get("model_type", "Unknown")
+
+        SessionStateManager.notify_change("model_instantiated")
+
+        st.success(f"✅ Model successfully loaded on {selected_device}")
+        st.rerun()
+
+    except GraphvizNotInstalledError:
+        # This shouldn't happen during instantiation, but handle it
+        # just in case
+        st.warning("⚠️ Graphviz not available for visualization")
+        logger.warning("Graphviz not available")
+
+    except ModelInstantiationError as e:
+        st.error(f"❌ Model instantiation failed: {e}")
+        logger.error(f"Model instantiation error: {e}", exc_info=True)
+
+    except Exception as e:
+        st.error(f"❌ Unexpected error: {e}")
+        logger.error(f"Unexpected instantiation error: {e}", exc_info=True)
 
 
 def _render_architecture_visualization_section() -> None:
@@ -270,8 +332,17 @@ def _render_architecture_visualization_section() -> None:
     )
 
     if should_generate and state.current_model is not None:
-        with st.spinner("🎨 Generating architecture diagram..."):
-            try:
+        # Use contextual message for diagram generation
+        diagram_message = "Generating architecture diagram..."
+        diagram_subtext = "Creating visual representation of model structure"
+
+        try:
+            with LoadingSpinner.spinner(
+                message=diagram_message,
+                subtext=diagram_subtext,
+                spinner_type="ai_processing",
+                timeout_seconds=20,
+            ):
                 # Generate diagram
                 diagram_path = viewer.generate_architecture_diagram(
                     state.current_model,
@@ -282,19 +353,20 @@ def _render_architecture_visualization_section() -> None:
                 state.architecture_diagram_path = str(diagram_path)
 
                 SessionStateManager.notify_change("diagram_generated")
-                st.success("✅ Architecture diagram generated successfully")
 
-            except GraphvizNotInstalledError:
-                display_graphviz_installation_help()
-                return
+            st.success("✅ Architecture diagram generated successfully")
 
-            except ArchitectureViewerError as e:
-                st.error(f"❌ Diagram generation failed: {e}")
-                logger.error(f"Diagram generation error: {e}", exc_info=True)
+        except GraphvizNotInstalledError:
+            display_graphviz_installation_help()
+            return
 
-            except Exception as e:
-                st.error(f"❌ Unexpected error: {e}")
-                logger.error(f"Unexpected diagram error: {e}", exc_info=True)
+        except ArchitectureViewerError as e:
+            st.error(f"❌ Diagram generation failed: {e}")
+            logger.error(f"Diagram generation error: {e}", exc_info=True)
+
+        except Exception as e:
+            st.error(f"❌ Unexpected error: {e}")
+            logger.error(f"Unexpected diagram error: {e}", exc_info=True)
 
     # Display generated diagram
     if state.architecture_diagram_path:

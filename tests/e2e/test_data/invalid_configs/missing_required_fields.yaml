@@ -1,0 +1,27 @@
+# Configuration Missing Required Fields for Error Testing
+# Valid YAML syntax but missing required fields
+
+defaults:
+  - base
+  - _self_
+
+# Missing data configuration
+# Missing model configuration
+# Missing training configuration
+
+experiment:
+  name: "test_missing_fields"
+  # output_dir is missing (required)
+
+# Invalid configuration values
+data:
+  batch_size: -1          # Invalid: negative batch size
+  num_workers: "invalid"  # Invalid: string instead of integer
+  image_size: [0, 0]      # Invalid: zero dimensions
+
+training:
+  epochs: -5              # Invalid: negative epochs
+  device: "nonexistent"   # Invalid: non-existent device
+  learning_rate: "high"   # Invalid: string instead of float
+
+# Missing model section entirely

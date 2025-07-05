@@ -1,0 +1,76 @@
+# =============================================================================
+# CrackSeg Docker Testing - Environment Configuration
+# =============================================================================
+# Purpose: Centralized environment variables for Docker Compose testing
+# Usage: Include in docker-compose.yml env_file section
+# =============================================================================
+
+version: '3.8'
+
+# Default environment variables for all services
+x-common-variables: &common-variables
+  COMPOSE_PROJECT_NAME: crackseg-test
+
+  # Application Configuration
+  STREAMLIT_SERVER_PORT: 8501
+  STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+  STREAMLIT_SERVER_HEADLESS: "true"
+  STREAMLIT_BROWSER_GATHER_USAGE_STATS: "false"
+  STREAMLIT_RUNNER_MAGIC_ENABLED: "false"
+
+  # Selenium Grid Configuration
+  SE_HUB_HOST: selenium-hub
+  SE_HUB_PORT: 4444
+  SE_EVENT_BUS_PUBLISH_PORT: 4442
+  SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+
+  # Grid Capacity and Timeouts
+  SE_GRID_MAX_SESSION: 4
+  SE_GRID_BROWSER_TIMEOUT: 60
+  SE_GRID_SESSION_TIMEOUT: 300
+  SE_SESSION_REQUEST_TIMEOUT: 300
+  SE_SESSION_RETRY_INTERVAL: 15
+
+  # Browser Node Configuration
+  SE_NODE_MAX_INSTANCES: 2
+  SE_NODE_MAX_SESSIONS: 2
+  SE_NODE_OVERRIDE_MAX_SESSIONS: "true"
+
+  # Display Configuration
+  SE_SCREEN_WIDTH: 1920
+  SE_SCREEN_HEIGHT: 1080
+  SE_SCREEN_DEPTH: 24
+  SE_VNC_NO_PASSWORD: 1
+  SE_START_XVFB: "true"
+
+  # Test Execution Configuration
+  TEST_MODE: e2e
+  BROWSER: chrome
+  HEADLESS: "true"
+  PARALLEL_WORKERS: auto
+  TEST_TIMEOUT: 300
+  RETRY_COUNT: 3
+
+  # URLs and Endpoints
+  SELENIUM_HUB_URL: http://selenium-hub:4444/wd/hub
+  STREAMLIT_URL: http://streamlit-app:8501
+  GRID_CONSOLE_URL: http://localhost:4444/grid/console
+
+  # Test Artifacts
+  TEST_RESULTS_DIR: /app/test-results
+  TEST_DATA_DIR: /app/test-data
+  SCREENSHOT_DIR: /app/test-results/screenshots
+  VIDEO_DIR: /videos
+
+  # Development and Debugging
+  DEBUG_MODE: "false"
+  VERBOSE_LOGGING: "false"
+  ENABLE_VNC: "false"
+  ENABLE_VIDEO_RECORDING: "false"
+
+  # Security Configuration
+  RUN_AS_NON_ROOT: "true"
+  USER_ID: 1000
+  GROUP_ID: 1000
+  MOUNT_SOURCE_READ_ONLY: "true"
+  ENABLE_PRIVILEGED_MODE: "false"

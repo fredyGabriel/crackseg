@@ -1,0 +1,636 @@
+name: E2E Testing with Docker Infrastructure
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'scripts/gui/**'
+      - 'tests/e2e/**'
+      - 'tests/docker/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'scripts/gui/**'
+      - 'tests/e2e/**'
+      - 'tests/docker/**'
+  workflow_dispatch:
+    inputs:
+      browsers:
+        description: 'Browsers to test (chrome,firefox,edge)'
+        default: 'chrome,firefox'
+        type: string
+      parallel_workers:
+        description: 'Number of parallel workers'
+        default: '2'
+        type: string
+      test_suite:
+        description: 'Test suite to run'
+        default: 'full'
+        type: choice
+        options:
+          - smoke
+          - regression
+          - full
+          - compatibility
+
+env:
+  # Docker Infrastructure Configuration
+  COMPOSE_PROJECT_NAME: crackseg-ci
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+  # Test Environment Configuration
+  TEST_RESULTS_PATH: ./test-results
+  TEST_ARTIFACTS_PATH: ./test-artifacts
+  SELENIUM_VIDEOS_PATH: ./selenium-videos
+  ARCHIVE_PATH: ./archived-artifacts
+
+  # CI-specific Configuration
+  CI: true
+  TEST_HEADLESS: true
+  COVERAGE_ENABLED: true
+  HTML_REPORT_ENABLED: true
+  JSON_REPORT_ENABLED: true
+  ARTIFACT_COLLECTION_ENABLED: true
+  ARTIFACT_CLEANUP_ENABLED: true
+
+jobs:
+  # =============================================================================
+  # Infrastructure Validation Job
+  # =============================================================================
+  validate-infrastructure:
+    name: Validate Docker Infrastructure
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    outputs:
+      docker-cache-key: ${{ steps.cache-key.outputs.key }}
+      infrastructure-ready: ${{ steps.validation.outputs.ready }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Generate Docker Cache Key
+        id: cache-key
+        run: |
+          CACHE_KEY="docker-${{ runner.os }}-$(sha256sum tests/docker/docker-compose.test.yml tests/docker/Dockerfile.* | sha256sum | cut -d' ' -f1)"
+          echo "key=$CACHE_KEY" >> $GITHUB_OUTPUT
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
+      - name: Validate Docker Infrastructure
+        id: validation
+        run: |
+          cd tests/docker
+
+          echo "🔍 Validating Docker infrastructure..."
+
+          # Validate compose file
+          if ! docker-compose -f docker-compose.test.yml config > /dev/null 2>&1; then
+            echo "❌ Docker Compose configuration invalid"
+            exit 1
+          fi
+
+          # Validate Dockerfiles
+          for dockerfile in Dockerfile.*; do
+            if [ -f "$dockerfile" ]; then
+              echo "Validating $dockerfile..."
+              if ! docker buildx build --dry-run -f "$dockerfile" ../../ > /dev/null 2>&1; then
+                echo "❌ $dockerfile validation failed"
+                exit 1
+              fi
+            fi
+          done
+
+          # Validate orchestration scripts
+          if [ ! -x "scripts/docker-stack-manager.sh" ] || [ ! -x "scripts/e2e-test-orchestrator.sh" ]; then
+            echo "❌ Required orchestration scripts not found or not executable"
+            exit 1
+          fi
+
+          echo "✅ Docker infrastructure validation successful"
+          echo "ready=true" >> $GITHUB_OUTPUT
+
+  # =============================================================================
+  # Build and Cache Job
+  # =============================================================================
+  build-test-images:
+    name: Build Test Docker Images
+    runs-on: ubuntu-latest
+    needs: validate-infrastructure
+    if: needs.validate-infrastructure.outputs.infrastructure-ready == 'true'
+    timeout-minutes: 20
+
+    strategy:
+      matrix:
+        image:
+          - name: streamlit
+            dockerfile: Dockerfile.streamlit
+            context: ../../
+          - name: test-runner
+            dockerfile: Dockerfile.test-runner
+            context: ../../
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker Layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ needs.validate-infrastructure.outputs.docker-cache-key }}-${{ matrix.image.name }}
+          restore-keys: |
+            ${{ needs.validate-infrastructure.outputs.docker-cache-key }}-
+            docker-${{ runner.os }}-
+
+      - name: Build ${{ matrix.image.name }} Image
+        uses: docker/build-push-action@v5
+        with:
+          context: tests/docker/${{ matrix.image.context }}
+          file: tests/docker/${{ matrix.image.dockerfile }}
+          push: false
+          load: true
+          tags: crackseg-${{ matrix.image.name }}:ci
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          platforms: linux/amd64
+
+      - name: Move Cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      - name: Export Docker Image
+        run: |
+          docker save crackseg-${{ matrix.image.name }}:ci | gzip > /tmp/crackseg-${{ matrix.image.name }}-ci.tar.gz
+
+      - name: Upload Image Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-${{ matrix.image.name }}
+          path: /tmp/crackseg-${{ matrix.image.name }}-ci.tar.gz
+          retention-days: 1
+
+  # =============================================================================
+  # E2E Testing Matrix Job
+  # =============================================================================
+  e2e-tests:
+    name: E2E Tests (${{ matrix.browser }}, ${{ matrix.test-suite }})
+    runs-on: ubuntu-latest
+    needs: [validate-infrastructure, build-test-images]
+    timeout-minutes: 45
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser:
+          - chrome
+          - firefox
+          - edge
+        test-suite:
+          - smoke
+          - regression
+        parallel-workers: [2]
+        include:
+          - browser: chrome
+            test-suite: full
+            parallel-workers: 4
+          - browser: firefox
+            test-suite: compatibility
+            parallel-workers: 2
+
+    env:
+      BROWSER: ${{ matrix.browser }}
+      TEST_SUITE: ${{ matrix.test-suite }}
+      PARALLEL_WORKERS: ${{ matrix.parallel-workers }}
+      TEST_TIMEOUT: 600
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Download Docker Images
+        uses: actions/download-artifact@v4
+        with:
+          pattern: docker-image-*
+          path: /tmp/docker-images
+          merge-multiple: true
+
+      - name: Load Docker Images
+        run: |
+          for image in /tmp/docker-images/*.tar.gz; do
+            echo "Loading $(basename $image)..."
+            docker load < "$image"
+          done
+          docker images | grep crackseg
+
+      - name: Create Artifact Directories
+        run: |
+          mkdir -p test-results test-artifacts selenium-videos archived-artifacts
+          chmod 755 test-results test-artifacts selenium-videos archived-artifacts
+
+      - name: Setup Test Environment
+        run: |
+          cd tests/docker
+
+          # Copy environment template
+          cp env.test.template .env.test
+
+          # Configure for CI
+          cat >> .env.test << EOF
+          # CI-specific overrides
+          CI=true
+          GITHUB_ACTIONS=true
+          BROWSER=${{ matrix.browser }}
+          TEST_SUITE=${{ matrix.test-suite }}
+          PARALLEL_WORKERS=${{ matrix.parallel-workers }}
+          TEST_HEADLESS=true
+          COVERAGE_ENABLED=true
+          ARTIFACT_COLLECTION_ENABLED=true
+          BUILD_NUMBER=${{ github.run_number }}
+          GIT_COMMIT=${{ github.sha }}
+          GIT_BRANCH=${{ github.ref_name }}
+          EOF
+
+      - name: Start Docker Infrastructure
+        run: |
+          cd tests/docker
+
+          echo "🚀 Starting Docker infrastructure for ${{ matrix.browser }} testing..."
+
+          # Start infrastructure using orchestration scripts
+          ./scripts/docker-stack-manager.sh start \
+            --profile full \
+            --browser ${{ matrix.browser }} \
+            --workers ${{ matrix.parallel-workers }} \
+            --ci-mode
+
+          # Wait for services to be healthy
+          ./scripts/docker-stack-manager.sh wait-ready --timeout 300
+
+      - name: Run E2E Test Suite
+        run: |
+          cd tests/docker
+
+          echo "🧪 Executing ${{ matrix.test-suite }} test suite with ${{ matrix.browser }}..."
+
+          # Execute tests using test orchestrator
+          ./scripts/e2e-test-orchestrator.sh ${{ matrix.test-suite }} \
+            --browser ${{ matrix.browser }} \
+            --parallel-workers ${{ matrix.parallel-workers }} \
+            --coverage \
+            --artifacts-collection \
+            --monitoring \
+            --ci-mode || TEST_EXIT_CODE=$?
+
+          echo "TEST_EXIT_CODE=${TEST_EXIT_CODE:-0}" >> $GITHUB_ENV
+
+      - name: Collect Test Artifacts
+        if: always()
+        run: |
+          cd tests/docker
+
+          echo "📦 Collecting test artifacts..."
+
+          # Use artifact manager to collect all artifacts
+          ./scripts/artifact-manager.sh collect \
+            --compress \
+            --include-videos \
+            --include-screenshots \
+            --include-logs \
+            --output-format junit,html,json
+
+          # Create artifact summary
+          ./scripts/artifact-manager.sh summary > ../../test-artifacts/artifact-summary.txt
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.browser }}-${{ matrix.test-suite }}
+          path: |
+            test-results/
+            !test-results/**/.git
+          retention-days: 30
+
+      - name: Upload Test Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-artifacts-${{ matrix.browser }}-${{ matrix.test-suite }}
+          path: |
+            test-artifacts/
+            !test-artifacts/**/.git
+          retention-days: 7
+
+      - name: Upload Video Recordings
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: video-recordings-${{ matrix.browser }}-${{ matrix.test-suite }}
+          path: |
+            selenium-videos/
+            !selenium-videos/**/.git
+          retention-days: 14
+
+      - name: Publish Test Results
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Test Results (${{ matrix.browser }}, ${{ matrix.test-suite }})
+          path: test-results/junit.xml
+          reporter: java-junit
+          fail-on-error: false
+
+      - name: System Diagnostics on Failure
+        if: failure()
+        run: |
+          cd tests/docker
+
+          echo "🔍 Collecting system diagnostics..."
+
+          # System monitoring and diagnostics
+          ./scripts/system-monitor.sh diagnose > ../../test-artifacts/system-diagnostics.txt
+
+          # Container logs
+          ./scripts/docker-stack-manager.sh logs > ../../test-artifacts/container-logs.txt
+
+          # Docker system info
+          docker system df > ../../test-artifacts/docker-system.txt
+          docker stats --no-stream > ../../test-artifacts/docker-stats.txt
+
+      - name: Cleanup Docker Infrastructure
+        if: always()
+        run: |
+          cd tests/docker
+
+          echo "🧹 Cleaning up Docker infrastructure..."
+
+          # Cleanup using orchestration scripts
+          ./scripts/docker-stack-manager.sh cleanup --force
+
+          # Additional cleanup
+          docker system prune -f
+
+      - name: Report Test Status
+        if: always()
+        run: |
+          if [ "${TEST_EXIT_CODE:-0}" -eq 0 ]; then
+            echo "✅ E2E tests passed for ${{ matrix.browser }} (${{ matrix.test-suite }})"
+          else
+            echo "❌ E2E tests failed for ${{ matrix.browser }} (${{ matrix.test-suite }} with exit code ${TEST_EXIT_CODE}"
+            exit 1
+          fi
+
+  # =============================================================================
+  # Coverage and Reporting Job
+  # =============================================================================
+  coverage-report:
+    name: Generate Coverage Report
+    runs-on: ubuntu-latest
+    needs: e2e-tests
+    if: always()
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download All Test Results
+        uses: actions/download-artifact@v4
+        with:
+          pattern: test-results-*
+          path: test-results-combined
+          merge-multiple: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Coverage Tools
+        run: |
+          pip install coverage pytest-cov
+
+      - name: Combine Coverage Reports
+        run: |
+          echo "📊 Combining coverage reports..."
+
+          # Find and combine coverage files
+          find test-results-combined -name ".coverage*" -type f | head -10
+
+          if [ -n "$(find test-results-combined -name '.coverage*' -type f)" ]; then
+            coverage combine test-results-combined/**/.coverage*
+            coverage report --show-missing
+            coverage html -d coverage-html
+            coverage xml -o coverage.xml
+          else
+            echo "⚠️ No coverage files found"
+          fi
+
+      - name: Upload Combined Coverage
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            coverage-html/
+            coverage.xml
+          retention-days: 30
+
+      - name: Upload Coverage to Codecov
+        if: success()
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: false
+          verbose: true
+
+  # =============================================================================
+  # Deployment Automation Job
+  # =============================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, coverage-report]
+    if: github.ref == 'refs/heads/develop' && success()
+    timeout-minutes: 15
+    # environment: staging  # Commented until GitHub environments are configured
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Docker Images
+        uses: actions/download-artifact@v4
+        with:
+          pattern: docker-image-*
+          path: /tmp/docker-images
+          merge-multiple: true
+
+      - name: Load Docker Images
+        run: |
+          for image in /tmp/docker-images/*.tar.gz; do
+            docker load < "$image"
+          done
+
+      - name: Deploy to Staging Environment
+        run: |
+          cd tests/docker
+
+          echo "🚀 Deploying to staging environment..."
+
+          # Configure staging environment
+          cp env.staging.template .env.staging
+
+          # Deploy using Docker infrastructure
+          ./scripts/docker-stack-manager.sh deploy \
+            --environment staging \
+            --health-checks \
+            --monitoring
+
+          echo "✅ Staging deployment completed"
+
+      - name: Run Staging Smoke Tests
+        run: |
+          cd tests/docker
+
+          echo "🧪 Running staging smoke tests..."
+
+          # Quick smoke test on staging
+          ./scripts/e2e-test-orchestrator.sh smoke \
+            --browser chrome \
+            --environment staging \
+            --quick-mode
+
+      - name: Staging Deployment Summary
+        run: |
+          echo "## 🚀 Staging Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Staging" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Deployed Successfully" >> $GITHUB_STEP_SUMMARY
+
+  # =============================================================================
+  # Production Deployment Job
+  # =============================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [e2e-tests, coverage-report]
+    if: github.ref == 'refs/heads/main' && success()
+    timeout-minutes: 20
+    # environment: production  # Commented until GitHub environments are configured
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Docker Images
+        uses: actions/download-artifact@v4
+        with:
+          pattern: docker-image-*
+          path: /tmp/docker-images
+          merge-multiple: true
+
+      - name: Load Docker Images
+        run: |
+          for image in /tmp/docker-images/*.tar.gz; do
+            docker load < "$image"
+          done
+
+      - name: Deploy to Production Environment
+        run: |
+          cd tests/docker
+
+          echo "🚀 Deploying to production environment..."
+
+          # Configure production environment
+          cp env.production.template .env.production
+
+          # Production deployment with extra safety
+          ./scripts/docker-stack-manager.sh deploy \
+            --environment production \
+            --health-checks \
+            --monitoring \
+            --rollback-on-failure
+
+          echo "✅ Production deployment completed"
+
+      - name: Run Production Health Checks
+        run: |
+          cd tests/docker
+
+          echo "🔍 Running production health checks..."
+
+          # Comprehensive health checks
+          ./scripts/system-monitor.sh health-check \
+            --environment production \
+            --comprehensive
+
+      - name: Production Deployment Summary
+        run: |
+          echo "## 🎉 Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status**: ✅ Deployed Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- **Health Checks**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
+
+  # =============================================================================
+  # Notification Job
+  # =============================================================================
+  notify-completion:
+    name: Notify Completion
+    runs-on: ubuntu-latest
+    needs: [validate-infrastructure, e2e-tests, coverage-report]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Determine Overall Status
+        id: status
+        run: |
+          if [ "${{ needs.e2e-tests.result }}" == "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+            echo "message=All E2E tests passed successfully" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+            echo "message=E2E tests failed or were cancelled" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Job Summary
+        run: |
+          echo "## ${{ steps.status.outputs.emoji }} E2E Testing Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: ${{ steps.status.outputs.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow**: ${{ github.workflow }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Job Results" >> $GITHUB_STEP_SUMMARY
+          echo "- **Infrastructure Validation**: ${{ needs.validate-infrastructure.result || 'skipped' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **E2E Tests**: ${{ needs.e2e-tests.result || 'skipped' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage Report**: ${{ needs.coverage-report.result || 'skipped' }}" >> $GITHUB_STEP_SUMMARY

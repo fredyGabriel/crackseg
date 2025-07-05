@@ -2,7 +2,9 @@
 
 ## Overview
 
-The CrackSeg GUI application now supports uploading YAML configuration files directly from your local computer. This feature provides a convenient way to use custom configurations without manually copying files to the project directory.
+The CrackSeg GUI application now supports uploading YAML configuration files directly from your
+local computer. This feature provides a convenient way to use custom configurations without manually
+copying files to the project directory.
 
 ## Features
 
@@ -26,7 +28,8 @@ The CrackSeg GUI application now supports uploading YAML configuration files dir
 
 ### 1. Access Upload Feature
 
-Navigate to the **Configuration** page in the CrackSeg GUI. Look for the "📤 Upload Configuration from Computer" expandable section.
+Navigate to the **Configuration** page in the CrackSeg GUI. Look for the "📤 Upload Configuration
+from Computer" expandable section.
 
 ### 2. Upload Process
 
@@ -245,7 +248,8 @@ For multiple files:
 
 ### Custom Validation
 
-The upload system uses the same validation as the configuration editor, ensuring consistency across all configuration methods.
+The upload system uses the same validation as the configuration editor, ensuring consistency across
+all configuration methods.
 
 ## API Reference
 

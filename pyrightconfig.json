@@ -32,18 +32,27 @@
     "pythonVersion": "3.12",
     // Add 'src' to extraPaths for module resolution
     "extraPaths": [
-        "src"
+        "src",
+        "tests/docker"
     ],
     // Include main source, test, and script directories
     "include": [
         "src",
-        "scripts",
-        "tests"
+        "tests",
+        "scripts"
     ],
     // Exclude output, virtual environment, and cache directories from analysis
     "exclude": [
         "**/__pycache__",
         "**/node_modules"
     ],
-    "reportPrivateUsage": "none"
+    "reportPrivateUsage": "none",
+    "executionEnvironments": [
+        {
+            "root": ".",
+            "extraPaths": [
+                "tests/docker"
+            ]
+        }
+    ]
 }

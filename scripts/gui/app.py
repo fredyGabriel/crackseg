@@ -15,6 +15,41 @@ import streamlit as st
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+# =============================================================================
+# PyTorch & Streamlit Hotfix
+#
+# Addresses a conflict between Streamlit's file watcher and PyTorch's
+# JIT compiler when using `torch.classes`. This can cause a
+# `RuntimeError: no running event loop` on startup.
+#
+# This workaround explicitly sets the path for `torch.classes`, preventing
+# the watcher from triggering the problematic code path.
+#
+# See related issues:
+# - https://discuss.streamlit.io/t/runtimeerror-no-running-event-loop/27287
+# - https://blog.csdn.net/m0_53115174/article/details/146381953
+# =============================================================================
+import os
+
+import torch
+
+try:
+    # This attribute is dynamically created and may not exist in all versions
+    if (
+        hasattr(torch, "classes")
+        and hasattr(torch.classes, "__file__")
+        and torch.classes.__file__ is not None
+    ):
+        torch.classes.__path__ = [
+            os.path.join(torch.__path__[0], torch.classes.__file__)
+        ]
+except (AttributeError, FileNotFoundError):
+    # If the attributes don't exist, this patch is likely not needed.
+    # We pass silently to avoid breaking on future PyTorch/Streamlit versions.
+    pass
+# =============================================================================
+
+
 # Import modular components  # ruff: noqa: E402
 from scripts.gui.components.page_router import PageRouter
 from scripts.gui.components.sidebar_component import render_sidebar

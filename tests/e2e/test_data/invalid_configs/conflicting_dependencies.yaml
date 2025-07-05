@@ -1,0 +1,43 @@
+# Configuration with Conflicting Dependencies for Error Testing
+# Valid YAML with logical dependency conflicts
+
+defaults:
+  - base
+  - data: default
+  - model: default
+  - training: default
+  - nonexistent_config    # References non-existent config
+  - _self_
+
+experiment:
+  name: "conflicting_deps"
+  output_dir: "outputs"
+
+# Conflicting model requirements
+model:
+  type: "MockModel"
+  input_channels: 3
+  output_channels: 2
+  feature_extractor: "resnet50"
+  pretrained: true
+
+# Data config that conflicts with model
+data:
+  batch_size: 4
+  num_workers: 2
+  channels: 1             # Conflicts with model input_channels: 3
+  image_size: [512, 512]  # May conflict with model expectations
+
+# Training config with impossible requirements
+training:
+  epochs: 100
+  device: "cuda"          # May not be available
+  require_cuda: true      # Forces CUDA requirement
+  learning_rate: 999.0    # Extremely high learning rate
+  batch_size: 1000000     # Impossibly large batch size
+
+# Conflicting verification requirements
+verification:
+  require_gpu_memory: "32GB"    # More than most systems have
+  expected_duration_minutes: 0.1  # Impossibly fast
+  min_accuracy: 99.99     # Unrealistic accuracy target

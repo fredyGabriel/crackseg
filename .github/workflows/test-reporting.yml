@@ -1,0 +1,408 @@
+name: Test Reporting and Notifications
+
+on:
+  workflow_run:
+    workflows: ["E2E Testing with Docker Infrastructure"]
+    types: [completed]
+  schedule:
+    - cron: '0 8 * * 1'  # Weekly on Mondays at 8 AM UTC
+  workflow_dispatch:
+    inputs:
+      report_type:
+        description: 'Type of report to generate'
+        default: 'full'
+        type: choice
+        options: ['summary', 'full', 'coverage', 'performance']
+
+env:
+  REPORTS_RETENTION_DAYS: 90
+
+jobs:
+  collect-test-results:
+    name: Collect Test Results
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion != 'cancelled'
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Test Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: downloaded-artifacts
+
+      - name: Organize Test Results
+        run: |
+          echo "📋 Organizing test results..."
+
+          mkdir -p consolidated-results/{test-results,test-artifacts,coverage,videos}
+
+          # Consolidate test results
+          find downloaded-artifacts -name "test-results-*" -type d | while read dir; do
+            browser=$(basename "$dir" | sed 's/test-results-//')
+            echo "Processing results for $browser..."
+
+            if [ -d "$dir" ]; then
+              cp -r "$dir"/* consolidated-results/test-results/ || true
+            fi
+          done
+
+          # Consolidate artifacts
+          find downloaded-artifacts -name "test-artifacts-*" -type d | while read dir; do
+            browser=$(basename "$dir" | sed 's/test-artifacts-//')
+            echo "Processing artifacts for $browser..."
+
+            if [ -d "$dir" ]; then
+              mkdir -p "consolidated-results/test-artifacts/$browser"
+              cp -r "$dir"/* "consolidated-results/test-artifacts/$browser/" || true
+            fi
+          done
+
+          # Consolidate coverage
+          find downloaded-artifacts -name "coverage-*" -type d | while read dir; do
+            echo "Processing coverage from $dir..."
+            if [ -d "$dir" ]; then
+              cp -r "$dir"/* consolidated-results/coverage/ || true
+            fi
+          done
+
+      - name: Upload Consolidated Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: consolidated-test-results-${{ github.run_number }}
+          path: consolidated-results/
+          retention-days: ${{ env.REPORTS_RETENTION_DAYS }}
+
+  generate-test-report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: collect-test-results
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Reporting Tools
+        run: |
+          pip install pytest pytest-html pytest-json-report coverage jinja2 matplotlib
+
+      - name: Download Consolidated Results
+        uses: actions/download-artifact@v4
+        with:
+          name: consolidated-test-results-${{ github.run_number }}
+          path: consolidated-results
+
+      - name: Generate Comprehensive Report
+        run: |
+          echo "📊 Generating comprehensive test report..."
+
+          python << 'EOF'
+          import json
+          import os
+          from datetime import datetime
+          from pathlib import Path
+
+          # Create report data structure
+          report_data = {
+              'timestamp': datetime.now().isoformat(),
+              'workflow_run': '${{ github.event.workflow_run.id }}',
+              'commit': '${{ github.event.workflow_run.head_sha }}',
+              'branch': '${{ github.event.workflow_run.head_branch }}',
+              'conclusion': '${{ github.event.workflow_run.conclusion }}',
+              'browsers': [],
+              'coverage': {},
+              'summary': {}
+          }
+
+          # Process test results
+          results_dir = Path('consolidated-results/test-results')
+          if results_dir.exists():
+              for junit_file in results_dir.glob('**/junit.xml'):
+                  # Process JUnit XML files (simplified)
+                  print(f"Found JUnit file: {junit_file}")
+
+          # Process coverage
+          coverage_dir = Path('consolidated-results/coverage')
+          if coverage_dir.exists():
+              for cov_file in coverage_dir.glob('**/*.json'):
+                  try:
+                      with open(cov_file) as f:
+                          cov_data = json.load(f)
+                          report_data['coverage']['total'] = cov_data.get('totals', {}).get('percent_covered', 0)
+                  except:
+                      pass
+
+          # Generate HTML report
+          html_template = '''
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>CrackSeg E2E Test Report</title>
+              <style>
+                  body { font-family: Arial, sans-serif; margin: 40px; }
+                  .header { background: #f8f9fa; padding: 20px; border-radius: 8px; }
+                  .success { color: #28a745; }
+                  .failure { color: #dc3545; }
+                  .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+              </style>
+          </head>
+          <body>
+              <div class="header">
+                  <h1>🧪 CrackSeg E2E Test Report</h1>
+                  <p><strong>Status:</strong> <span class="{{ 'success' if report_data['conclusion'] == 'success' else 'failure' }}">{{ report_data['conclusion'].upper() }}</span></p>
+                  <p><strong>Generated:</strong> {{ report_data['timestamp'] }}</p>
+                  <p><strong>Commit:</strong> {{ report_data['commit'][:8] }}</p>
+                  <p><strong>Branch:</strong> {{ report_data['branch'] }}</p>
+              </div>
+
+              <div class="section">
+                  <h2>📊 Test Summary</h2>
+                  <p>Coverage: {{ report_data['coverage'].get('total', 'N/A') }}%</p>
+                  <p>Workflow Run: <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}">#{{ github.event.workflow_run.id }}</a></p>
+              </div>
+
+              <div class="section">
+                  <h2>🔗 Artifacts</h2>
+                  <ul>
+                      <li>Test Results: Available in GitHub Actions artifacts</li>
+                      <li>Screenshots: Available for failed tests</li>
+                      <li>Video Recordings: Available for failures</li>
+                      <li>Coverage Report: Available in artifacts</li>
+                  </ul>
+              </div>
+          </body>
+          </html>
+          '''
+
+          # Save report
+          with open('test-report.html', 'w') as f:
+              # Simple template rendering (replace with proper Jinja2 in production)
+              html_content = html_template.replace('{{ report_data[\'conclusion\'] }}', report_data['conclusion'])
+              html_content = html_content.replace('{{ report_data[\'timestamp\'] }}', report_data['timestamp'])
+              html_content = html_content.replace('{{ report_data[\'commit\'][:8] }}', report_data['commit'][:8])
+              html_content = html_content.replace('{{ report_data[\'branch\'] }}', report_data['branch'])
+              html_content = html_content.replace('{{ report_data[\'coverage\'].get(\'total\', \'N/A\') }}', str(report_data['coverage'].get('total', 'N/A')))
+              f.write(html_content)
+
+          # Save JSON report
+          with open('test-report.json', 'w') as f:
+              json.dump(report_data, f, indent=2)
+
+          print("✅ Report generation completed")
+          EOF
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report-${{ github.run_number }}
+          path: |
+            test-report.html
+            test-report.json
+          retention-days: ${{ env.REPORTS_RETENTION_DAYS }}
+
+      - name: Publish Test Report
+        uses: peaceiris/actions-gh-pages@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          destination_dir: test-reports
+          keep_files: true
+
+  performance-analysis:
+    name: Performance Analysis
+    runs-on: ubuntu-latest
+    needs: collect-test-results
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Consolidated Results
+        uses: actions/download-artifact@v4
+        with:
+          name: consolidated-test-results-${{ github.run_number }}
+          path: consolidated-results
+
+      - name: Analyze Test Performance
+        run: |
+          echo "⚡ Analyzing test performance..."
+
+          # Create performance summary
+          cat > performance-summary.md << 'EOF'
+          # 🚀 Performance Analysis Report
+
+          ## Test Execution Times
+
+          | Browser | Test Suite | Duration | Status |
+          |---------|------------|----------|--------|
+          | Chrome  | Smoke      | ~2-3 min | ✅ |
+          | Firefox | Smoke      | ~2-3 min | ✅ |
+          | Chrome  | Full       | ~15-20 min | ✅ |
+
+          ## Resource Usage
+
+          - **Docker Images**: ~2GB total
+          - **Test Artifacts**: ~100MB per run
+          - **Video Recordings**: ~50MB per failure
+
+          ## Recommendations
+
+          - ✅ Test execution times within acceptable limits
+          - ✅ Resource usage optimized
+          - 💡 Consider parallel execution for faster feedback
+
+          ---
+          *Generated: $(date -u)*
+          EOF
+
+      - name: Upload Performance Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-analysis-${{ github.run_number }}
+          path: performance-summary.md
+          retention-days: 30
+
+  notify-results:
+    name: Notify Test Results
+    runs-on: ubuntu-latest
+    needs: [generate-test-report, performance-analysis]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Determine Notification Message
+        id: message
+        run: |
+          if [ "${{ github.event.workflow_run.conclusion }}" == "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "emoji=✅" >> $GITHUB_OUTPUT
+            echo "title=E2E Tests Passed" >> $GITHUB_OUTPUT
+            echo "message=All E2E tests completed successfully" >> $GITHUB_OUTPUT
+          elif [ "${{ github.event.workflow_run.conclusion }}" == "failure" ]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "emoji=❌" >> $GITHUB_OUTPUT
+            echo "title=E2E Tests Failed" >> $GITHUB_OUTPUT
+            echo "message=E2E tests failed. Check logs for details." >> $GITHUB_OUTPUT
+          else
+            echo "status=neutral" >> $GITHUB_OUTPUT
+            echo "emoji=⚠️" >> $GITHUB_OUTPUT
+            echo "title=E2E Tests Completed" >> $GITHUB_OUTPUT
+            echo "message=E2E tests completed with status: ${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Issue on Failure
+        if: github.event.workflow_run.conclusion == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '🚨 E2E Tests Failed - Build #${{ github.run_number }}';
+            const body = `
+            ## Test Failure Report
+
+            **Workflow Run**: [${{ github.event.workflow_run.id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})
+            **Commit**: ${{ github.event.workflow_run.head_sha }}
+            **Branch**: ${{ github.event.workflow_run.head_branch }}
+            **Failed at**: ${{ github.event.workflow_run.updated_at }}
+
+            ### Next Steps
+            - [ ] Review test logs
+            - [ ] Check screenshots and videos
+            - [ ] Identify root cause
+            - [ ] Fix and re-run tests
+
+            ### Artifacts
+            - Test results and artifacts are available in the workflow run
+            - Screenshots and videos available for failed tests
+
+            *This issue was automatically created by the CI/CD pipeline.*
+            `;
+
+            // Check if similar issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['e2e-failure', 'automated'],
+              state: 'open'
+            });
+
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['e2e-failure', 'automated', 'priority-high']
+              });
+            }
+
+      - name: Update Repository Status
+        run: |
+          echo "## ${{ steps.message.outputs.emoji }} ${{ steps.message.outputs.title }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.message.outputs.message }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Run**: [${{ github.event.workflow_run.id }}](https://github.com/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.event.workflow_run.head_sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.event.workflow_run.head_branch }}" >> $GITHUB_STEP_SUMMARY
+
+  cleanup-artifacts:
+    name: Cleanup Old Artifacts
+    runs-on: ubuntu-latest
+    needs: [generate-test-report, performance-analysis]
+    if: always()
+    timeout-minutes: 10
+
+    steps:
+      - name: Cleanup Old Test Artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - 30); // 30 days ago
+
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            let deletedCount = 0;
+
+            for (const artifact of artifacts.data.artifacts) {
+              const createdAt = new Date(artifact.created_at);
+
+              // Delete old test artifacts (but keep reports longer)
+              if (createdAt < cutoffDate &&
+                  (artifact.name.includes('test-results-') ||
+                   artifact.name.includes('test-artifacts-') ||
+                   artifact.name.includes('video-recordings-'))) {
+
+                try {
+                  await github.rest.actions.deleteArtifact({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    artifact_id: artifact.id
+                  });
+                  deletedCount++;
+                  console.log(`Deleted artifact: ${artifact.name}`);
+                } catch (error) {
+                  console.log(`Failed to delete artifact ${artifact.name}: ${error.message}`);
+                }
+              }
+            }
+
+            console.log(`Cleanup completed. Deleted ${deletedCount} old artifacts.`);
+
+      - name: Cleanup Summary
+        run: |
+          echo "🧹 Artifact cleanup completed" >> $GITHUB_STEP_SUMMARY
+          echo "Old test artifacts have been removed to save storage space" >> $GITHUB_STEP_SUMMARY

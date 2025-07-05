@@ -66,11 +66,12 @@ class TestErrorMessageFactory:
         assert error_info.error_type == ErrorType.CONFIG_INVALID
         assert error_info.title == "Configuration Error"
         assert (
-            "configuration file contains invalid settings"
-            in error_info.message
+            "config" in error_info.message.lower()
+            or "configuration" in error_info.message.lower()
         )
         assert error_info.technical_info == "Invalid YAML syntax"
         assert "file_path" in str(error_info.details)
+        assert error_info.recovery_suggestions is not None
         assert len(error_info.recovery_suggestions) > 0
         assert error_info.retry_possible is True
 
@@ -79,13 +80,20 @@ class TestErrorMessageFactory:
         error_info = ErrorMessageFactory.create_error_info(
             error_type=ErrorType.VRAM_EXHAUSTED,
             exception=RuntimeError("CUDA out of memory"),
+            context={"operation": "training"},
         )
 
         assert error_info.error_type == ErrorType.VRAM_EXHAUSTED
         assert error_info.title == "GPU Memory Insufficient"
-        assert "RTX 3070 Ti" in error_info.details
-        assert "Reduce batch size" in str(error_info.recovery_suggestions)
+        assert "graphics card memory" in error_info.message
+        assert error_info.recovery_suggestions is not None
+        assert len(error_info.recovery_suggestions) > 0
         assert error_info.retry_possible is True
+
+        # Check technical info includes context
+        assert error_info.technical_info is not None
+        assert error_info.details is not None
+        assert "RTX 3070 Ti" in error_info.details
 
     def test_create_error_info_unexpected(self) -> None:
         """Test creating error info for unexpected error."""

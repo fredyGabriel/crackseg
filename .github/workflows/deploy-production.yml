@@ -1,0 +1,293 @@
+name: Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment (skip some safety checks)'
+        default: false
+        type: boolean
+      rollback_on_failure:
+        description: 'Auto-rollback on deployment failure'
+        default: true
+        type: boolean
+
+env:
+  DOCKER_BUILDKIT: 1
+  COMPOSE_PROJECT_NAME: crackseg-prod
+
+jobs:
+  pre-deployment-validation:
+    name: Pre-Deployment Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    outputs:
+      deployment-approved: ${{ steps.approval.outputs.approved }}
+      health-check-passed: ${{ steps.health.outputs.passed }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Production Readiness
+        id: approval
+        run: |
+          echo "🔍 Validating production readiness..."
+
+          # Check if this is a tagged release or main branch
+          if [[ "${{ github.ref }}" == refs/tags/* ]] || [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "✅ Production deployment approved for ${{ github.ref }}"
+            echo "approved=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Production deployment only allowed from main branch or tags"
+            echo "approved=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Health Check Current Production
+        id: health
+        if: steps.approval.outputs.approved == 'true'
+        run: |
+          echo "🏥 Running production health checks..."
+          cd tests/docker
+
+          # Mock health check (replace with actual production health check)
+          if ./scripts/system-monitor.sh health-check --environment production --quick || [ "${{ inputs.force_deploy }}" == "true" ]; then
+            echo "✅ Production health check passed"
+            echo "passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Production health check failed"
+            echo "passed=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-production-images:
+    name: Build Production Images
+    runs-on: ubuntu-latest
+    needs: pre-deployment-validation
+    if: needs.pre-deployment-validation.outputs.deployment-approved == 'true'
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Production Streamlit Image
+        run: |
+          cd tests/docker
+          docker build \
+            -f Dockerfile.streamlit \
+            --target runtime \
+            --build-arg BUILD_ENV=production \
+            --build-arg BUILD_NUMBER=${{ github.run_number }} \
+            --build-arg GIT_COMMIT=${{ github.sha }} \
+            -t crackseg-streamlit:prod-${{ github.run_number }} \
+            ../../
+
+      - name: Test Production Image
+        run: |
+          echo "🧪 Testing production image..."
+
+          # Quick smoke test of the production image
+          docker run --rm --name test-prod-image \
+            -e STREAMLIT_SERVER_HEADLESS=true \
+            crackseg-streamlit:prod-${{ github.run_number }} \
+            timeout 30s streamlit run scripts/gui/app.py --server.port=8501 &
+
+          sleep 10
+
+          if docker ps | grep test-prod-image; then
+            echo "✅ Production image test passed"
+            docker stop test-prod-image || true
+          else
+            echo "❌ Production image test failed"
+            exit 1
+          fi
+
+      - name: Export Production Image
+        run: |
+          docker save crackseg-streamlit:prod-${{ github.run_number }} | gzip > crackseg-prod-image.tar.gz
+
+      - name: Upload Production Image
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-image
+          path: crackseg-prod-image.tar.gz
+          retention-days: 30
+
+  deploy-to-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-validation, build-production-images]
+    if: needs.pre-deployment-validation.outputs.health-check-passed == 'true'
+    timeout-minutes: 30
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Production Image
+        uses: actions/download-artifact@v4
+        with:
+          name: production-image
+
+      - name: Load Production Image
+        run: |
+          docker load < crackseg-prod-image.tar.gz
+          docker tag crackseg-streamlit:prod-${{ github.run_number }} crackseg-streamlit:latest
+
+      - name: Backup Current Production
+        run: |
+          echo "💾 Creating production backup..."
+          cd tests/docker
+
+          # Create backup of current production state
+          ./scripts/docker-stack-manager.sh backup \
+            --environment production \
+            --backup-name "pre-deploy-$(date +%Y%m%d-%H%M%S)"
+
+      - name: Deploy to Production
+        run: |
+          cd tests/docker
+
+          echo "🚀 Deploying to production environment..."
+
+          # Configure production environment
+          cp env.production.template .env.production
+
+          # Add deployment metadata
+          cat >> .env.production << EOF
+          BUILD_NUMBER=${{ github.run_number }}
+          GIT_COMMIT=${{ github.sha }}
+          GIT_BRANCH=${{ github.ref_name }}
+          DEPLOYMENT_TIME=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          EOF
+
+          # Deploy with safety measures
+          ./scripts/docker-stack-manager.sh deploy \
+            --environment production \
+            --health-checks \
+            --monitoring \
+            --rollback-on-failure=${{ inputs.rollback_on_failure || 'true' }} \
+            --timeout 600
+
+      - name: Post-Deployment Health Check
+        run: |
+          cd tests/docker
+
+          echo "🏥 Running post-deployment health checks..."
+
+          # Comprehensive health check
+          ./scripts/system-monitor.sh health-check \
+            --environment production \
+            --comprehensive \
+            --timeout 300
+
+          # Quick smoke test
+          ./scripts/e2e-test-orchestrator.sh smoke \
+            --environment production \
+            --browser chrome \
+            --quick-mode \
+            --timeout 120
+
+      - name: Update Deployment Status
+        run: |
+          echo "📊 Production deployment completed successfully" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build**: ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Time**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+
+  post-deployment-monitoring:
+    name: Post-Deployment Monitoring
+    runs-on: ubuntu-latest
+    needs: deploy-to-production
+    if: success()
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Monitor Production Stability
+        run: |
+          cd tests/docker
+
+          echo "📊 Monitoring production stability..."
+
+          # Monitor for 10 minutes to ensure stability
+          for i in {1..10}; do
+            echo "Health check $i/10..."
+
+            if ! ./scripts/system-monitor.sh health-check --environment production --quick; then
+              echo "❌ Health check $i failed"
+              exit 1
+            fi
+
+            sleep 60
+          done
+
+          echo "✅ Production is stable after 10 minutes"
+
+      - name: Generate Deployment Report
+        run: |
+          cd tests/docker
+
+          echo "📋 Generating deployment report..."
+
+          # Generate comprehensive deployment report
+          ./scripts/system-monitor.sh report \
+            --environment production \
+            --format markdown > deployment-report.md
+
+          echo "## 🎉 Production Deployment Report" >> deployment-report.md
+          echo "**Status**: ✅ Successfully Deployed" >> deployment-report.md
+          echo "**Build**: ${{ github.run_number }}" >> deployment-report.md
+          echo "**Commit**: ${{ github.sha }}" >> deployment-report.md
+          echo "**Deployed at**: $(date -u)" >> deployment-report.md
+
+      - name: Upload Deployment Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-deployment-report
+          path: tests/docker/deployment-report.md
+          retention-days: 90
+
+  rollback-on-failure:
+    name: Emergency Rollback
+    runs-on: ubuntu-latest
+    needs: [deploy-to-production, post-deployment-monitoring]
+    if: failure() && inputs.rollback_on_failure != false
+    timeout-minutes: 15
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Execute Emergency Rollback
+        run: |
+          cd tests/docker
+
+          echo "🚨 Executing emergency rollback..."
+
+          # Restore from backup
+          ./scripts/docker-stack-manager.sh rollback \
+            --environment production \
+            --latest-backup \
+            --force
+
+          # Verify rollback
+          ./scripts/system-monitor.sh health-check \
+            --environment production \
+            --timeout 300
+
+          echo "🔄 Emergency rollback completed"
+
+      - name: Notify Rollback
+        run: |
+          echo "## 🚨 Emergency Rollback Executed" >> $GITHUB_STEP_SUMMARY
+          echo "**Reason**: Deployment failure detected" >> $GITHUB_STEP_SUMMARY
+          echo "**Rollback Time**: $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "**Status**: Production restored to previous stable state" >> $GITHUB_STEP_SUMMARY

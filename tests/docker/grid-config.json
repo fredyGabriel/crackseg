@@ -1,0 +1,158 @@
+{
+    "version": "4.27.0",
+    "description": "CrackSeg Selenium Grid Configuration for Multi-Browser Testing",
+    "grid": {
+        "hubHost": "selenium-hub",
+        "hubPort": 4444,
+        "maxSessions": 6,
+        "sessionTimeout": 300,
+        "browserTimeout": 60,
+        "heartbeatPeriod": 60000,
+        "cleanUpCycle": 5000
+    },
+    "browsers": {
+        "chrome": {
+            "image": "selenium/node-chrome:4.27.0",
+            "capabilities": {
+                "browserName": "chrome",
+                "browserVersion": "latest",
+                "platformName": "linux",
+                "maxInstances": 2,
+                "se:vncEnabled": true,
+                "se:screenResolution": "1920x1080x24",
+                "goog:chromeOptions": {
+                    "args": [
+                        "--no-sandbox",
+                        "--disable-dev-shm-usage",
+                        "--disable-gpu",
+                        "--disable-web-security",
+                        "--allow-running-insecure-content",
+                        "--disable-features=TranslateUI",
+                        "--disable-iframes-sandbox-policy",
+                        "--disable-background-timer-throttling",
+                        "--disable-renderer-backgrounding",
+                        "--disable-backgrounding-occluded-windows"
+                    ],
+                    "prefs": {
+                        "profile.default_content_setting_values.notifications": 2,
+                        "profile.default_content_settings.popups": 0,
+                        "profile.managed_default_content_settings.images": 2
+                    }
+                }
+            }
+        },
+        "firefox": {
+            "image": "selenium/node-firefox:4.27.0",
+            "capabilities": {
+                "browserName": "firefox",
+                "browserVersion": "latest",
+                "platformName": "linux",
+                "maxInstances": 2,
+                "se:vncEnabled": true,
+                "se:screenResolution": "1920x1080x24",
+                "moz:firefoxOptions": {
+                    "args": [
+                        "--headless",
+                        "--width=1920",
+                        "--height=1080"
+                    ],
+                    "prefs": {
+                        "dom.webnotifications.enabled": false,
+                        "dom.push.enabled": false,
+                        "media.volume_scale": "0.0",
+                        "ui.popup.disable_autohide": false,
+                        "browser.safebrowsing.malware.enabled": false,
+                        "browser.safebrowsing.phishing.enabled": false
+                    }
+                }
+            }
+        },
+        "edge": {
+            "image": "selenium/node-edge:4.27.0",
+            "capabilities": {
+                "browserName": "MicrosoftEdge",
+                "browserVersion": "latest",
+                "platformName": "linux",
+                "maxInstances": 2,
+                "se:vncEnabled": true,
+                "se:screenResolution": "1920x1080x24",
+                "ms:edgeOptions": {
+                    "args": [
+                        "--no-sandbox",
+                        "--disable-dev-shm-usage",
+                        "--disable-gpu",
+                        "--disable-web-security",
+                        "--allow-running-insecure-content",
+                        "--disable-features=TranslateUI",
+                        "--disable-iframes-sandbox-policy"
+                    ],
+                    "prefs": {
+                        "profile.default_content_setting_values.notifications": 2,
+                        "profile.default_content_settings.popups": 0
+                    }
+                }
+            }
+        }
+    },
+    "testProfiles": {
+        "smoke": {
+            "browsers": [
+                "chrome"
+            ],
+            "parallel": false,
+            "timeout": 60,
+            "retries": 1
+        },
+        "regression": {
+            "browsers": [
+                "chrome",
+                "firefox"
+            ],
+            "parallel": true,
+            "timeout": 300,
+            "retries": 2
+        },
+        "full": {
+            "browsers": [
+                "chrome",
+                "firefox",
+                "edge"
+            ],
+            "parallel": true,
+            "timeout": 600,
+            "retries": 3
+        }
+    },
+    "monitoring": {
+        "gridConsoleUrl": "http://selenium-hub:4444/ui",
+        "noVncPorts": {
+            "chrome": 7900,
+            "firefox": 7901
+        },
+        "videoRecording": {
+            "enabled": false,
+            "codec": "libx264",
+            "preset": "ultrafast",
+            "framerate": 24
+        }
+    },
+    "networking": {
+        "subnet": "172.20.0.0/16",
+        "services": {
+            "streamlit-app": "172.20.0.10",
+            "selenium-hub": "172.20.0.20",
+            "chrome-node": "172.20.0.30",
+            "firefox-node": "172.20.0.31",
+            "edge-node": "172.20.0.32",
+            "test-runner": "172.20.0.40",
+            "video-recorder": "172.20.0.50",
+            "novnc": "172.20.0.60",
+            "grid-console": "172.20.0.70"
+        }
+    },
+    "volumes": {
+        "test-results": "/app/test-results",
+        "test-data": "/app/test-data",
+        "selenium-videos": "/videos"
+    }
+}

@@ -1,0 +1,271 @@
+# =============================================================================
+# CrackSeg - Specialized Test Runner Dockerfile
+# =============================================================================
+# Purpose: Optimized container for E2E test execution with Selenium Grid
+# Focus: Test execution, artifact collection, parallel testing support
+# Optimizations: Minimal runtime, fast startup, comprehensive test tools
+# =============================================================================
+
+# =============================================================================
+# Stage 1: Base Test Environment
+# =============================================================================
+FROM python:3.12-slim-bullseye AS test-base
+
+LABEL maintainer="CrackSeg Project"
+LABEL description="Specialized test runner for CrackSeg E2E testing"
+LABEL version="1.0"
+LABEL purpose="test-execution"
+
+# Environment variables for test execution
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    # Test-specific environment
+    TEST_MODE=e2e \
+    PYTEST_CURRENT_TEST=true \
+    COVERAGE_PROCESS_START=.coveragerc \
+    # Performance optimizations
+    PYTHONHASHSEED=1 \
+    OMP_NUM_THREADS=1
+
+# Create test user for security
+RUN groupadd --gid 1000 testrunner && \
+    useradd --uid 1000 --gid testrunner --shell /bin/bash --create-home testrunner
+
+# Install minimal system dependencies for testing only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    # Essential utilities
+    curl \
+    wget \
+    git \
+    # Network tools for health checks
+    netcat-openbsd \
+    # Process management
+    procps \
+    # Cleanup
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /tmp/* \
+    && rm -rf /var/tmp/*
+
+# Set working directory
+WORKDIR /app
+
+# =============================================================================
+# Stage 2: Test Dependencies Installation
+# =============================================================================
+FROM test-base AS test-deps
+
+# Copy only testing requirements for better caching
+COPY tests/requirements-testing.txt /app/
+
+# Install testing-specific Python packages
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements-testing.txt && \
+    # Install additional test runner tools
+    pip install --no-deps \
+    pytest-xdist>=3.3.0 \
+    pytest-html>=4.1.0 \
+    pytest-metadata>=3.0.0 \
+    pytest-json-report>=1.5.0 \
+    pytest-benchmark>=4.0.0 \
+    selenium>=4.15.0 \
+    webdriver-manager>=4.0.0 \
+    coverage[toml]>=7.0.0 \
+    pytest-cov>=4.1.0 && \
+    # Clean pip cache
+    pip cache purge
+
+# =============================================================================
+# Stage 3: Test Environment Configuration
+# =============================================================================
+FROM test-deps AS test-config
+
+# Create comprehensive test artifact directories
+RUN mkdir -p /app/test-results/{reports,screenshots,logs,videos,coverage,artifacts} && \
+    mkdir -p /app/test-data/{input,fixtures,mocks} && \
+    mkdir -p /app/test-config && \
+    # Set proper permissions
+    chown -R testrunner:testrunner /app && \
+    chmod -R 755 /app/test-results /app/test-data
+
+# Copy test configuration files
+COPY --chown=testrunner:testrunner tests/docker/pytest.ini /app/
+COPY --chown=testrunner:testrunner tests/docker/grid-config.json /app/test-config/
+COPY --chown=testrunner:testrunner tests/e2e/ /app/tests/e2e/
+
+# Create test runner scripts
+COPY --chown=testrunner:testrunner tests/docker/scripts/ /app/scripts/
+
+# Switch to test user
+USER testrunner
+
+# Set Python path for test execution
+ENV PYTHONPATH=/app/src:/app:/app/tests
+
+# =============================================================================
+# Stage 4: Test Runner Runtime
+# =============================================================================
+FROM test-config AS test-runner
+
+# Copy minimal source code needed for testing
+COPY --chown=testrunner:testrunner src/ /app/src/
+COPY --chown=testrunner:testrunner requirements.txt /app/
+
+# Install only core application dependencies needed for testing
+# (Skip heavy ML dependencies not needed for GUI testing)
+RUN pip install --no-deps \
+    streamlit>=1.28.0 \
+    hydra-core>=1.3.0 \
+    omegaconf>=2.3.0 \
+    pydantic>=2.5.0 \
+    click>=8.1.0
+
+# Create test runner entrypoint script
+COPY --chown=testrunner:testrunner <<'EOF' /app/test-runner-entrypoint.sh
+#!/bin/bash
+set -euo pipefail
+
+# Test runner entrypoint script
+echo "=== CrackSeg Test Runner Starting ==="
+echo "Timestamp: $(date)"
+echo "Environment: $TEST_MODE"
+echo "Browser: ${BROWSER:-chrome}"
+echo "Parallel Workers: ${PARALLEL_WORKERS:-auto}"
+
+# Function to wait for service
+wait_for_service() {
+    local host=$1
+    local port=$2
+    local service_name=$3
+    local timeout=${4:-60}
+
+    echo "Waiting for $service_name at $host:$port..."
+
+    for i in $(seq 1 $timeout); do
+        if nc -z $host $port 2>/dev/null; then
+            echo "$service_name is ready after ${i}s"
+            return 0
+        fi
+        echo "[$i/$timeout] $service_name not ready, waiting..."
+        sleep 1
+    done
+
+    echo "ERROR: $service_name at $host:$port not ready after ${timeout}s"
+    return 1
+}
+
+# Wait for dependencies
+wait_for_service "${SELENIUM_HUB_HOST:-selenium-hub}" "${SELENIUM_HUB_PORT:-4444}" "Selenium Hub"
+wait_for_service "${STREAMLIT_HOST:-streamlit-app}" "${STREAMLIT_PORT:-8501}" "Streamlit App"
+
+# Additional health check for Selenium Grid
+echo "Verifying Selenium Grid status..."
+curl -f "http://${SELENIUM_HUB_HOST:-selenium-hub}:${SELENIUM_HUB_PORT:-4444}/wd/hub/status" || {
+    echo "ERROR: Selenium Grid health check failed"
+    exit 1
+}
+
+# Configure test execution
+export PYTEST_OPTS="${PYTEST_OPTS:---verbose --tb=short --strict-markers --strict-config}"
+export COVERAGE_OPTS="${COVERAGE_OPTS:---cov=src --cov-report=html:/app/test-results/coverage/html --cov-report=xml:/app/test-results/coverage/coverage.xml}"
+export HTML_REPORT="${HTML_REPORT:---html=/app/test-results/reports/report.html --self-contained-html}"
+export JSON_REPORT="${JSON_REPORT:---json-report --json-report-file=/app/test-results/reports/report.json}"
+
+# Build pytest command
+PYTEST_CMD="python -m pytest tests/e2e/ $PYTEST_OPTS $COVERAGE_OPTS $HTML_REPORT $JSON_REPORT"
+
+# Add browser-specific options
+if [[ -n "${BROWSER:-}" ]]; then
+    PYTEST_CMD="$PYTEST_CMD --browser=$BROWSER"
+fi
+
+# Add parallel execution
+if [[ "${PARALLEL_WORKERS:-auto}" != "1" ]]; then
+    PYTEST_CMD="$PYTEST_CMD -n ${PARALLEL_WORKERS:-auto}"
+fi
+
+# Add timeout
+if [[ -n "${TEST_TIMEOUT:-}" ]]; then
+    PYTEST_CMD="$PYTEST_CMD --timeout=$TEST_TIMEOUT"
+fi
+
+echo "=== Starting Test Execution ==="
+echo "Command: $PYTEST_CMD"
+echo "Working Directory: $(pwd)"
+echo "Python Path: $PYTHONPATH"
+
+# Execute tests
+eval $PYTEST_CMD
+
+# Capture exit code
+TEST_EXIT_CODE=$?
+
+echo "=== Test Execution Complete ==="
+echo "Exit Code: $TEST_EXIT_CODE"
+echo "Results Location: /app/test-results/"
+
+# Generate summary report
+python -c "
+import json
+import os
+from datetime import datetime
+from pathlib import Path
+
+# Create test summary
+summary = {
+    'timestamp': datetime.now().isoformat(),
+    'exit_code': $TEST_EXIT_CODE,
+    'environment': {
+        'test_mode': os.getenv('TEST_MODE'),
+        'browser': os.getenv('BROWSER'),
+        'parallel_workers': os.getenv('PARALLEL_WORKERS'),
+        'timeout': os.getenv('TEST_TIMEOUT')
+    },
+    'artifacts': {
+        'reports': '/app/test-results/reports/',
+        'screenshots': '/app/test-results/screenshots/',
+        'coverage': '/app/test-results/coverage/',
+        'logs': '/app/test-results/logs/'
+    }
+}
+
+# Save summary
+summary_path = Path('/app/test-results/test-summary.json')
+with open(summary_path, 'w') as f:
+    json.dump(summary, f, indent=2)
+
+print(f'Test summary saved to: {summary_path}')
+"
+
+# List generated artifacts
+echo "=== Generated Test Artifacts ==="
+find /app/test-results -type f -name "*.html" -o -name "*.xml" -o -name "*.json" -o -name "*.png" | head -20
+
+exit $TEST_EXIT_CODE
+EOF
+
+# Make entrypoint executable
+USER root
+RUN chmod +x /app/test-runner-entrypoint.sh
+USER testrunner
+
+# Health check specific to test runner
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=2 \
+    CMD pgrep -f pytest || exit 1
+
+# Set default environment for test execution
+ENV TEST_MODE=e2e \
+    BROWSER=chrome \
+    HEADLESS=true \
+    PARALLEL_WORKERS=auto \
+    TEST_TIMEOUT=300 \
+    SELENIUM_HUB_HOST=selenium-hub \
+    SELENIUM_HUB_PORT=4444 \
+    STREAMLIT_HOST=streamlit-app \
+    STREAMLIT_PORT=8501
+
+# Default command runs the specialized test runner
+CMD ["/app/test-runner-entrypoint.sh"]

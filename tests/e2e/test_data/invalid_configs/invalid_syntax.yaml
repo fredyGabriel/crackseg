@@ -1,0 +1,34 @@
+# Invalid YAML Configuration for Error Testing
+# This file contains deliberate syntax errors to test error handling
+
+defaults:
+  - base
+  - data: default
+  - model: default
+  - training: default
+  - _self_
+
+# Syntax error: missing value
+experiment:
+  name:
+  output_dir: "outputs"
+
+# Syntax error: invalid indentation
+data:
+batch_size: 4
+  num_workers: 2
+
+# Syntax error: unmatched quote
+training:
+  epochs: 2
+  device: "auto
+  learning_rate: 0.001
+
+# Syntax error: invalid character
+model:
+  type: MockModel
+  @invalid_key: invalid_value
+
+# Syntax error: missing colon
+verification
+  target_train_batches: 4

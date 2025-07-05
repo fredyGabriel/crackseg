@@ -1,6 +1,7 @@
 # Documentation Checklist
 
-This checklist tracks the progress of documentation updates across the entire pavement crack segmentation project.
+This checklist tracks the progress of documentation updates across the entire pavement crack
+segmentation project.
 
 **Status:** 🔄 In Progress
 **Started:** January 2025
@@ -299,7 +300,7 @@ All completed documentation follows these standards:
 - ❌ **results.py** - Result aggregation
 - ❌ **data.py** - Evaluation data utilities
 - ❌ **setup.py** - Evaluation setup
-- ❌ ****main**.py** - CLI entry point
+- ❌ **main.py** - CLI entry point
 
 #### src/utils/ (0/20+ files reviewed)
 
@@ -449,4 +450,5 @@ All completed documentation follows these standards:
 
 ---
 
-*This checklist will be updated as documentation work progresses. Each completed item should be marked with ✅ and dated.*
+*This checklist will be updated as documentation work progresses. Each completed item
+should be marked with ✅ and dated.*

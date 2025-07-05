@@ -1,0 +1,198 @@
+# =============================================================================
+# CrackSeg Docker Testing - .dockerignore
+# =============================================================================
+# Purpose: Optimize Docker build context for E2E testing container
+# Excludes unnecessary files to improve build speed and reduce image size
+# =============================================================================
+
+# =============================================================================
+# Version Control & Git
+# =============================================================================
+.git/
+.gitignore
+.gitattributes
+.github/
+.gitlab-ci.yml
+
+# =============================================================================
+# IDE & Editor Files
+# =============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# =============================================================================
+# Python & Development
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+*.egg-info/
+dist/
+build/
+
+# =============================================================================
+# Virtual Environments (host-specific)
+# =============================================================================
+venv/
+env/
+ENV/
+.env
+.venv
+conda-meta/
+site-packages/
+
+# =============================================================================
+# Documentation & Reports (not needed in test container)
+# =============================================================================
+docs/_build/
+docs/site/
+site/
+*.md
+!README.md
+CHANGELOG.md
+LICENSE
+*.rst
+
+# =============================================================================
+# Data & Model Files (large files not needed for GUI testing)
+# =============================================================================
+data/raw/
+data/processed/
+data/external/
+models/checkpoints/
+models/weights/
+outputs/experiments/
+*.pth
+*.pt
+*.ckpt
+*.safetensors
+*.h5
+*.pkl
+
+# =============================================================================
+# Test Results & Artifacts (from previous runs)
+# =============================================================================
+test-results/
+test_results/
+test-*.xml
+coverage.xml
+*.log
+*.json.bak
+screenshots/
+videos/
+
+# =============================================================================
+# Conda & Package Management
+# =============================================================================
+.conda/
+environment.yml.lock
+conda-lock.yml
+Pipfile
+Pipfile.lock
+poetry.lock
+pyproject.toml.bak
+
+# =============================================================================
+# Docker & Container Files
+# =============================================================================
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+*.tar
+*.tar.gz
+
+# =============================================================================
+# CI/CD & Deployment
+# =============================================================================
+.github/
+.gitlab-ci.yml
+Jenkinsfile
+.travis.yml
+.circleci/
+deployment/
+k8s/
+helm/
+
+# =============================================================================
+# Jupyter Notebooks (not needed for automated testing)
+# =============================================================================
+*.ipynb
+.ipynb_checkpoints/
+notebooks/
+
+# =============================================================================
+# MacOS & Windows System Files
+# =============================================================================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# =============================================================================
+# Temporary & Cache Files
+# =============================================================================
+*.tmp
+*.temp
+*.cache
+.cache/
+tmp/
+temp/
+
+# =============================================================================
+# Archive Files
+# =============================================================================
+*.zip
+*.rar
+*.tar.gz
+*.tar.bz2
+*.7z
+
+# =============================================================================
+# Project-Specific Excludes
+# =============================================================================
+# Large configuration files not needed for testing
+generated_configs/large_experiments/
+
+# Archived experiments
+archive/
+backup/
+
+# Local development files
+run_local.py
+debug_*.py
+scratch_*.py
+
+# IDE-specific project files
+.project
+.pydevproject
+.settings/
+.spyderproject
+.spyproject
+
+# =============================================================================
+# Keep These Files (explicitly include important test files)
+# =============================================================================
+# Use ! to include files that match exclusion patterns above
+!tests/
+!scripts/gui/
+!src/
+!configs/testing/
+!requirements.txt
+!tests/requirements-testing.txt
+!tests/docker/

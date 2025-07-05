@@ -60,12 +60,11 @@ def render_sidebar(project_root: Path) -> str:
                 st.success(f"**➤ {icon} {page}** (Current)")
             elif is_available:
                 if st.button(
-                    f"✅ {icon} {page}",
-                    key=f"nav_{page}",
+                    page,
+                    key=f"nav_btn_{page}",
                     use_container_width=True,
                     help=str(description) if description else None,
                 ):
-                    # Use PageRouter to handle navigation
                     if PageRouter.handle_navigation_change(page, state):
                         st.rerun()
             else:

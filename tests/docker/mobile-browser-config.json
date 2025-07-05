@@ -1,0 +1,303 @@
+{
+    "mobile_device_profiles": {
+        "phones": {
+            "iphone_12_pro": {
+                "name": "iPhone 12 Pro",
+                "screen": {
+                    "width": 390,
+                    "height": 844,
+                    "device_pixel_ratio": 3,
+                    "orientation": "portrait"
+                },
+                "user_agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+                "touch": true,
+                "mobile": true,
+                "capabilities": {
+                    "chrome": {
+                        "mobileEmulation": {
+                            "deviceName": "iPhone 12 Pro",
+                            "deviceMetrics": {
+                                "width": 390,
+                                "height": 844,
+                                "pixelRatio": 3,
+                                "touch": true,
+                                "mobile": true
+                            },
+                            "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+                        }
+                    }
+                }
+            },
+            "pixel_5": {
+                "name": "Pixel 5",
+                "screen": {
+                    "width": 393,
+                    "height": 851,
+                    "device_pixel_ratio": 2.75,
+                    "orientation": "portrait"
+                },
+                "user_agent": "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36",
+                "touch": true,
+                "mobile": true,
+                "capabilities": {
+                    "chrome": {
+                        "mobileEmulation": {
+                            "deviceName": "Pixel 5",
+                            "deviceMetrics": {
+                                "width": 393,
+                                "height": 851,
+                                "pixelRatio": 2.75,
+                                "touch": true,
+                                "mobile": true
+                            },
+                            "userAgent": "Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36"
+                        }
+                    }
+                }
+            },
+            "galaxy_s21_ultra": {
+                "name": "Galaxy S21 Ultra 5G",
+                "screen": {
+                    "width": 384,
+                    "height": 854,
+                    "device_pixel_ratio": 3.5,
+                    "orientation": "portrait"
+                },
+                "user_agent": "Mozilla/5.0 (Linux; Android 11; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36",
+                "touch": true,
+                "mobile": true,
+                "capabilities": {
+                    "chrome": {
+                        "mobileEmulation": {
+                            "deviceName": "Galaxy S21 Ultra 5G",
+                            "deviceMetrics": {
+                                "width": 384,
+                                "height": 854,
+                                "pixelRatio": 3.5,
+                                "touch": true,
+                                "mobile": true
+                            },
+                            "userAgent": "Mozilla/5.0 (Linux; Android 11; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36"
+                        }
+                    }
+                }
+            }
+        },
+        "tablets": {
+            "ipad_pro": {
+                "name": "iPad Pro",
+                "screen": {
+                    "width": 1024,
+                    "height": 1366,
+                    "device_pixel_ratio": 2,
+                    "orientation": "portrait"
+                },
+                "user_agent": "Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1",
+                "touch": true,
+                "mobile": false,
+                "capabilities": {
+                    "chrome": {
+                        "mobileEmulation": {
+                            "deviceName": "iPad Pro",
+                            "deviceMetrics": {
+                                "width": 1024,
+                                "height": 1366,
+                                "pixelRatio": 2,
+                                "touch": true,
+                                "mobile": false
+                            },
+                            "userAgent": "Mozilla/5.0 (iPad; CPU OS 14_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1"
+                        }
+                    }
+                }
+            },
+            "surface_duo": {
+                "name": "Surface Duo",
+                "screen": {
+                    "width": 540,
+                    "height": 720,
+                    "device_pixel_ratio": 2.5,
+                    "orientation": "portrait"
+                },
+                "user_agent": "Mozilla/5.0 (Linux; Android 11; Surface Duo) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36 EdgA/46.3.4.5155",
+                "touch": true,
+                "mobile": true,
+                "capabilities": {
+                    "edge": {
+                        "mobileEmulation": {
+                            "deviceName": "Surface Duo",
+                            "deviceMetrics": {
+                                "width": 540,
+                                "height": 720,
+                                "pixelRatio": 2.5,
+                                "touch": true,
+                                "mobile": true
+                            },
+                            "userAgent": "Mozilla/5.0 (Linux; Android 11; Surface Duo) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36 EdgA/46.3.4.5155"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "network_conditions": {
+        "offline": {
+            "offline": true,
+            "latency": 0,
+            "download_throughput": 0,
+            "upload_throughput": 0
+        },
+        "slow_3g": {
+            "offline": false,
+            "latency": 2000,
+            "download_throughput": 50000,
+            "upload_throughput": 50000
+        },
+        "fast_3g": {
+            "offline": false,
+            "latency": 562.5,
+            "download_throughput": 200000,
+            "upload_throughput": 200000
+        },
+        "slow_4g": {
+            "offline": false,
+            "latency": 300,
+            "download_throughput": 400000,
+            "upload_throughput": 400000
+        },
+        "fast_4g": {
+            "offline": false,
+            "latency": 150,
+            "download_throughput": 1600000,
+            "upload_throughput": 750000
+        }
+    },
+    "geolocation_profiles": {
+        "san_francisco": {
+            "latitude": 37.7749,
+            "longitude": -122.4194,
+            "accuracy": 100
+        },
+        "new_york": {
+            "latitude": 40.7128,
+            "longitude": -74.0060,
+            "accuracy": 100
+        },
+        "london": {
+            "latitude": 51.5074,
+            "longitude": -0.1278,
+            "accuracy": 100
+        },
+        "tokyo": {
+            "latitude": 35.6762,
+            "longitude": 139.6503,
+            "accuracy": 100
+        }
+    },
+    "browser_features": {
+        "chrome_mobile": {
+            "supports_touch": true,
+            "supports_geolocation": true,
+            "supports_orientation": true,
+            "supports_vibration": true,
+            "supports_notifications": true,
+            "supports_camera": true,
+            "supports_microphone": true
+        },
+        "firefox_mobile": {
+            "supports_touch": true,
+            "supports_geolocation": true,
+            "supports_orientation": true,
+            "supports_vibration": false,
+            "supports_notifications": true,
+            "supports_camera": true,
+            "supports_microphone": true
+        },
+        "edge_mobile": {
+            "supports_touch": true,
+            "supports_geolocation": true,
+            "supports_orientation": true,
+            "supports_vibration": true,
+            "supports_notifications": true,
+            "supports_camera": true,
+            "supports_microphone": true
+        }
+    },
+    "test_scenarios": {
+        "responsive_design": {
+            "description": "Test responsive design across different screen sizes",
+            "devices": [
+                "iphone_12_pro",
+                "pixel_5",
+                "ipad_pro"
+            ],
+            "orientations": [
+                "portrait",
+                "landscape"
+            ],
+            "test_types": [
+                "layout",
+                "navigation",
+                "forms",
+                "media"
+            ]
+        },
+        "touch_interactions": {
+            "description": "Test touch-based interactions",
+            "devices": [
+                "iphone_12_pro",
+                "pixel_5",
+                "galaxy_s21_ultra"
+            ],
+            "interactions": [
+                "tap",
+                "swipe",
+                "pinch",
+                "scroll"
+            ],
+            "test_types": [
+                "buttons",
+                "forms",
+                "navigation",
+                "gestures"
+            ]
+        },
+        "performance_mobile": {
+            "description": "Test performance on mobile devices",
+            "devices": [
+                "iphone_12_pro",
+                "pixel_5"
+            ],
+            "network_conditions": [
+                "slow_3g",
+                "fast_3g",
+                "slow_4g"
+            ],
+            "metrics": [
+                "load_time",
+                "first_paint",
+                "interactive",
+                "layout_shift"
+            ]
+        },
+        "cross_platform": {
+            "description": "Test cross-platform compatibility",
+            "devices": [
+                "iphone_12_pro",
+                "pixel_5",
+                "ipad_pro",
+                "surface_duo"
+            ],
+            "browsers": [
+                "chrome",
+                "firefox",
+                "edge"
+            ],
+            "test_types": [
+                "functionality",
+                "appearance",
+                "performance"
+            ]
+        }
+    }
+}

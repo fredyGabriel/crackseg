@@ -10,6 +10,7 @@ from pathlib import Path
 import streamlit as st
 
 from scripts.gui.components.file_upload_component import FileUploadComponent
+from scripts.gui.components.loading_spinner import LoadingSpinner
 from scripts.gui.components.theme_component import ThemeComponent
 from scripts.gui.utils.session_state import SessionStateManager
 
@@ -67,9 +68,13 @@ def page_config() -> None:
             for example in example_configs:
                 example_path = Path(example)
                 if example_path.exists():
+                    key = f"use_{example.replace('/', '_')}"
+                    if example == "configs/model/default.yaml":
+                        key = "test-id-use-default-config"
+
                     if st.button(
                         f"📄 Usar {example}",
-                        key=f"use_{example.replace('/', '_')}",
+                        key=key,
                     ):
                         SessionStateManager.update(
                             {"config_path": str(example_path.absolute())}
@@ -113,26 +118,42 @@ def page_config() -> None:
 
         col_load, col_browse = st.columns([3, 1])
         with col_load:
-            if st.button("📂 Cargar Configuración", use_container_width=True):
+            load_config_button = st.button(
+                "📂 Cargar Configuración", use_container_width=True
+            )
+
+            if load_config_button:
                 if config_input:
+                    # Get contextual loading message for config operations
+                    message, subtext, spinner_type = (
+                        LoadingSpinner.get_contextual_message("config")
+                    )
+
                     try:
-                        # Validate path exists
-                        config_path = Path(config_input)
-                        if config_path.exists():
-                            state.update_config(
-                                str(config_path.absolute()), {"loaded": True}
-                            )
-                            state.add_notification(
-                                f"Configuración cargada: {config_input}"
-                            )
-                            st.success(
-                                f"✅ Configuración cargada: {config_path.name}"
-                            )
-                            st.rerun()
-                        else:
-                            st.error(
-                                f"❌ El archivo no existe: {config_input}"
-                            )
+                        with LoadingSpinner.spinner(
+                            message=message,
+                            subtext=f"{subtext} - {Path(config_input).name}",
+                            spinner_type=spinner_type,
+                            timeout_seconds=8,
+                        ):
+                            # Validate path exists
+                            config_path = Path(config_input)
+                            if config_path.exists():
+                                state.update_config(
+                                    str(config_path.absolute()),
+                                    {"loaded": True},
+                                )
+                                state.add_notification(
+                                    f"Configuración cargada: {config_input}"
+                                )
+
+                        st.success(
+                            f"✅ Configuración cargada: {config_path.name}"
+                        )
+                        st.rerun()
+
+                    except FileNotFoundError:
+                        st.error(f"❌ El archivo no existe: {config_input}")
                     except Exception as e:
                         st.error(f"❌ Error cargando configuración: {e}")
                 else:
@@ -235,7 +256,10 @@ def page_config() -> None:
         st.subheader("🚀 Configuración Rápida")
 
         if st.button(
-            "⚡ Configuración Automática (Demo)", use_container_width=True
+            "⚡ Configuración Automática (Demo)",
+            key="test-id-auto-setup",
+            use_container_width=True,
+            type="primary",
         ):
             try:
                 # Create demo configuration

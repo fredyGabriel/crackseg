@@ -2,7 +2,9 @@
 
 ## Overview
 
-The CrackSeg GUI application has been refactored from a monolithic **1,564-line** file into a **modular architecture** with multiple focused modules, following coding best practices and maintainability principles.
+The CrackSeg GUI application has been refactored from a monolithic **1,564-line** file into a
+**modular architecture** with multiple focused modules, following coding best practices and
+maintainability principles.
 
 ## Refactoring Results
 
@@ -141,4 +143,5 @@ The modular architecture supports:
 
 ---
 
-*This refactoring exemplifies professional software development practices and adherence to coding standards outlined in `coding-preferences.mdc`.*
+*This refactoring exemplifies professional software development practices and adherence to coding
+standards outlined in `coding-preferences.mdc`.*

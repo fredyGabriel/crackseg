@@ -271,23 +271,9 @@ dependencies:
   - zipp=3.21.0=pyhd8ed1ab_1
   - zlib-ng=2.2.4=hbb528cf_0
   - zstandard=0.23.0=py312h4389bb4_1
-  - zstd=1.5.7=hbeecb71_1
+  - zstd=1.5.7=ha9a3a3d_0
   - pip:
-      - pyflakes==3.3.2
-      - pytest-mock==3.14.0
-      - sympy==1.13.1
-      - torchaudio==2.5.1
-      - torchvision==0.20.1
-      - python-dotenv
-      - types-Pillow
-      - types-PyYAML
-      - types-requests
-      # GUI Components for Streamlit
-      - streamlit-option-menu>=0.3.6
-      - streamlit-ace>=0.1.1
-  - graphviz
-  - python-graphviz
-  - ruff=0.4.8
+    - pyflakes==3.3.2
 prefix: C:\Users\fgrv\miniconda3\envs\crackseg
 
 variables:

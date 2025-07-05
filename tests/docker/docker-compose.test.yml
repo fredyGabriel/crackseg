@@ -1,0 +1,806 @@
+# =============================================================================
+# CrackSeg E2E Testing - Docker Compose Configuration
+# =============================================================================
+# Purpose: Comprehensive testing environment with Selenium Grid
+# Architecture: Distributed services for scalable E2E testing
+# Usage: docker-compose -f docker-compose.test.yml up
+# =============================================================================
+
+version: '3.8'
+
+# =============================================================================
+# Custom Networks (Enhanced Multi-Network Architecture - Subtask 13.9)
+# =============================================================================
+networks:
+  # Frontend Network: Public-facing services
+  crackseg-frontend-network:
+    name: crackseg-frontend-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/24
+          gateway: 172.20.0.1
+    driver_opts:
+      com.docker.network.bridge.name: crackseg-frontend
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.driver.mtu: 1500
+    labels:
+      - "crackseg.network=frontend"
+      - "crackseg.environment=e2e"
+      - "crackseg.security-zone=public"
+      - "crackseg.version=13.9"
+
+  # Backend Network: Service communication and processing
+  crackseg-backend-network:
+    name: crackseg-backend-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/24
+          gateway: 172.21.0.1
+    driver_opts:
+      com.docker.network.bridge.name: crackseg-backend
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+      com.docker.network.driver.mtu: 1500
+    labels:
+      - "crackseg.network=backend"
+      - "crackseg.environment=e2e"
+      - "crackseg.security-zone=internal"
+      - "crackseg.version=13.9"
+
+  # Management Network: Monitoring, health checks, and administrative services
+  crackseg-management-network:
+    name: crackseg-management-network
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/24
+          gateway: 172.22.0.1
+    driver_opts:
+      com.docker.network.bridge.name: crackseg-mgmt
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "false"
+      com.docker.network.driver.mtu: 1500
+    labels:
+      - "crackseg.network=management"
+      - "crackseg.environment=e2e"
+      - "crackseg.security-zone=admin"
+      - "crackseg.version=13.9"
+
+  # Legacy network for backward compatibility (deprecated)
+  crackseg-test-network:
+    name: crackseg-test-network-legacy
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+    labels:
+      - "crackseg.network=legacy"
+      - "crackseg.environment=e2e"
+      - "crackseg.deprecated=true"
+      - "crackseg.migration-target=multi-network"
+
+# =============================================================================
+# Shared Volumes for Artifacts and Data (Enhanced - Subtask 13.5)
+# =============================================================================
+volumes:
+  # Test Results and Artifacts (Environment Variable Managed)
+  test-results:
+    name: crackseg-test-results
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${TEST_RESULTS_PATH:-./test-results}
+    labels:
+      - "crackseg.volume=test-results"
+      - "crackseg.managed-by=env-manager"
+      - "crackseg.artifact-type=test-output"
+      - "crackseg.retention=configurable"
+
+  test-data:
+    name: crackseg-test-data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${TEST_DATA_PATH:-./test-data}
+    labels:
+      - "crackseg.volume=test-data"
+      - "crackseg.managed-by=env-manager"
+      - "crackseg.artifact-type=input-data"
+      - "crackseg.retention=permanent"
+
+  # Enhanced test artifacts volume (Subtask 13.5 - Artifact Management)
+  test-artifacts:
+    name: crackseg-test-artifacts
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${TEST_ARTIFACTS_PATH:-./test-artifacts}
+    labels:
+      - "crackseg.volume=test-artifacts"
+      - "crackseg.version=13.5"
+      - "crackseg.purpose=artifact-collection"
+      - "crackseg.managed-by=artifact-manager"
+      - "crackseg.retention=configurable"
+
+  selenium-videos:
+    name: crackseg-selenium-videos
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${SELENIUM_VIDEOS_PATH:-./selenium-videos}
+    labels:
+      - "crackseg.volume=selenium-videos"
+      - "crackseg.artifact-type=video-recordings"
+      - "crackseg.retention=short-term"
+      - "crackseg.size-limit=configurable"
+
+  # NEW: Archive storage for long-term artifact retention (Subtask 13.5)
+  artifact-archive:
+    name: crackseg-artifact-archive
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${ARCHIVE_PATH:-./archived-artifacts}
+    labels:
+      - "crackseg.volume=artifact-archive"
+      - "crackseg.version=13.5"
+      - "crackseg.purpose=long-term-storage"
+      - "crackseg.managed-by=artifact-manager"
+      - "crackseg.retention=30-days"
+
+  # NEW: Temporary artifact processing volume (Subtask 13.5)
+  artifact-temp:
+    name: crackseg-artifact-temp
+    driver: local
+    labels:
+      - "crackseg.volume=artifact-temp"
+      - "crackseg.version=13.5"
+      - "crackseg.purpose=temporary-processing"
+      - "crackseg.retention=1-day"
+      - "crackseg.auto-cleanup=true"
+
+  # Grid Configuration and State (Enhanced)
+  selenium-grid-data:
+    name: crackseg-grid-data
+    driver: local
+    labels:
+      - "crackseg.volume=grid-data"
+      - "crackseg.purpose=selenium-state"
+      - "crackseg.retention=session-based"
+
+# =============================================================================
+# Services Configuration
+# =============================================================================
+services:
+
+  # ===========================================================================
+  # Streamlit Application Service (Frontend Network)
+  # ===========================================================================
+  streamlit-app:
+    build:
+      context: ../.. # Build from project root
+      dockerfile: tests/docker/Dockerfile.streamlit
+      target: runtime
+    container_name: crackseg-streamlit-app
+    hostname: streamlit-app
+
+    ports:
+      - "8501:8501" # Streamlit default port
+
+    networks:
+      crackseg-frontend-network:
+        ipv4_address: 172.20.0.10
+        aliases:
+          - streamlit
+          - app
+      crackseg-management-network:
+        ipv4_address: 172.22.0.10
+        aliases:
+          - streamlit-mgmt
+
+    volumes:
+      - test-results:/app/test-results
+      - test-data:/app/test-data
+      - ../..:/app:ro # Mount source code read-only
+
+    environment:
+      # Environment Management (Subtask 13.6)
+      - NODE_ENV=${NODE_ENV:-test}
+      - CRACKSEG_ENV=${CRACKSEG_ENV:-test}
+      - PROJECT_NAME=${PROJECT_NAME:-crackseg}
+
+      # Application Configuration (Environment Variable Managed)
+      - TEST_MODE=serve
+      - STREAMLIT_SERVER_HEADLESS=${STREAMLIT_SERVER_HEADLESS:-true}
+      - STREAMLIT_SERVER_PORT=${STREAMLIT_SERVER_PORT:-8501}
+      - STREAMLIT_SERVER_ADDRESS=${STREAMLIT_SERVER_ADDRESS:-0.0.0.0}
+      - STREAMLIT_BROWSER_GATHER_USAGE_STATS=${STREAMLIT_BROWSER_GATHER_USAGE_STATS:-false}
+      - STREAMLIT_SERVER_RUN_ON_SAVE=${STREAMLIT_SERVER_RUN_ON_SAVE:-false}
+      - STREAMLIT_SERVER_FAST_RERUNS=${STREAMLIT_SERVER_FAST_RERUNS:-false}
+
+      # Development and Debug Settings
+      - DEBUG=${DEBUG:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - DEVELOPMENT_MODE=${DEVELOPMENT_MODE:-false}
+
+      # Python Path Configuration
+      - PYTHONPATH=/app/src:/app
+
+      # ML/Training Configuration
+      - PYTORCH_CUDA_ALLOC_CONF=${PYTORCH_CUDA_ALLOC_CONF:-max_split_size_mb:256}
+      - CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-0}
+      - MODEL_CACHE_DIR=${MODEL_CACHE_DIR:-/app/cache/models}
+      - DATASET_CACHE_DIR=${DATASET_CACHE_DIR:-/app/cache/datasets}
+
+      # Feature Flags (Environment Variable Managed)
+      - FEATURE_ADVANCED_METRICS=${FEATURE_ADVANCED_METRICS:-true}
+      - FEATURE_TENSORBOARD=${FEATURE_TENSORBOARD:-false}
+      - FEATURE_MODEL_COMPARISON=${FEATURE_MODEL_COMPARISON:-true}
+      - FEATURE_EXPERIMENT_TRACKING=${FEATURE_EXPERIMENT_TRACKING:-false}
+
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8501/_stcore/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+    restart: unless-stopped
+
+    depends_on:
+      - selenium-hub
+
+    labels:
+      - "crackseg.service=streamlit"
+      - "crackseg.environment=test"
+
+  # ===========================================================================
+  # Selenium Hub Service (Backend Network Hub)
+  # ===========================================================================
+  selenium-hub:
+    image: selenium/hub:4.27.0
+    container_name: crackseg-selenium-hub
+    hostname: selenium-hub
+
+    ports:
+      - "4442:4442" # Event bus publish port
+      - "4443:4443" # Event bus subscribe port
+      - "4444:4444" # Selenium Grid Hub API
+      - "4445:4445" # Grid Console UI
+
+    networks:
+      crackseg-backend-network:
+        ipv4_address: 172.21.0.10
+        aliases:
+          - hub
+          - selenium
+          - grid-hub
+      crackseg-management-network:
+        ipv4_address: 172.22.0.20
+        aliases:
+          - hub-mgmt
+          - selenium-hub-mgmt
+
+    environment:
+      # Core Hub Configuration
+      - SE_HUB_HOST=selenium-hub
+      - SE_HUB_PORT=4444
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+
+      # Session Management
+      - SE_SESSION_REQUEST_TIMEOUT=300
+      - SE_SESSION_RETRY_INTERVAL=15
+      - SE_GRID_MAX_SESSION=6 # Increased for multiple browser types
+      - SE_GRID_BROWSER_TIMEOUT=60
+      - SE_GRID_SESSION_TIMEOUT=300
+      - SE_NEW_SESSION_THREAD_POOL_SIZE=8
+
+      # Grid Scaling Parameters
+      - SE_GRID_HEARTBEAT_PERIOD=60000
+      - SE_GRID_CLEAN_UP_CYCLE=5000
+      - SE_GRID_SLOT_MATCHER=org.openqa.selenium.grid.slotmatcher.DefaultSlotMatcher
+
+      # Grid Console and Monitoring
+      - SE_LOG_LEVEL=INFO
+      - SE_STRUCTURED_LOGS=false
+      - JAVA_OPTS=-Xmx2g -XX:+UseG1GC -XX:+UseStringDeduplication
+
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:4444/wd/hub/status && curl -f http://localhost:4444/grid/api/hub/status | grep -q '\"ready\":true' || exit 1" ]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 45s
+
+    restart: unless-stopped
+
+    deploy:
+      resources:
+        limits:
+          memory: 2.5G
+          cpus: '1.5'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+    labels:
+      - "crackseg.service=selenium-hub"
+      - "crackseg.environment=test"
+      - "crackseg.role=grid-hub"
+
+  # ===========================================================================
+  # Chrome Browser Node (Backend Network)
+  # ===========================================================================
+  chrome-node:
+    image: selenium/node-chrome:4.27.0
+    container_name: crackseg-chrome-node
+    hostname: chrome-node
+
+    networks:
+      crackseg-backend-network:
+        ipv4_address: 172.21.0.30
+        aliases:
+          - chrome
+          - chrome-browser
+      crackseg-management-network:
+        ipv4_address: 172.22.0.30
+        aliases:
+          - chrome-mgmt
+
+    environment:
+      # Hub Connection
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_HUB_HOST=selenium-hub
+      - SE_HUB_PORT=4444
+
+      # Node Configuration
+      - SE_NODE_HOST=chrome-node
+      - SE_NODE_PORT=5555
+      - SE_NODE_MAX_INSTANCES=2
+      - SE_NODE_MAX_SESSIONS=2
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - SE_NODE_SESSION_TIMEOUT=300
+
+      # Display and VNC
+      - SE_VNC_NO_PASSWORD=1
+      - SE_VNC_PORT=5900
+      - SE_SCREEN_WIDTH=1920
+      - SE_SCREEN_HEIGHT=1080
+      - SE_SCREEN_DEPTH=24
+      - SE_START_XVFB=true
+
+      # Chrome-specific capabilities
+      - SE_NODE_GRID_URL=http://selenium-hub:4444/
+      - SE_LOG_LEVEL=INFO
+
+    volumes:
+      - /dev/shm:/dev/shm # Shared memory for performance
+      - selenium-videos:/videos
+
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:5555/wd/hub/status && curl -s http://selenium-hub:4444/grid/api/hub | grep -q 'chrome-node' || exit 1" ]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 45s
+
+    restart: unless-stopped
+
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+    labels:
+      - "crackseg.service=chrome-node"
+      - "crackseg.environment=test"
+      - "crackseg.browser=chrome"
+
+  # ===========================================================================
+  # Firefox Browser Node (Backend Network)
+  # ===========================================================================
+  firefox-node:
+    image: selenium/node-firefox:4.27.0
+    container_name: crackseg-firefox-node
+    hostname: firefox-node
+
+    networks:
+      crackseg-backend-network:
+        ipv4_address: 172.21.0.31
+        aliases:
+          - firefox
+          - firefox-browser
+      crackseg-management-network:
+        ipv4_address: 172.22.0.31
+        aliases:
+          - firefox-mgmt
+
+    environment:
+      # Hub Connection
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_HUB_HOST=selenium-hub
+      - SE_HUB_PORT=4444
+
+      # Node Configuration
+      - SE_NODE_HOST=firefox-node
+      - SE_NODE_PORT=5555
+      - SE_NODE_MAX_INSTANCES=2
+      - SE_NODE_MAX_SESSIONS=2
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - SE_NODE_SESSION_TIMEOUT=300
+
+      # Display and VNC
+      - SE_VNC_NO_PASSWORD=1
+      - SE_VNC_PORT=5900
+      - SE_SCREEN_WIDTH=1920
+      - SE_SCREEN_HEIGHT=1080
+      - SE_SCREEN_DEPTH=24
+      - SE_START_XVFB=true
+
+      # Firefox-specific capabilities
+      - SE_NODE_GRID_URL=http://selenium-hub:4444/
+      - SE_LOG_LEVEL=INFO
+
+    volumes:
+      - /dev/shm:/dev/shm # Shared memory for performance
+      - selenium-videos:/videos
+
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:5555/wd/hub/status && curl -s http://selenium-hub:4444/grid/api/hub | grep -q 'firefox-node' || exit 1" ]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 45s
+
+    restart: unless-stopped
+
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+    labels:
+      - "crackseg.service=firefox-node"
+      - "crackseg.environment=test"
+      - "crackseg.browser=firefox"
+
+  # ===========================================================================
+  # Microsoft Edge Browser Node (Backend Network)
+  # ===========================================================================
+  edge-node:
+    image: selenium/node-edge:4.27.0
+    container_name: crackseg-edge-node
+    hostname: edge-node
+
+    networks:
+      crackseg-backend-network:
+        ipv4_address: 172.21.0.32
+        aliases:
+          - edge
+          - edge-browser
+      crackseg-management-network:
+        ipv4_address: 172.22.0.32
+        aliases:
+          - edge-mgmt
+
+    environment:
+      # Hub Connection
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_HUB_HOST=selenium-hub
+      - SE_HUB_PORT=4444
+
+      # Node Configuration
+      - SE_NODE_HOST=edge-node
+      - SE_NODE_PORT=5555
+      - SE_NODE_MAX_INSTANCES=2
+      - SE_NODE_MAX_SESSIONS=2
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - SE_NODE_SESSION_TIMEOUT=300
+
+      # Display and VNC
+      - SE_VNC_NO_PASSWORD=1
+      - SE_VNC_PORT=5900
+      - SE_SCREEN_WIDTH=1920
+      - SE_SCREEN_HEIGHT=1080
+      - SE_SCREEN_DEPTH=24
+      - SE_START_XVFB=true
+
+      # Edge-specific capabilities
+      - SE_NODE_GRID_URL=http://selenium-hub:4444/
+      - SE_LOG_LEVEL=INFO
+
+    volumes:
+      - /dev/shm:/dev/shm # Shared memory for performance
+      - selenium-videos:/videos
+
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:5555/wd/hub/status && curl -s http://selenium-hub:4444/grid/api/hub | grep -q 'edge-node' || exit 1" ]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 45s
+
+    restart: unless-stopped
+
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+    profiles:
+      - edge # Optional Edge testing
+
+    labels:
+      - "crackseg.service=edge-node"
+      - "crackseg.environment=test"
+      - "crackseg.browser=edge"
+
+  # ===========================================================================
+  # Enhanced Test Runner Service (Multi-Network Bridge)
+  # ===========================================================================
+  test-runner:
+    build:
+      context: ../.. # Build from project root
+      dockerfile: tests/docker/Dockerfile.test-runner
+      target: test-runner
+    container_name: crackseg-test-runner
+    hostname: test-runner
+
+    networks:
+      crackseg-frontend-network:
+        ipv4_address: 172.20.0.40
+        aliases:
+          - test-runner-frontend
+      crackseg-backend-network:
+        ipv4_address: 172.21.0.40
+        aliases:
+          - test-runner
+          - runner
+      crackseg-management-network:
+        ipv4_address: 172.22.0.40
+        aliases:
+          - test-runner-mgmt
+
+    volumes:
+      # Primary artifact volumes (hybrid approach - named volumes + bind mounts)
+      - test-results:/app/test-results
+      - test-data:/app/test-data
+      - test-artifacts:/app/test-artifacts
+
+      # NEW: Archive and temporary processing volumes (Subtask 13.5)
+      - artifact-archive:/app/archive
+      - artifact-temp:/app/temp-artifacts
+
+      # Bind mounts for development and debugging
+      - ../..:/app/src-live:ro # Mount source code read-only for live testing
+      - ${TEST_RESULTS_PATH:-./test-results}:/app/host-test-results # Direct host access
+      - ${TEST_ARTIFACTS_PATH:-./test-artifacts}:/app/host-artifacts # Direct host access
+
+    environment:
+      # Core test configuration
+      - TEST_MODE=e2e
+      - BROWSER=${TEST_BROWSER:-chrome}
+      - HEADLESS=${TEST_HEADLESS:-true}
+      - PARALLEL_WORKERS=${TEST_PARALLEL_WORKERS:-auto}
+      - TEST_TIMEOUT=${TEST_TIMEOUT:-300}
+
+      # Service connectivity
+      - SELENIUM_HUB_HOST=selenium-hub
+      - SELENIUM_HUB_PORT=4444
+      - SELENIUM_GRID_URL=http://selenium-hub:4444/wd/hub
+      - STREAMLIT_HOST=streamlit-app
+      - STREAMLIT_PORT=8501
+      - STREAMLIT_URL=http://streamlit-app:8501
+
+      # Test execution options
+      - PYTEST_OPTS=${PYTEST_OPTS:---verbose --tb=short --strict-markers}
+      - COVERAGE_ENABLED=${COVERAGE_ENABLED:-true}
+      - HTML_REPORT_ENABLED=${HTML_REPORT_ENABLED:-true}
+      - JSON_REPORT_ENABLED=${JSON_REPORT_ENABLED:-true}
+
+      # Performance and debugging
+      - PYTHONPATH=/app/src:/app:/app/tests
+      - PYTEST_CURRENT_TEST=true
+      - TEST_DEBUG=${TEST_DEBUG:-false}
+      - SCREENSHOT_ON_FAILURE=${SCREENSHOT_ON_FAILURE:-true}
+
+    # Use specialized entrypoint script
+    command: [ "/app/test-runner-entrypoint.sh" ]
+
+    restart: "no" # Run once and exit
+
+    depends_on:
+      streamlit-app:
+        condition: service_healthy
+      selenium-hub:
+        condition: service_healthy
+      chrome-node:
+        condition: service_healthy
+      firefox-node:
+        condition: service_healthy
+
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+
+    labels:
+      - "crackseg.service=test-runner"
+      - "crackseg.environment=test"
+      - "crackseg.type=specialized"
+      - "crackseg.version=13.4"
+
+  # ===========================================================================
+  # Grid Console Monitoring Service (Management Network)
+  # ===========================================================================
+  grid-console:
+    image: selenium/hub:4.27.0
+    container_name: crackseg-grid-console
+    hostname: grid-console
+
+    ports:
+      - "4446:4444" # Grid Console UI on separate port
+
+    networks:
+      crackseg-management-network:
+        ipv4_address: 172.22.0.70
+        aliases:
+          - console
+          - grid-console
+          - monitoring
+
+    environment:
+      - SE_HUB_HOST=selenium-hub
+      - SE_HUB_PORT=4444
+      - SE_GRID_CONSOLE_ACCESS=true
+      - SE_LOG_LEVEL=INFO
+
+    command: >
+      bash -c "
+        echo 'Starting Grid Console Monitor...' &&
+        java -jar /opt/selenium/selenium-server-4.27.0.jar standalone
+          --host grid-console
+          --port 4444
+          --grid-url http://selenium-hub:4444
+      "
+
+    restart: unless-stopped
+
+    depends_on:
+      selenium-hub:
+        condition: service_healthy
+
+    profiles:
+      - monitoring # Only start with --profile monitoring
+
+    labels:
+      - "crackseg.service=grid-console"
+      - "crackseg.environment=test"
+      - "crackseg.role=monitoring"
+
+  # ===========================================================================
+  # Video Recording Service (Management Network)
+  # ===========================================================================
+  video-recorder:
+    image: selenium/video:ffmpeg-7.1.0-20241206
+    container_name: crackseg-video-recorder
+    hostname: video-recorder
+
+    networks:
+      crackseg-backend-network:
+        ipv4_address: 172.21.0.50
+        aliases:
+          - video
+          - recorder
+      crackseg-management-network:
+        ipv4_address: 172.22.0.50
+        aliases:
+          - video-mgmt
+
+    volumes:
+      - selenium-videos:/videos
+
+    environment:
+      - DISPLAY_CONTAINER_NAME=chrome-node
+      - FILE_NAME=crackseg-session
+      - SE_VIDEO_FOLDER=/videos
+      - SE_SCREEN_WIDTH=1920
+      - SE_SCREEN_HEIGHT=1080
+      - SE_VIDEO_CODEC=libx264
+      - SE_VIDEO_PRESET=ultrafast
+      - SE_VIDEO_FRAMERATE=24
+
+    depends_on:
+      - chrome-node
+      - firefox-node
+
+    profiles:
+      - recording # Only start with --profile recording
+
+    labels:
+      - "crackseg.service=video-recorder"
+      - "crackseg.environment=test"
+
+  # ===========================================================================
+  # Monitoring and Debugging Service (Management Network)
+  # ===========================================================================
+  novnc:
+    image: selenium/standalone-chrome:4.27.0
+    container_name: crackseg-novnc
+    hostname: novnc
+
+    ports:
+      - "7900:7900" # noVNC web interface for Chrome
+      - "7901:7901" # noVNC web interface for Firefox
+
+    networks:
+      crackseg-management-network:
+        ipv4_address: 172.22.0.60
+        aliases:
+          - vnc
+          - debug
+          - novnc
+
+    environment:
+      - SE_VNC_NO_PASSWORD=1
+      - SE_SCREEN_WIDTH=1920
+      - SE_SCREEN_HEIGHT=1080
+      - SE_START_XVFB=false
+      - SE_RECORD_VIDEO=false
+
+    profiles:
+      - debug # Only start with --profile debug
+
+    labels:
+      - "crackseg.service=novnc"
+      - "crackseg.environment=test"
+      - "crackseg.role=debugging"
