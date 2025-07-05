@@ -13,7 +13,6 @@ import streamlit as st
 import torch
 
 from scripts.gui.components.device_selector import device_selector
-from scripts.gui.components.progress_bar_optimized import OptimizedProgressBar
 from scripts.gui.components.tensorboard.component import TensorBoardComponent
 from scripts.gui.services.gpu_monitor import GPUMonitor
 from scripts.gui.utils.error_state import ErrorMessageFactory, ErrorType
@@ -67,12 +66,12 @@ def render_training_configuration(state: dict[str, Any]) -> dict[str, Any]:
                             torch.cuda.memory_reserved(device) / 1024**3
                         )
                         memory_cached = (
-                            torch.cuda.memory_cached(device) / 1024**3
+                            torch.cuda.memory_reserved(device) / 1024**3
                         )
 
                         device_info.info(
                             f"🎯 **Selected Device:** {selected_device}\n"
-                            f"📊 **Memory Usage:** {memory_allocated:.2f} GB allocated\n"
+                            f"📊 **Memory Usage:** {memory_allocated:.2f} GB\n"
                             f"📦 **Reserved:** {memory_reserved:.2f} GB\n"
                             f"📋 **Cached:** {memory_cached:.2f} GB"
                         )
@@ -182,9 +181,7 @@ def page_train(state: dict[str, Any]) -> None:
     # Initialize components
     gpu_monitor = GPUMonitor()
     training_state = TrainingState()
-    tensorboard_component = TensorBoardComponent(
-        log_dir=f"{PROJECT_ROOT}/outputs/logs"
-    )
+    tensorboard_component = TensorBoardComponent()
 
     # Render training configuration
     state = render_training_configuration(state)
@@ -247,10 +244,12 @@ def page_train(state: dict[str, Any]) -> None:
             )
 
         except Exception as e:
-            error_msg = ErrorMessageFactory.create_error_message(
-                ErrorType.SYSTEM_ERROR,
-                f"Failed to start training: {str(e)}",
+            error_info = ErrorMessageFactory.create_error_info(
+                ErrorType.UNEXPECTED,
+                e,
+                {"operation": "start_training"},
             )
+            error_msg = error_info.message
             st.error(error_msg)
             logger.error(f"Training start failed: {e}")
 
@@ -272,8 +271,8 @@ def page_train(state: dict[str, Any]) -> None:
     if training_state.is_running or training_state.is_paused:
         st.subheader("Training Progress")
 
-        # Progress bar
-        progress_bar = OptimizedProgressBar(0, "Training Progress")
+        # Progress bar would be displayed here if needed
+        # progress_bar = OptimizedProgressBar("training_progress")
 
         # Display metrics
         if training_state.current_metrics:
@@ -282,27 +281,32 @@ def page_train(state: dict[str, Any]) -> None:
                 loss_delta = training_state.current_metrics.get(
                     "train_loss_delta", 0
                 )
+                train_loss = training_state.current_metrics.get(
+                    "train_loss", 0
+                )
                 st.metric(
                     "Training Loss",
-                    f"{training_state.current_metrics.get('train_loss', 0):.4f}",
+                    f"{train_loss:.4f}",
                     delta=loss_delta,
                 )
             with col2:
                 val_loss_delta = training_state.current_metrics.get(
                     "val_loss_delta", 0
                 )
+                val_loss = training_state.current_metrics.get("val_loss", 0)
                 st.metric(
                     "Validation Loss",
-                    f"{training_state.current_metrics.get('val_loss', 0):.4f}",
+                    f"{val_loss:.4f}",
                     delta=val_loss_delta,
                 )
             with col3:
                 accuracy_delta = training_state.current_metrics.get(
                     "accuracy_delta", 0
                 )
+                accuracy = training_state.current_metrics.get("accuracy", 0)
                 st.metric(
                     "Accuracy",
-                    f"{training_state.current_metrics.get('accuracy', 0):.2%}",
+                    f"{accuracy:.2%}",
                     delta=accuracy_delta,
                 )
 
