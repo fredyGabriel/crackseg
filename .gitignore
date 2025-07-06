@@ -196,3 +196,56 @@ docs/tools/task-master-guide.md
 .cursor/*
 !.cursor/rules/
 !.cursorrules
+
+# --- Custom: Ignore logs, test results, and artifacts ---
+# Logs and test results
+*.log
+performance_maintenance.log
+test_app.log
+theme_test.log
+test_results.txt
+gui_test_results.txt
+gui_unit_test_results.txt
+
+# Coverage and HTML reports
+.coverage
+coverage.*
+coverage.json
+htmlcov/
+
+# Pytest and cache
+.pytest_cache/
+**/.pytest_cache/
+
+# Ignore outputs and results except README
+outputs/
+!outputs/README.md
+results/
+
+# Ignore test artifacts
+selenium-videos/
+test-artifacts/
+test-results/
+
+# Ignore generated configs
+generated_configs/
+
+# Ignore performance and historical data
+performance-historical-data/
+performance-reports/
+
+# Ignore site build artifacts
+site/
+
+# Ignore egg-info
+crackseg.egg-info/
+
+# Ignore temp files
+*.tmp
+*.bak
+*.swp
+*~
+.temp/
+temp/
+
+# END
