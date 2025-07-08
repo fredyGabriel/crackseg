@@ -120,9 +120,9 @@ class WorkflowRegressionTests:
 
             # Verify page title is present (can be "app", "Streamlit", or
             # "CrackSeg")
-            assert len(driver.title) > 0, (
-                f"Page title is empty: '{driver.title}'"
-            )
+            assert (
+                len(driver.title) > 0
+            ), f"Page title is empty: '{driver.title}'"
 
             # Verify basic page structure
             body = driver.find_element(By.TAG_NAME, "body")
@@ -139,9 +139,9 @@ class WorkflowRegressionTests:
             has_streamlit_content = any(
                 indicator in page_source for indicator in streamlit_indicators
             )
-            assert has_streamlit_content, (
-                "Page does not appear to be a Streamlit application"
-            )
+            assert (
+                has_streamlit_content
+            ), "Page does not appear to be a Streamlit application"
 
         finally:
             driver.quit()
@@ -189,9 +189,9 @@ class WorkflowRegressionTests:
                 for result in navigation_results.values()
                 if result["navigation"]
             )
-            assert successful_navigations >= 5, (
-                f"Only {successful_navigations}/6 pages loaded successfully"
-            )
+            assert (
+                successful_navigations >= 5
+            ), f"Only {successful_navigations}/6 pages loaded successfully"
 
         finally:
             driver.quit()
@@ -212,9 +212,9 @@ class WorkflowRegressionTests:
             config_elements = self.check_page_elements(
                 driver, ["YAML", "Load", "Configuration"]
             )
-            assert any(config_elements.values()), (
-                "Config page missing critical elements"
-            )
+            assert any(
+                config_elements.values()
+            ), "Config page missing critical elements"
 
             # Test Architecture page model information (validated in 4.3)
             arch_nav = self.navigate_to_page(driver, "Architecture")
@@ -224,9 +224,9 @@ class WorkflowRegressionTests:
             arch_elements = self.check_page_elements(
                 driver, ["Model", "Architecture", "Device"]
             )
-            assert any(arch_elements.values()), (
-                "Architecture page missing critical elements"
-            )
+            assert any(
+                arch_elements.values()
+            ), "Architecture page missing critical elements"
 
             # Test Train page controls (confirmed working in 4.3)
             train_nav = self.navigate_to_page(driver, "Train")
@@ -236,9 +236,9 @@ class WorkflowRegressionTests:
             train_elements = self.check_page_elements(
                 driver, ["Training", "Start", "Controls"]
             )
-            assert any(train_elements.values()), (
-                "Train page missing critical elements"
-            )
+            assert any(
+                train_elements.values()
+            ), "Train page missing critical elements"
 
         finally:
             driver.quit()
@@ -260,9 +260,9 @@ class WorkflowRegressionTests:
             config_nav = self.navigate_to_page(driver, "Config")
 
             # At least one navigation should work
-            assert home_nav or config_nav, (
-                "Firefox failed basic navigation test"
-            )
+            assert (
+                home_nav or config_nav
+            ), "Firefox failed basic navigation test"
 
         finally:
             driver.quit()
@@ -302,9 +302,9 @@ class WorkflowRegressionTests:
             load_time = time.time() - start_time
 
             # Page should load within 30 seconds (generous for E2E)
-            assert load_time < 30, (
-                f"Page load time {load_time:.2f}s exceeds 30s limit"
-            )
+            assert (
+                load_time < 30
+            ), f"Page load time {load_time:.2f}s exceeds 30s limit"
 
             # Test navigation performance
             nav_start = time.time()
@@ -312,9 +312,9 @@ class WorkflowRegressionTests:
             nav_time = time.time() - nav_start
 
             # Navigation should be under 10 seconds
-            assert nav_time < 10, (
-                f"Navigation time {nav_time:.2f}s exceeds 10s limit"
-            )
+            assert (
+                nav_time < 10
+            ), f"Navigation time {nav_time:.2f}s exceeds 10s limit"
 
         finally:
             driver.quit()

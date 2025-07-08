@@ -5,10 +5,7 @@ Tests the core functionality of the monitoring manager including
 metrics logging, context switching, and history management.
 """
 
-import time
 from unittest.mock import patch
-
-import pytest
 
 from src.utils.monitoring.manager import MonitoringManager
 

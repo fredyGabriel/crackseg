@@ -55,9 +55,9 @@ class TestPerformanceIntegration(BaseE2ETest):
         self.log_test_step("Testing page load performance measurement")
 
         # Performance monitoring is automatically enabled via decorator
-        assert self._performance_enabled, (
-            "Performance monitoring should be enabled"
-        )
+        assert (
+            self._performance_enabled
+        ), "Performance monitoring should be enabled"
 
         # Start monitoring
         self.start_performance_monitoring()
@@ -68,15 +68,15 @@ class TestPerformanceIntegration(BaseE2ETest):
         )
 
         # Verify performance metrics were captured
-        assert performance_metrics is not None, (
-            "Performance metrics should be captured"
-        )
-        assert "load_complete" in performance_metrics, (
-            "Load complete time should be measured"
-        )
-        assert "dom_content_loaded" in performance_metrics, (
-            "DOM load time should be measured"
-        )
+        assert (
+            performance_metrics is not None
+        ), "Performance metrics should be captured"
+        assert (
+            "load_complete" in performance_metrics
+        ), "Load complete time should be measured"
+        assert (
+            "dom_content_loaded" in performance_metrics
+        ), "DOM load time should be measured"
 
         # Log the measured performance
         load_time = performance_metrics["load_complete"]
@@ -172,9 +172,9 @@ class TestPerformanceIntegration(BaseE2ETest):
 
         # Take initial memory snapshot
         initial_memory = self.monitor_memory_usage_snapshot()
-        assert initial_memory is not None, (
-            "Initial memory snapshot should be captured"
-        )
+        assert (
+            initial_memory is not None
+        ), "Initial memory snapshot should be captured"
 
         self.log_test_step(
             f"Initial memory usage: {initial_memory['rss_memory_mb']:.1f}MB"

@@ -63,9 +63,9 @@ class TestHappyPathWorkflow(BaseE2ETest):
             # Verify configuration is loaded
             config_page.wait_for_configuration_loaded()
             loaded_config_text = config_page.get_configuration_content()
-            assert loaded_config_text is not None, (
-                "Config content should not be None"
-            )
+            assert (
+                loaded_config_text is not None
+            ), "Config content should not be None"
             assert (
                 "model" in loaded_config_text and "data" in loaded_config_text
             ), "Configuration content should be displayed"
@@ -88,12 +88,12 @@ class TestHappyPathWorkflow(BaseE2ETest):
             arch_page.wait_for_model_instantiation()
             model_summary = arch_page.get_model_summary()
             expected_model_name = self.get_test_data()["expected_model_name"]
-            assert model_summary is not None, (
-                "Model summary should not be None"
-            )
-            assert expected_model_name in model_summary, (
-                f"Model summary should contain '{expected_model_name}'"
-            )
+            assert (
+                model_summary is not None
+            ), "Model summary should not be None"
+            assert (
+                expected_model_name in model_summary
+            ), f"Model summary should contain '{expected_model_name}'"
             self.log_assertion(
                 "Model instantiated and summary displayed",
                 expected_model_name in model_summary,
@@ -113,9 +113,9 @@ class TestHappyPathWorkflow(BaseE2ETest):
             train_page.wait_for_training_to_start()
             status = train_page.get_training_status()
             assert status is not None, "Training status should be available"
-            assert "running" in status.lower(), (
-                "Training status should be 'running'"
-            )
+            assert (
+                "running" in status.lower()
+            ), "Training status should be 'running'"
             self.log_assertion(
                 "Training started and status is running",
                 "running" in status.lower(),
@@ -131,9 +131,9 @@ class TestHappyPathWorkflow(BaseE2ETest):
 
             # Verify results are available
             results_page.wait_for_results_loaded()
-            assert results_page.is_results_gallery_displayed(), (
-                "Results gallery should be available after training"
-            )
+            assert (
+                results_page.is_results_gallery_displayed()
+            ), "Results gallery should be available after training"
             self.log_assertion("Results are displayed on the page", True)
 
             self.log_test_step("End of the happy path E2E test")
@@ -203,9 +203,9 @@ class TestHappyPathWorkflow(BaseE2ETest):
         self.log_test_step("Start of performance-monitored happy path test")
 
         # Performance monitoring is automatically enabled via the marker
-        assert self._performance_enabled, (
-            "Performance monitoring should be enabled"
-        )
+        assert (
+            self._performance_enabled
+        ), "Performance monitoring should be enabled"
 
         # Start performance monitoring
         self.start_performance_monitoring()
@@ -269,9 +269,9 @@ class TestHappyPathWorkflow(BaseE2ETest):
             # Verify configuration is loaded
             config_page.wait_for_configuration_loaded()
             loaded_config_text = config_page.get_configuration_content()
-            assert loaded_config_text is not None, (
-                "Config content should not be None"
-            )
+            assert (
+                loaded_config_text is not None
+            ), "Config content should not be None"
             assert (
                 "model" in loaded_config_text and "data" in loaded_config_text
             ), "Configuration content should be displayed"
@@ -306,12 +306,12 @@ class TestHappyPathWorkflow(BaseE2ETest):
             arch_page.wait_for_model_instantiation()
             model_summary = arch_page.get_model_summary()
             expected_model_name = self.get_test_data()["expected_model_name"]
-            assert model_summary is not None, (
-                "Model summary should not be None"
-            )
-            assert expected_model_name in model_summary, (
-                f"Model summary should contain '{expected_model_name}'"
-            )
+            assert (
+                model_summary is not None
+            ), "Model summary should not be None"
+            assert (
+                expected_model_name in model_summary
+            ), f"Model summary should contain '{expected_model_name}'"
             self.log_assertion(
                 "Model instantiated and summary displayed",
                 expected_model_name in model_summary,
@@ -343,9 +343,9 @@ class TestHappyPathWorkflow(BaseE2ETest):
             train_page.wait_for_training_to_start()
             status = train_page.get_training_status()
             assert status is not None, "Training status should be available"
-            assert "running" in status.lower(), (
-                "Training status should be 'running'"
-            )
+            assert (
+                "running" in status.lower()
+            ), "Training status should be 'running'"
             self.log_assertion(
                 "Training started and status is running",
                 "running" in status.lower(),
@@ -360,9 +360,9 @@ class TestHappyPathWorkflow(BaseE2ETest):
 
             # Verify results are available
             results_page.wait_for_results_loaded()
-            assert results_page.is_results_gallery_displayed(), (
-                "Results gallery should be available after training"
-            )
+            assert (
+                results_page.is_results_gallery_displayed()
+            ), "Results gallery should be available after training"
             self.log_assertion("Results are displayed on the page", True)
 
             # Final memory check

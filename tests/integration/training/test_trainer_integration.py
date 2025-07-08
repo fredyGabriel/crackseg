@@ -96,10 +96,10 @@ def integration_test_trainer_checkpoint_resume(
     actual_checkpoint_dir = "outputs/checkpoints"
     os.makedirs(actual_checkpoint_dir, exist_ok=True)
     last_ckpt = os.path.join(actual_checkpoint_dir, "checkpoint_last.pth")
-    assert os.path.exists(last_ckpt), (
-        "No checkpoint saved in outputs/\
+    assert os.path.exists(
+        last_ckpt
+    ), "No checkpoint saved in outputs/\
 checkpoints"
-    )
 
     # Load from checkpoint and continue training
     cfg.training["checkpoint_load_path"] = last_ckpt
@@ -122,15 +122,13 @@ checkpoints"
 
     assert (
         trainer2.start_epoch == 3  # noqa: PLR2004
-    ), (
-        f"Training did not continue from the \
-correct epoch: {trainer2.start_epoch}"
-    )  # noqa: PLR2004
+    ), f"Training did not continue from the \
+correct epoch: {trainer2.start_epoch}"  # noqa: PLR2004
     for p1, p2 in zip(model.parameters(), model2.parameters(), strict=False):
-        assert not torch.equal(p1, p2), (
-            "Model weights did not change \
+        assert not torch.equal(
+            p1, p2
+        ), "Model weights did not change \
 after resuming and training"
-        )
 
     # Clean up the checkpoint directory
     shutil.rmtree(actual_checkpoint_dir, ignore_errors=True)

@@ -5,14 +5,11 @@ Tests the data retention functionality including time-based,
 count-based, and composite retention policies.
 """
 
-import json
 import tempfile
 import time
 from collections import defaultdict
 from pathlib import Path
 from unittest.mock import patch
-
-import pytest
 
 from src.utils.monitoring.retention import (
     CompositeRetentionPolicy,
