@@ -3,27 +3,27 @@
 This package provides async scanning capabilities for handling large crack
 segmentation datasets with triplet validation (image|mask|prediction).
 
-Refactored into focused modules following coding standards:
-- core.py: Data structures and progress tracking
-- scanner.py: Main AsyncResultsScanner class
-- validation.py: Triplet validation logic
-- utils.py: Factory functions and utilities
+Note: This module imports classes from the correct locations where they
+are actually defined.
 
 Public API:
-    AsyncResultsScanner: Main scanner class
-    ResultTriplet: Triplet data structure
-    ScanProgress: Progress tracking
-    create_results_scanner: Factory function
+    ResultTriplet: Triplet data structure (from results.core)
+    ScanProgress: Progress tracking (from results.core)
+    TripletType: Enumeration for triplet types (from results.core)
 """
 
-from .core import ResultTriplet, ScanProgress, TripletType
-from .scanner import AsyncResultsScanner
-from .utils import create_results_scanner
+# Import from the actual location where classes are defined
+from scripts.gui.utils.results.core import (
+    ResultTriplet,
+    ScanProgress,
+    TripletType,
+)
+
+# Note: AsyncResultsScanner and create_results_scanner are not yet implemented
+# These would need to be created if this functionality is required
 
 __all__ = [
-    "AsyncResultsScanner",
     "ResultTriplet",
     "ScanProgress",
     "TripletType",
-    "create_results_scanner",
 ]

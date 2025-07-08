@@ -22,7 +22,7 @@ class SessionState:
     # Core application state
     config_path: str | None = None
     run_directory: str | None = None
-    current_page: str = "Config"
+    current_page: str = "Home"
     theme: str = "dark"
 
     # Configuration state

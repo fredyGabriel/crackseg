@@ -1,0 +1,152 @@
+# Performance Thresholds Configuration for E2E Testing Pipeline
+#
+# This configuration defines SLA boundaries and performance expectations for:
+# - Web interface response times
+# - Model processing performance
+# - Resource consumption limits
+# - Container management operations
+# - File I/O operations
+
+# @package _global_
+defaults:
+  - _self_
+
+# Web Interface Performance Thresholds
+web_interface:
+  page_load_time:
+    warning_threshold_ms: 1500    # Yellow alert at 1.5s
+    critical_threshold_ms: 2000   # Red alert at 2s (hard SLA)
+    timeout_ms: 5000              # Absolute timeout
+
+  config_validation:
+    warning_threshold_ms: 300     # Yellow alert at 300ms
+    critical_threshold_ms: 500    # Red alert at 500ms (hard SLA)
+    timeout_ms: 2000              # Absolute timeout
+
+  user_interaction:
+    button_response_ms: 200       # UI responsiveness
+    form_submission_ms: 1000      # Form processing
+    file_upload_timeout_ms: 10000 # Large file handling
+
+# Model Processing Performance
+model_processing:
+  inference_time:
+    warning_threshold_ms: 800     # Single image inference warning
+    critical_threshold_ms: 1200   # Single image inference critical
+    batch_timeout_ms: 5000        # Batch processing timeout
+
+  memory_usage:
+    warning_threshold_mb: 6000    # RTX 3070 Ti: 6GB warning (75% of 8GB)
+    critical_threshold_mb: 7500   # RTX 3070 Ti: 7.5GB critical (94% of 8GB)
+    oom_threshold_mb: 7800        # Out of memory prevention
+
+  crack_detection:
+    min_precision: 0.85           # Minimum precision for crack detection
+    min_recall: 0.80              # Minimum recall for crack detection
+    min_iou: 0.75                 # Minimum IoU for segmentation quality
+
+# System Resource Consumption
+system_resources:
+  cpu_usage:
+    warning_threshold_percent: 75  # CPU usage warning
+    critical_threshold_percent: 90 # CPU usage critical
+    sustained_duration_s: 30       # Duration for sustained alerts
+
+  memory_usage:
+    warning_threshold_mb: 8000     # System RAM warning (assuming 16GB system)
+    critical_threshold_mb: 12000   # System RAM critical
+    leak_detection_growth_mb: 1000 # Memory leak detection threshold
+
+  disk_usage:
+    temp_files_warning_mb: 500     # Temporary files accumulation
+    temp_files_critical_mb: 1000   # Temporary files critical
+    log_files_max_mb: 100          # Maximum log file size
+
+# Docker Container Management
+container_management:
+  startup_time:
+    warning_threshold_s: 15        # Container startup warning
+    critical_threshold_s: 30       # Container startup critical
+    timeout_s: 60                  # Container startup timeout
+
+  shutdown_time:
+    warning_threshold_s: 5         # Container shutdown warning
+    critical_threshold_s: 10       # Container shutdown critical
+    force_kill_timeout_s: 30       # Force kill timeout
+
+  resource_cleanup:
+    orphaned_containers_max: 2     # Maximum orphaned containers
+    dangling_images_max: 5         # Maximum dangling images
+    unused_volumes_max: 3          # Maximum unused volumes
+
+# File I/O Operations
+file_operations:
+  test_data_access:
+    read_time_warning_ms: 100      # Test data read warning
+    read_time_critical_ms: 500     # Test data read critical
+    write_time_warning_ms: 200     # Test data write warning
+    write_time_critical_ms: 1000   # Test data write critical
+
+  artifact_generation:
+    screenshot_save_ms: 1000       # Screenshot save time
+    report_generation_ms: 3000     # Test report generation
+    cleanup_completion_ms: 2000    # Artifact cleanup time
+
+  concurrent_access:
+    max_open_files: 100            # Maximum concurrent open files
+    lock_timeout_ms: 5000          # File lock timeout
+
+# CI/CD Integration Thresholds
+ci_cd:
+  pipeline_performance:
+    test_suite_timeout_minutes: 45  # Complete E2E suite timeout
+    parallel_test_workers: 4        # Maximum parallel test workers
+    regression_threshold_percent: 20 # Performance regression detection (>20% slower)
+
+  quality_gates:
+    min_test_coverage_percent: 80   # Minimum test coverage
+    max_flaky_test_percent: 5       # Maximum flaky test rate
+    max_test_failures_percent: 2    # Maximum test failure rate
+
+# Alert and Notification Settings
+alerting:
+  escalation:
+    warning_retry_count: 3          # Retries before escalating warning
+    critical_immediate_alert: true  # Immediate alert for critical thresholds
+    performance_trend_window_hours: 24 # Performance trend analysis window
+
+  thresholds_validation:
+    strict_mode: true               # Strict threshold validation
+    allow_override_in_dev: true     # Allow threshold override in development
+    log_threshold_violations: true  # Log all threshold violations
+
+  # Regression Detection Settings
+  regression_detection:
+    warning_threshold_percent: 15   # Performance degradation warning threshold
+    critical_threshold_percent: 25 # Performance degradation critical threshold
+    min_historical_samples: 3      # Minimum samples for reliable baseline
+    confidence_level: 0.95         # Statistical confidence level
+    trend_window_hours: 24         # Historical trend analysis window
+    sustained_degradation_minutes: 10 # Duration for sustained regression alerts
+
+  # Notification Configuration
+  notifications:
+    enabled_channels:
+      - github_pr_comment           # Post alerts as PR comments
+      - webhook                     # Send to configured webhook URL
+    cooldown_minutes: 30            # Minimum time between duplicate alerts
+
+    # Channel-specific configuration
+    github:
+      auto_comment_on_regression: true # Automatically comment on PRs
+      include_context: true           # Include build/commit context
+
+    webhook:
+      url: null                       # Webhook URL (set via environment)
+      timeout_seconds: 10             # Request timeout
+      retry_count: 3                  # Number of retries on failure
+
+    email:
+      enabled: false                  # Email notifications disabled by default
+      smtp_server: null               # SMTP server configuration
+      recipients: []                  # Email recipient list

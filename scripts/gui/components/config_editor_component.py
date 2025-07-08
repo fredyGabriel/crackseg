@@ -9,9 +9,11 @@ import logging
 
 import streamlit as st
 
-from scripts.gui.components.config_editor import (
-    ConfigEditorCore,
+from scripts.gui.components.config_editor.editor_core import ConfigEditorCore
+from scripts.gui.components.config_editor.file_browser_integration import (
     FileBrowserIntegration,
+)
+from scripts.gui.components.config_editor.validation_panel import (
     ValidationPanel,
 )
 
@@ -69,7 +71,7 @@ class ConfigEditorComponent:
             )
 
         with col_validation:
-            st.subheader("✅ Validación en Vivo")
+            st.subheader("✅ Live Validation")
             self.validation_panel.render_advanced_validation(content, key)
 
         return content

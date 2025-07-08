@@ -1,63 +1,70 @@
-# Tutorial 2: Configuring a New Experiment
+# Tutorial 2: Creating a Custom Experiment
 
-This tutorial demonstrates how to modify the existing configuration to run a new
-experiment. We will change the model's encoder to see how it affects performance.
+This tutorial explains how to use the GUI's advanced features to create,
+modify, and save a custom configuration for your experiment.
 
-**Goal**: Learn to use Hydra's command-line overrides to launch custom experiments.
-**Prerequisite**: [Tutorial 1: Running Your First Training](01_basic_training.md)
+## Prerequisites
 
----
+- You have completed Tutorial 1 and understand the basic training workflow.
 
-## Step 1: Understand the Configuration Structure
+## Step 1: Load a Base Configuration
 
-Our project uses Hydra, which means all settings are stored in YAML files inside the
-`configs/` directory. The structure of this directory mirrors the project's code
-structure.
+1. Launch the GUI (`streamlit run scripts/gui/app.py`).
+2. Navigate to the **Experiment Configuration** page.
+3. Load the `configs/base.yaml` file using the file browser, just as you did
+    in the previous tutorial.
 
-For example, available model encoders are defined in `configs/model/encoder/`.
-Take a moment to explore the files in that directory. You might see `resnet34.yaml`,
-`efficientnet_b4.yaml`, etc.
+## Step 2: Modify the Configuration in the Editor
 
-## Step 2: Choose a New Component
+1. Once `base.yaml` is loaded, scroll down to the
+    **"Editor & Real-time Validation"** expander.
+2. The content of the configuration is displayed in an advanced code editor.
+3. Let's modify the learning rate. Find the `optimizer` section and change
+    the `lr` value from `0.0001` to `0.0005`.
 
-Let's assume the default configuration (`configs/base.yaml`) uses the `resnet34`
-encoder. For our new experiment, we want to try the `efficientnet_b4` encoder instead.
+    ```yaml
+    # ...
+    optimizer:
+      _target_: torch.optim.AdamW
+      lr: 0.0001 # Change this to 0.0005
+    # ...
+    ```
 
-## Step 3: Launch Training with an Override
+4. Notice the **Real-time Validation** panel next to the editor. It provides
+    instant feedback. If you introduce a syntax error (e.g., incorrect
+    indentation), it will immediately flag it as a `YAML Error`. If you
+    reference a component that doesn't exist, it will raise a
+    `Hydra Instantiation Error`.
 
-You do **not** need to edit any YAML files directly. Hydra's power comes from its
-command-line overrides. We will launch the training from the terminal and tell Hydra
-to swap the encoder.
+## Step 3: Save the Custom Configuration
 
-1. Activate the `crackseg` environment: `conda activate crackseg`
-2. Run the main training script with a specific override for `model/encoder`:
+1. After modifying the content, scroll to the "Save Changes" section below
+    the editor.
+2. Click the **"💾 Save Configuration As..."** button. A save dialog will
+    appear.
+3. In the dialog, provide a **File Name** for your new configuration, for
+    example: `custom_lr_experiment`. The `.yaml` extension is added
+    automatically.
+4. The dialog shows where the file will be saved (typically in the
+    `generated_configs/` directory).
+5. Click **"Save"**. The file is saved, and the dialog closes. You should see a
+    notification confirming the save.
 
-```bash
-python src/main.py --config-name base model/encoder=efficientnet_b4
-```
+## Step 4: Run the Custom Experiment
 
-### Deconstructing the Command
+1. Your new configuration is **not** automatically loaded. You must now load
+    the file you just created.
+2. Go back to the **"Model Configuration"** section at the top of the page.
+3. Use the file browser to navigate into the `generated_configs/` directory
+    and select your `custom_lr_experiment.yaml` file.
+4. Set a new, descriptive **Run Directory**, such as
+    `outputs/custom_lr_run`.
+5. Navigate to the **Train** page and start the training.
+6. Monitor the experiment. How does the increased learning rate affect the
+    training dynamics compared to your first run?
 
-- `python src/main.py`: We run the main script directly, bypassing the GUI for this
-    CLI-focused tutorial.
-- `--config-name base`: This tells Hydra to start with `configs/base.yaml` as the
-    foundation.
-- `model/encoder=efficientnet_b4`: This is the override. It instructs Hydra to
-    ignore the default value in `model/encoder` and instead use the configuration
-    found in `configs/model/encoder/efficientnet_b4.yaml`.
+## What's Next?
 
-## Step 4: Observe the Output
-
-The training will start in your terminal. Pay attention to the initial output from
-Hydra, which will show the composed configuration. You should see that the `encoder`
-is now set to `efficientnet_b4`.
-
-The results of this run will be saved to a new, unique directory in `outputs/`,
-named according to the date and time of the run. This keeps your experiment
-results neatly organized and separate from one another.
-
----
-
-**Congratulations!** You have successfully launched a custom experiment. You can use
-this override technique for any configuration parameter in the `configs/` directory,
-allowing for rapid iteration and testing of new ideas.
+You now know how to tailor experiments using the GUI. The next tutorial covers
+the more advanced topic of extending the project with your own custom Python
+components, like a new model architecture or loss function.

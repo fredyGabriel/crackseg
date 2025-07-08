@@ -39,7 +39,7 @@ class FileBrowserIntegration:
                 all_configs.extend(yaml_files + yml_files)
 
         if not all_configs:
-            st.info("💡 No se encontraron archivos de configuración")
+            st.info("💡 No configuration files found")
             return
 
         # Group files by directory

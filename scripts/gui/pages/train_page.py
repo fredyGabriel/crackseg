@@ -5,59 +5,206 @@ This module contains the training dashboard content for launching
 and monitoring model training.
 """
 
+import time
 from pathlib import Path
 from typing import Any
 
 import streamlit as st
 
+from scripts.gui.components.header_component import render_header
 from scripts.gui.components.loading_spinner import LoadingSpinner
+from scripts.gui.components.log_viewer import LogViewerComponent
 from scripts.gui.components.progress_bar import (
     ProgressBar,
-    create_step_progress,
 )
 from scripts.gui.components.tensorboard_component import TensorBoardComponent
+from scripts.gui.utils.gui_config import PAGE_CONFIG
+from scripts.gui.utils.log_parser import (
+    initialize_metrics_df,
+)
+from scripts.gui.utils.process_manager import ProcessManager
 from scripts.gui.utils.session_state import SessionStateManager
 
 
-def page_train() -> None:
-    """Training page content."""
-    state = SessionStateManager.get()
+def get_command(state: Any) -> list[str]:
+    """Constructs the training command."""
+    # Note: Assumes conda environment is active where streamlit is run
+    command = [
+        "python",
+        "-m",
+        "src.train",
+        f"data.data_dir={Path('data').absolute()}",
+        f"hydra.run.dir={state.run_directory}",
+    ]
+    # Add overrides from the loaded config
+    # This is a simplified example. A real implementation would parse the
+    # config.
+    command.append(f"--config-name={Path(state.config_path).stem}")
+    command.append(
+        f"--config-path={str(Path(state.config_path).parent.absolute())}"
+    )
+    return command
 
-    if not state.is_ready_for_training():
-        st.warning("Please complete configuration setup before training.")
-        return
+
+def _render_training_controls(process_manager: Any) -> None:
+    """Render training control buttons for start/stop/pause operations."""
+    st.subheader("Training Controls")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        start_training_button = st.button(
+        start_training = st.button(
             "▶️ Start Training",
-            key="launch_training",
             type="primary",
-            disabled=state.training_active,
+            disabled=process_manager.is_running,
+            help="Start the training process with current configuration",
+            key="start_training_btn",
         )
 
-        if start_training_button:
-            _start_training_process(state)
-
     with col2:
-        if st.button("⏸️ Pause Training", disabled=not state.training_active):
-            state.add_notification("Training paused")
-            st.info(
-                "Pause functionality will be implemented in future updates"
-            )
+        pause_training = st.button(
+            "⏸️ Pause Training",
+            disabled=not process_manager.is_running,
+            help="Pause the current training session",
+            key="pause_training_btn",
+        )
 
     with col3:
-        if st.button("⏹️ Stop Training", disabled=not state.training_active):
-            state.set_training_active(False)
-            state.add_notification("Training stopped")
-            st.info("Training stopped")
+        stop_training = st.button(
+            "⏹️ Stop Training",
+            disabled=not process_manager.is_running,
+            help="Stop the training process completely",
+            key="stop_training_btn",
+        )
+
+    # Handle training actions
+    if start_training:
+        try:
+            state = SessionStateManager.get()
+            command = get_command(state)
+            success = process_manager.start_training(command)
+
+            if success:
+                st.success("Training started successfully!")
+                st.session_state.process_manager = process_manager
+                st.rerun()
+            else:
+                st.error("Failed to start training. Check configuration.")
+
+        except Exception as e:
+            st.error(f"Error starting training: {str(e)}")
+
+    if pause_training:
+        try:
+            process_manager.pause()
+            st.warning("Training paused.")
+            st.rerun()
+        except Exception as e:
+            st.error(f"Error pausing training: {str(e)}")
+
+    if stop_training:
+        try:
+            process_manager.stop()
+            st.info("Training stopped.")
+            st.session_state.process_manager = None
+            st.rerun()
+        except Exception as e:
+            st.error(f"Error stopping training: {str(e)}")
+
+
+def page_train() -> None:
+    """
+    Renders the training page, handling the lifecycle of a training process.
+
+    This page facilitates starting, stopping, and monitoring the training
+    process. It displays real-time logs, metrics, and manages the
+    training lifecycle.
+    """
+    st.title(PAGE_CONFIG["Train"]["title"])
+    state = SessionStateManager.get()
+    # Create ProcessManager with proper initialization
+    process_manager = ProcessManager([])
+    render_header("Model Training")
+
+    # Initialize process manager and metrics dataframe in session state
+    if "process_manager" not in st.session_state:
+        st.session_state.process_manager = None
+    if "metrics_df" not in st.session_state:
+        st.session_state.metrics_df = initialize_metrics_df()
+
+    # Check if the system is ready for training
+    ready = state.is_ready_for_training()
+    if not ready:
+        st.error(
+            "System is not ready for training. Please resolve the following "
+            "issues:"
+        )
+        st.warning("- Check configuration and directory settings")
+        st.stop()
+
+    # --- Training Control ---
+    _render_training_controls(process_manager)
+
+    # --- Log and Metrics Display ---
+    if process_manager.is_running:
+        st.markdown("---")
+        log_col, metrics_col = st.columns(2)
+
+        with log_col:
+            st.subheader("Live Training Log")
+            # Create log viewer with basic implementation
+            log_viewer = LogViewerComponent()
+            log_viewer.render()
+
+        with metrics_col:
+            st.subheader("Live Metrics")
+            if not st.session_state.metrics_df.empty:
+                # Plot main metrics (loss)
+                loss_cols = [
+                    c
+                    for c in st.session_state.metrics_df.columns
+                    if "loss" in c
+                ]
+                if loss_cols:
+                    st.line_chart(st.session_state.metrics_df[loss_cols])
+
+                # Plot other validation metrics
+                other_val_cols = [
+                    c
+                    for c in st.session_state.metrics_df.columns
+                    if "val_" in c and "loss" not in c
+                ]
+                if other_val_cols:
+                    st.line_chart(st.session_state.metrics_df[other_val_cols])
+            else:
+                st.info(
+                    "Metrics will be plotted here as they become available."
+                )
+
+        # Auto-refresh loop to update logs and charts
+        time.sleep(2)  # Increased sleep time to allow chart rendering
+        process_manager.check_status()  # Update is_running flag
+        if process_manager.is_running:
+            st.rerun()
+        else:
+            # Final status update when process finishes
+            st.success("Training process finished.")
+            st.session_state.process_manager = None
+            st.rerun()  # One final rerun to clear the page
+
+    else:
+        # Default view when no process is running
+        st.header("Start a New Training Run")
+        st.info(
+            "Configure your experiment on the 'Config' page, then click "
+            "'Start Training' above."
+        )
 
     # Training progress
     st.markdown("---")
     st.subheader("Training Progress")
 
-    if state.training_active:
+    if process_manager.is_running:
         _render_training_progress(state)
     else:
         st.info("Real-time training metrics will be displayed here")
@@ -69,52 +216,9 @@ def page_train() -> None:
             st.metric(metric.capitalize(), f"{value:.4f}")
 
     # TensorBoard integration during training
-    if state.training_active:
+    if process_manager.is_running:
         st.markdown("---")
         _render_training_tensorboard(state)
-
-
-def _start_training_process(state: Any) -> None:
-    """Start the training process with progress tracking."""
-    # Use LoadingSpinner for quick initialization
-    message, subtext, spinner_type = LoadingSpinner.get_contextual_message(
-        "training"
-    )
-
-    with LoadingSpinner.spinner(
-        message=message,
-        subtext=subtext,
-        spinner_type=spinner_type,
-        timeout_seconds=10,
-    ):
-        # Quick initialization
-        state.set_training_active(True)
-        state.add_notification("Training initialization started")
-
-    # Use ProgressBar for the actual training process
-    training_steps = [
-        "Loading model architecture",
-        "Initializing data loaders",
-        "Setting up optimizer",
-        "Configuring loss functions",
-        "Starting training loop",
-    ]
-
-    # Create step-based progress for training setup
-    with create_step_progress(
-        title="Training Setup",
-        steps=training_steps,
-        operation_id="training_setup",
-    ) as progress:
-        for step in training_steps:
-            progress.next_step(f"Completing: {step}")
-            # Simulate setup time
-            import time
-
-            time.sleep(1)
-
-    st.success("Training started!")
-    st.rerun()
 
 
 def _render_training_progress(state: Any) -> None:
@@ -163,7 +267,7 @@ def _render_training_tensorboard(state: Any) -> None:
     log_dir = Path(run_dir) / "logs" / "tensorboard"
 
     # Compact TensorBoard component for training page
-    with st.expander("📊 TensorBoard Live Monitoring", expanded=False):
+    with st.expander("TensorBoard Live Monitoring", expanded=False):
         tb_component = TensorBoardComponent(
             default_height=500,  # Smaller for training page
             auto_startup=True,  # Auto-start when available

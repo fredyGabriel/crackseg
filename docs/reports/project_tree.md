@@ -51,6 +51,8 @@
     │   │   │   └── swin_transformer_encoder.yaml
     │   │   ├── default.yaml
     │   │   └── README.md
+    │   ├── testing/
+    │   │   └── performance_thresholds.yaml
     │   ├── training/
     │   │   ├── logging/
     │   │   │   ├── checkpoints.yaml
@@ -370,7 +372,10 @@
     │   │   ├── DEVELOPMENT.md
     │   │   ├── INSTALL.md
     │   │   ├── loss_registry_usage.md
+    │   │   ├── performance_benchmarking_system.md
     │   │   ├── SYSTEM_DEPENDENCIES.md
+    │   │   ├── TECHNICAL_ARCHITECTURE.md
+    │   │   ├── TROUBLESHOOTING.md
     │   │   ├── USAGE.md
     │   │   └── WORKFLOW_TRAINING.md
     │   ├── reports/
@@ -413,10 +418,20 @@
     │   │   ├── artifact_testing_plan.md
     │   │   └── test_patterns_and_best_practices.md
     │   ├── tools/
+    │   ├── tutorials/
+    │   │   ├── 01_basic_training.md
+    │   │   ├── 02_custom_experiment.md
+    │   │   └── 03_extending_project.md
     │   └── index.md
     ├── generated_configs/
     ├── htmlcov/
     ├── outputs/
+    ├── performance-historical-data/
+    │   ├── performance-data-20250706_181616.json
+    │   ├── performance-data-20250706_181735.json
+    │   ├── performance-data-ci_commi-20250706_181616.json
+    │   └── performance-data-ci_commi-20250706_181735.json
+    ├── performance-reports/
     ├── results/
     ├── scripts/
     │   ├── __pycache__/
@@ -514,7 +529,8 @@
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
     │   │   │   ├── gallery_export_service.py
-    │   │   │   └── gallery_scanner_service.py
+    │   │   │   ├── gallery_scanner_service.py
+    │   │   │   └── gpu_monitor.py
     │   │   ├── utils/
     │   │   │   ├── __pycache__/
     │   │   │   ├── config/
@@ -599,7 +615,8 @@
     │   │   │   ├── session_sync.py
     │   │   │   ├── streaming_examples.py
     │   │   │   ├── tb_manager.py
-    │   │   │   └── theme.py
+    │   │   │   ├── theme.py
+    │   │   │   └── training_state.py
     │   │   ├── __init__.py
     │   │   ├── app.py
     │   │   ├── app_legacy.py
@@ -645,6 +662,7 @@
     │   ├── check_test_files.py
     │   ├── debug_artifacts.py
     │   ├── model_inventory.py
+    │   ├── performance_maintenance.py
     │   ├── README.md
     │   ├── test_clean_installation.py
     │   ├── validate_coverage.py
@@ -991,6 +1009,21 @@
     │   │   │   ├── metrics_manager.py
     │   │   │   ├── setup.py
     │   │   │   └── training.py
+    │   │   ├── monitoring/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── alert_types.py
+    │   │   │   ├── alerting_system.py
+    │   │   │   ├── callbacks.py
+    │   │   │   ├── exceptions.py
+    │   │   │   ├── gpu_callbacks.py
+    │   │   │   ├── manager.py
+    │   │   │   ├── resource_monitor.py
+    │   │   │   ├── resource_snapshot.py
+    │   │   │   ├── retention.py
+    │   │   │   ├── system_callbacks.py
+    │   │   │   ├── threshold_checker.py
+    │   │   │   └── threshold_config.py
     │   │   ├── training/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
@@ -1073,6 +1106,17 @@
     │   │   │   ├── storage.py
     │   │   │   ├── video.py
     │   │   │   └── visual_regression.py
+    │   │   ├── cleanup/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── audit_trail.py
+    │   │   │   ├── ci_integration.py
+    │   │   │   ├── cleanup_manager.py
+    │   │   │   ├── environment_readiness.py
+    │   │   │   ├── post_cleanup_validator.py
+    │   │   │   ├── resource_cleanup.py
+    │   │   │   ├── validation_reporter.py
+    │   │   │   └── validation_system.py
     │   │   ├── config/
     │   │   │   ├── __pycache__/
     │   │   │   ├── viewport_config/
@@ -1095,9 +1139,11 @@
     │   │   │   ├── execution_strategies.py
     │   │   │   ├── parallel_execution_config.py
     │   │   │   ├── parallel_performance_integration.py
+    │   │   │   ├── performance_thresholds.py
     │   │   │   ├── pytest_markers.py
     │   │   │   ├── resource_manager.py
-    │   │   │   └── test_parallel_framework_validation.py
+    │   │   │   ├── test_parallel_framework_validation.py
+    │   │   │   └── threshold_validator.py
     │   │   ├── data/
     │   │   │   ├── __pycache__/
     │   │   │   ├── factories/
@@ -1154,6 +1200,39 @@
     │   │   │   ├── locators.py
     │   │   │   ├── results_page.py
     │   │   │   └── train_page.py
+    │   │   ├── performance/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── reporting/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── analysis.py
+    │   │   │   │   ├── comparison_charts.py
+    │   │   │   │   ├── config.py
+    │   │   │   │   ├── core.py
+    │   │   │   │   ├── data_processor.py
+    │   │   │   │   ├── factory_functions.py
+    │   │   │   │   ├── formats.py
+    │   │   │   │   ├── historical_manager.py
+    │   │   │   │   ├── html_formatter.py
+    │   │   │   │   ├── insights_generator.py
+    │   │   │   │   ├── json_formatter.py
+    │   │   │   │   ├── metric_extractor.py
+    │   │   │   │   ├── pdf_formatter.py
+    │   │   │   │   ├── regression_analyzer.py
+    │   │   │   │   ├── summary_charts.py
+    │   │   │   │   ├── templates.py
+    │   │   │   │   ├── trend_analyzer.py
+    │   │   │   │   ├── trend_charts.py
+    │   │   │   │   └── visualizations.py
+    │   │   │   ├── __init__.py
+    │   │   │   ├── benchmark_runner.py
+    │   │   │   ├── benchmark_suite.py
+    │   │   │   ├── ci_integration.py
+    │   │   │   ├── endurance_test.py
+    │   │   │   ├── load_test.py
+    │   │   │   ├── metrics_collector.py
+    │   │   │   ├── regression_alerting_system.py
+    │   │   │   └── stress_test.py
     │   │   ├── reporting/
     │   │   │   ├── __pycache__/
     │   │   │   ├── analysis/
@@ -1203,8 +1282,11 @@
     │   │   │   ├── debugging.py
     │   │   │   ├── element.py
     │   │   │   ├── file.py
+    │   │   │   ├── README_TestEnvironmentManager.md
     │   │   │   ├── streamlit.py
     │   │   │   ├── string.py
+    │   │   │   ├── test_environment_fixtures.py
+    │   │   │   ├── test_environment_manager.py
     │   │   │   └── time.py
     │   │   ├── waits/
     │   │   │   ├── __pycache__/
@@ -1216,6 +1298,7 @@
     │   │   ├── conftest.py
     │   │   ├── README.md
     │   │   ├── test_driver_integration.py
+    │   │   ├── test_environment_setup_demo.py
     │   │   ├── test_fixture_usage_example.py
     │   │   └── test_streamlit_basic.py
     │   ├── fixtures/
@@ -1285,6 +1368,9 @@
     │   │   │   ├── __pycache__/
     │   │   │   ├── test_data_loading_pipeline.py
     │   │   │   └── test_data_pipeline.py
+    │   │   ├── e2e/
+    │   │   │   ├── __pycache__/
+    │   │   │   └── test_cleanup_integration.py
     │   │   ├── end_to_end/
     │   │   ├── evaluation/
     │   │   │   ├── __pycache__/
@@ -1382,6 +1468,10 @@
     │   │   │   ├── test_swin_transfer_learning.py
     │   │   │   ├── test_swin_unet_integration.py
     │   │   │   └── test_unet_aspp_integration.py
+    │   │   ├── monitoring/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   └── test_monitoring_integration.py
     │   │   ├── reporting/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
@@ -1422,11 +1512,21 @@
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── test_screenshot.py
     │   │   │   │   └── test_storage.py
+    │   │   │   ├── cleanup/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   └── test_cleanup_manager.py
     │   │   │   ├── config/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── test_browser_capabilities.py
-    │   │   │   │   └── test_browser_config_manager.py
+    │   │   │   │   ├── test_browser_config_manager.py
+    │   │   │   │   └── test_performance_thresholds.py
+    │   │   │   ├── performance/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── reporting/
+    │   │   │   │   │   ├── __pycache__/
+    │   │   │   │   │   └── test_core.py
+    │   │   │   │   └── test_regression_alerting_system.py
     │   │   │   ├── waits/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
@@ -1528,6 +1628,12 @@
     │   │   │   ├── logging/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   └── test_metrics_manager.py
+    │   │   │   ├── monitoring/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── test_callbacks.py
+    │   │   │   │   ├── test_monitoring_manager.py
+    │   │   │   │   └── test_retention.py
     │   │   │   ├── test_checkpointing.py
     │   │   │   ├── test_dataset.py
     │   │   │   ├── test_early_stopping.py

@@ -39,8 +39,12 @@ from src.utils.core.device import get_device
 from src.utils.logging.metrics_manager import MetricsManager
 from src.utils.logging.setup import setup_internal_logger
 from src.utils.logging.training import log_validation_results, safe_log
+from src.utils.monitoring import (
+    BaseCallback,
+    CallbackHandler,
+    MonitoringManager,
+)
 from src.utils.training.amp_utils import (
-    _GRADSCALER_DEVICE,
     GradScaler,
     amp_autocast,
     optimizer_step_with_accumulation,
@@ -76,18 +80,18 @@ class Trainer:
         logger_instance: BaseLogger | None = None,
         # Early stopper can be instantiated outside and passed, or configured
         early_stopper: EarlyStopping | None = None,
+        callbacks: list[BaseCallback] | None = None,
     ):
         """Initializes the Trainer."""
         self._initialize_core_attributes(components, cfg, logger_instance)
         self._parse_trainer_settings()
+        self._setup_monitoring(callbacks)  # Setup monitoring
         self._setup_checkpointing_attributes()
         self._setup_device_and_model()
         self._setup_optimizer_and_scheduler()
         self._setup_mixed_precision()
         self._load_checkpoint_state()
-        self._setup_early_stopping_instance(
-            early_stopper
-        )  # Pass early_stopper if provided
+        self._setup_early_stopping_instance(early_stopper)
         self._log_initialization_summary()
 
     def _initialize_core_attributes(
@@ -107,13 +111,22 @@ class Trainer:
         self.metrics_dict = components.metrics_dict
         self.logger_instance = logger_instance
         self.internal_logger = setup_internal_logger(logger_instance)
+        self.grad_accum_steps = self.cfg.get("gradient_accumulation_steps", 1)
+        self.verbose = self.cfg.get("verbose", True)
+        self.start_epoch = 1  # Default start epoch
+
+    def _setup_monitoring(self, callbacks: list[BaseCallback] | None) -> None:
+        """Initializes the monitoring and callback system."""
+        self.monitoring_manager = MonitoringManager()
+        self.callback_handler = CallbackHandler(
+            callbacks or [], self.monitoring_manager
+        )
 
     def _parse_trainer_settings(self):
         """Parses basic trainer settings from the configuration."""
         self.epochs = self.cfg.get("epochs", 10)
         self.device_str = self.cfg.get("device", "auto")
         self.use_amp = self.cfg.get("use_amp", True)
-        self.grad_accum_steps = self.cfg.get("gradient_accumulation_steps", 1)
         self.verbose = self.cfg.get("verbose", True)
         self.start_epoch = 1  # Default start epoch
 
@@ -144,7 +157,7 @@ class Trainer:
         self.best_filename = save_best_config.get(
             "best_filename", "model_best.pth.tar"
         )
-        self.best_metric_value = (
+        self.best_metric_value: float = (
             float("inf") if self.monitor_mode == "min" else float("-inf")
         )
 
@@ -251,19 +264,9 @@ class Trainer:
         except Exception as e:
             safe_log(
                 self.internal_logger,
-                "error",
-                f"Failed to save standardized configuration: {e}",
+                "warning",
+                f"Failed to save initial training configuration: {e}",
             )
-            raise RuntimeError(
-                "Training cannot proceed without proper configuration "
-                f"storage. Configuration save failed: {e}"
-            ) from e
-
-        safe_log(
-            self.internal_logger,
-            "info",
-            f"StandardizedConfigStorage initialized at: {config_storage_dir}",
-        )
 
     def _setup_device_and_model(self):
         """Sets up the device and moves the model to it."""
@@ -271,103 +274,83 @@ class Trainer:
         self.model.to(self.device)
 
     def _setup_optimizer_and_scheduler(self):
-        """Initializes the optimizer and learning rate scheduler."""
-        self.optimizer = create_optimizer(
-            self.model.parameters(),
-            self.cfg.optimizer,  # Use self.cfg here
-        )
-        self.scheduler = create_lr_scheduler(
-            self.optimizer,
-            self.cfg.scheduler,  # Use self.cfg here
+        """Sets up the optimizer and learning rate scheduler."""
+        self.optimizer = create_optimizer(self.model, self.cfg.optimizer)
+        self.scheduler = (
+            create_lr_scheduler(self.optimizer, self.cfg.lr_scheduler)
+            if "lr_scheduler" in self.cfg
+            else None
         )
 
     def _setup_mixed_precision(self):
-        """Sets up GradScaler for automatic mixed precision
-        (compatible with PyTorch >=2.4 y anteriores)."""
-        scaler_enabled = self.use_amp and self.device.type == "cuda"
-        if _GRADSCALER_DEVICE is not None:
-            self.scaler = GradScaler(
-                _GRADSCALER_DEVICE, enabled=scaler_enabled
-            )
-        else:
-            self.scaler = GradScaler(enabled=scaler_enabled)
-        if self.use_amp and not scaler_enabled:
-            safe_log(
-                self.internal_logger,
-                "warning",
-                "AMP requires CUDA, disabling AMP.",
-            )
-            self.use_amp = False
+        """Sets up the gradient scaler for mixed-precision training."""
+        self.scaler = (
+            GradScaler(enabled=self.use_amp) if self.use_amp else None
+        )
 
     def _load_checkpoint_state(self):
-        """Loads checkpoint if a path is specified."""
+        """Loads the checkpoint state if a path is provided."""
         if self.checkpoint_load_path:
-            loaded_state = load_checkpoint(
+            checkpoint_data = load_checkpoint(
+                checkpoint_path=self.checkpoint_load_path,
                 model=self.model,
                 optimizer=self.optimizer,
-                checkpoint_path=self.checkpoint_load_path,
-                device=self.device,
+                scheduler=self.scheduler,
             )
-            self.start_epoch = loaded_state.get("epoch", 0) + 1
-            saved_best_metric = loaded_state.get("best_metric_value", None)
-            if saved_best_metric is not None:
-                self.best_metric_value = saved_best_metric
-                log_msg = (
-                    f"Loaded best metric ({self.monitor_metric}): "
-                    f"{self.best_metric_value:.4f}"
+            self.start_epoch = (
+                int(checkpoint_data.get("epoch", self.start_epoch)) + 1
+            )
+            self.best_metric_value = float(
+                checkpoint_data.get(
+                    "best_metric_value", self.best_metric_value
                 )
-                safe_log(self.internal_logger, "info", log_msg)
+            )
 
     def _setup_early_stopping_instance(
         self, early_stopper_arg: EarlyStopping | None
     ):
-        """Sets up the early stopping mechanism."""
-        self.early_stopper: EarlyStopping | None = None
+        """Sets up the early stopping instance."""
         if early_stopper_arg is not None:
             self.early_stopper = early_stopper_arg
         else:
-            # Ensure setup_early_stopping is called with the correct config
-            # node
             self.early_stopper = setup_early_stopping(
-                self.full_cfg,  # Pass full_cfg for setup_early_stopping
-                monitor_metric=self.cfg.early_stopping.get(
-                    "monitor", "val_loss"
-                ),  # Get monitor from early_stopping config
-                monitor_mode=self.cfg.early_stopping.get(
-                    "mode", "min"
-                ),  # Get mode from early_stopping config
-                verbose=self.cfg.early_stopping.get("verbose", True),
+                cfg=self.cfg,
+                monitor_metric=self.monitor_metric,
+                monitor_mode=self.monitor_mode,
+                verbose=self.verbose,
                 logger=self.internal_logger,
             )
 
+        if self.early_stopper and self.early_stopper.enabled:
+            # Override monitor_metric and monitor_mode from the early_stopper
+            # config
+            self.monitor_metric = self.early_stopper.monitor_metric
+            self.monitor_mode = self.early_stopper.monitor_mode
+
     def _log_initialization_summary(self):
-        """Logs a summary of the trainer's configuration."""
-        early_stopping_enabled = self.early_stopper is not None and getattr(
-            self.early_stopper, "enabled", False
+        """Logs a summary of the trainer's initialization."""
+        safe_log(
+            self.internal_logger,
+            "info",
+            "Trainer initialized.",
+            {
+                "Epochs": self.epochs,
+                "Device": self.device,
+                "AMP": self.use_amp,
+                "Grad Accumulation": self.grad_accum_steps,
+            },
         )
-        config_summary = (
-            f"Trainer initialized. Device: {self.device}. "
-            f"Epochs: {self.epochs}. AMP: {self.use_amp}. "
-            f"Grad Accum: {self.grad_accum_steps}. "
-            f"Starting Epoch: {self.start_epoch}. "
-            f"Save Best: {self.save_best_enabled}. "
-            f"Early Stopping: {early_stopping_enabled}."
-        )
-        safe_log(self.internal_logger, "info", config_summary)
-        if self.logger_instance:
-            log_msg = (
-                f"Using logger: {self.logger_instance.__class__.__name__}"
-            )
-            safe_log(self.internal_logger, "info", log_msg)
 
     def train(self) -> dict[str, float]:
         """Runs the full training loop starting from self.start_epoch."""
         start_msg = f"Starting training from epoch {self.start_epoch}..."
         safe_log(self.internal_logger, "info", start_msg)
+        self.callback_handler.on_train_begin()
         start_time = time.time()
         final_val_results = {}
 
-        for epoch in range(self.start_epoch, self.epochs + 1):
+        for epoch in range(self.start_epoch, int(self.epochs) + 1):
+            self.callback_handler.on_epoch_begin(epoch)
             epoch_start_time = time.time()
             safe_log(
                 self.internal_logger,
@@ -472,7 +455,7 @@ class Trainer:
                 self.early_stopper, "enabled", False
             ):
                 current_metric = val_results.get(self.monitor_metric)
-                if self.early_stopper(current_metric):
+                if self.early_stopper.should_stop(current_metric):
                     safe_log(
                         self.internal_logger,
                         "info",
@@ -480,6 +463,7 @@ class Trainer:
                     )
                     break  # Exit training loop
 
+            self.callback_handler.on_epoch_end(epoch, logs=val_results)
             epoch_duration = time.time() - epoch_start_time
             safe_log(
                 self.internal_logger,
@@ -496,6 +480,7 @@ class Trainer:
 
         # Export final metrics summary
         summary_path = self.metrics_manager.export_metrics_summary()
+        self.callback_handler.on_train_end()
         safe_log(
             self.internal_logger,
             "info",
@@ -512,6 +497,7 @@ class Trainer:
         log_interval = self.cfg.get("log_interval_batches", 0)
         self.optimizer.zero_grad()
         for batch_idx, batch in enumerate(self.train_loader):
+            self.callback_handler.on_batch_begin(batch_idx)
             with amp_autocast(self.use_amp):
                 metrics = train_step(
                     model=self.model,
@@ -533,6 +519,9 @@ class Trainer:
                 grad_accum_steps=self.grad_accum_steps,
                 batch_idx=batch_idx,
                 use_amp=self.use_amp,
+            )
+            self.callback_handler.on_batch_end(
+                batch_idx, logs={"loss": batch_loss.item()}
             )
             if (
                 self.logger_instance
@@ -617,47 +606,18 @@ class Trainer:
         )
 
     def _check_if_best(self, metrics: dict[str, float]) -> bool:
-        """Checks if the current metrics represent the best seen so far."""
-        # Garantizar que usamos el nombre correcto de la métrica
-        # Si el monitor_metric no tiene prefijo val_ pero buscamos en
-        # val_metrics
-        metric_name = self.monitor_metric
-        all_val_metrics = all(k.startswith("val_") for k in metrics.keys())
-        if not metric_name.startswith("val_") and all_val_metrics:
-            metric_name = f"val_{self.monitor_metric}"
-
-        current_metric = metrics.get(metric_name)
-        if current_metric is None:
-            available_metrics = ", ".join(metrics.keys())
-            safe_log(
-                self.internal_logger,
-                "warning",
-                f"Monitor metric '{metric_name}' not found in "
-                + f"validation results. Available: {available_metrics}. "
-                + "Cannot determine if best.",
-            )
+        """Checks if the current model is the best one based on the monitored
+        metric."""
+        if not self.save_best_enabled:
             return False
 
-        is_improvement = False
-        if self.monitor_mode == "min":
-            if current_metric < self.best_metric_value:
-                is_improvement = True
-        elif self.monitor_mode == "max":
-            if current_metric > self.best_metric_value:
-                is_improvement = True
+        current_metric_value = metrics.get(self.monitor_metric)
+        if current_metric_value is None:
+            return False
 
-        if is_improvement:
-            old_best = self.best_metric_value
-            self.best_metric_value = current_metric
-            safe_log(
-                self.internal_logger,
-                "info",
-                f"Validation metric '{metric_name}' improved from "
-                + f"{old_best:.4f} to {current_metric:.4f}. "
-                + "Saving best checkpoint.",
-            )
-            return True
-        return False
+        if self.monitor_mode == "min":
+            return current_metric_value < self.best_metric_value
+        return current_metric_value > self.best_metric_value
 
 
 # --- Remove old standalone functions ---

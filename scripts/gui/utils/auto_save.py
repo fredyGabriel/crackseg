@@ -302,8 +302,9 @@ class AutoSaveManager:
         Returns:
             True if save was successful
         """
-        # Temporarily bypass interval checks
+        # Temporarily bypass all interval checks
         self.last_save_time = 0.0
+        st.session_state.autosave_last_change = 0.0
         return self.auto_save_configurations(user_action)
 
     def _calculate_config_hash(self) -> str:

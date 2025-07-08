@@ -1,68 +1,73 @@
-# Tutorial 1: Running Your First Training
+# Tutorial 1: Basic Training Workflow
 
-This tutorial guides you through the process of launching a basic training run using the
-default project settings. It's the best way to verify that your installation is working
-correctly.
+This tutorial guides you through running a basic training experiment using a
+pre-defined configuration with the new interactive GUI.
 
-**Goal**: Start a training run and see the model learn.
-**Time**: ~5-10 minutes.
+## Prerequisites
 
----
+- You have successfully installed the project and its dependencies. See
+  [CLEAN_INSTALLATION.md](../../guides/CLEAN_INSTALLATION.md).
+- You have activated the `crackseg` conda environment.
 
-## Step 1: Activate the Environment
+## Step 1: Launch the GUI
 
-Open your terminal, navigate to the project's root directory, and activate the `crackseg`
-Conda environment. All subsequent commands must be run from this activated environment.
-
-```bash
-conda activate crackseg
-```
-
-## Step 2: Launch the GUI
-
-The easiest way to start training is through the Streamlit-based Graphical User Interface.
-Launch it with the following command:
+From the project root directory, run the following command in your terminal:
 
 ```bash
 streamlit run scripts/gui/app.py
 ```
 
-Your web browser should open with the application loaded.
+This will open the CrackSeg application in your web browser, displaying the new
+**Home** page.
 
-> **[Screenshot: The main welcome page of the CrackSeg GUI.]**
+## Step 2: Navigate to the Configuration Page
 
-## Step 3: Start the Training Process
+On the Home page, under "Quick Actions", click the **"Configure Experiment"**
+button. This will take you to the **Experiment Configuration** page.
 
-For this first run, we will use all the default settings.
+## Step 3: Load a Configuration
 
-1. Navigate to the **Train** page using the sidebar.
-2. You will see the default configuration loaded, typically using a U-Net model.
-3. Click the **Start Training** button.
+1. On the configuration page, the **"Model Configuration"** section is
+    expanded by default.
+2. Under the "Browse Project Files" tab, you'll see a file browser.
+3. Navigate the `configs/` directory. For a basic training, click on
+    `base.yaml`.
+4. The configuration will be loaded instantly, and you'll see a success
+    message: "✅ Configuration loaded". The editor below will also be
+    populated with the file's content.
 
-The training process will begin in the background.
+## Step 4: Set the Run Directory
 
-## Step 4: Monitor the Training
+1. Scroll down and expand the **"Output & Run Directory"** section.
+2. Enter a path for your experiment's output in the text box, for example:
+    `outputs/basic_training_run`.
+3. Click the **"Set Directory"** button. This directory will be created if it
+    doesn't exist and will store all your training artifacts (logs,
+    checkpoints, etc.).
 
-On the **Train** page, you can monitor the progress in real-time:
+## Step 5: Start the Training
 
-- **Live Metrics**: Watch the loss decrease and other metrics (like IoU) increase.
-- **Log Output**: See detailed log messages from the training engine.
-- **GPU Usage**: Keep an eye on the GPU resource monitor.
+1. Once the configuration and run directory are set, a "Next Steps" section
+    appears at the bottom.
+2. Click the **"🚀 Start Training"** button.
+3. You will be redirected to the **Train** page.
+4. Click the **"Start Training"** button on this page to begin the process.
+5. You can now monitor the training in real-time:
+    - The **Live Log Viewer** shows the direct output from the training
+      script.
+    - The **Training Metrics** chart visualizes key metrics like loss as
+      they are generated.
 
-> **[Screenshot: The 'Train' page during a run, showing live charts and log output.]**
+## Step 6: View Results
 
-## Step 5: View the Results
+Once the training is complete:
 
-Once the training is complete (or after a few epochs have run), you can view the
-initial results.
+1. You can navigate to the **Results** page using the **"📊 View Results"**
+    button available on the Home page.
+2. Here you can view the final metrics and analyze the model's predictions on
+    validation images.
 
-1. Navigate to the **Results** page from the sidebar.
-2. Here you will find a gallery of predictions made by the model on the validation set.
-    You should see the model starting to produce rough outlines of the cracks.
+## What's Next?
 
-> **[Screenshot: The 'Results' page showing a grid of images, masks, and model predictions.]**
-
----
-
-**Congratulations!** You have successfully launched your first training run. You can now
-explore other tutorials to learn how to customize experiments and extend the project.
+In the next tutorial, you will learn how to use the advanced editor to create
+and save your own custom experiment configurations.

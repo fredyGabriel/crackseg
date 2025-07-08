@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Model module provides a comprehensive framework for creating, configuring, and using segmentation models based on the U-Net architecture. It follows a modular design pattern, allowing for easy extension and customization of model components.
+The Model module provides a comprehensive framework for creating, configuring, and using
+segmentation models based on the U-Net architecture. It follows a modular design pattern, allowing
+for easy extension and customization of model components.
 
 ## Module Structure
 
@@ -32,7 +34,8 @@ flowchart TD
     A --> J[architectures/]
 ```
 
-This diagram reflects the main submodules and files in the modular structure. Each directory contains focused components or utilities, supporting extensibility and maintainability.
+This diagram reflects the main submodules and files in the modular structure. Each directory
+contains focused components or utilities, supporting extensibility and maintainability.
 
 The module is organized into several submodules:
 
@@ -137,11 +140,13 @@ The model module was reorganized in May 2025 to improve modularity and maintaina
 3. Factory and registry functionality is in the `factory/` module
 4. Common utilities are in `common/utils.py`
 
-Backward compatibility is maintained via `__init__.py`, but it is recommended to use the new explicit import paths for clarity and maintainability.
+Backward compatibility is maintained via `__init__.py`, but it is recommended to use the new
+explicit import paths for clarity and maintainability.
 
 ## Migration Notice
 
-All documentation, code examples, and import statements have been updated to reflect the new modular structure. For legacy code, prefer updating imports to the new structure for long-term maintainability.
+All documentation, code examples, and import statements have been updated to reflect the new
+modular structure. For legacy code, prefer updating imports to the new structure for long-term maintainability.
 
 ## Final Status
 
@@ -154,7 +159,8 @@ All documentation, code examples, and import statements have been updated to ref
 - **bottleneck/**: Building blocks for bottleneck layers used in encoder/decoder architectures.
 - **decoder/**: Decoder modules for segmentation models.
 - **encoder/**: Encoder modules for segmentation models.
-- **utils.py**: Utility functions for model analysis, parameter counting, receptive field estimation, memory usage, and architecture visualization (Graphviz).
+- **utils.py**: Utility functions for model analysis, parameter counting, receptive field
+  estimation, memory usage, and architecture visualization (Graphviz).
 - **unet.py**: Main UNet and BaseUNet class definitions, using modular blocks and utilities.
 
 ## Key Components
@@ -163,7 +169,8 @@ All documentation, code examples, and import statements have been updated to ref
 
 - Implements the core UNet architecture.
 - Uses modular encoder, decoder, and bottleneck blocks.
-- Delegates parameter counting, receptive field estimation, and architecture visualization to utility functions in `utils.py`.
+- Delegates parameter counting, receptive field estimation, and architecture visualization to
+  utility functions in `utils.py`.
 - Designed for easy extension and integration with Hydra-based configuration.
 
 ### 2. Utilities (`utils.py`)
@@ -223,7 +230,8 @@ All utility functions are documented with concise docstrings and are tested inde
 
 ## Understanding and Navigating the Modular Structure
 
-The modular structure of `src.model` was adopted to maximize maintainability, extensibility, and clarity. Each submodule encapsulates a specific responsibility, making it easier to:
+The modular structure of `src.model` was adopted to maximize maintainability, extensibility, and
+clarity. Each submodule encapsulates a specific responsibility, making it easier to:
 
 - Extend or replace components (e.g., encoders, decoders, bottlenecks) without affecting unrelated code.
 - Test and document each part independently.
@@ -241,7 +249,8 @@ The modular structure of `src.model` was adopted to maximize maintainability, ex
 
 ### Best Practices
 
-- **Explicit Imports**: Always import from the most specific submodule (e.g., `from src.model.architectures.unet import UNet`) for clarity and IDE support.
+- **Explicit Imports**: Always import from the most specific submodule
+  (e.g., `from src.model.architectures.unet import UNet`) for clarity and IDE support.
 - **Configuration**: Use Hydra/YAML for all parameters; avoid hardcoding.
 - **Extending**: Add new components in the appropriate subdirectory and register them if needed.
 - **Testing**: Place tests in `tests/model/` and use mocks for utilities.

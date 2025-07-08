@@ -2,7 +2,8 @@
 
 This directory contains background images and patterns.
 
-## Types:
+## Types
+
 - Texture patterns
 - Gradient overlays
 - Hero images

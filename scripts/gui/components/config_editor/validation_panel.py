@@ -416,7 +416,7 @@ class ValidationPanel:
             config_data: Configuration data to summarize
         """
         # Main sections summary
-        st.markdown("**📊 Resumen de Configuración:**")
+        st.markdown("**📊 Configuration Summary:**")
 
         main_sections = list(config_data.keys())
         if main_sections:

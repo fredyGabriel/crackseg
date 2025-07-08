@@ -2,7 +2,8 @@
 
 This directory contains sample images for testing and demonstration.
 
-## Purpose:
+## Purpose
+
 - Demo crack images
 - Test data visualization
 - UI mockups

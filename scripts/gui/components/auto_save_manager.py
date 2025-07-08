@@ -14,6 +14,7 @@ from scripts.gui.components.loading_spinner_optimized import (
 )
 from scripts.gui.utils.auto_save import (
     AutoSaveConfig,
+    AutoSaveManager,
     AutoSaveUI,
     get_autosave_manager,
 )
@@ -34,7 +35,12 @@ class AutoSaveManagerComponent:
         Args:
             config: Optional auto-save configuration
         """
-        self.manager = get_autosave_manager(config)
+        # If config is provided, create a new manager instance
+        # Otherwise, use the global singleton
+        if config is not None:
+            self.manager = AutoSaveManager(config)
+        else:
+            self.manager = get_autosave_manager()
         self.spinner = OptimizedLoadingSpinner()
 
     def render_auto_save_panel(self) -> None:

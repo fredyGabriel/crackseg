@@ -21,6 +21,7 @@ class ValidationError(ConfigError):
         column: int | None = None,
         field: str | None = None,
         suggestions: list[str] | None = None,
+        is_critical: bool = True,
     ) -> None:
         """Initialize validation error with detailed information.
 
@@ -30,11 +31,14 @@ class ValidationError(ConfigError):
             column: Column number where error occurred.
             field: Configuration field name that caused the error.
             suggestions: List of suggested fixes.
+            is_critical: Whether this error should prevent configuration usage.
         """
+        self.message = message
         self.line = line
         self.column = column
         self.field = field
         self.suggestions = suggestions or []
+        self.is_critical = is_critical
 
         # Build detailed error message
         details = []

@@ -1,13 +1,15 @@
 """
 Performance optimization utilities for GUI components.
 
-This module provides comprehensive performance optimization including CSS caching,
+This module provides comprehensive performance optimization including CSS
+caching,
 update debouncing, memory management, and performance monitoring for better
 user experience and resource efficiency.
 """
 
 import time
 from collections import defaultdict
+from collections.abc import Callable
 from typing import Any, Optional
 from weakref import WeakSet
 
@@ -136,7 +138,8 @@ class PerformanceOptimizer:
 
 
 class OptimizedHTMLBuilder:
-    """Optimized HTML builder with template caching and efficient string ops."""
+    """Optimized HTML builder with template caching and efficient string
+    ops."""
 
     _template_cache: dict[str, str] = {}
 
@@ -172,10 +175,12 @@ class OptimizedHTMLBuilder:
             <div class="crackseg-progress-container crackseg-progress-{state}">
                 <div class="crackseg-progress-header">
                     <h4 class="crackseg-progress-title">{title}</h4>
-                    <span class="crackseg-progress-percentage">{percentage}</span>
+                    <span class="crackseg-progress-percentage">
+                        {percentage}</span>
                 </div>
                 <div class="crackseg-progress-bar-container">
-                    <div class="crackseg-progress-bar-fill" style="width: {width};"></div>
+                    <div class="crackseg-progress-bar-fill"
+                         style="width: {width};"></div>
                 </div>
                 <div class="crackseg-progress-info">
                     <span class="crackseg-progress-step">{step_info}</span>
@@ -191,7 +196,11 @@ class OptimizedHTMLBuilder:
         template = OptimizedHTMLBuilder._template_cache[template_key]
 
         # Optimize string formatting
-        percentage = f"{progress:.1%}"
+        percentage_value = progress * 100
+        if percentage_value == int(percentage_value):
+            percentage = f"{int(percentage_value)}%"
+        else:
+            percentage = f"{percentage_value:.1f}%"
         width = f"{progress * 100}%"
         description_html = (
             f'<div class="crackseg-progress-description">{description}</div>'
@@ -353,7 +362,7 @@ class MemoryManager:
     """Manage memory usage and cleanup for GUI components."""
 
     _memory_usage: dict[str, dict[str, Any]] = {}
-    _cleanup_callbacks: dict[str, list] = defaultdict(list)
+    _cleanup_callbacks: dict[str, list[Callable[[], None]]] = defaultdict(list)
 
     @staticmethod
     def track_memory_usage(
@@ -390,7 +399,7 @@ class MemoryManager:
     @staticmethod
     def register_cleanup_callback(
         component_id: str,
-        callback: callable,
+        callback: Callable[[], None],
     ) -> None:
         """
         Register cleanup callback for component.

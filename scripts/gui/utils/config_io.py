@@ -18,8 +18,8 @@ from scripts.gui.utils.config import (
     ConfigCache,
     ConfigError,
     ValidationError,
-    _config_cache,  # pyright: ignore[reportPrivateUsage]
-    _yaml_validator,  # pyright: ignore[reportPrivateUsage]
+    _config_cache,
+    _yaml_validator,
     create_config_from_template,
     format_validation_report,
     get_config_metadata,

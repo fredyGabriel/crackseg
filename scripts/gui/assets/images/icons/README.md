@@ -2,7 +2,8 @@
 
 This directory contains UI icons and symbols.
 
-## Categories:
+## Categories
+
 - Navigation icons
 - Status indicators
 - Action buttons

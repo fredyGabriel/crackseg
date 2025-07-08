@@ -58,10 +58,12 @@ from scripts.gui.pages import (
     page_advanced_config,
     page_architecture,
     page_config,
+    page_home,
     page_results,
     page_train,
 )
 from scripts.gui.utils.session_state import SessionStateManager
+from scripts.gui.utils.styling import load_custom_css
 
 # Page configuration must be the first Streamlit command
 st.set_page_config(
@@ -78,6 +80,9 @@ st.set_page_config(
         ),
     },
 )
+
+# Load custom CSS styles
+load_custom_css()
 
 
 def initialize_session_state() -> None:
@@ -106,11 +111,12 @@ def main() -> None:
 
     # Page function mapping
     page_functions = {
-        "page_config": page_config,
-        "page_advanced_config": page_advanced_config,
-        "page_architecture": page_architecture,
-        "page_train": page_train,
-        "page_results": page_results,
+        "Home": page_home,
+        "Config": page_config,
+        "Advanced Config": page_advanced_config,
+        "Architecture": page_architecture,
+        "Train": page_train,
+        "Results": page_results,
     }
 
     # Use PageRouter to handle page rendering

@@ -60,10 +60,10 @@ class SaveDialogManager:
             True if file was saved successfully, False otherwise.
         """
         if not content.strip():
-            st.warning("⚠️ No hay contenido para guardar")
+            st.warning("⚠️ No content to save")
             return False
 
-        with st.expander("💾 Guardar Configuración", expanded=True):
+        with st.expander("💾 Save Configuration", expanded=True):
             return self._render_save_form(
                 content, key, default_name, show_advanced_options
             )
@@ -109,19 +109,19 @@ class SaveDialogManager:
         Returns:
             True if validation passed, False otherwise.
         """
-        st.markdown("**📋 Paso 1: Validación**")
+        st.markdown("**📋 Step 1: Validation**")
 
         # Basic YAML syntax validation
         is_syntax_valid, syntax_errors = validate_yaml_advanced(content)
 
         if not is_syntax_valid:
-            st.error(f"❌ YAML tiene {len(syntax_errors)} errores de sintaxis")
-            with st.expander("Ver errores de sintaxis", expanded=True):
+            st.error(f"❌ YAML has {len(syntax_errors)} syntax errors")
+            with st.expander("Show syntax errors", expanded=True):
                 for error in syntax_errors:
                     st.error(f"• {error}")
             return False
 
-        st.success("✅ Sintaxis YAML válida")
+        st.success("✅ Valid YAML syntax")
 
         # Hydra validation (optional but recommended)
         hydra_valid, hydra_error = self._validate_with_hydra_compose(
@@ -129,23 +129,23 @@ class SaveDialogManager:
         )
 
         show_hydra_validation = st.checkbox(
-            "Validar con Hydra (recomendado)",
+            "Validate with Hydra (recommended)",
             value=True,
             key=f"{key}_hydra_validation",
-            help="Verifica que la configuración sea compatible con Hydra",
+            help="Checks that the configuration is compatible with Hydra",
         )
 
         if show_hydra_validation:
             if not hydra_valid:
-                st.warning(f"⚠️ Validación Hydra: {hydra_error}")
+                st.warning(f"⚠️ Hydra Validation: {hydra_error}")
                 if not st.checkbox(
-                    "Guardar de todos modos",
+                    "Save anyway",
                     key=f"{key}_force_save",
-                    help="Guardar archivo ignorando errores de Hydra",
+                    help="Save file ignoring Hydra errors",
                 ):
                     return False
             else:
-                st.success("✅ Configuración compatible con Hydra")
+                st.success("✅ Hydra-compatible configuration")
 
         return True
 
@@ -162,7 +162,7 @@ class SaveDialogManager:
         Returns:
             Tuple of (filename, save_location).
         """
-        st.markdown("**📁 Paso 2: Nombre y Ubicación**")
+        st.markdown("**📁 Step 2: Name and Location**")
 
         col1, col2 = st.columns(2)
 
@@ -170,23 +170,23 @@ class SaveDialogManager:
             # Filename pattern selection
             if show_advanced_options:
                 filename_pattern = st.selectbox(
-                    "Patrón de nombre:",
+                    "Naming pattern:",
                     [
                         "{timestamp}_{name}.yaml",
                         "{name}_{timestamp}.yaml",
                         "{name}.yaml",
-                        "Personalizado",
+                        "Custom",
                     ],
                     key=f"{key}_filename_pattern",
-                    help="Patrón para generar el nombre del archivo",
+                    help="Pattern to generate the file name",
                 )
             else:
                 filename_pattern = self.default_filename_pattern
 
             # Generate filename based on pattern
-            if filename_pattern == "Personalizado":
+            if filename_pattern == "Custom":
                 filename = st.text_input(
-                    "Nombre del archivo:",
+                    "File name:",
                     value=f"{default_name}.yaml",
                     key=f"{key}_custom_filename",
                 )
@@ -196,7 +196,7 @@ class SaveDialogManager:
                     timestamp=timestamp, name=default_name
                 )
                 st.text_input(
-                    "Nombre del archivo:",
+                    "File name:",
                     value=filename,
                     key=f"{key}_generated_filename",
                     disabled=True,
@@ -205,27 +205,27 @@ class SaveDialogManager:
         with col2:
             # Save location
             save_location = st.selectbox(
-                "Ubicación de guardado:",
+                "Save location:",
                 self.save_locations,
                 key=f"{key}_save_location",
-                help="Directorio donde se guardará el archivo",
+                help="Directory where the file will be saved",
             )
 
             # Create custom location option
             if show_advanced_options and st.checkbox(
-                "Ubicación personalizada", key=f"{key}_custom_location"
+                "Custom location", key=f"{key}_custom_location"
             ):
                 custom_location = st.text_input(
-                    "Ruta personalizada:",
+                    "Custom path:",
                     key=f"{key}_custom_path",
-                    help="Ruta relativa desde la raíz del proyecto",
+                    help="Relative path from the project root",
                 )
                 if custom_location:
                     save_location = custom_location
 
         # Preview full path
         full_path = self.project_root / save_location / filename
-        st.markdown("**Vista previa:**")
+        st.markdown("**Preview:**")
         st.code(str(full_path), language="text")
 
         return filename, save_location
@@ -244,18 +244,18 @@ class SaveDialogManager:
         Returns:
             True if file was saved successfully, False otherwise.
         """
-        st.markdown("**💾 Paso 3: Guardar**")
+        st.markdown("**💾 Step 3: Save**")
 
         # File existence check
         full_path = self.project_root / save_location / filename
         file_exists = full_path.exists()
 
         if file_exists:
-            st.warning(f"⚠️ El archivo '{filename}' ya existe")
+            st.warning(f"⚠️ The file '{filename}' already exists")
             if not st.checkbox(
-                "Sobrescribir archivo existente",
+                "Overwrite existing file",
                 key=f"{key}_overwrite",
-                help="Marcar para reemplazar el archivo existente",
+                help="Mark to replace the existing file",
             ):
                 return False
 
@@ -263,7 +263,7 @@ class SaveDialogManager:
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
             if st.button(
-                "💾 Guardar Archivo",
+                "💾 Save File",
                 key=f"{key}_save_button",
                 use_container_width=True,
                 type="primary",
@@ -290,13 +290,13 @@ class SaveDialogManager:
             # Create backup if file exists
             if file_path.exists():
                 backup_path = self._create_backup(file_path)
-                st.info(f"📋 Backup creado: {backup_path.name}")
+                st.info(f"📋 Backup created: {backup_path.name}")
 
             # Save file with atomic write
             self._atomic_write(content, file_path)
 
             # Success feedback
-            st.success(f"✅ Archivo guardado exitosamente: {file_path}")
+            st.success(f"✅ File saved successfully: {file_path}")
 
             # Update session state
             self._update_session_state(file_path)
@@ -305,7 +305,7 @@ class SaveDialogManager:
 
         except Exception as e:
             logger.error(f"Error saving file {file_path}: {e}")
-            st.error(f"❌ Error guardando archivo: {str(e)}")
+            st.error(f"❌ Error saving file: {str(e)}")
             return False
 
     def _validate_with_hydra_compose(
@@ -343,13 +343,13 @@ class SaveDialogManager:
                 return True, None
 
             except ConfigCompositionException as e:
-                return False, f"Error de composición: {str(e)}"
+                return False, f"Composition error: {str(e)}"
             except Exception as e:
-                return False, f"Error de validación: {str(e)}"
+                return False, f"Validation error: {str(e)}"
 
         except Exception as e:
             logger.error(f"Hydra validation error: {e}")
-            return False, f"Error interno: {str(e)}"
+            return False, f"Internal error: {str(e)}"
 
         finally:
             # Cleanup
@@ -403,7 +403,7 @@ class SaveDialogManager:
         """
         try:
             state = SessionStateManager.get()
-            state.add_notification(f"Configuración guardada: {file_path.name}")
+            state.add_notification(f"Config saved: {file_path.name}")
 
             # Update the config path if this is the current working config
             state.config_path = str(file_path)

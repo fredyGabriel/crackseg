@@ -261,7 +261,8 @@ jobs:
     needs: [deploy-to-production, post-deployment-monitoring]
     if: failure() && inputs.rollback_on_failure != false
     timeout-minutes: 15
-    environment: production
+    environment:
+      name: production
 
     steps:
       - uses: actions/checkout@v4

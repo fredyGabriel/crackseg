@@ -1,6 +1,7 @@
 # Data Configurations
 
-This directory contains configuration files for data-related components in the pavement crack segmentation project.
+This directory contains configuration files for data-related components in the pavement crack
+segmentation project.
 
 ## Configuration Files
 

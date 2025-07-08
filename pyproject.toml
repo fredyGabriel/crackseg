@@ -6,23 +6,38 @@ readme = "README.md"
 requires-python = ">=3.12"
 
 [tool.black]
+# NOTE: In the 'exclude' pattern, a single backslash (\) is correct and multiplatform.
+# Black interprets this as a Python regex, and TOML does not require double escaping.
+# Do NOT use double backslash (\\) here, even on Windows.
 line-length = 79
 target-version = ['py312']
 include = '\.pyi?$'
-exclude = """
+exclude = '''
 /(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
   | _build
   | buck-out
   | build
   | dist
   | outputs
+  | .taskmaster
+  | test-artifacts
+  | test-results
+  | selenium-videos
+  | performance-historical-data
+  | performance-reports
+  | generated_configs
+  | crackseg.egg-info
+  | .pytest_cache
+  | .ruff_cache
+  | site
+  | htmlcov
 )/
-"""
+'''
 
 [tool.basedpyright]
 pythonVersion = "3.12"

@@ -13,15 +13,16 @@ import yaml
 from scripts.gui.components.config_editor_component import (
     ConfigEditorComponent,
 )
+from scripts.gui.utils.gui_config import PAGE_CONFIG
 from scripts.gui.utils.session_state import SessionStateManager
 
 
 def page_advanced_config() -> None:
     """Advanced configuration page with YAML editor."""
+    st.title(PAGE_CONFIG["Advanced Config"]["title"])
     state = SessionStateManager.get()
 
     # Page header
-    st.title("⚙️ Advanced Configuration Editor")
     st.markdown(
         "**Ace editor integration, live validation, and file management**"
     )
@@ -31,7 +32,7 @@ def page_advanced_config() -> None:
 
     # Create tabs for different functionalities
     tab_editor, tab_browser, tab_templates = st.tabs(
-        ["📝 Editor YAML", "📁 File Explorer", "📋 Templates"]
+        ["Editor YAML", "File Explorer", "Templates"]
     )
 
     with tab_editor:
@@ -59,37 +60,37 @@ def page_advanced_config() -> None:
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            if st.button("🔄 Validate", use_container_width=True):
+            if st.button("Validate", use_container_width=True):
                 from scripts.gui.utils.config_io import validate_yaml_advanced
 
                 is_valid, errors = validate_yaml_advanced(editor_content)
 
                 if is_valid:
-                    st.success("✅ Valid configuration")
+                    st.success("Valid configuration")
                 else:
-                    st.error(f"❌ {len(errors)} errors found")
+                    st.error(f"{len(errors)} errors found")
 
         with col2:
-            if st.button("💾 Quick Save", use_container_width=True):
+            if st.button("Quick Save", use_container_width=True):
                 if state.config_path:
                     try:
                         Path(state.config_path).write_text(
                             editor_content, encoding="utf-8"
                         )
-                        st.success("✅ Successful save")
+                        st.success("Successful save")
                     except Exception as e:
                         st.error(f"Error: {str(e)}")
                 else:
                     st.warning("No file configured")
 
         with col3:
-            if st.button("🏠 Apply as Primary", use_container_width=True):
+            if st.button("Apply as Primary", use_container_width=True):
                 try:
                     config_data = yaml.safe_load(editor_content)
                     if config_data:
                         state.config_data = config_data
                         state.config_loaded = True
-                        st.success("✅ Configuration applied")
+                        st.success("Configuration applied")
                     else:
                         st.warning("Empty configuration")
                 except Exception as e:
@@ -103,7 +104,7 @@ def page_advanced_config() -> None:
 
         # File upload
         st.markdown("---")
-        st.subheader("📁 Upload File")
+        st.subheader("Upload File")
 
         uploaded_file = st.file_uploader(
             "Select YAML file:",
@@ -122,17 +123,17 @@ def page_advanced_config() -> None:
                 save_path.parent.mkdir(parents=True, exist_ok=True)
                 save_path.write_text(content, encoding="utf-8")
 
-                st.success(f"✅ File uploaded: {uploaded_file.name}")
+                st.success(f"File uploaded: {uploaded_file.name}")
 
                 # Load into editor
-                if st.button("📂 Load into Editor"):
+                if st.button("Load into Editor"):
                     st.session_state["advanced_config_editor"] = content
                     st.rerun()
 
             except yaml.YAMLError as e:
-                st.error(f"❌ Invalid YAML file: {str(e)}")
+                st.error(f"Invalid YAML file: {str(e)}")
             except Exception as e:
-                st.error(f"❌ Error processing file: {str(e)}")
+                st.error(f"Error processing file: {str(e)}")
 
     with tab_templates:
         st.markdown("### Configuration Templates")
@@ -181,23 +182,23 @@ data:
         }
 
         for template_name, template_content in templates.items():
-            with st.expander(f"📋 {template_name}", expanded=False):
+            with st.expander(f"{template_name}", expanded=False):
                 st.code(template_content)
 
                 if st.button(
-                    f"📂 Load {template_name}",
+                    f"Load {template_name}",
                     key=f"load_template_{template_name.replace(' ', '_')}",
                     use_container_width=True,
                 ):
                     st.session_state["advanced_config_editor"] = (
                         template_content
                     )
-                    st.success(f"✅ Template '{template_name}' loaded")
+                    st.success(f"Template '{template_name}' loaded")
                     st.rerun()
 
     # Status panel
     st.markdown("---")
-    st.subheader("📊 Configuration Status")
+    st.subheader("Configuration Status")
 
     col1, col2, col3 = st.columns(3)
 
@@ -205,20 +206,16 @@ data:
         current_file = (
             Path(state.config_path).name if state.config_path else "None"
         )
-        file_status = "✅ Loaded" if state.config_loaded else "❌ Not loaded"
-        st.metric("📄 Current File", current_file, file_status)
+        file_status = "Loaded" if state.config_loaded else "Not loaded"
+        st.metric("Current File", current_file, file_status)
 
     with col2:
-        editor_content = st.session_state.get("advanced_config_editor", "")
-        content_length = len(editor_content)
-        content_status = (
-            "✅ With content" if content_length > 0 else "❌ Empty"
-        )
-        st.metric("📝 Editor", f"{content_length} characters", content_status)
+        editor_content = st.session_state.get("advanced_config_editor")
+        content_length = len(editor_content) if editor_content else 0
+        content_status = "With content" if content_length > 0 else "Empty"
+        st.metric("Editor", f"{content_length} characters", content_status)
 
     with col3:
         issues = state.validate()
-        validation_status = (
-            "✅ Valid" if not issues else f"❌ {len(issues)} issues"
-        )
-        st.metric("🔍 Validation", "System", validation_status)
+        validation_status = "Valid" if not issues else f"{len(issues)} issues"
+        st.metric("Validation", "System", validation_status)

@@ -25,14 +25,14 @@ scikit-image>=0.24.0
 # Computer Vision & Image Processing
 # =============================================================================
 opencv-python>=4.11.0
-opencv-python-headless>=4.11.0
+# opencv-python-headless>=4.11.0  # Use only for headless/server environments (not needed for local GUI)
 Pillow>=10.4.0
 albumentations>=2.0.0
-albucore>=0.0.23
+# albucore>=0.0.23  # Optional: Only needed if using albumentations core extensions
 imageio>=2.36.0
 imagecodecs>=2024.12.0
 tifffile>=2025.1.0
-PyWavelets>=1.8.0
+# PyWavelets>=1.8.0  # Optional: Only needed for wavelet transforms
 
 # =============================================================================
 # Data Handling & Analysis

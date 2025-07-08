@@ -1,165 +1,161 @@
-
 # ARCHIVO - CÓDIGO OBSOLETO
-# Archivo: project-structure.mdc
-# Fecha de archivo: 2025-06-02 00:02:08
-# Razón: Archivo ya ubicado en old_stuff con baja relevancia
-# Proyecto: CrackSeg - Deep Learning para Segmentación de Grietas
-# Subtarea: 11.3 - Archive Files Marked for Removal
-#
-# IMPORTANTE: Este archivo ha sido marcado como obsoleto durante el proceso
-# de limpieza de código. Se mantiene archivado por precaución y puede ser
-# restaurado si se descubre que aún es necesario.
-#
-# Para restaurar este archivo, contactar al equipo de desarrollo.
-# ===============================================================================
+
+Archivo: project-structure.mdc
+Fecha de archivo: 2025-06-02 00:02:08
+Razón: Archivo ya ubicado en old_stuff con baja relevancia
+Proyecto: CrackSeg - Deep Learning para Segmentación de Grietas
+Subtarea: 11.3 - Archive Files Marked for Removal
+
+IMPORTANTE: Este archivo ha sido marcado como obsoleto durante el proceso
+de limpieza de código. Se mantiene archivado por precaución y puede ser
+restaurado si se descubre que aún es necesario
+
+Para restaurar este archivo, contactar al equipo de desarrollo
+
+===============================================================================
 
 ---
-description: Project file structure
-globs: 
-alwaysApply: false
+    description: Project file structure
+    globs:
+    alwaysApply: false
 ---
-# Project Structure Guide
 
-## Notes and References
+## Project Structure Reference
 
-- Always update this file and related guides whenever you make relevant changes to the project structure or workflow. Keeping documentation up to date is essential for team alignment and project maintainability.
-- For structure, coding style, environment, and workflow rules, see `rules/coding-preferences.mdc`, `rules/env-preferences.mdc`, and `rules/workflow-preferences.mdc`.
-- Configuration validation using schemas is MANDATORY and must be integrated at the start of the main flow (`main.py`). If validation fails, execution must abort with a clear message.
+**Load when**: Navigating the codebase, creating new files, understanding module organization,
+  locating specific components, or implementing new features in the correct location.
 
-## Project Root Layout
+## Live Project Structure
 
-```
-project_root/
-├── .env                # Environment variables (sensitive paths, API keys, etc.) - NOT in version control
-├── .env.example        # Template for required environment variables
-├── .gitignore          # Ignores files/dirs (outputs/, __pycache__, .env)
-├── README.md           # Project overview and setup instructions
-├── environment.yaml    # Conda env and dependencies
-├── config/             # Hydra configuration
-│   ├── config.yaml     # Main config (model selection, overrides)
-│   ├── README.md       # Config docs
-│   ├── data/           # Data configs
-│   │   ├── dataset.yaml       # Data pipeline settings
-│   │   └── augmentation.yaml  # Data augmentations pipelines
-│   ├── model/          # Model architecture configs
-│   │   ├── cnn_unet.yaml          # Traditional CNN U-Net config
-│   │   ├── rsc_unet.yaml          # RSC-UNET config
-│   │   ├── cnn_convlstm_unet.yaml # CNN-ConvLSTM U-Net config
-│   │   ├── swinv2_hybrid.yaml     # Hybrid SwinV2-CNN-ASPP config
-│   │   └── full_swinv2.yaml       # Full SwinV2 config
-│   ├── training/         # Training configs
-│   │   └── training.yaml   # Optimizer, scheduler, loss params
-│   ├── logging/          # Logging and checkpoint configs (SEPARATE FILES)
-│   │   └── checkpoints.yaml     # Checkpoints settings (CHECKPOINTS ONLY)
-│   │   └── logging_base.yaml    # Logger settings (LOGGING ONLY)
-│   └── evaluation/       # Eval configs
-│       └── metrics.yaml  # Metrics and eval settings
-│       └── thresholds.yaml  # Thresholds settings
-│
-├── src/                # Source code
-│   ├── __init__.py     # Module exports
-│   ├── main.py         # Entry point - orchestrates execution
-│   │
-│   ├── data/
-│   │   ├── __init__.py   # Minimal
-│   │   ├── loading.py      # Data loading and DataLoader setup
-│   │   ├── dataset.py      # Dataset classes (e.g. CrackDataset)
-│   │   └── transforms.py   # Data transforms (Albumentations)
-│   │
-│   ├── models/
-│   │   ├── __init__.py   # Model exports
-│   │   ├── components/   # Reusable model blocks
-│   │   │   ├── __init__.py      # Component exports
-│   │   │   ├── _base.py           # Abstract base classes
-│   │   │   ├── cnn_blocks.py      # Basic CNN blocks
-│   │   │   ├── unet_blocks.py     # U-Net specific blocks
-│   │   │   ├── aspp.py            # ASPP module
-│   │   │   ├── convlstm.py        # ConvLSTM blocks
-│   │   │   ├── swin_v2_utils.py   # SwinV2 integration helpers
-│   │   │   └── cbam.py            # Convolutional Block Attention Module
-│   │   ├── architectures/  # Model implementations
-│   │   │   ├── __init__.py      # Architecture exports
-│   │   │   ├── cnn_unet.py            # CNN/U-Net model
-│   │   │   ├── rsc_unet.py            # RSC-UNet model
-│   │   │   ├── cnn_convlstm_unet.py   # CNN-ConvLSTM U-Net model
-│   │   │   ├── swinv2_cnn_aspp_unet.py# SwinV2-CNN-ASPP model
-│   │   │   └── full_swinv2_unet.py    # Full SwinV2 model
-│   │   │   # Models inherit from nn.Module and use components/
-│   │   │
-│   │   └── model_factory.py   # Model instantiation factory
-│   │
-│   ├── training/
-│   │   ├── __init__.py   # Trainer export
-│   │   ├── trainer.py      # Main training loop handler
-│   │   ├── training_utils.py # Training helpers
-│   │   ├── losses.py       # Loss functions
-│   │   ├── optimizers.py   # Optimizer setup
-│   │   └── schedulers.py   # Scheduler setup
-│   │
-│   ├── evaluation/
-│   │   ├── __init__.py   # Exports
-│   │   ├── metrics.py      # Metric calculations
-│   │   └── evaluator.py    # Evaluation loop handler
-│   │
-│   └── utils/            # General utilities
-│       ├── __init__.py   # Exports
-│       ├── device.py       # Device management
-│       ├── seeds.py        # Random seed control
-│       ├── logging.py      # Logging setup
-│       ├── checkpointing.py# Model checkpoint handling
-│       ├── config_validation/ # Config validation
-│       │   ├── __init__.py   # Exports
-│       │   ├── validator.py  # Validation logic
-│       │   └── schemas/      # Schema definitions
-│       └── exceptions.py   # Custom exceptions
-│
-├── tests/              # Test suite
-│   ├── __init__.py     # Test init
-│   ├── conftest.py     # Test fixtures
-│   ├── test_main.py    # Entry point tests
-│   │
-│   ├── data/           # Data tests
-│   ├── models/         # Model tests
-│   │   ├── components/   # Component tests
-│   │   ├── architectures/  # Architecture tests
-│   │   └── test_factory.py # Factory tests
-│   │
-│   ├── training/       # Training tests
-│   ├── evaluation/     # Evaluation tests
-│   ├── utils/          # Utility tests
-│   │   ├── config_validation/ # Config validation tests
-│   │   ├── test_logging.py    # Logger tests
-│   │   └── test_checkpointing.py # Checkpoint tests
-│   │   # Other utility tests as needed
-│   │
-│   └── integration/      # Integration tests
-│       ├── test_data_pipeline.py   # Data pipeline tests
-│       ├── test_training_flow.py   # Training flow tests
-│       ├── test_model_inference.py # Inference tests
-│       ├── test_config_integration.py # Config integration tests
-│       └── test_logging_system.py   # Logging system tests
-│
-└── outputs/            # Run outputs (ignored by git)
-    ├── checkpoints/      # Model checkpoints
-    ├── tensorboard/      # TensorBoard data
-    ├── logs/             # Log files
-    ├── images/           # Saved image predictions/visualizations
-    ├── metrics/          # Saved metric data (e.g., CSV, JSON)
-    ├── visualizations/   # Other visualizations
-    ├── validation/       # Detailed validation results/outputs
-    └── system/           # System metrics logs (optional)
+The project structure is maintained in one location:
+
+- **Auto-Generated**: `docs/reports/project_tree.md` - Generated by script
+
+**Update command**: `python scripts/utils/generate_project_tree.py`
+
+## Project Organization Overview
+
+```txt
+crackseg/                          # Project root
+├── src/                          # Source code (main implementation)
+├── configs/                      # Hydra configuration files
+├── tests/                        # Test suite (unit & integration)
+├── data/                         # Dataset samples
+├── docs/                         # Documentation & guides
+├── scripts/                      # Utility scripts & tools
+├── .cursor/                      # Cursor AI configuration
+│   └── rules/                    # Development rules
+└── outputs/                      # Training outputs (gitignored)
 ```
 
-## Directory Descriptions
+## Key Directories Guide
 
-### config/
-- Contains all Hydra configuration files, organized by domain (data, model, training, logging, evaluation).
+### Source Code (`src/`)
 
-### src/
-- Main source code, organized by domain (data, models, training, evaluation, utils).
+Core implementation following modular architecture:
 
-### tests/
-- Test suite, organized to mirror the structure of `src/` for unit, integration, and utility tests.
+- **`model/`**: Neural network components
+  - `architectures/`: Complete model definitions
+  - `encoder/`: Feature extraction modules (CNN, Swin)
+  - `decoder/`: Upsampling and reconstruction
+  - `bottleneck/`: Middle processing layers (ASPP, ConvLSTM)
+  - `factory/`: Dynamic model creation
+- **`training/`**: Training pipeline
+  - `losses/`: Loss functions with registry system
+  - `metrics/`: Evaluation metrics
+  - `trainer.py`: Main training loop
+- **`data/`**: Data handling
+  - `datasets.py`: Dataset classes
+  - `transforms.py`: Augmentation pipelines
+- **`utils/`**: Shared utilities
+  - `config/`: Configuration management
+  - `checkpointing/`: Model save/load
+  - `logging/`: Training monitors
 
-### outputs/
-- Output directory for checkpoints, logs, metrics, images, and other run artifacts.
+### Configuration (`configs/`)
+
+Hierarchical Hydra configs for experiments:
+
+- **`model/`**: Architecture configurations
+  - `architectures/`: Full model configs
+  - `encoder/`, `decoder/`, `bottleneck/`: Component configs
+- **`training/`**: Training settings
+  - `loss/`: Loss function configs
+  - `lr_scheduler/`: Learning rate schedules
+  - `metric/`: Metric configurations
+- **`data/`**: Dataset configurations
+  - `dataloader/`: Batch settings
+  - `transform/`: Augmentation settings
+
+### Testing (`tests/`)
+
+Comprehensive test coverage:
+
+- **`unit/`**: Isolated component tests
+  - Mirrors `src/` structure exactly
+  - One test file per source module
+- **`integration/`**: System tests
+  - `model/`: Architecture integration
+  - `training/`: Pipeline tests
+  - `config/`: Configuration validation
+
+### Documentation (`docs/`)
+
+- **`guides/`**: Development workflows
+- **`reports/`**: Analysis and coverage reports
+- **`designs/`**: Architecture decisions
+
+## File Naming Conventions
+
+### Python Files
+
+- **Source**: `snake_case.py` (e.g., `swin_encoder.py`)
+- **Tests**: `test_<module_name>.py` (e.g., `test_swin_encoder.py`)
+- **Scripts**: `<action>_<target>.py` (e.g., `generate_project_tree.py`)
+- **Temporary**: `temp_<description>.py` (e.g., `temp_data_analysis.py`)
+
+### Configuration Files
+
+- **Hydra**: `<component>_<variant>.yaml` (e.g., `unet_swin.yaml`)
+- **Default**: `default.yaml` in each config directory
+
+### Documentation
+
+- **Guides**: `UPPERCASE_TOPIC.md` (e.g., `WORKFLOW_TRAINING.md`)
+- **Specs**: `<feature>_specification.md` (e.g., `checkpoint_format_specification.md`)
+
+## Navigation Quick Reference
+
+| Need to... | Look in... |
+|---|---|
+| Add new model architecture | `src/model/architectures/` |
+| Create custom loss function | `src/training/losses/` |
+| Add data augmentation | `src/data/transforms.py` |
+| Configure experiment | `configs/` (various subdirs) |
+| Write unit tests | `tests/unit/` (mirror src structure) |
+| Add utility function | `src/utils/` (appropriate submodule) |
+| Update documentation | `docs/guides/` |
+| Create analysis script | `scripts/reports/` |
+
+## Best Practices
+
+1. **Maintain Structure Consistency**
+   - New modules should follow existing patterns
+   - Tests must mirror source structure
+   - Configs should use established hierarchy
+2. **Update Project Tree**
+   - Run update script after structural changes
+   - Commit updated `project_tree.mdc` with changes
+   - Keep max depth at 6 for readability
+3. **File Placement Guidelines**
+   - Implementation → `src/`
+   - Configuration → `configs/`
+   - Tests → `tests/`
+   - Documentation → `docs/`
+   - One-off scripts → `scripts/`
+
+## References
+
+- **Complete Tree**: [project_tree.md](mdc:docs/reports/project_tree.md)
+- **Development Workflow**: [development-workflow.mdc](mdc:@/rules/development-workflow.mdc)
+- **Testing Standards**: [testing-standards.mdc](mdc:@/rules/testing-standards.mdc)

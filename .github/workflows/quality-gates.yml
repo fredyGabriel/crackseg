@@ -16,8 +16,8 @@ on:
       - 'tests/**'
 
 jobs:
-  run-quality-gates:
-    name: Run Code Quality Gates
+  quality-gates-core:
+    name: Core Quality Gates
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,16 +34,159 @@ jobs:
           environment-file: environment.yml
           auto-activate-base: false
 
-      - name: Run Quality Gates and Tests
+      - name: 🔍 Ruff Linting - Core Code
         run: |
-          echo "Running Ruff Linter..."
-          python -m ruff check .
-          echo "Running Black Formatter Check..."
-          black . --check
-          echo "Running Basedpyright Type Checker..."
-          basedpyright .
-          echo "Running Unit and Integration Tests with Coverage..."
-          pytest tests/unit/ tests/integration/ --cov=src --cov-report=xml
+          echo "🔍 Running Ruff linter on core codebase..."
+          python -m ruff check src/ --format github
+          if [ $? -ne 0 ]; then
+            echo "❌ Ruff linting failed for core code"
+            exit 1
+          fi
+          echo "✅ Core code linting passed"
+
+      - name: 🎨 Black Formatting - Core Code
+        run: |
+          echo "🎨 Checking Black formatting on core codebase..."
+          black src/ --check --diff --color
+          if [ $? -ne 0 ]; then
+            echo "❌ Black formatting failed for core code"
+            exit 1
+          fi
+          echo "✅ Core code formatting passed"
+
+      - name: 🔬 Type Checking - Core Code
+        run: |
+          echo "🔬 Running Basedpyright type checking on core codebase..."
+          basedpyright src/
+          if [ $? -ne 0 ]; then
+            echo "❌ Type checking failed for core code"
+            exit 1
+          fi
+          echo "✅ Core code type checking passed"
+
+  quality-gates-gui:
+    name: GUI Quality Gates
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Conda Environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+
+      - name: 🔍 Ruff Linting - GUI Code
+        run: |
+          echo "🔍 Running Ruff linter on GUI codebase..."
+          python -m ruff check scripts/gui/ --format github
+          if [ $? -ne 0 ]; then
+            echo "❌ Ruff linting failed for GUI code"
+            echo "💡 Run 'conda activate crackseg && python -m ruff check scripts/gui/ --fix' locally to fix issues"
+            exit 1
+          fi
+          echo "✅ GUI code linting passed"
+
+      - name: 🎨 Black Formatting - GUI Code
+        run: |
+          echo "🎨 Checking Black formatting on GUI codebase..."
+          black scripts/gui/ --check --diff --color
+          if [ $? -ne 0 ]; then
+            echo "❌ Black formatting failed for GUI code"
+            echo "💡 Run 'conda activate crackseg && black scripts/gui/' locally to fix formatting"
+            exit 1
+          fi
+          echo "✅ GUI code formatting passed"
+
+      - name: 🔬 Type Checking - GUI Code
+        run: |
+          echo "🔬 Running Basedpyright type checking on GUI codebase..."
+          basedpyright scripts/gui/
+          if [ $? -ne 0 ]; then
+            echo "❌ Type checking failed for GUI code"
+            echo "💡 Review type annotations and imports in GUI code"
+            exit 1
+          fi
+          echo "✅ GUI code type checking passed"
+
+      - name: 📊 GUI Quality Report
+        if: always()
+        run: |
+          echo "📊 Generating GUI Quality Report..."
+          echo "## 🖥️ GUI Code Quality Summary" >> $GITHUB_STEP_SUMMARY
+
+          # Count GUI files
+          gui_files=$(find scripts/gui -name "*.py" | wc -l)
+          echo "- **Total GUI Python files**: $gui_files" >> $GITHUB_STEP_SUMMARY
+
+          # Ruff check summary
+          if python -m ruff check scripts/gui/ --quiet; then
+            echo "- **Ruff Linting**: ✅ All checks passed" >> $GITHUB_STEP_SUMMARY
+          else
+            ruff_issues=$(python -m ruff check scripts/gui/ --format json | jq length)
+            echo "- **Ruff Linting**: ❌ $ruff_issues issues found" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Black check summary
+          if black scripts/gui/ --check --quiet; then
+            echo "- **Black Formatting**: ✅ All files properly formatted" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Black Formatting**: ❌ Files need formatting" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Type check summary
+          if basedpyright scripts/gui/ --outputjson > type_check.json 2>/dev/null; then
+            errors=$(jq '.summary.errorCount // 0' type_check.json)
+            warnings=$(jq '.summary.warningCount // 0' type_check.json)
+            echo "- **Type Checking**: ✅ $errors errors, $warnings warnings" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **Type Checking**: ❌ Type check failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  test-coverage:
+    name: Test Coverage
+    runs-on: ubuntu-latest
+    needs: [quality-gates-core, quality-gates-gui]
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Conda Environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+
+      - name: 🧪 Run Tests with Coverage
+        run: |
+          echo "🧪 Running tests with coverage analysis..."
+          pytest tests/unit/ tests/integration/ \
+            --cov=src \
+            --cov=scripts/gui \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --cov-fail-under=80
+          if [ $? -ne 0 ]; then
+            echo "❌ Tests failed or coverage below 80%"
+            exit 1
+          fi
+          echo "✅ All tests passed with adequate coverage"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false

@@ -27,7 +27,8 @@ This directory contains documentation files from earlier phases of the CrackSeg 
 
 ## Archive Context
 
-These files were moved from `old_stuff/archived_scripts/` during the January 2025 project reorganization. They contain information that:
+These files were moved from `old_stuff/archived_scripts/` during the January 2025 project
+reorganization. They contain information that:
 
 - May conflict with current project structure
 - Contains outdated but potentially valuable patterns

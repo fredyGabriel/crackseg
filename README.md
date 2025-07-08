@@ -64,6 +64,11 @@ data/
 
 ### 3. Train a Model
 
+You can train a model using the command line for reproducibility and scripting, or use the
+interactive GUI for experimentation and visualization.
+
+#### Using the Command Line
+
 ```bash
 # Basic training with default U-Net architecture
 python run.py
@@ -76,6 +81,23 @@ python run.py data.batch_size=4 \
               training.mixed_precision=true \
               training.gradient_accumulation_steps=4
 ```
+
+#### Using the Interactive GUI
+
+For a user-friendly experience, launch the Streamlit-based GUI:
+
+```bash
+streamlit run scripts/gui/app.py
+```
+
+The GUI allows you to:
+
+- Visually browse and load configuration files.
+- Edit configurations with a real-time validation editor.
+- Monitor training progress with live logs and charts.
+- View results and model predictions.
+
+Refer to the [tutorials in `docs/tutorials/`](docs/tutorials/) for a detailed walkthrough.
 
 ### 4. Evaluate a Model
 
@@ -112,11 +134,13 @@ For a comprehensive view of the project organization, see [**Project Structure G
 - **Evaluation Suite**: `src/evaluation/` (metrics, visualization, reporting)
 - **Configuration**: `configs/` (model, training, data configurations)
 
-> **Note:** Scripts in `scripts/` are for experimentation and utilities only. Do not import them in core modules. Clean up temporary files like `__pycache__` regularly.
+> **Note:** Scripts in `scripts/` are for experimentation and utilities only. Do not import them in
+> core modules. Clean up temporary files like `__pycache__` regularly.
 
 ## Reports & Analytics
 
-All project reports, analysis, and documentation are organized in `docs/reports/` with the following structure:
+All project reports, analysis, and documentation are organized in `docs/reports/` with the following
+structure:
 
 - **`testing/`** — Test coverage reports, improvement plans, and testing priorities
 - **`coverage/`** — Code coverage analysis and gap reports
@@ -127,7 +151,7 @@ All project reports, analysis, and documentation are organized in `docs/reports/
 
 ### Current Metrics
 
-- 📊 **Test Coverage**: 66% (5,333/8,065 lines) — improved from 25%
+- 📊 **Test Coverage**: 66% global (target >80% for new code and critical modules, see CI coverage badge)
 - 🧪 **Tests Implemented**: 866 tests across unit and integration suites
 - 🏗️ **Architecture**: Modular design with factory patterns
 - 🔧 **Code Quality**: 100% type coverage, Black/Ruff compliance
@@ -211,7 +235,8 @@ task-master set-status --id=<task-id> --status=done
 - **🔧 Command Reference**: CLI commands available through `task-master` package
 - **🏗️ Project Structure**: Task files organized in `tasks/` directory
 
-The Task Master system helps maintain development momentum through structured task management, automated progress tracking, and intelligent workflow guidance.
+The Task Master system helps maintain development momentum through structured task management,
+automated progress tracking, and intelligent workflow guidance.
 
 ## Code Quality & Development Standards
 
@@ -402,7 +427,8 @@ For comprehensive Task Master integration, see [`README-task-master.md`](README-
 
 ### Contribution Guidelines
 
-- **Follow [Coding Standards](.cursor/rules/coding-preferences.mdc)**: Type annotations, formatting, linting
+- **Follow [Coding Standards](.cursor/rules/coding-preferences.mdc)**: Type annotations, formatting,
+  linting
 - **Add Comprehensive Tests**: Unit and integration tests for new features
 - **Update Documentation**: Keep README, guides, and docstrings current
 - **Use Task Master**: Track work using the integrated task management system
@@ -451,4 +477,34 @@ MIT License. See [`LICENSE`](LICENSE) for details.
 - **6GB+ VRAM** (GPU memory for training)
 - **conda/mamba** (for environment management)
 
-All dependencies and tools are configured and tested for **Python 3.12**. Please ensure your environment matches this version for full compatibility.
+All dependencies and tools are configured and tested for **Python 3.12**. Please ensure your
+environment matches this version for full compatibility.
+
+## Project Status
+
+**All major roadmap tasks and subtasks are completed. The system is production-ready and open for**
+**advanced contributions.**
+
+## End-to-End Testing & Performance Benchmarking
+
+- Advanced E2E testing infrastructure based on Docker and Selenium Grid with multi-browser support
+  (Chrome, Firefox, Edge, mobile emulation).
+- Automated orchestration of containers, artifact management, resource cleanup, and reporting.
+- Automated performance tests with metrics for page load, memory/CPU/VRAM usage, and performance
+  gates integrated into CI/CD.
+- See details and scripts in `tests/e2e/` and documentation in `docs/guides/`.
+
+## Documentation & Tutorials
+
+- **User & Developer Guides:**
+  - [Workflow Training Guide](docs/guides/WORKFLOW_TRAINING.md)
+  - [Technical Architecture](docs/guides/TECHNICAL_ARCHITECTURE.md)
+  - [Troubleshooting Guide](docs/guides/TROUBLESHOOTING.md)
+  - [Tutorials](docs/tutorials/)
+  - [Docker Testing Infrastructure](tests/docker/README-DOCKER-TESTING.md)
+
+### CI/CD Automation
+
+- **CI/CD Automation**: The pipeline runs tests, quality checks (black, ruff, basedpyright),
+  coverage, vulnerability scanning (OSV-Scanner), and performance gates. Commits are only accepted
+  if all checks pass.

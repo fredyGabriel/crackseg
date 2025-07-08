@@ -101,6 +101,37 @@ python src/main.py --config-name base training/loss=smooth_l1 training/loss.beta
 - `training/loss=smooth_l1`: Selects your new loss.
 - `training/loss.beta=0.5`: Overrides the `beta` parameter within your loss config.
 
+### Step 2.4: Create and Use Your Experiment Config
+
+Create a new main experiment file (e.g., `generated_configs/focal_loss_exp.yaml`) or
+modify an existing one using the GUI editor. To use your new loss, change
+the defaults section:
+
+```yaml
+# In your main experiment config
+defaults:
+  - training/loss: focal
+  # ... other defaults
+```
+
+Now, when you run this experiment, the training pipeline will automatically
+instantiate `FocalLoss` with the specified parameters.
+
+## 3. Running the Experiment with the GUI
+
+1. Launch the GUI and navigate to the **Experiment Configuration** page.
+2. Load the experiment configuration file that uses your new component (e.g.,
+    `focal_loss_exp.yaml`).
+3. Set a **Run Directory**.
+4. Navigate to the **Train** page by clicking **"🚀 Start Training"**.
+5. Start the process and monitor the training. The system will now use your
+    custom `FocalLoss` component.
+
+## Summary
+
+This modular, config-driven approach allows for rapid prototyping and testing of
+new components and ideas.
+
 ---
 
 **Congratulations!** You have successfully extended the project with a new,
