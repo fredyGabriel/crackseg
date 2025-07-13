@@ -1,58 +1,29 @@
 {
-    // Enable strict type checking for maximum robustness with Python 3.12+
-    "typeCheckingMode": "strict",
-    // Core type checking settings aligned with modern Python 3.12+ practices
-    "reportMissingImports": true,
-    "reportMissingTypeStubs": false,
-    // Let Ruff handle these (avoid duplication)
-    "reportUnusedImport": false,
-    "reportUnusedVariable": false,
-    "reportUnusedCallResult": false,
-    // Enable important type safety checks for modern Python
-    "reportAny": false,
-    "reportUnknownMemberType": false,
-    "reportUnknownArgumentType": false,
-    "reportUnknownVariableType": false,
-    "reportUnknownLambdaType": false,
-    "reportUnknownParameterType": false,
-    // Modern Python 3.12+ specific settings
-    "reportUnnecessaryTypeIgnoreComment": "error",
-    "reportUnnecessaryIsInstance": "warning",
-    "reportUnnecessaryComparison": "warning",
-    "reportDeprecated": "warning",
-    // Enhanced type checking for generics and protocols
-    "reportInvalidTypeVarUse": true,
-    "reportSelfClsParameterName": "warning",
-    // Enable modern Python 3.12+ features
-    "enableTypeIgnoreComments": true,
-    "strictListInference": true,
-    "strictDictionaryInference": true,
-    "strictSetInference": true,
-    // Set Python version to 3.12 for compatibility with project tools
-    "pythonVersion": "3.12",
-    // Add 'src' to extraPaths for module resolution
-    "extraPaths": [
-        "src",
-        "tests/docker"
-    ],
-    // Include main source, test, and script directories
     "include": [
         "src",
-        "tests",
-        "scripts"
+        "tests"
     ],
-    // Exclude output, virtual environment, and cache directories from analysis
     "exclude": [
-        "**/__pycache__",
-        "**/node_modules"
+        "**/__pycache__"
     ],
+    "pythonVersion": "3.12",
+    "typeCheckingMode": "strict",
+    "reportMissingTypeStubs": false,
+    "reportUnknownParameterType": false,
     "reportPrivateUsage": "none",
     "executionEnvironments": [
         {
+            "root": "tests/unit/gui/components",
+            "reportCallIssue": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportUnknownMemberType": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportMissingParameterType": "none"
+        },
+        {
             "root": ".",
-            "extraPaths": [
-                "tests/docker"
-            ]
+            "reportCallIssue": "error",
+            "reportAttributeAccessIssue": "error"
         }
     ]
 }

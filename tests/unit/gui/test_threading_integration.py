@@ -300,7 +300,7 @@ class TestRunManagerIntegration:
         cleanup_ui_wrapper()
 
         with patch(
-            "scripts.gui.utils.run_manager.start_training_session"
+            "scripts.gui.utils.run_manager.ui_integration.start_training_session"
         ) as mock_start:
             mock_start.return_value = (True, [])
 

@@ -13,7 +13,7 @@ The functionality is now distributed across:
 """
 
 # Import the main function from the refactored module
-from .architecture import page_architecture
+from scripts.gui.pages.architecture import page_architecture
 
 # Export for backward compatibility
 __all__ = ["page_architecture"]

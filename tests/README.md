@@ -5,9 +5,11 @@ This directory contains the unit and integration tests for the crack segmentatio
 ## Final Status
 
 - All unit and integration tests are organized and pass successfully.
-- Obsolete or redundant tests have been removed after refactoring (e.g., individual component factory tests now covered by integration tests).
+- Obsolete or redundant tests have been removed after refactoring (e.g., individual component
+  factory tests now covered by integration tests).
 - Test coverage and organization are robust, reflecting the real API and workflows.
-- Mask shape and path assertions are adapted to the actual production API contract (e.g., mask shape: `(1, H, W)`).
+- Mask shape and path assertions are adapted to the actual production API contract
+  (e.g., mask shape: `(1, H, W)`).
 - Tests that create files or directories use temporary paths (`tmp_path`) to avoid environment dependencies.
 - The suite covers main flows and edge cases for data, model, training, and evaluation.
 

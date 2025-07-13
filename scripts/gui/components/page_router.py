@@ -18,6 +18,7 @@ class PageRouter:
 
     # Page component mapping
     _page_components = {
+        "Home": "page_home",
         "Config": "page_config",
         "Advanced Config": "page_advanced_config",
         "Architecture": "page_architecture",
@@ -27,6 +28,14 @@ class PageRouter:
 
     # Page metadata for enhanced routing
     _page_metadata = {
+        "Home": {
+            "title": "🏠 CrackSeg Dashboard",
+            "subtitle": "Welcome to the pavement crack segmentation project",
+            "help_text": (
+                "Main dashboard with project overview, quick actions, "
+                "and dataset statistics"
+            ),
+        },
         "Config": {
             "title": "🔧 Configuration Manager",
             "subtitle": (

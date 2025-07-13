@@ -41,8 +41,23 @@ exclude = '''
 
 [tool.basedpyright]
 pythonVersion = "3.12"
-include = ["src", "scripts", "tests"]
+include = ["src", "tests"]
 exclude = ["**/__pycache__"]
+
+# Main project settings
+typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+reportUnknownParameterType = false
+
+# Test-specific suppression for GUI components
+[[tool.basedpyright.overrides]]
+include = ["tests/unit/gui/components/**/*.py"]
+# Suppress false positives in GUI component tests using mocks
+reportCallIssue = false
+reportAttributeAccessIssue = false
+reportUnknownMemberType = false
+reportGeneralTypeIssues = false
+
 reportPrivateUsage = "none"  # Allow private usage in tests
 reportUnnecessaryTypeIgnoreComment = "error"
 

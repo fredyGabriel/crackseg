@@ -101,7 +101,11 @@ class ExportManager:
                     triplet.prediction_path,
                 ]
                 for path in potential_paths:
-                    if path not in triplet.missing_files and path.exists():
+                    if (
+                        path is not None
+                        and path not in triplet.missing_files
+                        and path.exists()
+                    ):
                         # Create a unique path in the zip file
                         arcname = (
                             f"{triplet.dataset_name}/{triplet.id}/{path.name}"

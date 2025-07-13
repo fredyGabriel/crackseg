@@ -130,7 +130,7 @@ class TestProcessManagerAbort:
 class TestRunManagerAbort:
     """Test run_manager enhanced abort functions."""
 
-    @patch("scripts.gui.utils.run_manager.get_process_manager")
+    @patch("scripts.gui.utils.run_manager.abort_api.get_process_manager")
     def test_abort_training_session(self, mock_get_manager: Any) -> None:
         """Test abort_training_session wrapper function."""
         mock_manager = MagicMock()
@@ -159,7 +159,7 @@ class TestRunManagerAbort:
     ) -> None:
         """Test get_process_tree_info wrapper function."""
         mock_manager = MagicMock()
-        mock_tree_info = {
+        mock_tree_info: dict[str, Any] = {
             "main_process": {"pid": 1234, "name": "python"},
             "children": [],
             "total_processes": 1,
@@ -173,7 +173,7 @@ class TestRunManagerAbort:
         assert result["main_process"]["pid"] == 1234
         mock_manager.get_process_tree_info.assert_called_once()
 
-    @patch("scripts.gui.utils.run_manager.psutil.process_iter")
+    @patch("scripts.gui.utils.run_manager.abort_api.psutil.process_iter")
     def test_force_cleanup_orphans_basic(self, mock_process_iter: Any) -> None:
         """Test basic force cleanup functionality."""
         # Mock empty process list

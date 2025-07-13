@@ -2,6 +2,7 @@
 
 ```txt
 └── crackseg/
+    ├── ${TASK_MASTER_PROJECT_ROOT}/
     ├── archive/
     │   ├── legacy_docs/
     │   │   ├── development-guide.mdc
@@ -10,6 +11,7 @@
     │   │   └── structural-guide.mdc
     │   └── README.md
     ├── archived-artifacts/
+    ├── automation_results/
     ├── checkpoints/
     ├── configs/
     │   ├── __pycache__/
@@ -357,6 +359,7 @@
     ├── docs/
     │   ├── api/
     │   │   ├── gui_components.md
+    │   │   ├── gui_pages.md
     │   │   ├── gui_services.md
     │   │   └── utilities.md
     │   ├── designs/
@@ -365,14 +368,19 @@
     │   ├── guides/
     │   │   ├── checkpoint_format_specification.md
     │   │   ├── ci_cd_integration_guide.md
+    │   │   ├── ci_cd_testing_integration.md
     │   │   ├── CLEAN_INSTALLATION.md
     │   │   ├── comprehensive_integration_test_reporting_guide.md
     │   │   ├── configuration_storage_specification.md
     │   │   ├── CONTRIBUTING.md
     │   │   ├── DEVELOPMENT.md
+    │   │   ├── gui_development_guidelines.md
+    │   │   ├── gui_testing_best_practices.md
+    │   │   ├── gui_testing_implementation_checklist.md
     │   │   ├── INSTALL.md
     │   │   ├── loss_registry_usage.md
     │   │   ├── performance_benchmarking_system.md
+    │   │   ├── quality_gates_guide.md
     │   │   ├── SYSTEM_DEPENDENCIES.md
     │   │   ├── TECHNICAL_ARCHITECTURE.md
     │   │   ├── TROUBLESHOOTING.md
@@ -405,12 +413,19 @@
     │   │   │   ├── next_testing_priorities.md
     │   │   │   ├── test_coverage_improvement_plan.md
     │   │   │   └── test_inventory.txt
+    │   │   ├── automated_test_execution_report.md
     │   │   ├── documentation_checklist.md
+    │   │   ├── e2e_testing_results_4_4.md
+    │   │   ├── gui_corrections_inventory.md
+    │   │   ├── gui_test_coverage_analysis.md
     │   │   ├── legacy_folders_reorganization_summary.md
+    │   │   ├── manual_testing_results_4_3.md
     │   │   ├── organization_summary.md
     │   │   ├── project_tree.md
     │   │   ├── README.md
     │   │   ├── reorganization_summary.md
+    │   │   ├── subtask_4_3_completion_checklist.md
+    │   │   ├── task_4_final_integration_report.md
     │   │   └── tensorboard_component_refactoring_summary.md
     │   ├── stylesheets/
     │   │   └── extra.css
@@ -427,10 +442,6 @@
     ├── htmlcov/
     ├── outputs/
     ├── performance-historical-data/
-    │   ├── performance-data-20250706_181616.json
-    │   ├── performance-data-20250706_181735.json
-    │   ├── performance-data-ci_commi-20250706_181616.json
-    │   └── performance-data-ci_commi-20250706_181735.json
     ├── performance-reports/
     ├── results/
     ├── scripts/
@@ -497,13 +508,22 @@
     │   │   │   ├── confirmation_dialog.py
     │   │   │   ├── confirmation_renderer.py
     │   │   │   ├── confirmation_utils.py
+    │   │   │   ├── device_detector.py
+    │   │   │   ├── device_info.py
     │   │   │   ├── device_selector.py
+    │   │   │   ├── device_selector_backup.py
+    │   │   │   ├── device_selector_new.py
+    │   │   │   ├── device_selector_ui.py
     │   │   │   ├── error_console.py
+    │   │   │   ├── file_browser.py
     │   │   │   ├── file_browser_component.py
     │   │   │   ├── file_upload_component.py
+    │   │   │   ├── header_component.py
     │   │   │   ├── loading_spinner.py
     │   │   │   ├── loading_spinner_optimized.py
+    │   │   │   ├── log_viewer.py
     │   │   │   ├── logo_component.py
+    │   │   │   ├── metrics_viewer.py
     │   │   │   ├── page_router.py
     │   │   │   ├── progress_bar.py
     │   │   │   ├── progress_bar_optimized.py
@@ -518,12 +538,23 @@
     │   │   │   └── tensorboard_integration_summary.md
     │   │   ├── pages/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── architecture/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── config_section.py
+    │   │   │   │   ├── info_section.py
+    │   │   │   │   ├── model_section.py
+    │   │   │   │   ├── utils.py
+    │   │   │   │   └── visualization_section.py
+    │   │   │   ├── results/
     │   │   │   ├── __init__.py
     │   │   │   ├── advanced_config_page.py
     │   │   │   ├── architecture_page.py
     │   │   │   ├── config_page.py
+    │   │   │   ├── home_page.py
     │   │   │   ├── page_train.py
     │   │   │   ├── results_page.py
+    │   │   │   ├── results_page_new.py
     │   │   │   └── train_page.py
     │   │   ├── services/
     │   │   │   ├── __pycache__/
@@ -531,6 +562,8 @@
     │   │   │   ├── gallery_export_service.py
     │   │   │   ├── gallery_scanner_service.py
     │   │   │   └── gpu_monitor.py
+    │   │   ├── styles/
+    │   │   │   └── main.css
     │   │   ├── utils/
     │   │   │   ├── __pycache__/
     │   │   │   ├── config/
@@ -542,9 +575,13 @@
     │   │   │   │   │   └── yaml_engine.py
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── cache.py
+    │   │   │   │   ├── config_loader.py
+    │   │   │   │   ├── error_reporter.py
     │   │   │   │   ├── exceptions.py
     │   │   │   │   ├── formatters.py
     │   │   │   │   ├── io.py
+    │   │   │   │   ├── parsing_engine.py
+    │   │   │   │   ├── schema_validator.py
     │   │   │   │   └── templates.py
     │   │   │   ├── parsing/
     │   │   │   │   ├── __pycache__/
@@ -604,22 +641,29 @@
     │   │   │   ├── architecture_viewer.py
     │   │   │   ├── auto_save.py
     │   │   │   ├── config_io.py
+    │   │   │   ├── data_stats.py
     │   │   │   ├── demo_tensorboard.py
     │   │   │   ├── error_state.py
     │   │   │   ├── export_manager.py
     │   │   │   ├── gui_config.py
+    │   │   │   ├── log_parser.py
     │   │   │   ├── override_examples.py
     │   │   │   ├── performance_optimizer.py
+    │   │   │   ├── process_manager.py
     │   │   │   ├── save_dialog.py
     │   │   │   ├── session_state.py
     │   │   │   ├── session_sync.py
     │   │   │   ├── streaming_examples.py
+    │   │   │   ├── styling.py
     │   │   │   ├── tb_manager.py
     │   │   │   ├── theme.py
     │   │   │   └── training_state.py
+    │   │   ├── utils(results/
+    │   │   │   └── core.py
     │   │   ├── __init__.py
     │   │   ├── app.py
     │   │   ├── app_legacy.py
+    │   │   ├── debug_page_rendering.py
     │   │   ├── README.md
     │   │   └── README_REFACTORING.md
     │   ├── outputs/
@@ -671,162 +715,6 @@
     │   └── verify_system_dependencies.py
     ├── selenium-videos/
     ├── site/
-    │   ├── api/
-    │   │   ├── gui_components/
-    │   │   │   └── index.html
-    │   │   ├── gui_services/
-    │   │   │   └── index.html
-    │   │   └── utilities/
-    │   │       └── index.html
-    │   ├── assets/
-    │   │   ├── images/
-    │   │   │   └── favicon.png
-    │   │   ├── javascripts/
-    │   │   │   ├── lunr/
-    │   │   │   │   ├── min/
-    │   │   │   │   │   ├── lunr.ar.min.js
-    │   │   │   │   │   ├── lunr.da.min.js
-    │   │   │   │   │   ├── lunr.de.min.js
-    │   │   │   │   │   ├── lunr.du.min.js
-    │   │   │   │   │   ├── lunr.el.min.js
-    │   │   │   │   │   ├── lunr.es.min.js
-    │   │   │   │   │   ├── lunr.fi.min.js
-    │   │   │   │   │   ├── lunr.fr.min.js
-    │   │   │   │   │   ├── lunr.he.min.js
-    │   │   │   │   │   ├── lunr.hi.min.js
-    │   │   │   │   │   ├── lunr.hu.min.js
-    │   │   │   │   │   ├── lunr.hy.min.js
-    │   │   │   │   │   ├── lunr.it.min.js
-    │   │   │   │   │   ├── lunr.ja.min.js
-    │   │   │   │   │   ├── lunr.jp.min.js
-    │   │   │   │   │   ├── lunr.kn.min.js
-    │   │   │   │   │   ├── lunr.ko.min.js
-    │   │   │   │   │   ├── lunr.multi.min.js
-    │   │   │   │   │   ├── lunr.nl.min.js
-    │   │   │   │   │   ├── lunr.no.min.js
-    │   │   │   │   │   ├── lunr.pt.min.js
-    │   │   │   │   │   ├── lunr.ro.min.js
-    │   │   │   │   │   ├── lunr.ru.min.js
-    │   │   │   │   │   ├── lunr.sa.min.js
-    │   │   │   │   │   ├── lunr.stemmer.support.min.js
-    │   │   │   │   │   ├── lunr.sv.min.js
-    │   │   │   │   │   ├── lunr.ta.min.js
-    │   │   │   │   │   ├── lunr.te.min.js
-    │   │   │   │   │   ├── lunr.th.min.js
-    │   │   │   │   │   ├── lunr.tr.min.js
-    │   │   │   │   │   ├── lunr.vi.min.js
-    │   │   │   │   │   └── lunr.zh.min.js
-    │   │   │   │   ├── tinyseg.js
-    │   │   │   │   └── wordcut.js
-    │   │   │   ├── workers/
-    │   │   │   │   ├── search.d50fe291.min.js
-    │   │   │   │   └── search.d50fe291.min.js.map
-    │   │   │   ├── bundle.13a4f30d.min.js
-    │   │   │   └── bundle.13a4f30d.min.js.map
-    │   │   ├── stylesheets/
-    │   │   │   ├── main.342714a4.min.css
-    │   │   │   ├── main.342714a4.min.css.map
-    │   │   │   ├── palette.06af60db.min.css
-    │   │   │   └── palette.06af60db.min.css.map
-    │   │   └── _mkdocstrings.css
-    │   ├── CONTRIBUTING/
-    │   ├── designs/
-    │   │   ├── loss_registry_design/
-    │   │   │   └── index.html
-    │   │   └── logo.png
-    │   ├── DEVELOPMENT/
-    │   ├── guides/
-    │   │   ├── checkpoint_format_specification/
-    │   │   │   └── index.html
-    │   │   ├── CLEAN_INSTALLATION/
-    │   │   │   └── index.html
-    │   │   ├── configuration_storage_specification/
-    │   │   │   └── index.html
-    │   │   ├── CONTRIBUTING/
-    │   │   │   └── index.html
-    │   │   ├── DEVELOPMENT/
-    │   │   │   └── index.html
-    │   │   ├── INSTALL/
-    │   │   │   └── index.html
-    │   │   ├── loss_registry_usage/
-    │   │   │   └── index.html
-    │   │   ├── SYSTEM_DEPENDENCIES/
-    │   │   │   └── index.html
-    │   │   ├── USAGE/
-    │   │   │   └── index.html
-    │   │   └── WORKFLOW_TRAINING/
-    │   │       └── index.html
-    │   ├── INSTALL/
-    │   ├── reports/
-    │   │   ├── analysis/
-    │   │   │   ├── consolidation-implementation-summary/
-    │   │   │   │   └── index.html
-    │   │   │   ├── duplication-mapping/
-    │   │   │   │   └── index.html
-    │   │   │   ├── final-rule-cleanup-summary/
-    │   │   │   │   └── index.html
-    │   │   │   ├── rule-consolidation-report/
-    │   │   │   │   └── index.html
-    │   │   │   └── rule-system-analysis/
-    │   │   │       └── index.html
-    │   │   ├── archive/
-    │   │   │   ├── stats_report_20250514_220750.txt
-    │   │   │   └── stats_report_20250516_034210.txt
-    │   │   ├── coverage/
-    │   │   │   ├── coverage_gaps_analysis/
-    │   │   │   │   └── index.html
-    │   │   │   ├── coverage_validation_report/
-    │   │   │   │   └── index.html
-    │   │   │   ├── test_coverage_analysis_report/
-    │   │   │   │   └── index.html
-    │   │   │   └── test_coverage_comparison_report/
-    │   │   │       └── index.html
-    │   │   ├── documentation_checklist/
-    │   │   │   └── index.html
-    │   │   ├── legacy_folders_reorganization_summary/
-    │   │   │   └── index.html
-    │   │   ├── models/
-    │   │   ├── organization_summary/
-    │   │   │   └── index.html
-    │   │   ├── project/
-    │   │   │   └── plan_verificacion_post_linting/
-    │   │   │       └── index.html
-    │   │   ├── project_tree/
-    │   │   │   └── index.html
-    │   │   ├── reorganization_summary/
-    │   │   │   └── index.html
-    │   │   ├── scripts/
-    │   │   │   ├── example_prd.txt
-    │   │   │   ├── hydra_examples.txt
-    │   │   │   └── index.html
-    │   │   ├── tasks/
-    │   │   ├── tensorboard_component_refactoring_summary/
-    │   │   │   └── index.html
-    │   │   ├── testing/
-    │   │   │   ├── next_testing_priorities/
-    │   │   │   │   └── index.html
-    │   │   │   ├── test_coverage_improvement_plan/
-    │   │   │   │   └── index.html
-    │   │   │   └── test_inventory.txt
-    │   │   └── index.html
-    │   ├── search/
-    │   │   └── search_index.json
-    │   ├── stylesheets/
-    │   │   └── extra.css
-    │   ├── testing/
-    │   │   ├── artifact_testing_plan/
-    │   │   │   └── index.html
-    │   │   └── test_patterns_and_best_practices/
-    │   │       └── index.html
-    │   ├── tools/
-    │   │   └── task-master-guide/
-    │   │       └── index.html
-    │   ├── USAGE/
-    │   ├── 404.html
-    │   ├── index.html
-    │   ├── objects.inv
-    │   ├── sitemap.xml
-    │   └── sitemap.xml.gz
     ├── src/
     │   ├── __pycache__/
     │   ├── data/
@@ -1046,8 +934,6 @@
     │   └── README.md
     ├── tasks/
     ├── test-artifacts/
-    │   ├── e2e/
-    │   └── screenshots/
     ├── test-results/
     ├── tests/
     │   ├── __pycache__/
@@ -1300,7 +1186,8 @@
     │   │   ├── test_driver_integration.py
     │   │   ├── test_environment_setup_demo.py
     │   │   ├── test_fixture_usage_example.py
-    │   │   └── test_streamlit_basic.py
+    │   │   ├── test_streamlit_basic.py
+    │   │   └── test_workflow_regression_4_4.py
     │   ├── fixtures/
     │   │   └── mocks/
     │   │       ├── experiment_manager/
@@ -1450,6 +1337,12 @@
     │   │   │   ├── test_file_browser_component.py
     │   │   │   ├── test_session_state_simple.py
     │   │   │   ├── test_session_state_verification.py
+    │   │   │   ├── test_specialized_config.py
+    │   │   │   ├── test_specialized_parsing.py
+    │   │   │   ├── test_specialized_run_manager.py
+    │   │   │   ├── test_specialized_streaming.py
+    │   │   │   ├── test_specialized_tensorboard.py
+    │   │   │   ├── test_specialized_threading.py
     │   │   │   ├── test_workflow_performance.py
     │   │   │   ├── test_workflow_scenarios.py
     │   │   │   ├── test_yaml_validation.py
@@ -1548,6 +1441,24 @@
     │   │   │   └── test_results.py
     │   │   ├── gui/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── components/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── conftest.py
+    │   │   │   │   ├── test_component_base.py
+    │   │   │   │   ├── test_file_browser_component.py
+    │   │   │   │   ├── test_file_upload_component.py
+    │   │   │   │   ├── test_logo_component.py
+    │   │   │   │   ├── test_page_router.py
+    │   │   │   │   ├── test_results_display.py
+    │   │   │   │   ├── test_sidebar_component.py
+    │   │   │   │   └── test_theme_component.py
+    │   │   │   ├── pages/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── test_advanced_config_page.py
+    │   │   │   │   ├── test_config_page.py
+    │   │   │   │   ├── test_home_page.py
+    │   │   │   │   ├── test_pages_smoke.py
+    │   │   │   │   └── test_train_page.py
     │   │   │   ├── utils/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── config/
@@ -1558,6 +1469,8 @@
     │   │   │   │   │   ├── test_io.py
     │   │   │   │   │   └── test_templates.py
     │   │   │   │   ├── test_export_manager.py
+    │   │   │   │   ├── test_gui_config.py
+    │   │   │   │   ├── test_performance_optimizer.py
     │   │   │   │   └── test_session_state.py
     │   │   │   ├── test_enhanced_abort.py
     │   │   │   ├── test_error_console.py
@@ -1652,8 +1565,6 @@
     ├── CHANGELOG.md
     ├── debug_parsing.py
     ├── environment.yml
-    ├── gui_test_results.txt
-    ├── gui_unit_test_results.txt
     ├── mkdocs.yml
     ├── pyproject.toml
     ├── pyrightconfig.json
@@ -1661,5 +1572,5 @@
     ├── requirements.txt
     ├── run.py
     ├── temp_storage.py
-    └── test_results.txt
+    └── test_config_system.py
 ```

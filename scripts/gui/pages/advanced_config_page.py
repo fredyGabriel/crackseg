@@ -38,6 +38,15 @@ def page_advanced_config() -> None:
     with tab_editor:
         st.markdown("### Configuration Editor with Live Validation")
 
+        # Show helpful info when starting fresh
+        if not state.config_loaded:
+            st.info(
+                "💡 **Getting Started**: No configuration loaded. You can:\n"
+                "- Start editing below to create a new configuration\n"
+                "- Load a template from the 'Templates' tab\n"
+                "- Upload an existing file from the 'File Explorer' tab"
+            )
+
         # Load initial content if available
         initial_content = ""
         if state.config_path and Path(state.config_path).exists():
@@ -47,6 +56,30 @@ def page_advanced_config() -> None:
                 )
             except Exception as e:
                 st.error(f"Error loading configuration: {str(e)}")
+        elif not initial_content:
+            # Provide default template when starting fresh
+            initial_content = """# CrackSeg Configuration Template
+# Edit this template to create your configuration
+
+defaults:
+  - data: default
+  - model: architectures/unet_cnn
+  - training: default
+
+experiment:
+  name: my_experiment
+  random_seed: 42
+
+# Training parameters
+training:
+  epochs: 50
+  optimizer:
+    lr: 0.001
+
+# Data parameters
+data:
+  batch_size: 8
+"""
 
         # Render the Ace editor
         editor_content = editor_component.render_editor(
@@ -81,7 +114,22 @@ def page_advanced_config() -> None:
                     except Exception as e:
                         st.error(f"Error: {str(e)}")
                 else:
-                    st.warning("No file configured")
+                    # Auto-generate filename when no path configured
+                    import datetime
+
+                    timestamp = datetime.datetime.now().strftime(
+                        "%Y%m%d_%H%M%S"
+                    )
+                    filename = f"config_{timestamp}.yaml"
+                    save_path = Path("generated_configs") / filename
+                    save_path.parent.mkdir(parents=True, exist_ok=True)
+
+                    try:
+                        save_path.write_text(editor_content, encoding="utf-8")
+                        state.config_path = str(save_path)
+                        st.success(f"Configuration saved as: {filename}")
+                    except Exception as e:
+                        st.error(f"Error saving: {str(e)}")
 
         with col3:
             if st.button("Apply as Primary", use_container_width=True):

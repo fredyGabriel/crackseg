@@ -18,7 +18,7 @@ refactored module structure.
 """
 
 # Import the main function from the refactored module
-from .results import page_results
+from scripts.gui.pages.results import page_results
 
 # Export for backward compatibility
 __all__ = ["page_results"]

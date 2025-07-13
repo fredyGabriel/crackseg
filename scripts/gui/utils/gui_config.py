@@ -5,8 +5,20 @@ This module contains page configurations, constants, and shared settings
 used throughout the application.
 """
 
-# Shared page configuration
-PAGE_CONFIG = {
+# Importar TypedDict
+from typing import TypedDict
+
+
+# Definir el tipo
+class PageConfig(TypedDict):
+    title: str
+    icon: str
+    description: str
+    requires: list[str]
+
+
+# Anotar PAGE_CONFIG
+PAGE_CONFIG: dict[str, PageConfig] = {
     "Home": {
         "title": "CrackSeg Dashboard",
         "icon": "🏠",
@@ -23,7 +35,7 @@ PAGE_CONFIG = {
         "title": "Advanced Configuration Editor",
         "icon": "⚙️",
         "description": "Advanced YAML editor for configurations.",
-        "requires": ["config_loaded"],
+        "requires": [],
     },
     "Architecture": {
         "title": "Model Architecture Viewer",

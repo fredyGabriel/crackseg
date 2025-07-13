@@ -20,7 +20,7 @@ class TestSessionState:
 
     def test_initialization(self, initial_state: SessionState):
         """Test that the dataclass initializes with correct defaults."""
-        assert initial_state.current_page == "Config"
+        assert initial_state.current_page == "Home"
         assert initial_state.config_loaded is False
         assert initial_state.process_state == "idle"
         assert isinstance(initial_state.notifications, list)
