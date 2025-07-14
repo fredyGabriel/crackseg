@@ -131,7 +131,7 @@ def parallel(
     Returns:
         Pytest marker decorator
     """
-    kwargs = {}
+    kwargs: dict[str, Any] = {}
     if workers is not None:
         kwargs["workers"] = workers
     if strategy is not None:
@@ -225,7 +225,7 @@ def resource_requirement(
     Returns:
         Pytest marker decorator
     """
-    markers = []
+    markers: list[MarkDecorator] = []
 
     if memory_mb > 4096:
         markers.append(pytest.mark.high_memory)
@@ -295,7 +295,7 @@ def get_test_markers(item: pytest.Item) -> dict[str, Any]:
     Returns:
         Dictionary of marker information
     """
-    markers_info = {}
+    markers_info: dict[str, Any] = {}
 
     for marker in item.iter_markers():
         markers_info[marker.name] = {
@@ -428,6 +428,65 @@ def should_enable_performance_monitoring(item: pytest.Item) -> bool:
     )
 
 
+def get_marker_configuration() -> dict[str, Any]:
+    """Get general marker configuration for tests.
+
+    Returns:
+        Dictionary with marker configuration settings
+    """
+    return {
+        "parallel_enabled": True,
+        "performance_monitoring": True,
+        "resource_tracking": True,
+        "default_workers": 4,
+        "timeout_seconds": 300,
+    }
+
+
+def get_performance_markers() -> dict[str, Any]:
+    """Get available performance-related markers.
+
+    Returns:
+        Dictionary of performance markers and their configurations
+    """
+    return {
+        "performance": {
+            "threshold_seconds": 30.0,
+            "memory_threshold_mb": 1024.0,
+            "regression_check": False,
+        },
+        "performance_critical": {
+            "threshold_seconds": 10.0,
+            "strict_monitoring": True,
+        },
+        "performance_baseline": {
+            "baseline_name": "default",
+        },
+    }
+
+
+def get_resource_markers() -> dict[str, Any]:
+    """Get available resource-related markers.
+
+    Returns:
+        Dictionary of resource markers and their configurations
+    """
+    return {
+        "resource_requirement": {
+            "memory_mb": 512,
+            "cpu_cores": 1.0,
+            "isolated": False,
+        },
+        "browser_matrix": {
+            "browsers": ["chrome", "firefox"],
+            "parallel_browsers": True,
+        },
+        "environment": {
+            "env_type": "test",
+        },
+    }
+
+
 # Export all marker functions and utilities
 __all__ = [
     "pytest_configure",
@@ -445,4 +504,7 @@ __all__ = [
     "get_worker_count_for_test",
     "get_performance_config_for_test",
     "should_enable_performance_monitoring",
+    "get_marker_configuration",
+    "get_performance_markers",
+    "get_resource_markers",
 ]
