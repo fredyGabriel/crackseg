@@ -17,7 +17,7 @@ class TestTripletDisplayComponent(ComponentTestBase):
 
     def test_triplet_display_component_import(self) -> None:
         """Test that TripletDisplayComponent can be imported successfully."""
-        from scripts.gui.components.results_display import (
+        from gui.components.results_display import (
             TripletDisplayComponent,
         )
 
@@ -27,7 +27,7 @@ class TestTripletDisplayComponent(ComponentTestBase):
     def test_triplet_display_render_empty_triplets(self, mock_st) -> None:
         """Test TripletDisplayComponent renders correctly
         with empty triplets."""
-        from scripts.gui.components.results_display import (
+        from gui.components.results_display import (
             TripletDisplayComponent,
         )
 
@@ -51,7 +51,7 @@ class TestTripletDisplayComponent(ComponentTestBase):
     def test_triplet_display_render_with_triplets(self, mock_st) -> None:
         """Test TripletDisplayComponent renders correctly
         with triplets."""
-        from scripts.gui.components.results_display import (
+        from gui.components.results_display import (
             TripletDisplayComponent,
         )
 
@@ -76,7 +76,7 @@ class TestTripletDisplayComponent(ComponentTestBase):
     @patch("scripts.gui.components.results_display.st")
     def test_triplet_display_state_initialization(self, mock_st) -> None:
         """Test TripletDisplayComponent initializes state correctly."""
-        from scripts.gui.components.results_display import (
+        from gui.components.results_display import (
             TripletDisplayComponent,
         )
 

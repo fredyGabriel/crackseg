@@ -1,5 +1,5 @@
 """
-Inventory training scripts that import from src.model and direct model
+Inventory training scripts that import from crackseg.model and direct model
 instantiations.
 
 Scans 'scripts/', 'src/training/', and 'src/' for .py files, parses them

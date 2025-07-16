@@ -13,7 +13,7 @@ import pytest
 import torch
 from omegaconf import DictConfig, OmegaConf
 
-from src.utils.logging.metrics_manager import MetricsManager
+from crackseg.utils.logging.metrics_manager import MetricsManager
 
 
 @pytest.fixture

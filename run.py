@@ -136,8 +136,8 @@ def run_main() -> None:
         for process monitoring and automation scripts.
     """
     try:
-        logger.info("Importing main function from src.main...")
-        from src.main import main
+        logger.info("Importing main function from crackseg.main...")
+        from crackseg.main import main
 
         logger.info("Starting main() execution with Hydra configuration...")
         main()

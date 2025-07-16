@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import yaml
 
-from scripts.gui.components.config_editor_component import (
+from gui.components.config_editor_component import (
     ConfigEditorComponent,
 )
 

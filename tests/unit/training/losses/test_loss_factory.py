@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 import torch
 
-from src.training.losses.recursive_factory import parse_loss_config
+from crackseg.training.losses.recursive_factory import parse_loss_config
 
 
 @pytest.fixture

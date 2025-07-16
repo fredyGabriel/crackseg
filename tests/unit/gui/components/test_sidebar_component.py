@@ -18,7 +18,7 @@ class TestSidebarComponent(ComponentTestBase):
 
     def test_render_sidebar_import(self) -> None:
         """Test that render_sidebar function can be imported successfully."""
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         assert render_sidebar is not None
 
@@ -27,7 +27,7 @@ class TestSidebarComponent(ComponentTestBase):
         self, mock_st, sample_project_root: Path
     ) -> None:
         """Test basic sidebar rendering functionality."""
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
 
@@ -42,7 +42,7 @@ class TestSidebarComponent(ComponentTestBase):
         self, mock_st, sample_project_root: Path
     ) -> None:
         """Test sidebar with different project root."""
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
 
@@ -58,7 +58,7 @@ class TestSidebarComponent(ComponentTestBase):
         self, mock_st, sample_project_root: Path
     ) -> None:
         """Test sidebar navigation selection."""
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
         # Setup sidebar selectbox to return different page
@@ -72,7 +72,7 @@ class TestSidebarComponent(ComponentTestBase):
         self, mock_st, sample_project_root: Path
     ) -> None:
         """Test sidebar displays project information."""
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
 
@@ -86,7 +86,7 @@ class TestSidebarComponent(ComponentTestBase):
         self, mock_st, sample_project_root: Path
     ) -> None:
         """Test sidebar with different session state values."""
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
 
@@ -111,7 +111,7 @@ class TestSidebarComponent(ComponentTestBase):
         self, mock_st, sample_project_root: Path
     ) -> None:
         """Test sidebar UI elements are rendered."""
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
 
@@ -124,7 +124,7 @@ class TestSidebarComponent(ComponentTestBase):
         """Test render_sidebar function has expected signature."""
         import inspect
 
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         sig = inspect.signature(render_sidebar)
         params = list(sig.parameters.keys())
@@ -134,7 +134,7 @@ class TestSidebarComponent(ComponentTestBase):
 
     def test_render_sidebar_error_handling(self) -> None:
         """Test sidebar error handling with invalid inputs."""
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         # Should handle None project_root gracefully
         with patch("scripts.gui.components.sidebar_component.st") as mock_st:
@@ -149,7 +149,7 @@ class TestSidebarComponent(ComponentTestBase):
     @patch("scripts.gui.components.sidebar_component.st")
     def test_render_sidebar_path_handling(self, mock_st) -> None:
         """Test sidebar handles different path types."""
-        from scripts.gui.components.sidebar_component import render_sidebar
+        from gui.components.sidebar_component import render_sidebar
 
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
 

@@ -10,7 +10,7 @@ import pytest
 import torch
 from omegaconf import DictConfig, OmegaConf
 
-from src.utils.config.standardized_storage import (
+from crackseg.utils.config.standardized_storage import (
     ConfigurationSchema,
     StandardizedConfigStorage,
     compare_configurations,
@@ -28,7 +28,7 @@ def sample_config() -> DictConfig:
     return OmegaConf.create(
         {
             "experiment": {"name": "test_experiment"},
-            "model": {"_target_": "src.model.UNet"},
+            "model": {"_target_": "crackseg.model.UNet"},
             "training": {
                 "epochs": 10,
                 "optimizer": {"_target_": "torch.optim.Adam", "lr": 0.001},
@@ -43,7 +43,10 @@ def sample_config() -> DictConfig:
 def incomplete_config() -> DictConfig:
     """Create an incomplete configuration for testing validation."""
     return OmegaConf.create(
-        {"model": {"_target_": "src.model.UNet"}, "training": {"epochs": 10}}
+        {
+            "model": {"_target_": "crackseg.model.UNet"},
+            "training": {"epochs": 10},
+        }
     )
 
 
@@ -419,7 +422,7 @@ class TestLegacyMigration:
     def test_migrate_legacy_dict_configuration(self) -> None:
         """Test migrating legacy dictionary configuration."""
         legacy_config = {
-            "model": {"_target_": "src.model.UNet"},
+            "model": {"_target_": "crackseg.model.UNet"},
             "training": {"epochs": 10, "lr": 0.001},
         }
 

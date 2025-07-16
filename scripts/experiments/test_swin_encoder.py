@@ -19,7 +19,9 @@ import numpy as np
 import torch
 from omegaconf import DictConfig, OmegaConf
 
-from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder
+from crackseg.model.encoder.swin_transformer_encoder import (
+    SwinTransformerEncoder,
+)
 
 # Add the project root directory to the Python path
 project_root = Path(__file__).parent.parent.absolute()

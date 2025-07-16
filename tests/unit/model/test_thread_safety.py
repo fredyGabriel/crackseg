@@ -13,7 +13,7 @@ from typing import Any
 
 from torch import nn
 
-from src.model.factory.registry import Registry
+from crackseg.model.factory.registry import Registry
 
 
 class SimpleComponent(nn.Module):

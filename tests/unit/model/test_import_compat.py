@@ -11,7 +11,7 @@ and from the top-level src.model module.
 
 def test_import_base_classes_specific():
     """Test import of base classes from their specific module locations."""
-    from src.model.base.abstract import (
+    from crackseg.model.base.abstract import (
         BottleneckBase,
         DecoderBase,
         EncoderBase,
@@ -26,7 +26,12 @@ def test_import_base_classes_specific():
 
 def test_import_base_classes_global():
     """Test import of base classes from the top-level src.model module."""
-    from src.model import BottleneckBase, DecoderBase, EncoderBase, UNetBase
+    from crackseg.model import (
+        BottleneckBase,
+        DecoderBase,
+        EncoderBase,
+        UNetBase,
+    )
 
     assert EncoderBase is not None
     assert DecoderBase is not None
@@ -38,15 +43,17 @@ def test_import_implementation_classes_specific():
     """
     Test import of main implementation classes from their specific modules.
     """
-    from src.model.architectures import (
+    from crackseg.model.architectures import (
         CNNConvLSTMUNet,
         CNNDecoder,
         CNNEncoder,
     )
-    from src.model.architectures.swinv2_cnn_aspp_unet import SwinV2CnnAsppUNet
-    from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
-    from src.model.components.aspp import ASPPModule
-    from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
+    from crackseg.model.architectures.swinv2_cnn_aspp_unet import (
+        SwinV2CnnAsppUNet,
+    )
+    from crackseg.model.bottleneck.cnn_bottleneck import BottleneckBlock
+    from crackseg.model.components.aspp import ASPPModule
+    from crackseg.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
 
     assert CNNEncoder is not None
     assert CNNDecoder is not None
@@ -60,7 +67,7 @@ def test_import_implementation_classes_specific():
 def test_import_implementation_classes_global():
     """Test import of main implementation classes from the top-level src.model
     module."""
-    from src.model import (
+    from crackseg.model import (
         ASPPModule,
         BottleneckBlock,
         CNNConvLSTMUNet,
@@ -82,8 +89,8 @@ def test_import_implementation_classes_global():
 def test_import_utilities_specific():
     """Test import of utility functions and modules from their specific
     locations."""
-    from src.model.factory.factory_utils import merge_configs
-    from src.model.factory.registry import Registry
+    from crackseg.model.factory.factory_utils import merge_configs
+    from crackseg.model.factory.registry import Registry
 
     assert merge_configs is not None
     assert Registry is not None
@@ -99,8 +106,8 @@ def test_import_utilities_global():
 
 def test_import_factory_components_specific():
     """Test import of main factory components from their specific modules."""
-    from src.model.factory.factory import create_unet
-    from src.model.factory.registry_setup import (
+    from crackseg.model.factory.factory import create_unet
+    from crackseg.model.factory.registry_setup import (
         architecture_registry,
         bottleneck_registry,
         component_registries,

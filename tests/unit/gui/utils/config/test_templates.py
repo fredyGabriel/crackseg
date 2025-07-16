@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 import yaml
 
-from scripts.gui.utils.config.exceptions import ConfigError
-from scripts.gui.utils.config.templates import create_config_from_template
+from gui.utils.config.exceptions import ConfigError
+from gui.utils.config.templates import create_config_from_template
 
 
 @pytest.fixture

@@ -4,9 +4,9 @@ import shutil
 
 # ruff: noqa: E501
 IMPORT_MAP = {
-    "from src.model.hybrid_registry import": "from src.model.factory.hybrid_registry import",
-    "from src.model.registry import": "from src.model.factory.registry import",
-    "from src.model.factory_utils import": "from src.model.factory.factory_utils import",
+    "from crackseg.model.hybrid_registry import": "from crackseg.model.factory.hybrid_registry import",
+    "from crackseg.model.registry import": "from crackseg.model.factory.registry import",
+    "from crackseg.model.factory_utils import": "from crackseg.model.factory.factory_utils import",
 }
 
 TESTS_ROOT = "tests"

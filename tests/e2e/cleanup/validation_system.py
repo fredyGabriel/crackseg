@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass, field
 from enum import Enum
 
-from src.utils.monitoring import ResourceSnapshot
+from crackseg.utils.monitoring import ResourceSnapshot
 
 logger = logging.getLogger(__name__)
 

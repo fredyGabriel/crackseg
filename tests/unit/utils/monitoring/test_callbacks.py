@@ -10,12 +10,12 @@ from unittest.mock import patch
 
 import pytest
 
-from src.utils.monitoring.callbacks import (
+from crackseg.utils.monitoring.callbacks import (
     BaseCallback,
     CallbackHandler,
     TimerCallback,
 )
-from src.utils.monitoring.manager import MonitoringManager
+from crackseg.utils.monitoring.manager import MonitoringManager
 
 
 class TestBaseCallback:

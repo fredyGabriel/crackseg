@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from src.model.decoder.cnn_decoder import CNNDecoder
+from crackseg.model.decoder.cnn_decoder import CNNDecoder
 
 
 def test_cnndecoder_channel_propagation_increasing() -> None:

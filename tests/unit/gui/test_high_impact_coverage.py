@@ -22,18 +22,18 @@ import pytest
 
 # Component imports (with error handling for missing modules)
 try:
-    from scripts.gui.components.auto_save_manager import AutoSaveManager
-    from scripts.gui.components.file_upload_component import (
+    from gui.components.auto_save_manager import AutoSaveManager
+    from gui.components.file_upload_component import (
         FileUploadComponent,
     )
-    from scripts.gui.components.loading_spinner import LoadingSpinner
-    from scripts.gui.components.results_gallery_component import (
+    from gui.components.loading_spinner import LoadingSpinner
+    from gui.components.results_gallery_component import (
         ResultsGalleryComponent,
     )
-    from scripts.gui.components.theme_component import ThemeComponent
-    from scripts.gui.utils.auto_save import AutoSaveHandler
-    from scripts.gui.utils.config.parsing_engine import ConfigParsingEngine
-    from scripts.gui.utils.theme import ThemeManager
+    from gui.components.theme_component import ThemeComponent
+    from gui.utils.auto_save import AutoSaveHandler
+    from gui.utils.config.parsing_engine import ConfigParsingEngine
+    from gui.utils.theme import ThemeManager
 except ImportError as e:
     pytest.skip(
         f"Skipping tests due to missing imports: {e}", allow_module_level=True

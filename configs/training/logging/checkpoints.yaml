@@ -4,7 +4,7 @@
 
 # Directory to save checkpoints (relative to Hydra's run directory)
 # Ensure this aligns with or is separate from the general logging dir
-checkpoint_dir: "${hydra.run.dir}/outputs/checkpoints/"
+checkpoint_dir: "${hydra.run.dir}/checkpoints/"
 
 # Frequency of saving checkpoints (in epochs)
 # Set to 0 or null to disable periodic saving (only save last/best)
@@ -30,4 +30,4 @@ save_best:
   best_filename: "model_best.pth.tar"
 
 # Filename for the regular (last or interval) checkpoints
-filename: "checkpoint_epoch_{epoch:03d}.pth.tar" # Include epoch in filename 
+filename: "checkpoint_epoch_{epoch:03d}.pth.tar" # Include epoch in filename

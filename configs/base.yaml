@@ -1,11 +1,26 @@
-# Base configuration for shared parameters
-# Edit values as needed for your project
+# @package _global_
 
-project_name: crackseg      # Name of the project
-random_seed: 42             # Global random seed for reproducibility
-output_dir: outputs/        # Default directory for all outputs
-log_level: INFO             # Default logging level (INFO, DEBUG, etc.)
-max_config_items_to_log: 10 # Max items to show when logging a config dict
+# Base configuration applied to all experiments unless overridden.
+# This file centralizes common settings.
+
+defaults:
+  - _self_
+  - training: default
+  - model: default
+  - data: default
+  - evaluation: default
+  - hydra: default
+  - optional local: local # for local overrides
+
+# General project settings
+project_name: "crack-segmentation"
+output_dir: artifacts/outputs/        # Default directory for all outputs
+data_dir: data/               # Default directory for datasets
+
+# Seed for reproducibility. A specific seed ensures that any randomness
+# in the model initialization, data shuffling, or augmentations is consistent
+# across runs.
+seed: 42
 
 timestamp_parsing:
   min_parts: 2

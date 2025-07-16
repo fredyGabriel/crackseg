@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from scripts.gui.pages.advanced_config_page import page_advanced_config
+from gui.pages.advanced_config_page import page_advanced_config
 
 
 class MockSessionState:
@@ -32,7 +32,7 @@ class TestAdvancedConfigPage:
 
     def test_advanced_config_page_import(self) -> None:
         """Test that advanced config page can be imported successfully."""
-        from scripts.gui.pages.advanced_config_page import page_advanced_config
+        from gui.pages.advanced_config_page import page_advanced_config
 
         assert callable(page_advanced_config)
 

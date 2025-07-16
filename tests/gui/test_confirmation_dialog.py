@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 import streamlit as st
 
-from scripts.gui.components.confirmation_dialog import (
+from gui.components.confirmation_dialog import (
     ConfirmationAction,
     ConfirmationDialog,
     ConfirmationDialogFactory,
@@ -456,7 +456,7 @@ class TestPerformanceIntegration:
         mock_get_optimizer.return_value = mock_optimizer
 
         # Create a mock function with the decorator
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             track_performance_decorator,
         )
 

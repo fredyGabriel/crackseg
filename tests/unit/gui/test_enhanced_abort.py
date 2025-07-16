@@ -9,13 +9,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from scripts.gui.utils.process import (
+from gui.utils.process import (
     AbortLevel,
     AbortProgress,
     AbortResult,
     ProcessManager,
 )
-from scripts.gui.utils.run_manager import (
+from gui.utils.run_manager import (
     abort_training_session,
     force_cleanup_orphans,
     get_process_tree_info,

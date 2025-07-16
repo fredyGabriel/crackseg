@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.utils.core.exceptions import ValidationError
+from crackseg.utils.core.exceptions import ValidationError
 from tests.e2e.config.performance_thresholds import (
     ContainerManagementThresholds,
     FileOperationThresholds,

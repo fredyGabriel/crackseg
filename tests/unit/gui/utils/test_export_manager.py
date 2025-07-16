@@ -8,8 +8,8 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
-from scripts.gui.utils.export_manager import ExportManager
-from scripts.gui.utils.results import ResultTriplet
+from gui.utils.export_manager import ExportManager
+from gui.utils.results import ResultTriplet
 
 
 class MockTripletHealth(Enum):

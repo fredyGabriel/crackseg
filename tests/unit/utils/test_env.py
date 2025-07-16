@@ -7,7 +7,7 @@ from typing import Any
 
 import pytest
 
-from src.utils import get_env_var, load_env
+from crackseg.utils import get_env_var, load_env
 
 # --- Fixtures ---
 

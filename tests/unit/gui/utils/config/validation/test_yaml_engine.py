@@ -2,8 +2,8 @@
 
 import pytest
 
-from scripts.gui.utils.config.exceptions import ValidationError
-from scripts.gui.utils.config.validation.yaml_engine import YAMLValidator
+from gui.utils.config.exceptions import ValidationError
+from gui.utils.config.validation.yaml_engine import YAMLValidator
 
 
 @pytest.fixture

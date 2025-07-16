@@ -74,7 +74,7 @@ class TestSessionStateVerification(WorkflowTestBase, SessionStateMixin):
         assert session_proxy["current_page"] == "Training"
 
     def test_training_to_results_transition(self) -> None:
-        """Test session state transitions from training to results."""
+        """Test session state transitions from crackseg.training to results."""
         session_proxy = self.create_session_state_proxy(
             {
                 "training_active": True,

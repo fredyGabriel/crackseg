@@ -14,7 +14,7 @@ from streamlit.testing.v1 import AppTest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
 
-from scripts.gui.utils.gui_config import PAGE_CONFIG
+from gui.utils.gui_config import PAGE_CONFIG
 
 # Get all page names from the central configuration
 ALL_PAGE_NAMES = list(PAGE_CONFIG.keys())

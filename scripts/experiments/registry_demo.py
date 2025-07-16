@@ -13,10 +13,10 @@ import sys
 sys.path.append(os.path.abspath("."))
 
 # Import registry modules
-from src.model.components.registry_support import (
+from crackseg.model.components.registry_support import (
     register_all_components,
 )
-from src.model.registry_setup import (
+from crackseg.model.registry_setup import (
     component_registries,
     list_available_components,
 )

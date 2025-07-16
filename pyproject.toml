@@ -5,6 +5,9 @@ description = "A project for pavement crack segmentation using PyTorch."
 readme = "README.md"
 requires-python = ">=3.12"
 
+[tool.setuptools]
+package-dir = {"" = "src"}
+
 [tool.black]
 # NOTE: In the 'exclude' pattern, a single backslash (\) is correct and multiplatform.
 # Black interprets this as a Python regex, and TOML does not require double escaping.
@@ -23,19 +26,12 @@ exclude = '''
   | buck-out
   | build
   | dist
-  | outputs
+  | artifacts
   | .taskmaster
-  | test-artifacts
-  | test-results
-  | selenium-videos
-  | performance-historical-data
-  | performance-reports
-  | generated_configs
   | crackseg.egg-info
   | .pytest_cache
   | .ruff_cache
   | site
-  | htmlcov
 )/
 '''
 
@@ -80,7 +76,7 @@ lint.ignore = []
 # The 'sections' and 'default_section' from your previous isort config
 # align well with Ruff's defaults when 'known-first-party' is set.
 [tool.ruff.lint.isort]
-known-first-party = ["src", "scripts"]
+known-first-party = ["crackseg", "gui", "scripts", "tests"]
 # section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.mypy]
@@ -112,10 +108,10 @@ addopts = [
     # "-n", "auto",  # Parallel execution
     # "--dist", "worksteal",  # Load balancing
     # Quality gates
-    "--cov=src",
-    "--cov=scripts/gui",
+    "--cov=crackseg",
+    "--cov=gui",
     "--cov-report=term-missing",
-    "--cov-report=html:test-results/coverage",
+    "--cov-report=html:artifacts/test-results/coverage",
     "--cov-fail-under=80"
 ]
 markers = [
@@ -141,6 +137,6 @@ filterwarnings = [
 ]
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["scripts*"]
-exclude = ["tests*", "docs*"]
+where = ["src"]
+include = ["crackseg*"]
+exclude = ["tests*"]

@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from src.model.decoder.cnn_decoder import CNNDecoder, CNNDecoderConfig
+from crackseg.model.decoder.cnn_decoder import CNNDecoder, CNNDecoderConfig
 
 
 def test_cnndecoder_custom_target_size():

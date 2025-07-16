@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from scripts.gui.utils.error_state import (
+from gui.utils.error_state import (
     ErrorInfo,
     ErrorMessageFactory,
     ErrorType,
@@ -219,7 +219,7 @@ class TestErrorClassification:
 
     def test_classify_vram_error(self) -> None:
         """Test classification of VRAM/memory errors."""
-        from scripts.gui.components.loading_spinner import LoadingSpinner
+        from gui.components.loading_spinner import LoadingSpinner
 
         # CUDA out of memory error
         cuda_error = RuntimeError(
@@ -239,7 +239,7 @@ class TestErrorClassification:
 
     def test_classify_file_errors(self) -> None:
         """Test classification of file-related errors."""
-        from scripts.gui.components.loading_spinner import LoadingSpinner
+        from gui.components.loading_spinner import LoadingSpinner
 
         # Config file not found
         config_error = FileNotFoundError("Config file not found")
@@ -257,7 +257,7 @@ class TestErrorClassification:
 
     def test_classify_value_errors(self) -> None:
         """Test classification of value/type errors."""
-        from scripts.gui.components.loading_spinner import LoadingSpinner
+        from gui.components.loading_spinner import LoadingSpinner
 
         # Config validation error
         config_error = ValueError("Invalid config parameter")
@@ -275,7 +275,7 @@ class TestErrorClassification:
 
     def test_classify_timeout_error(self) -> None:
         """Test classification of timeout errors."""
-        from scripts.gui.components.loading_spinner import LoadingSpinner
+        from gui.components.loading_spinner import LoadingSpinner
 
         timeout_error = TimeoutError("Operation timed out")
         assert (
@@ -284,7 +284,7 @@ class TestErrorClassification:
 
     def test_classify_unexpected_error(self) -> None:
         """Test classification of unexpected errors."""
-        from scripts.gui.components.loading_spinner import LoadingSpinner
+        from gui.components.loading_spinner import LoadingSpinner
 
         unexpected_error = Exception("Something random happened")
         assert (
@@ -306,7 +306,7 @@ class TestErrorIntegration:
         mock_empty: MagicMock,
     ) -> None:
         """Test LoadingSpinner error handling integration."""
-        from scripts.gui.components.loading_spinner import LoadingSpinner
+        from gui.components.loading_spinner import LoadingSpinner
 
         # Setup mocks
         mock_placeholder = MagicMock()
@@ -327,7 +327,7 @@ class TestErrorIntegration:
         self, mock_info: MagicMock, mock_empty: MagicMock
     ) -> None:
         """Test ProgressBar error handling integration."""
-        from scripts.gui.components.progress_bar import StepBasedProgress
+        from gui.components.progress_bar import StepBasedProgress
 
         # Setup mocks
         mock_placeholder = MagicMock()

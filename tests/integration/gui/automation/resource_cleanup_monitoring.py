@@ -76,7 +76,7 @@ class SystemResourceMonitor:
     def scan_temp_files(self) -> list[Path]:
         """Scan for temporary files that may need cleanup."""
         temp_patterns = [
-            Path("temp_storage.py"),
+            Path("tools/utilities/temp_storage.py"),
             Path("generated_configs"),
             Path("outputs/temp_*"),
             Path("test-artifacts/temp_*"),

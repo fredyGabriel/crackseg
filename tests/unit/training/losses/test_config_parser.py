@@ -7,14 +7,18 @@ from typing import Any
 import pytest
 import torch
 
-from src.training.losses.factory.config_parser import (
+from crackseg.training.losses.factory.config_parser import (
     ConfigNodeType,
     ConfigParser,
     ConfigParsingError,
     ParsedNode,
 )
-from src.training.losses.factory.config_validator import ConfigValidator
-from src.training.losses.registry.clean_registry import CleanLossRegistry
+from crackseg.training.losses.factory.config_validator import (
+    ConfigValidator,
+)
+from crackseg.training.losses.registry.clean_registry import (
+    CleanLossRegistry,
+)
 
 
 @pytest.fixture

@@ -14,15 +14,20 @@ import pytest
 import torch
 from torch import nn
 
-from src.model import BottleneckBase, DecoderBase, EncoderBase, UNetBase
-from src.model.config.factory import (
+from crackseg.model import (
+    BottleneckBase,
+    DecoderBase,
+    EncoderBase,
+    UNetBase,
+)
+from crackseg.model.config.factory import (
     get_model_config_schema,
     parse_architecture_config,
     parse_component_config,
 )
-from src.model.config.validation import normalize_config
-from src.model.factory.registry import Registry
-from src.model.factory.registry_setup import (
+from crackseg.model.config.validation import normalize_config
+from crackseg.model.factory.registry import Registry
+from crackseg.model.factory.registry_setup import (
     architecture_registry,
     bottleneck_registry,
     decoder_registry,
@@ -408,7 +413,8 @@ class TestArchitectureConfigParser:
 
         # Patch component_registries within the factory module
         with patch(
-            "src.model.config.factory.component_registries", mock_registries
+            "crackseg.model.config.factory.component_registries",
+            mock_registries,
         ):
             # Parse the hybrid config (this will now use the mocked registries)
             parsed = parse_architecture_config(hybrid_config)
@@ -461,7 +467,11 @@ class TestConfigNormalization:
         }
 
         # Create a dummy schema for testing
-        from src.model.config.core import ConfigParam, ConfigSchema, ParamType
+        from crackseg.model.config.core import (
+            ConfigParam,
+            ConfigSchema,
+            ParamType,
+        )
 
         encoder_schema = ConfigSchema(
             name="encoder",

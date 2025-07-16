@@ -3,13 +3,13 @@ from typing import Any, cast
 import torch
 import torch.nn as nn
 
-from src.model.architectures.cnn_convlstm_unet import (
+from crackseg.model.architectures.cnn_convlstm_unet import (
     CNNConvLSTMUNet,
     CNNEncoder,
 )
-from src.model.decoder.cnn_decoder import CNNDecoder
-from src.model.factory.factory import CBAMPostProcessor
-from src.model.factory.registry_setup import component_registries
+from crackseg.model.decoder.cnn_decoder import CNNDecoder
+from crackseg.model.factory.factory import CBAMPostProcessor
+from crackseg.model.factory.registry_setup import component_registries
 
 # Importamos la implementación de SimpleConvLSTMBottleneck de los tests
 from tests.integration.model.test_cnn_convlstm_unet import (

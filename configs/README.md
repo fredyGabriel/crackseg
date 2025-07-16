@@ -1,6 +1,8 @@
 # Project Configurations
 
-This directory contains all configuration files for the project, managed using Hydra. The structure is hierarchical and modular to ensure flexibility, clarity, and reproducibility for all experiments and workflows.
+This directory contains all configuration files for the project, managed using Hydra. The structure
+is hierarchical and modular to ensure flexibility, clarity, and reproducibility for all experiments
+and workflows.
 
 ## Final Status
 

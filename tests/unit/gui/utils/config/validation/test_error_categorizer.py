@@ -2,8 +2,8 @@
 
 import pytest
 
-from scripts.gui.utils.config.exceptions import ValidationError
-from scripts.gui.utils.config.validation.error_categorizer import (
+from gui.utils.config.exceptions import ValidationError
+from gui.utils.config.validation.error_categorizer import (
     CategorizedError,
     ErrorCategorizer,
     ErrorCategory,

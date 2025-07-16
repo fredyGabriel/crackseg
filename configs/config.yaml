@@ -27,9 +27,9 @@ experiment:
 # Configure Hydra to use the same directory structure as ExperimentManager
 hydra:
   run:
-    dir: outputs/experiments/${now:%Y%m%d-%H%M%S}-${hydra.job.name}  # Output dir for single runs
+    dir: artifacts/outputs/experiments/${now:%Y%m%d-%H%M%S}-${hydra.job.name}  # Output dir for single runs
   sweep:
-    dir: outputs/multirun/${now:%Y%m%d-%H%M%S}                      # Output dir for sweeps
+    dir: artifacts/outputs/multirun/${now:%Y%m%d-%H%M%S}                      # Output dir for sweeps
     subdir: ${hydra.job.num}                                        # Subdir for each sweep job
   job:
     chdir: false            # Do not change working directory

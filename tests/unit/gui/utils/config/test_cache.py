@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.gui.utils.config.cache import ConfigCache
+from gui.utils.config.cache import ConfigCache
 
 
 @pytest.fixture

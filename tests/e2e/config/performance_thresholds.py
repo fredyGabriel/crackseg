@@ -22,7 +22,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from src.utils.core.exceptions import ValidationError
+from crackseg.utils.core.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 

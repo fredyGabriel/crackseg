@@ -13,11 +13,11 @@ from torch.nn import Sequential
 # pylint: disable=unused-import
 # REMOVED: import tests.model.integration.test_model_factory  # noqa: F401
 # Import the new CNN components
-from src.model import BaseUNet
-from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
-from src.model.decoder.cnn_decoder import CNNDecoder
-from src.model.encoder.cnn_encoder import CNNEncoder
-from src.model.factory import create_unet
+from crackseg.model import BaseUNet
+from crackseg.model.bottleneck.cnn_bottleneck import BottleneckBlock
+from crackseg.model.decoder.cnn_decoder import CNNDecoder
+from crackseg.model.encoder.cnn_encoder import CNNEncoder
+from crackseg.model.factory import create_unet
 
 # --- Helper Functions ---
 
@@ -136,23 +136,23 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
         # Create CNN UNet config directly
         cfg_dict = {
             "model": {
-                "_target_": "src.model.core.unet.BaseUNet",
+                "_target_": "crackseg.model.core.unet.BaseUNet",
                 "encoder": {
-                    "_target_": "src.model.encoder.cnn_encoder.CNNEncoder",
+                    "_target_": "crackseg.model.encoder.cnn_encoder.CNNEncoder",
                     "in_channels": 3,
                     "init_features": 64,
                     "depth": 4,
                 },
                 "bottleneck": {
                     "_target_": (
-                        "src.model.bottleneck.cnn_bottleneck.BottleneckBlock"
+                        "crackseg.model.bottleneck.cnn_bottleneck.BottleneckBlock"
                     ),
                     "in_channels": 512,
                     "out_channels": 1024,
                     "dropout": 0.5,
                 },
                 "decoder": {
-                    "_target_": "src.model.decoder.cnn_decoder.CNNDecoder",
+                    "_target_": "crackseg.model.decoder.cnn_decoder.CNNDecoder",
                     "in_channels": 1024,
                     "skip_channels_list": [512, 256, 128, 64],
                     "out_channels": 1,

@@ -20,7 +20,6 @@ import json
 import logging
 import subprocess
 import time
-from dataclasses import asdict, dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
@@ -28,6 +27,8 @@ from typing import Any, cast
 
 import click
 import requests
+
+from crackseg.dataclasses import asdict, dataclass
 
 # =============================================================================
 # Configuration and Data Models

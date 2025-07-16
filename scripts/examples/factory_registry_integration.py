@@ -18,9 +18,14 @@ import torch
 from omegaconf import DictConfig, OmegaConf
 from torch import nn
 
-from src.model.base import BottleneckBase, DecoderBase, EncoderBase, UNetBase
-from src.model.factory import create_unet
-from src.model.factory.registry_setup import (
+from crackseg.model.base import (
+    BottleneckBase,
+    DecoderBase,
+    EncoderBase,
+    UNetBase,
+)
+from crackseg.model.factory import create_unet
+from crackseg.model.factory.registry_setup import (
     architecture_registry,
     bottleneck_registry,
     decoder_registry,

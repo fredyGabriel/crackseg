@@ -347,7 +347,7 @@ class SessionStateMixin:
     def _simulate_training_to_results_transition(
         self, session_proxy: dict[str, Any]
     ) -> dict[str, Any]:
-        """Simulate transition from training to results page."""
+        """Simulate transition from crackseg.training to results page."""
         result = {
             "expected_transitions": [
                 "training_complete",

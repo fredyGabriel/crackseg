@@ -18,15 +18,15 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from scripts.gui.components.tensorboard.component import TensorBoardComponent
-from scripts.gui.components.tensorboard.state.session_manager import (
+from gui.components.tensorboard.component import TensorBoardComponent
+from gui.components.tensorboard.state.session_manager import (
     SessionStateManager,
 )
-from scripts.gui.utils.tensorboard.lifecycle_manager import (
+from gui.utils.tensorboard.lifecycle_manager import (
     TensorBoardLifecycleManager,
 )
-from scripts.gui.utils.tensorboard.port_management import PortManager
-from scripts.gui.utils.tensorboard.process_manager import (
+from gui.utils.tensorboard.port_management import PortManager
+from gui.utils.tensorboard.process_manager import (
     TensorBoardProcessManager,
 )
 
@@ -168,7 +168,7 @@ class TestTensorBoardRendering:
     @patch("streamlit.iframe")
     def test_iframe_renderer_success(self, mock_iframe):
         """Test successful iframe rendering."""
-        from scripts.gui.components.tensorboard.rendering import (
+        from gui.components.tensorboard.rendering import (
             iframe_renderer,
         )
 
@@ -185,7 +185,7 @@ class TestTensorBoardRendering:
     @patch("streamlit.error")
     def test_iframe_renderer_invalid_url(self, mock_error):
         """Test iframe rendering with invalid URL."""
-        from scripts.gui.components.tensorboard.rendering import (
+        from gui.components.tensorboard.rendering import (
             iframe_renderer,
         )
 
@@ -200,7 +200,7 @@ class TestTensorBoardRendering:
     @patch("streamlit.metric")
     def test_status_card_health_display(self, mock_metric):
         """Test health status card display."""
-        from scripts.gui.components.tensorboard.rendering.status_cards import (
+        from gui.components.tensorboard.rendering.status_cards import (
             health_card,
         )
 
@@ -215,7 +215,7 @@ class TestTensorBoardRendering:
     @patch("streamlit.metric")
     def test_status_card_network_display(self, mock_metric):
         """Test network status card display."""
-        from scripts.gui.components.tensorboard.rendering.status_cards import (
+        from gui.components.tensorboard.rendering.status_cards import (
             network_card,
         )
 
@@ -230,7 +230,7 @@ class TestTensorBoardRendering:
     @patch("streamlit.error")
     def test_error_renderer_display(self, mock_error):
         """Test error renderer functionality."""
-        from scripts.gui.components.tensorboard.rendering import error_renderer
+        from gui.components.tensorboard.rendering import error_renderer
 
         ErrorRenderer = error_renderer.ErrorRenderer
 
@@ -413,7 +413,7 @@ class TestTensorBoardDiagnostics:
     @patch("streamlit.button")
     def test_diagnostic_action_controls(self, mock_button, mock_columns):
         """Test diagnostic action controls rendering."""
-        from scripts.gui.components.tensorboard.rendering.diagnostics import (
+        from gui.components.tensorboard.rendering.diagnostics import (
             action_controls,
         )
 
@@ -432,7 +432,7 @@ class TestTensorBoardDiagnostics:
     @patch("streamlit.expander")
     def test_diagnostic_panel_display(self, mock_expander):
         """Test diagnostic panel display."""
-        from scripts.gui.components.tensorboard.rendering.diagnostics import (
+        from gui.components.tensorboard.rendering.diagnostics import (
             diagnostic_panel,
         )
 

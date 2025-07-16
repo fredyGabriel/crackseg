@@ -9,9 +9,10 @@ import json
 import statistics
 import subprocess
 import time
-from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
+
+from crackseg.dataclasses import asdict, dataclass
 
 from .performance_optimizer import OptimizationConfig
 

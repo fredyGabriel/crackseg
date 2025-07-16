@@ -11,14 +11,14 @@ from omegaconf import DictConfig, OmegaConf
 from torch.utils.data import DataLoader
 
 # Import only the public interface and dataclass
-from src.evaluation.__main__ import EvaluationRunParameters
-from src.utils.core.exceptions import ConfigError
+from crackseg.evaluation.__main__ import EvaluationRunParameters
+from crackseg.utils.core.exceptions import ConfigError
 
 
 class TestSetupEvaluationEnvironment:
     """Tests for _setup_evaluation_environment function."""
 
-    @patch("src.evaluation.__main__._setup_evaluation_environment")
+    @patch("crackseg.evaluation.__main__._setup_evaluation_environment")
     def test_setup_evaluation_environment_success(self, mock_setup_func: Mock):
         """Test successful evaluation environment setup."""
         # Arrange
@@ -49,7 +49,7 @@ class TestSetupEvaluationEnvironment:
 class TestLoadAndPrepareConfig:
     """Tests for _load_and_prepare_config function."""
 
-    @patch("src.evaluation.__main__._load_and_prepare_config")
+    @patch("crackseg.evaluation.__main__._load_and_prepare_config")
     def test_load_and_prepare_config_from_file(self, mock_load_func: Mock):
         """Test loading configuration from file."""
         # Arrange
@@ -79,7 +79,7 @@ class TestLoadAndPrepareConfig:
                 args, checkpoint_data, output_dir
             )
 
-    @patch("src.evaluation.__main__._load_and_prepare_config")
+    @patch("crackseg.evaluation.__main__._load_and_prepare_config")
     def test_load_and_prepare_config_error(self, mock_load_func: Mock):
         """Test error when no configuration is available."""
         # Arrange
@@ -107,7 +107,7 @@ class TestLoadAndPrepareConfig:
 class TestGetEvaluationComponents:
     """Tests for _get_evaluation_components function."""
 
-    @patch("src.evaluation.__main__._get_evaluation_components")
+    @patch("crackseg.evaluation.__main__._get_evaluation_components")
     def test_get_evaluation_components_success(
         self, mock_get_components: Mock
     ):
@@ -148,7 +148,7 @@ class TestGetEvaluationComponents:
 class TestRunEvaluationAndLog:
     """Tests for _run_evaluation_and_log function."""
 
-    @patch("src.evaluation.__main__._run_evaluation_and_log")
+    @patch("crackseg.evaluation.__main__._run_evaluation_and_log")
     def test_run_evaluation_and_log_single_model(self, mock_run_eval: Mock):
         """Test running evaluation for a single model."""
         # Arrange
@@ -181,7 +181,7 @@ class TestRunEvaluationAndLog:
         # Assert
         mock_run_eval.assert_called_once_with(params)
 
-    @patch("src.evaluation.__main__._run_evaluation_and_log")
+    @patch("crackseg.evaluation.__main__._run_evaluation_and_log")
     def test_run_evaluation_and_log_ensemble(self, mock_run_eval: Mock):
         """Test running evaluation for ensemble of models."""
         # Arrange
@@ -216,7 +216,7 @@ class TestRunEvaluationAndLog:
         # Assert
         mock_run_eval.assert_called_once_with(params)
 
-    @patch("src.evaluation.__main__._run_evaluation_and_log")
+    @patch("crackseg.evaluation.__main__._run_evaluation_and_log")
     def test_run_evaluation_and_log_error(self, mock_run_eval: Mock):
         """Test error when model is None for single model evaluation."""
         # Arrange

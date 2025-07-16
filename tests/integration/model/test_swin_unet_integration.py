@@ -7,8 +7,8 @@ This test validates the Swin encoder and the CNN decoder separately.
 
 import torch
 
-from src.model.decoder.cnn_decoder import CNNDecoder
-from src.model.encoder.swin_transformer_encoder import (
+from crackseg.model.decoder.cnn_decoder import CNNDecoder
+from crackseg.model.encoder.swin_transformer_encoder import (
     SwinTransformerEncoder,
     SwinTransformerEncoderConfig,
 )

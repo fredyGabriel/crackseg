@@ -1,6 +1,6 @@
 import torch
 
-from src.model.encoder.cnn_encoder import EncoderBlock
+from crackseg.model.encoder.cnn_encoder import EncoderBlock
 
 
 def test_encoderblock_forward_and_skips():

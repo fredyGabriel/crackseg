@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 import yaml
 
-from scripts.gui.utils.config import (
+from gui.utils.config import (
     ConfigError,
     ValidationError,
     get_upload_file_info,
@@ -263,7 +263,7 @@ class TestFileUploadProgressFunctions:
         mock_placeholder = Mock()
         mock_st.empty.return_value = mock_placeholder
 
-        from scripts.gui.utils.config.io import (
+        from gui.utils.config.io import (
             create_upload_progress_placeholder,
         )
 
@@ -277,7 +277,7 @@ class TestFileUploadProgressFunctions:
         """Test progress updates for different stages."""
         mock_placeholder = Mock()
 
-        from scripts.gui.utils.config.io import update_upload_progress
+        from gui.utils.config.io import update_upload_progress
 
         # Test different stages
         stages = ["reading", "validating", "saving", "complete", "error"]

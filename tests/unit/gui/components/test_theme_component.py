@@ -17,7 +17,7 @@ class TestThemeComponent(ComponentTestBase):
 
     def test_theme_component_import(self) -> None:
         """Test that ThemeComponent can be imported successfully."""
-        from scripts.gui.components.theme_component import ThemeComponent
+        from gui.components.theme_component import ThemeComponent
 
         assert ThemeComponent is not None
 
@@ -27,7 +27,7 @@ class TestThemeComponent(ComponentTestBase):
         self, mock_theme_manager, mock_st
     ) -> None:
         """Test basic theme selector rendering."""
-        from scripts.gui.components.theme_component import ThemeComponent
+        from gui.components.theme_component import ThemeComponent
 
         self._setup_comprehensive_streamlit_mock(mock_st)
         self._setup_theme_manager_mock(mock_theme_manager)
@@ -44,7 +44,7 @@ class TestThemeComponent(ComponentTestBase):
         self, mock_theme_manager, mock_st
     ) -> None:
         """Test theme selector with different location."""
-        from scripts.gui.components.theme_component import ThemeComponent
+        from gui.components.theme_component import ThemeComponent
 
         self._setup_comprehensive_streamlit_mock(mock_st)
         self._setup_theme_manager_mock(mock_theme_manager)
@@ -61,7 +61,7 @@ class TestThemeComponent(ComponentTestBase):
         self, mock_theme_manager, mock_st
     ) -> None:
         """Test theme selector with expander location."""
-        from scripts.gui.components.theme_component import ThemeComponent
+        from gui.components.theme_component import ThemeComponent
 
         self._setup_comprehensive_streamlit_mock(mock_st)
         self._setup_theme_manager_mock(mock_theme_manager)
@@ -78,7 +78,7 @@ class TestThemeComponent(ComponentTestBase):
         self, mock_theme_manager, mock_st
     ) -> None:
         """Test quick theme switcher rendering."""
-        from scripts.gui.components.theme_component import ThemeComponent
+        from gui.components.theme_component import ThemeComponent
 
         self._setup_comprehensive_streamlit_mock(mock_st)
         self._setup_theme_manager_mock(mock_theme_manager)
@@ -186,7 +186,7 @@ class TestThemeIntegration(ComponentTestBase):
         self, mock_asset_manager, mock_theme_manager, mock_st
     ) -> None:
         """Test theme selector integration with theme manager."""
-        from scripts.gui.components.theme_component import ThemeComponent
+        from gui.components.theme_component import ThemeComponent
 
         # Setup comprehensive mocks
         test_component = TestThemeComponent()

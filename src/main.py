@@ -70,9 +70,11 @@ from torch.nn import Module
 from torch.utils.data import DataLoader  # Added for DataLoader
 
 # Project imports
-from src.data.factory import create_dataloaders_from_config  # Import factory
-from src.training.trainer import Trainer, TrainingComponents
-from src.utils import (
+from crackseg.data.factory import (
+    create_dataloaders_from_config,  # Import factory
+)
+from crackseg.training.trainer import Trainer, TrainingComponents
+from crackseg.utils import (
     DataError,
     ModelError,
     ResourceError,
@@ -80,8 +82,8 @@ from src.utils import (
     load_checkpoint,
     set_random_seeds,
 )
-from src.utils.experiment import initialize_experiment
-from src.utils.factory import (
+from crackseg.utils.experiment import initialize_experiment
+from crackseg.utils.factory import (
     get_loss_fn,
     get_metrics_from_cfg,
     get_optimizer,

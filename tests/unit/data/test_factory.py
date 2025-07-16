@@ -3,10 +3,11 @@ from typing import Any
 import pytest
 import torch
 from omegaconf import OmegaConf
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Dataset
 
-from src.data.dataloader import create_dataloader
-from src.data.factory import create_dataloaders_from_config
+from crackseg.data import factory as data_factory
+from crackseg.data.dataloader import create_dataloader
+from crackseg.data.factory import create_dataloaders_from_config
 
 
 class DummyDataset(Dataset[torch.Tensor]):
@@ -23,7 +24,7 @@ class DummyDataset(Dataset[torch.Tensor]):
 def test_dataloader_basic_init() -> None:
     ds = DummyDataset(10)
     loader = create_dataloader(ds)
-    assert isinstance(loader, torch.utils.data.DataLoader)
+    assert isinstance(loader, DataLoader)
     batch = next(iter(loader))
     # batch_size=32 default, but if ds<32, batch=ds
     assert batch.shape[0] == 10 or batch.shape[0] == 32  # noqa: PLR2004
@@ -49,9 +50,9 @@ def test_dataloader_shuffle() -> None:
 def test_dataloader_num_workers() -> None:
     ds = DummyDataset(20)
     loader = create_dataloader(ds)  # num_workers no soportado
-    assert isinstance(loader, torch.utils.data.DataLoader)
+    assert isinstance(loader, DataLoader)
     loader2 = create_dataloader(ds)
-    assert isinstance(loader2, torch.utils.data.DataLoader)
+    assert isinstance(loader2, DataLoader)
 
 
 @pytest.mark.parametrize("batch_size", [1, 8, 16, 64])
@@ -66,14 +67,14 @@ def test_dataloader_various_batch_sizes(batch_size: int) -> None:
 def test_dataloader_prefetch_factor(prefetch_factor: int) -> None:
     ds = DummyDataset(20)
     loader = create_dataloader(ds)  # prefetch_factor no soportado
-    assert isinstance(loader, torch.utils.data.DataLoader)
+    assert isinstance(loader, DataLoader)
 
 
 @pytest.mark.parametrize("pin_memory", [True, False])
 def test_dataloader_pin_memory(pin_memory: bool) -> None:
     ds = DummyDataset(10)
     loader = create_dataloader(ds)  # pin_memory no soportado
-    assert isinstance(loader, torch.utils.data.DataLoader)
+    assert isinstance(loader, DataLoader)
 
 
 def test_dataloader_invalid_batch_size() -> None:
@@ -107,7 +108,7 @@ def test_dataloader_fp16_option() -> None:
 def test_dataloader_max_memory_mb() -> None:
     ds = DummyDataset(100)
     loader = create_dataloader(ds)  # max_memory_mb no soportado
-    assert isinstance(loader, torch.utils.data.DataLoader)
+    assert isinstance(loader, DataLoader)
     batch = next(iter(loader))
     assert batch.shape[0] > 0
 
@@ -115,7 +116,7 @@ def test_dataloader_max_memory_mb() -> None:
 def test_dataloader_adaptive_batch_size() -> None:
     ds = DummyDataset(100)
     loader = create_dataloader(ds, batch_size=32)
-    assert isinstance(loader, torch.utils.data.DataLoader)
+    assert isinstance(loader, DataLoader)
     batch = next(iter(loader))
     assert batch.shape[0] > 0
     assert batch.shape[0] <= 32  # noqa: PLR2004
@@ -183,9 +184,7 @@ def test_create_dataloaders_from_config_basic() -> None:
         }
     )
 
-    import src.data.factory
-
-    original_func = src.data.factory.create_split_datasets
+    original_func = data_factory.create_split_datasets
 
     def mock_create_split_datasets(*args: Any, **kwargs: Any):
         return {
@@ -201,7 +200,7 @@ def test_create_dataloaders_from_config_basic() -> None:
             ),
         }
 
-    src.data.factory.create_split_datasets = mock_create_split_datasets
+    data_factory.create_split_datasets = mock_create_split_datasets
 
     try:
         result = create_dataloaders_from_config(
@@ -218,13 +217,9 @@ def test_create_dataloaders_from_config_basic() -> None:
         for split in ["train", "val", "test"]:
             assert "dataset" in result[split]
             assert "dataloader" in result[split]
-            assert isinstance(
-                result[split]["dataloader"], torch.utils.data.DataLoader
-            )
+            assert isinstance(result[split]["dataloader"], DataLoader)
 
-        if isinstance(
-            result["train"]["dataloader"], torch.utils.data.DataLoader
-        ):
+        if isinstance(result["train"]["dataloader"], DataLoader):
             assert (
                 result["train"]["dataloader"].batch_size == 4
             )  # noqa: PLR2004
@@ -236,7 +231,7 @@ def test_create_dataloaders_from_config_basic() -> None:
             assert batch["image"].shape[0] <= 4  # noqa: PLR2004
 
     finally:
-        src.data.factory.create_split_datasets = original_func
+        data_factory.create_split_datasets = original_func
 
 
 def test_create_dataloaders_from_config_distributed():
@@ -296,12 +291,17 @@ def test_create_dataloaders_from_config_distributed():
         }
     )
 
-    import src.data.factory
+    # Mock torch.distributed functions since they may not be available
+    def mock_distributed_available() -> bool:
+        return False
 
-    original_funcs = {
-        "create_split_datasets": src.data.factory.create_split_datasets,
-        "is_distributed": torch.distributed.is_available,
-        "is_initialized": torch.distributed.is_initialized,
+    def mock_distributed_initialized() -> bool:
+        return False
+
+    original_funcs: dict[str, Any] = {
+        "create_split_datasets": data_factory.create_split_datasets,
+        "is_distributed": mock_distributed_available,
+        "is_initialized": mock_distributed_initialized,
     }
 
     def mock_create_split_datasets(*args: Any, **kwargs: Any):
@@ -318,15 +318,9 @@ def test_create_dataloaders_from_config_distributed():
             ),
         }
 
-    def mock_is_distributed_available():
-        return False
-
-    def mock_is_initialized():
-        return False
-
-    src.data.factory.create_split_datasets = mock_create_split_datasets
-    torch.distributed.is_available = mock_is_distributed_available
-    torch.distributed.is_initialized = mock_is_initialized
+    data_factory.create_split_datasets = mock_create_split_datasets
+    torch.distributed.is_available = mock_distributed_available  # type: ignore[attr-defined]
+    torch.distributed.is_initialized = mock_distributed_initialized  # type: ignore[attr-defined]
 
     try:
         result = create_dataloaders_from_config(
@@ -341,13 +335,11 @@ def test_create_dataloaders_from_config_distributed():
         assert "test" in result
 
         for split in ["train", "val", "test"]:
-            assert isinstance(
-                result[split]["dataloader"], torch.utils.data.DataLoader
-            )
+            assert isinstance(result[split]["dataloader"], DataLoader)
 
     finally:
-        src.data.factory.create_split_datasets = original_funcs[
+        data_factory.create_split_datasets = original_funcs[
             "create_split_datasets"
         ]
-        torch.distributed.is_available = original_funcs["is_distributed"]
-        torch.distributed.is_initialized = original_funcs["is_initialized"]
+        torch.distributed.is_available = original_funcs["is_distributed"]  # type: ignore[attr-defined]
+        torch.distributed.is_initialized = original_funcs["is_initialized"]  # type: ignore[attr-defined]

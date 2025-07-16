@@ -4,14 +4,14 @@
 import torch
 from torch import nn, optim
 
-from src.training.losses import (
+from crackseg.training.losses import (
     BCEDiceLoss,
     BCELoss,
     CombinedLoss,
     DiceLoss,
     FocalLoss,
 )
-from src.training.losses.bce_dice_loss import BCEDiceLossConfig
+from crackseg.training.losses.bce_dice_loss import BCEDiceLossConfig
 
 
 def test_bce_loss_perfect_prediction():

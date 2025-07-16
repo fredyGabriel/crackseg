@@ -16,13 +16,19 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.training.losses.factory.recursive_factory import (
+from crackseg.training.losses.factory.recursive_factory import (
     RecursiveFactoryError,
     RecursiveLossFactory,
 )
-from src.training.losses.interfaces.loss_interface import ILossComponent
-from src.training.losses.registry.clean_registry import CleanLossRegistry
-from src.training.losses.registry.enhanced_registry import EnhancedLossRegistry
+from crackseg.training.losses.interfaces.loss_interface import (
+    ILossComponent,
+)
+from crackseg.training.losses.registry.clean_registry import (
+    CleanLossRegistry,
+)
+from crackseg.training.losses.registry.enhanced_registry import (
+    EnhancedLossRegistry,
+)
 
 
 class MockLoss(nn.Module, ILossComponent):

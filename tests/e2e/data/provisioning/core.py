@@ -63,12 +63,12 @@ class TestDataProvisioner:
 
     def seed_test_database(self, database_path: Path | str) -> bool:
         """Seed a test database with provisioned data."""
-        # Implementation will be bound from database.py
+        # Implementation will be bound from crackseg.database.py
         ...
 
     def get_provisioning_summary(self) -> dict[str, Any]:
         """Get summary of current provisioning state."""
-        # Implementation will be bound from database.py
+        # Implementation will be bound from crackseg.database.py
         ...
 
     def get_provisioned_data(

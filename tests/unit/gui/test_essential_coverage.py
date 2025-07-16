@@ -20,13 +20,13 @@ from unittest.mock import patch
 
 import pytest
 
-from scripts.gui.utils.config.validation.error_categorizer import (
+from gui.utils.config.validation.error_categorizer import (
     ErrorCategorizer,
     ErrorCategory,
     ErrorSeverity,
 )
-from scripts.gui.utils.export_manager import ExportManager
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.export_manager import ExportManager
+from gui.utils.session_state import SessionStateManager
 
 
 class TestErrorCategorizationCoverage:
@@ -36,7 +36,7 @@ class TestErrorCategorizationCoverage:
         """Test ValidationError with value issues gets WARNING severity."""
         categorizer = ErrorCategorizer()
 
-        from scripts.gui.utils.config.exceptions import ValidationError
+        from gui.utils.config.exceptions import ValidationError
 
         error = ValidationError(
             message="Invalid configuration value",
@@ -54,7 +54,7 @@ class TestErrorCategorizationCoverage:
         """Test ValidationError with runtime-related issues."""
         categorizer = ErrorCategorizer()
 
-        from scripts.gui.utils.config.exceptions import ValidationError
+        from gui.utils.config.exceptions import ValidationError
 
         error = ValidationError(
             message="System failure during validation",
@@ -77,7 +77,7 @@ class TestErrorCategorizationCoverage:
         """Test ValidationError with type-related issues."""
         categorizer = ErrorCategorizer()
 
-        from scripts.gui.utils.config.exceptions import ValidationError
+        from gui.utils.config.exceptions import ValidationError
 
         error = ValidationError(
             message="Expected string, got int",
@@ -96,7 +96,7 @@ class TestErrorCategorizationCoverage:
         """Test ValidationError with missing structure issues."""
         categorizer = ErrorCategorizer()
 
-        from scripts.gui.utils.config.exceptions import ValidationError
+        from gui.utils.config.exceptions import ValidationError
 
         error = ValidationError(
             message="Missing required section: model",
@@ -116,7 +116,7 @@ class TestErrorCategorizationCoverage:
         """Test error categorization with empty filename."""
         categorizer = ErrorCategorizer()
 
-        from scripts.gui.utils.config.exceptions import ValidationError
+        from gui.utils.config.exceptions import ValidationError
 
         error = ValidationError(
             message="Test error", suggestions=["Generic suggestion"]
@@ -248,7 +248,7 @@ class TestConfigIOCoverage:
 
     def test_config_io_yaml_reading(self):
         """Test YAML configuration reading."""
-        from scripts.gui.utils.config.io import load_yaml_file
+        from gui.utils.config.io import load_yaml_file
 
         yaml_content = """
         model:
@@ -274,7 +274,7 @@ class TestConfigIOCoverage:
 
     def test_config_io_error_handling(self):
         """Test configuration I/O error handling."""
-        from scripts.gui.utils.config import io
+        from gui.utils.config import io
 
         # Test with non-existent file
         if hasattr(io, "load_yaml_file"):
@@ -283,7 +283,7 @@ class TestConfigIOCoverage:
 
     def test_config_io_validation_integration(self):
         """Test config I/O validation integration."""
-        from scripts.gui.utils.config.io import validate_config_file
+        from gui.utils.config.io import validate_config_file
 
         invalid_yaml = "invalid: yaml: content: ["
 
@@ -306,14 +306,14 @@ class TestUtilityFunctionsCoverage:
 
     def test_gui_config_constants(self):
         """Test GUI configuration constants."""
-        from scripts.gui.utils.gui_config import PAGE_CONFIG
+        from gui.utils.gui_config import PAGE_CONFIG
 
         assert PAGE_CONFIG is not None
         assert isinstance(PAGE_CONFIG, dict)
 
     def test_data_stats_function_existence(self):
         """Test data stats function availability."""
-        from scripts.gui.utils import data_stats
+        from gui.utils import data_stats
 
         # Check if function exists before testing
         if hasattr(data_stats, "get_dataset_stats"):
@@ -332,7 +332,7 @@ class TestUtilityFunctionsCoverage:
 
     def test_styling_utilities(self):
         """Test styling utility functions."""
-        from scripts.gui.utils.styling import apply_custom_css
+        from gui.utils.styling import apply_custom_css
 
         # Test CSS application
         css_content = "body { background-color: #f0f0f0; }"
@@ -347,7 +347,7 @@ class TestUtilityFunctionsCoverage:
 
     def test_performance_optimizer_basic(self):
         """Test basic performance optimizer functionality."""
-        from scripts.gui.utils.performance_optimizer import (
+        from gui.utils.performance_optimizer import (
             PerformanceOptimizer,
         )
 
@@ -370,7 +370,7 @@ class TestComponentStateCoverage:
 
     def test_process_states_enum(self):
         """Test process states enumeration."""
-        from scripts.gui.utils.process.states import ProcessState
+        from gui.utils.process.states import ProcessState
 
         # Should have basic process states
         assert hasattr(ProcessState, "IDLE") or hasattr(ProcessState, "idle")
@@ -383,7 +383,7 @@ class TestComponentStateCoverage:
 
     def test_streaming_exceptions(self):
         """Test streaming component exceptions."""
-        from scripts.gui.utils.streaming.exceptions import StreamingError
+        from gui.utils.streaming.exceptions import StreamingError
 
         # Test exception creation
         error = StreamingError("Test streaming error")
@@ -392,7 +392,7 @@ class TestComponentStateCoverage:
 
     def test_threading_task_status(self):
         """Test threading task status management."""
-        from scripts.gui.utils.threading.task_status import TaskStatus
+        from gui.utils.threading.task_status import TaskStatus
 
         # Should have status constants
         if hasattr(TaskStatus, "PENDING"):

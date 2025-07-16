@@ -1,7 +1,7 @@
 import pytest
 import torch
 
-from src.model.decoder.cnn_decoder import CNNDecoder, DecoderBlock
+from crackseg.model.decoder.cnn_decoder import CNNDecoder, DecoderBlock
 
 
 def test_cnndecoder_init() -> None:

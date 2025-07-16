@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 import torch
 
-from src.model.components.convlstm import (
+from crackseg.model.components.convlstm import (
     ConvLSTM,
     ConvLSTMCell,
     ConvLSTMConfig,

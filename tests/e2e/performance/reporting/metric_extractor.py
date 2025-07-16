@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class MetricExtractor:
-    """Handles extraction of performance metrics from data structures."""
+    """Handles extraction of performance metrics from crackseg.data structures."""
 
     def __init__(self) -> None:
         """Initialize metric extractor."""
@@ -32,7 +32,7 @@ class MetricExtractor:
     def extract_metric_value(
         self, data: dict[str, Any], metric_name: str
     ) -> float | None:
-        """Extract metric value from data structure."""
+        """Extract metric value from crackseg.data structure."""
         path = self._metric_paths.get(metric_name)
         if not path:
             self.logger.warning(f"Unknown metric: {metric_name}")
@@ -60,7 +60,7 @@ class MetricExtractor:
             return None
 
     def extract_all_metrics(self, data: dict[str, Any]) -> dict[str, float]:
-        """Extract all known metrics from data structure."""
+        """Extract all known metrics from crackseg.data structure."""
         metrics = {}
         for metric_name in self._metric_paths:
             value = self.extract_metric_value(data, metric_name)

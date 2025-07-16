@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from scripts.gui.utils.session_state import SessionState, SessionStateManager
+from gui.utils.session_state import SessionState, SessionStateManager
 
 
 @pytest.fixture

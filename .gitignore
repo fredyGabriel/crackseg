@@ -1,56 +1,5 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-dev-debug.log
-
-# Dependency directories
-node_modules/
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Virtual environments
-venv/
-env/
-ENV/
-env.bak/
-venv.bak/
-.venv/
-.conda/
-conda-meta/
-
-# Editor directories and files
-.idea
-.vscode
-.cursor
-.cursor/
-.roo/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# OS specific
-.DS_Store
-Thumbs.db
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Desktop.ini
-
-# Task files
-tasks.json
-tasks/
-
-# Python
+# --- Python ---
 __pycache__/
-**/__pycache__/
 *.py[cod]
 *.so
 *.egg
@@ -58,93 +7,67 @@ __pycache__/
 dist/
 build/
 .eggs/
-*.pyc
-**/*.pyc
-*.pyo
-*.pyd
-.Python
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Jupyter
-.ipynb_checkpoints
-.jupyter/
-*.ipynb
+# --- Virtual Environments ---
+.venv/
+venv/
+env/
+ENV/
 
-# VSCode
+# --- IDEs & Editors ---
+.idea/
 .vscode/
+.cursor/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Ignore pytest cache
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# --- Testing & Coverage ---
 .pytest_cache/
-**/.pytest_cache/
-
-# Ignore hydra cache and generated configs
-hydra/
-**/.hydra/
-generated_configs/
-.hydra_plugins/
-
-# Coverage files
-htmlcov/
 .coverage
 coverage.*
-*.svg
 coverage.xml
-.pytest_cache/
-.coverage.*
 
-# Test artifacts and mock data
-MagicMock/
-
-# Machine Learning specific
-# Model checkpoints and weights
-*.pth
-*.pt
-*.ckpt
-*.h5
-*.hdf5
-*.pkl
-*.pickle
-models/
-checkpoints/
-weights/
-saved_models/
-
-# Tensorboard logs
-runs/
-logs/
-tensorboard/
-tb_logs/
-
-# Data directories (if they contain large files)
-data/raw/
-data/processed/
-data/external/
-datasets/
-*.csv
-*.tsv
-*.parquet
-
-# Experiment tracking
-mlruns/
-.mlflow/
-wandb/
-neptune/
-
-# Cache directories
+# --- Caches ---
+.ruff_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
 .cache/
 .torch/
 .transformers/
 .sklearn/
 
-# Directories to ignore
-outputs/
-old*/
-experiments/
-results/
+# --- Project Artifacts ---
+# This single entry covers all generated outputs, reports, logs, checkpoints, etc.
 artifacts/
 
-# Temporary files
+# --- Jupyter Notebooks ---
+.ipynb_checkpoints
+
+# --- MLflow ---
+mlruns/
+
+# --- Hydra ---
+# Outputs are handled by artifacts/, but keep .hydra for local config cache
+**/.hydra/
+.hydra_plugins/
+
+# --- Environment Files ---
+.env
+.env.local
+.env.*.local
+
+# --- Temporary Files ---
 *.tmp
 *.bak
 *.swp
@@ -152,100 +75,19 @@ artifacts/
 .temp/
 temp/
 
-# Ignore all outputs except the README
-outputs/*
-!outputs/README.md
-
-# Conda environment files
-.conda/
-conda-meta/
-envs/
-
-# Ruff cache
-.ruff_cache/
-
-# MyPy cache
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# PyRight/Pylance
-.pyright/
-
-# Project specific
-scripts/temp/
-scripts/outputs/
-src/outputs/
-.results/
-verification_outputs/
-
-# Task Master and development tools
+# --- Task Master ---
+# Keep tasks.json out of git if it contains sensitive info
+# or is user-specific. The .taskmaster dir contains other state.
 .taskmaster/
-.roomodes
-.windsurfrules
-docs/tools/task-master-guide.md
+tasks.json
+tasks/
 
-# --- Cursor AI rules versioning ---
-# Versiona solo las reglas y archivos de configuración, ignora el resto
-
-# Permitir reglas y configuración principal
-!.cursor/rules/
-!.cursorrules
-
-# Ignorar todo lo demás de .cursor
-.cursor/*
-!.cursor/rules/
-!.cursorrules
-
-# --- Custom: Ignore logs, test results, and artifacts ---
-# Logs and test results
+# --- Logs ---
 *.log
-performance_maintenance.log
-test_app.log
-theme_test.log
-test_results.txt
-gui_test_results.txt
-gui_unit_test_results.txt
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log*
 
-# Coverage and HTML reports
-.coverage
-coverage.*
-coverage.json
-htmlcov/
-
-# Pytest and cache
-.pytest_cache/
-**/.pytest_cache/
-
-# Ignore outputs and results except README
-outputs/
-!outputs/README.md
-results/
-
-# Ignore test artifacts
-selenium-videos/
-test-artifacts/
-test-results/
-
-# Ignore generated configs
-generated_configs/
-
-# Ignore performance and historical data
-performance-historical-data/
-performance-reports/
-
-# Ignore site build artifacts
-site/
-
-# Ignore egg-info
-crackseg.egg-info/
-
-# Ignore temp files
-*.tmp
-*.bak
-*.swp
-*~
-.temp/
-temp/
-
-# END
+# --- Node ---
+node_modules/

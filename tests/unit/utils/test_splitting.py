@@ -10,14 +10,14 @@ import pytest
 from omegaconf import OmegaConf
 from pytest import MonkeyPatch
 
-from src.data.splitting import DatasetCreationConfig
+from crackseg.data.splitting import DatasetCreationConfig
 
 # Add src/ to sys.path to ensure correct import
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 )
-from src.data.dataset import CrackSegmentationDataset  # noqa: E402
-from src.data.splitting import (  # noqa: E402
+from crackseg.data.dataset import CrackSegmentationDataset  # noqa: E402
+from crackseg.data.splitting import (  # noqa: E402
     create_split_datasets,
     get_all_samples,
     split_indices,

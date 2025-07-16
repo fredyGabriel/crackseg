@@ -9,7 +9,7 @@ from concurrent.futures import Future
 from pathlib import Path
 from typing import Any, Protocol
 
-from scripts.gui.utils.threading.coordinator import ThreadCoordinator
+from gui.utils.threading.coordinator import ThreadCoordinator
 
 from .data_integrity import DataIntegrityMixin
 from .multi_user import MultiUserMixin

@@ -7,8 +7,8 @@ from typing import Any
 import pytest
 import torch
 
-from src.model import BottleneckBase, DecoderBase, EncoderBase
-from src.model.factory.registry import Registry
+from crackseg.model import BottleneckBase, DecoderBase, EncoderBase
+from crackseg.model.factory.registry import Registry
 
 # Constants for test values
 IN_CHANNELS_RGB = 3

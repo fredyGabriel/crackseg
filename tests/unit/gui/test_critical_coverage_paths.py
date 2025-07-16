@@ -19,16 +19,16 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from scripts.gui.components.device_selector import DeviceSelector
-from scripts.gui.utils.config.exceptions import ValidationError
-from scripts.gui.utils.config.validation.error_categorizer import (
+from gui.components.device_selector import DeviceSelector
+from gui.utils.config.exceptions import ValidationError
+from gui.utils.config.validation.error_categorizer import (
     ErrorCategorizer,
     ErrorCategory,
     ErrorSeverity,
 )
-from scripts.gui.utils.results.scanner import ResultsScanner
-from scripts.gui.utils.results.validation import ResultsValidator
-from scripts.gui.utils.session_state import SessionKey, SessionStateManager
+from gui.utils.results.scanner import ResultsScanner
+from gui.utils.results.validation import ResultsValidator
+from gui.utils.session_state import SessionKey, SessionStateManager
 
 
 class TestConfigValidationErrorPaths:
@@ -72,7 +72,7 @@ class TestConfigValidationErrorPaths:
             )
             f.flush()
 
-            from scripts.gui.utils.config.validation import (
+            from gui.utils.config.validation import (
                 validate_yaml_advanced,
             )
 
@@ -95,7 +95,7 @@ class TestConfigValidationErrorPaths:
             )
             f.flush()
 
-            from scripts.gui.utils.config.validation import (
+            from gui.utils.config.validation import (
                 validate_yaml_advanced,
             )
 
@@ -115,7 +115,7 @@ class TestDeviceManagementCoverage:
         mock_is_available.return_value = False
         mock_device_count.return_value = 0
 
-        from scripts.gui.components.device_detector import DeviceDetector
+        from gui.components.device_detector import DeviceDetector
 
         detector = DeviceDetector()
 
@@ -135,7 +135,7 @@ class TestDeviceManagementCoverage:
         mock_device_count.return_value = 2
         mock_get_name.side_effect = ["RTX 3070 Ti", "RTX 4090"]
 
-        from scripts.gui.components.device_detector import DeviceDetector
+        from gui.components.device_detector import DeviceDetector
 
         detector = DeviceDetector()
 
@@ -281,7 +281,7 @@ class TestProcessManagementCoverage:
     @patch("psutil.Process")
     def test_process_tree_info_wrapper_with_processes(self, mock_process):
         """Test process tree info wrapper with active processes."""
-        from scripts.gui.utils.process.abort_system import ProcessAbortManager
+        from gui.utils.process.abort_system import ProcessAbortManager
 
         # Mock process tree
         mock_proc = Mock()
@@ -301,7 +301,7 @@ class TestProcessManagementCoverage:
 
     def test_ui_responsive_wrapper_cancellation_support(self):
         """Test UI responsive wrapper cancellation functionality."""
-        from scripts.gui.utils.threading.ui_wrapper import UIResponsiveWrapper
+        from gui.utils.threading.ui_wrapper import UIResponsiveWrapper
 
         def test_task():
             return "completed"
@@ -325,7 +325,7 @@ class TestErrorHandlingCoverage:
     def test_data_stats_missing_function_coverage(self):
         """Test handling when data stats function is missing."""
         # This tests the error path when get_dataset_stats doesn't exist
-        from scripts.gui.utils import data_stats
+        from gui.utils import data_stats
 
         # Ensure the function exists before testing error handling
         if not hasattr(data_stats, "get_dataset_stats"):
@@ -353,7 +353,7 @@ class TestErrorHandlingCoverage:
             del mock_col.__exit__
             mock_columns.return_value = [mock_col, mock_col]
 
-            from scripts.gui.components.header_component import render_header
+            from gui.components.header_component import render_header
 
             with pytest.raises((TypeError, AttributeError)):
                 render_header("Test Header")
@@ -363,7 +363,7 @@ class TestErrorHandlingCoverage:
         with patch("streamlit.progress") as mock_progress:
             mock_progress.return_value = Mock()
 
-            from scripts.gui.pages.home_page import page_home
+            from gui.pages.home_page import page_home
 
             # This should not raise an exception
             # The mock progress should be called

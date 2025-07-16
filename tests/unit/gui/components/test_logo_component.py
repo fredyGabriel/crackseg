@@ -19,7 +19,7 @@ class TestLogoComponent(ComponentTestBase):
 
     def test_logo_component_import(self) -> None:
         """Test that LogoComponent can be imported successfully."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         assert LogoComponent is not None
 
@@ -30,7 +30,7 @@ class TestLogoComponent(ComponentTestBase):
         self, mock_font, mock_image_draw, mock_image
     ) -> None:
         """Test logo generation with default parameters."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Setup mocks for PIL objects
         mock_img = Mock()
@@ -62,7 +62,7 @@ class TestLogoComponent(ComponentTestBase):
         self, mock_font, mock_image_draw, mock_image
     ) -> None:
         """Test logo generation with custom parameters."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Setup comprehensive mocks
         mock_img = Mock()
@@ -93,7 +93,7 @@ class TestLogoComponent(ComponentTestBase):
         self, mock_font, mock_image_draw, mock_image
     ) -> None:
         """Test logo generation with different styles."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Setup comprehensive mocks
         mock_img = Mock()
@@ -122,7 +122,7 @@ class TestLogoComponent(ComponentTestBase):
         self, mock_load_from_file, mock_path
     ) -> None:
         """Test load_with_fallback when file exists."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Setup mocks
         mock_path_instance = Mock()
@@ -147,7 +147,7 @@ class TestLogoComponent(ComponentTestBase):
         self, mock_path, mock_generate_logo
     ) -> None:
         """Test load_with_fallback when file is missing."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Setup mocks - file doesn't exist
         mock_path_instance = Mock()
@@ -172,7 +172,7 @@ class TestLogoComponent(ComponentTestBase):
     )
     def test_render_method(self, mock_load_with_fallback, mock_st) -> None:
         """Test render method displays logo."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Setup mocks
         mock_load_with_fallback.return_value = (
@@ -200,7 +200,7 @@ class TestLogoComponent(ComponentTestBase):
         self, mock_load_with_fallback, mock_st
     ) -> None:
         """Test render method with custom parameters."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Setup mocks
         mock_load_with_fallback.return_value = (
@@ -225,7 +225,7 @@ class TestLogoComponent(ComponentTestBase):
 
     def test_clear_cache_method(self) -> None:
         """Test clear_cache method."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Add something to cache first
         LogoComponent._cache["test_key"] = "test_value"
@@ -238,7 +238,7 @@ class TestLogoComponent(ComponentTestBase):
 
     def test_fallback_styles_available(self) -> None:
         """Test fallback styles are properly defined."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Check fallback styles
         assert hasattr(LogoComponent, "_fallback_styles")
@@ -258,7 +258,7 @@ class TestLogoComponent(ComponentTestBase):
         self, mock_load_with_fallback, sample_project_root: Path
     ) -> None:
         """Test render method with project_root parameter."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Setup mock
         mock_load_with_fallback.return_value = (
@@ -280,7 +280,7 @@ class TestLogoComponent(ComponentTestBase):
         self, mock_load_with_fallback
     ) -> None:
         """Test render method handles None logo data gracefully."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Setup mock to return None
         mock_load_with_fallback.return_value = None
@@ -293,7 +293,7 @@ class TestLogoComponent(ComponentTestBase):
 
     def test_logo_component_cache_initialization(self) -> None:
         """Test logo component cache is properly initialized."""
-        from scripts.gui.components.logo_component import LogoComponent
+        from gui.components.logo_component import LogoComponent
 
         # Check cache exists and is a dict
         assert hasattr(LogoComponent, "_cache")

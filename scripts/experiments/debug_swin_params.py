@@ -4,7 +4,7 @@ import sys
 # Añadir el directorio raíz al path para importar desde src
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.model.encoder.swin_transformer_encoder import (
+from crackseg.model.encoder.swin_transformer_encoder import (
     SwinTransformerEncoder,
     SwinTransformerEncoderConfig,
 )

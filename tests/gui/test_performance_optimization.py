@@ -10,17 +10,17 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from scripts.gui.components.loading_spinner_optimized import (
+from gui.components.loading_spinner_optimized import (
     OptimizedLoadingSpinner,
     optimized_loading_spinner,
 )
-from scripts.gui.components.progress_bar_optimized import (
+from gui.components.progress_bar_optimized import (
     OptimizedProgressBar,
     OptimizedStepBasedProgress,
     create_optimized_progress_bar,
     create_optimized_step_progress,
 )
-from scripts.gui.utils.performance_optimizer import (
+from gui.utils.performance_optimizer import (
     AsyncOperationManager,
     MemoryManager,
     OptimizedHTMLBuilder,
@@ -298,7 +298,7 @@ class TestOptimizedLoadingSpinner:
 
     def test_error_classification(self):
         """Test optimized error classification."""
-        from scripts.gui.utils.error_state import ErrorType
+        from gui.utils.error_state import ErrorType
 
         # Test CUDA error
         cuda_error = Exception("CUDA out of memory")

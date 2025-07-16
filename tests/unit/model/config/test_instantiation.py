@@ -12,7 +12,7 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.model.config.instantiation import (
+from crackseg.model.config.instantiation import (
     InstantiationError,
     instantiate_additional_component,
     instantiate_bottleneck,
@@ -78,7 +78,7 @@ class TestPrepareComponentConfig:
 
         # Act
         with patch(
-            "src.model.config.instantiation._prepare_component_config"
+            "crackseg.model.config.instantiation._prepare_component_config"
         ) as mock_prepare:
             expected_config = {
                 "type": "mock_encoder",
@@ -94,12 +94,15 @@ class TestPrepareComponentConfig:
     def test_prepare_component_config_with_target(self) -> None:
         """Test config preparation when '_target_' is specified."""
         # Arrange
-        config = {"_target_": "src.model.encoder.SwinEncoder", "embed_dim": 96}
+        config = {
+            "_target_": "crackseg.model.encoder.SwinEncoder",
+            "embed_dim": 96,
+        }
         runtime_params = {"input_resolution": 224}
 
         # Act
         with patch(
-            "src.model.config.instantiation._prepare_component_config"
+            "crackseg.model.config.instantiation._prepare_component_config"
         ) as mock_prepare:
             expected_config = {
                 "type": "swin_encoder",
@@ -119,7 +122,7 @@ class TestPrepareComponentConfig:
 
         # Act & Assert
         with patch(
-            "src.model.config.instantiation._prepare_component_config"
+            "crackseg.model.config.instantiation._prepare_component_config"
         ) as mock_prepare:
             mock_prepare.side_effect = ValueError("Invalid target format")
             with pytest.raises(ValueError, match="Invalid target format"):
@@ -132,7 +135,7 @@ class TestPrepareComponentConfig:
 
         # Act & Assert
         with patch(
-            "src.model.config.instantiation._prepare_component_config"
+            "crackseg.model.config.instantiation._prepare_component_config"
         ) as mock_prepare:
             mock_prepare.side_effect = ValueError(
                 "Config must specify 'type' or '_target_'"
@@ -154,7 +157,7 @@ class TestPrepareComponentConfig:
 
         # Act
         with patch(
-            "src.model.config.instantiation._prepare_component_config"
+            "crackseg.model.config.instantiation._prepare_component_config"
         ) as mock_prepare:
             expected_config = {
                 "type": "unet_decoder",
@@ -175,7 +178,7 @@ class TestPrepareComponentConfig:
 
         # Act
         with patch(
-            "src.model.config.instantiation._prepare_component_config"
+            "crackseg.model.config.instantiation._prepare_component_config"
         ) as mock_prepare:
             expected_config = {
                 "type": "mock_component",
@@ -193,9 +196,9 @@ class TestPrepareComponentConfig:
 class TestInstantiateComponent:
     """Test component instantiation functionality."""
 
-    @patch("src.model.config.instantiation.get_cached_component")
-    @patch("src.model.config.instantiation.cache_component")
-    @patch("src.model.config.instantiation.generate_cache_key")
+    @patch("crackseg.model.config.instantiation.get_cached_component")
+    @patch("crackseg.model.config.instantiation.cache_component")
+    @patch("crackseg.model.config.instantiation.generate_cache_key")
     def test_instantiate_component_success(
         self, mock_generate_key: Mock, mock_cache: Mock, mock_get_cached: Mock
     ) -> None:
@@ -208,7 +211,7 @@ class TestInstantiateComponent:
 
         # Act
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             expected_component = MockComponent(in_channels=3)
             mock_instantiate.return_value = expected_component
@@ -219,7 +222,7 @@ class TestInstantiateComponent:
         # Assert
         assert isinstance(component, MockComponent)
 
-    @patch("src.model.config.instantiation.get_cached_component")
+    @patch("crackseg.model.config.instantiation.get_cached_component")
     def test_instantiate_component_cached(self, mock_get_cached: Mock) -> None:
         """Test component instantiation from cache."""
         # Arrange
@@ -230,7 +233,7 @@ class TestInstantiateComponent:
 
         # Act
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             mock_instantiate.return_value = cached_component
             component = mock_instantiate(
@@ -248,7 +251,7 @@ class TestInstantiateComponent:
 
         # Act & Assert
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             mock_instantiate.side_effect = InstantiationError(
                 "Unknown test_category type"
@@ -271,7 +274,7 @@ class TestInstantiateComponent:
 
         # Act & Assert
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             mock_instantiate.side_effect = InstantiationError(
                 "Component instantiation failed"
@@ -281,8 +284,8 @@ class TestInstantiateComponent:
             ):
                 mock_instantiate(config, registry, "test_category")
 
-    @patch("src.model.config.instantiation.get_cached_component")
-    @patch("src.model.config.instantiation.cache_component")
+    @patch("crackseg.model.config.instantiation.get_cached_component")
+    @patch("crackseg.model.config.instantiation.cache_component")
     def test_instantiate_component_no_cache(
         self, mock_cache: Mock, mock_get_cached: Mock
     ) -> None:
@@ -294,7 +297,7 @@ class TestInstantiateComponent:
 
         # Act
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             expected_component = MockComponent(in_channels=3)
             mock_instantiate.return_value = expected_component
@@ -314,7 +317,7 @@ class TestInstantiateComponent:
 
         # Act
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             expected_component = MockComponent(in_channels=3, out_channels=128)
             mock_instantiate.return_value = expected_component
@@ -329,7 +332,7 @@ class TestInstantiateComponent:
 class TestPublicInstantiationFunctions:
     """Test public instantiation functions."""
 
-    @patch("src.model.config.instantiation.encoder_registry")
+    @patch("crackseg.model.config.instantiation.encoder_registry")
     def test_instantiate_encoder(self, mock_registry: Mock) -> None:
         """Test encoder instantiation."""
         # Arrange
@@ -341,7 +344,7 @@ class TestPublicInstantiationFunctions:
 
         # Act
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             mock_instantiate.return_value = expected_encoder
             encoder = instantiate_encoder(config)
@@ -349,7 +352,7 @@ class TestPublicInstantiationFunctions:
         # Assert
         assert isinstance(encoder, MockEncoder)
 
-    @patch("src.model.config.instantiation.bottleneck_registry")
+    @patch("crackseg.model.config.instantiation.bottleneck_registry")
     def test_instantiate_bottleneck(self, mock_registry: Mock) -> None:
         """Test bottleneck instantiation."""
         # Arrange
@@ -362,7 +365,7 @@ class TestPublicInstantiationFunctions:
 
         # Act
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             mock_instantiate.return_value = expected_bottleneck
             bottleneck = instantiate_bottleneck(
@@ -372,7 +375,7 @@ class TestPublicInstantiationFunctions:
         # Assert
         assert isinstance(bottleneck, MockComponent)
 
-    @patch("src.model.config.instantiation.decoder_registry")
+    @patch("crackseg.model.config.instantiation.decoder_registry")
     def test_instantiate_decoder(self, mock_registry: Mock) -> None:
         """Test decoder instantiation."""
         # Arrange
@@ -385,7 +388,7 @@ class TestPublicInstantiationFunctions:
 
         # Act
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             mock_instantiate.return_value = expected_decoder
             decoder = instantiate_decoder(
@@ -395,7 +398,7 @@ class TestPublicInstantiationFunctions:
         # Assert
         assert isinstance(decoder, MockComponent)
 
-    @patch("src.model.config.instantiation.component_registries")
+    @patch("crackseg.model.config.instantiation.component_registries")
     def test_instantiate_additional_component_known_registry(
         self, mock_registries: Mock
     ) -> None:
@@ -411,7 +414,7 @@ class TestPublicInstantiationFunctions:
 
         # Act
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             mock_instantiate.return_value = expected_component
             component = instantiate_additional_component(
@@ -421,8 +424,8 @@ class TestPublicInstantiationFunctions:
         # Assert
         assert isinstance(component, MockComponent)
 
-    @patch("src.model.config.instantiation.component_registries")
-    @patch("src.model.config.instantiation.encoder_registry")
+    @patch("crackseg.model.config.instantiation.component_registries")
+    @patch("crackseg.model.config.instantiation.encoder_registry")
     def test_instantiate_additional_component_fallback_encoder(
         self, mock_encoder_registry: Mock, mock_registries: Mock
     ) -> None:
@@ -439,7 +442,7 @@ class TestPublicInstantiationFunctions:
 
         # Act
         with patch(
-            "src.model.config.instantiation._instantiate_component"
+            "crackseg.model.config.instantiation._instantiate_component"
         ) as mock_instantiate:
             mock_instantiate.return_value = expected_encoder
             component = instantiate_additional_component(
@@ -468,7 +471,7 @@ class TestPublicInstantiationFunctions:
         ):
             instantiate_additional_component(component_name, component_config)
 
-    @patch("src.model.config.instantiation.component_registries")
+    @patch("crackseg.model.config.instantiation.component_registries")
     def test_instantiate_additional_component_no_registry(
         self, mock_registries: Mock
     ) -> None:
@@ -481,7 +484,7 @@ class TestPublicInstantiationFunctions:
 
         # Act & Assert
         with patch(
-            "src.model.config.instantiation.encoder_registry"
+            "crackseg.model.config.instantiation.encoder_registry"
         ) as mock_encoder_registry:
             mock_encoder_registry.__contains__.return_value = False
             with pytest.raises(
@@ -496,7 +499,7 @@ class TestPublicInstantiationFunctions:
 class TestHelperFunctions:
     """Test helper function functionality."""
 
-    @patch("src.model.config.instantiation.instantiate_encoder")
+    @patch("crackseg.model.config.instantiation.instantiate_encoder")
     def test_try_instantiate_encoder_success(
         self, mock_instantiate: Mock
     ) -> None:
@@ -508,7 +511,7 @@ class TestHelperFunctions:
 
         # Act
         with patch(
-            "src.model.config.instantiation._try_instantiate_encoder"
+            "crackseg.model.config.instantiation._try_instantiate_encoder"
         ) as mock_try:
             mock_try.return_value = expected_encoder
             encoder = mock_try(config)
@@ -520,7 +523,7 @@ class TestHelperFunctions:
         """Test encoder instantiation with no config."""
         # Act
         with patch(
-            "src.model.config.instantiation._try_instantiate_encoder"
+            "crackseg.model.config.instantiation._try_instantiate_encoder"
         ) as mock_try:
             mock_try.return_value = None
             encoder = mock_try(None)
@@ -528,7 +531,7 @@ class TestHelperFunctions:
         # Assert
         assert encoder is None
 
-    @patch("src.model.config.instantiation.instantiate_bottleneck")
+    @patch("crackseg.model.config.instantiation.instantiate_bottleneck")
     def test_try_instantiate_bottleneck_with_encoder(
         self, mock_instantiate: Mock
     ) -> None:
@@ -541,7 +544,7 @@ class TestHelperFunctions:
 
         # Act
         with patch(
-            "src.model.config.instantiation._try_instantiate_bottleneck"
+            "crackseg.model.config.instantiation._try_instantiate_bottleneck"
         ) as mock_try:
             mock_try.return_value = expected_bottleneck
             bottleneck = mock_try(config, encoder)
@@ -549,7 +552,7 @@ class TestHelperFunctions:
         # Assert
         assert bottleneck is expected_bottleneck
 
-    @patch("src.model.config.instantiation.instantiate_bottleneck")
+    @patch("crackseg.model.config.instantiation.instantiate_bottleneck")
     def test_try_instantiate_bottleneck_no_encoder(
         self, mock_instantiate: Mock
     ) -> None:
@@ -561,7 +564,7 @@ class TestHelperFunctions:
 
         # Act
         with patch(
-            "src.model.config.instantiation._try_instantiate_bottleneck"
+            "crackseg.model.config.instantiation._try_instantiate_bottleneck"
         ) as mock_try:
             mock_try.return_value = expected_bottleneck
             bottleneck = mock_try(config, None)
@@ -573,7 +576,7 @@ class TestHelperFunctions:
         """Test bottleneck instantiation with no config."""
         # Act
         with patch(
-            "src.model.config.instantiation._try_instantiate_bottleneck"
+            "crackseg.model.config.instantiation._try_instantiate_bottleneck"
         ) as mock_try:
             mock_try.return_value = None
             bottleneck = mock_try(None, None)
@@ -581,7 +584,7 @@ class TestHelperFunctions:
         # Assert
         assert bottleneck is None
 
-    @patch("src.model.config.instantiation.instantiate_decoder")
+    @patch("crackseg.model.config.instantiation.instantiate_decoder")
     def test_try_instantiate_decoder_with_dependencies(
         self, mock_instantiate: Mock
     ) -> None:
@@ -595,7 +598,7 @@ class TestHelperFunctions:
 
         # Act
         with patch(
-            "src.model.config.instantiation._try_instantiate_decoder"
+            "crackseg.model.config.instantiation._try_instantiate_decoder"
         ) as mock_try:
             mock_try.return_value = expected_decoder
             decoder = mock_try(config, encoder, bottleneck)
@@ -607,7 +610,7 @@ class TestHelperFunctions:
         """Test decoder instantiation with no config."""
         # Act
         with patch(
-            "src.model.config.instantiation._try_instantiate_decoder"
+            "crackseg.model.config.instantiation._try_instantiate_decoder"
         ) as mock_try:
             mock_try.return_value = None
             decoder = mock_try(None, None, None)
@@ -653,7 +656,7 @@ class TestInstantiationIntegration:
         """Test that logging is properly configured."""
         import logging
 
-        logger = logging.getLogger("src.model.config.instantiation")
+        logger = logging.getLogger("crackseg.model.config.instantiation")
         assert logger is not None
 
     def test_type_checking_integration(self) -> None:
@@ -667,7 +670,10 @@ class TestInstantiationIntegration:
         # Test valid config patterns
         valid_configs = [
             {"type": "mock_encoder", "in_channels": 3},
-            {"_target_": "src.model.encoder.SwinEncoder", "embed_dim": 96},
+            {
+                "_target_": "crackseg.model.encoder.SwinEncoder",
+                "embed_dim": 96,
+            },
             {"type": "mock_component", "in_channels": 3, "out_channels": 64},
         ]
 

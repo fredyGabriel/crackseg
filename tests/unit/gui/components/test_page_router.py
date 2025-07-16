@@ -17,14 +17,14 @@ class TestPageRouter(ComponentTestBase):
 
     def test_page_router_import(self) -> None:
         """Test that PageRouter can be imported successfully."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         assert PageRouter is not None
 
     @patch("scripts.gui.components.page_router.PAGE_CONFIG")
     def test_get_available_pages(self, mock_page_config) -> None:
         """Test get_available pages with session state."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         # Mock page configuration
         page_config_dict: dict[str, dict[str, list[str]]] = {
@@ -47,7 +47,7 @@ class TestPageRouter(ComponentTestBase):
 
     def test_validate_page_transition_success(self) -> None:
         """Test successful page transition validation."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         state = MockSessionState()
         state.config_loaded = True
@@ -75,7 +75,7 @@ class TestPageRouter(ComponentTestBase):
 
     def test_validate_page_transition_failure(self) -> None:
         """Test failed page transition validation."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         state = MockSessionState()
         state.config_loaded = False
@@ -102,7 +102,7 @@ class TestPageRouter(ComponentTestBase):
         self, mock_session_manager, mock_st
     ) -> None:
         """Test successful page routing."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         state = MockSessionState()
         state.current_page = "Home"
@@ -127,7 +127,7 @@ class TestPageRouter(ComponentTestBase):
     @patch("scripts.gui.components.page_router.st")
     def test_route_to_page_validation_failure(self, mock_st) -> None:
         """Test page routing with validation failure."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         state = MockSessionState()
         state.current_page = "Home"
@@ -149,7 +149,7 @@ class TestPageRouter(ComponentTestBase):
         self, mock_session_manager
     ) -> None:
         """Test successful navigation change handling."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         state = MockSessionState()
         state.current_page = "Home"
@@ -166,7 +166,7 @@ class TestPageRouter(ComponentTestBase):
 
     def test_handle_navigation_change_same_page(self) -> None:
         """Test navigation change to the same page."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         state = MockSessionState()
         state.current_page = "Home"
@@ -177,7 +177,7 @@ class TestPageRouter(ComponentTestBase):
 
     def test_handle_navigation_change_validation_failure(self) -> None:
         """Test navigation change with validation failure."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         state = MockSessionState()
         state.current_page = "Home"
@@ -193,7 +193,7 @@ class TestPageRouter(ComponentTestBase):
 
     def test_get_page_breadcrumbs(self) -> None:
         """Test page breadcrumbs generation."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         breadcrumbs = PageRouter.get_page_breadcrumbs("Config")
 
@@ -201,14 +201,14 @@ class TestPageRouter(ComponentTestBase):
 
     def test_page_components_mapping(self) -> None:
         """Test page components mapping exists."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         assert hasattr(PageRouter, "_page_components")
         assert isinstance(PageRouter._page_components, dict)
 
     def test_page_metadata_mapping(self) -> None:
         """Test page metadata mapping exists."""
-        from scripts.gui.components.page_router import PageRouter
+        from gui.components.page_router import PageRouter
 
         assert hasattr(PageRouter, "_page_metadata")
         assert isinstance(PageRouter._page_metadata, dict)

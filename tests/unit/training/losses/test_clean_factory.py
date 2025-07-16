@@ -5,7 +5,7 @@ Unit tests for the clean recursive loss factory architecture.
 import pytest
 import torch
 
-from src.training.losses.factory import factory
+from crackseg.training.losses.factory import factory
 
 
 @pytest.fixture

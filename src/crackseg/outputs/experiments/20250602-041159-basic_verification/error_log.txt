@@ -1,0 +1,24 @@
+[2025-06-02T04:12:00.181873] [Main execution] Error occurred: ConfigError: Failed to create loss function from config: {'_target_': 'src.training.losses.BCEDiceLoss', 'bce_weight': '${thresholds.loss_weight}', 'dice_weight': '${thresholds.loss_weight}', 'smooth': 1.0}
+Details: BCEDiceLoss.__init__() got an unexpected keyword argument 'bce_weight'
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\fgrv\OneDrive\Documentos\PythonProjects\doctorado\crackseg\src\utils\factory\factory.py", line 143, in get_loss_fn
+    return cast(TypingCallable[..., object], BCEDiceLoss(**params))
+                                             ^^^^^^^^^^^^^^^^^^^^^
+TypeError: BCEDiceLoss.__init__() got an unexpected keyword argument 'bce_weight'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\fgrv\OneDrive\Documentos\PythonProjects\doctorado\crackseg\src\main.py", line 786, in main
+    metrics, optimizer, loss_fn = _setup_training_components(cfg, model)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\OneDrive\Documentos\PythonProjects\doctorado\crackseg\src\main.py", line 468, in _setup_training_components
+    potential_loss_fn = get_loss_fn(cfg.training.loss)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\OneDrive\Documentos\PythonProjects\doctorado\crackseg\src\utils\factory\factory.py", line 155, in get_loss_fn
+    raise ConfigError(
+src.utils.core.exceptions.ConfigError: Failed to create loss function from config: {'_target_': 'src.training.losses.BCEDiceLoss', 'bce_weight': '${thresholds.loss_weight}', 'dice_weight': '${thresholds.loss_weight}', 'smooth': 1.0}
+Details: BCEDiceLoss.__init__() got an unexpected keyword argument 'bce_weight'
+
+--- --- ---

@@ -15,8 +15,8 @@ import torch.nn as nn
 from omegaconf import DictConfig, OmegaConf
 from torch.utils.data import DataLoader, Dataset
 
-from src.model.factory.factory import create_unet
-from src.training.trainer import TrainingComponents
+from crackseg.model.factory.factory import create_unet
+from crackseg.training.trainer import TrainingComponents
 
 
 class MockDataset(Dataset[tuple[torch.Tensor, torch.Tensor]]):
@@ -168,10 +168,10 @@ class TestModelFactoryTrainingIntegration:
         """Create mock metrics for testing."""
         return {"accuracy": MagicMock(), "iou": MagicMock()}
 
-    @patch("src.model.factory.factory.get_unet_class")
-    @patch("src.model.factory.factory.instantiate_encoder")
-    @patch("src.model.factory.factory.instantiate_bottleneck")
-    @patch("src.model.factory.factory.instantiate_decoder")
+    @patch("crackseg.model.factory.factory.get_unet_class")
+    @patch("crackseg.model.factory.factory.instantiate_encoder")
+    @patch("crackseg.model.factory.factory.instantiate_bottleneck")
+    @patch("crackseg.model.factory.factory.instantiate_decoder")
     def test_model_factory_creates_trainable_model(
         self,
         mock_instantiate_decoder: Mock,
@@ -203,10 +203,10 @@ class TestModelFactoryTrainingIntegration:
         output = model(test_input)
         assert output.shape == (1, 1, 32, 32)
 
-    @patch("src.model.factory.factory.get_unet_class")
-    @patch("src.model.factory.factory.instantiate_encoder")
-    @patch("src.model.factory.factory.instantiate_bottleneck")
-    @patch("src.model.factory.factory.instantiate_decoder")
+    @patch("crackseg.model.factory.factory.get_unet_class")
+    @patch("crackseg.model.factory.factory.instantiate_encoder")
+    @patch("crackseg.model.factory.factory.instantiate_bottleneck")
+    @patch("crackseg.model.factory.factory.instantiate_decoder")
     def test_complete_factory_to_training_flow(
         self,
         mock_instantiate_decoder: Mock,
@@ -219,7 +219,7 @@ class TestModelFactoryTrainingIntegration:
         mock_loss_function: nn.Module,
         mock_metrics: dict[str, Any],
     ) -> None:
-        """Test complete flow from model factory to training initialization."""
+        """Test complete flow from crackseg.model factory to training initialization."""
         # Arrange
         mock_encoder = MockEncoder()
         mock_bottleneck = MockBottleneck()
@@ -270,10 +270,10 @@ class TestModelFactoryTrainingIntegration:
         assert isinstance(loss, torch.Tensor)
         assert loss.item() >= 0.0  # Loss should be non-negative
 
-    @patch("src.model.factory.factory.get_unet_class")
-    @patch("src.model.factory.factory.instantiate_encoder")
-    @patch("src.model.factory.factory.instantiate_bottleneck")
-    @patch("src.model.factory.factory.instantiate_decoder")
+    @patch("crackseg.model.factory.factory.get_unet_class")
+    @patch("crackseg.model.factory.factory.instantiate_encoder")
+    @patch("crackseg.model.factory.factory.instantiate_bottleneck")
+    @patch("crackseg.model.factory.factory.instantiate_decoder")
     def test_model_forward_pass_integration(
         self,
         mock_instantiate_decoder: Mock,
@@ -314,10 +314,10 @@ class TestModelFactoryTrainingIntegration:
             assert not torch.isnan(output).any()
             assert output.dtype == torch.float32
 
-    @patch("src.model.factory.factory.get_unet_class")
-    @patch("src.model.factory.factory.instantiate_encoder")
-    @patch("src.model.factory.factory.instantiate_bottleneck")
-    @patch("src.model.factory.factory.instantiate_decoder")
+    @patch("crackseg.model.factory.factory.get_unet_class")
+    @patch("crackseg.model.factory.factory.instantiate_encoder")
+    @patch("crackseg.model.factory.factory.instantiate_bottleneck")
+    @patch("crackseg.model.factory.factory.instantiate_decoder")
     def test_model_factory_error_handling_integration(
         self,
         mock_instantiate_decoder: Mock,
@@ -333,7 +333,7 @@ class TestModelFactoryTrainingIntegration:
         )
 
         # Act & Assert
-        from src.model.factory.factory_utils import ConfigurationError
+        from crackseg.model.factory.factory_utils import ConfigurationError
 
         with pytest.raises(
             ConfigurationError, match="Error instantiating UNet model"
@@ -352,7 +352,7 @@ class TestModelFactoryTrainingIntegration:
             }
         )
 
-        from src.model.factory.factory_utils import ConfigurationError
+        from crackseg.model.factory.factory_utils import ConfigurationError
 
         with pytest.raises(ConfigurationError):
             create_unet(incomplete_config)

@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from scripts.gui.pages.train_page import page_train
+from gui.pages.train_page import page_train
 
 
 class MockSessionState:
@@ -60,7 +60,7 @@ class TestTrainPage:
 
     def test_train_page_import(self) -> None:
         """Test that train page can be imported successfully."""
-        from scripts.gui.pages.train_page import page_train
+        from gui.pages.train_page import page_train
 
         assert callable(page_train)
 

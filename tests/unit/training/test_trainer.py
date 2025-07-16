@@ -12,12 +12,12 @@ import torch
 from omegaconf import DictConfig, OmegaConf
 from pytest import LogCaptureFixture, MonkeyPatch
 
-from src.training.batch_processing import train_step, val_step
+from crackseg.training.batch_processing import train_step, val_step
 
 # Assuming the necessary modules exist in these paths
-from src.training.trainer import Trainer, TrainingComponents
-from src.utils.logging import NoOpLogger  # Use NoOpLogger for testing
-from src.utils.training.early_stopping import EarlyStopping
+from crackseg.training.trainer import Trainer, TrainingComponents
+from crackseg.utils.logging import NoOpLogger  # Use NoOpLogger for testing
+from crackseg.utils.training.early_stopping import EarlyStopping
 
 # --- Mocks and Fixtures ---
 
@@ -85,7 +85,7 @@ def base_trainer_cfg() -> DictConfig:
                 "scheduler": None,
                 "early_stopping": {
                     "_target_": (
-                        "src.utils.training.early_stopping.EarlyStopping"
+                        "crackseg.utils.training.early_stopping.EarlyStopping"
                     ),
                     "monitor": "val_loss",
                     "patience": 2,
@@ -145,9 +145,11 @@ def dummy_metrics() -> dict[str, Any]:
 # --- Test Cases ---
 
 
-@patch("src.training.trainer.get_device", return_value=torch.device("cpu"))
-@patch("src.training.trainer.create_lr_scheduler")
-@patch("src.training.trainer.create_optimizer")
+@patch(
+    "crackseg.training.trainer.get_device", return_value=torch.device("cpu")
+)
+@patch("crackseg.training.trainer.create_lr_scheduler")
+@patch("crackseg.training.trainer.create_optimizer")
 def test_trainer_initialization(
     mock_create_optimizer: MagicMock,
     mock_create_scheduler: MagicMock,
@@ -196,18 +198,20 @@ def test_trainer_initialization(
         pytest.fail(f"Trainer initialization failed: {e}")
 
 
-@patch("src.training.trainer.get_device", return_value=torch.device("cpu"))
-@patch("src.training.trainer.create_lr_scheduler")
-@patch("src.training.trainer.create_optimizer")
-@patch("src.training.trainer.handle_epoch_checkpointing")
 @patch(
-    "src.training.trainer.Trainer._step_scheduler"
+    "crackseg.training.trainer.get_device", return_value=torch.device("cpu")
+)
+@patch("crackseg.training.trainer.create_lr_scheduler")
+@patch("crackseg.training.trainer.create_optimizer")
+@patch("crackseg.training.trainer.handle_epoch_checkpointing")
+@patch(
+    "crackseg.training.trainer.Trainer._step_scheduler"
 )  # Corrected patch target
 @patch(
-    "src.training.trainer.Trainer.validate",
+    "crackseg.training.trainer.Trainer.validate",
     return_value={"loss": 0.4, "iou": 0.8},
 )
-@patch("src.training.trainer.Trainer._train_epoch", return_value=0.5)
+@patch("crackseg.training.trainer.Trainer._train_epoch", return_value=0.5)
 def test_trainer_train_loop(
     mock_train_epoch: MagicMock,
     mock_validate: MagicMock,
@@ -260,9 +264,11 @@ def test_trainer_train_loop(
     assert mock_handle_checkpoint.call_count == test_cfg.training.epochs
 
 
-@patch("src.training.trainer.get_device", return_value=torch.device("cpu"))
-@patch("src.training.trainer.create_lr_scheduler")
-@patch("src.training.trainer.create_optimizer")
+@patch(
+    "crackseg.training.trainer.get_device", return_value=torch.device("cpu")
+)
+@patch("crackseg.training.trainer.create_lr_scheduler")
+@patch("crackseg.training.trainer.create_optimizer")
 def test_train_step_computes_loss_and_backward(
     mock_create_optimizer: MagicMock,
     mock_create_scheduler: MagicMock,
@@ -312,9 +318,11 @@ def test_train_step_computes_loss_and_backward(
 
 
 @pytest.mark.cuda
-@patch("src.training.trainer.get_device", return_value=torch.device("cuda:0"))
-@patch("src.training.trainer.create_lr_scheduler")
-@patch("src.training.trainer.create_optimizer")
+@patch(
+    "crackseg.training.trainer.get_device", return_value=torch.device("cuda:0")
+)
+@patch("crackseg.training.trainer.create_lr_scheduler")
+@patch("crackseg.training.trainer.create_optimizer")
 def test_train_step_amp_cuda(
     mock_create_optimizer: MagicMock,
     mock_create_scheduler: MagicMock,
@@ -367,9 +375,11 @@ def test_train_step_amp_cuda(
     assert float(result["loss"]) == pytest.approx(0.5)
 
 
-@patch("src.training.trainer.get_device", return_value=torch.device("cpu"))
-@patch("src.training.trainer.create_lr_scheduler")
-@patch("src.training.trainer.create_optimizer")
+@patch(
+    "crackseg.training.trainer.get_device", return_value=torch.device("cpu")
+)
+@patch("crackseg.training.trainer.create_lr_scheduler")
+@patch("crackseg.training.trainer.create_optimizer")
 def test_train_step_raises_on_forward_error(
     mock_create_optimizer: MagicMock,
     mock_create_scheduler: MagicMock,
@@ -563,7 +573,9 @@ def test_step_scheduler_reduce_on_plateau(monkeypatch: MonkeyPatch) -> None:
     optimizer.param_groups = [{"lr": 0.01}]
     logger = MagicMock()
     metrics = {"val_loss": 0.5}
-    from src.utils.training.scheduler_helper import step_scheduler_helper
+    from crackseg.utils.training.scheduler_helper import (
+        step_scheduler_helper,
+    )
 
     lr = step_scheduler_helper(
         scheduler=scheduler,
@@ -595,7 +607,9 @@ def test_step_scheduler_other_scheduler() -> None:
     optimizer = MagicMock()
     optimizer.param_groups = [{"lr": 0.02}]
     logger = MagicMock()
-    from src.utils.training.scheduler_helper import step_scheduler_helper
+    from crackseg.utils.training.scheduler_helper import (
+        step_scheduler_helper,
+    )
 
     lr = step_scheduler_helper(
         scheduler=scheduler,
@@ -640,7 +654,9 @@ def test_trainer_early_stopping(
     def fake_validate(self: Any, epoch: int) -> dict[str, float]:
         return {"val_loss": 0.5}
 
-    monkeypatch.setattr("src.training.trainer.Trainer.validate", fake_validate)
+    monkeypatch.setattr(
+        "crackseg.training.trainer.Trainer.validate", fake_validate
+    )
 
     components = TrainingComponents(
         model=trainer_mocks_fixture.model,
@@ -659,7 +675,7 @@ def test_trainer_early_stopping(
     monkeypatch.setattr(trainer, "_train_epoch", lambda epoch: 0.0)
 
     with patch(
-        "src.training.trainer.handle_epoch_checkpointing",
+        "crackseg.training.trainer.handle_epoch_checkpointing",
         return_value=float("inf"),
     ):
         trainer.train()
@@ -667,7 +683,7 @@ def test_trainer_early_stopping(
 
 
 def test_format_metrics() -> None:
-    from src.utils.logging.training import format_metrics
+    from crackseg.utils.logging.training import format_metrics
 
     metrics = {"loss": 0.1234, "iou": 0.5678}
     formatted = format_metrics(metrics)
@@ -677,7 +693,7 @@ def test_format_metrics() -> None:
 
 
 def test_log_validation_results(caplog: LogCaptureFixture) -> None:
-    from src.utils.logging.training import log_validation_results
+    from crackseg.utils.logging.training import log_validation_results
 
     class DummyLogger:
         def __init__(self) -> None:
@@ -699,7 +715,7 @@ def test_log_validation_results(caplog: LogCaptureFixture) -> None:
 
 
 def test_amp_autocast_context_manager() -> None:
-    from src.utils.training.amp_utils import amp_autocast
+    from crackseg.utils.training.amp_utils import amp_autocast
 
     with amp_autocast(False):
         x = torch.tensor([1.0], requires_grad=True)
@@ -712,7 +728,9 @@ def test_amp_autocast_context_manager() -> None:
 
 
 def test_optimizer_step_with_accumulation_no_amp() -> None:
-    from src.utils.training.amp_utils import optimizer_step_with_accumulation
+    from crackseg.utils.training.amp_utils import (
+        optimizer_step_with_accumulation,
+    )
 
     optimizer = MagicMock()
     scaler = None
@@ -740,7 +758,9 @@ def test_optimizer_step_with_accumulation_no_amp() -> None:
 
 
 def test_optimizer_step_with_accumulation_amp() -> None:
-    from src.utils.training.amp_utils import optimizer_step_with_accumulation
+    from crackseg.utils.training.amp_utils import (
+        optimizer_step_with_accumulation,
+    )
 
     optimizer = MagicMock()
     scaler = MagicMock()
@@ -770,7 +790,7 @@ def test_optimizer_step_with_accumulation_amp() -> None:
 
 
 def test_validate_trainer_config_valid() -> None:
-    from src.training.config_validation import validate_trainer_config
+    from crackseg.training.config_validation import validate_trainer_config
 
     class DummyCfg:
         epochs = 5
@@ -782,7 +802,7 @@ def test_validate_trainer_config_valid() -> None:
 
 
 def test_validate_trainer_config_missing_field() -> None:
-    from src.training.config_validation import validate_trainer_config
+    from crackseg.training.config_validation import validate_trainer_config
 
     class DummyCfg:
         device = "cpu"
@@ -794,7 +814,7 @@ def test_validate_trainer_config_missing_field() -> None:
 
 
 def test_validate_trainer_config_invalid_type() -> None:
-    from src.training.config_validation import validate_trainer_config
+    from crackseg.training.config_validation import validate_trainer_config
 
     class DummyCfg:
         epochs = "five"
@@ -807,7 +827,7 @@ def test_validate_trainer_config_invalid_type() -> None:
 
 
 def test_validate_trainer_config_invalid_optimizer() -> None:
-    from src.training.config_validation import validate_trainer_config
+    from crackseg.training.config_validation import validate_trainer_config
 
     class DummyCfg:
         epochs = 5

@@ -2,7 +2,7 @@ import pytest
 import torch
 from pytest import FixtureRequest
 
-from src.training.metrics import (
+from crackseg.training.metrics import (
     F1Score,
     IoUScore,
     PrecisionScore,

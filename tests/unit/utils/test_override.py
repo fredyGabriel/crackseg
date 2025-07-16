@@ -7,12 +7,12 @@ import pytest
 import yaml
 from omegaconf import OmegaConf
 
-from src.utils.config.override import (
+from crackseg.utils.config.override import (
     apply_overrides,
     override_config,
     save_config,
 )
-from src.utils.core.exceptions import ConfigError
+from crackseg.utils.core.exceptions import ConfigError
 
 
 def test_override_config_simple():

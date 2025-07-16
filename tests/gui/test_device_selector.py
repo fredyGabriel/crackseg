@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 import torch
 
-from scripts.gui.components.device_selector import (
+from gui.components.device_selector import (
     DeviceDetector,
     DeviceInfo,
     OptimizedDeviceSelector,

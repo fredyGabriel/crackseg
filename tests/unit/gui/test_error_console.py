@@ -7,9 +7,9 @@ error categorization, user-friendly messaging, and UI rendering.
 
 from unittest.mock import Mock, patch
 
-from scripts.gui.components.error_console import ErrorConsole
-from scripts.gui.utils.config.exceptions import ValidationError
-from scripts.gui.utils.config.validation.error_categorizer import (
+from gui.components.error_console import ErrorConsole
+from gui.utils.config.exceptions import ValidationError
+from gui.utils.config.validation.error_categorizer import (
     CategorizedError,
     ErrorCategorizer,
     ErrorCategory,

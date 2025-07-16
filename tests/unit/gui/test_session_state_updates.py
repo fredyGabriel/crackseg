@@ -13,8 +13,8 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-from scripts.gui.utils.session_state import SessionState, SessionStateManager
-from scripts.gui.utils.session_sync import SessionSyncCoordinator
+from gui.utils.session_state import SessionState, SessionStateManager
+from gui.utils.session_sync import SessionSyncCoordinator
 
 
 class TestSessionStateExtensions:

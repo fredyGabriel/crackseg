@@ -28,7 +28,7 @@ os.chdir(project_root)
 sys.path.insert(0, str(project_root))
 
 # Import after configuring the path
-from src.model.encoder.swin_transformer_encoder import (  # noqa: E402
+from crackseg.model.encoder.swin_transformer_encoder import (  # noqa: E402
     SwinTransformerEncoder,  # noqa: E402
     SwinTransformerEncoderConfig,  # noqa: E402
 )

@@ -2,7 +2,7 @@
 Test suite for advanced YAML validation functionality.
 """
 
-from scripts.gui.utils.config_io import (
+from gui.utils.config_io import (
     ValidationError,
     YAMLValidator,
     format_validation_report,

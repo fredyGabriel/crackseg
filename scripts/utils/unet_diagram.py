@@ -17,7 +17,7 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 sys.path.insert(0, os.path.join(project_root, ".."))
 
-from src.model.factory import create_unet  # noqa: E402
+from crackseg.model.factory import create_unet  # noqa: E402
 
 
 def main() -> None:

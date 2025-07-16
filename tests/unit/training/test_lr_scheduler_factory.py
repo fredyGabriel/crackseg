@@ -8,7 +8,7 @@ import pytest
 import torch
 from omegaconf import OmegaConf
 
-from src.training.factory import create_lr_scheduler
+from crackseg.training.factory import create_lr_scheduler
 
 
 @pytest.fixture

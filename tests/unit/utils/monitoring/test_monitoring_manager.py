@@ -7,7 +7,7 @@ metrics logging, context switching, and history management.
 
 from unittest.mock import patch
 
-from src.utils.monitoring.manager import MonitoringManager
+from crackseg.utils.monitoring.manager import MonitoringManager
 
 
 class TestMonitoringManager:

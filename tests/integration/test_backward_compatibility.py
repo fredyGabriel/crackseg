@@ -22,7 +22,10 @@ class TestBackwardCompatibility:
 
     def test_decoder_components_compatibility(self) -> None:
         """Test backward compatibility of decoder components."""
-        from src.model.decoder.cnn_decoder import CNNDecoder, DecoderBlock
+        from crackseg.model.decoder.cnn_decoder import (
+            CNNDecoder,
+            DecoderBlock,
+        )
 
         # Test DecoderBlock instantiation with various configurations
         DecoderBlock(in_channels=128, skip_channels=64, out_channels=64)
@@ -58,13 +61,15 @@ class TestBackwardCompatibility:
     def test_loss_registry_compatibility(self) -> None:
         """Test backward compatibility of loss registry systems."""
         # Test legacy loss registry
-        from src.training.losses.loss_registry_setup import loss_registry
+        from crackseg.training.losses.loss_registry_setup import (
+            loss_registry,
+        )
 
         legacy_losses = loss_registry.list_components()
         assert len(legacy_losses) > 0, "Legacy registry should have losses"
 
         # Test enhanced registry
-        from src.training.losses.registry import registry
+        from crackseg.training.losses.registry import registry
 
         enhanced_losses = registry.list_available()
         assert len(enhanced_losses) > 0, "Enhanced registry should have losses"
@@ -74,7 +79,7 @@ class TestBackwardCompatibility:
 
     def test_feature_info_utils_compatibility(self) -> None:
         """Test feature info utilities compatibility."""
-        from src.model.encoder.feature_info_utils import (
+        from crackseg.model.encoder.feature_info_utils import (
             create_feature_info_entry,
             validate_feature_info,
         )
@@ -116,13 +121,19 @@ class TestBackwardCompatibility:
     def test_import_compatibility(self) -> None:
         """Test that all import paths still work."""
         import_tests = [
-            ("src.model.decoder.cnn_decoder", ["CNNDecoder", "DecoderBlock"]),
             (
-                "src.model.encoder.feature_info_utils",
+                "crackseg.model.decoder.cnn_decoder",
+                ["CNNDecoder", "DecoderBlock"],
+            ),
+            (
+                "crackseg.model.encoder.feature_info_utils",
                 ["create_feature_info_entry"],
             ),
-            ("src.training.losses.registry", ["registry"]),
-            ("src.training.losses.loss_registry_setup", ["loss_registry"]),
+            ("crackseg.training.losses.registry", ["registry"]),
+            (
+                "crackseg.training.losses.loss_registry_setup",
+                ["loss_registry"],
+            ),
         ]
 
         for module_path, classes in import_tests:

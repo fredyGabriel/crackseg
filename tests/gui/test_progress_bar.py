@@ -8,7 +8,7 @@ time estimation, brand styling, and integration with session state.
 import time
 from unittest.mock import MagicMock, patch
 
-from scripts.gui.components.progress_bar import (
+from gui.components.progress_bar import (
     ProgressBar,
     StepBasedProgress,
     create_progress_bar,
@@ -224,7 +224,7 @@ class TestProgressBar:
         self, mock_session_state: MagicMock, mock_empty: MagicMock
     ) -> None:
         """Test that brand colors match LoadingSpinner."""
-        from scripts.gui.components.loading_spinner import LoadingSpinner
+        from gui.components.loading_spinner import LoadingSpinner
 
         # Compare brand colors
         progress_colors = ProgressBar._BRAND_COLORS

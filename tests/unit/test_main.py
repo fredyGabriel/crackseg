@@ -13,14 +13,14 @@ import pytest
 import torch
 from torch.utils.data import DataLoader
 
-from src.utils import DataError, ModelError, ResourceError
+from crackseg.utils import DataError, ModelError, ResourceError
 
 
 class TestSetupEnvironment:
     """Test environment setup functionality."""
 
-    @patch("src.main.set_random_seeds")
-    @patch("src.main.get_device")
+    @patch("crackseg.main.set_random_seeds")
+    @patch("crackseg.main.get_device")
     @patch("torch.cuda.is_available")
     def test_setup_environment_success(
         self,
@@ -37,7 +37,7 @@ class TestSetupEnvironment:
         config_mock.experiment.device = "cuda"
 
         # Act
-        with patch("src.main._setup_environment") as mock_setup:
+        with patch("crackseg.main._setup_environment") as mock_setup:
             mock_setup.return_value = (torch.device("cuda"), True)
             device, cuda_available = mock_setup(config_mock)
 
@@ -45,8 +45,8 @@ class TestSetupEnvironment:
         assert device == torch.device("cuda")
         assert cuda_available is True
 
-    @patch("src.main.set_random_seeds")
-    @patch("src.main.get_device")
+    @patch("crackseg.main.set_random_seeds")
+    @patch("crackseg.main.get_device")
     @patch("torch.cuda.is_available")
     def test_setup_environment_default_seed(
         self,
@@ -63,7 +63,7 @@ class TestSetupEnvironment:
         config_mock.experiment.device = "auto"
 
         # Act
-        with patch("src.main._setup_environment") as mock_setup:
+        with patch("crackseg.main._setup_environment") as mock_setup:
             mock_setup.return_value = (torch.device("cpu"), False)
             device, cuda_available = mock_setup(config_mock)
 
@@ -82,15 +82,15 @@ class TestSetupEnvironment:
         config_mock.experiment.device = "cuda"
 
         # Act & Assert
-        with patch("src.main._setup_environment") as mock_setup:
+        with patch("crackseg.main._setup_environment") as mock_setup:
             mock_setup.side_effect = ResourceError(
                 "CUDA device required but not available"
             )
             with pytest.raises(ResourceError, match="CUDA device required"):
                 mock_setup(config_mock)
 
-    @patch("src.main.set_random_seeds")
-    @patch("src.main.get_device")
+    @patch("crackseg.main.set_random_seeds")
+    @patch("crackseg.main.get_device")
     @patch("torch.cuda.is_available")
     def test_setup_environment_cuda_not_required(
         self,
@@ -107,7 +107,7 @@ class TestSetupEnvironment:
         config_mock.experiment.seed = 123
 
         # Act
-        with patch("src.main._setup_environment") as mock_setup:
+        with patch("crackseg.main._setup_environment") as mock_setup:
             mock_setup.return_value = (torch.device("cpu"), False)
             device, cuda_available = mock_setup(config_mock)
 
@@ -119,7 +119,7 @@ class TestSetupEnvironment:
 class TestLoadData:
     """Test data loading functionality."""
 
-    @patch("src.main.create_dataloaders_from_config")
+    @patch("crackseg.main.create_dataloaders_from_config")
     @patch("hydra.utils.get_original_cwd")
     def test_load_data_success(
         self, mock_get_cwd: Mock, mock_create_dataloaders: Mock
@@ -141,7 +141,7 @@ class TestLoadData:
         config_mock.data.transform = {"train": {}, "val": {}, "test": {}}
 
         # Act
-        with patch("src.main._load_data") as mock_load:
+        with patch("crackseg.main._load_data") as mock_load:
             mock_load.return_value = {
                 "train": train_loader,
                 "val": val_loader,
@@ -157,7 +157,7 @@ class TestLoadData:
         assert isinstance(result["val"], MagicMock)
         assert isinstance(result["test"], MagicMock)
 
-    @patch("src.main.create_dataloaders_from_config")
+    @patch("crackseg.main.create_dataloaders_from_config")
     @patch("hydra.utils.get_original_cwd")
     def test_load_data_missing_train_loader(
         self, mock_get_cwd: Mock, mock_create_dataloaders: Mock
@@ -173,7 +173,7 @@ class TestLoadData:
         config_mock = MagicMock()
 
         # Act & Assert
-        with patch("src.main._load_data") as mock_load:
+        with patch("crackseg.main._load_data") as mock_load:
             mock_load.side_effect = DataError(
                 "Training dataloader is required"
             )
@@ -182,7 +182,7 @@ class TestLoadData:
             ):
                 mock_load(config_mock)
 
-    @patch("src.main.create_dataloaders_from_config")
+    @patch("crackseg.main.create_dataloaders_from_config")
     @patch("hydra.utils.get_original_cwd")
     def test_load_data_invalid_loader_type(
         self, mock_get_cwd: Mock, mock_create_dataloaders: Mock
@@ -198,12 +198,12 @@ class TestLoadData:
         config_mock = MagicMock()
 
         # Act & Assert
-        with patch("src.main._load_data") as mock_load:
+        with patch("crackseg.main._load_data") as mock_load:
             mock_load.side_effect = DataError("Invalid DataLoader type")
             with pytest.raises(DataError, match="Invalid DataLoader type"):
                 mock_load(config_mock)
 
-    @patch("src.main.create_dataloaders_from_config")
+    @patch("crackseg.main.create_dataloaders_from_config")
     @patch("hydra.utils.get_original_cwd")
     def test_load_data_missing_transform_config(
         self, mock_get_cwd: Mock, mock_create_dataloaders: Mock
@@ -223,7 +223,7 @@ class TestLoadData:
             delattr(config_mock.data, "transform")
 
         # Act
-        with patch("src.main._load_data") as mock_load:
+        with patch("crackseg.main._load_data") as mock_load:
             mock_load.return_value = {"train": train_loader}
             result = mock_load(config_mock)
 
@@ -231,7 +231,7 @@ class TestLoadData:
         assert "train" in result
         assert isinstance(result["train"], MagicMock)
 
-    @patch("src.main.create_dataloaders_from_config")
+    @patch("crackseg.main.create_dataloaders_from_config")
     @patch("hydra.utils.get_original_cwd")
     def test_load_data_exception_handling(
         self, mock_get_cwd: Mock, mock_create_dataloaders: Mock
@@ -244,7 +244,7 @@ class TestLoadData:
         config_mock = MagicMock()
 
         # Act & Assert
-        with patch("src.main._load_data") as mock_load:
+        with patch("crackseg.main._load_data") as mock_load:
             mock_load.side_effect = DataError("Failed to load data")
             with pytest.raises(DataError, match="Failed to load data"):
                 mock_load(config_mock)
@@ -263,11 +263,13 @@ class TestCreateModel:
         mock_instantiate.return_value = mock_model
 
         config_mock = MagicMock()
-        config_mock.model = {"_target_": "src.model.CrackSegmentationModel"}
+        config_mock.model = {
+            "_target_": "crackseg.model.CrackSegmentationModel"
+        }
         device = torch.device("cpu")
 
         # Act
-        with patch("src.main._create_model") as mock_create:
+        with patch("crackseg.main._create_model") as mock_create:
             mock_create.return_value = mock_model
             result = mock_create(config_mock, device)
 
@@ -285,7 +287,7 @@ class TestCreateModel:
         device = torch.device("cpu")
 
         # Act & Assert
-        with patch("src.main._create_model") as mock_create:
+        with patch("crackseg.main._create_model") as mock_create:
             mock_create.side_effect = ModelError("Failed to create model")
             with pytest.raises(ModelError, match="Failed to create model"):
                 mock_create(config_mock, device)
@@ -304,7 +306,7 @@ class TestCreateModel:
         device = torch.device("cpu")
 
         # Act & Assert
-        with patch("src.main._create_model") as mock_create:
+        with patch("crackseg.main._create_model") as mock_create:
             mock_create.side_effect = ModelError(
                 "Model missing required methods"
             )
@@ -317,9 +319,9 @@ class TestCreateModel:
 class TestSetupTrainingComponents:
     """Test training components setup functionality."""
 
-    @patch("src.main.get_metrics_from_cfg")
-    @patch("src.main.get_optimizer")
-    @patch("src.main.get_loss_fn")
+    @patch("crackseg.main.get_metrics_from_cfg")
+    @patch("crackseg.main.get_optimizer")
+    @patch("crackseg.main.get_loss_fn")
     def test_setup_training_components_success(
         self,
         mock_get_loss_fn: Mock,
@@ -344,7 +346,7 @@ class TestSetupTrainingComponents:
         model_mock = MagicMock()
 
         # Act
-        with patch("src.main._setup_training_components") as mock_setup:
+        with patch("crackseg.main._setup_training_components") as mock_setup:
             mock_setup.return_value = (
                 mock_loss_fn,
                 mock_optimizer,
@@ -359,7 +361,7 @@ class TestSetupTrainingComponents:
         assert "iou" in metrics
         assert "dice" in metrics
 
-    @patch("src.main.get_optimizer")
+    @patch("crackseg.main.get_optimizer")
     def test_setup_training_components_no_metrics(
         self, mock_get_optimizer: Mock
     ) -> None:
@@ -374,7 +376,7 @@ class TestSetupTrainingComponents:
         model_mock = MagicMock()
 
         # Act
-        with patch("src.main._setup_training_components") as mock_setup:
+        with patch("crackseg.main._setup_training_components") as mock_setup:
             mock_setup.return_value = (MagicMock(), mock_optimizer, {})
             loss_fn, optimizer, metrics = mock_setup(config_mock, model_mock)
 
@@ -382,8 +384,8 @@ class TestSetupTrainingComponents:
         assert optimizer is mock_optimizer
         assert metrics == {}
 
-    @patch("src.main.get_optimizer")
-    @patch("src.main.get_loss_fn")
+    @patch("crackseg.main.get_optimizer")
+    @patch("crackseg.main.get_loss_fn")
     def test_setup_training_components_invalid_loss(
         self, mock_get_loss_fn: Mock, mock_get_optimizer: Mock
     ) -> None:
@@ -398,7 +400,7 @@ class TestSetupTrainingComponents:
         model_mock = MagicMock()
 
         # Act & Assert
-        with patch("src.main._setup_training_components") as mock_setup:
+        with patch("crackseg.main._setup_training_components") as mock_setup:
             mock_setup.side_effect = ModelError(
                 "Failed to setup loss function"
             )
@@ -407,8 +409,8 @@ class TestSetupTrainingComponents:
             ):
                 mock_setup(config_mock, model_mock)
 
-    @patch("src.main.get_optimizer")
-    @patch("src.main.get_loss_fn")
+    @patch("crackseg.main.get_optimizer")
+    @patch("crackseg.main.get_loss_fn")
     def test_setup_training_components_loss_exception(
         self, mock_get_loss_fn: Mock, mock_get_optimizer: Mock
     ) -> None:
@@ -423,7 +425,7 @@ class TestSetupTrainingComponents:
         model_mock = MagicMock()
 
         # Act
-        with patch("src.main._setup_training_components") as mock_setup:
+        with patch("crackseg.main._setup_training_components") as mock_setup:
             # The function should return normally, but loss_fn might raise
             # during use
             mock_setup.return_value = (mock_loss_fn, MagicMock(), {})
@@ -439,7 +441,7 @@ class TestSetupTrainingComponents:
 class TestHandleCheckpointingAndResume:
     """Test checkpointing and resume functionality."""
 
-    @patch("src.main.load_checkpoint")
+    @patch("crackseg.main.load_checkpoint")
     @patch("os.path.exists")
     @patch("hydra.utils.get_original_cwd")
     def test_handle_checkpointing_resume_success(
@@ -467,7 +469,9 @@ class TestHandleCheckpointingAndResume:
         logger_mock = MagicMock()
 
         # Act
-        with patch("src.main._handle_checkpointing_and_resume") as mock_handle:
+        with patch(
+            "crackseg.main._handle_checkpointing_and_resume"
+        ) as mock_handle:
             mock_handle.return_value = (5, 0.85, [{"epoch": 1, "iou": 0.7}])
             start_epoch, best_metric, history = mock_handle(
                 config_mock, model_mock, optimizer_mock, logger_mock
@@ -497,7 +501,9 @@ class TestHandleCheckpointingAndResume:
         logger_mock = MagicMock()
 
         # Act
-        with patch("src.main._handle_checkpointing_and_resume") as mock_handle:
+        with patch(
+            "crackseg.main._handle_checkpointing_and_resume"
+        ) as mock_handle:
             mock_handle.return_value = (0, None, [])
             start_epoch, best_metric, history = mock_handle(
                 config_mock, model_mock, optimizer_mock, logger_mock
@@ -519,7 +525,9 @@ class TestHandleCheckpointingAndResume:
         logger_mock = MagicMock()
 
         # Act
-        with patch("src.main._handle_checkpointing_and_resume") as mock_handle:
+        with patch(
+            "crackseg.main._handle_checkpointing_and_resume"
+        ) as mock_handle:
             mock_handle.return_value = (0, None, [])
             start_epoch, best_metric, history = mock_handle(
                 config_mock, model_mock, optimizer_mock, logger_mock
@@ -541,7 +549,9 @@ class TestHandleCheckpointingAndResume:
         logger_mock = None  # Invalid logger
 
         # Act & Assert
-        with patch("src.main._handle_checkpointing_and_resume") as mock_handle:
+        with patch(
+            "crackseg.main._handle_checkpointing_and_resume"
+        ) as mock_handle:
             mock_handle.side_effect = ValueError(
                 "Invalid logger configuration"
             )
@@ -564,7 +574,9 @@ class TestHandleCheckpointingAndResume:
         logger_mock = MagicMock()
 
         # Act
-        with patch("src.main._handle_checkpointing_and_resume") as mock_handle:
+        with patch(
+            "crackseg.main._handle_checkpointing_and_resume"
+        ) as mock_handle:
             # Should handle gracefully, defaulting to saving based on loss
             mock_handle.return_value = (0, None, [])
             start_epoch, best_metric, history = mock_handle(
@@ -583,7 +595,7 @@ class TestMainIntegration:
     def test_logging_configuration(self) -> None:
         """Test that logging is properly configured."""
         # Act
-        logger = logging.getLogger("src.main")
+        logger = logging.getLogger("crackseg.main")
 
         # Assert
         assert logger is not None

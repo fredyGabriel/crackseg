@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from src.evaluation.data import get_evaluation_dataloader
+from crackseg.evaluation.data import get_evaluation_dataloader
 
 
 def test_get_evaluation_dataloader_invalid_config():

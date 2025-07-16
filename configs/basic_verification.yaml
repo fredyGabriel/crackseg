@@ -27,7 +27,7 @@ experiment:
 # Hydra configuration for verification runs
 hydra:
   run:
-    dir: outputs/verification/${now:%Y%m%d-%H%M%S}-basic_test
+    dir: artifacts/outputs/verification/${now:%Y%m%d-%H%M%S}-basic_test
   job:
     chdir: false
 

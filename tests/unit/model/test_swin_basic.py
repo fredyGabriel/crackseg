@@ -3,8 +3,8 @@
 import pytest
 import torch
 
-from src.model import EncoderBase
-from src.model.encoder.swin_transformer_encoder import (
+from crackseg.model import EncoderBase
+from crackseg.model.encoder.swin_transformer_encoder import (
     SwinTransformerEncoder,
     SwinTransformerEncoderConfig,
 )

@@ -41,7 +41,7 @@ class TestHydraConfiguration:
 
             # Check model target
             assert hasattr(cfg.model, "_target_"), "Model _target_ not found"
-            assert cfg.model._target_ == "src.model.core.unet.BaseUNet"
+            assert cfg.model._target_ == "crackseg.model.core.unet.BaseUNet"
 
             # Check encoder configuration
             assert hasattr(
@@ -50,7 +50,10 @@ class TestHydraConfiguration:
             assert hasattr(
                 cfg.model.encoder, "_target_"
             ), "Encoder _target_ not found"
-            assert cfg.model.encoder._target_ == "src.model.encoder.CNNEncoder"
+            assert (
+                cfg.model.encoder._target_
+                == "crackseg.model.encoder.CNNEncoder"
+            )
 
     def test_training_configuration(self, config_dir: str) -> None:
         """Test training configuration sections."""

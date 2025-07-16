@@ -20,12 +20,12 @@ from typing import Any
 
 import pytest
 
-from scripts.gui.utils.process.error_handling import (
+from gui.utils.process.error_handling import (
     ErrorCategory,
     ErrorContext,
     create_ui_error_message,
 )
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.session_state import SessionStateManager
 
 
 class TestFileOperationsEdgeCases:

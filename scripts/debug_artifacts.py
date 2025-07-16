@@ -26,7 +26,7 @@ import yaml
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.utils.config.standardized_storage import (
+from crackseg.utils.config.standardized_storage import (
     StandardizedConfigStorage,
     validate_configuration_completeness,
 )

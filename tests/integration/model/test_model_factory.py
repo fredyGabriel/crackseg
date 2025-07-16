@@ -9,8 +9,13 @@ import pytest
 from omegaconf import OmegaConf
 from torch import nn
 
-from src.model import BottleneckBase, DecoderBase, EncoderBase, UNetBase
-from src.model.factory import ConfigurationError, validate_config
+from crackseg.model import (
+    BottleneckBase,
+    DecoderBase,
+    EncoderBase,
+    UNetBase,
+)
+from crackseg.model.factory import ConfigurationError, validate_config
 
 
 # Fixture to load Hydra configuration
@@ -81,14 +86,14 @@ def test_validate_config_valid(cfg: Any):
 
 
 # Patch the correct internal helper
-@patch("src.model.factory.config._try_instantiation_methods")
+@patch("crackseg.model.factory.config._try_instantiation_methods")
 @patch("hydra.utils.get_class")
 def test_create_unet_basic(
     mock_get_class: Any, mock_try_instantiation_methods: Any, cfg: Any
 ):
     """Test creation of a basic UNet model, mocking the core instantiation
     helper."""
-    from src.model.factory import create_unet
+    from crackseg.model.factory import create_unet
 
     # Setup component mocks
     mock_encoder = MagicMock(spec=EncoderBase)
@@ -141,7 +146,7 @@ def test_create_unet_basic(
     # Test config (includes in_channels for validation)
     config = OmegaConf.create(
         {
-            "_target_": "src.model.unet.BaseUNet",
+            "_target_": "crackseg.model.unet.BaseUNet",
             "encoder": {
                 "_target_": "e",
                 "type": "E",
@@ -171,14 +176,14 @@ def test_create_unet_basic(
     assert calls[1].args[1] == "bottleneck"
     assert calls[2].args[1] == "decoder"
 
-    mock_get_class.assert_called_once_with("src.model.unet.BaseUNet")
+    mock_get_class.assert_called_once_with("crackseg.model.unet.BaseUNet")
     MockUnetClass.assert_called_once_with(
         encoder=mock_encoder, bottleneck=mock_bottleneck, decoder=mock_decoder
     )
 
 
 # Patch the correct internal helper
-@patch("src.model.factory.config._try_instantiation_methods")
+@patch("crackseg.model.factory.config._try_instantiation_methods")
 @patch("hydra.utils.get_class")
 @patch("hydra.utils.instantiate")
 def test_create_unet_with_final_activation(
@@ -188,7 +193,7 @@ def test_create_unet_with_final_activation(
     cfg: Any,
 ):
     """Test UNet creation with activation, mocking core instantiation."""
-    from src.model.factory import create_unet
+    from crackseg.model.factory import create_unet
 
     # Setup component mocks
     mock_encoder = MagicMock(spec=EncoderBase)
@@ -241,7 +246,7 @@ def test_create_unet_with_final_activation(
     final_activation_config = {"_target_": "torch.nn.Sigmoid"}
     config = OmegaConf.create(
         {
-            "_target_": "src.model.unet.BaseUNet",
+            "_target_": "crackseg.model.unet.BaseUNet",
             "encoder": {
                 "_target_": "e",
                 "type": "E",

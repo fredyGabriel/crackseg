@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from scripts.gui.components.loading_spinner import (
+from gui.components.loading_spinner import (
     LoadingSpinner,
     loading_spinner,
 )

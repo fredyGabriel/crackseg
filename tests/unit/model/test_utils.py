@@ -2,7 +2,7 @@ from pathlib import Path
 
 import torch
 
-from src.model.common.utils import (
+from crackseg.model.common.utils import (
     count_parameters,
     estimate_memory_usage,
     estimate_receptive_field,

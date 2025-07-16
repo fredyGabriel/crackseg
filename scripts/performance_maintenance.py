@@ -169,7 +169,7 @@ class PerformanceMaintenanceManager:
             [
                 "python",
                 "-c",
-                "from src.utils.monitoring.resource_monitor import "
+                "from crackseg.utils.monitoring.resource_monitor import "
                 "ResourceMonitor; print('OK')",
             ],
             "Resource monitoring import test",

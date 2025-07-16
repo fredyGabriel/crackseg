@@ -4,7 +4,10 @@ import warnings
 import pytest
 import torch
 
-from src.model.decoder.cnn_decoder import DecoderBlock, DecoderBlockConfig
+from crackseg.model.decoder.cnn_decoder import (
+    DecoderBlock,
+    DecoderBlockConfig,
+)
 
 
 def test_decoderblock_forward_shape():

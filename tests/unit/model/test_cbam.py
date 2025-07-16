@@ -1,7 +1,11 @@
 import pytest
 import torch
 
-from src.model.components.cbam import CBAM, ChannelAttention, SpatialAttention
+from crackseg.model.components.cbam import (
+    CBAM,
+    ChannelAttention,
+    SpatialAttention,
+)
 
 
 def test_channel_attention_valid_init():

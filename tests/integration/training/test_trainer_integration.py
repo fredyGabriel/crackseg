@@ -12,8 +12,8 @@ import torch.nn as nn
 from omegaconf import DictConfig, OmegaConf
 from torch.utils.data import DataLoader, TensorDataset
 
-from src.training.trainer import Trainer, TrainingComponents
-from src.utils.logging import NoOpLogger
+from crackseg.training.trainer import Trainer, TrainingComponents
+from crackseg.utils.logging import NoOpLogger
 
 
 def get_dummy_data_loader(

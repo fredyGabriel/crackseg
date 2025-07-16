@@ -12,7 +12,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from pytest import LogCaptureFixture
 
-from src.model.factory.factory_utils import (
+from crackseg.model.factory.factory_utils import (
     ConfigurationError,
     check_parameter_types,
     extract_runtime_params,
@@ -112,10 +112,10 @@ class TestConfigTransformation:
         #  DictConfig
         with (
             patch(
-                "src.model.factory.factory_utils.OmegaConf"
+                "crackseg.model.factory.factory_utils.OmegaConf"
             ) as mock_omegaconf,
             patch(
-                "src.model.factory.factory_utils.isinstance",
+                "crackseg.model.factory.factory_utils.isinstance",
                 side_effect=lambda obj, cls: (
                     True
                     if cls.__name__ == "DictConfig"

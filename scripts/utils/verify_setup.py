@@ -84,10 +84,12 @@ def verify_model_instantiation() -> tuple[bool, nn.Module | None]:
 
     try:
         # Specific imports to avoid issues
-        from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
-        from src.model.core.unet import BaseUNet
-        from src.model.decoder.cnn_decoder import CNNDecoder
-        from src.model.encoder.cnn_encoder import CNNEncoder
+        from crackseg.model.bottleneck.cnn_bottleneck import (
+            BottleneckBlock,
+        )
+        from crackseg.model.core.unet import BaseUNet
+        from crackseg.model.decoder.cnn_decoder import CNNDecoder
+        from crackseg.model.encoder.cnn_encoder import CNNEncoder
 
         print("  ✅ Module imports successful")
 

@@ -7,10 +7,10 @@ import torch
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset
 
-from src.evaluation.core import evaluate_model
-from src.evaluation.ensemble import ensemble_evaluate
-from src.evaluation.loading import load_model_from_checkpoint
-from src.evaluation.results import save_evaluation_results
+from crackseg.evaluation.core import evaluate_model
+from crackseg.evaluation.ensemble import ensemble_evaluate
+from crackseg.evaluation.loading import load_model_from_checkpoint
+from crackseg.evaluation.results import save_evaluation_results
 
 
 def create_test_config() -> dict[str, Any]:
@@ -110,7 +110,7 @@ def test_ensemble_evaluation_pipeline(tmp_path: pathlib.Path) -> None:
             yaml.dump(create_test_config(), f)
 
     # Simulate checkpoints: monkeypatch load_model_from_checkpoint
-    from src.evaluation import ensemble as ensemble_mod
+    from crackseg.evaluation import ensemble as ensemble_mod
 
     models: list[torch.nn.Module] = [DummyModelA(), DummyModelB()]
 

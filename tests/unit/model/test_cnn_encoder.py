@@ -1,7 +1,7 @@
 # ruff: noqa: PLR2004
 import torch
 
-from src.model.encoder.cnn_encoder import CNNEncoder, EncoderBlock
+from crackseg.model.encoder.cnn_encoder import CNNEncoder, EncoderBlock
 
 
 def test_cnnencoder_init():

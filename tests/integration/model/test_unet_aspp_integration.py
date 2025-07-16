@@ -3,11 +3,11 @@ import logging
 import pytest
 import torch
 
-from src.model.architectures.cnn_convlstm_unet import CNNEncoder
+from crackseg.model.architectures.cnn_convlstm_unet import CNNEncoder
 
 # NOTE: If you still get argument errors for ASPPModule, check for mocks or
 # redefinitions in the test environment or conftest.py.
-from src.model.components.aspp import ASPPModule
+from crackseg.model.components.aspp import ASPPModule
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

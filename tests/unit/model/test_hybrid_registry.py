@@ -12,8 +12,8 @@ import pytest
 import torch
 from torch import nn
 
-from src.model import BottleneckBase, DecoderBase, EncoderBase
-from src.model.factory.hybrid_registry import (
+from crackseg.model import BottleneckBase, DecoderBase, EncoderBase
+from crackseg.model.factory.hybrid_registry import (
     ComponentReference,
     HybridArchitectureDescriptor,
     hybrid_registry,
@@ -22,7 +22,7 @@ from src.model.factory.hybrid_registry import (
     register_complex_hybrid,
     register_standard_hybrid,
 )  # Migración: import actualizado para reflejar la ubicación real
-from src.model.factory.registry_setup import (
+from crackseg.model.factory.registry_setup import (
     architecture_registry,
     bottleneck_registry,
     decoder_registry,
@@ -163,7 +163,9 @@ def setup_module(module: object) -> None:
     except Exception:
         pass
     try:
-        from src.model.factory.registry_setup import component_registries
+        from crackseg.model.factory.registry_setup import (
+            component_registries,
+        )
 
         attention_registry = component_registries.get("attention")
         if attention_registry is not None:
@@ -175,7 +177,7 @@ def setup_module(module: object) -> None:
     bottleneck_registry.register(name="MockBottleneck")(MockBottleneck)
     decoder_registry.register(name="MockDecoder")(MockDecoder)
     # Get attention registry and register mock component
-    from src.model.factory.registry_setup import component_registries
+    from crackseg.model.factory.registry_setup import component_registries
 
     attention_registry = component_registries.get("attention")
     if attention_registry is not None:
@@ -201,7 +203,9 @@ def teardown_module(module: object) -> None:
     except Exception:
         pass
     try:
-        from src.model.factory.registry_setup import component_registries
+        from crackseg.model.factory.registry_setup import (
+            component_registries,
+        )
 
         attention_registry = component_registries.get("attention")
         if attention_registry is not None:

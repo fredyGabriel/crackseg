@@ -1,0 +1,319 @@
+{
+  "project_name": "crackseg",
+  "random_seed": 42,
+  "output_dir": "outputs/",
+  "log_level": "INFO",
+  "max_config_items_to_log": 10,
+  "timestamp_parsing": {
+    "min_parts": 2,
+    "date_len": 8,
+    "time_len": 6
+  },
+  "thresholds": {
+    "default": 0.5,
+    "metric": 0.5,
+    "loss_weight": 0.5,
+    "gamma": 0.5
+  },
+  "visualization": {
+    "num_cols": 3,
+    "num_cols_no_targets": 2
+  },
+  "data": {
+    "data_root": "data/",
+    "train_split": 0.7,
+    "val_split": 0.15,
+    "test_split": 0.15,
+    "image_size": [
+      256,
+      256
+    ],
+    "batch_size": 4,
+    "num_workers": 2,
+    "seed": 42,
+    "in_memory_cache": false,
+    "num_dims_image": 4,
+    "num_channels_rgb": 3,
+    "num_dims_mask": 3,
+    "kernel_expected_dims": 2,
+    "expected_input_dims": 4,
+    "expected_bottleneck_ndim_4d": 4,
+    "expected_bottleneck_ndim_3d": 3,
+    "num_dims_mask_pre_unsqueeze": 3,
+    "transform": {
+      "train": [
+        {
+          "name": "Resize",
+          "params": {
+            "height": 256,
+            "width": 256
+          }
+        },
+        {
+          "name": "HorizontalFlip",
+          "params": {
+            "p": 0.5
+          }
+        },
+        {
+          "name": "VerticalFlip",
+          "params": {
+            "p": 0.5
+          }
+        },
+        {
+          "name": "Rotate",
+          "params": {
+            "limit": 90,
+            "p": 0.5
+          }
+        },
+        {
+          "name": "ColorJitter",
+          "params": {
+            "brightness": 0.2,
+            "contrast": 0.2,
+            "saturation": 0.2,
+            "hue": 0.1,
+            "p": 0.3
+          }
+        },
+        {
+          "name": "Normalize",
+          "params": {
+            "mean": [
+              0.485,
+              0.456,
+              0.406
+            ],
+            "std": [
+              0.229,
+              0.224,
+              0.225
+            ]
+          }
+        },
+        {
+          "name": "ToTensorV2",
+          "params": {}
+        }
+      ],
+      "val": [
+        {
+          "name": "Resize",
+          "params": {
+            "height": 256,
+            "width": 256
+          }
+        },
+        {
+          "name": "Normalize",
+          "params": {
+            "mean": [
+              0.485,
+              0.456,
+              0.406
+            ],
+            "std": [
+              0.229,
+              0.224,
+              0.225
+            ]
+          }
+        },
+        {
+          "name": "ToTensorV2",
+          "params": {}
+        }
+      ],
+      "test": [
+        {
+          "name": "Resize",
+          "params": {
+            "height": 256,
+            "width": 256
+          }
+        },
+        {
+          "name": "Normalize",
+          "params": {
+            "mean": [
+              0.485,
+              0.456,
+              0.406
+            ],
+            "std": [
+              0.229,
+              0.224,
+              0.225
+            ]
+          }
+        },
+        {
+          "name": "ToTensorV2",
+          "params": {}
+        }
+      ]
+    },
+    "dataloader": {
+      "batch_size": 4,
+      "num_workers": 2,
+      "shuffle": true,
+      "pin_memory": true,
+      "prefetch_factor": 2,
+      "drop_last": false,
+      "distributed": {
+        "enabled": false,
+        "rank": 0,
+        "world_size": 1
+      },
+      "sampler": {
+        "enabled": false,
+        "kind": "random",
+        "shuffle": true,
+        "seed": 42
+      },
+      "memory": {
+        "fp16": false,
+        "adaptive_batch_size": false,
+        "max_memory_mb": null
+      },
+      "max_train_samples": 16,
+      "max_val_samples": 8,
+      "max_test_samples": 8
+    }
+  },
+  "model": {
+    "_target_": "src.model.core.unet.BaseUNet",
+    "encoder": {
+      "_target_": "src.model.encoder.CNNEncoder",
+      "in_channels": 3,
+      "init_features": 16,
+      "depth": 3
+    },
+    "bottleneck": {
+      "_target_": "src.model.bottleneck.cnn_bottleneck.BottleneckBlock",
+      "in_channels": 64,
+      "out_channels": 128
+    },
+    "decoder": {
+      "_target_": "src.model.decoder.cnn_decoder.CNNDecoder",
+      "in_channels": 128,
+      "skip_channels_list": [
+        64,
+        32,
+        16
+      ],
+      "out_channels": 1,
+      "depth": 3
+    },
+    "final_activation": null
+  },
+  "training": {
+    "_target_": "src.training.trainer.Trainer",
+    "device": "auto",
+    "optimizer": {
+      "_target_": "torch.optim.Adam",
+      "lr": 0.001
+    },
+    "lr_scheduler": {
+      "_target_": "torch.optim.lr_scheduler.StepLR",
+      "step_size": 10,
+      "gamma": 0.5
+    },
+    "use_amp": false,
+    "gradient_accumulation_steps": 1,
+    "checkpoint_dir": "outputs/checkpoints",
+    "save_freq": 0,
+    "save_best": {
+      "enabled": true,
+      "monitor_metric": "val_loss",
+      "monitor_mode": "min",
+      "best_filename": "model_best.pth.tar"
+    },
+    "early_stopping": {
+      "_target_": "src.utils.early_stopping.EarlyStopping",
+      "monitor": "val_loss",
+      "patience": 5,
+      "mode": "min",
+      "min_delta": 0.01,
+      "verbose": true
+    },
+    "verbose": true,
+    "progress_bar": true,
+    "log_interval_batches": 10,
+    "loss": {
+      "_target_": "src.training.losses.BCEDiceLoss",
+      "config": {
+        "_target_": "src.training.losses.bce_dice_loss.BCEDiceLossConfig",
+        "bce_weight": 0.5,
+        "dice_weight": 0.5,
+        "dice_smooth": 1.0,
+        "dice_sigmoid": true,
+        "dice_eps": 1e-06,
+        "bce_reduction": "mean"
+      }
+    },
+    "epochs": 2,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "scheduler": "step_lr",
+    "step_size": 10,
+    "gamma": 0.5
+  },
+  "evaluation": {
+    "metrics": {
+      "iou": {
+        "_target_": "src.training.metrics.IoUScore",
+        "smooth": 1e-06,
+        "threshold": 0.5,
+        "expected_dims_before_squeeze": 4,
+        "expected_dims_after_squeeze": 3
+      },
+      "f1": {
+        "_target_": "src.training.metrics.F1Score",
+        "smooth": 1e-06,
+        "threshold": 0.5,
+        "expected_dims_before_squeeze": 4,
+        "expected_dims_after_squeeze": 3
+      },
+      "precision": {
+        "_target_": "src.training.metrics.PrecisionScore",
+        "smooth": 1e-06,
+        "threshold": 0.5,
+        "expected_dims_before_squeeze": 4,
+        "expected_dims_after_squeeze": 3
+      },
+      "recall": {
+        "_target_": "src.training.metrics.RecallScore",
+        "smooth": 1e-06,
+        "threshold": 0.5,
+        "expected_dims_before_squeeze": 4,
+        "expected_dims_after_squeeze": 3
+      }
+    },
+    "save_predictions": true,
+    "save_dir": "eval_outputs/",
+    "num_batches_visualize": 2,
+    "visualize_samples": 5
+  },
+  "require_cuda": false,
+  "log_to_file": true,
+  "experiment": {
+    "name": "basic_verification",
+    "output_dir": "outputs"
+  },
+  "verification": {
+    "target_train_batches": 4,
+    "target_val_batches": 2,
+    "expected_duration_minutes": 5,
+    "success_criteria": [
+      "Training loop completes without errors",
+      "Validation loop runs successfully",
+      "Model parameters update during training",
+      "Loss decreases or remains stable",
+      "Output predictions have correct shape",
+      "Checkpoint saving works"
+    ]
+  }
+}

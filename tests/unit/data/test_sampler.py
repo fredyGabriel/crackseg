@@ -5,8 +5,8 @@ import pytest
 import torch
 from torch.utils.data import Dataset, DistributedSampler
 
-from src.data.factory import create_dataloader
-from src.data.sampler import (
+from crackseg.data.factory import create_dataloader
+from crackseg.data.sampler import (
     BalancedSampler,
     RandomSamplerWrapper,
     SamplerFactoryArgs,

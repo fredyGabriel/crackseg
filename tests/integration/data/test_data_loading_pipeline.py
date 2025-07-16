@@ -17,7 +17,7 @@ from omegaconf import DictConfig, OmegaConf
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 
-from src.data.factory import create_dataloaders_from_config
+from crackseg.data.factory import create_dataloaders_from_config
 
 
 class TestDataPipelineIntegration:
@@ -104,8 +104,8 @@ class TestDataPipelineIntegration:
         }
         return OmegaConf.create(config_dict)
 
-    @patch("src.data.factory._create_or_load_split_datasets")
-    @patch("src.data.factory.create_dataloader")
+    @patch("crackseg.data.factory._create_or_load_split_datasets")
+    @patch("crackseg.data.factory.create_dataloader")
     def test_data_factory_creates_dataloaders(
         self,
         mock_create_dataloader: Mock,
@@ -182,10 +182,10 @@ class TestDataPipelineIntegration:
 
         # Mock the factory components
         with patch(
-            "src.data.factory._create_or_load_split_datasets"
+            "crackseg.data.factory._create_or_load_split_datasets"
         ) as mock_create_datasets:
             with patch(
-                "src.data.factory.create_dataloader"
+                "crackseg.data.factory.create_dataloader"
             ) as mock_create_dataloader:
                 # Create simple mock datasets that return tensors
                 class SimpleMockDataset(
@@ -321,10 +321,10 @@ class TestDataPipelineIntegration:
 
             # Mock the entire factory chain to avoid real data dependencies
             with patch(
-                "src.data.factory._create_or_load_split_datasets"
+                "crackseg.data.factory._create_or_load_split_datasets"
             ) as mock_create_datasets:
                 with patch(
-                    "src.data.factory.create_dataloader"
+                    "crackseg.data.factory.create_dataloader"
                 ) as mock_create_dataloader:
                     # Mock simple dataset
                     class TestDataset(
@@ -409,7 +409,7 @@ class TestDataPipelineIntegration:
 
         # Mock the factory chain
         with patch(
-            "src.data.factory._create_or_load_split_datasets"
+            "crackseg.data.factory._create_or_load_split_datasets"
         ) as mock_create_datasets:
             mock_create_datasets.return_value = {
                 "train": MagicMock(spec=Dataset),
@@ -418,7 +418,7 @@ class TestDataPipelineIntegration:
             }
 
             with patch(
-                "src.data.factory.create_dataloader"
+                "crackseg.data.factory.create_dataloader"
             ) as mock_create_dataloader:
                 mock_create_dataloader.return_value = MagicMock(
                     spec=DataLoader

@@ -31,7 +31,7 @@ use_amp: false  # Enable/disable Automatic Mixed Precision
 gradient_accumulation_steps: 1  # Number of steps to accumulate gradients (1 = disabled)
 
 # Checkpoint settings
-checkpoint_dir: "outputs/checkpoints"  # Directory to save checkpoints
+checkpoint_dir: "artifacts/checkpoints"  # Directory to save checkpoints
 save_freq: 0  # How often to save intermediate checkpoints (epochs), 0 = disable
 
 # Save best model configuration

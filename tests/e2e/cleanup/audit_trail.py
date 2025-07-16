@@ -7,11 +7,12 @@ cleanup operations, decisions, and outcomes for compliance and debugging.
 import json
 import logging
 import time
-from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
+
+from crackseg.dataclasses import asdict, dataclass, field
 
 from .validation_system import ValidationResult, ValidationStatus
 

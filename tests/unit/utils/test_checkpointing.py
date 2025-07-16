@@ -11,7 +11,7 @@ from unittest.mock import ANY, MagicMock, patch
 import pytest
 import torch
 
-from src.utils.checkpointing import (
+from crackseg.utils.checkpointing import (
     CheckpointSaveConfig,
     CheckpointSpec,
     adapt_legacy_checkpoint,

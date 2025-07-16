@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from scripts.gui.pages.home_page import page_home
+from gui.pages.home_page import page_home
 
 
 class TestHomePage:

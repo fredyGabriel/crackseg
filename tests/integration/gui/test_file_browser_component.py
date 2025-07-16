@@ -9,7 +9,7 @@ import os
 import tempfile
 from pathlib import Path
 
-from scripts.gui.components.file_browser_component import FileBrowserComponent
+from gui.components.file_browser_component import FileBrowserComponent
 
 
 class TestFileBrowserComponent:
@@ -87,7 +87,7 @@ class TestFileBrowserIntegration:
 
     def test_integration_with_scan_config_directories(self) -> None:
         """Test integration with config_io.scan_config_directories."""
-        from scripts.gui.utils.config_io import scan_config_directories
+        from gui.utils.config_io import scan_config_directories
 
         # This should not raise an exception
         config_dirs = scan_config_directories()
@@ -100,7 +100,7 @@ class TestFileBrowserIntegration:
 
     def test_integration_with_get_config_metadata(self) -> None:
         """Test integration with config_io.get_config_metadata."""
-        from scripts.gui.utils.config_io import get_config_metadata
+        from gui.utils.config_io import get_config_metadata
 
         # Create a temporary config file
         with tempfile.NamedTemporaryFile(

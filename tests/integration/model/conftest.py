@@ -7,15 +7,15 @@ import pytest
 import torch
 
 # Import Base classes
-from src.model import BottleneckBase, DecoderBase, EncoderBase
-from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
-from src.model.decoder.cnn_decoder import CNNDecoder
+from crackseg.model import BottleneckBase, DecoderBase, EncoderBase
+from crackseg.model.bottleneck.cnn_bottleneck import BottleneckBlock
+from crackseg.model.decoder.cnn_decoder import CNNDecoder
 
 # Import CNN components
-from src.model.encoder.cnn_encoder import CNNEncoder
+from crackseg.model.encoder.cnn_encoder import CNNEncoder
 
 # Import Registries needed for fixture
-from src.model.factory.registry_setup import (
+from crackseg.model.factory.registry_setup import (
     bottleneck_registry,
     decoder_registry,
     encoder_registry,

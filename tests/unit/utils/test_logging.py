@@ -10,7 +10,7 @@ import pytest
 from omegaconf import OmegaConf
 
 # Updated imports for the new logging structure
-from src.utils.logging import ExperimentLogger, get_logger
+from crackseg.utils.logging import ExperimentLogger, get_logger
 
 # --- Fixtures ---
 
@@ -24,7 +24,7 @@ def mock_logger_instance() -> MagicMock:
 
 
 @pytest.fixture
-@patch("src.utils.logging.experiment.get_logger")
+@patch("crackseg.utils.logging.experiment.get_logger")
 def experiment_logger(
     mock_get_logger: MagicMock, tmp_path: Path, mock_logger_instance: MagicMock
 ) -> ExperimentLogger:

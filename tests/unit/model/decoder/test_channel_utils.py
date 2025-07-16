@@ -1,6 +1,6 @@
 import pytest
 
-from src.model.decoder.common.channel_utils import (
+from crackseg.model.decoder.common.channel_utils import (
     calculate_decoder_channels,
     validate_channel_dimensions,
     validate_skip_channels_order,

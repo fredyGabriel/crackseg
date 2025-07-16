@@ -13,7 +13,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from src.utils.monitoring import ResourceMonitor, ResourceSnapshot
+from crackseg.utils.monitoring import ResourceMonitor, ResourceSnapshot
 from tests.e2e.config.performance_thresholds import PerformanceThresholds
 
 from .benchmark_suite import BenchmarkConfig, BenchmarkResult, BenchmarkSuite

@@ -11,7 +11,7 @@ from unittest.mock import patch
 import pytest
 import torch
 
-from src.utils.monitoring import (
+from crackseg.utils.monitoring import (
     BaseCallback,
     CallbackHandler,
     GPUStatsCallback,

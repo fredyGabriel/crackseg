@@ -6,7 +6,7 @@ import torch
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset
 
-from src.evaluation.ensemble import ensemble_evaluate
+from crackseg.evaluation.ensemble import ensemble_evaluate
 
 
 def test_ensemble_evaluate_empty_checkpoints():
@@ -45,7 +45,7 @@ def test_ensemble_evaluate_incompatible_outputs(
         return models.pop(0)
 
     monkeypatch.setattr(
-        "src.evaluation.ensemble.load_model_from_checkpoint",
+        "crackseg.evaluation.ensemble.load_model_from_checkpoint",
         load_model_side_effect,
     )
 

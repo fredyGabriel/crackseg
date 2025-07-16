@@ -4,7 +4,12 @@ import pytest
 import torch
 from torch import nn
 
-from src.model import BaseUNet, BottleneckBase, DecoderBase, EncoderBase
+from crackseg.model import (
+    BaseUNet,
+    BottleneckBase,
+    DecoderBase,
+    EncoderBase,
+)
 from tests.unit.model.test_registry import (
     MockBottleneck,
     MockDecoder,

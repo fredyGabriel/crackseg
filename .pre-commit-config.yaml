@@ -50,15 +50,15 @@ default_stages: [commit]
 exclude: |
   (?x)^(
     \.git/.*|
-    \.venv/.*|
-    venv/.*|
+    docs/.*|
+    artifacts/.*|
+    .venv/.*|
     __pycache__/.*|
     \.pytest_cache/.*|
     \.ruff_cache/.*|
     htmlcov/.*|
     \.coverage|
     coverage\..*|
-    outputs/.*|
     old_stuff/.*|
     MagicMock/.*
   )$

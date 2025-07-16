@@ -12,8 +12,8 @@ from numpy import ndarray
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset
 
-from src.data import create_crackseg_dataset
-from src.data import transforms as tr
+from crackseg.data import create_crackseg_dataset
+from crackseg.data import transforms as tr
 
 
 @pytest.fixture

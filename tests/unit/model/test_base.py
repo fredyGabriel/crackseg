@@ -3,7 +3,12 @@ from typing import Any, cast
 import pytest
 import torch
 
-from src.model import BottleneckBase, DecoderBase, EncoderBase, UNetBase
+from crackseg.model import (
+    BottleneckBase,
+    DecoderBase,
+    EncoderBase,
+    UNetBase,
+)
 
 # Constants for test values
 IN_CHANNELS_RGB = 3

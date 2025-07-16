@@ -10,7 +10,7 @@ import pytest
 import torch
 from PIL import Image
 
-from src.data.transforms import apply_transforms, get_basic_transforms
+from crackseg.data.transforms import apply_transforms, get_basic_transforms
 
 
 @pytest.fixture

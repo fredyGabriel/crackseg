@@ -16,18 +16,18 @@ sys.path.append(os.path.abspath("."))
 
 # Import registry modules
 # Import base classes for creating mock components
-from src.model.base import DecoderBase
+from crackseg.model.base import DecoderBase
 
 # Import hybrid registry modules
 try:
-    from src.model.factory.hybrid_registry import (
+    from crackseg.model.factory.hybrid_registry import (
         hybrid_registry,
         query_architectures_by_component,
         query_architectures_by_tag,
         register_complex_hybrid,
         register_standard_hybrid,
     )
-    from src.model.factory.registry_setup import (
+    from crackseg.model.factory.registry_setup import (
         architecture_registry,
         bottleneck_registry,
         decoder_registry,

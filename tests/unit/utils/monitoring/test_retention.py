@@ -11,7 +11,7 @@ from collections import defaultdict
 from pathlib import Path
 from unittest.mock import patch
 
-from src.utils.monitoring.retention import (
+from crackseg.utils.monitoring.retention import (
     CompositeRetentionPolicy,
     CountBasedRetentionPolicy,
     RetentionManager,

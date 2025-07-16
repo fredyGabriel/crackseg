@@ -6,7 +6,7 @@ processing, and error handling capabilities.
 
 from unittest.mock import Mock, patch
 
-from scripts.gui.components.file_upload_component import FileUploadComponent
+from gui.components.file_upload_component import FileUploadComponent
 from tests.unit.gui.components.test_component_base import (
     ComponentTestBase,
 )

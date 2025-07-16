@@ -1,6 +1,6 @@
 """End-to-end integration tests for the comprehensive reporting system.
 
-This module tests the complete workflow from data collection through
+This module tests the complete workflow from crackseg.data collection through
 analysis to multi-format export, validating the entire reporting pipeline.
 """
 

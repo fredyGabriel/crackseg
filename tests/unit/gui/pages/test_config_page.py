@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from scripts.gui.pages.config_page import page_config
+from gui.pages.config_page import page_config
 
 
 class MockSessionState:
@@ -60,7 +60,7 @@ class TestConfigPage:
 
     def test_config_page_import(self) -> None:
         """Test that config page can be imported successfully."""
-        from scripts.gui.pages.config_page import page_config
+        from gui.pages.config_page import page_config
 
         assert callable(page_config)
 
@@ -157,6 +157,6 @@ class TestConfigPageSmoke:
 
     def test_render_theme_controls_import(self) -> None:
         """Test that render_theme_controls can be imported."""
-        from scripts.gui.pages.config_page import render_theme_controls
+        from gui.pages.config_page import render_theme_controls
 
         assert callable(render_theme_controls)

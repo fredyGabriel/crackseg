@@ -7,9 +7,9 @@ from unittest.mock import patch
 import pytest
 import yaml
 
-from scripts.gui.utils.config.cache import _config_cache
-from scripts.gui.utils.config.exceptions import ConfigError
-from scripts.gui.utils.config.io import (
+from gui.utils.config.cache import _config_cache
+from gui.utils.config.exceptions import ConfigError
+from gui.utils.config.io import (
     get_config_metadata,
     load_config_file,
     scan_config_directories,

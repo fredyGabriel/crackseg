@@ -1,6 +1,6 @@
 import torch
 
-from src.model.bottleneck.cnn_bottleneck import BottleneckBlock
+from crackseg.model.bottleneck.cnn_bottleneck import BottleneckBlock
 
 
 def test_bottleneckblock_forward_shape():

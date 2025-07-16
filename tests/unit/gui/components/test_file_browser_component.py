@@ -6,7 +6,7 @@ filtering, and file selection capabilities.
 
 from unittest.mock import Mock, patch
 
-from scripts.gui.components.file_browser_component import FileBrowserComponent
+from gui.components.file_browser_component import FileBrowserComponent
 from tests.unit.gui.components.test_component_base import (
     ComponentTestBase,
 )

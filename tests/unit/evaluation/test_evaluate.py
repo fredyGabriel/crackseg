@@ -7,13 +7,13 @@ import pytest
 import torch
 from omegaconf import OmegaConf
 
-from src.evaluation.core import evaluate_model
-from src.evaluation.data import get_evaluation_dataloader
-from src.evaluation.ensemble import ensemble_evaluate
-from src.evaluation.loading import load_model_from_checkpoint
-from src.evaluation.results import save_evaluation_results
-from src.evaluation.setup import parse_args, setup_output_directory
-from src.utils.visualization import visualize_predictions
+from crackseg.evaluation.core import evaluate_model
+from crackseg.evaluation.data import get_evaluation_dataloader
+from crackseg.evaluation.ensemble import ensemble_evaluate
+from crackseg.evaluation.loading import load_model_from_checkpoint
+from crackseg.evaluation.results import save_evaluation_results
+from crackseg.evaluation.setup import parse_args, setup_output_directory
+from crackseg.utils.visualization import visualize_predictions
 
 
 def test_parse_args_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -35,7 +35,7 @@ def test_setup_output_directory_creates_dirs():
 
 @patch("pathlib.Path.exists", return_value=True)
 @patch("torch.load")
-@patch("src.evaluation.loading.create_unet")
+@patch("crackseg.evaluation.loading.create_unet")
 def test_load_model_from_checkpoint(
     mock_create_unet: MagicMock,
     mock_torch_load: MagicMock,
@@ -107,7 +107,7 @@ def test_get_evaluation_dataloader(monkeypatch: pytest.MonkeyPatch) -> None:
     dummy_loader = torch.utils.data.DataLoader(DummyDataset(), batch_size=1)
 
     monkeypatch.setattr(
-        "src.evaluation.data.create_dataloaders_from_config",
+        "crackseg.evaluation.data.create_dataloaders_from_config",
         lambda **kwargs: {"test": {"dataloader": dummy_loader}},
     )
     cfg: dict[str, object] = {"data": {}}
@@ -205,7 +205,7 @@ def test_ensemble_evaluate_creates_results_and_files(
 
     # Mock load_model_from_checkpoint for ensemble.py
     with patch(
-        "src.evaluation.ensemble.load_model_from_checkpoint"
+        "crackseg.evaluation.ensemble.load_model_from_checkpoint"
     ) as mock_load:
         # Prepare the mock
         mock_load.return_value = (DummyModel(), {"config": {"model": {}}})
@@ -245,12 +245,12 @@ def test_ensemble_evaluate_creates_results_and_files(
 
         # Mock OmegaConf.load to prevent file loading errors
         with patch(
-            "src.evaluation.ensemble.OmegaConf.load"
+            "crackseg.evaluation.ensemble.OmegaConf.load"
         ) as mock_omegaconf_load:
             mock_omegaconf_load.return_value = OmegaConf.create({"model": {}})
 
             # Mock for visualize_predictions - use exact import path
-            with patch("src.evaluation.ensemble.visualize_predictions"):
+            with patch("crackseg.evaluation.ensemble.visualize_predictions"):
                 results = ensemble_evaluate(
                     checkpoint_paths=["ckpt1.pth", "ckpt2.pth"],
                     config=config,

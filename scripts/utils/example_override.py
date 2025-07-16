@@ -11,7 +11,8 @@ import os
 
 from omegaconf import OmegaConf
 
-# from src.utils.config_override import apply_overrides  # Module not found
+# from crackseg.utils.config_override import apply_overrides
+# Module not found
 
 
 def write_examples_to_file() -> None:

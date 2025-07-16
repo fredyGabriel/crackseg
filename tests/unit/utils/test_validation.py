@@ -5,13 +5,13 @@ from pathlib import Path
 import pytest
 from omegaconf import DictConfig, OmegaConf
 
-from src.utils.config.validation import (
+from crackseg.utils.config.validation import (
     validate_config,
     validate_model_config,
     validate_paths,
     validate_training_config,
 )
-from src.utils.core.exceptions import ConfigError, ValidationError
+from crackseg.utils.core.exceptions import ConfigError, ValidationError
 
 
 def make_valid_config(tmp_path: Path) -> DictConfig:

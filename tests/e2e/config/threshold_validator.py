@@ -5,7 +5,7 @@ performance thresholds, enabling real-time validation of metrics
 against configured SLA boundaries.
 
 Example:
-    >>> from src.utils.monitoring.manager import MonitoringManager
+    >>> from crackseg.utils.monitoring.manager import MonitoringManager
     >>> from tests.e2e.config.threshold_validator import ThresholdValidator
     >>>
     >>> monitoring = MonitoringManager()
@@ -31,7 +31,7 @@ from typing import Any
 
 from hydra import compose, initialize_config_dir
 
-from src.utils.core.exceptions import ValidationError
+from crackseg.utils.core.exceptions import ValidationError
 
 from .performance_thresholds import PerformanceThresholds
 

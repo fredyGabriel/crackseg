@@ -7,8 +7,8 @@ validates configurations for various component types and hybrid architectures.
 
 from typing import Any
 
-from src.model.config.core import ConfigParam, ConfigSchema, ParamType
-from src.model.config.validation import (
+from crackseg.model.config.core import ConfigParam, ConfigSchema, ParamType
+from crackseg.model.config.validation import (
     normalize_config,
     validate_architecture_config,
     validate_component_config,

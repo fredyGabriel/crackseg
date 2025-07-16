@@ -12,48 +12,50 @@ This script performs a complete pipeline test:
 7. Generates a results report
 """
 
-import logging
-import os
 import sys
+from pathlib import Path
+
+import torch
+from omegaconf import DictConfig, OmegaConf
+
+# Add project root to Python path to allow direct execution of the script
+project_root = str(Path(__file__).resolve().parents[2])
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
+
+from crackseg.data.factory import (  # noqa: E402
+    create_dataloaders_from_config,
+)
+from crackseg.model.factory import create_unet  # noqa: E402
+from crackseg.training.factory import create_lr_scheduler  # noqa: E402
+from crackseg.utils.factory import get_loss_fn, get_optimizer  # noqa: E402
+from crackseg.utils.logging import (  # noqa: E402
+    ExperimentLogger,
+    get_logger,
+)
+
+# Logging configuration
+logger = get_logger("TestPipelineE2E")
+
+import os
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any, cast
 
 import matplotlib.pyplot as plt
-import torch
 import yaml
-from omegaconf import DictConfig, OmegaConf
 from torch.amp.autocast_mode import autocast
-from torch.amp.grad_scaler import GradScaler
+from torch.cuda.amp import GradScaler
 from torch.utils.data import DataLoader, TensorDataset, random_split
 
-from src.utils.checkpointing import CheckpointSaveConfig
-
-# Add project root to path for module imports
-project_root = str(Path(__file__).parent.parent.absolute())
-sys.path.insert(0, project_root)
-
-from src.data.factory import create_dataloaders_from_config  # noqa: E402
-from src.model.factory import create_unet  # noqa: E402
-from src.training.factory import create_lr_scheduler  # noqa: E402
-from src.training.metrics import F1Score, IoUScore  # noqa: E402
-from src.utils import (  # noqa: E402
+from crackseg.training.metrics import F1Score, IoUScore
+from crackseg.utils import (
     load_checkpoint,
     save_checkpoint,
     set_random_seeds,
 )
-from src.utils.factory import get_loss_fn, get_optimizer  # noqa: E402
-from src.utils.logging import ExperimentLogger, get_logger  # noqa: E402
-
-# Logging configuration
-log = get_logger("e2e_test")
-log_level = logging.INFO
-logging.basicConfig(
-    level=log_level,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+from crackseg.utils.checkpointing import CheckpointSaveConfig
 
 NO_CHANNEL_DIM = 3
 
@@ -229,7 +231,7 @@ def save_config(config: Any, path: str) -> None:
             f,
             default_flow_style=False,
         )
-    log.info(f"Config saved to {path}")
+    logger.info(f"Config saved to {path}")
 
 
 def create_experiment_dir():
@@ -243,7 +245,7 @@ def create_experiment_dir():
     os.makedirs(os.path.join(exp_dir, "metrics"), exist_ok=True)
     os.makedirs(os.path.join(exp_dir, "visualizations"), exist_ok=True)
 
-    log.info(f"Experiment directory created: {exp_dir}")
+    logger.info(f"Experiment directory created: {exp_dir}")
     return exp_dir
 
 
@@ -281,7 +283,7 @@ def visualize_results(
     plt.tight_layout()
     plt.savefig(output_path)
     plt.close()
-    log.info(f"Visualization saved to {output_path}")
+    logger.info(f"Visualization saved to {output_path}")
 
 
 def create_synthetic_dataset():
@@ -378,7 +380,7 @@ def _setup_experiment_resources(
     device = torch.device(
         "cuda" if torch.cuda.is_available() and require_cuda else "cpu"
     )
-    log.info(f"Using device: {device}")
+    logger.info(f"Using device: {device}")
     return (
         cfg,
         exp_dir,
@@ -394,7 +396,7 @@ def _prepare_dataloaders(
     cfg_data: Any,
 ) -> tuple[DataLoader[Any], DataLoader[Any], DataLoader[Any]]:
     """Loads and returns train, val, and test dataloaders."""
-    log.info("Loading data...")
+    logger.info("Loading data...")
     dataloaders = create_dataloaders_from_config(
         data_config=cfg_data,
         transform_config=cfg_data.get("transforms", {}),
@@ -418,7 +420,7 @@ def _prepare_dataloaders(
             return len(loader)
         return -1
 
-    log.info(
+    logger.info(
         f"Data loaded: {get_dataset_len(train_loader)} train, "
         f"{get_dataset_len(val_loader)} val, "
         f"{get_dataset_len(test_loader)} test"
@@ -440,7 +442,7 @@ def _initialize_training_components(cfg: Any, device: torch.device) -> tuple[
     """
     Initializes model, loss, optimizer, scheduler, metrics, and AMP scaler.
     """
-    log.info("Creating model and training components...")
+    logger.info("Creating model and training components...")
     model = create_unet(cfg.model).to(device)
     loss_fn = get_loss_fn(cfg.training.loss)
     # Si loss_fn no es nn.Module, lo envuelvo en nn.Module para
@@ -461,8 +463,8 @@ def _initialize_training_components(cfg: Any, device: torch.device) -> tuple[
     metrics_dict = get_metrics_from_cfg(cfg.evaluation.metrics)
     use_amp = cfg.training.get("amp_enabled", False)
     scaler = GradScaler() if use_amp and device.type == "cuda" else None
-    log.info(f"AMP Enabled: {scaler is not None}")
-    log.info("Training components initialized.")
+    logger.info(f"AMP Enabled: {scaler is not None}")
+    logger.info("Training components initialized.")
     return model, loss_fn, optimizer, lr_scheduler, metrics_dict, scaler
 
 
@@ -503,7 +505,7 @@ def _run_train_epoch(
                 epoch_metrics[k] += metric_fn(outputs, targets).item()
 
         if (batch_idx + 1) % 5 == 0 or (batch_idx + 1) == len(train_loader):
-            log.info(
+            logger.info(
                 f"Train Batch: {batch_idx + 1}/{len(train_loader)}, Loss: "
                 f"{loss.item():.4f}"
             )
@@ -552,7 +554,7 @@ def _execute_training_and_validation(
     val_loader: DataLoader[Any],
 ) -> tuple[float, float, dict[str, float], float, dict[str, float]]:
     """Runs the main training and validation loop for all epochs."""
-    log.info("Starting training loop...")
+    logger.info("Starting training loop...")
     best_metric_value = 0.0
     # Initialize return values for cases where training loop might not run
     # (e.g. 0 epochs)
@@ -563,13 +565,13 @@ def _execute_training_and_validation(
     final_val_metrics = {k: float("nan") for k in args.metrics_dict}
 
     for epoch in range(args.cfg_training.epochs):
-        log.info(f"Epoch {epoch + 1}/{args.cfg_training.epochs}")
+        logger.info(f"Epoch {epoch + 1}/{args.cfg_training.epochs}")
 
         # Training phase for one epoch
         final_train_loss, final_train_metrics = _run_train_epoch(
             args, train_loader
         )
-        log.info(
+        logger.info(
             f"Train Loss: {final_train_loss:.4f}, Metrics: "
             f"{final_train_metrics}"
         )
@@ -581,7 +583,7 @@ def _execute_training_and_validation(
 
         # Validation phase for one epoch
         final_val_loss, final_val_metrics = _run_val_epoch(args, val_loader)
-        log.info(
+        logger.info(
             f"Validation Loss: {final_val_loss:.4f}, Metrics: "
             f"{final_val_metrics}"
         )
@@ -616,7 +618,7 @@ def _execute_training_and_validation(
         )
         if is_best:
             best_metric_value = current_monitor_metric
-            log.info(
+            logger.info(
                 f"New best "
                 f"{args.cfg_training.checkpoints.save_best.monitor_metric}: "
                 f"{best_metric_value:.4f}"
@@ -690,7 +692,7 @@ def _execute_training_and_validation(
                 args.model, args.optimizer, epoch, checkpoint_config
             )
 
-    log.info("Training finished.")
+    logger.info("Training finished.")
     return (
         best_metric_value,
         final_train_loss,
@@ -705,7 +707,7 @@ def _evaluate_model_on_test_set(
     test_loader: DataLoader[Any],
 ) -> tuple[float, dict[str, float], str]:
     """Loads the specified model and evaluates it on the test set."""
-    log.info(
+    logger.info(
         f"Loading model '{args.cfg_model_to_load}' for test evaluation..."
     )
     model_path = args.checkpoints_dir / args.cfg_model_to_load
@@ -716,12 +718,12 @@ def _evaluate_model_on_test_set(
             checkpoint_path=str(model_path),
             device=args.device,
         )
-        log.info(f"Model loaded from: {model_path}")
-        log.info(
+        logger.info(f"Model loaded from: {model_path}")
+        logger.info(
             f"Model from epoch: {checkpoint_data.get('epoch', 'unknown')}"
         )
     else:
-        log.warning(
+        logger.warning(
             f"Checkpoint not found at {model_path}. Evaluating with current "
             "model state."
         )
@@ -758,7 +760,7 @@ def _evaluate_model_on_test_set(
         k: v / len(test_loader) for k, v in current_test_metrics.items()
     }
 
-    log.info(
+    logger.info(
         f"Test Loss: {final_test_loss:.4f}, Metrics: {final_test_metrics}"
     )
     args.experiment_logger.log_scalar(
@@ -768,7 +770,7 @@ def _evaluate_model_on_test_set(
         args.experiment_logger.log_scalar(f"test/{k}", v, 0)
 
     if sample_images:
-        log.info("Generating visualizations...")
+        logger.info("Generating visualizations...")
         visualize_results(
             sample_images[:4],
             sample_masks[:4],
@@ -801,7 +803,7 @@ def _finalize_and_save_results(args: FinalResultsData):
     )  # Ensure metrics_dir exists
     with open(results_path, "w") as f:
         yaml.dump(final_results_data, f, default_flow_style=False)
-    log.info(f"Final results saved to {results_path}")
+    logger.info(f"Final results saved to {results_path}")
     return final_results_data
 
 
@@ -891,15 +893,15 @@ def run_e2e_test() -> tuple[Any, Any]:
         # 6. Finalize and Save Results
         results_final = _finalize_and_save_results(results_args)
 
-        log.info("End-to-end test completed successfully.")
+        logger.info("End-to-end test completed successfully.")
 
     except Exception as e:
-        log.exception(f"Error during end-to-end test: {str(e)}")
+        logger.exception(f"Error during end-to-end test: {str(e)}")
         raise
     finally:
         if experiment_logger_instance:
             experiment_logger_instance.close()
-        log.info("Resources released.")
+        logger.info("Resources released.")
 
     return exp_dir_final, results_final
 

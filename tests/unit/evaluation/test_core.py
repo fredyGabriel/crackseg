@@ -3,7 +3,7 @@ import torch
 from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset
 
-from src.evaluation.core import evaluate_model
+from crackseg.evaluation.core import evaluate_model
 
 
 def test_evaluate_model_empty_dataloader():

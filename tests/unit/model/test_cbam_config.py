@@ -2,8 +2,8 @@ import pytest
 from omegaconf import OmegaConf
 from torch import nn
 
-from src.model.components.cbam import CBAM
-from src.model.factory.factory import insert_cbam_if_enabled
+from crackseg.model.components.cbam import CBAM
+from crackseg.model.factory.factory import insert_cbam_if_enabled
 
 
 def test_cbam_enabled_in_config():

@@ -6,15 +6,20 @@ import torch
 from torch import nn
 
 # Import DecoderBase and the decoder implementation
-from src.model import BottleneckBase, DecoderBase, EncoderBase, UNetBase
+from crackseg.model import (
+    BottleneckBase,
+    DecoderBase,
+    EncoderBase,
+    UNetBase,
+)
 
 # Import the component to be tested
 # Import CNNConvLSTMUNet and the UNetBase
-from src.model.architectures.cnn_convlstm_unet import (
+from crackseg.model.architectures.cnn_convlstm_unet import (
     CNNConvLSTMUNet,
     CNNEncoder,
 )
-from src.model.decoder.cnn_decoder import CNNDecoder
+from crackseg.model.decoder.cnn_decoder import CNNDecoder
 
 log = logging.getLogger(__name__)
 

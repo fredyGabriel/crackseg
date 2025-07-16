@@ -3,7 +3,7 @@ import torch
 from torch import nn
 from torch.cuda.amp import GradScaler
 
-from src.data.memory import (
+from crackseg.data.memory import (
     calculate_gradient_accumulation_steps,
     enable_mixed_precision,
     estimate_batch_size,

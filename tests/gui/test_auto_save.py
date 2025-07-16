@@ -10,13 +10,13 @@ from unittest.mock import Mock, patch
 
 import streamlit as st
 
-from scripts.gui.components.auto_save_manager import (
+from gui.components.auto_save_manager import (
     AutoSaveManagerComponent,
     create_auto_save_manager,
     get_global_auto_save_manager,
     integrate_auto_save_with_page,
 )
-from scripts.gui.utils.auto_save import (
+from gui.utils.auto_save import (
     AutoSaveConfig,
     AutoSaveManager,
     AutoSaveUI,

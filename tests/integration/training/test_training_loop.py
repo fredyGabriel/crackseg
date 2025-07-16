@@ -9,9 +9,9 @@ from omegaconf import OmegaConf
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
 
-from src.training.losses import BCEDiceLoss
-from src.training.metrics import F1Score, IoUScore
-from src.training.trainer import Trainer, TrainingComponents
+from crackseg.training.losses import BCEDiceLoss
+from crackseg.training.metrics import F1Score, IoUScore
+from crackseg.training.trainer import Trainer, TrainingComponents
 
 
 class SimpleSegmentationModel(nn.Module):

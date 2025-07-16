@@ -2,7 +2,7 @@ from typing import Any
 
 import torch
 
-from src.model.encoder.swin_transformer_encoder import (
+from crackseg.model.encoder.swin_transformer_encoder import (
     SwinTransformerEncoder,
     SwinTransformerEncoderConfig,
 )

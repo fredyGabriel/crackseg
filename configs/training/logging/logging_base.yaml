@@ -11,7 +11,7 @@ type: tensorboard
 
 # Base directory for logger outputs (relative to Hydra's run directory)
 # Specific loggers might create subdirectories within this.
-log_dir: "${hydra.run.dir}/outputs/logs/${logging.type}/" # Example: outputs/.../logs/tensorboard/
+log_dir: "${hydra.run.dir}/logs/${logging.type}/" # Example: outputs/.../logs/tensorboard/
 
 # Frequency of logging (to be interpreted by the Trainer)
 log_interval_batches: 50 # Log every N batches (0 to disable batch logging)
@@ -37,13 +37,15 @@ tensorboard:
 
 # --- WandB Specific Settings (only used if type is wandb) ---
 wandb:
-  project: "crack_segmentation" # Default project name
-  entity: null # Your WandB entity (username or team)
-  log_model: false # Whether to log model checkpoints to WandB
-  # Add other WandB settings
-  pass # Placeholder
+  _target_: pytorch_lightning.loggers.WandbLogger
+  name: "${hydra.job.name}"
+  project: "crackseg-experiments"
+  log_model: False
+  prefix: ""
+  # The log_dir should be relative to the hydra run directory
+  log_dir: "${hydra.run.dir}/logs/${logging.type}/" # Example: outputs/.../logs/tensorboard/
 
 # --- MLflow Specific Settings (only used if type is mlflow) ---
 mlflow:
   # Add MLflow settings like tracking_uri, experiment_name etc.
-  pass # Placeholder 
+  pass # Placeholder

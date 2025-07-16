@@ -1,6 +1,6 @@
 from unittest import mock
 
-import src.data.distributed as dist
+import crackseg.data.distributed as dist
 
 
 def test_is_distributed_available_and_initialized_true():

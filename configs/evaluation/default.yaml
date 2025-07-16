@@ -34,7 +34,9 @@ metrics:
   #   threshold: 0.6
 
 save_predictions: true         # Whether to save predicted masks during evaluation
-save_dir: "eval_outputs/"      # Directory to save evaluation outputs (predictions, metrics, etc.)
+# Directory for saving evaluation results (metrics, predictions, visualizations)
+# This can be an absolute path or relative to the project root.
+save_dir: "artifacts/evaluation_outputs/"      # Directory to save evaluation outputs (predictions, metrics, etc.)
 
 # Visualization settings during evaluation
 num_batches_visualize: 2

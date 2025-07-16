@@ -14,7 +14,7 @@ import pytest
 import torch
 import torch.nn as nn
 
-from src.training.losses.combinators.base_combinator import (
+from crackseg.training.losses.combinators.base_combinator import (
     CombinatorFactory,
     NumericalStabilityError,
     ValidationError,
@@ -22,15 +22,17 @@ from src.training.losses.combinators.base_combinator import (
     normalize_weights,
     validate_component_compatibility,
 )
-from src.training.losses.combinators.enhanced_product import (
+from crackseg.training.losses.combinators.enhanced_product import (
     EnhancedProductCombinator,
     create_product_combinator,
 )
-from src.training.losses.combinators.enhanced_weighted_sum import (
+from crackseg.training.losses.combinators.enhanced_weighted_sum import (
     EnhancedWeightedSumCombinator,
     create_weighted_sum_combinator,
 )
-from src.training.losses.interfaces.loss_interface import ILossComponent
+from crackseg.training.losses.interfaces.loss_interface import (
+    ILossComponent,
+)
 
 
 class MockLossComponent(nn.Module, ILossComponent):

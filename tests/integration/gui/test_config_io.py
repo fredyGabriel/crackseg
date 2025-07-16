@@ -4,7 +4,7 @@ Test script for config_io module functionality.
 
 from pathlib import Path
 
-from scripts.gui.utils.config_io import (
+from gui.utils.config_io import (
     ConfigError,
     get_config_metadata,
     load_config_file,

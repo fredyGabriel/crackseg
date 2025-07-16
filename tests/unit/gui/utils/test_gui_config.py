@@ -1,4 +1,4 @@
-from scripts.gui.utils.gui_config import PAGE_CONFIG
+from gui.utils.gui_config import PAGE_CONFIG
 
 
 def test_page_config_exists() -> None:

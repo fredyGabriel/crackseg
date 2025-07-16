@@ -16,7 +16,7 @@ from hydra.core.global_hydra import GlobalHydra
 sys.path.append(os.getcwd())
 
 # Import project modules after adding to path
-from src.model.factory import create_unet  # noqa
+from crackseg.model.factory import create_unet  # noqa
 
 
 def main() -> None:

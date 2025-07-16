@@ -9,15 +9,25 @@ from typing import Any
 import pytest
 import torch
 
-from src.training.losses.combinators.product import ProductCombinator
-from src.training.losses.combinators.weighted_sum import WeightedSumCombinator
-from src.training.losses.factory.config_parser import ConfigParsingError
-from src.training.losses.factory.config_validator import ConfigValidator
-from src.training.losses.factory.recursive_factory import RecursiveLossFactory
+from crackseg.training.losses.combinators.product import ProductCombinator
+from crackseg.training.losses.combinators.weighted_sum import (
+    WeightedSumCombinator,
+)
+from crackseg.training.losses.factory.config_parser import (
+    ConfigParsingError,
+)
+from crackseg.training.losses.factory.config_validator import (
+    ConfigValidator,
+)
+from crackseg.training.losses.factory.recursive_factory import (
+    RecursiveLossFactory,
+)
 
-# Import only loss-related modules to avoid circular dependencies from model
+# Import only loss-related modules to avoid circular dependencies from crackseg.model
 # components
-from src.training.losses.registry.clean_registry import CleanLossRegistry
+from crackseg.training.losses.registry.clean_registry import (
+    CleanLossRegistry,
+)
 
 
 @pytest.fixture

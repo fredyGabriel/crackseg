@@ -2,8 +2,8 @@ import pytest
 import torch
 from torch import nn
 
-from src.model import BottleneckBase
-from src.model.components.aspp import ASPPModule
+from crackseg.model import BottleneckBase
+from crackseg.model.components.aspp import ASPPModule
 
 # Constants (replace with config values if available)
 IN_CHANNELS_1 = 32

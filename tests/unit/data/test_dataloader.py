@@ -2,7 +2,7 @@ import pytest
 import torch
 from torch.utils.data import Dataset
 
-from src.data.dataloader import create_dataloader
+from crackseg.data.dataloader import create_dataloader
 
 
 class DummyDataset(Dataset[torch.Tensor]):

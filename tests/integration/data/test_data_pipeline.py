@@ -5,7 +5,7 @@ import torch
 from numpy.typing import NDArray
 from torch.utils.data import DataLoader, Dataset
 
-from src.data import transforms as tr
+from crackseg.data import transforms as tr
 
 
 class DummySegmentationDataset(Dataset[tuple[torch.Tensor, torch.Tensor]]):

@@ -4,7 +4,7 @@ from typing import Any
 import pytest
 import yaml
 
-from src.evaluation.results import save_evaluation_results
+from crackseg.evaluation.results import save_evaluation_results
 
 
 def test_save_evaluation_results_unwritable_dir(

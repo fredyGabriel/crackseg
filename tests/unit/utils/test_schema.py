@@ -1,7 +1,7 @@
 # ruff: noqa: PLR2004
 import pytest
 
-from src.utils.config.schema import (
+from crackseg.utils.config.schema import (
     BCELossConfig,
     CombinedLossConfig,
     CombinedLossItemConfig,
@@ -40,7 +40,7 @@ def test_model_config_instantiation():
 def test_training_config_instantiation():
     """Test TrainingConfig instantiation with nested OptimizerConfig and
     LossConfig."""
-    from src.utils.config.schema import (
+    from crackseg.utils.config.schema import (
         LossConfig,
         MetricConfig,
         OptimizerConfig,
@@ -71,7 +71,7 @@ def test_config_schema_instantiation():
     model = ModelConfig(
         type="unet", in_channels=3, out_channels=1, features=[16, 32, 64]
     )
-    from src.utils.config.schema import (
+    from crackseg.utils.config.schema import (
         LossConfig,
         MetricConfig,
         OptimizerConfig,

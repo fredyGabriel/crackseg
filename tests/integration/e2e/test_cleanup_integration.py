@@ -69,7 +69,7 @@ class TestCleanupSystemIntegration:
         # Create test snapshots
         import time
 
-        from src.utils.monitoring import ResourceSnapshot
+        from crackseg.utils.monitoring import ResourceSnapshot
 
         baseline = ResourceSnapshot(
             timestamp=time.time(),
@@ -132,7 +132,7 @@ class TestCleanupSystemIntegration:
         # Create test snapshots with resource leak
         import time
 
-        from src.utils.monitoring import ResourceSnapshot
+        from crackseg.utils.monitoring import ResourceSnapshot
 
         baseline = ResourceSnapshot(
             timestamp=time.time(),

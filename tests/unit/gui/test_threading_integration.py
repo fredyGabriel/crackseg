@@ -16,13 +16,13 @@ from unittest.mock import patch
 
 import pytest
 
-from scripts.gui.utils.run_manager import (
+from gui.utils.run_manager import (
     cleanup_ui_wrapper,
     execute_training_async,
     execute_with_progress,
     get_ui_wrapper,
 )
-from scripts.gui.utils.threading import (
+from gui.utils.threading import (
     CancellationToken,
     ProgressUpdate,
     TaskStatus,

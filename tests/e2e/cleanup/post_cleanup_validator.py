@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from src.utils.monitoring import ResourceSnapshot
+from crackseg.utils.monitoring import ResourceSnapshot
 
 logger = logging.getLogger(__name__)
 

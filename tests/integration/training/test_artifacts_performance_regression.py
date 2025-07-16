@@ -18,9 +18,11 @@ import torch
 import yaml
 from omegaconf import DictConfig, OmegaConf
 
-from src.training.trainer import Trainer, TrainingComponents
-from src.utils.checkpointing import load_checkpoint
-from src.utils.config.standardized_storage import StandardizedConfigStorage
+from crackseg.training.trainer import Trainer, TrainingComponents
+from crackseg.utils.checkpointing import load_checkpoint
+from crackseg.utils.config.standardized_storage import (
+    StandardizedConfigStorage,
+)
 
 
 @pytest.fixture

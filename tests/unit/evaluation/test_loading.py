@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 import torch
 
-from src.evaluation.loading import load_model_from_checkpoint
+from crackseg.evaluation.loading import load_model_from_checkpoint
 
 
 def test_load_model_from_checkpoint_file_not_found():

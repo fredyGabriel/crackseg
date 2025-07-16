@@ -2,8 +2,8 @@
 
 import pytest
 
-from scripts.gui.utils.config.exceptions import ValidationError
-from scripts.gui.utils.config.formatters import (
+from gui.utils.config.exceptions import ValidationError
+from gui.utils.config.formatters import (
     format_validation_report,
     get_validation_suggestions,
 )
