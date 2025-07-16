@@ -9,7 +9,10 @@
 
 ## Executive Summary
 
-El análisis de cobertura de tests revela que el proyecto CrackSeg tiene una cobertura del **23%**, lo cual está significativamente por debajo del objetivo mínimo del 80% establecido en las reglas del proyecto. Este reporte identifica las áreas críticas que requieren atención inmediata y proporciona recomendaciones específicas para mejorar la cobertura.
+El análisis de cobertura de tests revela que el proyecto CrackSeg tiene una cobertura del **23%**,
+lo cual está significativamente por debajo del objetivo mínimo del 80% establecido en las reglas del
+proyecto. Este reporte identifica las áreas críticas que requieren atención inmediata y proporciona
+recomendaciones específicas para mejorar la cobertura.
 
 ### Key Findings
 
@@ -396,7 +399,9 @@ El análisis de cobertura de tests revela que el proyecto CrackSeg tiene una cob
 
 ## Conclusion
 
-El proyecto CrackSeg requiere una mejora significativa en la cobertura de tests para alcanzar los estándares de calidad establecidos. Con un enfoque sistemático y priorizado, se puede lograr el objetivo del 80% de cobertura en un período de 6-7 semanas.
+El proyecto CrackSeg requiere una mejora significativa en la cobertura de tests para alcanzar los
+estándares de calidad establecidos. Con un enfoque sistemático y priorizado, se puede lograr el
+objetivo del 80% de cobertura en un período de 6-7 semanas.
 
 **Próximos pasos inmediatos:**
 
@@ -405,4 +410,5 @@ El proyecto CrackSeg requiere una mejora significativa en la cobertura de tests 
 3. Desarrollar tests comprensivos para `src/data/dataset.py`
 4. Establecer métricas de cobertura en CI/CD
 
-La implementación de estos tests no solo mejorará la cobertura, sino que también aumentará la confiabilidad, mantenibilidad y calidad general del proyecto CrackSeg.
+La implementación de estos tests no solo mejorará la cobertura, sino que también aumentará la
+confiabilidad, mantenibilidad y calidad general del proyecto CrackSeg.

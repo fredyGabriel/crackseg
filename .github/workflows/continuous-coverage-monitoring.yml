@@ -1,0 +1,385 @@
+name: Continuous Coverage Monitoring
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    - cron: '0 8 * * *'  # Daily at 8 AM UTC
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Monitoring mode'
+        required: true
+        default: 'analysis'
+        type: choice
+        options:
+          - analysis
+          - monitoring
+          - alerts
+      threshold:
+        description: 'Coverage threshold (%)'
+        required: false
+        default: '80.0'
+        type: string
+      days_history:
+        description: 'Days for trend analysis'
+        required: false
+        default: '30'
+        type: string
+
+env:
+  COVERAGE_TARGET: 80.0
+  PYTHON_VERSION: '3.12'
+  CONDA_ENV: crackseg
+
+jobs:
+  # =============================================================================
+  # Coverage Analysis Job
+  # =============================================================================
+  coverage-analysis:
+    name: Coverage Analysis & Monitoring
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for trend analysis
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov pytest-html pytest-json-report
+
+          # Install additional monitoring dependencies
+          pip install coverage[toml] sqlite3
+
+      - name: 📊 Run Coverage Analysis
+        id: coverage
+        run: |
+          echo "🔍 Starting continuous coverage monitoring..."
+
+          # Determine mode based on trigger
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            MODE="${{ github.event.inputs.mode }}"
+            THRESHOLD="${{ github.event.inputs.threshold }}"
+            DAYS_HISTORY="${{ github.event.inputs.days_history }}"
+          elif [[ "${{ github.event_name }}" == "schedule" ]]; then
+            MODE="monitoring"
+            THRESHOLD="80.0"
+            DAYS_HISTORY="30"
+          else
+            MODE="analysis"
+            THRESHOLD="80.0"
+            DAYS_HISTORY="7"
+          fi
+
+          echo "Mode: $MODE, Threshold: $THRESHOLD, Days: $DAYS_HISTORY"
+
+          # Run continuous coverage monitoring
+          python scripts/monitoring/continuous_coverage.py \
+            --mode "$MODE" \
+            --threshold "$THRESHOLD" \
+            --ci-mode \
+            --verbose \
+            --days-history "$DAYS_HISTORY" \
+            --output-dir test-results/coverage_monitoring
+
+          # Capture exit code
+          COVERAGE_EXIT_CODE=$?
+          echo "coverage_exit_code=$COVERAGE_EXIT_CODE" >> $GITHUB_OUTPUT
+
+          # Extract coverage percentage for badge
+          if [[ -f "test-results/coverage_monitoring/coverage.env" ]]; then
+            source test-results/coverage_monitoring/coverage.env
+            echo "coverage_percentage=$COVERAGE_PERCENTAGE" >> $GITHUB_OUTPUT
+            echo "coverage_status=$COVERAGE_STATUS" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 📈 Generate Coverage Trends
+        if: always()
+        run: |
+          echo "📈 Generating coverage trend analysis..."
+
+          # Run trend analysis if not already done
+          if [[ "${{ steps.coverage.outputs.coverage_exit_code }}" != "0" ]] || [[ ! -f "test-results/coverage_monitoring/monitoring_summary.json" ]]; then
+            python scripts/monitoring/continuous_coverage.py \
+              --mode monitoring \
+              --threshold 80.0 \
+              --ci-mode \
+              --days-history 30 \
+              --output-dir test-results/coverage_monitoring \
+              --no-alerts
+          fi
+
+      - name: 💾 Archive Coverage Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-monitoring-reports
+          path: |
+            test-results/coverage_monitoring/
+            htmlcov/
+            coverage.xml
+            coverage.json
+          retention-days: 30
+
+      - name: 📊 Upload Coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
+          flags: continuous-monitoring
+          name: continuous-coverage-monitoring
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: 💬 Update PR Comment
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'test-results/coverage_monitoring/coverage_summary.md';
+
+            if (fs.existsSync(path)) {
+              const coverage_summary = fs.readFileSync(path, 'utf8');
+
+              // Find existing comment
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+              });
+
+              const botComment = comments.find(comment =>
+                comment.user.type === 'Bot' &&
+                comment.body.includes('Coverage Report')
+              );
+
+              const comment_body = `${coverage_summary}\n\n*Updated: ${new Date().toISOString()}*`;
+
+              if (botComment) {
+                // Update existing comment
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: comment_body
+                });
+              } else {
+                // Create new comment
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: context.issue.number,
+                  body: comment_body
+                });
+              }
+            }
+
+      - name: 🚨 Coverage Alert Check
+        if: always()
+        run: |
+          # Check if coverage alerts were triggered
+          if [[ -d "test-results/coverage_monitoring/alerts" ]]; then
+            alert_count=$(ls test-results/coverage_monitoring/alerts/*.json 2>/dev/null | wc -l)
+            if [[ $alert_count -gt 0 ]]; then
+              echo "⚠️ Coverage alerts detected: $alert_count alerts"
+              echo "Check uploaded artifacts for alert details"
+            fi
+          fi
+
+          # Set job status based on coverage results
+          if [[ "${{ steps.coverage.outputs.coverage_exit_code }}" != "0" ]]; then
+            echo "❌ Coverage monitoring failed or threshold not met"
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              echo "::error::Coverage below target threshold"
+              exit 1
+            fi
+          else
+            echo "✅ Coverage monitoring completed successfully"
+          fi
+
+  # =============================================================================
+  # Historical Data Management Job
+  # =============================================================================
+  manage-historical-data:
+    name: Manage Historical Coverage Data
+    runs-on: ubuntu-latest
+    needs: coverage-analysis
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    timeout-minutes: 10
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📥 Download Coverage Data
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-monitoring-reports
+          path: coverage-reports/
+
+      - name: 💾 Store Historical Data
+        run: |
+          echo "💾 Managing historical coverage data..."
+
+          # Create historical data directory if it doesn't exist
+          mkdir -p .github/data/coverage/
+
+          # Copy database to persistent location
+          if [[ -f "coverage-reports/coverage_history.db" ]]; then
+            cp coverage-reports/coverage_history.db .github/data/coverage/
+            echo "Historical database updated"
+          fi
+
+          # Archive monthly summaries
+          current_month=$(date +%Y-%m)
+          if [[ -f "coverage-reports/ci_summary.json" ]]; then
+            cp coverage-reports/ci_summary.json ".github/data/coverage/summary_${current_month}.json"
+            echo "Monthly summary archived"
+          fi
+
+      - name: 📤 Commit Historical Data
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          if [[ -n "$(git status --porcelain .github/data/coverage/)" ]]; then
+            git add .github/data/coverage/
+            git commit -m "chore: Update coverage historical data [skip ci]"
+            git push
+            echo "Historical data committed successfully"
+          else
+            echo "No changes to historical data"
+          fi
+
+  # =============================================================================
+  # Notification Job
+  # =============================================================================
+  send-notifications:
+    name: Send Coverage Notifications
+    runs-on: ubuntu-latest
+    needs: coverage-analysis
+    if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+    timeout-minutes: 5
+
+    steps:
+      - name: 📥 Download Coverage Data
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-monitoring-reports
+          path: coverage-reports/
+
+      - name: 📧 Process Notifications
+        run: |
+          echo "📧 Processing coverage notifications..."
+
+          # Check for alerts
+          alert_count=0
+          if [[ -d "coverage-reports/alerts" ]]; then
+            alert_count=$(ls coverage-reports/alerts/*.json 2>/dev/null | wc -l)
+          fi
+
+          if [[ $alert_count -gt 0 ]]; then
+            echo "⚠️ $alert_count coverage alerts detected"
+
+            # Create notification summary
+            echo "Coverage Alert Summary:" > notification.txt
+            echo "======================" >> notification.txt
+            echo "Repository: ${{ github.repository }}" >> notification.txt
+            echo "Branch: ${{ github.ref_name }}" >> notification.txt
+            echo "Commit: ${{ github.sha }}" >> notification.txt
+            echo "Alert Count: $alert_count" >> notification.txt
+            echo "Timestamp: $(date -u)" >> notification.txt
+            echo "" >> notification.txt
+
+            # Add alert details
+            for alert_file in coverage-reports/alerts/*.json; do
+              if [[ -f "$alert_file" ]]; then
+                echo "Alert: $(basename "$alert_file")" >> notification.txt
+                jq -r '.message' "$alert_file" >> notification.txt
+                echo "" >> notification.txt
+              fi
+            done
+
+            cat notification.txt
+          else
+            echo "✅ No coverage alerts detected"
+          fi
+
+      - name: 📊 Coverage Status Summary
+        run: |
+          echo "📊 Coverage Status Summary"
+          echo "========================="
+
+          if [[ -f "coverage-reports/ci_summary.json" ]]; then
+            # Extract key metrics
+            COVERAGE=$(jq -r '.metrics.coverage' coverage-reports/ci_summary.json)
+            TARGET=$(jq -r '.metrics.target' coverage-reports/ci_summary.json)
+            STATUS=$(jq -r '.alerts.threshold_met' coverage-reports/ci_summary.json)
+
+            echo "Current Coverage: $COVERAGE%"
+            echo "Target Coverage: $TARGET%"
+            echo "Status: $(if [[ "$STATUS" == "true" ]]; then echo "✅ PASS"; else echo "❌ FAIL"; fi)"
+
+            # Set GitHub environment for potential downstream jobs
+            echo "COVERAGE_CURRENT=$COVERAGE" >> $GITHUB_ENV
+            echo "COVERAGE_TARGET=$TARGET" >> $GITHUB_ENV
+            echo "COVERAGE_STATUS=$STATUS" >> $GITHUB_ENV
+          fi
+
+  # =============================================================================
+  # Cleanup Job
+  # =============================================================================
+  cleanup:
+    name: Cleanup Old Artifacts
+    runs-on: ubuntu-latest
+    needs: [coverage-analysis, manage-historical-data]
+    if: always() && github.ref == 'refs/heads/main'
+    timeout-minutes: 5
+
+    steps:
+      - name: 🧹 Cleanup Old Artifacts
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Clean up old coverage monitoring artifacts (keep last 10)
+            const { data: artifacts } = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+
+            const coverageArtifacts = artifacts.artifacts
+              .filter(artifact => artifact.name.includes('coverage-monitoring'))
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            // Keep the 10 most recent, delete the rest
+            const artifactsToDelete = coverageArtifacts.slice(10);
+
+            for (const artifact of artifactsToDelete) {
+              try {
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id
+                });
+                console.log(`Deleted artifact: ${artifact.name} (${artifact.created_at})`);
+              } catch (error) {
+                console.error(`Failed to delete artifact ${artifact.id}: ${error.message}`);
+              }
+            }
+
+            console.log(`Cleanup completed. Deleted ${artifactsToDelete.length} old artifacts.`);

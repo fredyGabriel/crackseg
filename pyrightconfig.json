@@ -21,6 +21,71 @@
             "reportMissingParameterType": "none"
         },
         {
+            "root": "tests/unit/gui/test_essential_coverage.py",
+            "reportUnknownMemberType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportMissingParameterType": "none",
+            "reportMissingImports": "none"
+        },
+        {
+            "root": "tests/unit/gui/test_tensorboard_coverage.py",
+            "reportUnknownMemberType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportMissingParameterType": "none",
+            "reportMissingImports": "none"
+        },
+        {
+            "root": "tests/e2e/config/pytest_markers.py",
+            "reportUnknownMemberType": "none",
+            "reportUnknownVariableType": "none",
+            "reportMissingImports": "none"
+        },
+        {
+            "root": "tests/utils/gui_testing_framework.py",
+            "reportUnknownMemberType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportReturnType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportMissingImports": "none"
+        },
+        {
+            "root": "tests/utils/streamlit_test_helpers.py",
+            "reportUnknownMemberType": "none",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportReturnType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportUnknownLambdaType": "none",
+            "reportInvalidTypeForm": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportMissingImports": "none"
+        },
+        {
+            "root": "tests/utils/visual_testing_framework.py",
+            "reportUnknownMemberType": "none",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportIndexIssue": "none",
+            "reportCallIssue": "none",
+            "reportArgumentType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportMissingImports": "none"
+        },
+        {
+            "root": "tests/examples/enhanced_gui_testing_demo.py",
+            "reportUnknownVariableType": "none",
+            "reportUntypedFunctionDecorator": "none",
+            "reportReturnType": "none",
+            "reportUnknownMemberType": "none",
+            "reportMissingImports": "none",
+            "reportUnknownArgumentType": "none"
+        },
+        {
             "root": ".",
             "reportCallIssue": "error",
             "reportAttributeAccessIssue": "error"

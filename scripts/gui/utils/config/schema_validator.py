@@ -327,11 +327,14 @@ class CrackSegSchemaValidator:
             if section not in config:
                 errors.append(
                     ValidationError(
-                        message=f"Missing required configuration section: '{section}'",
+                        message=(
+                            "Missing required configuration section: "
+                            f"'{section}'"
+                        ),
                         field=section,
                         suggestions=[
-                            f"Add '{section}:' section to your configuration",
-                            f"See template configs in configs/{section}/",
+                            f"Add the '{section}' key to your configuration "
+                            "file."
                         ],
                     )
                 )
@@ -384,7 +387,8 @@ class CrackSegSchemaValidator:
                     message=f"Unknown architecture: '{architecture}'",
                     field="model.architecture",
                     suggestions=[
-                        f"Use one of: {', '.join(sorted(self.valid_architectures))}",
+                        "Use one of: "
+                        f"{', '.join(sorted(self.valid_architectures))}",
                         "Check configs/model/architectures/ for examples",
                     ],
                 )
@@ -409,7 +413,8 @@ class CrackSegSchemaValidator:
                     message=f"Unknown encoder: '{encoder}'",
                     field="model.encoder",
                     suggestions=[
-                        f"Use one of: {', '.join(sorted(self.valid_encoders))}",
+                        "Use one of: "
+                        f"{', '.join(sorted(self.valid_encoders))}",
                         "Check configs/model/encoder/ for examples",
                     ],
                 )
@@ -434,7 +439,8 @@ class CrackSegSchemaValidator:
                     message=f"Unknown decoder: '{decoder}'",
                     field="model.decoder",
                     suggestions=[
-                        f"Use one of: {', '.join(sorted(self.valid_decoders))}",
+                        "Use one of: "
+                        f"{', '.join(sorted(self.valid_decoders))}",
                         "Check configs/model/decoder/ for examples",
                     ],
                 )
@@ -462,11 +468,16 @@ class CrackSegSchemaValidator:
             ):
                 errors.append(
                     ValidationError(
-                        message=f"Incompatible combination: {architecture} with {encoder}",
+                        message=(
+                            f"Incompatible combination: {architecture} with "
+                            f"{encoder}"
+                        ),
                         field="model",
                         suggestions=[
-                            f"Use {incompatible_arch} with CNN or EfficientNet encoders",
-                            f"Use {incompatible_enc} with U-Net or DeepLabV3+ architectures",
+                            f"Use {incompatible_arch} with CNN or EfficientNet"
+                            " encoders",
+                            f"Use {incompatible_enc} with U-Net or DeepLabV3+ "
+                            "architectures",
                         ],
                     )
                 )
@@ -481,7 +492,7 @@ class CrackSegSchemaValidator:
             if architecture == heavy_arch and encoder == heavy_enc:
                 warnings.append(
                     f"Performance warning: {architecture} + {encoder} "
-                    f"may exceed RTX 3070 Ti VRAM limits with large batch sizes"
+                    "may exceed RTX 3070 Ti VRAM limits with large batch sizes"
                 )
 
         return errors, warnings
@@ -505,8 +516,8 @@ class CrackSegSchemaValidator:
                 )
             elif num_classes != 1:
                 warnings.append(
-                    "CrackSeg is designed for binary segmentation (num_classes=1). "
-                    "Verify your configuration is correct."
+                    "CrackSeg is designed for binary segmentation "
+                    "(num_classes=1). Verify your configuration is correct."
                 )
 
         # Validate input_channels
@@ -521,10 +532,9 @@ class CrackSegSchemaValidator:
                 )
             elif input_channels != 3:
                 warnings.append(
-                    "Most crack segmentation models expect RGB input (input_channels=3). "
-                    "Verify your data format."
+                    "Most crack segmentation models expect RGB input "
+                    "(input_channels=3). Verify your data format."
                 )
-
         return errors, warnings
 
     def _validate_training_parameters(
@@ -546,8 +556,8 @@ class CrackSegSchemaValidator:
                 )
             elif epochs < 10:
                 warnings.append(
-                    f"Training for only {epochs} epochs may be insufficient for "
-                    f"crack segmentation convergence"
+                    f"Training for only {epochs} epochs may be insufficient "
+                    "for crack segmentation convergence"
                 )
 
         # Validate learning_rate
@@ -582,7 +592,8 @@ class CrackSegSchemaValidator:
                         message=f"Unknown optimizer: '{optimizer}'",
                         field="training.optimizer",
                         suggestions=[
-                            f"Use one of: {', '.join(sorted(self.valid_optimizers))}"
+                            "Use one of: "
+                            f"{', '.join(sorted(self.valid_optimizers))}"
                         ],
                     )
                 )
@@ -611,7 +622,8 @@ class CrackSegSchemaValidator:
                         message=f"Unknown scheduler: '{scheduler}'",
                         field="training.scheduler",
                         suggestions=[
-                            f"Use one of: {', '.join(sorted(self.valid_schedulers))}"
+                            "Use one of: "
+                            f"{', '.join(sorted(self.valid_schedulers))}"
                         ],
                     )
                 )
@@ -629,7 +641,8 @@ class CrackSegSchemaValidator:
                         message=f"Unknown loss function: '{loss_config}'",
                         field="training.loss",
                         suggestions=[
-                            f"Use one of: {', '.join(sorted(self.valid_loss_functions))}"
+                            "Use one of: "
+                            f"{', '.join(sorted(self.valid_loss_functions))}"
                         ],
                     )
                 )
@@ -668,13 +681,15 @@ class CrackSegSchemaValidator:
                     limits = batch_size_constraints[size_key]
                     if batch_size > limits["max"]:
                         warnings.append(
-                            f"Batch size {batch_size} may exceed RTX 3070 Ti VRAM "
-                            f"for {size_key} images. Max recommended: {limits['max']}"
+                            f"Batch size {batch_size} may exceed RTX 3070 Ti "
+                            f"VRAM for {size_key} images. Max recommended: "
+                            f"{limits['max']}"
                         )
                     elif batch_size > limits["recommended"]:
                         warnings.append(
-                            f"Batch size {batch_size} is above recommended value "
-                            f"for {size_key} images. Recommended: {limits['recommended']}"
+                            f"Batch size {batch_size} is above recommended "
+                            f"for {size_key} images. Recommended: "
+                            f"{limits['recommended']}"
                         )
 
         return warnings
@@ -692,7 +707,10 @@ class CrackSegSchemaValidator:
             if not isinstance(image_size, list) or len(image_size) != 2:
                 errors.append(
                     ValidationError(
-                        message="image_size must be a list of two integers [height, width]",
+                        message=(
+                            "image_size must be a list of two integers "
+                            "[height, width]"
+                        ),
                         field="data.image_size",
                     )
                 )
@@ -732,8 +750,9 @@ class CrackSegSchemaValidator:
                     limit = rotation.get("limit", 0)
                     if limit > 45:
                         warnings.append(
-                            f"Rotation augmentation limit {limit}° may be too aggressive "
-                            f"for crack detection. Consider limiting to 15-30°"
+                            f"Rotation augmentation limit {limit}° may be too "
+                            "aggressive for crack detection. Consider limiting"
+                            " to 15-30°"
                         )
 
         return warnings
@@ -751,8 +770,8 @@ class CrackSegSchemaValidator:
 
         if training_batch and data_batch and training_batch != data_batch:
             warnings.append(
-                f"Batch size mismatch: training={training_batch}, data={data_batch}. "
-                f"Data batch size will be used."
+                f"Batch size mismatch: training={training_batch}, "
+                f"data={data_batch}. Data batch size will be used."
             )
 
         return errors, warnings

@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 from tests.integration.gui.automation.reporting.export_manager import (
-    ExportManager,
+    MultiFormatExportManager as ExportManager,
 )
 
 
@@ -184,7 +184,7 @@ class TestExportManager:
         self, export_manager: ExportManager, tmp_path: Path
     ) -> None:
         """Test export with empty data."""
-        empty_data = {}
+        empty_data: dict[str, Any] = {}
         result = export_manager.export_report(
             empty_data, format="json", output_dir=tmp_path
         )
@@ -316,7 +316,7 @@ class TestExportManager:
     ) -> None:
         """Test concurrent export operations."""
         # Simulate concurrent exports
-        results = []
+        results: list[dict[str, Any]] = []
         for i in range(3):
             result = export_manager.export_report(
                 sample_report_data,

@@ -5,14 +5,16 @@ Provides functionality to register, retrieve, and list available components
 using a decorator pattern. Ensures type safety with generics.
 """
 
+from __future__ import annotations
+
 import threading
 from collections.abc import Callable
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
 T = TypeVar("T")
 
 
-class Registry(Generic[T]):
+class Registry[T]:
     """
     Thread-safe registry for model components with type safety.
 

@@ -175,6 +175,7 @@ jobs:
             --cov=src \
             --cov=scripts/gui \
             --cov-report=xml \
+            --cov-report=json:coverage.json \
             --cov-report=term-missing \
             --cov-fail-under=80
           if [ $? -ne 0 ]; then
@@ -190,3 +191,96 @@ jobs:
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
+
+      - name: Comment on PR with Coverage Report
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const coverage = JSON.parse(fs.readFileSync('coverage.json', 'utf8'));
+            const total_coverage = coverage.totals.percent_covered_display;
+            const threshold = 80;
+            const status = total_coverage >= threshold ? '✅' : '❌';
+
+            const body = `
+            ## 📊 Test Coverage Report
+
+            | Metric          | Result        |
+            |-----------------|---------------|
+            | **Total Coverage** | \`${total_coverage}%\` |
+            | **Threshold**      | \`${threshold}%\`      |
+            | **Status**         | ${status}         |
+
+            *Report generated for commit: ${github.sha}*
+            `;
+
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
+
+      - name: Upload Coverage Reports as Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-reports
+          path: |
+            coverage.xml
+            coverage.json
+
+  performance-benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    needs: [quality-gates-core, quality-gates-gui]
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Conda Environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+
+      - name: 🔬 Run Performance Benchmarks
+        run: |
+          echo "🔬 Running performance benchmarks..."
+          pytest tests/ --benchmark-only --benchmark-json=benchmark_results.json
+          if [ $? -ne 0 ]; then
+            echo "❌ Performance benchmarks failed"
+            exit 1
+          fi
+          echo "✅ Performance benchmarks completed"
+
+      - name: Upload Benchmark Results as Artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-results
+          path: benchmark_results.json
+
+  notify-on-failure:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [quality-gates-core, quality-gates-gui, test-coverage, performance-benchmark]
+    if: failure()
+
+    steps:
+      - name: Send Slack Failure Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "CI Bot"
+          SLACK_ICON_EMOJI: ":x:"
+          SLACK_COLOR: "danger"
+          SLACK_MESSAGE: "A quality gate failed in the '${{ github.ref_name }}' branch. Please review the logs."
+          SLACK_TITLE: "CI Failure Alert"
+          SLACK_FOOTER: "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

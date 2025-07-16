@@ -560,6 +560,6 @@ class TestSampleReportGeneration:
 
         # Validate all exports completed successfully
         assert len(export_results) == 3
-        for format_type, result in export_results.items():
+        for _format_type, result in export_results.items():
             assert Path(result["path"]).exists()
             assert Path(result["path"]).stat().st_size > 0

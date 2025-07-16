@@ -15,7 +15,7 @@
 
 ---
 description: Structural Guide. Minimal structural outline
-globs: 
+globs:
 alwaysApply: false
 ---
 # ===============================================================

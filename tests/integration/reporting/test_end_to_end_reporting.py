@@ -82,7 +82,7 @@ class TestEndToEndReporting:
         assert "csv" in export_results
 
         # Step 3: Validate exported files
-        for format_type, result in export_results.items():
+        for _format_type, result in export_results.items():
             file_path = Path(result["path"])
             assert file_path.exists()
             assert file_path.stat().st_size > 0  # File is not empty
@@ -317,14 +317,14 @@ class TestEndToEndReporting:
         data_sources = metadata.get("data_sources", [])
 
         # Should include data from phases 9.1-9.7
-        expected_phases = [
+        [
             "workflow_scenarios",  # 9.1
             "error_scenarios",  # 9.2
-            "session_state",  # 9.3
+            "state_management",  # 9.3
             "concurrent_operations",  # 9.4
             "automation_metrics",  # 9.5
-            "performance_metrics",  # 9.6
-            "resource_cleanup",  # 9.7
+            "resource_contention",  # 9.6
+            "system_stability",  # 9.7
         ]
 
         # At least some of these phases should be represented
@@ -367,7 +367,9 @@ class TestEndToEndReporting:
         assert "executive_summary" in csv_content
 
     def test_error_recovery_in_workflow(
-        self, reporting_system: IntegrationTestReportingComponent
+        self,
+        reporting_system: IntegrationTestReportingComponent,
+        tmp_path: Path,
     ) -> None:
         """Test error recovery mechanisms in the workflow."""
         config = StakeholderReportConfig(executive_summary=True)
@@ -376,9 +378,22 @@ class TestEndToEndReporting:
         with pytest.raises(Exception):
             # This should raise an exception from the mocked components
             # but demonstrate that the system attempts error recovery
-            reporting_system.generate_comprehensive_report(config)
+            reporting_system.perform_error_recovery_simulation(
+                lambda: reporting_system.get_report_data(config)
+            )
 
-    def test_performance_with_concurrent_requests(
+        # Ensure a partial report can still be generated
+        partial_report_data = reporting_system.get_report_data(
+            config, allow_partial=True
+        )
+        assert "error_summary" in partial_report_data["metadata"]
+
+        # And can be exported
+        reporting_system.export_reports(
+            partial_report_data, formats=["json"], output_dir=tmp_path
+        )
+
+    def test_concurrent_report_generation(
         self,
         reporting_system: IntegrationTestReportingComponent,
         tmp_path: Path,
@@ -407,7 +422,7 @@ class TestEndToEndReporting:
 
         # Run 3 concurrent reports
         threads = []
-        for i in range(3):
+        for _i in range(3):
             thread = threading.Thread(target=generate_report)
             threads.append(thread)
             thread.start()
@@ -439,7 +454,7 @@ class TestEndToEndReporting:
         )
 
         # Verify files were created
-        for format_type, result in export_results.items():
+        for _format_type, result in export_results.items():
             assert Path(result["path"]).exists()
 
         # Test cleanup (if cleanup method exists)
@@ -450,7 +465,7 @@ class TestEndToEndReporting:
             pass
 
         # Verify exported files still exist (they shouldn't be cleaned up)
-        for format_type, result in export_results.items():
+        for _format_type, result in export_results.items():
             assert Path(result["path"]).exists()
 
     def test_metadata_consistency_across_exports(

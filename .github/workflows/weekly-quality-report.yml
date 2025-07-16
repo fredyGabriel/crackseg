@@ -1,0 +1,79 @@
+name: Weekly Quality Report
+
+on:
+  schedule:
+    - cron: '0 8 * * 1' # Runs at 8 AM UTC on Mondays
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  weekly-report:
+    name: Generate Weekly Quality Report
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Conda Environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+
+      - name: Install dependencies for reports
+        run: |
+          pip install radon
+
+      - name: 🧪 Generate Full Coverage Report
+        run: |
+          echo "🧪 Generating full test coverage report..."
+          pytest tests/ --cov=src --cov=scripts/gui --cov-report=html
+          if [ $? -ne 0 ]; then
+            echo "⚠️ Tests failed during weekly report generation. Report may be incomplete."
+          fi
+          echo "✅ HTML coverage report generated"
+
+      - name: 📈 Generate Code Complexity Report
+        run: |
+          echo "📈 Generating code complexity report with radon..."
+          radon cc src scripts/gui -a -s -j > complexity_report.json
+          radon mi src scripts/gui -s -j > maintainability_report.json
+          echo "✅ Code complexity reports generated"
+
+      - name: Upload Weekly Reports as Artifacts
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: weekly-quality-reports-${{ github.run_id }}
+          path: |
+            htmlcov/
+            complexity_report.json
+            maintainability_report.json
+
+      - name: Send Slack Success Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "Quality Bot"
+          SLACK_ICON_EMOJI: ":robot_face:"
+          SLACK_COLOR: "good"
+          SLACK_MESSAGE: "Weekly quality report generation finished successfully."
+          SLACK_TITLE: "Weekly Quality Report"
+          SLACK_FOOTER: "See artifacts for detailed reports."
+        if: success()
+
+      - name: Send Slack Failure Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_USERNAME: "Quality Bot"
+          SLACK_ICON_EMOJI: ":robot_face:"
+          SLACK_COLOR: "danger"
+          SLACK_MESSAGE: "Weekly quality report generation failed."
+          SLACK_TITLE: "Weekly Quality Report - FAILURE"
+          SLACK_FOOTER: "Check the GitHub Actions logs for details."
+        if: failure()

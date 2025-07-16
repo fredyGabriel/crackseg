@@ -8,10 +8,10 @@ within the parallel test execution framework.
 from typing import Any
 
 import pytest
-from _pytest.mark import MarkDecorator
 
 
-def pytest_configure(config: pytest.Config) -> None:
+# MarkDecorator is not part of pytest's public API; use Any for decorators
+def pytest_configure(config: Any) -> None:
     """Register custom markers for parallel execution and performance testing.
 
     Args:
@@ -107,7 +107,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
 
 # Marker helper functions for easier test decoration
-def sequential(reason: str = "Requires sequential execution") -> MarkDecorator:
+def sequential(reason: str = "Requires sequential execution") -> Any:
     """Mark test for sequential execution.
 
     Args:
@@ -119,9 +119,7 @@ def sequential(reason: str = "Requires sequential execution") -> MarkDecorator:
     return pytest.mark.sequential(reason=reason)
 
 
-def parallel(
-    workers: int | None = None, strategy: str | None = None
-) -> MarkDecorator:
+def parallel(workers: int | None = None, strategy: str | None = None) -> Any:
     """Mark test for parallel execution with optional configuration.
 
     Args:
@@ -144,7 +142,7 @@ def performance(
     threshold_seconds: float = 30.0,
     memory_threshold_mb: float = 1024.0,
     regression_check: bool = False,
-) -> MarkDecorator:
+) -> Any:
     """Mark test for performance monitoring.
 
     Args:
@@ -164,7 +162,7 @@ def performance(
 
 def performance_critical(
     threshold_seconds: float = 10.0, strict_monitoring: bool = True
-) -> MarkDecorator:
+) -> Any:
     """Mark test for critical performance monitoring.
 
     Args:
@@ -180,7 +178,7 @@ def performance_critical(
     )
 
 
-def performance_baseline(baseline_name: str) -> MarkDecorator:
+def performance_baseline(baseline_name: str) -> Any:
     """Mark test as performance baseline.
 
     Args:
@@ -194,7 +192,7 @@ def performance_baseline(baseline_name: str) -> MarkDecorator:
 
 def browser_matrix(
     browsers: list[str] | None = None, parallel_browsers: bool = True
-) -> MarkDecorator:
+) -> Any:
     """Mark test for cross-browser matrix execution.
 
     Args:
@@ -214,7 +212,7 @@ def browser_matrix(
 
 def resource_requirement(
     memory_mb: int, cpu_cores: float = 1.0, isolated: bool = False
-) -> MarkDecorator:
+) -> Any:
     """Mark test with specific resource requirements.
 
     Args:
@@ -225,7 +223,7 @@ def resource_requirement(
     Returns:
         Pytest marker decorator
     """
-    markers: list[MarkDecorator] = []
+    markers: list[Any] = []
 
     if memory_mb > 4096:
         markers.append(pytest.mark.high_memory)
@@ -248,7 +246,7 @@ def resource_requirement(
         )
 
 
-def priority(level: str, reason: str = "") -> MarkDecorator:
+def priority(level: str, reason: str = "") -> Any:
     """Mark test with execution priority.
 
     Args:
@@ -266,7 +264,7 @@ def priority(level: str, reason: str = "") -> MarkDecorator:
         return pytest.mark.priority_normal(reason=reason)
 
 
-def environment(env_type: str) -> MarkDecorator:
+def environment(env_type: str) -> Any:
     """Mark test for specific environment.
 
     Args:
@@ -286,7 +284,7 @@ def environment(env_type: str) -> MarkDecorator:
 
 
 # Utility functions for test configuration
-def get_test_markers(item: pytest.Item) -> dict[str, Any]:
+def get_test_markers(item: Any) -> dict[str, Any]:
     """Extract marker information from a test item.
 
     Args:
@@ -306,7 +304,7 @@ def get_test_markers(item: pytest.Item) -> dict[str, Any]:
     return markers_info
 
 
-def should_run_parallel(item: pytest.Item) -> bool:
+def should_run_parallel(item: Any) -> bool:
     """Determine if test should run in parallel based on markers.
 
     Args:
@@ -327,7 +325,7 @@ def should_run_parallel(item: pytest.Item) -> bool:
     return True
 
 
-def get_worker_count_for_test(item: pytest.Item) -> int | None:
+def get_worker_count_for_test(item: Any) -> int | None:
     """Get optimal worker count for a specific test.
 
     Args:
@@ -355,7 +353,7 @@ def get_worker_count_for_test(item: pytest.Item) -> int | None:
     return None  # Use default
 
 
-def get_performance_config_for_test(item: pytest.Item) -> dict[str, Any]:
+def get_performance_config_for_test(item: Any) -> dict[str, Any]:
     """Get performance monitoring configuration for a test.
 
     Args:
@@ -407,7 +405,7 @@ def get_performance_config_for_test(item: pytest.Item) -> dict[str, Any]:
     return config
 
 
-def should_enable_performance_monitoring(item: pytest.Item) -> bool:
+def should_enable_performance_monitoring(item: Any) -> bool:
     """Check if performance monitoring should be enabled for a test.
 
     Args:

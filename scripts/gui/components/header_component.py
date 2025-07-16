@@ -26,7 +26,8 @@ def render_header(
     """
     logo_path = Path("docs/designs/logo.png")
 
-    col1, col2 = st.columns([1, 4], gap="medium")
+    columns = st.columns([1, 4], gap="medium")
+    col1, col2 = columns[0], columns[1]
 
     with col1:
         if logo_path.is_file():

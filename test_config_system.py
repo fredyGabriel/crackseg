@@ -15,10 +15,11 @@ try:
     from gui.utils.config import (
         extract_config_value,
         generate_error_report,
-        load_config_with_validation,
         parse_nested_config,
         validate_crackseg_schema,
     )
+    from gui.utils.config.config_manager import ConfigManager
+    from gui.utils.config.config_tag_manager import ConfigTagManager
 
     print("✅ All imports successful")
 
@@ -54,26 +55,21 @@ data:
         print(f"✅ Extracted learning_rate: {learning_rate}")
 
     print("\n🔍 Testing schema validation...")
-    is_valid, validation_errors, warnings = validate_crackseg_schema(config)
+    # Validate the configuration
+    validation_errors, warnings = validate_crackseg_schema(config)
+    assert not validation_errors
+    assert not warnings
 
-    print(
-        f"Schema validation result: {'✅ Valid' if is_valid else '❌ Invalid'}"
-    )
-    print(f"Errors: {len(validation_errors)}, Warnings: {len(warnings)}")
-
-    if validation_errors:
-        for error in validation_errors[:3]:  # Show first 3 errors
-            print(f"  Error: {error.message}")
-
-    if warnings:
-        for warning in warnings[:3]:  # Show first 3 warnings
-            print(f"  Warning: {warning}")
-
-    print("\n📊 Testing error reporting...")
+    # Generate a report (even if empty)
     error_report = generate_error_report(validation_errors, warnings)
     print(
-        f"Report generated with {error_report['summary']['total_issues']} total issues"
+        "Report generated with "
+        f"{error_report['summary']['total_issues']} total issues"
     )
+
+    # Test nested value extraction
+    optimizer = extract_config_value(config, "training.optimizer.name")
+    print(f"✅ Extracted optimizer: {optimizer}")
 
     print("\n🎯 **IMPLEMENTATION STATUS: FUNCTIONAL** ✅")
     print("All core components working correctly.")

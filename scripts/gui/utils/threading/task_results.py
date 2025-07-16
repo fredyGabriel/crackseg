@@ -6,7 +6,7 @@ and progress history.
 """
 
 from dataclasses import dataclass
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
 from .progress_tracking import ProgressUpdate
 from .task_status import TaskStatus
@@ -15,7 +15,7 @@ T = TypeVar("T")
 
 
 @dataclass
-class BackgroundTaskResult(Generic[T]):
+class BackgroundTaskResult[T]:
     """Result of a background task execution.
 
     Comprehensive result container that captures all aspects of task execution

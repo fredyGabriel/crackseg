@@ -10,7 +10,7 @@ from collections.abc import Callable
 from concurrent.futures import Future
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
 from .coordinator import TaskPriority, ThreadCoordinator
 
@@ -124,9 +124,10 @@ class CancellationToken:
 
 
 @dataclass
-class BackgroundTaskResult(Generic[T]):
+class BackgroundTaskResult[T]:
     """Result of a background task execution.
 
+    Represents the outcome of a task that runs in a background thread,
     Attributes:
         status: Final status of the task
         result: Task result (if successful)

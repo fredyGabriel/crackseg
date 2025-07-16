@@ -4,9 +4,12 @@ This document outlines the design for the loss function registry system in the `
 
 ## 1. Overview
 
-The project utilizes a generic, type-safe, and thread-safe `Registry` system, primarily defined in `src.model.factory.registry.py`. For managing loss functions, a dedicated instance of this generic `Registry` is configured.
+The project utilizes a generic, type-safe, and thread-safe `Registry` system, primarily defined in
+`src.model.factory.registry.py`. For managing loss functions, a dedicated instance of this generic
+`Registry` is configured.
 
-This approach ensures consistency in how components are registered and managed across the project, leveraging a robust and feature-rich registry system.
+This approach ensures consistency in how components are registered and managed across the project,
+leveraging a robust and feature-rich registry system.
 
 ## 2. Core Registry Instance for Losses
 

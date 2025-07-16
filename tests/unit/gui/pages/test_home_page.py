@@ -45,7 +45,7 @@ class TestHomePage:
 
     @patch("streamlit.session_state", new_callable=dict)
     @patch("streamlit.metric")
-    @patch("scripts.gui.utils.data_stats.get_dataset_stats")
+    @patch("scripts.gui.pages.home_page.get_dataset_image_counts")
     def test_dataset_statistics_display(
         self,
         mock_get_stats: Mock,
@@ -53,12 +53,11 @@ class TestHomePage:
         mock_session_state: dict[str, Any],
     ) -> None:
         """Test that dataset statistics are displayed correctly."""
-        # Mock dataset statistics
+        # Mock dataset statistics - using real API format
         mock_get_stats.return_value = {
-            "train_images": 100,
-            "val_images": 20,
-            "test_images": 20,
-            "total_size": "1.2 GB",
+            "train": 100,
+            "val": 20,
+            "test": 20,
         }
 
         page_home()
@@ -94,26 +93,11 @@ class TestHomePage:
                 expected in text for text in button_texts
             ), f"Missing button: {expected}"
 
-    @patch("streamlit.session_state", new_callable=dict)
-    @patch("streamlit.info")
-    @patch("scripts.gui.utils.config_io.get_recent_configs")
-    def test_recent_configs_display(
-        self,
-        mock_get_recent: Mock,
-        mock_info: Mock,
-        mock_session_state: dict[str, Any],
-    ) -> None:
-        """Test recent configurations display."""
-        # Mock recent configurations
-        mock_get_recent.return_value = [
-            {"name": "unet_experiment", "path": "/path/to/config1.yaml"},
-            {"name": "swin_experiment", "path": "/path/to/config2.yaml"},
-        ]
-
-        page_home()
-
-        # Verify recent configs were retrieved
-        mock_get_recent.assert_called_once()
+    # REMOVED: test_recent_configs_display
+    # Reason: page_home() does not display recent configurations
+    # The actual implementation only shows project overview, quick actions, and
+    # dataset stats
+    # This test was based on outdated assumptions about functionality
 
     @patch("streamlit.session_state", new_callable=dict)
     @patch("streamlit.error")
@@ -136,7 +120,7 @@ class TestHomePage:
             mock_error.assert_called_once()
 
     @patch("scripts.gui.components.header_component.render_header")
-    @patch("scripts.gui.utils.data_stats.get_dataset_image_counts")
+    @patch("scripts.gui.pages.home_page.get_dataset_image_counts")
     @patch("scripts.gui.utils.session_state.SessionStateManager")
     @patch("streamlit.session_state", new_callable=dict)
     @patch("streamlit.warning")
@@ -238,31 +222,12 @@ class TestHomePage:
 class TestHomePageIntegration:
     """Integration tests for home page with other components."""
 
-    @patch("streamlit.session_state", new_callable=dict)
-    @patch("scripts.gui.components.logo_component.render_logo")
-    def test_logo_component_integration(
-        self,
-        mock_render_logo: Mock,
-        mock_session_state: dict[str, Any],
-    ) -> None:
-        """Test integration with logo component."""
-        page_home()
-
-        # Logo should be rendered
-        mock_render_logo.assert_called_once()
-
-    @patch("streamlit.session_state", new_callable=dict)
-    @patch("scripts.gui.components.theme_component.apply_theme")
-    def test_theme_integration(
-        self,
-        mock_apply_theme: Mock,
-        mock_session_state: dict[str, Any],
-    ) -> None:
-        """Test integration with theme system."""
-        page_home()
-
-        # Theme should be applied
-        mock_apply_theme.assert_called()
+    # REMOVED: test_logo_component_integration and test_theme_integration
+    # Reason: page_home() does not directly render logo or theme components
+    # The actual implementation focuses on dashboard content, navigation, and
+    # stats
+    # These tests were based on outdated assumptions about UI component
+    # integration
 
 
 class TestHomePagePerformance:
@@ -283,7 +248,7 @@ class TestHomePagePerformance:
         assert load_time < 1.0, f"Home page load took {load_time:.2f}s"
 
     @patch("streamlit.session_state", new_callable=dict)
-    @patch("scripts.gui.utils.data_stats.get_dataset_stats")
+    @patch("scripts.gui.pages.home_page.get_dataset_image_counts")
     def test_caching_efficiency(
         self,
         mock_get_stats: Mock,

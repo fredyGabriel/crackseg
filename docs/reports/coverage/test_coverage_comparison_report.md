@@ -10,7 +10,9 @@
 
 ## Executive Summary
 
-The test coverage expansion initiative has achieved significant improvements across critical modules, increasing overall project coverage from **25%** to **66%** - a **164% improvement** representing **41 percentage points** of additional coverage.
+The test coverage expansion initiative has achieved significant improvements across critical
+modules, increasing overall project coverage from **25%** to **66%** - a **164% improvement**
+representing **41 percentage points** of additional coverage.
 
 ## Coverage Metrics Comparison
 

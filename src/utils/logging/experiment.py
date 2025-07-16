@@ -201,10 +201,10 @@ class ExperimentLogger(BaseLogger):
             gpu_memory = "N/A"
             if torch.cuda.is_available():
                 gpu_info = torch.cuda.get_device_name(0)
-                gpu_memory = f"{
-                    torch.cuda.get_device_properties(0).total_memory
-                    / (1024**3):.2f
-                } GB"
+                total_memory_gb = torch.cuda.get_device_properties(
+                    0
+                ).total_memory / (1024**3)
+                gpu_memory = f"{total_memory_gb:.2f} GB"
 
             # PyTorch version
             pytorch_version = torch.__version__

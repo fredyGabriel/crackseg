@@ -1,10 +1,12 @@
 # Checkpoint Format Specification
 
-This document defines the standardized checkpoint format for consistent model saving and loading across the crack segmentation project.
+This document defines the standardized checkpoint format for consistent model saving and loading
+across the crack segmentation project.
 
 ## Overview
 
-The standardized checkpoint format ensures that all training artifacts contain complete state information required for model restoration, following consistent naming patterns and validation procedures.
+The standardized checkpoint format ensures that all training artifacts contain complete state
+information required for model restoration, following consistent naming patterns and validation procedures.
 
 ## Checkpoint Structure
 

@@ -433,6 +433,77 @@ def track_test_performance(request):
             json.dump(data, f, indent=2)
 ```
 
+## CI/CD Integration and Coverage Enforcement
+
+This section details the automated CI/CD pipeline responsible for enforcing code quality and test
+coverage standards. The primary workflow is defined in `.github/workflows/quality-gates.yml`.
+
+### Workflow Overview: `quality-gates.yml`
+
+The `quality-gates.yml` workflow is triggered on every `push` and `pull_request` to the `main` and
+`develop` branches. It consists of three main jobs:
+
+1. **`quality-gates-core`**: Runs linting (`ruff`), formatting (`black`), and type checking
+    (`basedpyright`) on the core `src/` directory.
+2. **`quality-gates-gui`**: Runs the same quality checks specifically on the GUI codebase located
+    in `scripts/gui/`.
+3. **`test-coverage`**: This job, which depends on the success of the two preceding jobs, is
+    responsible for test execution and coverage enforcement.
+
+### Coverage Enforcement in Pull Requests
+
+The `test-coverage` job implements a multi-layered coverage enforcement strategy:
+
+1. **Pytest Coverage Check**: The `pytest` command is run with `--cov-fail-under=80`, which will
+    cause the job to fail if the total project coverage drops below 80%. This provides an
+    immediate, hard failure within the GitHub Actions environment.
+
+2. **Codecov Integration**: For more nuanced analysis, the workflow integrates with Codecov. The
+    configuration in `codecov.yml` sets up two critical checks:
+    - **Project Coverage**: Ensures the overall project coverage does not drop by more than a
+        `1%` threshold.
+    - **Patch Coverage**: Enforces that any new code introduced in a Pull Request must itself be
+        at least **80%** covered. This is the most critical check for maintaining quality over
+        time.
+
+3. **Pull Request Commenting**: A summary of the test coverage is automatically posted as a
+    comment on the pull request, providing immediate visibility to developers and reviewers.
+
+4. **Artifact Storage**: The raw coverage reports (`coverage.xml`, `coverage.json`) are stored as
+    build artifacts for debugging and historical analysis.
+
+### Troubleshooting Coverage Failures
+
+If the `test-coverage` job fails in a Pull Request, follow these steps:
+
+1. **Review the GitHub Actions Log**: Check the output of the "Run Tests with Coverage" step. If
+    `--cov-fail-under=80` caused the failure, the log will show an explicit error message.
+
+2. **Analyze the Codecov PR Comment**: The comment provides a detailed breakdown of coverage
+    changes. Look at the "patch" coverage to see which new lines of code are not being tested.
+
+3. **Run Coverage Analysis Locally**: To debug, you can replicate the CI environment's coverage
+    check locally:
+
+    ```bash
+    conda activate crackseg
+    pytest tests/ --cov=src --cov=scripts/gui --cov-report=html
+    ```
+
+    Then, open `htmlcov/index.html` in your browser to explore the coverage report interactively
+    and identify untested code paths.
+
+### Best Practices for Maintaining Coverage
+
+- **Write Tests with Your Code**: Do not defer test writing. New features should be accompanied by
+    new tests in the same commit.
+- **Focus on Logic, Not Just Lines**: Aim to test different logical branches within your
+    functions (e.g., `if/else` statements, `try/except` blocks).
+- **Test Edge Cases**: Good tests cover not only the "happy path" but also expected errors and
+    invalid inputs.
+- **Utilize `pytest.mark.parametrize`**: Efficiently test multiple scenarios with a single test
+    function, improving coverage with less code.
+
 ## Conclusion
 
 These maintenance procedures and regression prevention protocols provide a comprehensive framework

@@ -1,0 +1,44 @@
+codecov:
+  require_ci_to_pass: yes
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: no
+
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 1%
+        if_not_found: failure
+        informational: false
+    patch:
+      default:
+        target: 80%
+        if_not_found: failure
+        informational: false
+
+flags:
+  unittests:
+    paths:
+      - tests/unit/
+    carryforward: true
+
+  integration:
+    paths:
+      - tests/integration/
+    carryforward: true
+
+  gui:
+    paths:
+      - scripts/gui/
+    carryforward: true
+
+ignore:
+  - "tests/**/*"
+  - "configs/**/*"
+  - "scripts/gui/assets/**/*"
+  - "**/__init__.py"
+  - "src/integration/**/*"

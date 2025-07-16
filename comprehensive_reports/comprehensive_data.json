@@ -1,0 +1,52 @@
+{
+  "stakeholder_reports": {
+    "main": {
+      "executive_summary": {
+        "overall_success_rate": 95.0,
+        "critical_issues": 2,
+        "recommendations": [
+          "Optimize performance",
+          "Fix memory leak"
+        ]
+      },
+      "technical_analysis": {
+        "code_coverage": 85.0,
+        "performance_metrics": {
+          "avg_response_time": 120.5
+        },
+        "architecture_health": "good"
+      },
+      "operations_monitoring": {
+        "resource_utilization": 70.0,
+        "error_rates": {
+          "critical": 0.1,
+          "warning": 2.5
+        },
+        "deployment_status": "ready"
+      },
+      "metadata": {
+        "generation_timestamp": "2025-01-07T02:00:00Z",
+        "version": "1.0.0",
+        "data_sources": [
+          "automation",
+          "monitoring",
+          "testing"
+        ]
+      }
+    }
+  },
+  "analysis_results": {},
+  "export_metadata": {
+    "export_timestamp": "2025-07-13T18:53:47.451653",
+    "report_version": "1.0",
+    "data_sources": [
+      "9.1",
+      "9.2",
+      "9.3",
+      "9.4",
+      "9.5",
+      "9.6",
+      "9.7"
+    ]
+  }
+}

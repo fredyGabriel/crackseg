@@ -96,6 +96,50 @@ plugins = ["numpy.typing.mypy_plugin"]
 # If you use NumPy extensively and have its stubs (e.g., via numpy[typing]),
 # you might enable its MyPy plugin for better type checking of NumPy code.
 
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--tb=short",
+    "--durations=10",
+    "-ra",
+    # Performance optimizations (enabled when pytest-xdist is available)
+    # "-n", "auto",  # Parallel execution
+    # "--dist", "worksteal",  # Load balancing
+    # Quality gates
+    "--cov=src",
+    "--cov=scripts/gui",
+    "--cov-report=term-missing",
+    "--cov-report=html:test-results/coverage",
+    "--cov-fail-under=80"
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "fast: marks tests as fast",
+    "performance_test: marks tests for performance optimization tracking",
+    "expensive_fixture: marks fixtures as expensive (should be cached)",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "gui: marks tests as GUI tests",
+    "cuda: marks tests as requiring CUDA",
+    "hydra: marks tests as using hydra configuration"
+]
+# Performance optimization plugin (temporarily disabled)
+# plugins = ["tests.utils.pytest_performance_plugin"]
+# Test result caching for faster reruns
+cache_dir = ".pytest_cache"
+# Filter warnings to reduce noise
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["scripts*"]
