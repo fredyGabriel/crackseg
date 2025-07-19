@@ -1,7 +1,7 @@
 # src/model/encoder/swin_v2_adapter.py
 import logging
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, cast
 
 import torch
 
@@ -191,8 +191,8 @@ class SwinV2EncoderAdapter(EncoderBase):
         if hasattr(self.encoder.swin, "patch_embed") and hasattr(
             self.encoder.swin.patch_embed, "grid_size"
         ):
-            grid_size = self.encoder.swin.patch_embed.grid_size
-            h, w = grid_size[0], grid_size[1]
+            grid_size = self.encoder.swin.patch_embed.grid_size  # type: ignore[reportUnknownVariableType, reportUnknownMemberType]
+            h, w = grid_size[0], grid_size[1]  # type: ignore[reportUnknownVariableType, reportIndexIssue]
         elif (
             hasattr(self.encoder, "reduction_factors")
             and self.encoder.reduction_factors
@@ -208,7 +208,7 @@ class SwinV2EncoderAdapter(EncoderBase):
             side = int(L**0.5)
             if side * side == L:
                 h, w = side, side
-        return h, w
+        return cast(tuple[int, int], (h, w))  # type: ignore[reportReturnType]
 
     def _reshape_3d_bottleneck(
         self, bottleneck_features: torch.Tensor, original_input_x: torch.Tensor
