@@ -1,6 +1,6 @@
-"""Centralized element locators for Streamlit application pages.
-
-This module provides a centralized location for all element selectors used
+"""
+Centralized element locators for Streamlit application pages. This
+module provides a centralized location for all element selectors used
 across different page objects, improving maintainability and reducing
 duplication.
 """
@@ -95,17 +95,12 @@ class SidebarLocators:
 
     @staticmethod
     def nav_button_xpath_fallback(page_name: str) -> tuple[str, str]:
-        """XPath-based fallback locator for navigation buttons.
-
-        This method provides XPath-based locating as a fallback when
-        CSS selectors fail. It uses multiple XPath strategies to handle
-        different DOM structures.
-
-        Args:
-            page_name: The visible name of the page to navigate to.
-
-        Returns:
-            A tuple containing By.XPATH and the XPath selector string.
+        """
+        XPath-based fallback locator for navigation buttons. This method
+        provides XPath-based locating as a fallback when CSS selectors fail.
+        It uses multiple XPath strategies to handle different DOM structures.
+        Args: page_name: The visible name of the page to navigate to. Returns:
+        A tuple containing By.XPATH and the XPath selector string.
         """
         return (
             By.XPATH,
@@ -123,16 +118,12 @@ class SidebarLocators:
 
     @staticmethod
     def nav_button_by_key(page_name: str) -> tuple[str, str]:
-        """Direct key-based locator for navigation buttons.
-
-        This method targets buttons using their Streamlit key attribute
-        directly, which is the most reliable method when available.
-
-        Args:
-            page_name: The visible name of the page to navigate to.
-
-        Returns:
-            A tuple containing the By strategy and key-based selector.
+        """
+        Direct key-based locator for navigation buttons. This method targets
+        buttons using their Streamlit key attribute directly, which is the
+        most reliable method when available. Args: page_name: The visible name
+        of the page to navigate to. Returns: A tuple containing the By
+        strategy and key-based selector.
         """
         page_key = page_name.replace(" ", "_").lower()
         return (

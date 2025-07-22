@@ -1,12 +1,12 @@
-"""Demo script for testing TensorBoard component functionality.
-
-This script demonstrates the TensorBoard iframe embedding component
-outside of the main application for testing purposes.
+"""
+Demo script for testing TensorBoard component functionality. This
+script demonstrates the TensorBoard iframe embedding component outside
+of the main application for testing purposes.
 """
 
 from pathlib import Path
 
-from scripts.gui.utils.tb_manager import create_tensorboard_manager
+from gui.utils.tb_manager import create_tensorboard_manager
 
 
 def demo_tensorboard_manager() -> None:

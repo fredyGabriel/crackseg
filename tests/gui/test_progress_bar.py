@@ -1,8 +1,7 @@
 """
-Unit tests for the ProgressBar component.
-
-Tests cover progress bar functionality, step-based progress tracking,
-time estimation, brand styling, and integration with session state.
+Unit tests for the ProgressBar component. Tests cover progress bar
+functionality, step-based progress tracking, time estimation, brand
+styling, and integration with session state.
 """
 
 import time
@@ -33,7 +32,7 @@ class TestProgressBar:
         assert progress_bar_custom.operation_id == custom_id
 
     @patch("streamlit.empty")
-    @patch("scripts.gui.utils.session_state.SessionStateManager.get")
+    @patch("gui.utils.session_state.SessionStateManager.get")
     def test_start_operation(
         self, mock_session_state: MagicMock, mock_empty: MagicMock
     ) -> None:
@@ -68,7 +67,7 @@ class TestProgressBar:
         # Verify initial render
         mock_render.assert_called_once_with(0.0, "Initializing...")
 
-    @patch("scripts.gui.utils.session_state.SessionStateManager.get")
+    @patch("gui.utils.session_state.SessionStateManager.get")
     def test_update_progress(self, mock_session_state: MagicMock) -> None:
         """Test updating progress bar state."""
         progress_bar = ProgressBar("test_op")
@@ -95,7 +94,7 @@ class TestProgressBar:
             progress_bar.update(0.8)
             mock_render.assert_not_called()
 
-    @patch("scripts.gui.utils.session_state.SessionStateManager.get")
+    @patch("gui.utils.session_state.SessionStateManager.get")
     @patch("time.sleep")
     def test_finish_operation(
         self, mock_sleep: MagicMock, mock_session_state: MagicMock
@@ -219,7 +218,7 @@ class TestProgressBar:
         assert step_progress.title == "Multi-step Operation"
 
     @patch("streamlit.empty")
-    @patch("scripts.gui.utils.session_state.SessionStateManager.get")
+    @patch("gui.utils.session_state.SessionStateManager.get")
     def test_brand_colors_consistency(
         self, mock_session_state: MagicMock, mock_empty: MagicMock
     ) -> None:
@@ -250,7 +249,7 @@ class TestStepBasedProgress:
         assert step_progress.current_step_index == 0
         assert step_progress.progress_bar.operation_id == "test_id"
 
-    @patch("scripts.gui.utils.session_state.SessionStateManager.get")
+    @patch("gui.utils.session_state.SessionStateManager.get")
     @patch("streamlit.empty")
     def test_context_manager_success(
         self, mock_empty: MagicMock, mock_session_state: MagicMock
@@ -279,7 +278,7 @@ class TestStepBasedProgress:
             # Verify completion
             assert not progress.progress_bar._is_active
 
-    @patch("scripts.gui.utils.session_state.SessionStateManager.get")
+    @patch("gui.utils.session_state.SessionStateManager.get")
     @patch("streamlit.empty")
     def test_context_manager_exception(
         self, mock_empty: MagicMock, mock_session_state: MagicMock
@@ -382,7 +381,7 @@ class TestProgressBarIntegration:
 
     @patch("streamlit.markdown")
     @patch("streamlit.empty")
-    @patch("scripts.gui.utils.session_state.SessionStateManager.get")
+    @patch("gui.utils.session_state.SessionStateManager.get")
     def test_full_operation_cycle(
         self,
         mock_session_state: MagicMock,
@@ -431,7 +430,7 @@ class TestProgressBarIntegration:
         assert len(css_calls) > 0
 
     @patch("streamlit.empty")
-    @patch("scripts.gui.utils.session_state.SessionStateManager.get")
+    @patch("gui.utils.session_state.SessionStateManager.get")
     def test_time_estimation_accuracy(
         self, mock_session_state: MagicMock, mock_empty: MagicMock
     ) -> None:
@@ -447,7 +446,7 @@ class TestProgressBarIntegration:
         progress_bar._placeholder = MagicMock()
 
         with patch.object(progress_bar, "_format_time") as mock_format:
-            mock_format.side_effect = lambda x: f"{x:.1f}s"
+            mock_format.side_effect = lambda x: f"{x:.1f}s"  # type: ignore
 
             # Test at 50% completion after 10 seconds
             progress_bar._render_progress(0.5, "Halfway")

@@ -12,7 +12,7 @@ from pathlib import Path
 import streamlit as st
 from PIL import Image, ImageDraw, ImageFont
 
-from scripts.gui.assets.manager import asset_manager
+from gui.assets.manager import asset_manager
 
 
 class LogoComponent:

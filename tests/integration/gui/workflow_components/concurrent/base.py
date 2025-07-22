@@ -1,7 +1,8 @@
 """Base concurrent operation testing infrastructure.
 
 Core components for concurrent operation testing including the main mixin
-class and protocol definitions. Split from oversized concurrent_operation_mixin.py.
+class and protocol definitions. Split from oversized
+concurrent_operation_mixin.py.
 """
 
 import threading
@@ -19,7 +20,8 @@ from .synchronization import ProcessSynchronizationMixin
 
 
 class ConcurrentOperationTestUtilities(Protocol):
-    """Protocol for test utilities needed by concurrent operation components."""
+    """Protocol for test utilities needed by concurrent operation
+    components."""
 
     temp_path: Path
 
@@ -31,10 +33,12 @@ class ConcurrentOperationMixin(
     SystemStabilityMixin,
     DataIntegrityMixin,
 ):
-    """Main mixin providing comprehensive concurrent operation testing patterns.
+    """Main mixin providing comprehensive concurrent operation testing
+    patterns.
 
     Combines all concurrent operation testing capabilities into a single
-    interface while maintaining modular implementation through multiple mixins.
+    interface while maintaining modular implementation through multiple
+    mixins.
     """
 
     def __init__(self) -> None:

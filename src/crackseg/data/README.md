@@ -1,10 +1,13 @@
 # Data Module
 
-This directory contains all data handling and processing components for the pavement crack segmentation project. The module provides a comprehensive framework for loading, transforming, and managing crack segmentation datasets.
+This directory contains all data handling and processing components for the pavement crack
+segmentation project. The module provides a comprehensive framework for loading, transforming, and
+managing crack segmentation datasets.
 
 ## Module Overview
 
-The data module is designed with modularity and efficiency in mind, supporting various data loading strategies, augmentation techniques, and memory optimization approaches.
+The data module is designed with modularity and efficiency in mind, supporting various data loading
+strategies, augmentation techniques, and memory optimization approaches.
 
 ### Core Components
 

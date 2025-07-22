@@ -1,16 +1,13 @@
-"""Configuration I/O utilities for the CrackSeg GUI application.
-
-This package provides functionality for loading, validating, and managing
-YAML configuration files used with Hydra for model training.
-
-The package maintains backward compatibility with the original config_io module
-while providing better modularity and maintainability.
-
-New Advanced Features:
-- Unified configuration loading with comprehensive validation
-- Advanced schema validation for crack segmentation models
-- Sophisticated YAML parsing with nested structure support
-- Comprehensive error reporting with detailed suggestions
+"""
+Configuration I/O utilities for the CrackSeg GUI application. This
+package provides functionality for loading, validating, and managing
+YAML configuration files used with Hydra for model training. The
+package maintains backward compatibility with the original config_io
+module while providing better modularity and maintainability. New
+Advanced Features: - Unified configuration loading with comprehensive
+validation - Advanced schema validation for crack segmentation models
+- Sophisticated YAML parsing with nested structure support -
+Comprehensive error reporting with detailed suggestions
 """
 
 # Public API - maintains backward compatibility

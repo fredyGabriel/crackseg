@@ -1,6 +1,6 @@
-"""Predefined test matrix configurations for common scenarios.
-
-This module provides factory functions for creating ResponsiveTestMatrix
+"""
+Predefined test matrix configurations for common scenarios. This
+module provides factory functions for creating ResponsiveTestMatrix
 instances configured for common testing scenarios like smoke tests,
 comprehensive testing, and device-specific focused testing.
 """
@@ -11,10 +11,9 @@ from .core import ResponsiveTestMatrix
 
 
 def get_smoke_test_matrix() -> ResponsiveTestMatrix:
-    """Get minimal matrix for smoke testing.
-
-    Returns:
-        ResponsiveTestMatrix configured for quick smoke tests
+    """
+    Get minimal matrix for smoke testing. Returns: ResponsiveTestMatrix
+    configured for quick smoke tests
     """
     devices = get_default_devices()
 
@@ -36,10 +35,9 @@ def get_smoke_test_matrix() -> ResponsiveTestMatrix:
 
 
 def get_comprehensive_matrix() -> ResponsiveTestMatrix:
-    """Get comprehensive matrix for thorough testing.
-
-    Returns:
-        ResponsiveTestMatrix configured for comprehensive testing
+    """
+    Get comprehensive matrix for thorough testing. Returns:
+    ResponsiveTestMatrix configured for comprehensive testing
     """
     return ResponsiveTestMatrix(
         name="Comprehensive Test",
@@ -53,10 +51,9 @@ def get_comprehensive_matrix() -> ResponsiveTestMatrix:
 
 
 def get_mobile_focused_matrix() -> ResponsiveTestMatrix:
-    """Get matrix focused on mobile devices.
-
-    Returns:
-        ResponsiveTestMatrix configured for mobile-focused testing
+    """
+    Get matrix focused on mobile devices. Returns: ResponsiveTestMatrix
+    configured for mobile-focused testing
     """
     devices = get_default_devices()
 
@@ -79,10 +76,9 @@ def get_mobile_focused_matrix() -> ResponsiveTestMatrix:
 
 
 def get_tablet_focused_matrix() -> ResponsiveTestMatrix:
-    """Get matrix focused on tablet devices.
-
-    Returns:
-        ResponsiveTestMatrix configured for tablet-focused testing
+    """
+    Get matrix focused on tablet devices. Returns: ResponsiveTestMatrix
+    configured for tablet-focused testing
     """
     devices = get_default_devices()
 
@@ -103,10 +99,9 @@ def get_tablet_focused_matrix() -> ResponsiveTestMatrix:
 
 
 def get_desktop_focused_matrix() -> ResponsiveTestMatrix:
-    """Get matrix focused on desktop devices.
-
-    Returns:
-        ResponsiveTestMatrix configured for desktop-focused testing
+    """
+    Get matrix focused on desktop devices. Returns: ResponsiveTestMatrix
+    configured for desktop-focused testing
     """
     devices = get_default_devices()
 
@@ -129,10 +124,9 @@ def get_desktop_focused_matrix() -> ResponsiveTestMatrix:
 
 
 def get_high_priority_matrix() -> ResponsiveTestMatrix:
-    """Get matrix with only high priority devices.
-
-    Returns:
-        ResponsiveTestMatrix configured for high priority devices only
+    """
+    Get matrix with only high priority devices. Returns:
+    ResponsiveTestMatrix configured for high priority devices only
     """
     devices = get_default_devices()
 
@@ -152,10 +146,9 @@ def get_high_priority_matrix() -> ResponsiveTestMatrix:
 
 
 def get_quick_regression_matrix() -> ResponsiveTestMatrix:
-    """Get matrix for quick regression testing.
-
-    Returns:
-        ResponsiveTestMatrix configured for fast regression tests
+    """
+    Get matrix for quick regression testing. Returns: ResponsiveTestMatrix
+    configured for fast regression tests
     """
     devices = get_default_devices()
 
@@ -178,10 +171,9 @@ def get_quick_regression_matrix() -> ResponsiveTestMatrix:
 
 
 def get_performance_test_matrix() -> ResponsiveTestMatrix:
-    """Get matrix for performance testing across device categories.
-
-    Returns:
-        ResponsiveTestMatrix configured for performance testing
+    """
+    Get matrix for performance testing across device categories. Returns:
+    ResponsiveTestMatrix configured for performance testing
     """
     devices = get_default_devices()
 
@@ -204,10 +196,9 @@ def get_performance_test_matrix() -> ResponsiveTestMatrix:
 
 
 def get_cross_category_matrix() -> ResponsiveTestMatrix:
-    """Get matrix with representative devices from each category.
-
-    Returns:
-        ResponsiveTestMatrix with balanced device representation
+    """
+    Get matrix with representative devices from each category. Returns:
+    ResponsiveTestMatrix with balanced device representation
     """
     devices = get_default_devices()
 
@@ -233,10 +224,9 @@ def get_cross_category_matrix() -> ResponsiveTestMatrix:
 
 
 def get_edge_case_matrix() -> ResponsiveTestMatrix:
-    """Get matrix for testing edge cases and unusual devices.
-
-    Returns:
-        ResponsiveTestMatrix with edge case device configurations
+    """
+    Get matrix for testing edge cases and unusual devices. Returns:
+    ResponsiveTestMatrix with edge case device configurations
     """
     devices = get_default_devices()
 

@@ -1,5 +1,5 @@
-"""Examples and demonstrations of advanced override parsing capabilities.
-
+"""
+Examples and demonstrations of advanced override parsing capabilities.
 This module provides examples of how to use the AdvancedOverrideParser
 for complex Hydra configuration overrides in the CrackSeg project.
 """
@@ -17,10 +17,9 @@ def demonstrate_override_parsing() -> None:
     # Example 1: Basic configuration overrides
     print("1. Basic Configuration Overrides:")
     basic_overrides = """
-    trainer.max_epochs=100
-    model.encoder=resnet50
-    training.learning_rate=0.001
-    """
+trainer.max_epochs=100 model.encoder=resnet50
+training.learning_rate=0.001
+"""
 
     parser.parse_overrides(basic_overrides)
     print(f"Input: {basic_overrides.strip()}")
@@ -30,10 +29,10 @@ def demonstrate_override_parsing() -> None:
     # Example 2: Complex nested configurations
     print("2. Complex Nested Configurations:")
     complex_overrides = """
-    model.decoder.attention.num_heads=8
-    training.optimizer.weight_decay=1e-4
-    data.augmentation.rotation_limit=15
-    """
+model.decoder.attention.num_heads=8
+training.optimizer.weight_decay=1e-4
+data.augmentation.rotation_limit=15
+"""
 
     parser.parse_overrides(complex_overrides)
     print(f"Input: {complex_overrides.strip()}")
@@ -43,10 +42,9 @@ def demonstrate_override_parsing() -> None:
     # Example 3: Package and force overrides
     print("3. Package and Force Overrides:")
     package_overrides = """
-    +model/encoder=swin_transformer
-    ++training.device=cuda:0
-    ~model.pretrained
-    """
++model/encoder=swin_transformer ++training.device=cuda:0
+~model.pretrained
+"""
 
     parser.parse_overrides(package_overrides)
     print(f"Input: {package_overrides.strip()}")
@@ -56,10 +54,9 @@ def demonstrate_override_parsing() -> None:
     # Example 4: List and complex values
     print("4. List and Complex Values:")
     list_overrides = """
-    training.batch_sizes=[4,8,16]
-    model.channels=[64,128,256,512]
-    data.mean=[0.485,0.456,0.406]
-    """
+training.batch_sizes=[4,8,16] model.channels=[64,128,256,512]
+data.mean=[0.485,0.456,0.406]
+"""
 
     parser.parse_overrides(list_overrides)
     print(f"Input: {list_overrides.strip()}")
@@ -82,10 +79,9 @@ def demonstrate_override_parsing() -> None:
     # Example 6: Invalid overrides (security demonstration)
     print("6. Invalid/Dangerous Overrides (Security Check):")
     dangerous_overrides = """
-    model.encoder=resnet50; rm -rf /
-    training.command=`cat /etc/passwd`
-    data.path=../../../etc/hosts
-    """
+model.encoder=resnet50; rm -rf / training.command=`cat /etc/passwd`
+data.path=../../../etc/hosts
+"""
 
     parser.parse_overrides(dangerous_overrides)
     print(f"Input: {dangerous_overrides.strip()}")
@@ -102,11 +98,9 @@ def demonstrate_process_manager_integration() -> None:
     # Example 1: Parse override text
     print("1. Parsing Override Text:")
     override_text = """
-    trainer.max_epochs=50
-    model.encoder=resnet34
-    training.batch_size=8
-    +experiment=crack_detection
-    """
+trainer.max_epochs=50 model.encoder=resnet34 training.batch_size=8
++experiment=crack_detection
+"""
 
     valid_overrides, errors = manager.parse_overrides_text(override_text)
     print(f"Input text: {override_text.strip()}")
@@ -133,10 +127,9 @@ def demonstrate_process_manager_integration() -> None:
 
 
 def get_crackseg_override_examples() -> dict[str, list[str]]:
-    """Get common override examples for CrackSeg project.
-
-    Returns:
-        Dictionary of override categories with example lists
+    """
+    Get common override examples for CrackSeg project. Returns: Dictionary
+    of override categories with example lists
     """
     return {
         "training_configs": [

@@ -1,19 +1,14 @@
-"""Screenshot and video capture module for E2E testing.
-
-This module provides comprehensive capture capabilities for automated testing,
-including screenshot capture on failures, video recording of test execution,
-and visual regression testing support.
-
-Key Components:
-- ScreenshotCapture: Automated screenshot capture and management
-- VideoRecording: Test execution video recording capabilities
-- VisualRegression: Screenshot comparison and regression testing
-- CaptureStorage: File management and retention policies
-
-Integration:
-- Mixins for BaseE2ETest integration
-- Pytest fixtures for automated capture
-- Docker artifact management compatibility
+"""
+Screenshot and video capture module for E2E testing. This module
+provides comprehensive capture capabilities for automated testing,
+including screenshot capture on failures, video recording of test
+execution, and visual regression testing support. Key Components: -
+ScreenshotCapture: Automated screenshot capture and management -
+VideoRecording: Test execution video recording capabilities -
+VisualRegression: Screenshot comparison and regression testing -
+CaptureStorage: File management and retention policies Integration: -
+Mixins for BaseE2ETest integration - Pytest fixtures for automated
+capture - Docker artifact management compatibility
 """
 
 from .screenshot import (

@@ -1,7 +1,7 @@
-"""Status card components for TensorBoard status display.
-
-This module provides modular status card components that display different
-aspects of TensorBoard process state and health information.
+"""
+Status card components for TensorBoard status display. This module
+provides modular status card components that display different aspects
+of TensorBoard process state and health information.
 """
 
 from .base_card import BaseStatusCard, StatusInfo

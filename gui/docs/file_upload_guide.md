@@ -255,8 +255,8 @@ all configuration methods.
 
 For developers wanting to extend the upload functionality, see:
 
-- `scripts/gui/utils/config/io.py` - Core upload functions
-- `scripts/gui/components/file_upload_component.py` - UI components
+- `gui/utils/config/io.py` - Core upload functions
+- `gui/components/file_upload_component.py` - UI components
 - `tests/unit/gui/test_file_upload.py` - Test examples
 
 ## Support

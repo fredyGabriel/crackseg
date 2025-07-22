@@ -1,7 +1,7 @@
-"""Performance benchmarking suite for E2E testing pipeline.
-
-This module provides comprehensive performance benchmarking capabilities
-for the crack segmentation E2E testing pipeline, integrating with the
+"""
+Performance benchmarking suite for E2E testing pipeline. This module
+provides comprehensive performance benchmarking capabilities for the
+crack segmentation E2E testing pipeline, integrating with the
 ResourceMonitor system for real-time metrics collection.
 """
 

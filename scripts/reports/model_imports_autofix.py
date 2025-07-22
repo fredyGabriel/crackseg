@@ -1,8 +1,22 @@
+"""
+Model imports autofix. This script automatically fixes invalid import
+patterns identified by the validation script.
+"""
+
 import ast
 import json
 import os
 import re
 import shutil
+from typing import Any
+
+# Type definitions
+type InvalidEntry = dict[str, Any]
+type InvalidImports = list[InvalidEntry]
+type FilesToFix = dict[str, list[InvalidEntry]]
+type LogEntry = dict[str, Any]
+type FixLog = list[LogEntry]
+type ReplacementPattern = tuple[str, str]
 
 # Paths to files
 REPORT_PATH = os.path.join(
@@ -17,7 +31,7 @@ LOG_PATH = os.path.join(
 )
 
 # Replacement patterns: (old, new)
-REPLACEMENTS = [
+REPLACEMENTS: list[ReplacementPattern] = [
     (
         r"^(base|core|factory|common|components|bottleneck|decoder|encoder|"
         r"architectures|config)\.",
@@ -34,15 +48,15 @@ REPLACEMENTS = [
 os.makedirs(BACKUP_DIR, exist_ok=True)
 
 with open(REPORT_PATH, encoding="utf-8") as f:
-    invalid_imports = json.load(f)
+    invalid_imports: InvalidImports = json.load(f)
 
 # Group by file
-files_to_fix: dict[str, list[dict]] = {}
+files_to_fix: FilesToFix = {}
 for entry in invalid_imports:
-    fname = entry["file"]
+    fname: str = entry["file"]
     files_to_fix.setdefault(fname, []).append(entry)
 
-log = []
+log: FixLog = []
 
 for fname, entries in files_to_fix.items():
     abs_path = os.path.abspath(fname)
@@ -53,9 +67,9 @@ for fname, entries in files_to_fix.items():
         lines = f.readlines()
     changed = False
     for entry in entries:
-        lineno = entry["line"] - 1  # 0-based
-        orig_line = lines[lineno]
-        new_line = orig_line
+        lineno: int = entry["line"] - 1  # 0-based
+        orig_line: str = lines[lineno]
+        new_line: str = orig_line
         for pat, repl in REPLACEMENTS:
             # Only replace if the pattern is at the beginning of the import
             new_line = re.sub(pat, repl, new_line)

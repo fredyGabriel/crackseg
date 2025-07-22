@@ -1,7 +1,8 @@
 """Resource contention concurrent operation tests.
 
 Tests focused on resource conflicts, GPU contention, file system access,
-and process synchronization. Extracted from oversized test_concurrent_operations.py.
+and process synchronization. Extracted from oversized
+test_concurrent_operations.py.
 """
 
 from typing import Any

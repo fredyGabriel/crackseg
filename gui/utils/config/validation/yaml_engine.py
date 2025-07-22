@@ -1,8 +1,8 @@
-"""Core YAML validation engine.
-
-This module contains the main YAMLValidator class that provides comprehensive
-validation of YAML configuration files with detailed error reporting and
-intelligent suggestions for fixes.
+"""
+Core YAML validation engine. This module contains the main
+YAMLValidator class that provides comprehensive validation of YAML
+configuration files with detailed error reporting and intelligent
+suggestions for fixes.
 """
 
 import yaml
@@ -42,13 +42,10 @@ class YAMLValidator:
     def validate_syntax(
         self, content: str
     ) -> tuple[bool, ValidationError | None]:
-        """Validate YAML syntax with detailed error reporting.
-
-        Args:
-            content: YAML content as string.
-
-        Returns:
-            Tuple of (is_valid, validation_error).
+        """
+        Validate YAML syntax with detailed error reporting. Args: content:
+        YAML content as string. Returns: Tuple of (is_valid,
+        validation_error).
         """
         try:
             yaml.safe_load(content)
@@ -85,13 +82,10 @@ class YAMLValidator:
     def validate_structure(
         self, config: dict[str, object]
     ) -> tuple[bool, list[ValidationError]]:
-        """Validate configuration structure and required fields.
-
-        Args:
-            config: Parsed configuration dictionary.
-
-        Returns:
-            Tuple of (is_valid, list_of_errors).
+        """
+        Validate configuration structure and required fields. Args: config:
+        Parsed configuration dictionary. Returns: Tuple of (is_valid,
+        list_of_errors).
         """
         errors: list[ValidationError] = []
 
@@ -125,13 +119,10 @@ class YAMLValidator:
     def validate_types(
         self, config: dict[str, object]
     ) -> tuple[bool, list[ValidationError]]:
-        """Validate data types in configuration.
-
-        Args:
-            config: Parsed configuration dictionary.
-
-        Returns:
-            Tuple of (is_valid, list_of_errors).
+        """
+        Validate data types in configuration. Args: config: Parsed
+        configuration dictionary. Returns: Tuple of (is_valid,
+        list_of_errors).
         """
         errors: list[ValidationError] = []
 
@@ -176,13 +167,10 @@ class YAMLValidator:
     def validate_values(
         self, config: dict[str, object]
     ) -> tuple[bool, list[ValidationError]]:
-        """Validate specific value constraints.
-
-        Args:
-            config: Parsed configuration dictionary.
-
-        Returns:
-            Tuple of (is_valid, list_of_errors).
+        """
+        Validate specific value constraints. Args: config: Parsed
+        configuration dictionary. Returns: Tuple of (is_valid,
+        list_of_errors).
         """
         errors: list[ValidationError] = []
 
@@ -274,13 +262,9 @@ class YAMLValidator:
     def comprehensive_validate(
         self, content: str
     ) -> tuple[bool, list[ValidationError]]:
-        """Perform comprehensive validation of YAML content.
-
-        Args:
-            content: YAML content as string.
-
-        Returns:
-            Tuple of (is_valid, list_of_errors).
+        """
+        Perform comprehensive validation of YAML content. Args: content: YAML
+        content as string. Returns: Tuple of (is_valid, list_of_errors).
         """
         all_errors: list[ValidationError] = []
 
@@ -291,34 +275,22 @@ class YAMLValidator:
 
         # Step 2: Parse and validate structure
         try:
-            config = yaml.safe_load(content)
-            if not isinstance(config, dict):
-                return False, [
-                    ValidationError(
-                        message="Configuration must be a YAML dictionary",
-                        suggestions=[
-                            (
-                                "Ensure your configuration starts with key: "
-                                "value pairs"
-                            )
-                        ],
-                    )
-                ]
+            config: dict[str, object] = yaml.safe_load(content)
         except Exception as e:
             return False, [
                 ValidationError(message=f"Failed to parse YAML: {str(e)}")
             ]
 
         # Step 3: Structure validation
-        structure_valid, structure_errors = self.validate_structure(config)
+        _, structure_errors = self.validate_structure(config)
         all_errors.extend(structure_errors)
 
         # Step 4: Type validation
-        types_valid, type_errors = self.validate_types(config)
+        _, type_errors = self.validate_types(config)
         all_errors.extend(type_errors)
 
         # Step 5: Value validation
-        values_valid, value_errors = self.validate_values(config)
+        _, value_errors = self.validate_values(config)
         all_errors.extend(value_errors)
 
         return len(all_errors) == 0, all_errors
@@ -403,21 +375,21 @@ class YAMLValidator:
     ) -> object | None:
         """Get value from nested dictionary using dot notation."""
         keys = path.split(".")
-        current = config
+        current: object = config
 
         for key in keys:
             if isinstance(current, dict) and key in current:
-                current = current[key]
+                current = current[key]  # type: ignore
             else:
                 return None
 
-        return current
+        return current  # type: ignore
 
     def _get_syntax_suggestions(
         self, error_message: str, content: str, line_num: int | None
     ) -> list[str]:
         """Generate syntax error suggestions based on common patterns."""
-        suggestions = []
+        suggestions: list[str] = []
 
         if "could not find expected ':'" in error_message.lower():
             suggestions.extend(

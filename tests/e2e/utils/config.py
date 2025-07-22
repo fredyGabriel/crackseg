@@ -197,8 +197,8 @@ def get_streamlit_test_config(
 ) -> dict[str, Any]:
     """Generate Streamlit application test configuration.
 
-    Creates configuration dictionary for testing Streamlit applications
-    with appropriate timeouts and debugging settings.
+    Creates configuration dictionary for testing Streamlit applications with
+    appropriate timeouts and debugging settings.
 
     Args:
         port: Streamlit application port

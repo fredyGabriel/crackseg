@@ -1,7 +1,7 @@
-"""Operations analysis for stakeholder reporting.
-
-This module provides operations-level analysis and reporting capabilities
-with monitoring, maintenance, and capacity planning insights.
+"""
+Operations analysis for stakeholder reporting. This module provides
+operations-level analysis and reporting capabilities with monitoring,
+maintenance, and capacity planning insights.
 """
 
 from typing import Any

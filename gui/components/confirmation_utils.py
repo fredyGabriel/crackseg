@@ -5,8 +5,8 @@ This module provides convenience functions and integration helpers for
 confirmation dialogs. Separated to maintain file size limits and modularity.
 """
 
-from scripts.gui.components.confirmation_dialog import ConfirmationDialog
-from scripts.gui.components.confirmation_renderer import (
+from gui.components.confirmation_dialog import ConfirmationDialog
+from gui.components.confirmation_renderer import (
     OptimizedConfirmationDialog,
 )
 
@@ -64,7 +64,7 @@ class ConfirmationDialogHelper:
         self, component_id: str = "training_start"
     ) -> str | None:
         """Show training start confirmation dialog."""
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             ConfirmationDialogFactory,
         )
 
@@ -81,7 +81,7 @@ class ConfirmationDialogHelper:
         self, component_id: str = "training_stop"
     ) -> str | None:
         """Show training stop confirmation dialog."""
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             ConfirmationDialogFactory,
         )
 
@@ -98,7 +98,7 @@ class ConfirmationDialogHelper:
         self, component_id: str = "config_reset"
     ) -> str | None:
         """Show configuration reset confirmation dialog."""
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             ConfirmationDialogFactory,
         )
 
@@ -115,7 +115,7 @@ class ConfirmationDialogHelper:
         self, component_id: str = "checkpoint_delete"
     ) -> str | None:
         """Show checkpoint delete confirmation dialog."""
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             ConfirmationDialogFactory,
         )
 
@@ -135,7 +135,7 @@ class ConfirmationDialogHelper:
         component_id: str = "device_switch",
     ) -> str | None:
         """Show device switch confirmation dialog."""
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             ConfirmationDialogFactory,
         )
 
@@ -152,7 +152,7 @@ class ConfirmationDialogHelper:
 
     def activate_training_start(self) -> None:
         """Activate training start confirmation."""
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             ConfirmationDialogFactory,
         )
 
@@ -162,7 +162,7 @@ class ConfirmationDialogHelper:
 
     def activate_training_stop(self) -> None:
         """Activate training stop confirmation."""
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             ConfirmationDialogFactory,
         )
 
@@ -172,7 +172,7 @@ class ConfirmationDialogHelper:
 
     def activate_config_reset(self) -> None:
         """Activate configuration reset confirmation."""
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             ConfirmationDialogFactory,
         )
 
@@ -182,7 +182,7 @@ class ConfirmationDialogHelper:
 
     def activate_checkpoint_delete(self) -> None:
         """Activate checkpoint delete confirmation."""
-        from scripts.gui.components.confirmation_dialog import (
+        from gui.components.confirmation_dialog import (
             ConfirmationDialogFactory,
         )
 

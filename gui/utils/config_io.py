@@ -1,20 +1,18 @@
-"""Configuration I/O utilities for the CrackSeg GUI application.
-
-This module provides backward compatibility with the original config_io module.
-All functionality has been moved to the scripts.gui.utils.config package for
-better modularity and maintainability.
-
-This file serves as a compatibility layer and will be deprecated in future
-versions.
-Please update your imports to use:
-    from scripts.gui.utils.config import ...
+"""
+Configuration I/O utilities for the CrackSeg GUI application. This
+module provides backward compatibility with the original config_io
+module. All functionality has been moved to the
+scripts.gui.utils.config package for better modularity and
+maintainability. This file serves as a compatibility layer and will be
+deprecated in future versions. Please update your import s to use:
+from gui.utils.config import ...
 """
 
 # Import everything from the new config package for backward compatibility
-from scripts.gui.utils.config import *  # noqa: F403, F401
+# from  gui.utils.config  import  *  # noqa: F403, F401
 
-# Explicit imports for better IDE support and documentation
-from scripts.gui.utils.config import (
+# Explicit import s for better IDE support and documentation
+from gui.utils.config import (
     ConfigCache,
     ConfigError,
     ValidationError,
@@ -36,7 +34,7 @@ from scripts.gui.utils.config import (
 )
 
 # Export YAMLValidator for backward compatibility
-from scripts.gui.utils.config.validation.yaml_engine import YAMLValidator
+from gui.utils.config.validation.yaml_engine import YAMLValidator
 
 __all__ = [
     # Exceptions

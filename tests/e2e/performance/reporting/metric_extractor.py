@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class MetricExtractor:
-    """Handles extraction of performance metrics from crackseg.data structures."""
+    """Handles extraction of performance metrics from crackseg.data
+    structures."""
 
     def __init__(self) -> None:
         """Initialize metric extractor."""

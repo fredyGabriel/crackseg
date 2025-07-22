@@ -5,7 +5,7 @@ the CrackSeg Streamlit application, including base classes, locators,
 and page-specific objects for all application pages.
 
 Example:
-    >>> from tests.e2e.pages import ConfigPage, ArchitecturePage
+    >>> from  tests.e2e.pages  import  ConfigPage, ArchitecturePage
     >>>
     >>> config_page = ConfigPage(driver)
     >>> config_page.navigate_to_page().load_configuration_file("basic.yaml")

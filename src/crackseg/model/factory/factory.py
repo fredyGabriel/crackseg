@@ -243,6 +243,10 @@ class FinalCBAMDecoder(DecoderBase):
         self.add_module("decoder", decoder)
         self.add_module("cbam", cbam)
 
+        # Type annotations for registered modules
+        self.decoder: nn.Module = decoder
+        self.cbam: nn.Module = cbam
+
         # Copy out_channels attribute
         self._out_channels: int = getattr(decoder, "out_channels", 1)
 
@@ -532,7 +536,16 @@ def apply_cbam_to_model(
     channels = output_channels
     if channels is None:
         if hasattr(model, "out_channels"):
-            channels = model.out_channels
+            out_channels_attr = model.out_channels
+            if isinstance(out_channels_attr, int):
+                channels = out_channels_attr
+            else:
+                log.warning(
+                    "Model out_channels is not int "
+                    f"(got {type(out_channels_attr)}). "
+                    "Using 1 as default for CBAM."
+                )
+                channels = 1
         else:
             log.warning(
                 "Model doesn't have 'out_channels' attribute. "

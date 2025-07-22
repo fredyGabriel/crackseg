@@ -26,7 +26,7 @@ reducing failing tests from 34+ to 27 remaining failures (93.4% success rate for
 - **Passed**: 393 tests (93.4%)
 - **Failed**: 27 tests (6.4%)
 - **Errors**: 1 test
-- **Coverage**: 34% for `scripts/gui` module (4,899/14,618 lines)
+- **Coverage**: 34% for `gui` module (4,899/14,618 lines)
 
 ### Previously Fixed Tests (Subtask 6.5)
 
@@ -221,7 +221,7 @@ All modified test files pass mandatory quality gates:
 conda activate crackseg && pytest tests/unit/gui/pages/ tests/integration/gui/ -v --tb=short
 
 # Monitor coverage progression
-conda activate crackseg && pytest tests/unit/gui/ --cov=scripts/gui --cov-report=term
+conda activate crackseg && pytest tests/unit/gui/ --cov=gui --cov-report=term
 
 # Quality gate verification
 conda activate crackseg && black . && ruff . --fix && basedpyright .
@@ -234,7 +234,7 @@ conda activate crackseg && black . && ruff . --fix && basedpyright .
 conda activate crackseg && pytest tests/ --maxfail=10
 
 # Coverage report generation
-conda activate crackseg && pytest tests/ --cov=src --cov=scripts/gui --cov-report=html
+conda activate crackseg && pytest tests/ --cov=src --cov=gui --cov-report=html
 
 # Test categorization update
 python test_failure_categorization.py --update-categories

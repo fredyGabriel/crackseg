@@ -7,6 +7,8 @@ from crackseg.model.common.utils import (
     estimate_memory_usage,
     estimate_receptive_field,
     get_layer_hierarchy,
+)
+from crackseg.model.common.visualization import (
     render_unet_architecture_diagram,
 )
 

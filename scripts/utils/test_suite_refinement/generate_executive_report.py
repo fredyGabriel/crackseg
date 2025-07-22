@@ -1,8 +1,19 @@
+"""
+Generate executive test and coverage report. This script generates a
+comprehensive executive summary report combining test results,
+coverage statistics, and performance metrics.
+"""
+
 import csv
 import os
 import xml.etree.ElementTree as ET
 
 from jinja2 import Template
+
+# Type definitions
+type CoverageData = tuple[float, float]  # (line_coverage, branch_coverage)
+type TestStats = dict[str, int]
+type SlowTestList = list[str]
 
 REPORTS_DIR = "outputs/prd_project_refinement/test_suite_evaluation/reports/"
 COVERAGE_XML = os.path.join(REPORTS_DIR, "coverage.xml")
@@ -11,11 +22,11 @@ SLOW_TESTS = os.path.join(REPORTS_DIR, "slow_tests.txt")
 EXEC_REPORT = os.path.join(REPORTS_DIR, "executive_report.md")
 
 
-# 1. Parse coverage.xml
-def parse_coverage_xml(path: str) -> tuple[float, float]:
+def parse_coverage_xml(path: str) -> CoverageData:
     """
-    Parses a coverage.xml file and returns line and branch coverage as
-    percentages.
+    Parse a coverage.xml file and return line and branch coverage as
+    percentages. Args: path: Path to the coverage XML file. Returns: Tuple
+    of (line_coverage, branch_coverage) as percentages.
     """
     tree = ET.parse(path)
     root = tree.getroot()
@@ -24,17 +35,18 @@ def parse_coverage_xml(path: str) -> tuple[float, float]:
     return line_rate * 100, branch_rate * 100
 
 
-# 2. Parse test_inventory.csv
-def parse_test_inventory(path: str) -> dict[str, int]:
+def parse_test_inventory(path: str) -> TestStats:
     """
-    Parses the test inventory CSV and returns a dictionary with test status
-    counts."""
+    Parse the test inventory CSV and return a dictionary with test status
+    counts. Args: path: Path to the test inventory CSV file. Returns:
+    Dictionary with test status counts.
+    """
     with open(path, newline="", encoding="utf-8") as f:
         reader = list(csv.reader(f))
         header = reader[1]
         data = reader[2:]
     idx_status = header.index("Status")
-    stats = {"passing": 0, "failing": 0, "flaky": 0, "other": 0}
+    stats: TestStats = {"passing": 0, "failing": 0, "flaky": 0, "other": 0}
     for row in data:
         status = row[idx_status].strip().lower()
         if status in stats:
@@ -44,11 +56,11 @@ def parse_test_inventory(path: str) -> dict[str, int]:
     return stats
 
 
-# 3. Parse slow_tests.txt
-def parse_slow_tests(path: str) -> list[str]:
+def parse_slow_tests(path: str) -> SlowTestList:
     """
-    Parses the slow_tests.txt file and returns a list of the top 5 slowest
-    tests.
+    Parse the slow_tests.txt file and return a list of the top 5 slowest
+    tests. Args: path: Path to the slow tests file. Returns: List of the
+    top 5 slowest test descriptions.
     """
     if not os.path.exists(path):
         return []
@@ -61,39 +73,29 @@ def parse_slow_tests(path: str) -> list[str]:
     return lines[:5]
 
 
-# 4. Render Markdown report
 def render_report(
     line_cov: float,
     branch_cov: float,
-    stats: dict[str, int],
-    slow_tests: list[str],
+    stats: TestStats,
+    slow_tests: SlowTestList,
 ) -> str:
-    """Renders the executive report as a Markdown string."""
+    """
+    Render the executive report as a Markdown string. Args: line_cov: Line
+    coverage percentage. branch_cov: Branch coverage percentage. stats:
+    Test status statistics. slow_tests: List of slowest tests. Returns:
+    Rendered Markdown report string.
+    """
     template = Template(
         """
-# Executive Test & Coverage Report
-
-**Coverage Summary:**
-- Line coverage: {{ line_cov|round(1) }}%
-- Branch coverage: {{ branch_cov|round(1) }}%
-
-**Test Results:**
-- Passing: {{ stats.passing }}
-- Failing: {{ stats.failing }}
-- Flaky: {{ stats.flaky }}
-- Other/Unknown: {{ stats.other }}
-
-**Top 5 Slowest Tests:**
-{% for test in slow_tests %}- {{ test }}
-{% endfor %}
-
-{% if line_cov < 80 %}
-> ⚠️ **Recommendation:** Coverage is below 80%. Increase test coverage,
-especially for critical modules.
-{% endif %}
-
----
-*Report generated automatically.*
+# Executive Test & Coverage Report **Coverage Summary:** - Line
+coverage: {{ line_cov|round(1) }}% - Branch coverage: {{
+branch_cov|round(1) }}% **Test Results:** - Passing: {{ stats.passing
+}} - Failing: {{ stats.failing }} - Flaky: {{ stats.flaky }} -
+Other/Unknown: {{ stats.other }} **Top 5 Slowest Tests:** {% for test
+in slow_tests %}- {{ test }} {% endfor %} {% if line_cov < 80 %} > ⚠️
+**Recommendation:** Coverage is below 80%. Increase test coverage,
+especially for critical modules. {% endif %} --- *Report generated
+automatically.*
 """
     )
     return template.render(

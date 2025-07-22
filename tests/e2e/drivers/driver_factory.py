@@ -1,8 +1,8 @@
-"""WebDriver factory for hybrid driver creation with cross-platform support.
-
-This module implements the factory pattern for WebDriver creation, supporting
-both Docker Grid and local WebDriver setups with browser-specific
-optimizations.
+"""
+WebDriver factory for hybrid driver creation with cross-platform
+support. This module implements the factory pattern for WebDriver
+creation, supporting both Docker Grid and local WebDriver setups with
+browser-specific optimizations.
 """
 
 import logging
@@ -34,20 +34,18 @@ logger = logging.getLogger(__name__)
 
 
 class DriverFactory:
-    """Factory for creating WebDriver instances with browser-specific
-    configurations.
-
-    This factory supports both Docker Grid and local WebDriver creation,
-    automatic method selection, and comprehensive error handling with
-    fallback capabilities.
+    """
+    Factory for creating WebDriver instances with browser-specific
+    configurations. This factory supports both Docker Grid and local
+    WebDriver creation, automatic method selection, and comprehensive
+    error handling with fallback capabilities.
     """
 
     def __init__(self, config: DriverConfig) -> None:
-        """Initialize driver factory with configuration.
-
-        Args:
-            config: Driver configuration containing browser settings,
-                timeouts, and infrastructure details
+        """
+        Initialize driver factory with configuration. Args: config: Driver
+        configuration containing browser settings, timeouts, and
+        infrastructure details
         """
         self.config = config
         self._webdriver_managers: dict[str, WebDriverManagerProtocol] = {}
@@ -100,10 +98,9 @@ class DriverFactory:
             ) from e
 
     def _determine_best_method(self) -> str:
-        """Determine the best driver creation method based on environment.
-
-        Returns:
-            Best method name ('docker', 'local', or 'webdriver-manager')
+        """
+        Determine the best driver creation method based on environment.
+        Returns: Best method name ('docker', 'local', or 'webdriver-manager')
         """
         # Force specific method if configured
         if self.config.driver_method != "auto":
@@ -124,13 +121,10 @@ class DriverFactory:
         return "local"
 
     def _create_docker_driver(self) -> WebDriver:
-        """Create WebDriver using Docker Grid infrastructure.
-
-        Returns:
-            Remote WebDriver connected to Selenium Grid
-
-        Raises:
-            DriverCreationError: When Docker Grid connection fails
+        """
+        Create WebDriver using Docker Grid infrastructure. Returns: Remote
+        WebDriver connected to Selenium Grid Raises: DriverCreationError: When
+        Docker Grid connection fails
         """
         logger.debug(f"Creating Docker Grid driver for {self.config.browser}")
 
@@ -165,13 +159,10 @@ class DriverFactory:
             ) from e
 
     def _create_local_driver(self) -> WebDriver:
-        """Create WebDriver using local browser installation.
-
-        Returns:
-            Local WebDriver instance
-
-        Raises:
-            DriverCreationError: When local driver creation fails
+        """
+        Create WebDriver using local browser installation. Returns: Local
+        WebDriver instance Raises: DriverCreationError: When local driver
+        creation fails
         """
         logger.debug(f"Creating local driver for {self.config.browser}")
 
@@ -197,14 +188,10 @@ class DriverFactory:
             ) from e
 
     def _create_webdriver_manager_driver(self) -> WebDriver:
-        """Create WebDriver using WebDriverManager for automatic driver
-        downloads.
-
-        Returns:
-            Local WebDriver with automatically managed driver binary
-
-        Raises:
-            DriverCreationError: When WebDriverManager fails
+        """
+        Create WebDriver using WebDriverManager for automatic driver
+        downloads. Returns: Local WebDriver with automatically managed driver
+        binary Raises: DriverCreationError: When WebDriverManager fails
         """
         logger.debug(
             f"Creating WebDriverManager driver for {self.config.browser}"
@@ -295,9 +282,15 @@ class DriverFactory:
 
     def _create_webdriver_manager_chrome(self) -> WebDriver:
         """Create Chrome WebDriver using WebDriverManager."""
-        from webdriver_manager.chrome import (
-            ChromeDriverManager,
-        )
+        try:
+            from webdriver_manager.chrome import (  # type: ignore[import-untyped]
+                ChromeDriverManager,
+            )
+        except ImportError:
+            raise ImportError(
+                "webdriver-manager is required for E2E testing. "
+                "Install with: conda install webdriver-manager"
+            ) from None
 
         service = ChromeService(
             ChromeDriverManager(
@@ -315,9 +308,15 @@ class DriverFactory:
 
     def _create_webdriver_manager_firefox(self) -> WebDriver:
         """Create Firefox WebDriver using WebDriverManager."""
-        from webdriver_manager.firefox import (
-            GeckoDriverManager,
-        )
+        try:
+            from webdriver_manager.firefox import (  # type: ignore[import-untyped]
+                GeckoDriverManager,
+            )
+        except ImportError:
+            raise ImportError(
+                "webdriver-manager is required for E2E testing. "
+                "Install with: conda install webdriver-manager"
+            ) from None
 
         service = FirefoxService(
             GeckoDriverManager(
@@ -335,9 +334,15 @@ class DriverFactory:
 
     def _create_webdriver_manager_edge(self) -> WebDriver:
         """Create Edge WebDriver using WebDriverManager."""
-        from webdriver_manager.microsoft import (
-            EdgeChromiumDriverManager,
-        )
+        try:
+            from webdriver_manager.microsoft import (  # type: ignore[import-untyped]
+                EdgeChromiumDriverManager,
+            )
+        except ImportError:
+            raise ImportError(
+                "webdriver-manager is required for E2E testing. "
+                "Install with: conda install webdriver-manager"
+            ) from None
 
         service = EdgeService(
             EdgeChromiumDriverManager(
@@ -356,10 +361,9 @@ class DriverFactory:
     def _get_browser_options(
         self,
     ) -> ChromeOptions | FirefoxOptions | EdgeOptions:
-        """Get browser-specific options object.
-
-        Returns:
-            Browser options object configured for the current browser
+        """
+        Get browser-specific options object. Returns: Browser options object
+        configured for the current browser
         """
         if self.config.browser == "chrome":
             options = ChromeOptions()
@@ -383,10 +387,9 @@ class DriverFactory:
             )
 
     def _configure_driver_timeouts(self, driver: WebDriver) -> None:
-        """Configure standard timeouts for WebDriver instance.
-
-        Args:
-            driver: WebDriver instance to configure
+        """
+        Configure standard timeouts for WebDriver instance. Args: driver:
+        WebDriver instance to configure
         """
         driver.implicitly_wait(self.config.implicit_wait)
         driver.set_page_load_timeout(self.config.page_load_timeout)
@@ -403,10 +406,9 @@ class DriverFactory:
         )
 
     def _is_docker_grid_available(self) -> bool:
-        """Check if Docker Grid infrastructure is available.
-
-        Returns:
-            True if Selenium Grid is accessible, False otherwise
+        """
+        Check if Docker Grid infrastructure is available. Returns: True if
+        Selenium Grid is accessible, False otherwise
         """
         try:
             import requests
@@ -444,21 +446,16 @@ class DriverFactory:
             return False
 
     def supports_browser(self, browser: BrowserType) -> bool:
-        """Check if browser is supported by this factory.
-
-        Args:
-            browser: Browser name to check
-
-        Returns:
-            True if browser is supported, False otherwise
+        """
+        Check if browser is supported by this factory. Args: browser: Browser
+        name to check Returns: True if browser is supported, False otherwise
         """
         supported_browsers: list[BrowserType] = ["chrome", "firefox", "edge"]
         return browser in supported_browsers
 
     def get_supported_browsers(self) -> list[BrowserType]:
-        """Get list of supported browsers.
-
-        Returns:
-            List of supported browser names
+        """
+        Get list of supported browsers. Returns: List of supported browser
+        names
         """
         return ["chrome", "firefox", "edge"]

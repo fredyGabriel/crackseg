@@ -1,7 +1,7 @@
-"""System stability testing under concurrent load.
-
-Handles system stability monitoring and load testing scenarios.
-Extracted from oversized concurrent_operation_mixin.py for modular organization.
+"""
+System stability testing under concurrent load. Handles system
+stability monitoring and load testing scenarios. Extracted from
+oversized concurrent_operation_mixin.py for modular organization.
 """
 
 import threading
@@ -97,7 +97,8 @@ class SystemStabilityMixin:
 
                     if not scenario_result.get("success", False):
                         stability_result["stability_violations"].append(
-                            f"Load scenario failed: {scenario_result.get('error', 'Unknown')}"
+                            f"Load scenario failed: "
+                            f"{scenario_result.get('error', 'Unknown')}"
                         )
                 except Exception as e:
                     with metrics_lock:

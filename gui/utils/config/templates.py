@@ -1,7 +1,7 @@
-"""Configuration template creation utilities.
-
-This module provides functionality for creating new configuration files from
-templates with customizable overrides.
+"""
+Configuration template creation utilities. This module provides
+functionality for creating new configuration files from templates with
+customizable overrides.
 """
 
 import logging
@@ -20,15 +20,12 @@ def create_config_from_template(
     output_path: str,
     overrides: dict[str, object] | None = None,
 ) -> None:
-    """Create a new configuration file from a template.
-
-    Args:
-        template_path: Path to the template configuration file.
-        output_path: Path where the new configuration should be saved.
-        overrides: Optional dictionary of values to override in the template.
-
-    Raises:
-        ConfigError: If the operation fails.
+    """
+    Create a new configuration file from a template. Args: template_path:
+    Path to the template configuration file. output_path: Path where the
+    new configuration should be saved. overrides: Optional dictionary of
+    values to override in the template. Raises: ConfigError: If the
+    operation fails.
     """
     try:
         # Load template
@@ -59,11 +56,10 @@ def create_config_from_template(
 def _apply_overrides(
     config: dict[str, object], overrides: dict[str, object]
 ) -> None:
-    """Recursively apply overrides to a configuration dictionary (in-place).
-
-    Args:
-        config: Configuration dictionary to modify.
-        overrides: Dictionary of overrides to apply.
+    """
+    Recursively apply overrides to a configuration dictionary (in-place).
+    Args: config: Configuration dictionary to modify. overrides:
+    Dictionary of overrides to apply.
     """
     for key, value in overrides.items():
         if "." in key:

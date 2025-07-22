@@ -1,18 +1,17 @@
 """
-Gallery section for the results page.
-
-This module handles the results gallery tab with triplet visualization,
-including gallery rendering, statistics display, and quick actions.
+Gallery section for the results page. This module handles the results
+gallery tab with triplet visualization, including gallery rendering,
+statistics display, and quick actions.
 """
 
 from pathlib import Path
 
 import streamlit as st
 
-from scripts.gui.components.results_gallery_component import (
+from gui.components.results_gallery_component import (
     ResultsGalleryComponent,
 )
-from scripts.gui.utils.results import ValidationLevel
+from gui.utils.results import ValidationLevel
 
 from .utils import show_gallery_summary
 

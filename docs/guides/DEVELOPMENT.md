@@ -40,7 +40,7 @@ The project uses `pytest` for testing.
 
 ## Project Structure
 
-The GUI code is located in `scripts/gui/`. It follows a modular structure:
+The GUI code is located in `gui/`. It follows a modular structure:
 
 - `app.py`: Main application entry point.
 - `components/`: Reusable Streamlit components.

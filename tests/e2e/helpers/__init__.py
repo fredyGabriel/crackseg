@@ -1,16 +1,15 @@
-"""Test helpers for E2E testing with comprehensive setup/teardown and
-coordination utilities.
-
-This module provides specialized helper functions for advanced E2E test
-scenarios, including test setup/teardown procedures, API integration utilities,
-test coordination, and performance monitoring. These helpers complement the
+"""
+Test helpers for E2E testing with comprehensive setup/teardown and
+coordination utilities. This module provides specialized helper
+functions for advanced E2E test scenarios, including test
+setup/teardown procedures, API integration utilities, test
+coordination, and performance monitoring. These helpers complement the
 existing utils library with higher-level orchestration capabilities.
-
-The helpers are organized into focused modules:
-- setup_teardown: Advanced test environment management
-- api_integration: HTTP/API testing utilities
-- test_coordination: Multi-test and parallel execution helpers
-- performance_monitoring: Performance metrics and monitoring
+The helpers are organized into focused modules: - setup_teardown:
+Advanced test environment management - api_integration: HTTP/API
+testing utilities - test_coordination: Multi-test and parallel
+execution helpers - performance_monitoring: Performance metrics and
+monitoring
 """
 
 # Setup and teardown helpers

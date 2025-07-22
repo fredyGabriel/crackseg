@@ -1,8 +1,6 @@
 """
-Header Component for the CrackSeg application.
-
-This module provides a reusable header component to be displayed
-at the top of each page.
+Header Component for the CrackSeg application. This module provides a
+reusable header component to be displayed at the top of each page.
 """
 
 from pathlib import Path
@@ -15,14 +13,11 @@ def render_header(
     page_title: str, anchor: str | Literal[False] | None = False
 ) -> None:
     """
-    Renders a consistent page header with a logo and title.
-
-    This component is designed to be the first visual element on each page,
-    providing a consistent branding and navigation anchor.
-
-    Args:
-        page_title: The title to display for the current page.
-        anchor: The anchor for the title link. Set to False to disable.
+    Renders a consistent page header with a logo and title. This component
+    is designed to be the first visual element on each page, providing a
+    consistent branding and navigation anchor. Args: page_title: The title
+    to display for the current page. anchor: The anchor for the title
+    link. Set to False to disable.
     """
     logo_path = Path("docs/designs/logo.png")
 

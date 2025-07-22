@@ -1,7 +1,7 @@
-"""TensorBoard rendering components.
-
-This module provides rendering utilities for TensorBoard status display,
-control interfaces, and diagnostic information.
+"""
+TensorBoard rendering components. This module provides rendering
+utilities for TensorBoard status display, control interfaces, and
+diagnostic information.
 """
 
 from .advanced_status_renderer import (

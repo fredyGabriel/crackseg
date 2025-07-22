@@ -82,9 +82,7 @@ def test_load_model_from_checkpoint(
     # Also ensure load_state_dict does not fail
     with patch.object(torch.nn.Module, "load_state_dict"):
         # Call the function under test
-        model, data = load_model_from_checkpoint(
-            "fake.pth", torch.device("cpu")
-        )
+        model, _ = load_model_from_checkpoint("fake.pth", torch.device("cpu"))
 
     # Check results
     assert model is dummy_model
@@ -149,7 +147,7 @@ def test_evaluate_model_basic() -> None:
         }
     )
 
-    results, (inputs, targets, outputs) = evaluate_model(
+    results, (inputs, _, _) = evaluate_model(
         model, loader, metrics, torch.device("cpu"), config=config
     )
     assert "test_dummy" in results
@@ -249,7 +247,7 @@ def test_ensemble_evaluate_creates_results_and_files(
         ) as mock_omegaconf_load:
             mock_omegaconf_load.return_value = OmegaConf.create({"model": {}})
 
-            # Mock for visualize_predictions - use exact import path
+            # Mock for visualize_predictions - use exact import  path
             with patch("crackseg.evaluation.ensemble.visualize_predictions"):
                 results = ensemble_evaluate(
                     checkpoint_paths=["ckpt1.pth", "ckpt2.pth"],

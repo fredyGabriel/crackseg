@@ -1,7 +1,7 @@
-"""Core I/O operations for configuration files.
-
-This module provides the fundamental file I/O operations for loading, scanning,
-and managing YAML configuration files with proper error handling and caching.
+"""
+Core I/O operations for configuration files. This module provides the
+fundamental file I/O operations for loading, scanning, and managing
+YAML configuration files with proper error handling and caching.
 """
 
 import logging
@@ -22,18 +22,27 @@ MAX_UPLOAD_SIZE_MB = 10  # Maximum upload size in MB
 MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024
 ALLOWED_EXTENSIONS = {".yaml", ".yml"}
 
+# Type aliases for better type safety
+type ConfigDict = dict[str, Any]  # More specific than dict[str, object]
+type UploadedFile = Any  # Streamlit uploaded file type
 
-def load_config_file(path: str | Path) -> dict[str, object]:
-    """Load a YAML configuration file.
 
-    Args:
-        path: Path to the YAML configuration file.
+def load_yaml_file(path: str | Path) -> ConfigDict:
+    """
+    Load a YAML configuration file (alias for load_config_file). Args:
+    path: Path to the YAML configuration file. Returns: Dictionary
+    containing the parsed configuration. Raises: ConfigError: If the file
+    cannot be loaded or parsed.
+    """
+    return load_config_file(path)
 
-    Returns:
-        Dictionary containing the parsed configuration.
 
-    Raises:
-        ConfigError: If the file cannot be loaded or parsed.
+def load_config_file(path: str | Path) -> ConfigDict:
+    """
+    Load a YAML configuration file. Args: path: Path to the YAML
+    configuration file. Returns: Dictionary containing the parsed
+    configuration. Raises: ConfigError: If the file cannot be loaded or
+    parsed.
     """
     path_str = str(path)
 
@@ -45,10 +54,15 @@ def load_config_file(path: str | Path) -> dict[str, object]:
 
     try:
         with open(path_str, encoding="utf-8") as f:
-            config = yaml.safe_load(f)
+            raw_config = yaml.safe_load(f)
 
-        if config is None:
-            config = {}
+        # Ensure config is a dictionary
+        if raw_config is None:
+            config: ConfigDict = {}
+        elif isinstance(raw_config, dict):
+            config = raw_config  # type: ignore[assignment]
+        else:
+            config = {"content": raw_config}
 
         # Cache the loaded configuration
         _config_cache.set(path_str, config)
@@ -65,13 +79,11 @@ def load_config_file(path: str | Path) -> dict[str, object]:
 
 
 def scan_config_directories() -> dict[str, list[str]]:
-    """Scan configuration directories for available YAML files.
-
-    Scans both the configs/ directory and generated_configs/ directory
-    (if it exists) for YAML configuration files.
-
-    Returns:
-        Dictionary mapping category names to lists of config file paths.
+    """
+    Scan configuration directories for available YAML files. Scans both
+    the configs/ directory and generated_configs/ directory (if it exists)
+    for YAML configuration files. Returns: Dictionary mapping category
+    names to lists of config file paths.
     """
     config_dirs = {
         "configs": Path("configs"),
@@ -116,13 +128,9 @@ def scan_config_directories() -> dict[str, list[str]]:
 def get_config_metadata(
     path: str | Path,
 ) -> dict[str, str | bool | list[str] | int | None]:
-    """Get metadata about a configuration file.
-
-    Args:
-        path: Path to the configuration file.
-
-    Returns:
-        Dictionary containing file metadata.
+    """
+    Get metadata about a configuration file. Args: path: Path to the
+    configuration file. Returns: Dictionary containing file metadata.
     """
     path = Path(path)
     metadata: dict[str, str | bool | list[str] | int | None] = {
@@ -154,19 +162,28 @@ def get_config_metadata(
     return metadata
 
 
+def validate_config_file(
+    path: str | Path,
+) -> tuple[bool, list[ValidationError]]:
+    """
+    Validate a configuration file. Args: path: Path to the YAML
+    configuration file. Returns: Tuple of (is_valid, validation_errors).
+    """
+    try:
+        config = load_config_file(path)
+        config_str = yaml.dump(config, default_flow_style=False)
+        return validate_uploaded_content(config_str)
+    except Exception:
+        return False, [ValidationError("File cannot be loaded or parsed")]
+
+
 def load_and_validate_config(
     path: str | Path,
-) -> tuple[dict[str, object], list[ValidationError]]:
-    """Load and validate a configuration file.
-
-    Args:
-        path: Path to the YAML configuration file.
-
-    Returns:
-        Tuple of (config_dict, validation_errors).
-
-    Raises:
-        ConfigError: If the file cannot be loaded.
+) -> tuple[ConfigDict, list[ValidationError]]:
+    """
+    Load and validate a configuration file. Args: path: Path to the YAML
+    configuration file. Returns: Tuple of (config_dict,
+    validation_errors). Raises: ConfigError: If the file cannot be loaded.
     """
     from .validation import validate_yaml_advanced
 
@@ -176,7 +193,7 @@ def load_and_validate_config(
     # Convert to string for validation
     try:
         config_str = yaml.dump(config, default_flow_style=False)
-        is_valid, errors = validate_yaml_advanced(config_str)
+        _, errors = validate_yaml_advanced(config_str)
         return config, errors
     except Exception:
         # If we can't serialize back to YAML, just return basic validation
@@ -186,22 +203,18 @@ def load_and_validate_config(
             validate_config_values,
         )
 
-        structure_valid, structure_errors = validate_config_structure(config)
-        types_valid, type_errors = validate_config_types(config)
-        values_valid, value_errors = validate_config_values(config)
+        _, structure_errors = validate_config_structure(config)
+        _, type_errors = validate_config_types(config)
+        _, value_errors = validate_config_values(config)
 
         all_errors = structure_errors + type_errors + value_errors
         return config, all_errors
 
 
 def _format_file_size(size: int) -> str:
-    """Format file size in human-readable format.
-
-    Args:
-        size: File size in bytes.
-
-    Returns:
-        Human-readable file size string.
+    """
+    Format file size in human-readable format. Args: size: File size in
+    bytes. Returns: Human-readable file size string.
     """
     size_f = float(size)
     for unit in ["B", "KB", "MB", "GB"]:
@@ -212,22 +225,17 @@ def _format_file_size(size: int) -> str:
 
 
 def upload_config_file(
-    uploaded_file: Any,
+    uploaded_file: UploadedFile,
     target_directory: str | Path = "generated_configs",
     validate_on_upload: bool = True,
-) -> tuple[str, dict[str, Any], list[ValidationError]]:
-    """Upload and process a YAML configuration file from user's local system.
-
-    Args:
-        uploaded_file: Streamlit uploaded file object.
-        target_directory: Directory where the file should be saved.
-        validate_on_upload: Whether to validate the file during upload.
-
-    Returns:
-        Tuple of (saved_file_path, config_dict, validation_errors).
-
-    Raises:
-        ConfigError: If the file cannot be processed or saved.
+) -> tuple[str, ConfigDict, list[ValidationError]]:
+    """
+    Upload and process a YAML configuration file from user's local system.
+    Args: uploaded_file: Streamlit uploaded file object. target_directory:
+    Directory where the file should be saved. validate_on_upload: Whether
+    to validate the file during upload. Returns: Tuple of
+    (saved_file_path, config_dict, validation_errors). Raises:
+    ConfigError: If the file cannot be processed or saved.
     """
     # Validate file size
     if uploaded_file.size > MAX_UPLOAD_SIZE_BYTES:
@@ -271,9 +279,16 @@ def upload_config_file(
 
         # Parse YAML to validate syntax
         try:
-            config_dict = yaml.safe_load(content_str)
-            if config_dict is None:
-                config_dict = {}
+            raw_config = yaml.safe_load(content_str)
+
+            # Ensure config_dict is a dictionary
+            if raw_config is None:
+                config_dict: ConfigDict = {}
+            elif isinstance(raw_config, dict):
+                config_dict = raw_config  # type: ignore[assignment]
+            else:
+                config_dict = {"content": raw_config}
+
         except yaml.YAMLError as e:
             # Get line and column from problem_mark if it exists
             problem_mark = getattr(e, "problem_mark", None)
@@ -303,9 +318,9 @@ def upload_config_file(
             try:
                 from .validation import validate_yaml_advanced
 
-                is_valid, errors = validate_yaml_advanced(content_str)
+                _, errors = validate_yaml_advanced(content_str)
                 validation_errors = errors
-                if not is_valid:
+                if validation_errors:
                     logger.warning(
                         f"Uploaded file {uploaded_file.name} has validation "
                         f"issues: {len(errors)} errors found"
@@ -350,10 +365,9 @@ def upload_config_file(
 
 
 def create_upload_progress_placeholder() -> Any:
-    """Create a placeholder for upload progress indication.
-
-    Returns:
-        Streamlit placeholder object for progress updates.
+    """
+    Create a placeholder for upload progress indication. Returns:
+    Streamlit placeholder object for progress updates.
     """
     return st.empty()
 
@@ -364,13 +378,11 @@ def update_upload_progress(
     progress: float = 0.0,
     message: str = "",
 ) -> None:
-    """Update upload progress indication.
-
-    Args:
-        placeholder: Streamlit placeholder object.
-        stage: Current stage of upload (reading, validating, saving).
-        progress: Progress value between 0.0 and 1.0.
-        message: Additional message to display.
+    """
+    Update upload progress indication. Args: placeholder: Streamlit
+    placeholder object. stage: Current stage of upload (reading,
+    validating, saving). progress: Progress value between 0.0 and 1.0.
+    message: Additional message to display.
     """
     stage_icons = {
         "reading": "📖",
@@ -398,13 +410,10 @@ def update_upload_progress(
 def validate_uploaded_content(
     content: str,
 ) -> tuple[bool, list[ValidationError]]:
-    """Validate uploaded YAML content with comprehensive checks.
-
-    Args:
-        content: YAML content as string.
-
-    Returns:
-        Tuple of (is_valid, validation_errors).
+    """
+    Validate uploaded YAML content with comprehensive checks. Args:
+    content: YAML content as string. Returns: Tuple of (is_valid,
+    validation_errors).
     """
     validation_errors: list[ValidationError] = []
 
@@ -449,14 +458,10 @@ def validate_uploaded_content(
         return len(validation_errors) == 0, validation_errors
 
 
-def get_upload_file_info(uploaded_file: Any) -> dict[str, Any]:
-    """Get information about an uploaded file.
-
-    Args:
-        uploaded_file: Streamlit uploaded file object.
-
-    Returns:
-        Dictionary containing file information.
+def get_upload_file_info(uploaded_file: UploadedFile) -> dict[str, Any]:
+    """
+    Get information about an uploaded file. Args: uploaded_file: Streamlit
+    uploaded file object. Returns: Dictionary containing file information.
     """
     return {
         "name": uploaded_file.name,

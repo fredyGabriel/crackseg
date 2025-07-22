@@ -8,7 +8,7 @@ including CUDA GPUs and CPU, with detailed hardware information.
 import torch
 
 from crackseg.utils.logging import get_logger
-from scripts.gui.components.device_info import DeviceInfo
+from gui.components.device_info import DeviceInfo
 
 logger = get_logger(__name__)
 

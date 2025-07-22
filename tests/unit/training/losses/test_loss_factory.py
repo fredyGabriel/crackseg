@@ -9,7 +9,8 @@ from crackseg.training.losses.recursive_factory import parse_loss_config
 @pytest.fixture
 def sample_pred_target() -> tuple[torch.Tensor, torch.Tensor]:
     """
-    Fixture that returns a pair of prediction and target tensors for testing.
+    Fixture that returns a pair of prediction and target tensors for
+    testing.
     """
     pred = torch.randn(2, 1, 16, 16)
     target = torch.randint(0, 2, (2, 1, 16, 16)).float()
@@ -73,7 +74,7 @@ def test_nested_combination(
 
 
 def test_invalid_combination_type() -> None:
-    config = {"type": "unknown", "components": []}
+    config: dict[str, Any] = {"type": "unknown", "components": []}
     with pytest.raises(ValueError, match="Tipo de combinación no soportado"):
         parse_loss_config(config)
 

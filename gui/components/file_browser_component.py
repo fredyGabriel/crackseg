@@ -1,8 +1,7 @@
 """
-File Browser Component for CrackSeg GUI.
-
-This component provides an interface for browsing, selecting, and managing
-YAML configuration files from the configs/ and generated_configs/ directories.
+File Browser Component for CrackSeg GUI. This component provides an
+interface for browsing, selecting, and managing YAML configuration
+files from the configs/ and generated_configs/ directories.
 """
 
 import os
@@ -12,7 +11,7 @@ from typing import Any
 
 import streamlit as st
 
-from scripts.gui.utils.config import (
+from gui.utils.config import (
     get_config_metadata,
     scan_config_directories,
 )
@@ -40,16 +39,12 @@ class FileBrowserComponent:
         allow_multiple: bool = False,
         filter_text: str = "",
     ) -> dict[str, Any]:
-        """Render the file browser component.
-
-        Args:
-            key: Unique key for the component.
-            show_preview: Whether to show file preview panel.
-            allow_multiple: Whether to allow multiple file selection.
-            filter_text: Text to filter files by name.
-
-        Returns:
-            Dictionary containing selected files and browser state.
+        """
+        Render the file browser component. Args: key: Unique key for the
+        component. show_preview: Whether to show file preview panel.
+        allow_multiple: Whether to allow multiple file selection. filter_text:
+        Text to filter files by name. Returns: Dictionary containing selected
+        files and browser state.
         """
         # Initialize component state
         if f"{key}_state" not in st.session_state:
@@ -392,10 +387,9 @@ class FileBrowserComponent:
 
     @staticmethod
     def get_selected_action() -> tuple[str | None, str | None]:
-        """Get the last action triggered from file preview.
-
-        Returns:
-            Tuple of (action, target_file_path) or (None, None).
+        """
+        Get the last action triggered from file preview. Returns: Tuple of
+        (action, target_file_path) or (None, None).
         """
         action = st.session_state.get("file_browser_action")
         target = st.session_state.get("file_browser_target")
@@ -416,16 +410,12 @@ def render_file_browser(
     allow_multiple: bool = False,
     filter_text: str = "",
 ) -> dict[str, Any]:
-    """Render a file browser component.
-
-    Args:
-        key: Unique key for the component.
-        show_preview: Whether to show file preview panel.
-        allow_multiple: Whether to allow multiple file selection.
-        filter_text: Text to filter files by name.
-
-    Returns:
-        Dictionary containing selected files and browser state.
+    """
+    Render a file browser component. Args: key: Unique key for the
+    component. show_preview: Whether to show file preview panel.
+    allow_multiple: Whether to allow multiple file selection. filter_text:
+    Text to filter files by name. Returns: Dictionary containing selected
+    files and browser state.
     """
     browser = FileBrowserComponent()
     return browser.render(key, show_preview, allow_multiple, filter_text)

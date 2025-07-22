@@ -31,6 +31,14 @@ tests/
 │   ├── training/
 │   ├── evaluation/
 │   └── utils/
+├── e2e/           # End-to-end tests
+├── gui/           # GUI-specific tests
+├── docker/        # Docker-related tests
+├── tools/         # Testing tools and utilities
+│   ├── analysis/  # Test failure analysis tools
+│   ├── testing/   # Configuration testing tools
+│   └── utilities/ # Debug and utility tools
+├── utils/         # Test utilities and helpers
 ├── conftest.py    # Shared pytest fixtures
 ├── README.md      # This file
 └── __init__.py    # Test package initialization
@@ -50,6 +58,23 @@ tests/
 - Test the interaction between several modules or the full workflow
 - Verify integration and configuration
 - Located in `tests/integration/<module>/` or directly in `integration/` if they affect multiple modules
+
+### Testing Tools
+
+The `tests/tools/` directory contains specialized tools for testing:
+
+- **`analysis/`**: Test failure analysis and categorization tools
+  - `test_failure_analysis.py`: Comprehensive failure analysis system
+  - `comprehensive_failure_analysis.py`: Advanced failure categorization
+  - `test_failure_categorization.py`: Failure type classification
+  - `test_priority_matrix_creator.py`: Priority assessment tools
+
+- **`testing/`**: Configuration and system testing tools
+  - `test_config_system.py`: Configuration system verification
+
+- **`utilities/`**: Debug and utility tools
+  - `debug_parsing.py`: Parsing debugging utilities
+  - `temp_storage.py`: Temporary storage management
 
 ## Running Tests
 

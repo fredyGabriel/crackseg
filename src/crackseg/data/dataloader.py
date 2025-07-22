@@ -458,8 +458,8 @@ def _create_sampler_from_config(
         rank_param: Current process rank (0-based) in distributed training.
             Required for distributed samplers, ignored otherwise.
 
-        shuffle_param: Original shuffle setting from crackseg.DataLoader config.
-            May be overridden to False if sampler is used.
+        shuffle_param: Original shuffle setting from crackseg.DataLoader
+            config. May be overridden to False if sampler is used.
 
     Returns:
         tuple[Sampler[Any] | None, bool]: A tuple containing:

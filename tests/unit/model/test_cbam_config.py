@@ -1,6 +1,8 @@
+from typing import cast
+
 import pytest
+import torch.nn as nn
 from omegaconf import OmegaConf
-from torch import nn
 
 from crackseg.model.components.cbam import CBAM
 from crackseg.model.factory.factory import insert_cbam_if_enabled
@@ -56,8 +58,22 @@ def test_cbam_custom_params():
     )
     out = insert_cbam_if_enabled(dummy, config)
     cbam = [m for m in out.modules() if isinstance(m, CBAM)][0]
-    assert cbam.channel_attn.reduction == 2  # noqa: PLR2004
-    assert cbam.spatial_attn.conv.kernel_size == (5, 5)
+    cbam_module = cast(CBAM, cbam)
+
+    # Cast the attention modules to help type checker
+    channel_attn = cast(nn.Module, cbam_module.channel_attn)
+    spatial_attn = cast(nn.Module, cbam_module.spatial_attn)
+
+    assert (
+        hasattr(channel_attn, "reduction") and channel_attn.reduction == 2
+    )  # noqa: PLR2004
+    assert hasattr(spatial_attn, "conv") and hasattr(
+        spatial_attn.conv, "kernel_size"
+    )
+    # Use hasattr to check for kernel_size to avoid type issues
+    conv_layer = getattr(spatial_attn, "conv", None)
+    if conv_layer and hasattr(conv_layer, "kernel_size"):
+        assert conv_layer.kernel_size == (5, 5)
 
 
 def test_cbam_invalid_config_raises():

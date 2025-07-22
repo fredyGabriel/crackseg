@@ -44,7 +44,7 @@ This guide provides instructions for setting up the environment for the CrackSeg
 To verify that the installation was successful, you can run the application's help command.
 
 ```bash
-streamlit run scripts/gui/app.py -- --help
+streamlit run gui/app.py -- --help
 ```
 
 This should display the help message for the application without any errors. You are now ready to

@@ -1,6 +1,5 @@
 """
 Configuration editor component for YAML editing with live validation.
-
 This component provides a sophisticated YAML editor using Ace Editor
 with syntax highlighting, live validation, and save functionality.
 """
@@ -9,11 +8,11 @@ import logging
 
 import streamlit as st
 
-from scripts.gui.components.config_editor.editor_core import ConfigEditorCore
-from scripts.gui.components.config_editor.file_browser_integration import (
+from gui.components.config_editor.editor_core import ConfigEditorCore
+from gui.components.config_editor.file_browser_integration import (
     FileBrowserIntegration,
 )
-from scripts.gui.components.config_editor.validation_panel import (
+from gui.components.config_editor.validation_panel import (
     ValidationPanel,
 )
 
@@ -35,15 +34,11 @@ class ConfigEditorComponent:
         key: str = "config_editor",
         height: int = 400,
     ) -> str:
-        """Render the Ace editor with YAML configuration.
-
-        Args:
-            initial_content: Initial YAML content for the editor
-            key: Unique key for the editor component
-            height: Editor height in pixels
-
-        Returns:
-            Current content of the editor
+        """
+        Render the Ace editor with YAML configuration. Args: initial_content:
+        Initial YAML content for the editor key: Unique key for the editor
+        component height: Editor height in pixels Returns: Current content of
+        the editor
         """
         return self.editor_core.render_editor(initial_content, key, height)
 
@@ -53,15 +48,11 @@ class ConfigEditorComponent:
         key: str = "config_editor",
         height: int = 400,
     ) -> str:
-        """Render editor with advanced validation panel.
-
-        Args:
-            initial_content: Initial YAML content for the editor
-            key: Unique key for the editor component
-            height: Editor height in pixels
-
-        Returns:
-            Current content of the editor
+        """
+        Render editor with advanced validation panel. Args: initial_content:
+        Initial YAML content for the editor key: Unique key for the editor
+        component height: Editor height in pixels Returns: Current content of
+        the editor
         """
         col_editor, col_validation = st.columns([2, 1])
 
@@ -79,17 +70,15 @@ class ConfigEditorComponent:
     def render_file_browser_integration(
         self, key: str = "config_browser"
     ) -> None:
-        """Render file browser integration for configuration files.
-
-        Args:
-            key: Unique key for the file browser component
+        """
+        Render file browser integration for configuration files. Args: key:
+        Unique key for the file browser component
         """
         self.file_browser.render_file_browser(key)
 
     def render_advanced_load_dialog(self, key: str = "config_editor") -> None:
-        """Render advanced file loading dialog.
-
-        Args:
-            key: Base key for the editor component
+        """
+        Render advanced file loading dialog. Args: key: Base key for the
+        editor component
         """
         self.file_browser.render_advanced_load_dialog(key)

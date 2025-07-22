@@ -1,7 +1,6 @@
 """
-Data Statistics Utilities
-This module provides functions for calculating and retrieving statistics
-about the project's datasets.
+Data Statistics Utilities This module provides functions for
+calculating and retrieving statistics about the project's datasets.
 """
 
 from pathlib import Path
@@ -9,13 +8,9 @@ from pathlib import Path
 
 def get_dataset_image_counts(data_root: Path) -> dict[str, int]:
     """
-    Counts the number of images in train, val, and test directories.
-
-    Args:
-        data_root: The root directory of the 'data' folder.
-
-    Returns:
-        A dictionary with counts for 'train', 'val', and 'test' sets.
+    Counts the number of images in train, val, and test directories. Args:
+    data_root: The root directory of the 'data' folder. Returns: A
+    dictionary with counts for 'train', 'val', and 'test' sets.
     """
     counts = {}
     for split in ["train", "val", "test"]:
@@ -30,4 +25,4 @@ def get_dataset_image_counts(data_root: Path) -> dict[str, int]:
             counts[split] = len(image_files)
         else:
             counts[split] = 0
-    return counts
+    return counts  # type: ignore[return-value]

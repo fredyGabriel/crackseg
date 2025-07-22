@@ -1,17 +1,16 @@
 """
 Example script: How to use the configuration system with overrides
-
-This script demonstrates how to create a base configuration, apply command-line
-style overrides, and print the resulting configuration in YAML format. This is
-useful for testing and for users who want to understand how to modify
-configuration values dynamically.
+This script demonstrates how to create a base configuration, apply
+command-line style overrides, and print the resulting configuration in
+YAML format. This is useful for testing and for users who want to
+understand how to modify configuration values dynamically.
 """
 
 import os
 
 from omegaconf import OmegaConf
 
-# from crackseg.utils.config_override import apply_overrides
+# from  crackseg.utils.config_override  import  apply_overrides
 # Module not found
 
 

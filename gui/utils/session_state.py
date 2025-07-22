@@ -160,7 +160,7 @@ class SessionState:
             # Import here to avoid circular imports
             from pathlib import Path
 
-            from scripts.gui.utils.tb_manager import (
+            from gui.utils.tb_manager import (
                 get_global_lifecycle_manager,
             )
 

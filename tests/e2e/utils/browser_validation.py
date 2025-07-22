@@ -1,21 +1,49 @@
-"""Browser capability validation and compatibility testing utilities.
-
-This module provides functionality to validate browser capabilities and test
-compatibility features specific to the CrackSeg application. Integrates with
-the browser matrix configuration to ensure consistent testing across browsers.
+"""
+Browser capability validation and compatibility testing utilities.
+This module provides functionality to validate browser capabilities
+and test compatibility features specific to the CrackSeg application.
+Integrates with the browser matrix configuration to ensure consistent
+testing across browsers.
 """
 
 import json
 import logging
 import time
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from selenium.common.exceptions import (
-    JavascriptException,
-)
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support.ui import WebDriverWait
+if TYPE_CHECKING:
+    # Type-only imports for when selenium is available
+    from selenium.common.exceptions import (
+        JavascriptException,  # type: ignore[import-untyped]
+    )
+    from selenium.webdriver.remote.webdriver import (
+        WebDriver,  # type: ignore[import-untyped]
+    )
+    from selenium.webdriver.support.ui import (
+        WebDriverWait,  # type: ignore[import-untyped]
+    )
+else:
+    # Runtime fallbacks when selenium is not available
+    try:
+        from selenium.common.exceptions import JavascriptException
+        from selenium.webdriver.remote.webdriver import WebDriver
+        from selenium.webdriver.support.ui import WebDriverWait
+
+        SELENIUM_AVAILABLE = True
+    except ImportError:
+        # Mock classes for when selenium is not available
+        class WebDriver:  # type: ignore[no-redef]
+            pass
+
+        class WebDriverWait:  # type: ignore[no-redef]
+            def __init__(self, driver: Any, timeout: float) -> None:
+                pass
+
+        class JavascriptException(Exception):  # type: ignore[no-redef]
+            pass
+
+        SELENIUM_AVAILABLE = False
 
 from ..config.browser_matrix_config import BrowserCapability, BrowserProfile
 
@@ -49,7 +77,6 @@ class BrowserCompatibilityReport:
     def add_result(self, result: CapabilityTestResult) -> None:
         """Add a capability test result to the report."""
         self.test_results.append(result)
-
         if not result.supported:
             self.overall_compatibility = False
             if result.capability in [
@@ -62,11 +89,11 @@ class BrowserCompatibilityReport:
                 self.warnings.append(result.capability.value)
 
     def get_compatibility_score(self) -> float:
-        """Calculate compatibility score as percentage of supported
-        features."""
+        """
+        Calculate compatibility score as percentage of supported features.
+        """
         if not self.test_results:
             return 0.0
-
         supported_count = sum(1 for r in self.test_results if r.supported)
         return (supported_count / len(self.test_results)) * 100.0
 
@@ -95,11 +122,13 @@ class BrowserCompatibilityReport:
 
 
 class BrowserCapabilityValidator:
-    """Validates browser capabilities for CrackSeg application
-    compatibility."""
+    """
+    Validates browser capabilities for CrackSeg application compatibility.
+    """
 
     def __init__(self, driver: WebDriver, timeout: float = 10.0) -> None:
-        """Initialize capability validator.
+        """
+        Initialize capability validator.
 
         Args:
             driver: Selenium WebDriver instance
@@ -112,7 +141,8 @@ class BrowserCapabilityValidator:
     def validate_profile(
         self, profile: BrowserProfile
     ) -> BrowserCompatibilityReport:
-        """Validate all required capabilities for a browser profile.
+        """
+        Validate all required capabilities for a browser profile.
 
         Args:
             profile: Browser profile to validate
@@ -146,7 +176,8 @@ class BrowserCapabilityValidator:
     def _test_capability(
         self, capability: BrowserCapability
     ) -> CapabilityTestResult:
-        """Test a specific browser capability.
+        """
+        Test a specific browser capability.
 
         Args:
             capability: Capability to test
@@ -175,7 +206,9 @@ class BrowserCapabilityValidator:
                 result = CapabilityTestResult(
                     capability=capability,
                     supported=False,
-                    error_message=f"Test not implemented for {capability.value}",
+                    error_message=(
+                        f"Test not implemented for {capability.value}"
+                    ),
                 )
         except Exception as e:
             result = CapabilityTestResult(
@@ -205,7 +238,7 @@ class BrowserCapabilityValidator:
                 } catch (e) {
                     return 'ES6 not supported: ' + e.message;
                 }
-            """
+                """
             )
 
             es6_supported = "ES6 support:" in str(modern_js)
@@ -234,9 +267,8 @@ class BrowserCapabilityValidator:
                 var div = document.createElement('div');
                 div.style.display = 'grid';
                 return div.style.display === 'grid';
-            """
+                """
             )
-
             subgrid_support = self.driver.execute_script(
                 """
                 try {
@@ -246,7 +278,7 @@ class BrowserCapabilityValidator:
                 } catch (e) {
                     return false;
                 }
-            """
+                """
             )
 
             return CapabilityTestResult(
@@ -271,13 +303,14 @@ class BrowserCapabilityValidator:
                 """
                 try {
                     var canvas = document.createElement('canvas');
-                    var gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                    if (!gl) return {supported: false, version: null};
-
+                    var gl = canvas.getContext('webgl') ||
+                             canvas.getContext('experimental-webgl');
+                    if (!gl) {
+                        return {supported: false, version: null};
+                    }
                     var version = gl.getParameter(gl.VERSION);
                     var vendor = gl.getParameter(gl.VENDOR);
                     var renderer = gl.getParameter(gl.RENDERER);
-
                     return {
                         supported: true,
                         version: version,
@@ -287,7 +320,7 @@ class BrowserCapabilityValidator:
                 } catch (e) {
                     return {supported: false, error: e.message};
                 }
-            """
+                """
             )
 
             return CapabilityTestResult(
@@ -320,9 +353,8 @@ class BrowserCapabilityValidator:
                     multiple_supported: input.multiple === true,
                     files_api: 'files' in input
                 };
-            """
+                """
             )
-
             drag_drop_test = self.driver.execute_script(
                 """
                 try {
@@ -331,7 +363,7 @@ class BrowserCapabilityValidator:
                 } catch (e) {
                     return false;
                 }
-            """
+                """
             )
 
             all_supported = file_input_test.get(
@@ -360,17 +392,17 @@ class BrowserCapabilityValidator:
                 """
                 try {
                     if (typeof Storage === 'undefined') {
-                        return {supported: false, reason: 'Storage API not available'};
+                        return {
+                            supported: false,
+                            reason: 'Storage API not available'
+                        };
                     }
-
                     // Test localStorage operations
                     var testKey = 'crackseg_test_' + Date.now();
                     var testValue = 'test_value_' + Math.random();
-
                     localStorage.setItem(testKey, testValue);
                     var retrieved = localStorage.getItem(testKey);
                     localStorage.removeItem(testKey);
-
                     return {
                         supported: retrieved === testValue,
                         quota_test: 'quota' in navigator.storage || false
@@ -378,7 +410,7 @@ class BrowserCapabilityValidator:
                 } catch (e) {
                     return {supported: false, error: e.message};
                 }
-            """
+                """
             )
 
             return CapabilityTestResult(
@@ -400,25 +432,27 @@ class BrowserCapabilityValidator:
                 """
                 try {
                     if (typeof Storage === 'undefined') {
-                        return {supported: false, reason: 'Storage API not available'};
+                        return {
+                            supported: false,
+                            reason: 'Storage API not available'
+                        };
                     }
-
                     // Test sessionStorage operations
                     var testKey = 'crackseg_session_test_' + Date.now();
                     var testValue = 'session_value_' + Math.random();
-
                     sessionStorage.setItem(testKey, testValue);
                     var retrieved = sessionStorage.getItem(testKey);
                     sessionStorage.removeItem(testKey);
-
                     return {
                         supported: retrieved === testValue,
-                        length_property: typeof sessionStorage.length === 'number'
+                        length_property: (
+                            typeof sessionStorage.length === 'number'
+                        )
                     };
                 } catch (e) {
                     return {supported: false, error: e.message};
                 }
-            """
+                """
             )
 
             return CapabilityTestResult(
@@ -452,7 +486,7 @@ class BrowserCapabilityValidator:
                 } catch (e) {
                     return {error: e.message};
                 }
-            """
+                """
             )
 
             # Check minimum required features
@@ -478,7 +512,8 @@ class BrowserCapabilityValidator:
 def validate_browser_compatibility(
     driver: WebDriver, profile: BrowserProfile
 ) -> BrowserCompatibilityReport:
-    """Validate browser compatibility for a given profile.
+    """
+    Validate browser compatibility for a given profile.
 
     Args:
         driver: Selenium WebDriver instance
@@ -494,7 +529,8 @@ def validate_browser_compatibility(
 def save_compatibility_report(
     report: BrowserCompatibilityReport, file_path: str
 ) -> None:
-    """Save compatibility report to JSON file.
+    """
+    Save compatibility report to JSON file.
 
     Args:
         report: Browser compatibility report
@@ -509,7 +545,8 @@ def save_compatibility_report(
 
 
 def check_critical_compatibility(report: BrowserCompatibilityReport) -> bool:
-    """Check if browser meets critical compatibility requirements.
+    """
+    Check if browser meets critical compatibility requirements.
 
     Args:
         report: Browser compatibility report
@@ -535,7 +572,8 @@ def check_critical_compatibility(report: BrowserCompatibilityReport) -> bool:
 def get_browser_compatibility_summary(
     reports: list[BrowserCompatibilityReport],
 ) -> dict[str, Any]:
-    """Generate summary of browser compatibility across multiple reports.
+    """
+    Generate summary of browser compatibility across multiple reports.
 
     Args:
         reports: List of browser compatibility reports

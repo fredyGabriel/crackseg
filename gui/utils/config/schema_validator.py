@@ -339,12 +339,8 @@ class CrackSegSchemaValidator:
                     )
                 )
             elif not isinstance(config[section], dict):
-                errors.append(
-                    ValidationError(
-                        message=f"Configuration section '{section}' must be a dictionary",
-                        field=section,
-                    )
-                )
+                msg = f"Configuration section '{section}' must be a dictionary"
+                errors.append(ValidationError(message=msg, field=section))
 
         return errors
 

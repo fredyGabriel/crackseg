@@ -1,7 +1,8 @@
 """System stability concurrent operation tests.
 
 Tests focused on system stability, performance monitoring, and load testing
-under concurrent operations. Extracted from oversized test_concurrent_operations.py.
+under concurrent operations. Extracted from oversized
+test_concurrent_operations.py.
 """
 
 from ..test_base import WorkflowTestBase

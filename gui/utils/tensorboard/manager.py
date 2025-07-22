@@ -12,7 +12,7 @@ Components:
 
 Example:
     >>> # Direct usage of refactored components
-    >>> from scripts.gui.utils.tb_manager_refactored import (
+    >>> from gui.utils.tb_manager_refactored import (
     ...     TensorBoardManager, TensorBoardLifecycleManager,
     ...     PortRegistry, TensorBoardState
     ... )

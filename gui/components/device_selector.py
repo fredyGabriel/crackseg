@@ -14,9 +14,9 @@ import torch
 
 from crackseg.utils.core.device import get_device
 from crackseg.utils.logging import get_logger
-from scripts.gui.components.device_detector import DeviceDetector
-from scripts.gui.components.device_info import DeviceInfo
-from scripts.gui.components.device_selector_ui import (
+from gui.components.device_detector import DeviceDetector
+from gui.components.device_info import DeviceInfo
+from gui.components.device_selector_ui import (
     DeviceCardRenderer,
     DeviceSelectorCSS,
     DeviceSelectorRenderer,

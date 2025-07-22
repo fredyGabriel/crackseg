@@ -1,8 +1,8 @@
 """
-Loading spinner component for the CrackSeg application.
-
-This module provides a professional loading spinner with contextual messaging,
-brand-aligned styling, and timeout handling for enhanced user experience.
+Loading spinner component for the CrackSeg application. This module
+provides a professional loading spinner with contextual messaging,
+brand-aligned styling, and timeout handling for enhanced user
+experience.
 """
 
 import time
@@ -11,17 +11,19 @@ from contextlib import contextmanager
 
 import streamlit as st
 
-from scripts.gui.utils.error_state import (
+from gui.utils.error_state import (
     ErrorMessageFactory,
     ErrorType,
     StandardErrorState,
 )
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.session_state import SessionStateManager
 
 
 class LoadingSpinner:
-    """Professional loading spinner component with brand alignment and timeout
-    handling."""
+    """
+    Professional loading spinner component with brand alignment and
+    timeout handling.
+    """
 
     # Brand-aligned color scheme matching LogoComponent
     _BRAND_COLORS = {
@@ -61,89 +63,31 @@ class LoadingSpinner:
     def _inject_custom_css() -> None:
         """Inject custom CSS for brand-aligned spinner styling."""
         css = """
-        <style>
-        /* CrackSeg Brand Spinner Styles */
-        .crackseg-spinner-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin: 20px 0;
-        }
-
-        .crackseg-spinner-icon {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #FF4444;
-            border-radius: 50%;
-            animation: crackseg-rotate 1s linear infinite;
-        }
-
-        .crackseg-spinner-text {
-            margin-top: 15px;
-            font-size: 16px;
-            color: #2E2E2E;
-            font-weight: 500;
-            text-align: center;
-            line-height: 1.4;
-        }
-
-        .crackseg-spinner-subtext {
-            margin-top: 5px;
-            font-size: 12px;
-            color: #666;
-            text-align: center;
-            opacity: 0.8;
-        }
-
-        @keyframes crackseg-rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes crack-pulse {
-            0%, 100% { opacity: 1; border-color: #FF4444; }
-            50% { opacity: 0.6; border-color: #FF8888; }
-        }
-
-        @keyframes road-scan {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
-        }
-
-        @keyframes ai-pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.05); }
-        }
-
-        /* Timeout warning styles */
-        .crackseg-timeout-warning {
-            background: #FFF3CD;
-            border: 1px solid #FFB800;
-            color: #856404;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0;
-            font-size: 14px;
-        }
-
-        /* Success completion styles */
-        .crackseg-success-message {
-            background: #D4EDDA;
-            border: 1px solid #00FF64;
-            color: #155724;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0;
-            font-size: 14px;
-        }
-        </style>
-        """
+<style> /* CrackSeg Brand Spinner Styles */
+.crackseg-spinner-container { display: flex; flex-direction: column;
+align-items: center; justify-content: center; padding: 20px;
+background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+margin: 20px 0; } .crackseg-spinner-icon { width: 50px; height: 50px;
+border: 4px solid #f3f3f3; border-top: 4px solid #FF4444;
+border-radius: 50%; animation: crackseg-rotate 1s linear infinite; }
+.crackseg-spinner-text { margin-top: 15px; font-size: 16px; color:
+#2E2E2E; font-weight: 500; text-align: center; line-height: 1.4; }
+.crackseg-spinner-subtext { margin-top: 5px; font-size: 12px; color:
+#666; text-align: center; opacity: 0.8; } @keyframes crackseg-rotate {
+0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes crack-pulse { 0%, 100% { opacity: 1; border-color: #FF4444;
+} 50% { opacity: 0.6; border-color: #FF8888; } } @keyframes road-scan
+{ 0% { transform: translateX(-100%); } 100% { transform:
+translateX(100%); } } @keyframes ai-pulse { 0%, 100% { opacity: 1;
+transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.05); } }
+/* Timeout warning styles */ .crackseg-timeout-warning { background:
+#FFF3CD; border: 1px solid #FFB800; color: #856404; padding: 10px;
+border-radius: 6px; margin: 10px 0; font-size: 14px; } /* Success
+completion styles */ .crackseg-success-message { background: #D4EDDA;
+border: 1px solid #00FF64; color: #155724; padding: 10px;
+border-radius: 6px; margin: 10px 0; font-size: 14px; } </style>
+"""
         st.markdown(css, unsafe_allow_html=True)
 
     @staticmethod
@@ -310,13 +254,10 @@ class LoadingSpinner:
         spinner_type: str = "default",
     ) -> None:
         """
-        Display progress bar with spinner for longer operations.
-
-        Args:
-            message: Primary progress message
-            progress: Progress value between 0.0 and 1.0
-            subtext: Optional secondary message
-            spinner_type: Type of spinner animation
+        Display progress bar with spinner for longer operations. Args:
+        message: Primary progress message progress: Progress value between 0.0
+        and 1.0 subtext: Optional secondary message spinner_type: Type of
+        spinner animation
         """
         LoadingSpinner._inject_custom_css()
 
@@ -337,14 +278,10 @@ class LoadingSpinner:
     @staticmethod
     def get_contextual_message(operation_type: str) -> tuple[str, str, str]:
         """
-        Get contextual loading messages for different operation types.
-
-        Args:
-            operation_type: Type of operation
-                ('config', 'model', 'training', 'results', 'tensorboard')
-
-        Returns:
-            Tuple of (message, subtext, spinner_type)
+        Get contextual loading messages for different operation types. Args:
+        operation_type: Type of operation ('config', 'model', 'training',
+        'results', 'tensorboard') Returns: Tuple of (message, subtext,
+        spinner_type)
         """
         messages = {
             "config": (
@@ -391,13 +328,9 @@ class LoadingSpinner:
     @staticmethod
     def _classify_error(exception: Exception) -> ErrorType:
         """
-        Classify exception into appropriate ErrorType.
-
-        Args:
-            exception: Exception that occurred
-
-        Returns:
-            Appropriate ErrorType for the exception
+        Classify exception into appropriate ErrorType. Args: exception:
+        Exception that occurred Returns: Appropriate ErrorType for the
+        exception
         """
         # Check exception type and message for classification
         exception_str = str(exception).lower()
@@ -470,15 +403,10 @@ def loading_spinner(
 ):
     """
     Convenience function for creating loading spinner context manager.
-
-    Args:
-        message: Primary loading message
-        subtext: Optional secondary message
-        spinner_type: Type of spinner animation
-        timeout_seconds: Timeout threshold in seconds
-
-    Returns:
-        Context manager for loading spinner
+    Args: message: Primary loading message subtext: Optional secondary
+    message spinner_type: Type of spinner animation timeout_seconds:
+    Timeout threshold in seconds Returns: Context manager for loading
+    spinner
     """
     return LoadingSpinner.spinner(
         message=message,

@@ -16,7 +16,8 @@ from typing import Any
 
 import psutil
 
-from ...docker.env_manager import EnvironmentConfig, EnvironmentManager
+from docker.env_manager import EnvironmentConfig, EnvironmentManager
+
 from ..config.browser_config_manager import BrowserConfigManager, BrowserMatrix
 from ..config.resource_manager import ResourceAllocation, ResourceManager
 

@@ -1,6 +1,6 @@
-"""Configuration data factory for E2E testing.
-
-This module provides configuration file generation for test scenarios.
+"""
+Configuration data factory for E2E testing. This module provides
+configuration file generation for test scenarios.
 """
 
 import tempfile
@@ -22,17 +22,12 @@ class ConfigDataFactory(BaseDataFactory):
         missing_keys: list[str] | None = None,
         **kwargs: Any,
     ) -> TestData:
-        """Generate test configuration data.
-
-        Args:
-            config_type: Type of config to generate ('basic', 'advanced',
-                'model', 'training')
-            invalid: Whether to generate invalid configuration
-            missing_keys: List of keys to omit for invalid configs
-            **kwargs: Additional configuration parameters
-
-        Returns:
-            TestData containing generated configuration
+        """
+        Generate test configuration data. Args: config_type: Type of config to
+        generate ('basic', 'advanced', 'model', 'training') invalid: Whether
+        to generate invalid configuration missing_keys: List of keys to omit
+        for invalid configs **kwargs: Additional configuration parameters
+        Returns: TestData containing generated configuration
         """
         # Configuration templates
         config_templates = {

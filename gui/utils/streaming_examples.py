@@ -1,6 +1,6 @@
-"""Examples demonstrating real-time log streaming functionality.
-
-This module provides practical examples of how to use the log streaming
+"""
+Examples demonstrating real-time log streaming functionality. This
+module provides practical examples of how to use the log streaming
 system for real-time training monitoring and GUI integration.
 """
 
@@ -15,10 +15,10 @@ from .run_manager import (
 
 
 def example_basic_log_callback() -> None:
-    """Example: Basic log callback for console output.
-
-    Demonstrates how to register a simple callback that prints
-    all log entries to the console with timestamps and levels.
+    """
+    Example: Basic log callback for console output. Demonstrates how to
+    register a simple callback that prints all log entries to the console
+    with timestamps and levels.
     """
     print("=== Basic Log Callback Example ===")
 
@@ -39,10 +39,10 @@ def example_basic_log_callback() -> None:
 
 
 def example_filtered_log_callback() -> None:
-    """Example: Filtered log callback for specific log levels.
-
-    Shows how to create a callback that only processes certain
-    types of log entries (e.g., only errors and warnings).
+    """
+    Example: Filtered log callback for specific log levels. Shows how to
+    create a callback that only processes certain types of log entries
+    (e.g., only errors and warnings).
     """
     print("\n=== Filtered Log Callback Example ===")
 
@@ -60,10 +60,10 @@ def example_filtered_log_callback() -> None:
 
 
 def example_metrics_extraction_callback() -> None:
-    """Example: Extract training metrics from log streams.
-
-    Demonstrates parsing log content to extract numerical
-    metrics like loss, accuracy, epoch progress, etc.
+    """
+    Example: Extract training metrics from log streams. Demonstrates
+    parsing log content to extract numerical metrics like loss, accuracy,
+    epoch progress, etc.
     """
     print("\n=== Metrics Extraction Example ===")
 
@@ -95,7 +95,7 @@ def example_metrics_extraction_callback() -> None:
                     # Print recent metrics
                     recent_values = extracted_metrics[metric_name][-5:]
                     avg_recent = sum(recent_values) / len(recent_values)
-                    msg = f"📊 {metric_name}: {value:.4f} (avg: {avg_recent:.4f})"  # noqa E501
+                    msg = f"📊 {metric_name}: {value:.4f} (avg: {avg_recent:.4f}) "  # noqa E501
                     print(msg)
 
                 except ValueError:
@@ -107,10 +107,10 @@ def example_metrics_extraction_callback() -> None:
 
 
 def example_gui_integration_callback() -> None:
-    """Example: GUI integration with log buffering.
-
-    Shows how to implement a callback suitable for GUI frameworks
-    that need thread-safe updates and buffered display.
+    """
+    Example: GUI integration with log buffering. Shows how to implement a
+    callback suitable for GUI frameworks that need thread-safe updates and
+    buffered display.
     """
     print("\n=== GUI Integration Example ===")
 
@@ -162,10 +162,10 @@ def example_gui_integration_callback() -> None:
 
 
 def example_log_monitoring_and_status() -> None:
-    """Example: Monitor streaming status and retrieve logs.
-
-    Demonstrates how to check streaming status and retrieve
-    buffered logs for analysis or display.
+    """
+    Example: Monitor streaming status and retrieve logs. Demonstrates how
+    to check streaming status and retrieve buffered logs for analysis or
+    display.
     """
     print("\n=== Log Monitoring Example ===")
 
@@ -198,10 +198,10 @@ def example_log_monitoring_and_status() -> None:
 
 
 def example_training_session_with_streaming() -> None:
-    """Example: Complete training session with streaming.
-
-    Shows how to start a training session and monitor it
-    with real-time log streaming (simulation).
+    """
+    Example: Complete training session with streaming. Shows how to start
+    a training session and monitor it with real-time log streaming
+    (simulation).
     """
     print("\n=== Complete Training Session Example ===")
 

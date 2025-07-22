@@ -1,7 +1,8 @@
-"""LRU cache for configuration files with timestamp-based invalidation.
-
-This module provides an LRU (Least Recently Used) cache for configuration files
-that automatically invalidates cached entries when source files are modified.
+"""
+LRU cache for configuration files with timestamp-based invalidation.
+This module provides an LRU (Least Recently Used) cache for
+configuration files that automatically invalidates cached entries when
+source files are modified.
 """
 
 import os
@@ -11,23 +12,19 @@ class ConfigCache:
     """LRU cache for configuration files with timestamp-based invalidation."""
 
     def __init__(self, maxsize: int = 128) -> None:
-        """Initialize the configuration cache.
-
-        Args:
-            maxsize: Maximum number of cached configurations.
+        """
+        Initialize the configuration cache. Args: maxsize: Maximum number of
+        cached configurations.
         """
         self._cache: dict[str, tuple[dict[str, object], float]] = {}
         self._maxsize = maxsize
         self._access_order: list[str] = []
 
     def get(self, path: str) -> dict[str, object] | None:
-        """Get a configuration from cache if valid.
-
-        Args:
-            path: Path to the configuration file.
-
-        Returns:
-            Cached configuration dict or None if not cached/invalid.
+        """
+        Get a configuration from cache if valid. Args: path: Path to the
+        configuration file. Returns: Cached configuration dict or None if not
+        cached/invalid.
         """
         if path not in self._cache:
             return None
@@ -54,11 +51,9 @@ class ConfigCache:
         return cached_config
 
     def set(self, path: str, config: dict[str, object]) -> None:
-        """Cache a configuration.
-
-        Args:
-            path: Path to the configuration file.
-            config: Configuration dictionary to cache.
+        """
+        Cache a configuration. Args: path: Path to the configuration file.
+        config: Configuration dictionary to cache.
         """
         # Enforce cache size limit
         if len(self._cache) >= self._maxsize and path not in self._cache:
@@ -78,10 +73,9 @@ class ConfigCache:
             pass
 
     def invalidate(self, path: str) -> None:
-        """Invalidate a cached configuration.
-
-        Args:
-            path: Path to the configuration file to invalidate.
+        """
+        Invalidate a cached configuration. Args: path: Path to the
+        configuration file to invalidate.
         """
         if path in self._cache:
             del self._cache[path]

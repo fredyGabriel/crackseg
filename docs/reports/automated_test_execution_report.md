@@ -15,7 +15,7 @@ comprehensive validation of GUI corrections.
 
 ### 1. **Dataclass Field Conflict (CRITICAL FIX)**
 
-- **Problem**: Naming collision in `scripts/gui/utils/config/error_reporter.py`
+- **Problem**: Naming collision in `gui/utils/config/error_reporter.py`
 - **Root Cause**: Dataclass field named `field` shadowed the imported `field()` function
 - **Solution**: Renamed dataclass field to `field_name` and updated all references
 - **Impact**: Eliminated all import errors, restored test functionality
@@ -122,10 +122,10 @@ class ErrorReport:
 
 ```bash
 # Code Quality (Still has ruff violations)
-⚠️ conda activate crackseg && python -m ruff check scripts/gui/ --output-format=concise
+⚠️ conda activate crackseg && python -m ruff check gui/ --output-format=concise
 
 # Type Checking (Needs verification)
-⚠️ conda activate crackseg && basedpyright scripts/gui/
+⚠️ conda activate crackseg && basedpyright gui/
 ```
 
 ## 📈 **Performance Metrics**

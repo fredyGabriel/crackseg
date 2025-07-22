@@ -1,29 +1,25 @@
 """
-Sidebar component for the CrackSeg application.
-
-This module provides professional sidebar navigation with enhanced
-functionality and visual status indicators.
+Sidebar component for the CrackSeg application. This module provides
+professional sidebar navigation with enhanced functionality and visual
+status indicators.
 """
 
 from pathlib import Path
 
 import streamlit as st
 
-from scripts.gui.components.logo_component import LogoComponent
-from scripts.gui.components.page_router import PageRouter
-from scripts.gui.components.theme_component import ThemeComponent
-from scripts.gui.utils.gui_config import PAGE_CONFIG
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.components.logo_component import LogoComponent
+from gui.components.page_router import PageRouter
+from gui.components.theme_component import ThemeComponent
+from gui.utils.gui_config import PAGE_CONFIG
+from gui.utils.session_state import SessionStateManager
 
 
 def render_sidebar(project_root: Path) -> str:
-    """Render sidebar with navigation and logo.
-
-    Args:
-        project_root: Project root directory for logo fallback paths
-
-    Returns:
-        Currently selected page name
+    """
+    Render sidebar with navigation and logo. Args: project_root: Project
+    root directory for logo fallback paths Returns: Currently selected
+    page name
     """
     state = SessionStateManager.get()
 

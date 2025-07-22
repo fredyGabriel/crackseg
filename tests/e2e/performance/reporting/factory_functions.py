@@ -1,6 +1,6 @@
-"""Factory functions for creating performance report generators.
-
-This module provides factory functions and convenience methods for external
+"""
+Factory functions for creating performance report generators. This
+module provides factory functions and convenience methods for external
 systems to create and use performance report generators.
 """
 
@@ -22,15 +22,12 @@ def create_performance_report_generator(
     historical_data_path: Path | str = "performance-historical-data",
     config: ReportConfiguration | None = None,
 ) -> PerformanceReportGenerator:
-    """Factory function to create a performance report generator instance.
-
-    Args:
-        storage_path: Directory to store generated reports
-        historical_data_path: Directory to store historical performance data
-        config: Report configuration (uses defaults if None)
-
-    Returns:
-        Configured PerformanceReportGenerator instance
+    """
+    Factory function to create a performance report generator instance.
+    Args: storage_path: Directory to store generated reports
+    historical_data_path: Directory to store historical performance data
+    config: Report configuration (uses defaults if None) Returns:
+    Configured PerformanceReportGenerator instance
     """
     return PerformanceReportGenerator(
         storage_path=str(storage_path),
@@ -42,13 +39,10 @@ def create_performance_report_generator(
 def create_default_ci_generator(
     output_dir: Path | str = "performance-reports",
 ) -> PerformanceReportGenerator:
-    """Create a performance report generator with CI/CD defaults.
-
-    Args:
-        output_dir: Directory for report outputs
-
-    Returns:
-        PerformanceReportGenerator configured for CI/CD use
+    """
+    Create a performance report generator with CI/CD defaults. Args:
+    output_dir: Directory for report outputs Returns:
+    PerformanceReportGenerator configured for CI/CD use
     """
     config = ReportConfiguration(
         export_formats=["html", "json"],
@@ -66,13 +60,10 @@ def create_default_ci_generator(
 def create_local_development_generator(
     output_dir: Path | str = "local-performance-reports",
 ) -> PerformanceReportGenerator:
-    """Create a performance report generator for local development.
-
-    Args:
-        output_dir: Directory for report outputs
-
-    Returns:
-        PerformanceReportGenerator configured for local development
+    """
+    Create a performance report generator for local development. Args:
+    output_dir: Directory for report outputs Returns:
+    PerformanceReportGenerator configured for local development
     """
     config = ReportConfiguration(
         export_formats=["html"],
@@ -94,19 +85,13 @@ def generate_ci_performance_report(
     output_dir: Path | str = "performance-reports",
     commit_sha: str | None = None,
 ) -> dict[str, Path]:
-    """Generate performance report from CI/CD pipeline results.
-
-    Args:
-        results_path: Path to the performance results JSON file
-        output_dir: Directory to store generated reports
-        commit_sha: Git commit SHA for tracking (optional)
-
-    Returns:
-        Dictionary mapping format names to output file paths
-
-    Raises:
-        FileNotFoundError: If results file doesn't exist
-        ValueError: If results file cannot be parsed
+    """
+    Generate performance report from CI/CD pipeline results. Args:
+    results_path: Path to the performance results JSON file output_dir:
+    Directory to store generated reports commit_sha: Git commit SHA for
+    tracking (optional) Returns: Dictionary mapping format names to output
+    file paths Raises: FileNotFoundError: If results file doesn't exist
+    ValueError: If results file cannot be parsed
     """
     results_path = Path(results_path)
 
@@ -129,27 +114,21 @@ def generate_development_report(
     results_data: dict[str, Any],
     output_dir: Path | str = "local-performance-reports",
 ) -> dict[str, Path]:
-    """Generate performance report for local development.
-
-    Args:
-        results_data: Performance results dictionary
-        output_dir: Directory to store generated reports
-
-    Returns:
-        Dictionary mapping format names to output file paths
+    """
+    Generate performance report for local development. Args: results_data:
+    Performance results dictionary output_dir: Directory to store
+    generated reports Returns: Dictionary mapping format names to output
+    file paths
     """
     generator = create_local_development_generator(output_dir=output_dir)
     return generator.generate_comprehensive_report(results_data)
 
 
 def validate_results_file(results_path: Path | str) -> dict[str, Any]:
-    """Validate a performance results file before processing.
-
-    Args:
-        results_path: Path to the results file to validate
-
-    Returns:
-        Validation result dictionary with 'is_valid', 'errors', 'warnings'
+    """
+    Validate a performance results file before processing. Args:
+    results_path: Path to the results file to validate Returns: Validation
+    result dictionary with 'is_valid', 'errors', 'warnings'
     """
     results_path = Path(results_path)
     validation: dict[str, Any] = {
@@ -192,19 +171,15 @@ def validate_results_file(results_path: Path | str) -> dict[str, Any]:
 
 
 def get_available_themes() -> list[str]:
-    """Get list of available chart themes.
-
-    Returns:
-        List of theme names
+    """
+    Get list of available chart themes. Returns: List of theme names
     """
     return ["plotly", "plotly_white", "plotly_dark", "ggplot2", "seaborn"]
 
 
 def get_available_formats() -> list[str]:
-    """Get list of available export formats.
-
-    Returns:
-        List of format names
+    """
+    Get list of available export formats. Returns: List of format names
     """
     return ["html", "json", "pdf"]
 

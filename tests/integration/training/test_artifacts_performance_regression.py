@@ -1,9 +1,8 @@
-"""Performance and regression tests for training artifacts.
-
-This module covers action items 6-8 from subtask 9.4:
-- CI/CD pipeline steps for artifact validation
-- Performance tests for artifact loading and saving
-- Regression tests comparing new and old artifact formats
+"""
+Performance and regression tests for training artifacts. This module
+covers action items 6-8 from subtask 9.4: - CI/CD pipeline steps for
+artifact validation - Performance tests for artifact loading and
+saving - Regression tests comparing new and old artifact formats
 """
 
 import json
@@ -96,10 +95,9 @@ def large_model_components() -> TrainingComponents:
 
 
 class TestArtifactPerformance:
-    """Test performance characteristics of artifact operations.
-
-    Covers action item 7: Add performance tests for artifact loading
-    and saving.
+    """
+    Test performance characteristics of artifact operations. Covers action
+    item 7: Add performance tests for artifact loading and saving.
     """
 
     @pytest.mark.integration
@@ -311,8 +309,8 @@ class TestArtifactPerformance:
 
 
 class TestArtifactRegression:
-    """Test regression scenarios for artifact formats and compatibility.
-
+    """
+    Test regression scenarios for artifact formats and compatibility.
     Covers action item 8: Implement regression tests comparing new and old
     artifact formats.
     """
@@ -324,8 +322,10 @@ class TestArtifactRegression:
         large_model_components: TrainingComponents,
         performance_test_config: DictConfig,
     ) -> None:
-        """Test that current checkpoint format is compatible with
-        expected structure."""
+        """
+        Test that current checkpoint format is compatible with expected
+        structure.
+        """
         with tempfile.TemporaryDirectory() as temp_dir:
             experiment_dir = Path(temp_dir) / "regression_test"
             experiment_dir.mkdir(parents=True)
@@ -581,10 +581,9 @@ class TestArtifactRegression:
 
 
 class TestCIPipelineValidation:
-    """Test CI/CD pipeline validation scenarios.
-
-    Covers action item 6: Create CI/CD pipeline steps to run artifact
-    validation.
+    """
+    Test CI/CD pipeline validation scenarios. Covers action item 6: Create
+    CI/CD pipeline steps to run artifact validation.
     """
 
     @pytest.mark.integration

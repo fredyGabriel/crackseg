@@ -1,7 +1,7 @@
-"""Layout validation utilities for responsive testing.
-
-This module provides functions for validating responsive layouts, checking
-element positioning, visibility, and responsive design correctness.
+"""
+Layout validation utilities for responsive testing. This module
+provides functions for validating responsive layouts, checking element
+positioning, visibility, and responsive design correctness.
 """
 
 import logging
@@ -17,14 +17,10 @@ def validate_responsive_layout(
     driver: WebDriver,
     layout_checks: dict[str, Any],
 ) -> dict[str, bool]:
-    """Validate responsive layout against specified criteria.
-
-    Args:
-        driver: WebDriver instance
-        layout_checks: Dictionary of layout validation criteria
-
-    Returns:
-        Dictionary with validation results for each check
+    """
+    Validate responsive layout against specified criteria. Args: driver:
+    WebDriver instance layout_checks: Dictionary of layout validation
+    criteria Returns: Dictionary with validation results for each check
     """
     results = {}
 
@@ -72,14 +68,10 @@ def validate_responsive_layout(
 def _check_navigation_visibility(
     driver: WebDriver, nav_config: dict[str, Any]
 ) -> bool:
-    """Check navigation visibility and behavior.
-
-    Args:
-        driver: WebDriver instance
-        nav_config: Navigation validation configuration
-
-    Returns:
-        True if navigation behaves correctly
+    """
+    Check navigation visibility and behavior. Args: driver: WebDriver
+    instance nav_config: Navigation validation configuration Returns: True
+    if navigation behaves correctly
     """
     try:
         nav_selector = nav_config.get("selector", "nav")
@@ -103,14 +95,10 @@ def _check_navigation_visibility(
 def _check_mobile_menu_behavior(
     driver: WebDriver, menu_config: dict[str, Any]
 ) -> bool:
-    """Check mobile menu hamburger and dropdown behavior.
-
-    Args:
-        driver: WebDriver instance
-        menu_config: Mobile menu validation configuration
-
-    Returns:
-        True if mobile menu behaves correctly
+    """
+    Check mobile menu hamburger and dropdown behavior. Args: driver:
+    WebDriver instance menu_config: Mobile menu validation configuration
+    Returns: True if mobile menu behaves correctly
     """
     try:
         hamburger_selector = menu_config.get(
@@ -158,14 +146,10 @@ def _check_mobile_menu_behavior(
 def _check_content_stacking(
     driver: WebDriver, stacking_config: dict[str, Any]
 ) -> bool:
-    """Check if content stacks properly on mobile.
-
-    Args:
-        driver: WebDriver instance
-        stacking_config: Content stacking validation configuration
-
-    Returns:
-        True if content stacks correctly
+    """
+    Check if content stacks properly on mobile. Args: driver: WebDriver
+    instance stacking_config: Content stacking validation configuration
+    Returns: True if content stacks correctly
     """
     try:
         selectors = stacking_config.get("selectors", [])
@@ -217,14 +201,10 @@ def _check_content_stacking(
 def _check_element_positions(
     driver: WebDriver, position_config: dict[str, Any]
 ) -> bool:
-    """Check element positioning meets responsive requirements.
-
-    Args:
-        driver: WebDriver instance
-        position_config: Element positioning validation configuration
-
-    Returns:
-        True if elements are positioned correctly
+    """
+    Check element positioning meets responsive requirements. Args: driver:
+    WebDriver instance position_config: Element positioning validation
+    configuration Returns: True if elements are positioned correctly
     """
     try:
         checks = position_config.get("checks", [])
@@ -272,14 +252,10 @@ def _check_element_positions(
 def _check_text_readability(
     driver: WebDriver, readability_config: dict[str, Any]
 ) -> bool:
-    """Check text readability on different screen sizes.
-
-    Args:
-        driver: WebDriver instance
-        readability_config: Text readability validation configuration
-
-    Returns:
-        True if text is readable
+    """
+    Check text readability on different screen sizes. Args: driver:
+    WebDriver instance readability_config: Text readability validation
+    configuration Returns: True if text is readable
     """
     try:
         min_font_size = readability_config.get("min_font_size", 14)
@@ -293,10 +269,9 @@ def _check_text_readability(
             for element in elements[:5]:  # Check first 5 elements
                 # Get computed font size
                 font_size_script = """
-                var element = arguments[0];
-                var style = window.getComputedStyle(element);
-                return parseFloat(style.fontSize);
-                """
+var element = arguments[0]; var style =
+window.getComputedStyle(element); return parseFloat(style.fontSize);
+"""
 
                 font_size = driver.execute_script(font_size_script, element)
 
@@ -319,15 +294,11 @@ def capture_layout_screenshot(
     filename: str,
     viewport_info: dict[str, Any] | None = None,
 ) -> bool:
-    """Capture screenshot of current layout for documentation.
-
-    Args:
-        driver: WebDriver instance
-        filename: Screenshot filename
-        viewport_info: Information about current viewport
-
-    Returns:
-        True if screenshot captured successfully
+    """
+    Capture screenshot of current layout for documentation. Args: driver:
+    WebDriver instance filename: Screenshot filename viewport_info:
+    Information about current viewport Returns: True if screenshot
+    captured successfully
     """
     try:
         # Add viewport information to page if provided
@@ -343,7 +314,9 @@ def capture_layout_screenshot(
             overlay.style.borderRadius = '3px';
             overlay.style.fontSize = '12px';
             overlay.style.zIndex = '10000';
-            overlay.textContent = '{viewport_info.get("width", "?")}x{viewport_info.get("height", "?")} - {viewport_info.get("device", "Unknown")}';
+overlay.textContent = '{viewport_info.get("width",
+"?")}x{viewport_info.get("height", "?")} - {viewport_info.get("device",
+"Unknown")}';
             document.body.appendChild(overlay);
 
             setTimeout(function() {{
@@ -365,44 +338,29 @@ def capture_layout_screenshot(
 
 
 def get_layout_metrics(driver: WebDriver) -> dict[str, Any]:
-    """Get comprehensive layout metrics for analysis.
-
-    Args:
-        driver: WebDriver instance
-
-    Returns:
-        Dictionary with layout metrics
+    """
+    Get comprehensive layout metrics for analysis. Args: driver: WebDriver
+    instance Returns: Dictionary with layout metrics
     """
     try:
         metrics_script = """
-        return {
-            viewport: {
-                width: window.innerWidth,
-                height: window.innerHeight
-            },
-            document: {
-                width: document.documentElement.scrollWidth,
-                height: document.documentElement.scrollHeight
-            },
-            scroll: {
-                x: window.pageXOffset || document.documentElement.scrollLeft,
-                y: window.pageYOffset || document.documentElement.scrollTop
-            },
-            devicePixelRatio: window.devicePixelRatio || 1
-        };
-        """
+return { viewport: { width: window.innerWidth, height:
+window.innerHeight }, document: { width:
+document.documentElement.scrollWidth, height:
+document.documentElement.scrollHeight }, scroll: { x:
+window.pageXOffset || document.documentElement.scrollLeft, y:
+window.pageYOffset || document.documentElement.scrollTop },
+devicePixelRatio: window.devicePixelRatio || 1 };
+"""
 
         metrics = driver.execute_script(metrics_script)
 
         # Add element count
         element_count_script = """
-        return {
-            total: document.querySelectorAll('*').length,
-            visible: Array.from(document.querySelectorAll('*')).filter(
-                el => el.offsetParent !== null
-            ).length
-        };
-        """
+return { total: document.querySelectorAll('*').length, visible:
+Array.from(document.querySelectorAll('*')).filter( el =>
+el.offsetParent !== null ).length };
+"""
 
         element_counts = driver.execute_script(element_count_script)
         metrics["elements"] = element_counts
@@ -415,20 +373,15 @@ def get_layout_metrics(driver: WebDriver) -> dict[str, Any]:
 
 
 def check_horizontal_scrolling(driver: WebDriver) -> bool:
-    """Check if page has unwanted horizontal scrolling.
-
-    Args:
-        driver: WebDriver instance
-
-    Returns:
-        True if no horizontal scrolling detected
+    """
+    Check if page has unwanted horizontal scrolling. Args: driver:
+    WebDriver instance Returns: True if no horizontal scrolling detected
     """
     try:
         scroll_check_script = """
-        var docWidth = document.documentElement.scrollWidth;
-        var viewportWidth = window.innerWidth;
-        return docWidth <= viewportWidth;
-        """
+var docWidth = document.documentElement.scrollWidth; var viewportWidth
+= window.innerWidth; return docWidth <= viewportWidth;
+"""
 
         no_horizontal_scroll = driver.execute_script(scroll_check_script)
 

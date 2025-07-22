@@ -1,6 +1,6 @@
-"""Pytest fixtures for TestEnvironmentManager integration.
-
-This module provides pytest fixtures that integrate the TestEnvironmentManager
+"""
+Pytest fixtures for TestEnvironmentManager integration. This module
+provides pytest fixtures that integrate the TestEnvironmentManager
 with the existing E2E testing infrastructure, enabling consistent test
 environment setup across all E2E tests.
 """
@@ -22,12 +22,10 @@ from .test_environment_manager import (
 
 @pytest.fixture(scope="session")
 def hardware_spec_default() -> HardwareSpecification:
-    """Provide default hardware specification for E2E testing.
-
-    Optimized for RTX 3070 Ti with 8GB VRAM constraints.
-
-    Returns:
-        HardwareSpecification: Default hardware specification
+    """
+    Provide default hardware specification for E2E testing. Optimized for
+    RTX 3070 Ti with 8GB VRAM constraints. Returns: HardwareSpecification:
+    Default hardware specification
     """
     return HardwareSpecification(
         cpu_cores=2,
@@ -43,12 +41,10 @@ def hardware_spec_default() -> HardwareSpecification:
 
 @pytest.fixture(scope="session")
 def hardware_spec_high_performance() -> HardwareSpecification:
-    """Provide high-performance hardware specification.
-
-    For performance benchmarking tests that need maximum resources.
-
-    Returns:
-        HardwareSpecification: High-performance hardware specification
+    """
+    Provide high-performance hardware specification. For performance
+    benchmarking tests that need maximum resources. Returns:
+    HardwareSpecification: High-performance hardware specification
     """
     return HardwareSpecification(
         cpu_cores=4,
@@ -64,10 +60,9 @@ def hardware_spec_high_performance() -> HardwareSpecification:
 
 @pytest.fixture(scope="session")
 def network_conditions_default() -> NetworkConditions:
-    """Provide default network conditions for E2E testing.
-
-    Returns:
-        NetworkConditions: Default network conditions
+    """
+    Provide default network conditions for E2E testing. Returns:
+    NetworkConditions: Default network conditions
     """
     return NetworkConditions(
         latency_ms=50,
@@ -81,10 +76,9 @@ def network_conditions_default() -> NetworkConditions:
 
 @pytest.fixture(scope="session")
 def network_conditions_slow() -> NetworkConditions:
-    """Provide slow network conditions for testing edge cases.
-
-    Returns:
-        NetworkConditions: Slow network conditions
+    """
+    Provide slow network conditions for testing edge cases. Returns:
+    NetworkConditions: Slow network conditions
     """
     return NetworkConditions(
         latency_ms=200,
@@ -98,10 +92,9 @@ def network_conditions_slow() -> NetworkConditions:
 
 @pytest.fixture(scope="session")
 def environment_isolation_default() -> EnvironmentIsolation:
-    """Provide default environment isolation configuration.
-
-    Returns:
-        EnvironmentIsolation: Default isolation configuration
+    """
+    Provide default environment isolation configuration. Returns:
+    EnvironmentIsolation: Default isolation configuration
     """
     return EnvironmentIsolation(
         process_isolation=True,
@@ -118,12 +111,10 @@ def environment_isolation_default() -> EnvironmentIsolation:
 
 @pytest.fixture(scope="session")
 def environment_isolation_strict() -> EnvironmentIsolation:
-    """Provide strict environment isolation configuration.
-
-    For tests that require maximum isolation and resource control.
-
-    Returns:
-        EnvironmentIsolation: Strict isolation configuration
+    """
+    Provide strict environment isolation configuration. For tests that
+    require maximum isolation and resource control. Returns:
+    EnvironmentIsolation: Strict isolation configuration
     """
     return EnvironmentIsolation(
         process_isolation=True,
@@ -145,16 +136,14 @@ def test_environment_config(
     environment_isolation_default: EnvironmentIsolation,
     test_artifacts_dir: Path,
 ) -> TestEnvironmentConfig:
-    """Provide test environment configuration for function-scoped tests.
-
-    Args:
-        hardware_spec_default: Default hardware specification
-        network_conditions_default: Default network conditions
-        environment_isolation_default: Default isolation configuration
-        test_artifacts_dir: Test artifacts directory from existing fixtures
-
-    Returns:
-        TestEnvironmentConfig: Complete test environment configuration
+    """
+    Provide test environment configuration for function-scoped tests.
+    Args: hardware_spec_default: Default hardware specification
+    network_conditions_default: Default network conditions
+    environment_isolation_default: Default isolation configuration
+    test_artifacts_dir: Test artifacts directory from existing fixtures
+    Returns: TestEnvironmentConfig: Complete test environment
+    configuration
     """
     return TestEnvironmentConfig(
         hardware=hardware_spec_default,
@@ -172,16 +161,14 @@ def test_environment_config_performance(
     environment_isolation_default: EnvironmentIsolation,
     test_artifacts_dir: Path,
 ) -> TestEnvironmentConfig:
-    """Provide performance-optimized test environment configuration.
-
-    Args:
-        hardware_spec_high_performance: High-performance hardware specification
-        network_conditions_default: Default network conditions
-        environment_isolation_default: Default isolation configuration
-        test_artifacts_dir: Test artifacts directory from existing fixtures
-
-    Returns:
-        TestEnvironmentConfig: Performance-optimized test environment config
+    """
+    Provide performance-optimized test environment configuration. Args:
+    hardware_spec_high_performance: High-performance hardware
+    specification network_conditions_default: Default network conditions
+    environment_isolation_default: Default isolation configuration
+    test_artifacts_dir: Test artifacts directory from existing fixtures
+    Returns: TestEnvironmentConfig: Performance-optimized test environment
+    config
     """
     return TestEnvironmentConfig(
         hardware=hardware_spec_high_performance,
@@ -196,13 +183,10 @@ def test_environment_config_performance(
 def test_environment_manager(
     test_environment_config: TestEnvironmentConfig,
 ) -> TestEnvironmentManager:
-    """Provide TestEnvironmentManager instance for function-scoped tests.
-
-    Args:
-        test_environment_config: Test environment configuration
-
-    Returns:
-        TestEnvironmentManager: Configured test environment manager
+    """
+    Provide TestEnvironmentManager instance for function-scoped tests.
+    Args: test_environment_config: Test environment configuration Returns:
+    TestEnvironmentManager: Configured test environment manager
     """
     return TestEnvironmentManager(config=test_environment_config)
 
@@ -211,13 +195,11 @@ def test_environment_manager(
 def test_environment_manager_performance(
     test_environment_config_performance: TestEnvironmentConfig,
 ) -> TestEnvironmentManager:
-    """Provide performance-optimized TestEnvironmentManager instance.
-
-    Args:
-        test_environment_config_performance: Performance-optimized config
-
-    Returns:
-        TestEnvironmentManager: Performance-optimized test environment manager
+    """
+    Provide performance-optimized TestEnvironmentManager instance. Args:
+    test_environment_config_performance: Performance-optimized config
+    Returns: TestEnvironmentManager: Performance-optimized test
+    environment manager
     """
     return TestEnvironmentManager(config=test_environment_config_performance)
 
@@ -226,16 +208,12 @@ def test_environment_manager_performance(
 def isolated_test_environment(
     test_environment_manager: TestEnvironmentManager,
 ) -> Generator[dict[str, Any], None, None]:
-    """Provide isolated test environment with automatic setup and cleanup.
-
-    This fixture provides a complete test environment with consistent hardware
-    specifications, environment isolation, and baseline network conditions.
-
-    Args:
-        test_environment_manager: Test environment manager instance
-
-    Yields:
-        Dictionary with environment setup information
+    """
+    Provide isolated test environment with automatic setup and cleanup.
+    This fixture provides a complete test environment with consistent
+    hardware specifications, environment isolation, and baseline network
+    conditions. Args: test_environment_manager: Test environment manager
+    instance Yields: Dictionary with environment setup information
     """
     with test_environment_manager.setup_test_environment() as environment_info:
         yield environment_info
@@ -245,16 +223,12 @@ def isolated_test_environment(
 def performance_test_environment(
     test_environment_manager_performance: TestEnvironmentManager,
 ) -> Generator[dict[str, Any], None, None]:
-    """Provide performance-optimized test environment.
-
-    This fixture provides a high-performance test environment specifically
-    configured for performance benchmarking and resource-intensive tests.
-
-    Args:
-        test_environment_manager_performance: Performance-optimized manager
-
-    Yields:
-        Dictionary with environment setup information
+    """
+    Provide performance-optimized test environment. This fixture provides
+    a high-performance test environment specifically configured for
+    performance benchmarking and resource-intensive tests. Args:
+    test_environment_manager_performance: Performance-optimized manager
+    Yields: Dictionary with environment setup information
     """
     manager = test_environment_manager_performance
     with manager.setup_test_environment() as environment_info:
@@ -265,13 +239,10 @@ def performance_test_environment(
 def environment_validation_results(
     test_environment_manager: TestEnvironmentManager,
 ) -> dict[str, Any]:
-    """Provide environment validation results for tests.
-
-    Args:
-        test_environment_manager: Test environment manager instance
-
-    Returns:
-        Dictionary with validation results
+    """
+    Provide environment validation results for tests. Args:
+    test_environment_manager: Test environment manager instance Returns:
+    Dictionary with validation results
     """
     return test_environment_manager.validate_environment()
 

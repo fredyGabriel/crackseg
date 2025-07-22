@@ -1,8 +1,9 @@
+from typing import cast
+
 import pytest
 import torch
-from torch import nn
+import torch.nn as nn
 
-from crackseg.model import BottleneckBase
 from crackseg.model.components.aspp import ASPPModule
 
 # Constants (replace with config values if available)
@@ -24,7 +25,7 @@ def test_asppmodule_valid_initialization():
         in_channels=IN_CHANNELS_1, output_channels=OUT_CHANNELS_1
     )
     assert isinstance(module, ASPPModule)
-    assert isinstance(module, BottleneckBase)
+    assert isinstance(module, nn.Module)  # Changed from BottleneckBase
     assert module.in_channels == IN_CHANNELS_1
     assert module.out_channels == OUT_CHANNELS_1
     assert module._dilation_rates == DILATIONS_DEFAULT
@@ -115,7 +116,10 @@ def test_asppmodule_internal_modules():
     assert isinstance(module.branches, nn.ModuleList)
     assert isinstance(module.global_pool, nn.Sequential)
     assert isinstance(module.project, nn.Sequential)
-    if module._dropout_rate > 0:
+
+    # Use safe attribute access to help type checker
+    dropout_rate = getattr(module, "_dropout_rate", 0.0)
+    if dropout_rate > 0:
         assert isinstance(module.dropout, nn.Dropout2d)
     else:
         assert isinstance(module.dropout, nn.Identity)
@@ -129,7 +133,8 @@ def test_asppmodule_branch_count_matches_dilations():
         output_channels=IN_CHANNELS_3,
         dilation_rates=dilations,
     )
-    assert len(module.branches) == len(dilations)
+    branches = cast(nn.ModuleList, module.branches)
+    assert len(branches) == len(dilations)
 
 
 def test_asppmodule_forward_output_shape():

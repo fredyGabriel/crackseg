@@ -1,8 +1,7 @@
 # pyright: reportPrivateUsage=false
 """
-Tests for the hybrid architecture registry system.
-
-Verifies that hybrid architectures can be registered, queried, and validated
+Tests for the hybrid architecture registry system. Verifies that
+hybrid architectures can be registered, queried, and validated
 correctly with different component combinations.
 """
 
@@ -21,7 +20,7 @@ from crackseg.model.factory.hybrid_registry import (
     query_architectures_by_tag,
     register_complex_hybrid,
     register_standard_hybrid,
-)  # Migración: import actualizado para reflejar la ubicación real
+)  # Migración: import  actualizado para reflejar la ubicación real
 from crackseg.model.factory.registry_setup import (
     architecture_registry,
     bottleneck_registry,
@@ -55,10 +54,8 @@ class MockEncoder(EncoderBase):
     def get_feature_info(self) -> list[dict[str, Any]]:
         """
         Get information about feature maps produced by the mock encoder.
-
-        Returns:
-            List[Dict[str, Any]]: Information about each feature map,
-                                 including channels and reduction factor.
+        Returns: List[Dict[str, Any]]: Information about each feature map,
+        including channels and reduction factor.
         """
         feature_info: list[dict[str, Any]] = []
 
@@ -87,13 +84,11 @@ class MockEncoder(EncoderBase):
 
     @property
     def feature_info(self) -> list[dict[str, Any]]:
-        """Information about output features for each stage.
-
-        Returns:
-            List of dictionaries, each containing:
-                - 'channels': Number of output channels
-                - 'reduction': Spatial reduction factor from input
-                - 'stage': Stage index
+        """
+        Information about output features for each stage. Returns: List of
+        dictionaries, each containing: - 'channels': Number of output channels
+        - 'reduction': Spatial reduction factor from input - 'stage': Stage
+        index
         """
         return self.get_feature_info()
 
@@ -114,8 +109,8 @@ class MockBottleneck(BottleneckBase):
 class MockDecoder(DecoderBase):
     """
     MockDecoder que espera skip_channels en orden inverso a MockEncoder.
-    Si MockEncoder.skip_channels = [16, 32],
-    entonces MockDecoder.skip_channels = [32, 16].
+    Si MockEncoder.skip_channels = [16, 32], entonces
+    MockDecoder.skip_channels = [32, 16].
     """
 
     def __init__(

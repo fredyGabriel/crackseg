@@ -1,17 +1,12 @@
-"""Utility functions for E2E testing with Selenium and Streamlit.
-
-This module provides a comprehensive utility library with helper functions
+"""
+Utility functions for E2E testing with Selenium and Streamlit. This
+module provides a comprehensive utility library with helper functions
 for common Selenium operations, data manipulation, file handling, and
-Streamlit-specific interactions.
-
-The utilities are organized into focused modules:
-- element: Element interaction utilities
-- data: Data generation helpers
-- file: File I/O utilities
-- string: String manipulation functions
-- time: Date/time helpers
-- config: Configuration readers
-- streamlit: Streamlit-specific utilities
+Streamlit-specific interactions. The utilities are organized into
+focused modules: - element: Element interaction utilities - data: Data
+generation helpers - file: File I/O utilities - string: String
+manipulation functions - time: Date/time helpers - config:
+Configuration readers - streamlit: Streamlit-specific utilities
 """
 
 # Element interaction utilities

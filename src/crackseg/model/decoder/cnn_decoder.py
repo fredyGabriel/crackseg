@@ -114,7 +114,7 @@ import torch.nn.functional as F
 from torch import nn
 
 # Import components to ensure CBAM is registered
-import crackseg.model.components  # noqa: F401
+import crackseg.model.components  # noqa: F401  # type: ignore[reportUnusedImport]
 from crackseg.model.base.abstract import DecoderBase
 from crackseg.model.decoder.common.channel_utils import (
     calculate_decoder_channels,

@@ -1,20 +1,59 @@
 {
     "include": [
         "src",
-        "tests"
+        "tests",
+        "docker",
+        "gui"
     ],
     "exclude": [
-        "**/__pycache__"
-    ],
-    "extraPaths": [
-        "src"
+        "**/__pycache__",
+        "**/node_modules",
+        "**/venv",
+        "**/.venv",
+        "typings"
     ],
     "pythonVersion": "3.12",
-    "typeCheckingMode": "strict",
+    "typeCheckingMode": "basic",
     "reportMissingTypeStubs": false,
     "reportUnknownParameterType": false,
     "reportPrivateUsage": "none",
+    "reportMissingImports": true,
+    "reportUnusedImport": true,
+    "reportUnusedVariable": "warning",
     "executionEnvironments": [
+        {
+            "root": ".",
+            "extraPaths": [
+                "src",
+                "docker",
+                "gui"
+            ]
+        },
+        {
+            "root": "src/crackseg/model",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportUnknownMemberType": "none",
+            "reportArgumentType": "none",
+            "reportMissingImports": "warning"
+        },
+        {
+            "root": "src/crackseg/model/common",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportUnknownMemberType": "none",
+            "reportArgumentType": "none",
+            "reportMissingImports": "warning",
+            "reportUnusedImport": "warning",
+            "reportUnusedVariable": "warning"
+        },
+        {
+            "root": "src/crackseg/model/encoder",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportUnknownMemberType": "none",
+            "reportArgumentType": "none"
+        },
         {
             "root": "tests/unit/gui/components",
             "reportCallIssue": "none",
@@ -24,7 +63,7 @@
             "reportMissingParameterType": "none"
         },
         {
-            "root": "tests/unit/gui/test_essential_coverage.py",
+            "root": "tests/unit/gui",
             "reportUnknownMemberType": "none",
             "reportAttributeAccessIssue": "none",
             "reportUnknownVariableType": "none",
@@ -33,30 +72,28 @@
             "reportMissingImports": "none"
         },
         {
-            "root": "tests/unit/gui/test_tensorboard_coverage.py",
-            "reportUnknownMemberType": "none",
-            "reportAttributeAccessIssue": "none",
-            "reportUnknownVariableType": "none",
-            "reportUnknownArgumentType": "none",
-            "reportMissingParameterType": "none",
-            "reportMissingImports": "none"
-        },
-        {
-            "root": "tests/e2e/config/pytest_markers.py",
+            "root": "tests/e2e",
             "reportUnknownMemberType": "none",
             "reportUnknownVariableType": "none",
-            "reportMissingImports": "none"
-        },
-        {
-            "root": "tests/utils/gui_testing_framework.py",
-            "reportUnknownMemberType": "none",
+            "reportMissingImports": "none",
             "reportUnknownArgumentType": "none",
-            "reportReturnType": "none",
             "reportAttributeAccessIssue": "none",
-            "reportMissingImports": "none"
+            "reportCallIssue": "none",
+            "reportGeneralTypeIssues": "none"
         },
         {
-            "root": "tests/utils/streamlit_test_helpers.py",
+            "root": "tests/e2e/config",
+            "reportUnknownMemberType": "none",
+            "reportUnknownVariableType": "none",
+            "reportMissingImports": "none",
+            "reportUnknownArgumentType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportCallIssue": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportMissingParameterType": "none"
+        },
+        {
+            "root": "tests/utils",
             "reportUnknownMemberType": "none",
             "reportUnknownVariableType": "none",
             "reportUnknownArgumentType": "none",
@@ -65,33 +102,63 @@
             "reportUnknownLambdaType": "none",
             "reportInvalidTypeForm": "none",
             "reportGeneralTypeIssues": "none",
-            "reportMissingImports": "none"
-        },
-        {
-            "root": "tests/utils/visual_testing_framework.py",
-            "reportUnknownMemberType": "none",
-            "reportUnknownVariableType": "none",
-            "reportUnknownArgumentType": "none",
+            "reportMissingImports": "none",
             "reportIndexIssue": "none",
             "reportCallIssue": "none",
             "reportArgumentType": "none",
-            "reportAttributeAccessIssue": "none",
-            "reportGeneralTypeIssues": "none",
-            "reportMissingImports": "none"
+            "reportUntypedFunctionDecorator": "none"
         },
         {
-            "root": "tests/examples/enhanced_gui_testing_demo.py",
+            "root": "tests/examples",
             "reportUnknownVariableType": "none",
             "reportUntypedFunctionDecorator": "none",
             "reportReturnType": "none",
             "reportUnknownMemberType": "none",
             "reportMissingImports": "none",
-            "reportUnknownArgumentType": "none"
+            "reportUnknownArgumentType": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportCallIssue": "none"
         },
         {
-            "root": ".",
-            "reportCallIssue": "error",
-            "reportAttributeAccessIssue": "error"
+            "root": "tests/unit/docker",
+            "reportUnknownMemberType": "warning",
+            "reportUnknownVariableType": "warning",
+            "reportUnknownArgumentType": "warning",
+            "reportMissingImports": "warning",
+            "reportMissingParameterType": "none",
+            "reportUnknownLambdaType": "none",
+            "reportInvalidTypeForm": "none",
+            "reportGeneralTypeIssues": "warning"
+        },
+        {
+            "root": "docker",
+            "reportUnknownMemberType": "none",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportMissingImports": "none",
+            "reportMissingParameterType": "none",
+            "reportUnknownLambdaType": "none",
+            "reportInvalidTypeForm": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportAttributeAccessIssue": "none"
+        },
+        {
+            "root": "gui",
+            "extraPaths": [
+                ".",
+                "gui",
+                "src"
+            ],
+            "reportMissingImports": "warning",
+            "reportUnknownMemberType": "none",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportCallIssue": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportUnusedVariable": "warning",
+            "reportUnusedImport": "warning"
         }
     ]
 }

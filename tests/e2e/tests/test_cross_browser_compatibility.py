@@ -1,9 +1,9 @@
-"""Cross-browser compatibility tests for CrackSeg application.
-
-This module contains comprehensive cross-browser tests that extend the existing
-test scenarios (15.1, 15.2, 15.3) to ensure compatibility across Chrome,
-Firefox, Edge, and Safari browsers. Includes browser capability validation
-and browser-specific feature testing.
+"""
+Cross-browser compatibility tests for CrackSeg application. This
+module contains comprehensive cross-browser tests that extend the
+existing test scenarios (15.1, 15.2, 15.3) to ensure compatibility
+across Chrome, Firefox, Edge, and Safari browsers. Includes browser
+capability validation and browser-specific feature testing.
 """
 
 import pytest
@@ -63,10 +63,10 @@ class TestCrossBrowserCompatibility(BaseE2ETest):
         streamlit_base_url: str,
         browser_config: BrowserMatrixConfig,
     ) -> None:
-        """Test browser capabilities for CrackSeg application compatibility.
-
-        This test validates that each browser supports the required
-        capabilities for running the CrackSeg application properly.
+        """
+        Test browser capabilities for CrackSeg application compatibility. This
+        test validates that each browser supports the required capabilities
+        for running the CrackSeg application properly.
 
         Args:
             cross_browser_driver: Parametrized WebDriver for different browsers
@@ -122,10 +122,10 @@ class TestCrossBrowserCompatibility(BaseE2ETest):
         cross_browser_driver: WebDriver,
         streamlit_base_url: str,
     ) -> None:
-        """Test the happy path workflow across different browsers.
-
-        Extends the happy path test from 15.1 to run across multiple browsers,
-        ensuring consistent functionality regardless of browser choice.
+        """
+        Test the happy path workflow across different browsers. Extends the
+        happy path test from 15.1 to run across multiple browsers, ensuring
+        consistent functionality regardless of browser choice.
 
         Args:
             cross_browser_driver: Parametrized WebDriver for different browsers
@@ -184,10 +184,10 @@ class TestCrossBrowserCompatibility(BaseE2ETest):
         cross_browser_driver: WebDriver,
         streamlit_base_url: str,
     ) -> None:
-        """Test error handling scenarios across different browsers.
-
-        Extends error scenario tests from 15.2 to ensure consistent error
-        handling and user feedback across all supported browsers.
+        """
+        Test error handling scenarios across different browsers. Extends error
+        scenario tests from 15.2 to ensure consistent error handling and user
+        feedback across all supported browsers.
 
         Args:
             cross_browser_driver: Parametrized WebDriver for different browsers
@@ -228,9 +228,9 @@ class TestCrossBrowserCompatibility(BaseE2ETest):
         cross_browser_driver: WebDriver,
         streamlit_base_url: str,
     ) -> None:
-        """Test file upload functionality across different browsers.
-
-        Simplified test that verifies basic file upload capabilities exist.
+        """
+        Test file upload functionality across different browsers. Simplified
+        test that verifies basic file upload capabilities exist.
 
         Args:
             cross_browser_driver: Parametrized WebDriver for different browsers
@@ -256,10 +256,10 @@ class TestCrossBrowserCompatibility(BaseE2ETest):
         cross_browser_driver: WebDriver,
         streamlit_base_url: str,
     ) -> None:
-        """Test responsive design behavior across different browsers.
-
-        Tests how the CrackSeg application adapts to different screen sizes
-        and browser window dimensions.
+        """
+        Test responsive design behavior across different browsers. Tests how
+        the CrackSeg application adapts to different screen sizes and browser
+        window dimensions.
 
         Args:
             cross_browser_driver: Parametrized WebDriver for different browsers

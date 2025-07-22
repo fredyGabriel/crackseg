@@ -1,0 +1,115 @@
+"""
+Helper utilities for unified testing framework. This module provides
+error testing and configuration helpers, preserving unique
+functionality from the original streamlit_test_helpers.py.
+"""
+
+from  typing  import   Any
+from  unittest.mock  import  Mock
+
+
+class UnifiedErrorTester:
+    """Unified error testing from streamlit_test_helpers.py."""
+@staticmethod def create_error_scenario_mock(error_type:
+type[Exception]) -> Mock:
+"""Create a mock that raises a specific error type."""
+
+        def error_side_effect(*args: Any, **kwargs: Any) -> None:
+            raise error_type("Simulated error for testing")
+
+        return Mock(side_effect=error_side_effect)
+
+    @staticmethod
+    def assert_error_displayed(mock_st: Mock, error_function: str = "error"
+    ) -> None:
+        """Assert that an error was displayed using Streamlit functions."""
+        import  pytest
+
+        error_methods = ["error", "exception", "warning"]
+
+        if error_function == "any":
+            # Check if any error display method was called
+            for method_name in error_methods:
+                if hasattr(mock_st, method_name):
+                    method = getattr(mock_st, method_name)
+                    if method.called:
+                        return
+
+            pytest.fail("No error display method was called")
+        else:
+            # Check specific error method
+            if not hasattr(mock_st, error_function):
+                pytest.fail(f"Mock doesn't have {error_function} method")
+
+            error_method = getattr(mock_st, error_function)
+            assert error_method.called, f"st.{error_function}() was not called"
+
+
+class UnifiedConfigHelper:
+    """Unified configuration testing from streamlit_test_helpers.py."""
+@staticmethod def create_hydra_config_mock(config_dict: dict[str,
+Any]) -> Mock:
+"""Create a mock for Hydra configuration objects."""
+        mock_config = Mock()
+
+        # Handle nested dictionary access with proper typing
+        def deep_getattr(name: str) -> Any:
+            if "." in name:
+                parts = name.split(".")
+                current = config_dict
+                for part in parts:
+                    current = current.get(part, {})
+                return current
+            return config_dict.get(name)
+
+        # Configure mock with type-safe methods
+        mock_config.configure_mock(__getattr__=deep_getattr)
+
+        # Support dictionary-style access with explicit functions
+        def getitem_handler(key: str) -> Any:
+            return config_dict[key]
+
+        def contains_handler(key: str) -> bool:
+            return key in config_dict
+
+        def get_handler(key: str, default: Any = None) -> Any:
+            return config_dict.get(key, default)
+
+        mock_config.__getitem__ = Mock(side_effect=getitem_handler)
+        mock_config.__contains__ = Mock(side_effect=contains_handler)
+        mock_config.get = Mock(side_effect=get_handler)
+
+        return mock_config
+
+    @staticmethod
+    def create_yaml_content_sample() -> str:
+        """Create sample YAML content for testing."""
+        return """
+model: name: test_model type: unet encoder: resnet50 training: epochs:
+10 batch_size: 4 learning_rate: 0.001 data: image_size: [512, 512]
+dataset_path: /path/to/dataset
+"""
+
+
+# Utility functions for common testing patterns
+def assert_streamlit_interaction(mock_st: Mock, interaction_type: str, expected_calls: int = 1
+) -> None:
+    """Assert that a specific Streamlit interaction occurred."""
+    interaction_map = {
+        "button": mock_st.button,
+        "selectbox": mock_st.selectbox,
+        "text_input": mock_st.text_input,
+        "file_uploader": mock_st.file_uploader,
+        "download_button": mock_st.download_button,
+        "write": mock_st.write,
+        "markdown": mock_st.markdown,
+    }
+
+    if interaction_type not in interaction_map:
+        raise ValueError(f"Unknown interaction type: {interaction_type}")
+
+    mock_method = interaction_map[interaction_type]
+    assert mock_method.call_count >= expected_calls, (
+        f"Expected at least {expected_calls} {interaction_type} calls, "
+        f"got {mock_method.call_count}"
+    )

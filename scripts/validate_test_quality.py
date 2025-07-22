@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-Test Quality Validator - CrackSeg Project
-
-This script validates the quality of test files to ensure they meet
-project standards for documentation, structure, and completeness.
-
-Usage:
-    python scripts/validate_test_quality.py [test_files...]
+Test Quality Validator - CrackSeg Project. This script validates the
+quality of test files to ensure they meet project standards for
+documentation, structure, and completeness. Usage: python
+scripts/validate_test_quality.py [test_files...]
 """
 
 import ast
 import sys
 from pathlib import Path
 from typing import Any
+
+# Type definitions
+type IssueDict = dict[str, Any]
+type IssueList = list[IssueDict]
+type ValidationResult = tuple[bool, IssueList]
 
 
 class TestQualityValidator:
@@ -21,9 +23,9 @@ class TestQualityValidator:
     def __init__(self) -> None:
         """Initialize the validator."""
         self.required_imports = {"pytest", "torch", "unittest.mock"}
-        self.issues: list[dict[str, Any]] = []
+        self.issues: IssueList = []
 
-    def validate_file(self, test_file: str) -> list[dict[str, Any]]:
+    def validate_file(self, test_file: str) -> IssueList:
         """
         Validate a single test file.
 
@@ -33,18 +35,17 @@ class TestQualityValidator:
         Returns:
             List of validation issues found
         """
-        issues = []
+        issues: IssueList = []
         file_path = Path(test_file)
 
         if not file_path.exists():
-            issues.append(
-                {
-                    "type": "error",
-                    "file": str(file_path),
-                    "message": "Test file does not exist",
-                    "line": 0,
-                }
-            )
+            issue: IssueDict = {
+                "type": "error",
+                "file": str(file_path),
+                "message": "Test file does not exist",
+                "line": 0,
+            }
+            issues.append(issue)
             return issues
 
         try:
@@ -69,43 +70,40 @@ class TestQualityValidator:
             issues.extend(self._validate_type_annotations(tree, file_path))
 
         except SyntaxError as e:
-            issues.append(
-                {
-                    "type": "error",
-                    "file": str(file_path),
-                    "message": f"Syntax error: {e}",
-                    "line": e.lineno or 0,
-                }
-            )
+            syntax_issue: IssueDict = {
+                "type": "error",
+                "file": str(file_path),
+                "message": f"Syntax error: {e}",
+                "line": e.lineno or 0,
+            }
+            issues.append(syntax_issue)
         except Exception as e:
-            issues.append(
-                {
-                    "type": "error",
-                    "file": str(file_path),
-                    "message": f"Validation error: {e}",
-                    "line": 0,
-                }
-            )
+            general_issue: IssueDict = {
+                "type": "error",
+                "file": str(file_path),
+                "message": f"Validation error: {e}",
+                "line": 0,
+            }
+            issues.append(general_issue)
 
         return issues
 
     def _validate_file_structure(
         self, tree: ast.AST, file_path: Path
-    ) -> list[dict[str, Any]]:
+    ) -> IssueList:
         """Validate overall file structure."""
-        issues = []
+        issues: IssueList = []
 
         # Check for module docstring - cast to Module since we know it's parsed
         # from file
         if isinstance(tree, ast.Module) and not ast.get_docstring(tree):
-            issues.append(
-                {
-                    "type": "warning",
-                    "file": str(file_path),
-                    "message": "Test file missing module docstring",
-                    "line": 1,
-                }
-            )
+            docstring_issue: IssueDict = {
+                "type": "warning",
+                "file": str(file_path),
+                "message": "Test file missing module docstring",
+                "line": 1,
+            }
+            issues.append(docstring_issue)
 
         # Check for test functions
         test_functions = [
@@ -116,17 +114,16 @@ class TestQualityValidator:
         ]
 
         if not test_functions:
-            issues.append(
-                {
-                    "type": "warning",
-                    "file": str(file_path),
-                    "message": (
-                        "No test functions found (functions should start "
-                        "with test_)"
-                    ),
-                    "line": 1,
-                }
-            )
+            no_tests_issue: IssueDict = {
+                "type": "warning",
+                "file": str(file_path),
+                "message": (
+                    "No test functions found (functions should start "
+                    "with test_)"
+                ),
+                "line": 1,
+            }
+            issues.append(no_tests_issue)
 
         # Check for class structure if present
         test_classes = [
@@ -137,23 +134,20 @@ class TestQualityValidator:
 
         for cls in test_classes:
             if not ast.get_docstring(cls):
-                issues.append(
-                    {
-                        "type": "warning",
-                        "file": str(file_path),
-                        "message": f"Test class {cls.name} missing docstring",
-                        "line": cls.lineno,
-                    }
-                )
+                class_issue: IssueDict = {
+                    "type": "warning",
+                    "file": str(file_path),
+                    "message": f"Test class {cls.name} missing docstring",
+                    "line": cls.lineno,
+                }
+                issues.append(class_issue)
 
         return issues
 
-    def _validate_imports(
-        self, tree: ast.AST, file_path: Path
-    ) -> list[dict[str, Any]]:
+    def _validate_imports(self, tree: ast.AST, file_path: Path) -> IssueList:
         """Validate import statements."""
-        issues = []
-        imports = set()
+        issues: IssueList = []
+        imports: set[str] = set()
 
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
@@ -165,38 +159,35 @@ class TestQualityValidator:
 
         # Check for required imports
         if "pytest" not in imports:
-            issues.append(
-                {
-                    "type": "warning",
-                    "file": str(file_path),
-                    "message": (
-                        "Missing pytest import - required for test framework"
-                    ),
-                    "line": 1,
-                }
-            )
+            pytest_issue: IssueDict = {
+                "type": "warning",
+                "file": str(file_path),
+                "message": (
+                    "Missing pytest import - required for test framework"
+                ),
+                "line": 1,
+            }
+            issues.append(pytest_issue)
 
         # Check for common testing patterns
         if "unittest.mock" not in str(imports) and "mock" not in imports:
-            issues.append(
-                {
-                    "type": "info",
-                    "file": str(file_path),
-                    "message": (
-                        "Consider importing unittest.mock for mocking "
-                        "capabilities"
-                    ),
-                    "line": 1,
-                }
-            )
+            mock_issue: IssueDict = {
+                "type": "info",
+                "file": str(file_path),
+                "message": (
+                    "Consider importing unittest.mock for mocking capabilities"
+                ),
+                "line": 1,
+            }
+            issues.append(mock_issue)
 
         return issues
 
     def _validate_test_functions(
         self, tree: ast.AST, file_path: Path
-    ) -> list[dict[str, Any]]:
+    ) -> IssueList:
         """Validate test functions and methods."""
-        issues = []
+        issues: IssueList = []
 
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef) and node.name.startswith(
@@ -204,37 +195,35 @@ class TestQualityValidator:
             ):
                 # Check for assertions
                 if not self._has_assertions(node):
-                    issues.append(
-                        {
-                            "type": "warning",
-                            "file": str(file_path),
-                            "message": (
-                                f"Test function {node.name} has no assertions"
-                            ),
-                            "line": node.lineno,
-                        }
-                    )
+                    assertion_issue: IssueDict = {
+                        "type": "warning",
+                        "file": str(file_path),
+                        "message": (
+                            f"Test function {node.name} has no assertions"
+                        ),
+                        "line": node.lineno,
+                    }
+                    issues.append(assertion_issue)
 
                 # Check for docstring
                 if not ast.get_docstring(node):
-                    issues.append(
-                        {
-                            "type": "warning",
-                            "file": str(file_path),
-                            "message": (
-                                f"Test function {node.name} missing docstring"
-                            ),
-                            "line": node.lineno,
-                        }
-                    )
+                    docstring_issue: IssueDict = {
+                        "type": "warning",
+                        "file": str(file_path),
+                        "message": (
+                            f"Test function {node.name} missing docstring"
+                        ),
+                        "line": node.lineno,
+                    }
+                    issues.append(docstring_issue)
 
         return issues
 
     def _validate_docstrings(
         self, tree: ast.AST, file_path: Path
-    ) -> list[dict[str, Any]]:
+    ) -> IssueList:
         """Validate docstring presence and quality."""
-        issues = []
+        issues: IssueList = []
 
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef | ast.ClassDef):
@@ -246,56 +235,53 @@ class TestQualityValidator:
                     should_check = not self._is_fixture_function(node)
 
                 if not docstring and should_check:
-                    issues.append(
-                        {
-                            "type": "info",
-                            "file": str(file_path),
-                            "message": (
-                                f"{node.__class__.__name__} {node.name} "
-                                f"could benefit from a docstring"
-                            ),
-                            "line": node.lineno,
-                        }
-                    )
+                    docstring_rec_issue: IssueDict = {
+                        "type": "info",
+                        "file": str(file_path),
+                        "message": (
+                            f"{node.__class__.__name__} {node.name} "
+                            f"could benefit from a docstring"
+                        ),
+                        "line": node.lineno,
+                    }
+                    issues.append(docstring_rec_issue)
 
         return issues
 
     def _validate_type_annotations(
         self, tree: ast.AST, file_path: Path
-    ) -> list[dict[str, Any]]:
+    ) -> IssueList:
         """Validate type annotations on test functions."""
-        issues = []
+        issues: IssueList = []
 
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef):
                 # Check return annotation
                 if not node.returns and node.name.startswith("test_"):
-                    issues.append(
-                        {
-                            "type": "info",
-                            "file": str(file_path),
-                            "message": (
-                                f"Test function {node.name} missing return "
-                                f"type annotation (should be -> None)"
-                            ),
-                            "line": node.lineno,
-                        }
-                    )
+                    return_annotation_issue: IssueDict = {
+                        "type": "info",
+                        "file": str(file_path),
+                        "message": (
+                            f"Test function {node.name} missing return "
+                            f"type annotation (should be -> None)"
+                        ),
+                        "line": node.lineno,
+                    }
+                    issues.append(return_annotation_issue)
 
                 # Check parameter annotations
                 for arg in node.args.args:
                     if not arg.annotation and arg.arg != "self":
-                        issues.append(
-                            {
-                                "type": "info",
-                                "file": str(file_path),
-                                "message": (
-                                    f"Parameter {arg.arg} in {node.name} "
-                                    f"missing type annotation"
-                                ),
-                                "line": node.lineno,
-                            }
-                        )
+                        param_annotation_issue: IssueDict = {
+                            "type": "info",
+                            "file": str(file_path),
+                            "message": (
+                                f"Parameter {arg.arg} in {node.name} "
+                                f"missing type annotation"
+                            ),
+                            "line": node.lineno,
+                        }
+                        issues.append(param_annotation_issue)
 
         return issues
 
@@ -331,9 +317,7 @@ class TestQualityValidator:
                 return True
         return False
 
-    def validate_files(
-        self, test_files: list[str]
-    ) -> tuple[bool, list[dict[str, Any]]]:
+    def validate_files(self, test_files: list[str]) -> ValidationResult:
         """
         Validate multiple test files.
 
@@ -343,7 +327,7 @@ class TestQualityValidator:
         Returns:
             Tuple of (all_valid, all_issues)
         """
-        all_issues = []
+        all_issues: IssueList = []
 
         for test_file in test_files:
             issues = self.validate_file(test_file)
@@ -355,16 +339,16 @@ class TestQualityValidator:
         return not has_errors, all_issues
 
 
-def format_issues(issues: list[dict[str, Any]]) -> str:
+def format_issues(issues: IssueList) -> str:
     """Format validation issues for display."""
     if not issues:
         return "✅ All test files meet quality standards!"
 
-    output = []
+    output: list[str] = []
     output.append(f"Found {len(issues)} quality issues:\n")
 
     # Group by file
-    by_file: dict[str, list[dict[str, Any]]] = {}
+    by_file: dict[str, IssueList] = {}
     for issue in issues:
         file_path = issue["file"]
         if file_path not in by_file:

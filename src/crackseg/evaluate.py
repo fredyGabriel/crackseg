@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 """
-Evaluation script for trained crack segmentation models.
-
-This is a wrapper script that redirects to the main evaluation module.
-For direct usage, consider using 'python -m src.evaluation' instead.
-
-Usage:
-    python -m src.evaluate --checkpoint /path/to/checkpoint.pth.tar --config
-    /path/to/config.yaml
+Evaluation script for trained crack segmentation models. This is a
+wrapper script that redirects to the main evaluation module. For
+direct usage, consider using 'python -m src.evaluation' instead.
+Usage: python -m src.evaluate --checkpoint /path/to/checkpoint.pth.tar
+--config /path/to/config.yaml
 """
 
 from crackseg.evaluation.__main__ import main

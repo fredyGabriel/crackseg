@@ -27,10 +27,9 @@ def test_simple_aspp(
     dilations: list[int],  # Used in parametrize
 ):
     """
-    Simplified test to verify the basic functionality of ASPP.
-
-    Checks that the ASPP module works correctly independently,
-    without integrating it with the entire UNet.
+    Simplified test to verify the basic functionality of ASPP. Checks that
+    the ASPP module works correctly independently, without integrating it
+    with the entire UNet.
     """
     # Prepare dimensions
     batch_size = 2
@@ -86,13 +85,10 @@ def test_aspp_simplified_unet(
     dilations: list[int],  # Used in parametrize
 ):
     """
-    Test using a simplified structure for ASPP integration.
-
-    This test verifies that ASPP can be correctly integrated with the UNet
-    decoding flow, simulating the key steps:
-    1. Encoding (encoder)
-    2. Bottleneck (ASPP)
-    3. First decoding stage
+    Test using a simplified structure for ASPP integration. This test
+    verifies that ASPP can be correctly integrated with the UNet decoding
+    flow, simulating the key steps: 1. Encoding (encoder) 2. Bottleneck
+    (ASPP) 3. First decoding stage
     """
     # Define parameters
     encoder_depth = 4
@@ -141,12 +137,12 @@ def test_aspp_simplified_unet(
 
     # Calculate the expected output channels for the first decoder layer
     # This is the same logic used in CNNDecoder to calculate channels
-    first_stage_out_channels = bottleneck.out_channels // 2
+    first_stage_out_channels = encoder.out_channels // 2
 
     # Create a convolutional layer that performs the appropriate channel
     # reduction
     up_conv = torch.nn.Conv2d(
-        bottleneck.out_channels,
+        encoder.out_channels,
         first_stage_out_channels,
         kernel_size=3,
         padding=1,

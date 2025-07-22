@@ -346,6 +346,13 @@ When AI Assistant encounters these scenarios, **STOP and verify rules**:
 - Adding features to oversized files instead of refactoring
 - Ignoring line count limits in implementation
 
+#### **Uncertainty Violation Triggers:**
+
+- Using "probably", "might work", "should resolve" without analysis
+- Providing single uncertain solutions without alternatives
+- Making recommendations without evidence
+- Using vague language like "I think" or "maybe" without options
+
 ### 🔧 **Auto-Recovery Actions**
 
 When red flags detected:
@@ -363,6 +370,8 @@ When red flags detected:
 - **Default to English** for all project files unless explicitly conversation
 - **Default to minimal terminal commands** - communicate in chat instead
 - **When in doubt, ask the user** rather than assume
+- **Always resolve problems at their root cause** rather than implementing workarounds
+- **When uncertain, analyze 3+ options** rather than providing single uncertain solutions
 
 **Principle:** Systematic verification prevents rule violations better than
 post-error correction.

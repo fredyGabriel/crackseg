@@ -1,12 +1,11 @@
-"""Visual Regression and Performance Benchmarking System.
-
-This module extends the existing visual testing framework and benchmark tools
-to provide comprehensive visual regression testing and performance monitoring
-for GUI components. Part of subtask 7.7 - Visual Regression and Performance
-Benchmarks.
+"""
+Visual Regression and Performance Benchmarking System. This module
+extends the existing visual testing framework and benchmark tools to
+provide comprehensive visual regression testing and performance
+monitoring for GUI components. Part of subtask 7.7 - Visual Regression
+and Performance Benchmarks.
 """
 
-import hashlib
 import json
 import time
 from collections.abc import Callable
@@ -15,19 +14,51 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import Mock
 
-import pytest
-
 from .test_benchmark import BenchmarkConfig, TestBenchmark
-from .visual_testing_framework import (
-    ComponentPerformanceProfiler,
-    PerformanceProfile,
-    VisualRegressionTester,
-    VisualTestSnapshot,
-)
+from .unified_testing.performance import PerformanceProfile
+from .unified_testing.visual import VisualTestSnapshot
 
 # Type aliases for better type checking
 MockTestFunction = Callable[[Mock], None]
 ComponentTestSuite = dict[str, MockTestFunction]
+
+
+# Placeholder classes for components that don't exist yet
+class ComponentPerformanceProfiler:
+    """Placeholder for component performance profiler."""
+
+    def profile_component_render(
+        self, component_name: str, render_func: Callable[[], None]
+    ) -> PerformanceProfile:
+        """Profile component render performance."""
+        start_time = time.time()
+        render_func()
+        execution_time = (time.time() - start_time) * 1000
+
+        return PerformanceProfile(
+            component_name=component_name,
+            execution_time_ms=execution_time,
+            memory_usage_mb=0.0,  # Placeholder
+            timestamp=time.time(),
+            metadata={},
+        )
+
+
+class VisualRegressionTester:
+    """Placeholder for visual regression tester."""
+
+    def capture_component_snapshot(
+        self, test_name: str, component_type: str, mock_st: Mock
+    ) -> VisualTestSnapshot:
+        """Capture component snapshot for testing."""
+        render_output = str(mock_st.method_calls)
+        return VisualTestSnapshot(
+            test_name=test_name,
+            component_type=component_type,
+            render_output=render_output,
+            timestamp=time.time(),
+            metadata={},
+        )
 
 
 @dataclass
@@ -116,29 +147,26 @@ class VisualRegressionDetector:
                 test_name=current_snapshot.test_name,
                 passed=True,
                 similarity_score=1.0,
-                baseline_checksum=current_snapshot.checksum,
+                baseline_checksum="",
                 current_checksum=current_snapshot.checksum,
+                deviation_percentage=0.0,
+                regression_detected=False,
+                error_message="Baseline created",
             )
 
-        # Load baseline
-        baseline_snapshot = self._load_baseline(baseline_file)
-
-        # Calculate similarity
-        similarity = self._calculate_similarity(
-            baseline_snapshot, current_snapshot
-        )
-
-        # Determine regression
-        deviation = 1.0 - similarity
-        regression_detected = deviation > self.regression_threshold
+        # Load baseline and compare
+        baseline = self._load_baseline(baseline_file)
+        similarity = self._calculate_similarity(baseline, current_snapshot)
+        deviation = (1.0 - similarity) * 100
+        regression_detected = deviation > (self.regression_threshold * 100)
 
         return VisualRegressionResult(
             test_name=current_snapshot.test_name,
-            passed=deviation <= self.tolerance,
+            passed=not regression_detected,
             similarity_score=similarity,
-            baseline_checksum=baseline_snapshot.checksum,
+            baseline_checksum=baseline.checksum,
             current_checksum=current_snapshot.checksum,
-            deviation_percentage=deviation * 100,
+            deviation_percentage=deviation,
             regression_detected=regression_detected,
         )
 
@@ -176,8 +204,10 @@ class VisualRegressionDetector:
             "component_type": snapshot.component_type,
             "render_output": snapshot.render_output,
             "timestamp": snapshot.timestamp,
+            "metadata": snapshot.metadata,
             "checksum": snapshot.checksum,
         }
+
         with baseline_file.open("w") as f:
             json.dump(snapshot_data, f, indent=2)
 
@@ -185,11 +215,19 @@ class VisualRegressionDetector:
         """Load baseline snapshot from file."""
         with baseline_file.open("r") as f:
             data = json.load(f)
-        return VisualTestSnapshot(**data)
+
+        return VisualTestSnapshot(
+            test_name=data["test_name"],
+            component_type=data["component_type"],
+            render_output=data["render_output"],
+            timestamp=data["timestamp"],
+            metadata=data.get("metadata", {}),
+            checksum=data.get("checksum", ""),
+        )
 
 
 class PerformanceRegressionDetector:
-    """Advanced performance regression detection and alerting."""
+    """Performance regression detection for component benchmarks."""
 
     def __init__(
         self,
@@ -232,25 +270,33 @@ class PerformanceRegressionDetector:
                 component_name=current_profile.component_name,
                 current_profile=current_profile,
                 baseline_profile=None,
+                performance_regression=False,
+                degradation_percentage=0.0,
+                memory_regression=False,
+                memory_increase_mb=0.0,
+                alert_triggered=False,
             )
 
-        # Load baseline
+        # Load baseline and analyze
         baseline_profile = self._load_performance_baseline(baseline_file)
 
-        # Calculate regression metrics
-        render_time_ratio = (
-            current_profile.render_time_ms / baseline_profile.render_time_ms
-        )
+        # Calculate performance degradation
+        baseline_time = baseline_profile.execution_time_ms
+        current_time = current_profile.execution_time_ms
+        degradation_pct = (
+            (current_time - baseline_time) / baseline_time
+        ) * 100
+
+        # Calculate memory increase
         memory_increase = (
             current_profile.memory_usage_mb - baseline_profile.memory_usage_mb
         )
 
-        performance_regression = render_time_ratio > (
-            1.0 + self.performance_threshold
+        # Determine regressions
+        performance_regression = degradation_pct > (
+            self.performance_threshold * 100
         )
         memory_regression = memory_increase > self.memory_threshold_mb
-
-        degradation_percentage = max(0, (render_time_ratio - 1.0) * 100)
         alert_triggered = performance_regression or memory_regression
 
         return PerformanceRegressionResult(
@@ -258,7 +304,7 @@ class PerformanceRegressionDetector:
             current_profile=current_profile,
             baseline_profile=baseline_profile,
             performance_regression=performance_regression,
-            degradation_percentage=degradation_percentage,
+            degradation_percentage=degradation_pct,
             memory_regression=memory_regression,
             memory_increase_mb=memory_increase,
             alert_triggered=alert_triggered,
@@ -269,15 +315,15 @@ class PerformanceRegressionDetector:
         baseline_file = (
             self.baselines_dir / f"{profile.component_name}_perf.json"
         )
+
         profile_data = {
             "component_name": profile.component_name,
-            "render_time_ms": profile.render_time_ms,
+            "execution_time_ms": profile.execution_time_ms,
             "memory_usage_mb": profile.memory_usage_mb,
-            "interaction_latency_ms": profile.interaction_latency_ms,
-            "widget_count": profile.widget_count,
-            "complexity_score": profile.complexity_score,
             "timestamp": profile.timestamp,
+            "metadata": profile.metadata,
         }
+
         with baseline_file.open("w") as f:
             json.dump(profile_data, f, indent=2)
 
@@ -287,13 +333,19 @@ class PerformanceRegressionDetector:
         """Load performance baseline from file."""
         with baseline_file.open("r") as f:
             data = json.load(f)
-        return PerformanceProfile(**data)
+
+        return PerformanceProfile(
+            component_name=data["component_name"],
+            execution_time_ms=data["execution_time_ms"],
+            memory_usage_mb=data["memory_usage_mb"],
+            timestamp=data["timestamp"],
+            metadata=data.get("metadata", {}),
+        )
 
 
 class ComprehensiveRegressionTester:
-    """
-    Comprehensive testing system combining visual and performance regression.
-    """
+    """Comprehensive regression testing combining visual and performance
+    analysis."""
 
     def __init__(
         self,
@@ -311,67 +363,58 @@ class ComprehensiveRegressionTester:
         self.test_artifacts_dir = test_artifacts_dir
         self.test_artifacts_dir.mkdir(parents=True, exist_ok=True)
 
-        # Initialize components
-        self.visual_tester = VisualRegressionTester(
-            test_artifacts_dir / "visual_snapshots"
-        )
-        self.performance_profiler = ComponentPerformanceProfiler()
-
-        # Initialize regression detectors
+        # Initialize component analyzers
         self.visual_detector = VisualRegressionDetector(
-            test_artifacts_dir / "visual_baselines", tolerance=visual_tolerance
+            baselines_dir=test_artifacts_dir / "visual_baselines",
+            tolerance=visual_tolerance,
         )
+
         self.performance_detector = PerformanceRegressionDetector(
-            test_artifacts_dir / "performance_baselines",
+            baselines_dir=test_artifacts_dir / "performance_baselines",
             performance_threshold=performance_threshold,
         )
 
-        # Initialize benchmark system
+        # Initialize profiler and benchmark system
+        self.performance_profiler = ComponentPerformanceProfiler()
+
         benchmark_config = BenchmarkConfig(
-            test_patterns=["tests/gui/**/*.py"],
-            output_dir=test_artifacts_dir / "benchmarks",
+            test_patterns=["tests/gui/"],
+            repeat_count=10,
+            warmup_runs=2,
+            measure_memory=True,
+            include_baseline=True,
         )
         self.benchmark_system = TestBenchmark(benchmark_config)
 
     def run_comprehensive_test(
         self, component_tests: ComponentTestSuite
     ) -> ComprehensiveTestReport:
-        """Run comprehensive visual and performance testing.
+        """Run comprehensive regression test suite.
 
         Args:
             component_tests: Dictionary of test name to test function
 
         Returns:
-            Complete test report
+            Complete test report with visual and performance results
         """
-        session_id = hashlib.md5(str(time.time()).encode()).hexdigest()[:8]
         report = ComprehensiveTestReport(
-            timestamp=time.time(), test_session_id=session_id
+            timestamp=time.time(),
+            test_session_id=f"session_{int(time.time())}",
         )
 
+        # Run visual and performance tests for each component
         for test_name, test_func in component_tests.items():
-            try:
-                # Run visual regression test
-                visual_result = self._run_visual_test(test_name, test_func)
-                report.visual_results.append(visual_result)
+            # Visual regression test
+            visual_result = self._run_visual_test(test_name, test_func)
+            report.visual_results.append(visual_result)
 
-                # Run performance regression test
-                perf_result = self._run_performance_test(test_name, test_func)
-                report.performance_results.append(perf_result)
+            # Performance regression test
+            performance_result = self._run_performance_test(
+                test_name, test_func
+            )
+            report.performance_results.append(performance_result)
 
-            except Exception as e:
-                # Log error and continue
-                error_result = VisualRegressionResult(
-                    test_name=test_name,
-                    passed=False,
-                    similarity_score=0.0,
-                    baseline_checksum="",
-                    current_checksum="",
-                    error_message=str(e),
-                )
-                report.visual_results.append(error_result)
-
-        # Calculate summary metrics
+        # Finalize report
         self._finalize_report(report)
         self._save_report(report)
 
@@ -382,13 +425,14 @@ class ComprehensiveRegressionTester:
     ) -> VisualRegressionResult:
         """Run visual regression test for component."""
         mock_st = Mock()
-
-        # Execute test function with mock
         test_func(mock_st)
 
-        # Capture snapshot
-        snapshot = self.visual_tester.capture_component_snapshot(
-            test_name, "gui_component", mock_st
+        # Create visual snapshot
+        visual_tester = VisualRegressionTester()
+        snapshot = visual_tester.capture_component_snapshot(
+            test_name=test_name,
+            component_type="gui_component",
+            mock_st=mock_st,
         )
 
         # Compare with baseline
@@ -405,9 +449,8 @@ class ComprehensiveRegressionTester:
             test_func(mock_st)
 
         # Profile component performance
-        profile = self.performance_profiler.profile_component_render(  # type: ignore
-            test_name,
-            wrapper,
+        profile = self.performance_profiler.profile_component_render(
+            test_name, wrapper
         )
 
         # Analyze regression
@@ -428,19 +471,15 @@ class ComprehensiveRegressionTester:
 
         if report.total_regressions == 0:
             report.overall_status = "passed"
-        elif report.total_regressions < 3:
-            report.overall_status = "warning"
         else:
             report.overall_status = "failed"
 
     def _save_report(self, report: ComprehensiveTestReport) -> None:
         """Save comprehensive test report."""
         report_file = (
-            self.test_artifacts_dir
-            / f"regression_report_{report.test_session_id}.json"
+            self.test_artifacts_dir / f"report_{report.test_session_id}.json"
         )
 
-        # Convert to serializable format
         report_data = {
             "timestamp": report.timestamp,
             "test_session_id": report.test_session_id,
@@ -451,8 +490,8 @@ class ComprehensiveRegressionTester:
                     "test_name": r.test_name,
                     "passed": r.passed,
                     "similarity_score": r.similarity_score,
-                    "regression_detected": r.regression_detected,
                     "deviation_percentage": r.deviation_percentage,
+                    "regression_detected": r.regression_detected,
                 }
                 for r in report.visual_results
             ],
@@ -462,6 +501,7 @@ class ComprehensiveRegressionTester:
                     "performance_regression": r.performance_regression,
                     "degradation_percentage": r.degradation_percentage,
                     "memory_regression": r.memory_regression,
+                    "memory_increase_mb": r.memory_increase_mb,
                     "alert_triggered": r.alert_triggered,
                 }
                 for r in report.performance_results
@@ -470,13 +510,6 @@ class ComprehensiveRegressionTester:
 
         with report_file.open("w") as f:
             json.dump(report_data, f, indent=2)
-
-
-# Pytest fixtures
-@pytest.fixture
-def regression_tester(tmp_path: Path) -> ComprehensiveRegressionTester:
-    """Pytest fixture for comprehensive regression testing."""
-    return ComprehensiveRegressionTester(tmp_path / "regression_tests")
 
 
 # Decorators for automated regression testing
@@ -489,15 +522,20 @@ def comprehensive_regression_test(
         test_func: MockTestFunction,
     ) -> Callable[..., ComprehensiveTestReport]:
         def wrapper(*args: Any, **kwargs: Any) -> ComprehensiveTestReport:
-            # Get or create regression tester
+            # Set up test environment
+            test_artifacts_dir = (
+                Path("test_artifacts") / f"test_{int(time.time())}"
+            )
             tester = ComprehensiveRegressionTester(
-                Path("test-artifacts") / "automated_regression"
+                test_artifacts_dir=test_artifacts_dir,
+                visual_tolerance=visual_tolerance,
+                performance_threshold=performance_threshold,
             )
 
-            # Run comprehensive test
-            component_tests: ComponentTestSuite = {
-                test_func.__name__: test_func
-            }
+            # Run test
+            test_name = test_func.__name__
+            component_tests = {test_name: test_func}
+
             return tester.run_comprehensive_test(component_tests)
 
         return wrapper

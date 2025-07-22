@@ -1,0 +1,253 @@
+"""
+Streamlit mocking system for unified testing framework. This module
+consolidates all Streamlit mocking functionality from the original
+frameworks, providing comprehensive mock capabilities for session
+state, widgets, file handling, and UI components.
+"""
+
+import  io
+import  time
+from  collections.abc  import  Callable
+from  typing  import   Any
+from  unittest.mock  import  Mock
+
+from  .core  import  BaseTestTracker, UnifiedTestConfig
+
+
+class UnifiedStreamlitMocker(BaseTestTracker):
+    """Unified Streamlit mocking system consolidating all mock features."""
+def __init__(self, config: UnifiedTestConfig | None = None) -> None:
+super().__init__() self.config = config or UnifiedTestConfig()
+self._mock_session_state: dict[str, Any] = {} self._widget_callbacks:
+dict[str, Callable[..., Any]] = {} self._file_uploads: dict[str, Any]
+= {} self._session_state_history: list[dict[str, Any]] = [] def
+create_comprehensive_streamlit_mock(self) -> Mock:
+"""Create a comprehensive Streamlit mock with all components."""
+mock_st = Mock() # Core session state with unified behavior if
+self.config.enable_session_state: mock_st.session_state =
+self._create_unified_session_state_mock() # Widget components with
+callback support if self.config.enable_widget_callbacks:
+self._setup_unified_widget_mocks(mock_st) # File handling components
+if self.config.enable_file_uploads:
+self._setup_unified_file_mocks(mock_st) # Layout and display
+components self._setup_layout_mocks(mock_st)
+self._setup_display_mocks(mock_st) return mock_st def
+_create_unified_session_state_mock(self) -> Any:
+"""Create unified session state mock combining best practices."""
+
+        class UnifiedSessionStateMock:
+            def __init__(self, parent_mocker: "UnifiedStreamlitMocker"
+            ) -> None:
+                self._data = parent_mocker._mock_session_state
+                self._parent = parent_mocker
+
+            def __getitem__(self, key: str) -> Any:
+                return self._data[key]
+
+            def __setitem__(self, key: str, value: Any) -> None:
+                old_value = self._data.get(key)
+                self._data[key] = value
+
+                self._parent._session_state_history.append(
+                    {
+                        "action": "set_item",
+                        "key": key,
+                        "old_value": old_value,
+                        "new_value": value,
+                        "timestamp": time.time(),
+                    }
+                )
+
+                self._parent.track_interaction(
+                    "session_state_set", {"key": key, "value": value}
+                )
+
+            def __contains__(self, key: str) -> bool:
+                return key in self._data
+
+            def __getattr__(self, name: str) -> Any:
+                return self._data.get(name)
+
+            def __setattr__(self, name: str, value: Any) -> None:
+                if name.startswith("_"):
+                    super().__setattr__(name, value)
+                else:
+                    old_value = self._data.get(name)
+                    self._data[name] = value
+
+                    self._parent._session_state_history.append(
+                        {
+                            "action": "set_attr",
+                            "attr": name,
+                            "old_value": old_value,
+                            "new_value": value,
+                            "timestamp": time.time(),
+                        }
+                    )
+
+            def get(self, key: str, default: Any = None) -> Any:
+                return self._data.get(key, default)
+
+            def setdefault(self, key: str, default: Any = None) -> Any:
+                return self._data.setdefault(key, default)
+
+            def pop(self, key: str, default: Any = None) -> Any:
+                value = self._data.pop(key, default)
+                self._parent._session_state_history.append(
+                    {
+                        "action": "pop",
+                        "key": key,
+                        "value": value,
+                        "timestamp": time.time(),
+                    }
+                )
+                return value
+
+            def keys(self) -> Any:
+                return self._data.keys()
+
+            def values(self) -> Any:
+                return self._data.values()
+
+            def items(self) -> Any:
+                return self._data.items()
+
+        return UnifiedSessionStateMock(self)
+
+    def _setup_unified_widget_mocks(self, mock_st: Mock) -> None:
+        """Setup unified widget mocks consolidating all widget features."""
+
+        def button_factory(label: str, **kwargs: Any) -> bool:
+            key = kwargs.get("key", f"button_{label}")
+            callback = kwargs.get("on_click")
+            clicked = kwargs.get("_test_clicked", False)
+
+            if clicked and callback:
+                self._widget_callbacks[key] = callback
+                callback()
+
+            self.track_interaction(
+                "button_click", {"label": label, "key": key}
+            )
+            return clicked
+
+        def selectbox_factory(label: str, options: list[Any], **kwargs: Any
+        ) -> Any:
+            key = kwargs.get("key", f"selectbox_{label}")
+            index = kwargs.get("index", 0)
+            if 0 <= index < len(options):
+                selected = options[index]
+            else:
+                selected = options[0] if options else None
+
+            self.track_interaction(
+                "selectbox_select",
+                {"label": label, "selected": selected, "key": key},
+            )
+            return selected
+
+        def file_uploader_factory(label: str, **kwargs: Any) -> Any:
+            key = kwargs.get("key", f"file_uploader_{label}")
+            accept_multiple_files = kwargs.get("accept_multiple_files", False)
+            uploaded_files = kwargs.get("_test_uploaded_files", [])
+
+            self.track_interaction(
+                "file_upload",
+                {
+                    "label": label,
+                    "file_count": len(uploaded_files),
+                    "key": key,
+                },
+            )
+
+            if not uploaded_files:
+                return None
+            elif accept_multiple_files:
+                return uploaded_files
+            else:
+                return uploaded_files[0]
+
+        # Assign consolidated widget mocks
+        mock_st.button = Mock(side_effect=button_factory)
+        mock_st.selectbox = Mock(side_effect=selectbox_factory)
+        mock_st.file_uploader = Mock(side_effect=file_uploader_factory)
+
+        # Additional widgets
+        mock_st.text_input = Mock(return_value="")
+        mock_st.text_area = Mock(return_value="")
+        mock_st.slider = Mock(return_value=0)
+        mock_st.checkbox = Mock(return_value=False)
+
+    def _setup_unified_file_mocks(self, mock_st: Mock) -> None:
+        """Setup unified file handling mocks."""
+
+        def download_button_factory(label: str, data: Any, file_name: str, **kwargs: Any
+        ) -> bool:
+            key = kwargs.get("key", f"download_{file_name}")
+            clicked = kwargs.get("_test_clicked", False)
+
+            if clicked:
+                self.track_interaction(
+                    "download_click",
+                    {"label": label, "file_name": file_name, "key": key},
+                )
+
+            return clicked
+
+        mock_st.download_button = Mock(side_effect=download_button_factory)
+
+    def _setup_layout_mocks(self, mock_st: Mock) -> None:
+        """Setup layout component mocks."""
+mock_st.columns = Mock(return_value=[Mock(), Mock(), Mock()])
+mock_st.container = Mock(return_value=Mock()) mock_st.sidebar = Mock()
+# Forms form_mock = Mock() form_mock.__enter__ =
+Mock(return_value=form_mock) form_mock.__exit__ =
+Mock(return_value=None) form_mock.form_submit_button =
+Mock(return_value=False) mock_st.form = Mock(return_value=form_mock)
+def _setup_display_mocks(self, mock_st: Mock) -> None:
+"""Setup display component mocks."""
+mock_st.write = Mock() mock_st.markdown = Mock() mock_st.text = Mock()
+mock_st.json = Mock() mock_st.code = Mock() # Status displays
+mock_st.success = Mock() mock_st.info = Mock() mock_st.warning =
+Mock() mock_st.error = Mock() mock_st.exception = Mock() # Progress
+indicators mock_st.progress = Mock(return_value=Mock())
+mock_st.spinner = Mock(return_value=Mock()) def
+get_session_state_history(self) -> list[dict[str, Any]]:
+"""Get the history of session state changes."""
+return self._session_state_history.copy() def
+assert_session_state_changed(self, key: str) -> None:
+"""Assert that a specific key was changed in session state."""
+        for change in self._session_state_history:
+            if change.get("key") == key or change.get("attr") == key:
+                return
+        raise AssertionError(f"Session state key '{key}' was not changed")
+
+    def create_mock_uploaded_file(self,
+        file_name: str,
+        content: str | bytes,
+        mime_type: str = "text/plain",
+    ) -> Mock:
+        """Create a mock uploaded file for testing file upload components."""
+        mock_file = Mock()
+        mock_file.name = file_name
+        mock_file.type = mime_type
+        mock_file.size = len(content)
+
+        # Remember original type for IO behavior
+        is_string_content = isinstance(content, str)
+
+        if isinstance(content, str):
+            content = content.encode("utf-8")
+
+        mock_file.read = Mock(return_value=content)
+        mock_file.getvalue = Mock(return_value=content)
+        mock_file.seek = Mock(return_value=None)
+        mock_file.tell = Mock(return_value=0)
+
+        # Create StringIO/BytesIO behavior based on original type
+        if is_string_content:
+            mock_file.file = io.StringIO(content.decode("utf-8"))
+        else:
+            mock_file.file = io.BytesIO(content)
+
+        return mock_file

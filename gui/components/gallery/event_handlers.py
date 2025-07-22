@@ -12,11 +12,11 @@ from typing import TYPE_CHECKING
 
 import streamlit as st
 
-from scripts.gui.utils.results import EventType, get_event_manager
+from gui.utils.results import EventType, get_event_manager
 
 if TYPE_CHECKING:
-    import scripts.gui.components.gallery.state_manager as sm
-    from scripts.gui.utils.results import ScanEvent
+    import gui.components.gallery.state_manager as sm
+    from gui.utils.results import ScanEvent
 
 
 class GalleryEventHandlers:

@@ -1,7 +1,7 @@
-"""Touch simulation utilities for responsive testing.
-
-This module provides functions for simulating touch interactions, gestures,
-and mobile-specific user interactions for responsive design testing.
+"""
+Touch simulation utilities for responsive testing. This module
+provides functions for simulating touch interactions, gestures, and
+mobile-specific user interactions for responsive design testing.
 """
 
 import logging
@@ -22,15 +22,10 @@ def simulate_touch_tap(
     element: WebElement,
     simulation_delay: float = 0.2,
 ) -> bool:
-    """Simulate touch tap on an element.
-
-    Args:
-        driver: WebDriver instance
-        element: Target element
-        simulation_delay: Delay after touch simulation
-
-    Returns:
-        True if successful, False otherwise
+    """
+    Simulate touch tap on an element. Args: driver: WebDriver instance
+    element: Target element simulation_delay: Delay after touch simulation
+    Returns: True if successful, False otherwise
     """
     try:
         logger.debug("Simulating touch tap")
@@ -63,17 +58,12 @@ def simulate_swipe_gesture(
     distance: int = 100,
     duration: float = 0.5,
 ) -> bool:
-    """Simulate swipe gesture on an element.
-
-    Args:
-        driver: WebDriver instance
-        start_element: Element to start swipe from
-        direction: Swipe direction ('left', 'right', 'up', 'down')
-        distance: Swipe distance in pixels
-        duration: Duration of swipe gesture
-
-    Returns:
-        True if successful, False otherwise
+    """
+    Simulate swipe gesture on an element. Args: driver: WebDriver instance
+    start_element: Element to start swipe from direction: Swipe direction
+    ('left', 'right', 'up', 'down') distance: Swipe distance in pixels
+    duration: Duration of swipe gesture Returns: True if successful, False
+    otherwise
     """
     try:
         logger.debug(f"Simulating {direction} swipe gesture")
@@ -97,7 +87,7 @@ def simulate_swipe_gesture(
         step_delay = duration / steps
 
         for _i in range(steps):
-            actions.move_by_offset(step_x, step_y)
+            actions.move_by_offset(int(step_x), int(step_y))
             if step_delay > 0:
                 time.sleep(step_delay / 2)  # Smaller delay for smooth motion
 
@@ -121,82 +111,37 @@ def simulate_pinch_zoom(
     zoom_factor: float = 1.5,
     duration: float = 0.8,
 ) -> bool:
-    """Simulate pinch zoom gesture on an element.
-
-    Args:
-        driver: WebDriver instance
-        element: Target element
-        zoom_factor: Zoom factor (>1 for zoom in, <1 for zoom out)
-        duration: Duration of pinch gesture
-
-    Returns:
-        True if successful, False otherwise
+    """
+    Simulate pinch zoom gesture on an element. Args: driver: WebDriver
+    instance element: Target element zoom_factor: Zoom factor (>1 for zoom
+    in, <1 for zoom out) duration: Duration of pinch gesture Returns: True
+    if successful, False otherwise
     """
     try:
         logger.debug(f"Simulating pinch zoom (factor: {zoom_factor})")
 
         # JavaScript-based pinch simulation for better mobile compatibility
         pinch_script = f"""
-        var element = arguments[0];
-        var zoomFactor = {zoom_factor};
-        var duration = {duration * 1000}; // Convert to milliseconds
-
-        // Create touch events
-        var rect = element.getBoundingClientRect();
-        var centerX = rect.left + rect.width / 2;
-        var centerY = rect.top + rect.height / 2;
-
-        // Simulate pinch gesture
-        var touchStartEvent = new TouchEvent('touchstart', {{
-            bubbles: true,
-            cancelable: true,
-            touches: [
-                new Touch({{
-                    identifier: 0,
-                    target: element,
-                    clientX: centerX - 50,
-                    clientY: centerY
-                }}),
-                new Touch({{
-                    identifier: 1,
-                    target: element,
-                    clientX: centerX + 50,
-                    clientY: centerY
-                }})
-            ]
-        }});
-
-        element.dispatchEvent(touchStartEvent);
-
-        // Simulate zoom
-        setTimeout(function() {{
-            var scale = zoomFactor > 1 ? 'scale(' + zoomFactor + ')' : 'scale(' + zoomFactor + ')';
-            element.style.transform = scale;
-
-            var touchEndEvent = new TouchEvent('touchend', {{
-                bubbles: true,
-                cancelable: true,
-                changedTouches: [
-                    new Touch({{
-                        identifier: 0,
-                        target: element,
-                        clientX: centerX - (50 * zoomFactor),
-                        clientY: centerY
-                    }}),
-                    new Touch({{
-                        identifier: 1,
-                        target: element,
-                        clientX: centerX + (50 * zoomFactor),
-                        clientY: centerY
-                    }})
-                ]
-            }});
-
-            element.dispatchEvent(touchEndEvent);
-        }}, duration);
-
-        return true;
-        """
+var element = arguments[0]; var zoomFactor = {zoom_factor}; var
+duration = {duration * 1000}; // Convert to milliseconds // Create
+touch events var rect = element.getBoundingClientRect(); var centerX =
+rect.left + rect.width / 2; var centerY = rect.top + rect.height / 2;
+// Simulate pinch gesture var touchStartEvent = new
+TouchEvent('touchstart', {{ bubbles: true, cancelable: true, touches:
+[ new Touch({{ identifier: 0, target: element, clientX: centerX - 50,
+clientY: centerY }}), new Touch({{ identifier: 1, target: element,
+clientX: centerX + 50, clientY: centerY }}) ] }});
+element.dispatchEvent(touchStartEvent); // Simulate zoom
+setTimeout(function() {{ var scale = zoomFactor > 1 ? 'scale(' +
+zoomFactor + ')' : 'scale(' + zoomFactor + ')';
+element.style.transform = scale; var touchEndEvent = new
+TouchEvent('touchend', {{ bubbles: true, cancelable: true,
+changedTouches: [ new Touch({{ identifier: 0, target: element,
+clientX: centerX - (50 * zoomFactor), clientY: centerY }}), new
+Touch({{ identifier: 1, target: element, clientX: centerX + (50 *
+zoomFactor), clientY: centerY }}) ] }});
+element.dispatchEvent(touchEndEvent); }}, duration); return true;
+"""
 
         result = driver.execute_script(pinch_script, element)
 
@@ -216,15 +161,10 @@ def simulate_long_press(
     element: WebElement,
     press_duration: float = 1.0,
 ) -> bool:
-    """Simulate long press gesture on an element.
-
-    Args:
-        driver: WebDriver instance
-        element: Target element
-        press_duration: Duration to hold press
-
-    Returns:
-        True if successful, False otherwise
+    """
+    Simulate long press gesture on an element. Args: driver: WebDriver
+    instance element: Target element press_duration: Duration to hold
+    press Returns: True if successful, False otherwise
     """
     try:
         logger.debug(f"Simulating long press ({press_duration}s)")
@@ -257,14 +197,10 @@ def simulate_long_press(
 def _calculate_swipe_offsets(
     direction: str, distance: int
 ) -> dict[str, int] | None:
-    """Calculate x,y offsets for swipe direction.
-
-    Args:
-        direction: Swipe direction
-        distance: Swipe distance
-
-    Returns:
-        Dictionary with x,y offsets or None if invalid direction
+    """
+    Calculate x,y offsets for swipe direction. Args: direction: Swipe
+    direction distance: Swipe distance Returns: Dictionary with x,y
+    offsets or None if invalid direction
     """
     direction_map = {
         "left": {"x": -distance, "y": 0},
@@ -282,13 +218,11 @@ def _trigger_touch_events(
     gesture_type: str,
     direction: str | None = None,
 ) -> None:
-    """Trigger touch events to notify responsive JavaScript code.
-
-    Args:
-        driver: WebDriver instance
-        element: Target element
-        gesture_type: Type of gesture ('tap', 'swipe', 'longpress', 'pinch')
-        direction: Direction for swipe gestures
+    """
+    Trigger touch events to notify responsive JavaScript code. Args:
+    driver: WebDriver instance element: Target element gesture_type: Type
+    of gesture ('tap', 'swipe', 'longpress', 'pinch') direction: Direction
+    for swipe gestures
     """
     try:
         touch_script = f"""
@@ -346,35 +280,21 @@ def _trigger_touch_events(
 
 
 def check_touch_capability(driver: WebDriver) -> TouchCapability:
-    """Check touch capability of current browser/device.
-
-    Args:
-        driver: WebDriver instance
-
-    Returns:
-        TouchCapability level detected
+    """
+    Check touch capability of current browser/device. Args: driver:
+    WebDriver instance Returns: TouchCapability level detected
     """
     try:
         capability_script = """
-        // Check for touch support
-        var hasTouch = 'ontouchstart' in window ||
-                      navigator.maxTouchPoints > 0 ||
-                      navigator.msMaxTouchPoints > 0;
-
-        // Check for advanced gesture support
-        var hasAdvancedTouch = 'TouchEvent' in window &&
-                              'ontouchstart' in window;
-
-        // Check for pointer events (advanced touch)
-        var hasPointerEvents = 'PointerEvent' in window;
-
-        return {
-            hasTouch: hasTouch,
-            hasAdvancedTouch: hasAdvancedTouch,
-            hasPointerEvents: hasPointerEvents,
-            maxTouchPoints: navigator.maxTouchPoints || 0
-        };
-        """
+// Check for touch support var hasTouch = 'ontouchstart' in window ||
+navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0; //
+Check for advanced gesture support var hasAdvancedTouch = 'TouchEvent'
+in window && 'ontouchstart' in window; // Check for pointer events
+(advanced touch) var hasPointerEvents = 'PointerEvent' in window;
+return { hasTouch: hasTouch, hasAdvancedTouch: hasAdvancedTouch,
+hasPointerEvents: hasPointerEvents, maxTouchPoints:
+navigator.maxTouchPoints || 0 };
+"""
 
         result = driver.execute_script(capability_script)
 
@@ -391,14 +311,10 @@ def check_touch_capability(driver: WebDriver) -> TouchCapability:
 
 
 def set_mobile_user_agent(driver: WebDriver, user_agent: str) -> bool:
-    """Set mobile user agent for touch simulation.
-
-    Args:
-        driver: WebDriver instance
-        user_agent: Mobile user agent string
-
-    Returns:
-        True if successful, False otherwise
+    """
+    Set mobile user agent for touch simulation. Args: driver: WebDriver
+    instance user_agent: Mobile user agent string Returns: True if
+    successful, False otherwise
     """
     try:
         # This typically needs to be set during driver initialization

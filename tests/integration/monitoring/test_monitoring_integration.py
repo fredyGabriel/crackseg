@@ -1,8 +1,7 @@
 """
-Integration tests for the monitoring framework.
-
-Simple integration tests that verify the monitoring framework works
-with the Trainer without requiring complex setup.
+Integration tests for the monitoring framework. Simple integration
+tests that verify the monitoring framework works with the Trainer
+without requiring complex setup.
 """
 
 from typing import Any

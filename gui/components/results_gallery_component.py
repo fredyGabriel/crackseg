@@ -11,13 +11,13 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from scripts.gui.components.gallery.actions import GalleryActions
-from scripts.gui.components.gallery.event_handlers import GalleryEventHandlers
-from scripts.gui.components.gallery.renderer import GalleryRenderer
-from scripts.gui.components.gallery.state_manager import GalleryStateManager
-from scripts.gui.services.gallery_export_service import GalleryExportService
-from scripts.gui.services.gallery_scanner_service import GalleryScannerService
-from scripts.gui.utils.results import ResultTriplet, ValidationLevel
+from gui.components.gallery.actions import GalleryActions
+from gui.components.gallery.event_handlers import GalleryEventHandlers
+from gui.components.gallery.renderer import GalleryRenderer
+from gui.components.gallery.state_manager import GalleryStateManager
+from gui.services.gallery_export_service import GalleryExportService
+from gui.services.gallery_scanner_service import GalleryScannerService
+from gui.utils.results import ResultTriplet, ValidationLevel
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class ResultsGalleryComponent:
 
         # Simulate event handler subscriptions for test compatibility
         if hasattr(self.event_manager, "subscribe"):
-            from scripts.gui.utils.results import EventType
+            from gui.utils.results import EventType
 
             try:
                 self.event_manager.subscribe(

@@ -1,8 +1,7 @@
 """
-Component caching utilities for model instantiation.
-
-This module provides a caching system for reusing instantiated model components
-to improve performance during repeated instantiations.
+Component caching utilities for model instantiation. This module
+provides a caching system for reusing instantiated model components to
+improve performance during repeated instantiations.
 """
 
 import hashlib
@@ -22,14 +21,10 @@ _component_cache: weakref.WeakValueDictionary[str, nn.Module] = (
 
 def generate_cache_key(component_type: str, config: dict[str, Any]) -> str:
     """
-    Generate a unique cache key for a component configuration.
-
-    Args:
-        component_type: Type of the component (e.g., 'resnet_encoder')
-        config: Configuration dictionary for the component
-
-    Returns:
-        Unique cache key string
+    Generate a unique cache key for a component configuration. Args:
+    component_type: Type of the component (e.g., 'resnet_encoder') config:
+    Configuration dictionary for the component Returns: Unique cache key
+    string
     """
     # Create a deterministic string representation of the config
     config_str = str(sorted(config.items()))
@@ -41,24 +36,16 @@ def generate_cache_key(component_type: str, config: dict[str, Any]) -> str:
 
 def get_cached_component(cache_key: str) -> nn.Module | None:
     """
-    Retrieve a component from the cache.
-
-    Args:
-        cache_key: Cache key for the component
-
-    Returns:
-        Cached component if found, None otherwise
+    Retrieve a component from the cache. Args: cache_key: Cache key for
+    the component Returns: Cached component if found, None otherwise
     """
     return _component_cache.get(cache_key)
 
 
 def cache_component(cache_key: str, component: nn.Module) -> None:
     """
-    Store a component in the cache.
-
-    Args:
-        cache_key: Cache key for the component
-        component: Component to cache
+    Store a component in the cache. Args: cache_key: Cache key for the
+    component component: Component to cache
     """
     _component_cache[cache_key] = component
 
@@ -70,10 +57,8 @@ def clear_component_cache() -> None:
 
 def get_cache_info() -> dict[str, Any]:
     """
-    Get information about the current cache state.
-
-    Returns:
-        Dictionary containing cache statistics
+    Get information about the current cache state. Returns: Dictionary
+    containing cache statistics
     """
     return {
         "cache_size": len(_component_cache),

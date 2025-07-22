@@ -1,9 +1,9 @@
-"""Integration tests for specialized config components.
-
-This module tests the config subsystem integration including configuration
-management, validation mechanisms, serialization/deserialization, and
-configuration workflows. Critical for testing config/ directory specialized
-components.
+"""
+Integration tests for specialized config components. This module tests
+the config subsystem integration including configuration management,
+validation mechanisms, serialization/deserialization, and
+configuration workflows. Critical for testing config/ directory
+specialized components.
 """
 
 from typing import Any
@@ -30,13 +30,10 @@ class TestConfigIntegration(WorkflowTestBase):
         }
 
     def validate_config_structure(self, config: Any) -> bool:
-        """Validate configuration structure.
-
-        Args:
-            config: Configuration to validate
-
-        Returns:
-            True if configuration structure is valid, False otherwise
+        """
+        Validate configuration structure. Args: config: Configuration to
+        validate Returns: True if configuration structure is valid, False
+        otherwise
         """
         if not isinstance(config, dict):
             return False
@@ -57,13 +54,9 @@ class TestConfigIntegration(WorkflowTestBase):
     def execute_config_validation_workflow(
         self, validation_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute configuration validation workflow.
-
-        Args:
-            validation_config: Validation configuration
-
-        Returns:
-            Validation workflow result
+        """
+        Execute configuration validation workflow. Args: validation_config:
+        Validation configuration Returns: Validation workflow result
         """
         result: dict[str, Any] = {
             "success": False,

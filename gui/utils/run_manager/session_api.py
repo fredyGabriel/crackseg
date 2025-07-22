@@ -1,8 +1,8 @@
-"""Session state synchronization and management API.
-
-This module provides functions for managing session state synchronization
-between training processes, log streaming, and GUI components to maintain
-consistent state across the application.
+"""
+Session state synchronization and management API. This module provides
+functions for managing session state synchronization between training
+processes, log streaming, and GUI components to maintain consistent
+state across the application.
 """
 
 from typing import Any
@@ -18,14 +18,13 @@ _session_sync_initialized: bool = False
 
 
 def initialize_session_state_sync() -> bool:
-    """Initialize session state synchronization with process and log managers.
-
-    This function sets up the SessionSyncCoordinator to automatically
-    update session state when process lifecycle events or log streaming
-    events occur. Should be called when starting the GUI application.
-
-    Returns:
-        True if initialization successful, False otherwise
+    """
+    Initialize session state synchronization with process and log
+    managers. This function sets up the SessionSyncCoordinator to
+    automatically update session state when process lifecycle events or
+    log streaming events occur. Should be called when starting the GUI
+    application. Returns: True if initialization successful, False
+    otherwise
     """
     global _session_sync_initialized
 
@@ -65,10 +64,9 @@ def initialize_session_state_sync() -> bool:
 
 
 def get_session_state_status() -> dict[str, Any]:
-    """Get current session state synchronization status.
-
-    Returns:
-        Dictionary with synchronization status information
+    """
+    Get current session state synchronization status. Returns: Dictionary
+    with synchronization status information
     """
     if not _session_sync_initialized:
         return {"initialized": False, "error": "Session sync not initialized"}
@@ -84,12 +82,10 @@ def get_session_state_status() -> dict[str, Any]:
 
 
 def force_session_state_sync() -> bool:
-    """Force immediate synchronization of all session state.
-
-    Useful for debugging or when manual refresh is needed.
-
-    Returns:
-        True if sync successful, False otherwise
+    """
+    Force immediate synchronization of all session state. Useful for
+    debugging or when manual refresh is needed. Returns: True if sync
+    successful, False otherwise
     """
     if not _session_sync_initialized:
         return False

@@ -1,9 +1,10 @@
-"""Automated workflow scripting framework for CrackSeg GUI testing.
-
-This module provides automated execution of workflow scenarios, including
+"""
+Automated workflow scripting framework for CrackSeg GUI testing. This
+module provides automated execution of workflow scenarios, including
 positive and negative test cases, with comprehensive orchestration and
-reporting capabilities. Extended with performance benchmarking and analysis
-for systematic workflow performance measurement and optimization.
+reporting capabilities. Extended with performance benchmarking and
+analysis for systematic workflow performance measurement and
+optimization.
 """
 
 from .automation_orchestrator import AutomationOrchestrator

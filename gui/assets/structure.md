@@ -3,7 +3,7 @@
 ## Directory Structure
 
 ```txt
-scripts/gui/assets/
+gui/assets/
 ├── README.md              # This documentation
 ├── structure.md           # Asset organization guide
 ├── css/                   # Stylesheets and CSS files

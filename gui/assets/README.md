@@ -15,7 +15,7 @@ The asset management system provides:
 ## 📁 Directory Structure
 
 ```txt
-scripts/gui/assets/
+gui/assets/
 ├── README.md              # This documentation
 ├── structure.md           # Detailed structure guide
 ├── manager.py             # Asset management system
@@ -45,13 +45,13 @@ scripts/gui/assets/
 ### Initialize the Asset System
 
 ```bash
-python scripts/gui/assets/init_assets.py
+python gui/assets/init_assets.py
 ```
 
 ### Use in Components
 
 ```python
-from scripts.gui.assets.manager import asset_manager
+from gui.assets.manager import asset_manager
 
 # Inject CSS
 asset_manager.inject_css("base_css")
@@ -177,7 +177,7 @@ The application maintains the sophisticated `LogoComponent` system:
 
 1. **Asset Manager**: Centralized primary logo
 2. **Primary Path**: User-specified logo path
-3. **Default Locations**: docs/designs/, assets/, scripts/gui/assets/
+3. **Default Locations**: docs/designs/, assets/, gui/assets/
 4. **Auto-generation**: Programmatic logo creation
 
 ### Generated Logo Features
@@ -191,7 +191,7 @@ The application maintains the sophisticated `LogoComponent` system:
 ### Integration Example
 
 ```python
-from scripts.gui.components.logo_component import LogoComponent
+from gui.components.logo_component import LogoComponent
 
 # Uses Asset Manager first, then fallbacks
 LogoComponent.render(

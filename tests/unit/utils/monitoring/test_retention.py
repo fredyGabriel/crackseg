@@ -68,7 +68,8 @@ class TestCountBasedRetentionPolicy:
         assert policy.max_count == 1000
 
     def test_should_retain_always_true(self) -> None:
-        """Test that count-based policy always returns True for should_retain."""
+        """Test that count-based policy always returns True for
+        should_retain."""
         policy = CountBasedRetentionPolicy(max_count=100)
         current_time = time.time()
 

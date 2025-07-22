@@ -139,7 +139,7 @@ El repositorio sigue una estructura modular:
 - `src/`: Código fuente principal (modelos, entrenamiento, datos, utilidades)
 - `configs/`: Configuraciones Hydra (modelos, entrenamiento, datos, métricas)
 - `data/`: Datos organizados por split y tipo (imágenes, máscaras)
-- `scripts/`: Scripts y utilidades (incluye la GUI en `scripts/gui/`)
+- `scripts/`: Scripts y utilidades (incluye la GUI en `gui/`)
 - `docs/`: Documentación, guías y reportes
 - `tests/`: Pruebas unitarias e integración
 
@@ -178,7 +178,7 @@ python run.py model=architectures/unet_swin data.batch_size=4 training.loss=bce_
 **Entrenamiento (GUI):**
 
 ```bash
-conda activate crackseg && streamlit run scripts/gui/app.py
+conda activate crackseg && streamlit run gui/app.py
 ```
 
 **Evaluación:**

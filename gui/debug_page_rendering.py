@@ -1,14 +1,9 @@
 """
-Debug script for rendering individual GUI pages.
-
-This script allows calling a page's rendering function directly
-to isolate errors and exceptions that might cause Streamlit to crash.
-
-Usage:
-    streamlit run scripts/gui/debug_page_rendering.py -- <page_name>
-
-Example:
-    streamlit run scripts/gui/debug_page_rendering.py -- architecture
+Debug script for rendering individual GUI pages. This script allows
+calling a page's rendering function directly to isolate errors and
+exceptions that might cause Streamlit to crash. Usage: streamlit run
+scripts/gui/debug_page_rendering.py -- <page_name> Example: streamlit
+run scripts/gui/debug_page_rendering.py -- architecture
 """
 
 import sys
@@ -19,7 +14,7 @@ from pathlib import Path
 import streamlit as st
 
 # Import page functions and other necessary components
-from scripts.gui.pages import (
+from gui.pages import (
     page_advanced_config,
     page_architecture,
     page_config,
@@ -27,9 +22,9 @@ from scripts.gui.pages import (
     page_results,
     page_train,
 )
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.session_state import SessionStateManager
 
-# Add project root to path for imports
+# Add project root to path for import s
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -53,7 +48,7 @@ def main() -> None:
         st.stop()
 
     # All page functions now have consistent signatures (no parameters)
-    pages_without_state: dict[str, Callable[[], None]] = {
+    pages_without_state: dict[str, Callable[..., None]] = {
         "home": page_home,
         "config": page_config,
         "advanced_config": page_advanced_config,

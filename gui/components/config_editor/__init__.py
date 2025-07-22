@@ -1,8 +1,7 @@
 """
-Configuration editor package for advanced YAML editing.
-
-This package provides modular components for YAML configuration editing
-with live validation, file browser integration, and advanced features.
+Configuration editor package for advanced YAML editing. This package
+provides modular components for YAML configuration editing with live
+validation, file browser integration, and advanced features.
 """
 
 from .editor_core import ConfigEditorCore

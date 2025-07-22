@@ -1,7 +1,7 @@
-"""CSV export functionality for stakeholder reports.
-
-This module provides CSV export capabilities for spreadsheet analysis
-and data processing workflows.
+"""
+CSV export functionality for stakeholder reports. This module provides
+CSV export capabilities for spreadsheet analysis and data processing
+workflows.
 """
 
 import csv
@@ -13,10 +13,9 @@ class CsvExportManager:
     """Manager for CSV export functionality."""
 
     def __init__(self, output_base_dir: Path) -> None:
-        """Initialize CSV export manager.
-
-        Args:
-            output_base_dir: Base directory for exported CSV files
+        """
+        Initialize CSV export manager. Args: output_base_dir: Base directory
+        for exported CSV files
         """
         self.output_base_dir = output_base_dir
 
@@ -25,14 +24,10 @@ class CsvExportManager:
         stakeholder_reports: dict[str, dict[str, Any]],
         analysis_results: dict[str, Any],
     ) -> list[Path]:
-        """Export CSV reports for spreadsheet analysis.
-
-        Args:
-            stakeholder_reports: Stakeholder-specific reports
-            analysis_results: Analysis results
-
-        Returns:
-            List of generated CSV file paths
+        """
+        Export CSV reports for spreadsheet analysis. Args:
+        stakeholder_reports: Stakeholder-specific reports analysis_results:
+        Analysis results Returns: List of generated CSV file paths
         """
         exported_files = []
 

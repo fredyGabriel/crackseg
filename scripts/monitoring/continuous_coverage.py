@@ -1,29 +1,19 @@
 #!/usr/bin/env python3
 """
-Continuous Coverage Automation Script
-
-This script provides automation capabilities for continuous coverage
-monitoring, supporting multiple modes of operation for CI/CD integration.
-
-Usage:
-    # Run coverage analysis and generate reports
-    python scripts/monitoring/continuous_coverage.py --mode analysis
-
-    # Run full monitoring with alerts
-    python scripts/monitoring/continuous_coverage.py --mode monitoring \
-        --threshold 80
-
-    # Check and send alerts only
-    python scripts/monitoring/continuous_coverage.py --mode alerts \
-        --threshold 75
-
-    # Generate trend analysis for last 14 days
-    python scripts/monitoring/continuous_coverage.py --mode trends \
-        --days 14
-
-    # Combined operations for CI/CD
-    python scripts/monitoring/continuous_coverage.py --mode all \
-        --threshold 80 --ci-mode
+Continuous Coverage Automation Script This script provides automation
+capabilities for continuous coverage monitoring, supporting multiple
+modes of operation for CI/CD integration. Usage: # Run coverage
+analysis and generate reports python
+scripts/monitoring/continuous_coverage.py --mode analysis # Run full
+monitoring with alerts python
+scripts/monitoring/continuous_coverage.py --mode monitoring \
+--threshold 80 # Check and send alerts only python
+scripts/monitoring/continuous_coverage.py --mode alerts \\ --threshold
+75 # Generate trend analysis for last 14 days python
+scripts/monitoring/continuous_coverage.py --mode trends \\ --days 14 #
+Combined operations for CI/CD python
+scripts/monitoring/continuous_coverage.py --mode all \\ --threshold 80
+--ci-mode
 """
 
 import argparse
@@ -34,7 +24,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-# Add src to path for imports
+# Add src to path for import s
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from crackseg.utils.monitoring.coverage_monitor import (
@@ -59,10 +49,10 @@ logger = logging.getLogger(__name__)
 
 
 class ContinuousCoverageAutomation:
-    """Automation orchestrator for continuous coverage monitoring.
-
-    This class coordinates all aspects of continuous coverage monitoring
-    including analysis, alerting, trend tracking, and CI/CD integration.
+    """
+    Automation orchestrator for continuous coverage monitoring. This class
+    coordinates all aspects of continuous coverage monitoring including
+    analysis, alerting, trend tracking, and CI/CD integration.
     """
 
     def __init__(
@@ -72,13 +62,11 @@ class ContinuousCoverageAutomation:
         ci_mode: bool = False,
         verbose: bool = False,
     ) -> None:
-        """Initialize the automation orchestrator.
-
-        Args:
-            threshold: Target coverage threshold percentage
-            output_dir: Output directory for reports and data
-            ci_mode: Enable CI/CD specific optimizations
-            verbose: Enable verbose logging output
+        """
+        Initialize the automation orchestrator. Args: threshold: Target
+        coverage threshold percentage output_dir: Output directory for reports
+        and data ci_mode: Enable CI/CD specific optimizations verbose: Enable
+        verbose logging output
         """
         self.threshold = threshold
         self.ci_mode = ci_mode
@@ -192,13 +180,9 @@ class ContinuousCoverageAutomation:
             }
 
     def run_monitoring_mode(self, days_history: int = 30) -> ResultDict:
-        """Run monitoring and trend analysis mode.
-
-        Args:
-            days_history: Number of days for trend analysis
-
-        Returns:
-            Dictionary with monitoring results
+        """
+        Run monitoring and trend analysis mode. Args: days_history: Number of
+        days for trend analysis Returns: Dictionary with monitoring results
         """
         if not self.monitor:
             raise ValueError(
@@ -246,10 +230,8 @@ class ContinuousCoverageAutomation:
             }
 
     def run_alerts_mode(self) -> ResultDict:
-        """Run alerts checking mode.
-
-        Returns:
-            Dictionary with alert results
+        """
+        Run alerts checking mode. Returns: Dictionary with alert results
         """
         if not self.monitor:
             raise ValueError(

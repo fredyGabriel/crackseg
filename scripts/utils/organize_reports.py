@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
-Script to automatically organize CrackSeg project reports.
-
-This script maintains the established organizational structure of reports,
-moving scattered files to their correct locations according to conventions.
+Script to automatically organize CrackSeg project reports. This script
+maintains the established organizational structure of reports, moving
+scattered files to their correct locations according to conventions.
 """
 
 import re
@@ -37,7 +36,7 @@ class ReportOrganizer:
             r".*task.*complexity.*\.json$": "tasks",
             r"temp_update.*\.txt$": "tasks",
             # Model reports
-            r".*model.*import.*\.json$": "models",
+            r".*model.*import .*\.json$": "models",
             r".*model.*inventory.*\.json$": "models",
             r".*model.*structure.*\.json$": "models",
             r".*model.*expected.*\.json$": "models",

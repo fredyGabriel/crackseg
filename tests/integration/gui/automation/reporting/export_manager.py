@@ -4,6 +4,7 @@ This module provides the main orchestration for exporting stakeholder reports
 in multiple formats (HTML, JSON, CSV) using specialized export modules.
 """
 
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -115,6 +116,46 @@ class MultiFormatExportManager:
                 report_data, fmt, output_dir, filename
             )
         return results
+
+    def export_stakeholder_reports(
+        self,
+        stakeholder_reports: dict[str, Any],
+        analysis_results: dict[str, Any],
+        export_formats: list[str],
+    ) -> list[Path]:
+        """Export stakeholder reports in multiple formats.
+
+        Args:
+            stakeholder_reports: Dictionary of stakeholder reports
+            analysis_results: Analysis results to include
+            export_formats: List of formats to export
+
+        Returns:
+            List of exported file paths
+        """
+        artifacts = []
+
+        # Combine reports and analysis for export
+        combined_data = {
+            "stakeholder_reports": stakeholder_reports,
+            "analysis_results": analysis_results,
+            "export_timestamp": datetime.now().isoformat(),
+        }
+
+        # Export in each requested format
+        for fmt in export_formats:
+            try:
+                result = self.export_report(
+                    combined_data, fmt, filename=f"stakeholder_reports_{fmt}"
+                )
+                # Extract the path from the result
+                if "path" in result:
+                    artifacts.append(Path(result["path"]))
+            except Exception:
+                # Skip failed exports, don't add to artifacts list
+                continue
+
+        return artifacts
 
     def get_supported_formats(self) -> list[str]:
         """Return the list of supported export formats."""

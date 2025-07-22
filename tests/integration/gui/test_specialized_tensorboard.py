@@ -1,8 +1,9 @@
-"""Integration tests for specialized tensorboard components.
-
-This module tests the tensorboard subsystem integration including server
-management, port handling, monitoring integration, and tensorboard service
-lifecycle. Critical for testing tensorboard/ directory specialized components.
+"""
+Integration tests for specialized tensorboard components. This module
+tests the tensorboard subsystem integration including server
+management, port handling, monitoring integration, and tensorboard
+service lifecycle. Critical for testing tensorboard/ directory
+specialized components.
 """
 
 from typing import Any
@@ -29,13 +30,10 @@ class TestTensorboardIntegration(WorkflowTestBase):
         }
 
     def validate_tensorboard_config(self, config: dict[str, Any]) -> bool:
-        """Validate tensorboard configuration.
-
-        Args:
-            config: Tensorboard configuration to validate
-
-        Returns:
-            True if configuration is valid, False otherwise
+        """
+        Validate tensorboard configuration. Args: config: Tensorboard
+        configuration to validate Returns: True if configuration is valid,
+        False otherwise
         """
         required_fields = ["port", "host", "logdir"]
         for field in required_fields:
@@ -57,15 +55,11 @@ class TestTensorboardIntegration(WorkflowTestBase):
     def execute_tensorboard_server_workflow(
         self, server_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute tensorboard server management workflow.
-
-        Args:
-            server_config: Server configuration for tensorboard
-
-        Returns:
-            Server workflow result
         """
-        result = {
+        Execute tensorboard server management workflow. Args: server_config:
+        Server configuration for tensorboard Returns: Server workflow result
+        """
+        result: dict[str, Any] = {
             "success": False,
             "server_started": False,
             "port_allocated": False,
@@ -108,15 +102,12 @@ class TestTensorboardIntegration(WorkflowTestBase):
     def execute_tensorboard_monitoring_workflow(
         self, monitoring_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute tensorboard monitoring integration workflow.
-
-        Args:
-            monitoring_config: Monitoring configuration
-
-        Returns:
-            Monitoring workflow result
         """
-        result = {
+        Execute tensorboard monitoring integration workflow. Args:
+        monitoring_config: Monitoring configuration Returns: Monitoring
+        workflow result
+        """
+        result: dict[str, Any] = {
             "success": False,
             "metrics_collection": False,
             "log_streaming": False,
@@ -159,15 +150,11 @@ class TestTensorboardIntegration(WorkflowTestBase):
     def execute_tensorboard_port_management_workflow(
         self, port_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute tensorboard port management workflow.
-
-        Args:
-            port_config: Port management configuration
-
-        Returns:
-            Port management workflow result
         """
-        result = {
+        Execute tensorboard port management workflow. Args: port_config: Port
+        management configuration Returns: Port management workflow result
+        """
+        result: dict[str, Any] = {
             "success": False,
             "port_discovery": False,
             "port_allocation": False,
@@ -212,13 +199,9 @@ class TestTensorboardIntegration(WorkflowTestBase):
         return result
 
     def simulate_port_allocation(self, port: int) -> bool:
-        """Simulate port allocation for testing.
-
-        Args:
-            port: Port number to allocate
-
-        Returns:
-            True if allocation successful, False otherwise
+        """
+        Simulate port allocation for testing. Args: port: Port number to
+        allocate Returns: True if allocation successful, False otherwise
         """
         # Simulate port availability check
         if port < 1024 or port > 65535:

@@ -1,9 +1,9 @@
-"""Configuration and fixtures for E2E testing with Selenium WebDriver.
-
-This module provides pytest fixtures for browser initialization, test data
-setup, and resource management, leveraging the HybridDriverManager system
-from subtask 14.1. Supports both Docker Grid and local WebDriver setups
-with automatic cleanup.
+"""
+Configuration and fixtures for E2E testing with Selenium WebDriver.
+This module provides pytest fixtures for browser initialization, test
+data setup, and resource management, leveraging the
+HybridDriverManager system from subtask 14.1. Supports both Docker
+Grid and local WebDriver setups with automatic cleanup.
 """
 
 from collections.abc import Generator
@@ -26,14 +26,11 @@ from .drivers import (
 
 @pytest.fixture(scope="session")
 def e2e_config() -> DriverConfig:
-    """Provide default E2E testing configuration.
-
-    Creates a session-scoped configuration optimized for E2E testing with
-    reasonable defaults for headless browser testing, timeouts, and artifact
-    management.
-
-    Returns:
-        DriverConfig: Default configuration for E2E testing
+    """
+    Provide default E2E testing configuration. Creates a session-scoped
+    configuration optimized for E2E testing with reasonable defaults for
+    headless browser testing, timeouts, and artifact management. Returns:
+    DriverConfig: Default configuration for E2E testing
     """
     return DriverConfig(
         browser="chrome",
@@ -50,13 +47,10 @@ def e2e_config() -> DriverConfig:
 
 @pytest.fixture(scope="session")
 def chrome_config(e2e_config: DriverConfig) -> DriverConfig:
-    """Provide Chrome-specific configuration for E2E testing.
-
-    Args:
-        e2e_config: Base E2E configuration
-
-    Returns:
-        DriverConfig: Chrome-optimized configuration
+    """
+    Provide Chrome-specific configuration for E2E testing. Args:
+    e2e_config: Base E2E configuration Returns: DriverConfig:
+    Chrome-optimized configuration
     """
     return DriverConfig(
         browser="chrome",
@@ -66,13 +60,10 @@ def chrome_config(e2e_config: DriverConfig) -> DriverConfig:
 
 @pytest.fixture(scope="session")
 def firefox_config(e2e_config: DriverConfig) -> DriverConfig:
-    """Provide Firefox-specific configuration for E2E testing.
-
-    Args:
-        e2e_config: Base E2E configuration
-
-    Returns:
-        DriverConfig: Firefox-optimized configuration
+    """
+    Provide Firefox-specific configuration for E2E testing. Args:
+    e2e_config: Base E2E configuration Returns: DriverConfig:
+    Firefox-optimized configuration
     """
     return DriverConfig(
         browser="firefox",
@@ -82,13 +73,10 @@ def firefox_config(e2e_config: DriverConfig) -> DriverConfig:
 
 @pytest.fixture(scope="session")
 def edge_config(e2e_config: DriverConfig) -> DriverConfig:
-    """Provide Edge-specific configuration for E2E testing.
-
-    Args:
-        e2e_config: Base E2E configuration
-
-    Returns:
-        DriverConfig: Edge-optimized configuration
+    """
+    Provide Edge-specific configuration for E2E testing. Args: e2e_config:
+    Base E2E configuration Returns: DriverConfig: Edge-optimized
+    configuration
     """
     return DriverConfig(
         browser="edge",
@@ -105,16 +93,12 @@ def edge_config(e2e_config: DriverConfig) -> DriverConfig:
 def driver_manager(
     e2e_config: DriverConfig,
 ) -> Generator[HybridDriverManager, None, None]:
-    """Provide session-scoped HybridDriverManager instance.
-
-    Creates and manages a HybridDriverManager instance for the entire test
-    session, with automatic cleanup of all managed drivers.
-
-    Args:
-        e2e_config: E2E testing configuration
-
-    Yields:
-        HybridDriverManager: Configured driver manager
+    """
+    Provide session-scoped HybridDriverManager instance. Creates and
+    manages a HybridDriverManager instance for the entire test session,
+    with automatic cleanup of all managed drivers. Args: e2e_config: E2E
+    testing configuration Yields: HybridDriverManager: Configured driver
+    manager
     """
     manager = HybridDriverManager(e2e_config)
     try:
@@ -133,16 +117,11 @@ def driver_manager(
 def chrome_driver(
     chrome_config: DriverConfig,
 ) -> Generator[WebDriver, None, None]:
-    """Provide Chrome WebDriver instance for individual test functions.
-
+    """
+    Provide Chrome WebDriver instance for individual test functions.
     Creates a fresh Chrome WebDriver for each test function with automatic
-    cleanup after test completion.
-
-    Args:
-        chrome_config: Chrome-specific configuration
-
-    Yields:
-        WebDriver: Chrome WebDriver instance
+    cleanup after test completion. Args: chrome_config: Chrome-specific
+    configuration Yields: WebDriver: Chrome WebDriver instance
     """
     with driver_session(browser="chrome", config=chrome_config) as driver:
         yield driver
@@ -152,16 +131,12 @@ def chrome_driver(
 def firefox_driver(
     firefox_config: DriverConfig,
 ) -> Generator[WebDriver, None, None]:
-    """Provide Firefox WebDriver instance for individual test functions.
-
-    Creates a fresh Firefox WebDriver for each test function with automatic
-    cleanup after test completion.
-
-    Args:
-        firefox_config: Firefox-specific configuration
-
-    Yields:
-        WebDriver: Firefox WebDriver instance
+    """
+    Provide Firefox WebDriver instance for individual test functions.
+    Creates a fresh Firefox WebDriver for each test function with
+    automatic cleanup after test completion. Args: firefox_config:
+    Firefox-specific configuration Yields: WebDriver: Firefox WebDriver
+    instance
     """
     with driver_session(browser="firefox", config=firefox_config) as driver:
         yield driver
@@ -169,16 +144,11 @@ def firefox_driver(
 
 @pytest.fixture(scope="function")
 def edge_driver(edge_config: DriverConfig) -> Generator[WebDriver, None, None]:
-    """Provide Edge WebDriver instance for individual test functions.
-
-    Creates a fresh Edge WebDriver for each test function with automatic
-    cleanup after test completion.
-
-    Args:
-        edge_config: Edge-specific configuration
-
-    Yields:
-        WebDriver: Edge WebDriver instance
+    """
+    Provide Edge WebDriver instance for individual test functions. Creates
+    a fresh Edge WebDriver for each test function with automatic cleanup
+    after test completion. Args: edge_config: Edge-specific configuration
+    Yields: WebDriver: Edge WebDriver instance
     """
     with driver_session(browser="edge", config=edge_config) as driver:
         yield driver
@@ -188,17 +158,12 @@ def edge_driver(edge_config: DriverConfig) -> Generator[WebDriver, None, None]:
 def webdriver(
     driver_manager: HybridDriverManager,
 ) -> Generator[WebDriver, None, None]:
-    """Provide default WebDriver instance using driver manager.
-
-    Creates a WebDriver using the session-scoped driver manager with the
-    default browser configuration. Useful for tests that don't require
-    specific browser types.
-
-    Args:
-        driver_manager: Session-scoped driver manager
-
-    Yields:
-        WebDriver: Default WebDriver instance
+    """
+    Provide default WebDriver instance using driver manager. Creates a
+    WebDriver using the session-scoped driver manager with the default
+    browser configuration. Useful for tests that don't require specific
+    browser types. Args: driver_manager: Session-scoped driver manager
+    Yields: WebDriver: Default WebDriver instance
     """
     with driver_manager.get_driver() as driver:
         yield driver
@@ -217,17 +182,13 @@ def webdriver(
 def cross_browser_driver(
     request: pytest.FixtureRequest, e2e_config: DriverConfig
 ) -> Generator[WebDriver, None, None]:
-    """Provide WebDriver for cross-browser testing.
-
-    Parametrized fixture that runs tests across multiple browsers. Useful
-    for ensuring Streamlit application compatibility across different browsers.
-
-    Args:
-        request: Pytest request object containing browser parameter
-        e2e_config: Base E2E configuration
-
-    Yields:
-        WebDriver: Browser-specific WebDriver instance
+    """
+    Provide WebDriver for cross-browser testing. Parametrized fixture that
+    runs tests across multiple browsers. Useful for ensuring Streamlit
+    application compatibility across different browsers. Args: request:
+    Pytest request object containing browser parameter e2e_config: Base
+    E2E configuration Yields: WebDriver: Browser-specific WebDriver
+    instance
     """
     browser = request.param
     config = DriverConfig(
@@ -246,26 +207,21 @@ def cross_browser_driver(
 
 @pytest.fixture(scope="session")
 def streamlit_base_url() -> str:
-    """Provide base URL for Streamlit application during testing.
-
-    Returns:
-        str: Base URL for accessing the Streamlit application
+    """
+    Provide base URL for Streamlit application during testing. Returns:
+    str: Base URL for accessing the Streamlit application
     """
     return "http://localhost:8501"
 
 
 @pytest.fixture(scope="session")
 def test_artifacts_dir(e2e_config: DriverConfig) -> Path:
-    """Provide test artifacts directory with automatic creation.
-
-    Creates and provides the test artifacts directory path for storing
-    screenshots, logs, and other test artifacts.
-
-    Args:
-        e2e_config: E2E configuration containing artifacts directory
-
-    Returns:
-        Path: Test artifacts directory path
+    """
+    Provide test artifacts directory with automatic creation. Creates and
+    provides the test artifacts directory path for storing screenshots,
+    logs, and other test artifacts. Args: e2e_config: E2E configuration
+    containing artifacts directory Returns: Path: Test artifacts directory
+    path
     """
     artifacts_dir = e2e_config.artifacts_dir
     artifacts_dir.mkdir(parents=True, exist_ok=True)
@@ -274,13 +230,10 @@ def test_artifacts_dir(e2e_config: DriverConfig) -> Path:
 
 @pytest.fixture(scope="function")
 def test_data() -> dict[str, Any]:
-    """Provide test data for Streamlit application testing.
-
-    Creates mock test data suitable for testing crack segmentation
-    application functionality.
-
-    Returns:
-        dict[str, Any]: Test data dictionary
+    """
+    Provide test data for Streamlit application testing. Creates mock test
+    data suitable for testing crack segmentation application
+    functionality. Returns: dict[str, Any]: Test data dictionary
     """
     return {
         "sample_images": [
@@ -314,16 +267,11 @@ def test_data() -> dict[str, Any]:
 def cleanup_test_artifacts(
     test_artifacts_dir: Path,
 ) -> Generator[None, None, None]:
-    """Automatically cleanup test artifacts after each test function.
-
-    Autouse fixture that ensures test artifacts are cleaned up after each
-    test function to prevent accumulation of test files.
-
-    Args:
-        test_artifacts_dir: Test artifacts directory
-
-    Yields:
-        None
+    """
+    Automatically cleanup test artifacts after each test function. Autouse
+    fixture that ensures test artifacts are cleaned up after each test
+    function to prevent accumulation of test files. Args:
+    test_artifacts_dir: Test artifacts directory Yields: None
     """
     yield
 
@@ -342,17 +290,11 @@ def cleanup_test_artifacts(
 def screenshot_on_failure(
     request: pytest.FixtureRequest, test_artifacts_dir: Path
 ) -> Generator[None, None, None]:
-    """Automatically capture screenshot on test failure.
-
-    Fixture that captures a screenshot when a test fails, useful for
-    debugging E2E test failures.
-
-    Args:
-        request: Pytest request object
-        test_artifacts_dir: Directory for storing artifacts
-
-    Yields:
-        None
+    """
+    Automatically capture screenshot on test failure. Fixture that
+    captures a screenshot when a test fails, useful for debugging E2E test
+    failures. Args: request: Pytest request object test_artifacts_dir:
+    Directory for storing artifacts Yields: None
     """
     yield
 
@@ -393,9 +335,9 @@ def screenshot_on_failure(
 def pytest_runtest_makereport(
     item: pytest.Item, call: pytest.CallInfo[None]
 ) -> Any:
-    """Capture test result for screenshot and video capture integration.
-
-    This hook captures the test result and integrates with the capture system
+    """
+    Capture test result for screenshot and video capture integration. This
+    hook captures the test result and integrates with the capture system
     to automatically take screenshots and save videos on test failures.
     """
 
@@ -438,9 +380,9 @@ def pytest_runtest_makereport(
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_runtest_setup(item: pytest.Item) -> None:
-    """Setup hook to initialize capture system for each test.
-
-    Automatically starts video recording if configured in test data.
+    """
+    Setup hook to initialize capture system for each test. Automatically
+    starts video recording if configured in test data.
     """
     test_instance = getattr(item, "instance", None)
     if test_instance and hasattr(test_instance, "start_test_recording"):
@@ -469,9 +411,9 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_runtest_teardown(item: pytest.Item) -> None:
-    """Teardown hook to cleanup capture artifacts after each test.
-
-    Stops video recording and applies retention policies.
+    """
+    Teardown hook to cleanup capture artifacts after each test. Stops
+    video recording and applies retention policies.
     """
     test_instance = getattr(item, "instance", None)
     if test_instance and hasattr(test_instance, "stop_test_recording"):
@@ -503,10 +445,9 @@ def pytest_runtest_teardown(item: pytest.Item) -> None:
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    """Configure pytest with E2E-specific markers and settings.
-
-    Args:
-        config: Pytest configuration object
+    """
+    Configure pytest with E2E-specific markers and settings. Args: config:
+    Pytest configuration object
     """
     config.addinivalue_line(
         "markers", "e2e: mark test as end-to-end integration test"

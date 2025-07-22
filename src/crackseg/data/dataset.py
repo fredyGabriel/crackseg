@@ -616,9 +616,13 @@ class CrackSegmentationDataset(Dataset[Any]):
                 ):
                     # Load and transform from files
                     image = cv2.imread(image_source)
+                    if image is None:
+                        raise OSError(f"Failed to load image: {image_source}")
                     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
                     mask = cv2.imread(mask_source, cv2.IMREAD_GRAYSCALE)
+                    if mask is None:
+                        raise OSError(f"Failed to load mask: {mask_source}")
 
                     # Ensure mask is binary (0/1)
                     mask = (mask > 127).astype(np.uint8)
@@ -670,7 +674,8 @@ class CrackSegmentationDataset(Dataset[Any]):
                 #     self._cache[current_idx] = (None, None)
 
         raise RuntimeError(
-            "No valid image/mask pairs could be loaded/processed from crackseg.dataset."
+            "No valid image/mask pairs could be loaded/processed from "
+            "crackseg.dataset."
         )
 
 

@@ -131,6 +131,22 @@ class ConvLSTMCell(nn.Module):
 
         return h_cur, c_cur
 
+    def init_hidden_zeros(
+        self,
+        batch_size: int,
+        image_size: tuple[int, int],
+        device: torch.device,
+    ) -> tuple[torch.Tensor, torch.Tensor]:
+        """Create zero-initialized hidden state."""
+        height, width = image_size
+        h_cur = torch.zeros(
+            batch_size, self.hidden_dim, height, width, device=device
+        )
+        c_cur = torch.zeros(
+            batch_size, self.hidden_dim, height, width, device=device
+        )
+        return h_cur, c_cur
+
 
 class ConvLSTM(nn.Module):
     """
@@ -224,7 +240,9 @@ class ConvLSTM(nn.Module):
             raise NotImplementedError()
         else:
             # Since the init is done in forward, can send image size here
-            hidden_state = self._init_hidden(batch_size=b, image_size=(h, w))
+            hidden_state = self._init_hidden(
+                batch_size=b, image_size=(h, w), device=input_tensor.device
+            )
 
         layer_output_list = []
         last_state_list = []
@@ -255,13 +273,18 @@ class ConvLSTM(nn.Module):
         return layer_output_list, last_state_list
 
     def _init_hidden(
-        self, batch_size: int, image_size: tuple[int, int]
+        self,
+        batch_size: int,
+        image_size: tuple[int, int],
+        device: torch.device,
     ) -> list[tuple[torch.Tensor, torch.Tensor]]:
         """Initializes hidden states for all layers."""
         init_states = []
         for i in range(self.num_layers):
             init_states.append(
-                self.cell_list[i]._init_hidden(batch_size, image_size)
+                self.cell_list[i].init_hidden_zeros(  # type: ignore[attr-defined]
+                    batch_size, image_size, device
+                )
             )
         return init_states
 

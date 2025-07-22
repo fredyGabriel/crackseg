@@ -1,8 +1,7 @@
 """
-Unit tests for the device selector component.
-
-Tests device detection, information gathering, and UI component rendering
-for the CrackSeg device selector.
+Unit tests for the device selector component. Tests device detection,
+information gathering, and UI component rendering for the CrackSeg
+device selector.
 """
 
 from typing import Any
@@ -10,9 +9,9 @@ from unittest.mock import Mock, patch
 
 import torch
 
+from gui.components.device_detector import DeviceDetector
+from gui.components.device_info import DeviceInfo
 from gui.components.device_selector import (
-    DeviceDetector,
-    DeviceInfo,
     OptimizedDeviceSelector,
     device_selector,
 )
@@ -316,10 +315,10 @@ class TestOptimizedDeviceSelector:
         mock_ensure_css.assert_called_once()
         assert (
             mock_markdown.call_count >= 2
-        )  # Called for header and device cards (may be more in modular implementation)
+        )  # Called for header and device cards (may be more in modular imp.)
         mock_selectbox.assert_called_once()
 
-    @patch("scripts.gui.components.device_selector.get_device")
+    @patch("gui.components.device_selector.get_device")
     def test_get_device_from_selection_valid(
         self, mock_get_device: Mock
     ) -> None:
@@ -333,7 +332,7 @@ class TestOptimizedDeviceSelector:
         mock_get_device.assert_called_once_with("cuda:0")
 
     @patch(
-        "scripts.gui.components.device_selector.get_device",
+        "gui.components.device_selector.get_device",
         side_effect=Exception("Device Error"),
     )
     def test_get_device_from_selection_error(

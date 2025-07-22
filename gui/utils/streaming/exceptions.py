@@ -20,26 +20,29 @@ class LogStreamingError(Exception):
 
 
 class LogSourceError(LogStreamingError):
-    """Exception for log source specific errors.
-
-    Raised when log source operations fail:
-    - Log file not found or created
-    - Directory watching failures
-    - File permissions denied
-    - Invalid log format detected
+    """
+    Exception for log source specific errors. Raised when log source
+    operations fail: - Log file not found or created - Directory watching
+    failures - File permissions denied - Invalid log format detected
     """
 
     pass
 
 
 class StreamProcessingError(LogStreamingError):
-    """Exception for stream processing errors.
+    """
+    Exception for stream processing errors. Raised during log line
+    processing: - Invalid log line format - Encoding/decoding errors -
+    Queue overflow conditions - Callback execution failures
+    """
 
-    Raised during log line processing:
-    - Invalid log line format
-    - Encoding/decoding errors
-    - Queue overflow conditions
-    - Callback execution failures
+    pass
+
+
+class StreamingError(LogStreamingError):
+    """
+    General streaming error (alias for LogStreamingError). This is a
+    convenience alias for backward compatibility.
     """
 
     pass

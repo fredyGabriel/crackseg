@@ -23,8 +23,8 @@ from crackseg.training.losses.factory.recursive_factory import (
     RecursiveLossFactory,
 )
 
-# Import only loss-related modules to avoid circular dependencies from crackseg.model
-# components
+# Import only loss-related modules to avoid circular dependencies
+# from crackseg.model components
 from crackseg.training.losses.registry.clean_registry import (
     CleanLossRegistry,
 )

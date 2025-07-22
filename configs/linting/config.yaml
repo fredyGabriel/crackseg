@@ -13,21 +13,21 @@ config_files:
 tools:
   # Black for automatic code formatting
   black:
-    version_required: ">=23.3.0"
+    version_required: ">=25.1.0"
     command: "black"
     docs_url: "https://black.readthedocs.io/en/stable/"
     config_section: "tool.black"
 
   # Ruff for linting and style
   ruff:
-    version_required: ">=0.4.0"
+    version_required: ">=0.12.0"
     command: "ruff"
     docs_url: "https://docs.astral.sh/ruff/"
     config_section: "tool.ruff"
 
   # Basedpyright for static type checking
   basedpyright:
-    version_required: ">=1.0.0"
+    version_required: ">=1.30.0"
     command: "basedpyright"
     docs_url: "https://github.com/DetachHead/basedpyright"
     config_section: "tool.basedpyright"

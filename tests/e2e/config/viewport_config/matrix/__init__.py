@@ -1,6 +1,6 @@
-"""Test matrix configuration module for responsive testing.
-
-This module provides ResponsiveTestMatrix class and predefined matrix
+"""
+Test matrix configuration module for responsive testing. This module
+provides ResponsiveTestMatrix class and predefined matrix
 configurations for different testing scenarios.
 """
 

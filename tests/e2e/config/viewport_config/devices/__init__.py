@@ -1,7 +1,7 @@
-"""Device configuration module for responsive testing.
-
-This module provides ResponsiveDevice class and factory functions for
-creating device configurations used in responsive design testing.
+"""
+Device configuration module for responsive testing. This module
+provides ResponsiveDevice class and factory functions for creating
+device configurations used in responsive design testing.
 """
 
 from .core import ResponsiveDevice

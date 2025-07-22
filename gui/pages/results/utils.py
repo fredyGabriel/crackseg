@@ -1,8 +1,7 @@
 """
-Utility functions for the results page module.
-
-This module contains helper functions and utilities used across
-the results page components.
+Utility functions for the results page module. This module contains
+helper functions and utilities used across the results page
+components.
 """
 
 from typing import Any

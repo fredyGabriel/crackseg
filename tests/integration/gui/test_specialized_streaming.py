@@ -1,6 +1,6 @@
-"""Integration tests for specialized streaming components.
-
-This module tests the streaming subsystem integration including core streaming
+"""
+Integration tests for specialized streaming components. This module
+tests the streaming subsystem integration including core streaming
 functionality, source management, and streaming exceptions handling.
 Following the modular workflow component testing pattern.
 """
@@ -130,13 +130,9 @@ class TestStreamingIntegration(WorkflowTestBase):
     def execute_streaming_workflow(
         self, config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute basic streaming workflow.
-
-        Args:
-            config: Streaming configuration
-
-        Returns:
-            Workflow execution result
+        """
+        Execute basic streaming workflow. Args: config: Streaming
+        configuration Returns: Workflow execution result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -178,13 +174,9 @@ class TestStreamingIntegration(WorkflowTestBase):
     def execute_streaming_sources_workflow(
         self, sources_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute streaming sources workflow.
-
-        Args:
-            sources_config: Sources configuration
-
-        Returns:
-            Sources workflow result
+        """
+        Execute streaming sources workflow. Args: sources_config: Sources
+        configuration Returns: Sources workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -223,13 +215,9 @@ class TestStreamingIntegration(WorkflowTestBase):
     def execute_streaming_error_workflow(
         self, invalid_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute streaming error handling workflow.
-
-        Args:
-            invalid_config: Invalid configuration for testing
-
-        Returns:
-            Error handling result
+        """
+        Execute streaming error handling workflow. Args: invalid_config:
+        Invalid configuration for testing Returns: Error handling result
         """
         result: dict[str, Any] = {
             "error_handled": False,
@@ -267,13 +255,9 @@ class TestStreamingIntegration(WorkflowTestBase):
     def execute_streaming_performance_workflow(
         self, perf_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute streaming performance workflow.
-
-        Args:
-            perf_config: Performance test configuration
-
-        Returns:
-            Performance test result
+        """
+        Execute streaming performance workflow. Args: perf_config: Performance
+        test configuration Returns: Performance test result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -309,13 +293,10 @@ class TestStreamingIntegration(WorkflowTestBase):
     def execute_streaming_cross_component_workflow(
         self, session_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute streaming cross-component workflow.
-
-        Args:
-            session_config: Session integration configuration
-
-        Returns:
-            Cross-component integration result
+        """
+        Execute streaming cross-component workflow. Args: session_config:
+        Session integration configuration Returns: Cross-component integration
+        result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -356,13 +337,9 @@ class TestStreamingIntegration(WorkflowTestBase):
         return result
 
     def validate_source_config(self, source_config: dict[str, Any]) -> bool:
-        """Validate streaming source configuration.
-
-        Args:
-            source_config: Source configuration to validate
-
-        Returns:
-            True if configuration is valid
+        """
+        Validate streaming source configuration. Args: source_config: Source
+        configuration to validate Returns: True if configuration is valid
         """
         required_fields = ["type", "format"]
         return all(field in source_config for field in required_fields)

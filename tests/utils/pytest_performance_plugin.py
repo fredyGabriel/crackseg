@@ -1,8 +1,9 @@
-"""Pytest plugin for automatic test performance optimization.
-
-This plugin integrates the performance optimization framework directly into
-pytest execution, providing seamless optimization without manual configuration.
-Part of subtask 7.5 - Test Execution Performance Optimization.
+"""
+Pytest plugin for automatic test performance optimization. This plugin
+integrates the performance optimization framework directly into pytest
+execution, providing seamless optimization without manual
+configuration. Part of subtask 7.5 - Test Execution Performance
+Optimization.
 """
 
 import pytest
@@ -15,10 +16,9 @@ from .performance_optimizer import (
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
-    """Add command line options for performance optimization.
-
-    Args:
-        parser: Pytest argument parser
+    """
+    Add command line options for performance optimization. Args: parser:
+    Pytest argument parser
     """
     group = parser.getgroup("performance", "Test performance optimization")
 
@@ -73,10 +73,9 @@ def pytest_addoption(parser: pytest.Parser) -> None:
 
 
 def pytest_configure(config: pytest.Config) -> None:
-    """Configure pytest with performance optimization settings.
-
-    Args:
-        config: Pytest configuration object
+    """
+    Configure pytest with performance optimization settings. Args: config:
+    Pytest configuration object
     """
     # Register performance markers
     config.addinivalue_line(
@@ -104,28 +103,27 @@ def pytest_configure(config: pytest.Config) -> None:
         )
 
         # Store config in pytest config for use by other hooks
-        config._performance_optimizer = TestPerformanceOptimizer(
+        # Note: Using type ignore to handle dynamic pytest.Config attributes
+        config._performance_optimizer = TestPerformanceOptimizer(  # type: ignore[attr-defined]
             optimization_config
         )
 
 
 @pytest.fixture(scope="session", autouse=True)
-def performance_optimization_session(request: pytest.FixtureRequest):
-    """Session-scoped fixture to set up performance optimization.
-
-    Args:
-        request: Pytest fixture request
+def performance_optimization_session(request: pytest.FixtureRequest) -> None:
+    """
+    Session-scoped fixture to set up performance optimization. Args:
+    request: Pytest fixture request
     """
     if hasattr(request.config, "_performance_optimizer"):
-        optimizer = request.config._performance_optimizer
+        optimizer = request.config._performance_optimizer  # type: ignore[attr-defined]
         print(f"Performance optimization enabled: {optimizer.config}")
 
 
 def pytest_runtest_setup(item: pytest.Item) -> None:
-    """Hook called before each test setup.
-
-    Args:
-        item: Test item being executed
+    """
+    Hook called before each test setup. Args: item: Test item being
+    executed
     """
     # Apply optimizations based on test markers
     if item.get_closest_marker("expensive_fixture"):
@@ -136,10 +134,9 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
 
 
 def pytest_runtest_call(item: pytest.Item) -> None:
-    """Hook called during test execution.
-
-    Args:
-        item: Test item being executed
+    """
+    Hook called during test execution. Args: item: Test item being
+    executed
     """
     # Add performance tracking for marked tests
     if item.get_closest_marker("performance_test"):
@@ -152,15 +149,13 @@ def pytest_terminal_summary(
     exitstatus: int,
     config: pytest.Config,
 ) -> None:
-    """Hook to display performance summary at the end of test run.
-
-    Args:
-        terminalreporter: Terminal reporter for output
-        exitstatus: Exit status of test run
-        config: Pytest configuration
+    """
+    Hook to display performance summary at the end of test run. Args:
+    terminalreporter: Terminal reporter for output exitstatus: Exit status
+    of test run config: Pytest configuration
     """
     if hasattr(config, "_performance_optimizer"):
-        optimizer = config._performance_optimizer
+        optimizer = config._performance_optimizer  # type: ignore[attr-defined]
 
         # Display optimization summary
         terminalreporter.write_sep("=", "Performance Optimization Summary")
@@ -189,13 +184,12 @@ def pytest_terminal_summary(
 
 
 def _generate_performance_report(
-    optimizer: TestPerformanceOptimizer, report_file: str
+    optimizer: TestPerformanceOptimizer,
+    report_file: str,
 ) -> None:
-    """Generate a performance report file.
-
-    Args:
-        optimizer: Performance optimizer instance
-        report_file: Path to report file
+    """
+    Generate a performance report file. Args: optimizer: Performance
+    optimizer instance report_file: Path to report file
     """
     import json
     from pathlib import Path

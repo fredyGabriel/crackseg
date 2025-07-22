@@ -1,20 +1,16 @@
 """
-Architecture page for the CrackSeg application.
-
-This module contains the architecture visualization page that allows users to:
-- Load model configurations
-- Instantiate models from configurations
-- Generate and display architecture diagrams
-- View model summaries and statistics
-
+Architecture page for the CrackSeg application. This module contains
+the architecture visualization page that allows users to: - Load model
+configurations - Instantiate models from configurations - Generate and
+display architecture diagrams - View model summaries and statistics
 Includes proper error handling for Graphviz installation and model
 instantiation.
 """
 
 import streamlit as st
 
-from scripts.gui.utils.gui_config import PAGE_CONFIG
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.gui_config import PAGE_CONFIG
+from gui.utils.session_state import SessionStateManager
 
 from .config_section import render_configuration_selection
 from .info_section import render_model_information_section

@@ -6,6 +6,7 @@ configuration management, and core device functionality.
 
 import logging
 from dataclasses import dataclass, field
+from typing import Any
 
 from ..core import (
     DeviceCategory,
@@ -160,7 +161,7 @@ class ResponsiveDevice:
 
         return base_multiplier
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert device to dictionary representation.
 
         Returns:

@@ -1,8 +1,9 @@
-"""Main orchestrator for comprehensive integration test reporting.
-
-This module serves as the main entry point for the comprehensive integration
-test reporting system, coordinating specialized modules for data aggregation,
-stakeholder reporting, trend analysis, and multi-format export.
+"""
+Main orchestrator for comprehensive integration test reporting. This
+module serves as the main entry point for the comprehensive
+integration test reporting system, coordinating specialized modules
+for data aggregation, stakeholder reporting, trend analysis, and
+multi-format export.
 """
 
 from datetime import datetime
@@ -24,9 +25,9 @@ from .validation_utils import ReportingValidationUtils
 
 
 class IntegrationTestReportingComponent:
-    """Main orchestrator for comprehensive integration test reporting.
-
-    This component coordinates all specialized reporting modules to provide
+    """
+    Main orchestrator for comprehensive integration test reporting. This
+    component coordinates all specialized reporting modules to provide
     comprehensive stakeholder-specific reporting with data aggregation,
     trend analysis, and multi-format export capabilities.
     """
@@ -36,11 +37,10 @@ class IntegrationTestReportingComponent:
         test_utilities: Any,
         config: StakeholderReportConfig | None = None,
     ) -> None:
-        """Initialize comprehensive integration test reporting component.
-
-        Args:
-            test_utilities: Test utilities for integration
-            config: Stakeholder report configuration
+        """
+        Initialize comprehensive integration test reporting component. Args:
+        test_utilities: Test utilities for integration config: Stakeholder
+        report configuration
         """
         self.test_utilities = test_utilities
         self.config = config or StakeholderReportConfig()
@@ -78,13 +78,10 @@ class IntegrationTestReportingComponent:
     def execute_automated_workflow(
         self, automation_config: dict[str, Any]
     ) -> AutomationResult:
-        """Execute comprehensive integration test reporting workflow.
-
-        Args:
-            automation_config: Automation configuration
-
-        Returns:
-            AutomationResult with comprehensive reporting results
+        """
+        Execute comprehensive integration test reporting workflow. Args:
+        automation_config: Automation configuration Returns: AutomationResult
+        with comprehensive reporting results
         """
         AutomationConfiguration(**automation_config)
         start_time = datetime.now()
@@ -189,10 +186,9 @@ class IntegrationTestReportingComponent:
             )
 
     def validate_automation_preconditions(self) -> bool:
-        """Validate that comprehensive reporting preconditions are met.
-
-        Returns:
-            True if all preconditions are satisfied
+        """
+        Validate that comprehensive reporting preconditions are met. Returns:
+        True if all preconditions are satisfied
         """
         try:
             # Validate infrastructure components
@@ -222,24 +218,19 @@ class IntegrationTestReportingComponent:
             return False
 
     def get_automation_metrics(self) -> dict[str, float]:
-        """Get comprehensive reporting automation metrics.
-
-        Returns:
-            Dictionary of automation metrics
+        """
+        Get comprehensive reporting automation metrics. Returns: Dictionary of
+        automation metrics
         """
         return self.metrics_compiler.get_automation_metrics()
 
     def _perform_comprehensive_analysis(
         self, aggregated_data: dict[str, Any]
     ) -> dict[str, Any]:
-        """Perform comprehensive analysis including trends and regression
-        detection.
-
-        Args:
-            aggregated_data: Aggregated testing data
-
-        Returns:
-            Analysis results
+        """
+        Perform comprehensive analysis including trends and regression
+        detection. Args: aggregated_data: Aggregated testing data Returns:
+        Analysis results
         """
         analysis_results = {}
 
@@ -279,9 +270,8 @@ class IntegrationTestReportingComponent:
         return analysis_results
 
     def get_reporting_status(self) -> dict[str, Any]:
-        """Get current reporting system status.
-
-        Returns:
-            Current reporting system status
+        """
+        Get current reporting system status. Returns: Current reporting system
+        status
         """
         return self.metrics_compiler.get_reporting_status()

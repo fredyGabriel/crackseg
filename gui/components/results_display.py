@@ -11,7 +11,7 @@ import streamlit as st
 from PIL import Image
 from streamlit.delta_generator import DeltaGenerator
 
-from scripts.gui.utils.results import ResultTriplet, TripletHealth
+from gui.utils.results import ResultTriplet, TripletHealth
 
 
 class TripletDisplayComponent:
@@ -127,7 +127,7 @@ class TripletDisplayComponent:
                     health_icon = "❌"
 
                 # Display image or placeholder if missing
-                if triplet.image_path.exists():
+                if triplet.image_path and triplet.image_path.exists():
                     image = Image.open(triplet.image_path)
                     st.image(
                         image,
@@ -222,17 +222,17 @@ class TripletDisplayComponent:
         """Renders the interactive image comparison view."""
         image = (
             Image.open(triplet.image_path).convert("RGBA")
-            if triplet.image_path.exists()
+            if triplet.image_path and triplet.image_path.exists()
             else None
         )
         mask = (
             Image.open(triplet.mask_path).convert("RGBA")
-            if triplet.mask_path.exists()
+            if triplet.mask_path and triplet.mask_path.exists()
             else None
         )
         prediction = (
             Image.open(triplet.prediction_path).convert("RGBA")
-            if triplet.prediction_path.exists()
+            if triplet.prediction_path and triplet.prediction_path.exists()
             else None
         )
 

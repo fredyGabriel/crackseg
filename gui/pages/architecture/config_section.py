@@ -1,8 +1,7 @@
 """
-Configuration selection section for the architecture page.
-
-This module handles the configuration file selection interface,
-allowing users to browse and select model architecture configurations.
+Configuration selection section for the architecture page. This module
+handles the configuration file selection interface, allowing users to
+browse and select model architecture configurations.
 """
 
 import logging
@@ -10,11 +9,11 @@ from pathlib import Path
 
 import streamlit as st
 
-from scripts.gui.utils.config import (
+from gui.utils.config import (
     get_config_metadata,
     scan_config_directories,
 )
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 

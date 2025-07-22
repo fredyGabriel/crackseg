@@ -1,8 +1,9 @@
-"""
+"""Exception imports compatibility module.
+
 Compatibility module for exception imports.
 
-This module re-exports exceptions from crackseg.utils.core.exceptions to maintain
-backward compatibility with existing imports.
+This module re-exports exceptions from crackseg.utils.core.exceptions to
+maintain backward compatibility with existing imports.
 """
 
 # Re-export all exceptions from core module

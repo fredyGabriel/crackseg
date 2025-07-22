@@ -106,14 +106,18 @@ def test_create_unet_basic(
         if hasattr(cfg.model.encoder, "init_features")
         else 64
     )  # Default fallback
-    # TODO: If available in config, use cfg.model.decoder.skip_channels_list
-    # or similar
-    encoder_skip_channels = [
-        32,
-        16,
-    ]
-    # TODO: If available in config, use cfg.model.bottleneck.out_channels
-    bottleneck_out_channels = 128
+    # Use cfg.model.decoder.skip_channels_list if available, otherwise fallback
+    encoder_skip_channels = (
+        cfg.model.decoder.skip_channels_list
+        if hasattr(cfg.model.decoder, "skip_channels_list")
+        else [32, 16]  # Fallback for backwards compatibility
+    )
+    # Use cfg.model.bottleneck.out_channels if available, otherwise fallback
+    bottleneck_out_channels = (
+        cfg.model.bottleneck.out_channels
+        if hasattr(cfg.model.bottleneck, "out_channels")
+        else 128  # Fallback for backwards compatibility
+    )
 
     mock_encoder.out_channels = encoder_out_channels
     mock_encoder.skip_channels = encoder_skip_channels
@@ -204,14 +208,18 @@ def test_create_unet_with_final_activation(
         if hasattr(cfg.model.encoder, "init_features")
         else 64
     )  # Default fallback
-    # TODO: If available in config, use cfg.model.decoder.skip_channels_list
-    # or similar
-    encoder_skip_channels = [
-        32,
-        16,
-    ]
-    # TODO: If available in config, use cfg.model.bottleneck.out_channels
-    bottleneck_out_channels = 128
+    # Use cfg.model.decoder.skip_channels_list if available, otherwise fallback
+    encoder_skip_channels = (
+        cfg.model.decoder.skip_channels_list
+        if hasattr(cfg.model.decoder, "skip_channels_list")
+        else [32, 16]  # Fallback for backwards compatibility
+    )
+    # Use cfg.model.bottleneck.out_channels if available, otherwise fallback
+    bottleneck_out_channels = (
+        cfg.model.bottleneck.out_channels
+        if hasattr(cfg.model.bottleneck, "out_channels")
+        else 128  # Fallback for backwards compatibility
+    )
 
     mock_encoder.out_channels = encoder_out_channels
     mock_encoder.skip_channels = encoder_skip_channels

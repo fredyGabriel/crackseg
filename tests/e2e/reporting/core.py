@@ -1,7 +1,7 @@
-"""Core test reporting functionality - now modular.
-
-This module provides backwards compatibility imports for the refactored
-reporting system that has been split into focused, smaller modules.
+"""
+Core test reporting functionality - now modular. This module provides
+backwards compatibility import s for the refactored reporting system
+that has been split into focused, smaller modules.
 """
 
 # Re-export everything from the new modular structure

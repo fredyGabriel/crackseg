@@ -219,7 +219,8 @@ class TestModelFactoryTrainingIntegration:
         mock_loss_function: nn.Module,
         mock_metrics: dict[str, Any],
     ) -> None:
-        """Test complete flow from crackseg.model factory to training initialization."""
+        """Test complete flow from crackseg.model factory to training
+        initialization."""
         # Arrange
         mock_encoder = MockEncoder()
         mock_bottleneck = MockBottleneck()

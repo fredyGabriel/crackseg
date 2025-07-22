@@ -1,16 +1,13 @@
-"""Component interaction integration tests for CrackSeg GUI.
-
-This module implements integration tests for Subtask 7.4, verifying proper
-interaction between GUI components, file operations, and data processing
-modules with focus on end-to-end workflows.
-
-Target workflows:
-1. Results scanning to triplet display pipeline
-2. Image selection UI to ZIP export workflow
-3. Download button integration with file system operations
-4. Error propagation between components
-5. Session state synchronization across components
-6. Performance optimization impact on component interactions
+"""
+Component interaction integration tests for CrackSeg GUI. This module
+implements integration tests for Subtask 7.4, verifying proper
+interaction between GUI components, file operations, and data
+processing modules with focus on end-to-end workflows. Target
+workflows: 1. Results scanning to triplet display pipeline 2. Image
+selection UI to ZIP export workflow 3. Download button integration
+with file system operations 4. Error propagation between components 5.
+Session state synchronization across components 6. Performance
+optimization impact on component interactions
 """
 
 from typing import Any
@@ -51,8 +48,8 @@ class TestComponentInteractions(WorkflowTestBase):
             (dataset_dir / f"{triplet_id}_pred.png").write_text("sample_pred")
 
     def test_results_scanning_to_triplet_display_pipeline(self) -> None:
-        """Test pipeline from results scanning to triplet display component.
-
+        """
+        Test pipeline from results scanning to triplet display component.
         Workflow: Directory scan → triplet discovery → display preparation
         """
         # Execute the scanning to display workflow
@@ -84,8 +81,8 @@ class TestComponentInteractions(WorkflowTestBase):
         assert health_stats["healthy_triplets"] >= 0
 
     def test_image_selection_ui_to_zip_export_workflow(self) -> None:
-        """Test workflow from image selection UI to ZIP export completion.
-
+        """
+        Test workflow from image selection UI to ZIP export completion.
         Workflow: Selection → validation → export preparation → ZIP creation
         """
         # Create triplet selection scenario
@@ -122,8 +119,8 @@ class TestComponentInteractions(WorkflowTestBase):
             assert export_path.stat().st_size > 0
 
     def test_download_button_file_system_integration(self) -> None:
-        """Test download button integration with file system operations.
-
+        """
+        Test download button integration with file system operations.
         Workflow: Download trigger → file preparation → stream delivery
         """
         # Create test export file
@@ -155,8 +152,8 @@ class TestComponentInteractions(WorkflowTestBase):
             assert download_result["cleanup_scheduled"]
 
     def test_error_propagation_between_components(self) -> None:
-        """Test error propagation and handling across component boundaries.
-
+        """
+        Test error propagation and handling across component boundaries.
         Scenarios: Scan errors → display errors → export errors
         """
         error_scenarios = [
@@ -197,9 +194,10 @@ class TestComponentInteractions(WorkflowTestBase):
             assert error_results[f"{component}_graceful_degradation"]
 
     def test_session_state_synchronization_across_components(self) -> None:
-        """Test session state synchronization across multiple GUI components.
-
-        Workflow: State updates → cross-component synchronization → consistency
+        """
+        Test session state synchronization across multiple GUI components.
+        Workflow: State updates → cross-component synchronization →
+        consistency
         """
         # Define multi-component state scenario
         state_scenario: dict[str, Any] = {
@@ -253,8 +251,8 @@ class TestComponentInteractions(WorkflowTestBase):
             assert sync_result[f"{component}_state_updated"]
 
     def test_performance_optimization_component_interactions(self) -> None:
-        """Test performance optimization impact on component interactions.
-
+        """
+        Test performance optimization impact on component interactions.
         Scenarios: Caching → lazy loading → async operations
         """
         performance_config = {
@@ -288,8 +286,8 @@ class TestComponentInteractions(WorkflowTestBase):
         )  # Should maintain responsiveness
 
     def test_complete_end_to_end_workflow_integration(self) -> None:
-        """Test complete end-to-end workflow integration combining components.
-
+        """
+        Test complete end-to-end workflow integration combining components.
         Complete flow: Scan → Display → Select → Export → Download
         """
         # Execute complete integration workflow
@@ -319,9 +317,9 @@ class TestComponentInteractions(WorkflowTestBase):
             assert e2e_result[f"{phase}_performance_acceptable"]
 
     def test_concurrent_component_operations(self) -> None:
-        """Test concurrent operations across multiple components.
-
-        Scenarios: Parallel scan + export, concurrent state updates
+        """
+        Test concurrent operations across multiple components. Scenarios:
+        Parallel scan + export, concurrent state updates
         """
         concurrent_config = {
             "parallel_operations": ["scan", "export"],
@@ -345,9 +343,9 @@ class TestComponentInteractions(WorkflowTestBase):
         assert concurrent_result["performance_benefits_achieved"]
 
     def test_component_lifecycle_management(self) -> None:
-        """Test component lifecycle management and cleanup.
-
-        Workflow: Initialize → Active → Suspend → Resume → Cleanup
+        """
+        Test component lifecycle management and cleanup. Workflow: Initialize
+        → Active → Suspend → Resume → Cleanup
         """
         lifecycle_phases = [
             "initialize",

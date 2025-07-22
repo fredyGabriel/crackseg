@@ -1,8 +1,8 @@
-"""Storage management utilities for session state testing.
-
-This module provides comprehensive localStorage and sessionStorage management
-capabilities for E2E testing including CRUD operations, validation, and
-cross-browser compatibility.
+"""
+Storage management utilities for session state testing. This module
+provides comprehensive localStorage and sessionStorage management
+capabilities for E2E testing including CRUD operations, validation,
+and cross-browser compatibility.
 """
 
 import json
@@ -24,10 +24,11 @@ class StorageType(Enum):
 
 
 class StorageManager:
-    """Storage management for localStorage and sessionStorage.
-
-    Provides comprehensive storage operations including creation, retrieval,
-    modification, deletion, and validation with cross-browser compatibility.
+    """
+    Storage management for localStorage and sessionStorage. Provides
+    comprehensive storage operations including creation, retrieval,
+    modification, deletion, and validation with cross-browser
+    compatibility.
     """
 
     def __init__(self) -> None:
@@ -42,16 +43,11 @@ class StorageManager:
         value: Any,
         storage_type: StorageType = StorageType.LOCAL,
     ) -> bool:
-        """Set an item in the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            key: Storage key
-            value: Value to store (will be JSON serialized)
-            storage_type: Type of storage (localStorage or sessionStorage)
-
-        Returns:
-            True if item was set successfully
+        """
+        Set an item in the specified storage. Args: driver: WebDriver instance
+        key: Storage key value: Value to store (will be JSON serialized)
+        storage_type: Type of storage (localStorage or sessionStorage)
+        Returns: True if item was set successfully
         """
         try:
             # Serialize value to JSON
@@ -77,16 +73,11 @@ class StorageManager:
         storage_type: StorageType = StorageType.LOCAL,
         default: Any = None,
     ) -> Any:
-        """Get an item from the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            key: Storage key
-            storage_type: Type of storage (localStorage or sessionStorage)
-            default: Default value if key not found
-
-        Returns:
-            Deserialized value or default if not found
+        """
+        Get an item from the specified storage. Args: driver: WebDriver
+        instance key: Storage key storage_type: Type of storage (localStorage
+        or sessionStorage) default: Default value if key not found Returns:
+        Deserialized value or default if not found
         """
         try:
             script = f"return {storage_type.value}.getItem(arguments[0]);"
@@ -108,15 +99,11 @@ class StorageManager:
         key: str,
         storage_type: StorageType = StorageType.LOCAL,
     ) -> bool:
-        """Remove an item from the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            key: Storage key to remove
-            storage_type: Type of storage (localStorage or sessionStorage)
-
-        Returns:
-            True if item was removed successfully
+        """
+        Remove an item from the specified storage. Args: driver: WebDriver
+        instance key: Storage key to remove storage_type: Type of storage
+        (localStorage or sessionStorage) Returns: True if item was removed
+        successfully
         """
         try:
             script = f"{storage_type.value}.removeItem(arguments[0]);"
@@ -136,14 +123,10 @@ class StorageManager:
         driver: WebDriver,
         storage_type: StorageType = StorageType.LOCAL,
     ) -> bool:
-        """Clear all items from the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            storage_type: Type of storage (localStorage or sessionStorage)
-
-        Returns:
-            True if storage was cleared successfully
+        """
+        Clear all items from the specified storage. Args: driver: WebDriver
+        instance storage_type: Type of storage (localStorage or
+        sessionStorage) Returns: True if storage was cleared successfully
         """
         try:
             script = f"{storage_type.value}.clear();"
@@ -161,25 +144,18 @@ class StorageManager:
         driver: WebDriver,
         storage_type: StorageType = StorageType.LOCAL,
     ) -> dict[str, Any]:
-        """Get all items from the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            storage_type: Type of storage (localStorage or sessionStorage)
-
-        Returns:
-            Dictionary of all storage items
+        """
+        Get all items from the specified storage. Args: driver: WebDriver
+        instance storage_type: Type of storage (localStorage or
+        sessionStorage) Returns: Dictionary of all storage items
         """
         try:
             script = f"""
-            var items = {{}};
-            for (var i = 0; i < {storage_type.value}.length; i++) {{
-                var key = {storage_type.value}.key(i);
-                var value = {storage_type.value}.getItem(key);
-                items[key] = value;
-            }}
-            return items;
-            """
+var items = {{}}; for (var i = 0; i < {storage_type.value}.length;
+i++) {{ var key = {storage_type.value}.key(i); var value =
+{storage_type.value}.getItem(key); items[key] = value; }} return
+items;
+"""
 
             raw_items = driver.execute_script(script)
 
@@ -205,15 +181,10 @@ class StorageManager:
         key: str,
         storage_type: StorageType = StorageType.LOCAL,
     ) -> bool:
-        """Check if an item exists in the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            key: Storage key to check
-            storage_type: Type of storage (localStorage or sessionStorage)
-
-        Returns:
-            True if item exists
+        """
+        Check if an item exists in the specified storage. Args: driver:
+        WebDriver instance key: Storage key to check storage_type: Type of
+        storage (localStorage or sessionStorage) Returns: True if item exists
         """
         try:
             script = (
@@ -232,14 +203,10 @@ class StorageManager:
         driver: WebDriver,
         storage_type: StorageType = StorageType.LOCAL,
     ) -> int:
-        """Get the number of items in the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            storage_type: Type of storage (localStorage or sessionStorage)
-
-        Returns:
-            Number of items in storage
+        """
+        Get the number of items in the specified storage. Args: driver:
+        WebDriver instance storage_type: Type of storage (localStorage or
+        sessionStorage) Returns: Number of items in storage
         """
         try:
             script = f"return {storage_type.value}.length;"
@@ -255,15 +222,10 @@ class StorageManager:
         key: str = "default",
         storage_type: StorageType | None = None,
     ) -> bool:
-        """Backup storage for later restoration.
-
-        Args:
-            driver: WebDriver instance
-            key: Backup identifier key
-            storage_type: Type of storage (None for both)
-
-        Returns:
-            True if backup was successful
+        """
+        Backup storage for later restoration. Args: driver: WebDriver instance
+        key: Backup identifier key storage_type: Type of storage (None for
+        both) Returns: True if backup was successful
         """
         try:
             backup_data = {}
@@ -293,15 +255,10 @@ class StorageManager:
         key: str = "default",
         storage_type: StorageType | None = None,
     ) -> bool:
-        """Restore previously backed up storage.
-
-        Args:
-            driver: WebDriver instance
-            key: Backup identifier key
-            storage_type: Type of storage (None for both)
-
-        Returns:
-            True if restoration was successful
+        """
+        Restore previously backed up storage. Args: driver: WebDriver instance
+        key: Backup identifier key storage_type: Type of storage (None for
+        both) Returns: True if restoration was successful
         """
         if key not in self._storage_backup:
             logger.warning(f"No storage backup found for key: {key}")
@@ -343,17 +300,12 @@ class StorageManager:
         storage_type: StorageType = StorageType.LOCAL,
         navigation_url: str | None = None,
     ) -> bool:
-        """Validate that storage persists across page navigation.
-
-        Args:
-            driver: WebDriver instance
-            key: Storage key to validate
-            expected_value: Expected storage value
-            storage_type: Type of storage (localStorage or sessionStorage)
-            navigation_url: URL to navigate to (refreshes current page if None)
-
-        Returns:
-            True if storage persisted with expected value
+        """
+        Validate that storage persists across page navigation. Args: driver:
+        WebDriver instance key: Storage key to validate expected_value:
+        Expected storage value storage_type: Type of storage (localStorage or
+        sessionStorage) navigation_url: URL to navigate to (refreshes current
+        page if None) Returns: True if storage persisted with expected value
         """
         try:
             # Navigate or refresh
@@ -387,15 +339,11 @@ class StorageManager:
         expected_items: dict[str, Any],
         storage_type: StorageType = StorageType.LOCAL,
     ) -> dict[str, Any]:
-        """Compare current storage with expected items.
-
-        Args:
-            driver: WebDriver instance
-            expected_items: Expected storage items
-            storage_type: Type of storage (localStorage or sessionStorage)
-
-        Returns:
-            Dictionary with comparison results
+        """
+        Compare current storage with expected items. Args: driver: WebDriver
+        instance expected_items: Expected storage items storage_type: Type of
+        storage (localStorage or sessionStorage) Returns: Dictionary with
+        comparison results
         """
         try:
             actual_items = self.get_all_items(driver, storage_type)

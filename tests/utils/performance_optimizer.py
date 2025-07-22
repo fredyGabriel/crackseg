@@ -1,8 +1,8 @@
-"""Test performance optimization framework.
-
-This module provides comprehensive test performance optimization including
-fixture caching, selective test running, and parallel execution strategies.
-Part of subtask 7.5 - Test Execution Performance Optimization.
+"""
+Test performance optimization framework. This module provides
+comprehensive test performance optimization including fixture caching,
+selective test running, and parallel execution strategies. Part of
+subtask 7.5 - Test Execution Performance Optimization.
 """
 
 import hashlib
@@ -13,7 +13,7 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import pytest
 
@@ -201,7 +201,7 @@ class SelectiveTestRunner:
             True if test should run
         """
         if not self.config.enable_selective_running:
-            return True
+            return True  # Always run if not enabled
 
         # Always run if too many files changed (likely major refactor)
         if len(changed_files) > self.config.changed_files_threshold:
@@ -259,17 +259,21 @@ class ParallelOptimizer:
         if not self.config.auto_parallel_detection:
             return self.config.optimal_worker_count
 
-        import psutil
+        try:
+            import psutil
 
-        cpu_cores = psutil.cpu_count(logical=True) or 4
-        memory_gb = psutil.virtual_memory().total // (1024**3)
+            cpu_cores = psutil.cpu_count(logical=True) or 4
+            memory_gb = psutil.virtual_memory().total // (1024**3)
 
-        # Conservative optimization for test execution
-        if memory_gb >= 16:
-            return min(cpu_cores - 1, 6)
-        elif memory_gb >= 8:
-            return min(cpu_cores - 1, 4)
-        else:
+            # Conservative optimization for test execution
+            if memory_gb >= 16:
+                return min(cpu_cores - 1, 6)
+            elif memory_gb >= 8:
+                return min(cpu_cores - 1, 4)
+            else:
+                return 2
+        except ImportError:
+            # Fallback if psutil not available
             return 2
 
     def get_pytest_args(self) -> list[str]:
@@ -331,7 +335,11 @@ class TestPerformanceOptimizer:
         return args
 
     def create_cached_fixture(
-        self, fixture_func: Callable[..., Any], scope: str = "session"
+        self,
+        fixture_func: Callable[..., Any],
+        scope: Literal[
+            "session", "package", "module", "class", "function"
+        ] = "session",
     ) -> Callable[..., Any]:
         """Create a cached version of a fixture.
 
@@ -391,7 +399,9 @@ def get_performance_optimizer() -> TestPerformanceOptimizer:
 
 
 def cached_fixture(
-    scope: str = "session",
+    scope: Literal[
+        "session", "package", "module", "class", "function"
+    ] = "session",
 ) -> Callable[[Callable[..., Any]], Any]:
     """Decorator for creating cached fixtures.
 

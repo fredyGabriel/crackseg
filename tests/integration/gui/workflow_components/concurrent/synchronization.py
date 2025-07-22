@@ -1,6 +1,6 @@
-"""Process synchronization testing for concurrent operations.
-
-Handles process synchronization scenarios and coordination validation.
+"""
+Process synchronization testing for concurrent operations. Handles
+process synchronization scenarios and coordination validation.
 Extracted from oversized concurrent_operation_mixin.py for modular
 organization.
 """

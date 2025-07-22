@@ -1,11 +1,10 @@
 """
-Utilities package for the CrackSeg GUI application.
-
-This package contains configuration, session state management,
-and other utility modules.
+Utilities package for the CrackSeg GUI application. This package
+contains configuration, session state management, and other utility
+modules.
 """
 
-from scripts.gui.utils.config_io import (
+from gui.utils.config_io import (
     ConfigCache,
     ConfigError,
     ValidationError,
@@ -24,8 +23,8 @@ from scripts.gui.utils.config_io import (
     validate_yaml_advanced,
     validate_yaml_syntax,
 )
-from scripts.gui.utils.gui_config import PAGE_CONFIG
-from scripts.gui.utils.session_state import SessionState, SessionStateManager
+from gui.utils.gui_config import PAGE_CONFIG
+from gui.utils.session_state import SessionState, SessionStateManager
 
 __all__ = [
     "PAGE_CONFIG",

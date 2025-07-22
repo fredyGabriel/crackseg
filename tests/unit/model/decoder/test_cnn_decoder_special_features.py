@@ -1,5 +1,8 @@
+from typing import cast
+
 import pytest
 import torch
+from torch import nn
 
 from crackseg.model.decoder.cnn_decoder import CNNDecoder, CNNDecoderConfig
 
@@ -83,6 +86,6 @@ def test_cnndecoder_forward_cbam_and_shapes(
     # Verify CBAM is being used (check for CBAM modules in decoder blocks)
     has_cbam = any(
         hasattr(block, "cbam") and block.cbam.__class__.__name__ != "Identity"
-        for block in decoder.decoder_blocks
+        for block in cast(nn.ModuleList, decoder.decoder_blocks)
     )
     assert has_cbam, "CBAM should be present in decoder blocks"

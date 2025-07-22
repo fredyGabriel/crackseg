@@ -1,7 +1,7 @@
-"""Diagnostic components for TensorBoard status display.
-
-This module provides detailed diagnostic panels and action controls
-for TensorBoard management.
+"""
+Diagnostic components for TensorBoard status display. This module
+provides detailed diagnostic panels and action controls for
+TensorBoard management.
 """
 
 from .action_controls import ActionControls

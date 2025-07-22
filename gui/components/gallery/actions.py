@@ -13,14 +13,14 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pathlib import Path
 
-    import scripts.gui.components.gallery.state_manager as sm
-    from scripts.gui.services.gallery_export_service import (
+    import gui.components.gallery.state_manager as sm
+    from gui.services.gallery_export_service import (
         GalleryExportService,
     )
-    from scripts.gui.services.gallery_scanner_service import (
+    from gui.services.gallery_scanner_service import (
         GalleryScannerService,
     )
-    from scripts.gui.utils.results import ValidationLevel
+    from gui.utils.results import ValidationLevel
 
 
 class GalleryActions:

@@ -235,7 +235,8 @@ def test_get_all_samples_finds_pairs(temp_data_dir: str) -> None:
 
 def test_get_all_samples_ignores_missing_masks(temp_data_dir: str) -> None:
     """
-    Test that images without corresponding masks are ignored (with warning).
+    Test that images without corresponding masks are ignored (with
+    warning).
     """
     with pytest.warns(UserWarning, match="Mask not found for image: img3.tif"):
         all_samples = get_all_samples(temp_data_dir)

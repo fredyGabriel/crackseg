@@ -10,12 +10,14 @@ This directory contains all core logic and helpers for model training, validatio
 
 ## Purpose
 
-- Centralizes the training workflow, including epoch/batch processing, configuration validation, optimizer/scheduler factories, loss and metric definitions.
+- Centralizes the training workflow, including epoch/batch processing, configuration validation,
+  optimizer/scheduler factories, loss and metric definitions.
 - Promotes modularity and separation of concerns for maintainable and extensible training code.
 
 ## File Overview
 
-- `trainer.py`: Main Trainer class. Orchestrates the full training and validation loop, checkpointing, early stopping, and logging. Entry point for training logic.
+- `trainer.py`: Main Trainer class. Orchestrates the full training and validation loop,
+  checkpointing, early stopping, and logging. Entry point for training logic.
 - `batch_processing.py`: Stateless helpers for batch-level training and validation steps.
 - `config_validation.py`: Functions to validate training configuration (Hydra/OmegaConf compatible).
 - `factory.py`: Factory functions to instantiate optimizers and learning rate schedulers from config.
@@ -32,8 +34,10 @@ This directory contains all core logic and helpers for model training, validatio
 
 ## Extending
 
-- To add a new loss or metric: implement the function in `losses.py` or `metrics.py` and register it in the module's dictionary.
-- To add new training logic: prefer helpers in `batch_processing.py` or new utility modules, keeping `trainer.py` focused on orchestration.
+- To add a new loss or metric: implement the function in `losses.py` or `metrics.py` and register it
+  in the module's dictionary.
+- To add new training logic: prefer helpers in `batch_processing.py` or new utility modules, keeping
+  `trainer.py` focused on orchestration.
 
 ## Related
 

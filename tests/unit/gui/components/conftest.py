@@ -1,6 +1,6 @@
-"""Pytest configuration for GUI component tests.
-
-Provides common fixtures and utilities for testing GUI components.
+"""
+Pytest configuration for GUI component tests. Provides common fixtures
+and utilities for testing GUI components.
 """
 
 from pathlib import Path

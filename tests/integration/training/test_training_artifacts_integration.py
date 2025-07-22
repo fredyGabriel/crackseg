@@ -1,11 +1,10 @@
-"""Integration tests for training artifacts generation, loading, and
-validation.
-
-This module tests the complete artifact lifecycle across the training pipeline:
-- Metrics artifacts (CSV, JSON, plots)
-- Checkpoint artifacts (model states, optimizer states)
-- Configuration artifacts (standardized configs, validation reports)
-- Compatibility across different environments and versions
+"""
+Integration tests for training artifacts generation, loading, and
+validation. This module tests the complete artifact lifecycle across
+the training pipeline: - Metrics artifacts (CSV, JSON, plots) -
+Checkpoint artifacts (model states, optimizer states) - Configuration
+artifacts (standardized configs, validation reports) - Compatibility
+across different environments and versions
 """
 
 import json
@@ -149,10 +148,10 @@ def experiment_setup(
 
 
 class TestArtifactGeneration:
-    """Test artifact generation during training workflow.
-
-    Covers action items 1-2: Design test cases and implement integration tests
-    for artifact generation during training.
+    """
+    Test artifact generation during training workflow. Covers action items
+    1-2: Design test cases and implement integration tests for artifact
+    generation during training.
     """
 
     @pytest.mark.integration
@@ -246,10 +245,9 @@ class TestArtifactGeneration:
 
 
 class TestArtifactLoading:
-    """Test loading artifacts in different environments.
-
-    Covers action item 3: Create tests for loading artifacts in different
-    environments.
+    """
+    Test loading artifacts in different environments. Covers action item
+    3: Create tests for loading artifacts in different environments.
     """
 
     @pytest.mark.integration
@@ -351,10 +349,10 @@ class TestArtifactLoading:
 
 
 class TestArtifactValidation:
-    """Test artifact completeness and correctness validation.
-
-    Covers action item 4: Add validation tests to verify artifact completeness
-    and correctness.
+    """
+    Test artifact completeness and correctness validation. Covers action
+    item 4: Add validation tests to verify artifact completeness and
+    correctness.
     """
 
     @pytest.mark.integration
@@ -453,7 +451,7 @@ class TestArtifactValidation:
         self, experiment_setup: tuple[Path, Trainer]
     ) -> None:
         """Test validation of metrics artifact completeness."""
-        experiment_dir, trainer = experiment_setup
+        _, trainer = experiment_setup
 
         # Generate metrics artifacts
         trainer.train()
@@ -495,10 +493,10 @@ class TestArtifactValidation:
 
 
 class TestArtifactCompatibility:
-    """Test artifact compatibility across different versions.
-
-    Covers action item 5: Implement compatibility tests for artifacts across
-    different versions.
+    """
+    Test artifact compatibility across different versions. Covers action
+    item 5: Implement compatibility tests for artifacts across different
+    versions.
     """
 
     @pytest.mark.integration

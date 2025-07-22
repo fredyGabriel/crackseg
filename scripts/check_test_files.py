@@ -1,27 +1,25 @@
 #!/usr/bin/env python3
 """
-Test File Coverage Checker - CrackSeg Project
-
-This script ensures that newly added source files have corresponding test
-files, helping maintain test coverage discipline during development.
-It also validates performance test coverage for critical components.
-
-Usage:
-    python scripts/check_test_files.py [source_files...]
-    python scripts/check_test_files.py --performance-check
+Test File Coverage Checker - CrackSeg Project. This script ensures
+that newly added source files have corresponding test files, helping
+maintain test coverage discipline during development. It also
+validates performance test coverage for critical components. Usage:
+python scripts/check_test_files.py [source_files...] python
+scripts/check_test_files.py --performance-check
 """
 
 import subprocess
 import sys
 from pathlib import Path
 
+# Type definitions
+type TestResultTuple = tuple[bool, list[str]]
+
 
 def safe_print(text: str) -> None:
     """
-    Print text with Unicode-safe emoji handling for Windows.
-
-    Args:
-        text: Text to print, potentially containing emojis
+    Print text with Unicode-safe emoji handling for Windows. Args: text:
+    Text to print, potentially containing emojis
     """
     # Define emoji replacements for Windows compatibility
     emoji_replacements = {
@@ -41,17 +39,13 @@ def safe_print(text: str) -> None:
     print(text)
 
 
-def check_test_files(source_files: list[str]) -> tuple[bool, list[str]]:
+def check_test_files(source_files: list[str]) -> TestResultTuple:
     """
-    Check if source files have corresponding test files.
-
-    Args:
-        source_files: List of source file paths
-
-    Returns:
-        Tuple of (all_have_tests, missing_test_files)
+    Check if source files have corresponding test files. Args:
+    source_files: List of source file paths Returns: Tuple of
+    (all_have_tests, missing_test_files)
     """
-    missing_tests = []
+    missing_tests: list[str] = []
 
     for source_file in source_files:
         source_path = Path(source_file)
@@ -81,14 +75,12 @@ def check_test_files(source_files: list[str]) -> tuple[bool, list[str]]:
     return len(missing_tests) == 0, missing_tests
 
 
-def check_performance_test_coverage() -> tuple[bool, list[str]]:
+def check_performance_test_coverage() -> TestResultTuple:
     """
-    Check if critical performance components have appropriate test coverage.
-
-    Returns:
-        Tuple of (all_covered, missing_performance_tests)
+    Check if critical performance components have appropriate test
+    coverage. Returns: Tuple of (all_covered, missing_performance_tests)
     """
-    missing_performance_tests = []
+    missing_performance_tests: list[str] = []
 
     # Critical components that must have performance tests
     critical_components = [
@@ -137,14 +129,12 @@ def check_performance_test_coverage() -> tuple[bool, list[str]]:
     return len(missing_performance_tests) == 0, missing_performance_tests
 
 
-def validate_performance_system() -> tuple[bool, list[str]]:
+def validate_performance_system() -> TestResultTuple:
     """
-    Validate that the performance benchmarking system is properly configured.
-
-    Returns:
-        Tuple of (system_valid, validation_errors)
+    Validate that the performance benchmarking system is configured.
+    Returns: Tuple of (system_valid, validation_errors)
     """
-    validation_errors = []
+    validation_errors: list[str] = []
 
     # Check performance configuration
     config_file = Path("configs/testing/performance_thresholds.yaml")
@@ -189,11 +179,8 @@ def validate_performance_system() -> tuple[bool, list[str]]:
 
 def run_integrated_performance_validation() -> tuple[bool, str]:
     """
-    Run comprehensive performance system validation using the maintenance
-    script.
-
-    Returns:
-        Tuple of (validation_passed, summary_report)
+    Run comprehensive performance validation using maintenance script.
+    Returns: Tuple of (validation_passed, summary_report)
     """
     try:
         # Run the performance maintenance script health check

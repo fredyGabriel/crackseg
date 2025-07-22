@@ -11,7 +11,7 @@ from typing import Any
 import streamlit as st
 import yaml
 
-from scripts.gui.utils.config import validate_yaml_advanced
+from gui.utils.config import validate_yaml_advanced
 
 from ..error_console import ErrorConsole
 

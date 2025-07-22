@@ -10,7 +10,7 @@ Main components:
 - testing: Complete test workflow orchestration
 
 Example usage:
-    from tests.e2e.utils.responsive import (
+    from  tests.e2e.utils.responsive  import  (
         execute_responsive_test_suite,
         set_viewport_size,
         simulate_touch_tap,
@@ -105,15 +105,11 @@ __description__ = "Responsive testing utilities for cross-browser validation"
 def quick_mobile_test(
     driver: WebDriver, viewport_width: int = 375, viewport_height: int = 667
 ) -> bool:
-    """Quick mobile viewport test setup.
-
-    Args:
-        driver: WebDriver instance
-        viewport_width: Mobile viewport width (default: iPhone SE)
-        viewport_height: Mobile viewport height (default: iPhone SE)
-
-    Returns:
-        True if mobile viewport set successfully
+    """
+    Quick mobile viewport test setup. Args: driver: WebDriver instance
+    viewport_width: Mobile viewport width (default: iPhone SE)
+    viewport_height: Mobile viewport height (default: iPhone SE) Returns:
+    True if mobile viewport set successfully
     """
     from tests.e2e.config.viewport_config import ViewportDimensions
 
@@ -126,15 +122,11 @@ def quick_desktop_test(
     viewport_width: int = 1920,
     viewport_height: int = 1080,
 ) -> bool:
-    """Quick desktop viewport test setup.
-
-    Args:
-        driver: WebDriver instance
-        viewport_width: Desktop viewport width (default: Full HD)
-        viewport_height: Desktop viewport height (default: Full HD)
-
-    Returns:
-        True if desktop viewport set successfully
+    """
+    Quick desktop viewport test setup. Args: driver: WebDriver instance
+    viewport_width: Desktop viewport width (default: Full HD)
+    viewport_height: Desktop viewport height (default: Full HD) Returns:
+    True if desktop viewport set successfully
     """
     from tests.e2e.config.viewport_config import ViewportDimensions
 
@@ -145,15 +137,10 @@ def quick_desktop_test(
 def quick_responsive_check(
     driver: WebDriver, base_url: str, devices: list[Any] | None = None
 ) -> dict[str, Any]:
-    """Quick responsive check across common devices.
-
-    Args:
-        driver: WebDriver instance
-        base_url: URL to test
-        devices: List of device configurations (uses defaults if None)
-
-    Returns:
-        Dictionary with test results
+    """
+    Quick responsive check across common devices. Args: driver: WebDriver
+    instance base_url: URL to test devices: List of device configurations
+    (uses defaults if None) Returns: Dictionary with test results
     """
     from tests.e2e.config.viewport_config import get_mobile_focused_matrix
 
@@ -170,16 +157,21 @@ def quick_responsive_check(
         stabilization_delay=0.5,  # Faster for quick testing
     )
 
-    return execute_responsive_test_suite(
+    test_results = execute_responsive_test_suite(
         driver, test_matrix, base_url, test_config
     )
 
+    # Convert TestResults to dict if needed
+    if hasattr(test_results, "__dict__"):
+        return test_results.__dict__
+    else:
+        return {"results": test_results}
+
 
 def create_basic_layout_checks() -> dict[str, Any]:
-    """Create basic layout validation checks for common responsive patterns.
-
-    Returns:
-        Dictionary with standard layout validation configuration
+    """
+    Create basic layout validation checks for common responsive patterns.
+    Returns: Dictionary with standard layout validation configuration
     """
     return {
         "nav_visible": {
@@ -204,14 +196,10 @@ def create_basic_layout_checks() -> dict[str, Any]:
 def test_mobile_navigation(
     driver: WebDriver, hamburger_selector: str = ".hamburger"
 ) -> bool:
-    """Test mobile navigation functionality.
-
-    Args:
-        driver: WebDriver instance
-        hamburger_selector: CSS selector for hamburger menu button
-
-    Returns:
-        True if mobile navigation works correctly
+    """
+    Test mobile navigation functionality. Args: driver: WebDriver instance
+    hamburger_selector: CSS selector for hamburger menu button Returns:
+    True if mobile navigation works correctly
     """
     # Set mobile viewport
     mobile_success = quick_mobile_test(driver)
@@ -243,14 +231,10 @@ def test_mobile_navigation(
 def test_touch_interactions(
     driver: WebDriver, test_element_selector: str = "body"
 ) -> dict[str, Any]:
-    """Test basic touch interactions on an element.
-
-    Args:
-        driver: WebDriver instance
-        test_element_selector: CSS selector for element to test
-
-    Returns:
-        Dictionary with touch test results
+    """
+    Test basic touch interactions on an element. Args: driver: WebDriver
+    instance test_element_selector: CSS selector for element to test
+    Returns: Dictionary with touch test results
     """
     try:
         from selenium.webdriver.common.by import By
@@ -280,14 +264,10 @@ def test_touch_interactions(
 def validate_page_responsiveness(
     driver: WebDriver, layout_checks: dict[str, Any] | None = None
 ) -> dict[str, Any]:
-    """Validate overall page responsiveness with standard checks.
-
-    Args:
-        driver: WebDriver instance
-        layout_checks: Custom layout checks (uses defaults if None)
-
-    Returns:
-        Dictionary with validation results
+    """
+    Validate overall page responsiveness with standard checks. Args:
+    driver: WebDriver instance layout_checks: Custom layout checks (uses
+    defaults if None) Returns: Dictionary with validation results
     """
     if layout_checks is None:
         layout_checks = create_basic_layout_checks()

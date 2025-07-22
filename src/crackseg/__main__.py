@@ -13,7 +13,7 @@ package_root = os.path.abspath(os.path.join(current_dir, ".."))
 if package_root not in sys.path:
     sys.path.insert(0, package_root)
 
-from crackseg.main import main  # noqa: E402
+from main import main  # noqa: E402
 
 if __name__ == "__main__":
     # This allows the package to be run as a script

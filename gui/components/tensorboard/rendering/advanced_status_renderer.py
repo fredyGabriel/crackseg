@@ -15,7 +15,7 @@ Features:
 
 import streamlit as st
 
-from scripts.gui.utils.tb_manager import TensorBoardManager
+from gui.utils.tb_manager import TensorBoardManager
 
 from ..state.session_manager import SessionStateManager
 from .diagnostics import ActionControls, DiagnosticPanel
@@ -120,7 +120,7 @@ def _get_simple_status_indicator(
     manager: TensorBoardManager,
 ) -> dict[str, str]:
     """Get simple status indicator for compact display."""
-    from scripts.gui.utils.tb_manager import TensorBoardState
+    from gui.utils.tb_manager import TensorBoardState
 
     state = manager.info.state
 

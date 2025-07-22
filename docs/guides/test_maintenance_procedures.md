@@ -1,7 +1,7 @@
 # Test Maintenance Procedures and Regression Prevention
 
-**Document Version**: 1.0
-**Last Updated**: July 13, 2025
+**Document Version**: 1.1
+**Last Updated**: July 2025
 **Scope**: GUI Test Infrastructure Management
 
 ## Overview
@@ -25,13 +25,25 @@ echo "=================================================="
 # Activate environment
 conda activate crackseg
 
+# Verify core dependencies (updated for current project state)
+echo "🔧 Verifying environment dependencies..."
+python -c "
+import torch, matplotlib, streamlit, hydra, timm, albumentations
+print(f'✅ Core ML: PyTorch {torch.__version__}')
+print(f'✅ Visualization: Matplotlib {matplotlib.__version__} (replaces graphviz)')
+print(f'✅ GUI: Streamlit {streamlit.__version__}')
+print(f'✅ Config: Hydra {hydra.__version__}')
+print(f'✅ Models: TIMM {timm.__version__} (replaces torchvision.models)')
+print(f'✅ Augmentations: Albumentations {albumentations.__version__}')
+"
+
 # 1. Quick GUI test suite execution
 echo "📋 Executing core GUI test suite..."
 pytest tests/unit/gui/pages/ tests/integration/gui/ -v --tb=short --maxfail=5
 
 # 2. Coverage monitoring
 echo "📊 Checking current coverage..."
-pytest tests/unit/gui/ --cov=scripts/gui --cov-report=term-missing --cov-fail-under=34
+pytest tests/unit/gui/ --cov=gui --cov-report=term-missing --cov-fail-under=34
 
 # 3. Quality gates verification
 echo "🛡️ Verifying quality gates..."
@@ -48,7 +60,7 @@ Create a daily metrics file to track progress:
 
 ```bash
 # Store daily metrics
-echo "$(date),$(pytest tests/unit/gui/ --cov=scripts/gui --cov-report=term | grep TOTAL | awk '{print $4}')" >> test_coverage_daily.csv
+echo "$(date),$(pytest tests/unit/gui/ --cov=gui --cov-report=term | grep TOTAL | awk '{print $4}')" >> test_coverage_daily.csv
 ```
 
 ### Failure Response Protocol
@@ -87,7 +99,7 @@ conda activate crackseg
 pytest tests/ --tb=long --maxfail=20 > weekly_test_report_$(date +%Y%m%d).txt 2>&1
 
 # 2. Coverage analysis with HTML report
-pytest tests/ --cov=src --cov=scripts/gui --cov-report=html --cov-report=term > weekly_coverage_$(date +%Y%m%d).txt
+pytest tests/ --cov=src --cov=gui --cov-report=html --cov-report=term > weekly_coverage_$(date +%Y%m%d).txt
 
 # 3. Test categorization update
 python test_failure_categorization.py --output weekly_categorization_$(date +%Y%m%d).json
@@ -115,6 +127,65 @@ python scripts/utils/generate_weekly_test_summary.py
    - Update maintenance procedures based on new learnings
    - Document any new failure categories discovered
    - Enhance testing guidelines with recent best practices
+
+## Recent Dependency Changes Impact
+
+### Migration Updates (July 2025)
+
+**Critical Changes to Test Environment:**
+
+1. **Graphviz → Matplotlib Migration (ADR-001)**:
+   - **Removed**: `graphviz` dependency from environment
+   - **Added**: Enhanced matplotlib-based architecture visualization
+   - **Impact**: Tests using architecture visualization now use matplotlib backend
+   - **Action**: Update tests that mock `graphviz` functions to use `matplotlib` equivalents
+
+2. **TorchVision → TIMM + Albumentations**:
+   - **Removed**: `torchvision` dependency
+   - **Added**: `timm` for models, `albumentations` for transforms
+   - **Impact**: Tests using torchvision transforms/models need updating
+   - **Action**: Update import statements and model references in tests
+
+3. **Environment Simplification**:
+   - **Strategy**: Conda-first approach with minimal pip dependencies
+   - **Result**: More stable test environment setup
+   - **Action**: Test scripts should verify conda activation status
+
+### Updated Environment Verification
+
+```python
+# scripts/utils/verify_test_environment.py
+def verify_current_environment() -> bool:
+    """Verify test environment matches current project dependencies."""
+    required_packages = {
+        'torch': '2.7+',
+        'matplotlib': 'any',  # Replaces graphviz
+        'streamlit': 'any',
+        'hydra-core': 'any',
+        'timm': 'any',        # Replaces torchvision.models
+        'albumentations': 'any',  # Replaces torchvision.transforms
+        'pytest': '8.4+',
+        'black': 'any',
+        'ruff': 'any',
+        'basedpyright': 'any'
+    }
+
+    missing_packages = []
+    for package, version in required_packages.items():
+        try:
+            imported = __import__(package.replace('-', '_'))
+            print(f"✅ {package}: {getattr(imported, '__version__', 'unknown')}")
+        except ImportError:
+            missing_packages.append(package)
+            print(f"❌ {package}: Not found")
+
+    if missing_packages:
+        print(f"\n🚨 Missing packages: {', '.join(missing_packages)}")
+        print("💡 Run: conda env create -f environment.yml")
+        return False
+
+    return True
+```
 
 ## Regression Prevention Protocols
 
@@ -180,7 +251,7 @@ echo "✅ Pre-commit validation passed"
 
 ### Mock Path Validation System
 
-Create automated validation for mock paths:
+Create automated validation for mock paths, considering recent dependency changes:
 
 ```python
 # scripts/utils/validate_mock_paths.py
@@ -188,7 +259,7 @@ import ast
 import importlib
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 def validate_mock_paths_in_file(test_file: Path) -> List[Tuple[str, str, bool]]:
     """Validate that all mock paths in a test file point to actual functions."""
@@ -210,6 +281,18 @@ def validate_mock_paths_in_file(test_file: Path) -> List[Tuple[str, str, bool]]:
 
 def validate_mock_path(mock_path: str) -> bool:
     """Check if a mock path points to an actual function/class."""
+    # Handle deprecated imports that should be updated
+    deprecated_mappings = {
+        'torchvision.': 'timm.',  # torchvision.models → timm
+        'graphviz.': 'matplotlib.',  # graphviz → matplotlib
+    }
+
+    # Check if this is a deprecated path
+    for old_path, new_path in deprecated_mappings.items():
+        if old_path in mock_path:
+            print(f"⚠️  Deprecated mock path detected: {mock_path}")
+            print(f"💡 Consider updating to: {mock_path.replace(old_path, new_path)}")
+
     try:
         module_path, attr_name = mock_path.rsplit('.', 1)
         module = importlib.import_module(module_path)
@@ -231,6 +314,7 @@ if __name__ == "__main__":
         print("❌ Invalid mock paths detected:")
         for file, path, _ in invalid_mocks:
             print(f"  {file}: {path}")
+        print("\n💡 Check if paths need updating for recent dependency changes")
         sys.exit(1)
     else:
         print("✅ All mock paths validated successfully")
@@ -446,7 +530,7 @@ The `quality-gates.yml` workflow is triggered on every `push` and `pull_request`
 1. **`quality-gates-core`**: Runs linting (`ruff`), formatting (`black`), and type checking
     (`basedpyright`) on the core `src/` directory.
 2. **`quality-gates-gui`**: Runs the same quality checks specifically on the GUI codebase located
-    in `scripts/gui/`.
+    in `gui/`.
 3. **`test-coverage`**: This job, which depends on the success of the two preceding jobs, is
     responsible for test execution and coverage enforcement.
 
@@ -487,7 +571,7 @@ If the `test-coverage` job fails in a Pull Request, follow these steps:
 
     ```bash
     conda activate crackseg
-    pytest tests/ --cov=src --cov=scripts/gui --cov-report=html
+    pytest tests/ --cov=src --cov=gui --cov-report=html
     ```
 
     Then, open `htmlcov/index.html` in your browser to explore the coverage report interactively
@@ -511,15 +595,24 @@ for sustaining test health in the CrackSeg project. The systematic approach ensu
 improvements achieved through the test failure analysis and correction process are maintained and
 continuously enhanced.
 
-Key benefits of this framework:
+### Key Benefits of This Framework
 
 - **Proactive monitoring** prevents test degradation
 - **Automated validation** catches regressions early
 - **Standardized patterns** reduce maintenance overhead
 - **Continuous improvement** through systematic tracking
+- **Dependency change awareness** handles migrations smoothly
+
+### Recent Improvements (July 2025)
+
+- **Simplified dependencies**: Conda-first approach reduces environment issues
+- **Visualization modernization**: Matplotlib replaces graphviz for better compatibility
+- **Model library updates**: TIMM + albumentations replace torchvision
+- **Enhanced verification**: Updated scripts detect environment mismatches
 
 Regular application of these procedures will support the project's goal of achieving 80% test
-coverage while maintaining high code quality and development velocity.
+coverage while maintaining high code quality and development velocity. The recent dependency
+simplifications should reduce environment-related test failures and improve development experience.
 
 ---
 

@@ -1,8 +1,7 @@
 """
-Process Management Utilities
-
-This module provides a class to manage long-running subprocesses,
-capture their output in real-time, and handle their lifecycle.
+Process Management Utilities This module provides a class to manage
+long-running subprocesses, capture their output in real-time, and
+handle their lifecycle.
 """
 
 import subprocess
@@ -13,17 +12,14 @@ from typing import IO
 
 class ProcessManager:
     """
-    Manages a subprocess for real-time output streaming in a separate thread.
-
-    This class is designed to run a command (like a training script) as a
-    non-blocking subprocess, continuously capturing its stdout. It is ideal
-    for use in GUIs like Streamlit where the main thread cannot be blocked.
-
-    Attributes:
-        command (List[str]): The command to execute.
-        process (subprocess.Popen | None): The subprocess instance.
-        logs (Deque[str]): A deque holding the most recent log lines.
-        is_running (bool): A flag indicating if the process is active.
+    Manages a subprocess for real-time output streaming in a separate
+    thread. This class is designed to run a command (like a training
+    script) as a non-blocking subprocess, continuously capturing its
+    stdout. It is ideal for use in GUIs like Streamlit where the main
+    thread cannot be blocked. Attributes: command (List[str]): The command
+    to execute. process (subprocess.Popen | None): The subprocess
+    instance. logs (Deque[str]): A deque holding the most recent log
+    lines. is_running (bool): A flag indicating if the process is active.
     """
 
     def __init__(self, command: list[str]):
@@ -70,10 +66,9 @@ class ProcessManager:
 
     def stop(self) -> None:
         """
-        Stops the running subprocess gracefully.
-
-        It first tries to terminate the process and waits for a timeout.
-        If the process does not terminate, it is killed forcefully.
+        Stops the running subprocess gracefully. It first tries to terminate
+        the process and waits for a timeout. If the process does not
+        terminate, it is killed forcefully.
         """
         if self.process and self.is_running:
             self.process.terminate()
@@ -91,8 +86,8 @@ class ProcessManager:
 
     def check_status(self) -> None:
         """
-        Updates the running status of the process by polling it.
-        This should be called periodically to know when a process has finished.
+        Updates the running status of the process by polling it. This should
+        be called periodically to know when a process has finished.
         """
         if (
             self.is_running

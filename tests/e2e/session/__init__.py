@@ -42,14 +42,14 @@ Examples:
 
 from .cookie_manager import CookieManager
 
-# Mixin imports for integration with BaseE2ETest
+# Mixin import s for integration with BaseE2ETest
 from .mixins import (
     MultiTabSessionMixin,
     SessionManagementMixin,
     StreamlitSessionMixin,
 )
 
-# Protocol imports
+# Protocol import s
 from .state_manager import HasSessionState, StateManager, StateValidationError
 from .storage_manager import StorageManager, StorageType
 from .streamlit_session import StreamlitSessionManager

@@ -81,13 +81,13 @@ jobs:
           pip install black ruff basedpyright pytest pytest-cov
 
       - name: Format check (Black)
-        run: black --check scripts/gui/ src/
+        run: black --check gui/ src/
 
       - name: Lint check (Ruff)
-        run: ruff check scripts/gui/ src/
+        run: ruff check gui/ src/
 
       - name: Type check (Basedpyright)
-        run: basedpyright scripts/gui/ src/
+        run: basedpyright gui/ src/
 
       - name: Run unit tests
         run: pytest tests/unit/ -v --tb=short
@@ -126,7 +126,7 @@ jobs:
       - name: Run GUI tests with coverage
         run: |
           pytest tests/unit/gui/ tests/integration/gui/ \
-            --cov=scripts/gui \
+            --cov=gui \
             --cov-report=html \
             --cov-report=xml \
             --cov-report=term-missing \
@@ -218,7 +218,7 @@ jobs:
 
 ```toml
 [tool.coverage.run]
-source = ["scripts/gui", "src"]
+source = ["gui", "src"]
 omit = [
     "*/tests/*",
     "*/venv/*",
@@ -275,13 +275,13 @@ All code changes must pass these automated quality gates:
 
 ```bash
 # Code formatting
-black --check scripts/gui/ src/
+black --check gui/ src/
 
 # Linting
-ruff check scripts/gui/ src/
+ruff check gui/ src/
 
 # Type checking
-basedpyright scripts/gui/ src/
+basedpyright gui/ src/
 
 # Unit tests
 pytest tests/unit/ -v
@@ -291,7 +291,7 @@ pytest tests/integration/ -v
 
 # Coverage validation
 pytest tests/unit/gui/ tests/integration/gui/ \
-  --cov=scripts/gui \
+              --cov=gui \
   --cov-fail-under=31
 ```
 
@@ -416,7 +416,7 @@ gh api repos/:owner/:repo/actions/artifacts --paginate | jq '.artifacts[] | sele
 pytest tests/ --tb=no --quiet | grep -E "(FAILED|ERROR)"
 
 # Review coverage gaps
-pytest tests/ --cov=scripts/gui --cov-report=html
+pytest tests/ --cov=gui --cov-report=html
 open htmlcov/index.html
 
 # Update CI/CD configurations
@@ -496,20 +496,20 @@ def maintain_test_data():
 pytest tests/unit/gui/test_failing_component.py -v -s --tb=long
 
 # Run with coverage to identify issues
-pytest tests/unit/gui/ --cov=scripts/gui --cov-report=html --cov-report=term-missing
+pytest tests/unit/gui/ --cov=gui --cov-report=html --cov-report=term-missing
 
 # Check for import issues
-python -c "import scripts.gui.components.failing_component"
+python -c "import gui.components.failing_component"
 ```
 
 #### Coverage Issues
 
 ```bash
 # Identify uncovered lines
-pytest tests/ --cov=scripts/gui --cov-report=term-missing
+pytest tests/ --cov=gui --cov-report=term-missing
 
 # Generate detailed coverage report
-pytest tests/ --cov=scripts/gui --cov-report=html
+pytest tests/ --cov=gui --cov-report=html
 open htmlcov/index.html
 
 # Check coverage configuration
@@ -599,7 +599,7 @@ jobs:
 
       - name: Run tests
         run: |
-          pytest tests/ -n auto --cov=scripts/gui --cov-report=xml
+          pytest tests/ -n auto --cov=gui --cov-report=xml
 ```
 
 ### Resource Management

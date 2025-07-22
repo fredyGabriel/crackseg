@@ -1,15 +1,11 @@
 """
-Results page for the CrackSeg application.
-
-This module contains the results visualization page that allows users to:
-- View TensorBoard training metrics
-- Browse prediction triplets (Image | Mask | Prediction)
-- Analyze model performance metrics
-- Compare different model performances
-- Export results in various formats
-
-The page is structured with reactive gallery integration and proper
-error handling for missing training data.
+Results page for the CrackSeg application. This module contains the
+results visualization page that allows users to: - View TensorBoard
+training metrics - Browse prediction triplets (Image | Mask |
+Prediction) - Analyze model performance metrics - Compare different
+model performances - Export results in various formats The page is
+structured with reactive gallery integration and proper error handling
+for missing training data.
 """
 
 from pathlib import Path
@@ -17,8 +13,8 @@ from typing import Any
 
 import streamlit as st
 
-from scripts.gui.components.header_component import render_header
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.components.header_component import render_header
+from gui.utils.session_state import SessionStateManager
 
 from .comparison_section import render_comparison_tab
 from .config_section import render_config_panel

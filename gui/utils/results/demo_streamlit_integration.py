@@ -20,10 +20,10 @@ from pathlib import Path
 import streamlit as st
 from PIL import Image, ImageDraw
 
-from scripts.gui.components.results_gallery_component import (
+from gui.components.results_gallery_component import (
     ResultsGalleryComponent,
 )
-from scripts.gui.utils.results import (
+from gui.utils.results import (
     AdvancedTripletValidator,
     ValidationLevel,
     create_results_scanner,

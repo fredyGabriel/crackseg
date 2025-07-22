@@ -87,7 +87,7 @@ class TestAutoSaveManager:
         """Set up test fixtures."""
         # Clear session state
         for key in list(st.session_state.keys()):
-            if key.startswith("autosave"):
+            if isinstance(key, str) and key.startswith("autosave"):
                 del st.session_state[key]
 
         self.config = AutoSaveConfig(

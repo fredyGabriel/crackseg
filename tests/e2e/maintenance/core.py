@@ -1,8 +1,8 @@
-"""Core test maintenance manager implementation.
-
-This module provides the main TestMaintenanceManager class that coordinates
-all maintenance operations including health monitoring, review cycles,
-optimization, and reporting integration.
+"""
+Core test maintenance manager implementation. This module provides the
+main TestMaintenanceManager class that coordinates all maintenance
+operations including health monitoring, review cycles, optimization,
+and reporting integration.
 """
 
 import logging
@@ -24,17 +24,16 @@ logger = logging.getLogger(__name__)
 
 
 class TestMaintenanceManager:
-    """Main coordinator for test maintenance operations.
-
-    This class integrates all maintenance components and provides a unified
-    interface for test suite maintenance, health monitoring, and optimization.
+    """
+    Main coordinator for test maintenance operations. This class
+    integrates all maintenance components and provides a unified interface
+    for test suite maintenance, health monitoring, and optimization.
     """
 
     def __init__(self, config: MaintenanceConfig) -> None:
-        """Initialize the test maintenance manager.
-
-        Args:
-            config: Maintenance configuration
+        """
+        Initialize the test maintenance manager. Args: config: Maintenance
+        configuration
         """
         self.config = config
         self.health_monitor = TestSuiteHealthMonitor(config.health_monitoring)
@@ -56,13 +55,10 @@ class TestMaintenanceManager:
     def check_suite_health(
         self, comprehensive: bool = False
     ) -> TestSuiteHealthReport:
-        """Check the health of the test suite.
-
-        Args:
-            comprehensive: Whether to perform comprehensive health check
-
-        Returns:
-            TestSuiteHealthReport with current health status
+        """
+        Check the health of the test suite. Args: comprehensive: Whether to
+        perform comprehensive health check Returns: TestSuiteHealthReport with
+        current health status
         """
         if comprehensive:
             return self.health_monitor.comprehensive_health_check()
@@ -72,14 +68,10 @@ class TestMaintenanceManager:
     def run_maintenance_cycle(
         self, force: bool = False, maintenance_types: list[str] | None = None
     ) -> MaintenanceReport:
-        """Run a complete maintenance cycle.
-
-        Args:
-            force: Force maintenance even if not required
-            maintenance_types: Specific maintenance types to run
-
-        Returns:
-            MaintenanceReport with results of maintenance cycle
+        """
+        Run a complete maintenance cycle. Args: force: Force maintenance even
+        if not required maintenance_types: Specific maintenance types to run
+        Returns: MaintenanceReport with results of maintenance cycle
         """
         cycle_id = f"maintenance_{int(time.time())}"
         start_time = datetime.now()
@@ -134,13 +126,9 @@ class TestMaintenanceManager:
     def schedule_maintenance(
         self, schedule_config: dict[str, Any] | None = None
     ) -> bool:
-        """Schedule maintenance operations.
-
-        Args:
-            schedule_config: Optional scheduling configuration
-
-        Returns:
-            True if scheduling was successful
+        """
+        Schedule maintenance operations. Args: schedule_config: Optional
+        scheduling configuration Returns: True if scheduling was successful
         """
         try:
             # This would integrate with a job scheduler in production
@@ -165,10 +153,9 @@ class TestMaintenanceManager:
             return False
 
     def generate_maintenance_dashboard(self) -> Path | None:
-        """Generate maintenance dashboard with current status.
-
-        Returns:
-            Path to generated dashboard file
+        """
+        Generate maintenance dashboard with current status. Returns: Path to
+        generated dashboard file
         """
         try:
             health_report = self.check_suite_health(comprehensive=True)
@@ -194,14 +181,10 @@ class TestMaintenanceManager:
         health_report: TestSuiteHealthReport,
         maintenance_types: list[str],
     ) -> list[MaintenanceAction]:
-        """Plan maintenance actions based on health report.
-
-        Args:
-            health_report: Current health status
-            maintenance_types: Types of maintenance to include
-
-        Returns:
-            List of planned maintenance actions
+        """
+        Plan maintenance actions based on health report. Args: health_report:
+        Current health status maintenance_types: Types of maintenance to
+        include Returns: List of planned maintenance actions
         """
         actions: list[MaintenanceAction] = []
 
@@ -224,13 +207,10 @@ class TestMaintenanceManager:
     def _execute_maintenance_actions(
         self, planned_actions: list[MaintenanceAction]
     ) -> tuple[list[MaintenanceAction], list[MaintenanceAction], list[str]]:
-        """Execute planned maintenance actions.
-
-        Args:
-            planned_actions: List of actions to execute
-
-        Returns:
-            Tuple of (executed_actions, skipped_actions, errors)
+        """
+        Execute planned maintenance actions. Args: planned_actions: List of
+        actions to execute Returns: Tuple of (executed_actions,
+        skipped_actions, errors)
         """
         executed_actions: list[MaintenanceAction] = []
         skipped_actions: list[MaintenanceAction] = []

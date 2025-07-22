@@ -1,19 +1,15 @@
-"""Results Gallery Module.
-
-This module provides components for scanning, validating, and processing
-training results for the crack segmentation project with reactive updates
-and caching capabilities.
-
-Components:
-    - core: Data structures and types for results handling
-    - validation: Basic validation logic for result triplets
-    - advanced_validation: Enhanced validation with integrity checks
-    - scanner: AsyncIO-based results scanning system with event emission
-    - events: Pub-sub event system for reactive gallery updates
-    - cache: LRU cache for optimizing triplet access
-    - demo: Demonstration scripts for scanner and validation functionality
-
-Phase 3: Enhanced validation + comprehensive error handling.
+"""
+Results Gallery Module. This module provides components for scanning,
+validating, and processing training results for the crack segmentation
+project with reactive updates and caching capabilities. Components: -
+core: Data structures and types for results handling - validation:
+Basic validation logic for result triplets - advanced_validation:
+Enhanced validation with integrity checks - scanner: AsyncIO-based
+results scanning system with event emission - events: Pub-sub event
+system for reactive gallery updates - cache: LRU cache for optimizing
+triplet access - demo: Demonstration scripts for scanner and
+validation functionality Phase 3: Enhanced validation + comprehensive
+error handling.
 """
 
 from .advanced_validation import (

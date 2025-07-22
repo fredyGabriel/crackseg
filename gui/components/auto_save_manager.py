@@ -1,18 +1,17 @@
 """
-Auto-save manager component for CrackSeg GUI.
-
-This component provides a Streamlit interface for the auto-save functionality,
-integrating seamlessly with the main GUI application.
+Auto-save manager component for CrackSeg GUI. This component provides
+a Streamlit interface for the auto-save functionality, integrating
+seamlessly with the main GUI application.
 """
 
 from typing import Any
 
 import streamlit as st
 
-from scripts.gui.components.loading_spinner_optimized import (
+from gui.components.loading_spinner_optimized import (
     OptimizedLoadingSpinner,
 )
-from scripts.gui.utils.auto_save import (
+from gui.utils.auto_save import (
     AutoSaveConfig,
     AutoSaveManager,
     AutoSaveUI,
@@ -22,18 +21,15 @@ from scripts.gui.utils.auto_save import (
 
 class AutoSaveManagerComponent:
     """
-    Streamlit component for auto-save management.
-
-    This component provides a complete UI for managing auto-save functionality
-    within the CrackSeg GUI application.
+    Streamlit component for auto-save management. This component provides
+    a complete UI for managing auto-save functionality within the CrackSeg
+    GUI application.
     """
 
     def __init__(self, config: AutoSaveConfig | None = None) -> None:
         """
-        Initialize the auto-save manager component.
-
-        Args:
-            config: Optional auto-save configuration
+        Initialize the auto-save manager component. Args: config: Optional
+        auto-save configuration
         """
         # If config is provided, create a new manager instance
         # Otherwise, use the global singleton
@@ -89,10 +85,8 @@ class AutoSaveManagerComponent:
 
     def integrate_with_config_form(self, config_data: dict[str, Any]) -> None:
         """
-        Integrate auto-save with configuration forms.
-
-        Args:
-            config_data: Configuration data to monitor for changes
+        Integrate auto-save with configuration forms. Args: config_data:
+        Configuration data to monitor for changes
         """
         # Register all config fields for auto-save monitoring
         for field_name, value in config_data.items():
@@ -104,10 +98,8 @@ class AutoSaveManagerComponent:
 
     def load_configuration_if_available(self) -> dict[str, Any] | None:
         """
-        Load saved configuration if available.
-
-        Returns:
-            Loaded configuration or None if not available
+        Load saved configuration if available. Returns: Loaded configuration
+        or None if not available
         """
         if "loaded_autosave_config" in st.session_state:
             config = st.session_state.loaded_autosave_config
@@ -256,13 +248,9 @@ def create_auto_save_manager(
     config: AutoSaveConfig | None = None,
 ) -> AutoSaveManagerComponent:
     """
-    Factory function to create an auto-save manager component.
-
-    Args:
-        config: Optional auto-save configuration
-
-    Returns:
-        AutoSaveManagerComponent instance
+    Factory function to create an auto-save manager component. Args:
+    config: Optional auto-save configuration Returns:
+    AutoSaveManagerComponent instance
     """
     return AutoSaveManagerComponent(config)
 
@@ -271,14 +259,10 @@ def integrate_auto_save_with_page(
     page_name: str, config_data: dict[str, Any]
 ) -> AutoSaveManagerComponent:
     """
-    Integrate auto-save functionality with a specific page.
-
-    Args:
-        page_name: Name of the page for identification
-        config_data: Configuration data from the page
-
-    Returns:
-        AutoSaveManagerComponent instance
+    Integrate auto-save functionality with a specific page. Args:
+    page_name: Name of the page for identification config_data:
+    Configuration data from the page Returns: AutoSaveManagerComponent
+    instance
     """
     # Create page-specific auto-save manager
     auto_save_config = AutoSaveConfig(
@@ -301,10 +285,8 @@ _global_auto_save_manager: AutoSaveManagerComponent | None = None
 
 def get_global_auto_save_manager() -> AutoSaveManagerComponent:
     """
-    Get the global auto-save manager component.
-
-    Returns:
-        Global AutoSaveManagerComponent instance
+    Get the global auto-save manager component. Returns: Global
+    AutoSaveManagerComponent instance
     """
     global _global_auto_save_manager
     if _global_auto_save_manager is None:

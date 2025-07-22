@@ -1,7 +1,7 @@
-"""Configuration management for the test reporting system.
-
-This module provides configuration classes and settings for controlling
-report generation behavior, output formats, and performance thresholds.
+"""
+Configuration management for the test reporting system. This module
+provides configuration classes and settings for controlling report
+generation behavior, output formats, and performance thresholds.
 """
 
 from dataclasses import dataclass, field
@@ -14,21 +14,17 @@ __all__ = ["ReportConfig"]
 
 @dataclass
 class ReportConfig:
-    """Configuration for test report generation.
-
-    Attributes:
-        mode: Report generation mode
-        formats: Output formats to generate
-        output_dir: Directory for generated reports
-        include_performance: Include performance metrics
-        include_artifacts: Include screenshots/videos
-        include_trends: Include trend analysis
-        performance_thresholds: Performance threshold definitions
-        retention_days: Days to keep historical reports
-        auto_cleanup: Enable automatic cleanup of old reports
-        compress_artifacts: Compress large artifacts
-        generate_summary: Generate executive summary
-        export_metrics: Export metrics to external systems
+    """
+    Configuration for test report generation. Attributes: mode: Report
+    generation mode formats: Output formats to generate output_dir:
+    Directory for generated reports include_performance: Include
+    performance metrics include_artifacts: Include screenshots/videos
+    include_trends: Include trend analysis performance_thresholds:
+    Performance threshold definitions retention_days: Days to keep
+    historical reports auto_cleanup: Enable automatic cleanup of old
+    reports compress_artifacts: Compress large artifacts generate_summary:
+    Generate executive summary export_metrics: Export metrics to external
+    systems
     """
 
     mode: ReportMode = ReportMode.COMPREHENSIVE

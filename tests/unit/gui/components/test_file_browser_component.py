@@ -6,10 +6,7 @@ filtering, and file selection capabilities.
 
 from unittest.mock import Mock, patch
 
-from gui.components.file_browser_component import FileBrowserComponent
-from tests.unit.gui.components.test_component_base import (
-    ComponentTestBase,
-)
+from .test_component_base import ComponentTestBase
 
 
 class TestFileBrowserComponent(ComponentTestBase):
@@ -17,6 +14,8 @@ class TestFileBrowserComponent(ComponentTestBase):
 
     def test_initialization(self) -> None:
         """Test component can be initialized."""
+        from gui.components.file_browser_component import FileBrowserComponent
+
         component = FileBrowserComponent()
         assert component is not None
         assert hasattr(component, "supported_extensions")
@@ -31,6 +30,8 @@ class TestFileBrowserComponent(ComponentTestBase):
         # Setup comprehensive streamlit mocking
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
         mock_scan.return_value = {"configs": ["config1.yaml", "config2.yaml"]}
+
+        from gui.components.file_browser_component import FileBrowserComponent
 
         component = FileBrowserComponent()
 
@@ -47,6 +48,8 @@ class TestFileBrowserComponent(ComponentTestBase):
     def test_render_with_filter(self, mock_st) -> None:
         """Test render with file filtering."""
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
+
+        from gui.components.file_browser_component import FileBrowserComponent
 
         component = FileBrowserComponent()
 
@@ -67,6 +70,8 @@ class TestFileBrowserComponent(ComponentTestBase):
         """Test multiple file selection capability."""
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
 
+        from gui.components.file_browser_component import FileBrowserComponent
+
         component = FileBrowserComponent()
 
         with patch(
@@ -86,6 +91,8 @@ class TestFileBrowserComponent(ComponentTestBase):
         """Test navigation controls are rendered."""
         self._setup_comprehensive_streamlit_mock(mock_st)  # type: ignore[arg-type]
 
+        from gui.components.file_browser_component import FileBrowserComponent
+
         component = FileBrowserComponent()
 
         with patch(
@@ -101,6 +108,8 @@ class TestFileBrowserComponent(ComponentTestBase):
 
     def test_supported_extensions(self) -> None:
         """Test supported file extensions are correctly configured."""
+        from gui.components.file_browser_component import FileBrowserComponent
+
         component = FileBrowserComponent()
 
         assert ".yaml" in component.supported_extensions
@@ -108,6 +117,8 @@ class TestFileBrowserComponent(ComponentTestBase):
 
     def test_sort_options_available(self) -> None:
         """Test sort options are properly defined."""
+        from gui.components.file_browser_component import FileBrowserComponent
+
         component = FileBrowserComponent()
 
         expected_keys = [

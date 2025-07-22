@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Standalone test for Enhanced Combinators functionality.
-This script verifies that the enhanced combinators work correctly.
+Standalone test for Enhanced Combinators functionality. This script
+verifies that the enhanced combinators work correctly.
 """
 
 import os

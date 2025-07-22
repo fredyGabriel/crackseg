@@ -14,9 +14,9 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from pathlib import Path
 
-    import scripts.gui.components.gallery.state_manager as sm
-    from scripts.gui.utils.export_manager import ExportManager
-    from scripts.gui.utils.results import ResultTriplet, TripletHealth
+    import gui.components.gallery.state_manager as sm
+    from gui.utils.export_manager import ExportManager
+    from gui.utils.results import ResultTriplet, TripletHealth
 
 
 class GalleryExportService:

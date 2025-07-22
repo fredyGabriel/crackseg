@@ -1,9 +1,8 @@
-"""Browser configuration manager for cross-browser testing with parallel
-execution.
-
-This module provides centralized browser configuration management with support
-for browser matrices, parallel execution, and seamless integration with the
-existing DriverFactory infrastructure.
+"""
+Browser configuration manager for cross-browser testing with parallel
+execution. This module provides centralized browser configuration
+management with support for browser matrices, parallel execution, and
+seamless integration with the existing DriverFactory infrastructure.
 """
 
 import logging
@@ -49,10 +48,9 @@ class ParallelExecutionConfig:
     distribute_by_test: bool = False
 
     def validate(self) -> None:
-        """Validate parallel execution configuration.
-
-        Raises:
-            ValueError: If configuration is invalid
+        """
+        Validate parallel execution configuration. Raises: ValueError: If
+        configuration is invalid
         """
         if self.max_workers <= 0:
             raise ValueError(
@@ -90,10 +88,9 @@ class BrowserMatrix:
     exclude_browsers: list[BrowserType] = field(default_factory=list)
 
     def generate_configurations(self) -> list[BrowserMatrixEntry]:
-        """Generate all browser configuration combinations.
-
-        Returns:
-            List of browser configuration dictionaries
+        """
+        Generate all browser configuration combinations. Returns: List of
+        browser configuration dictionaries
         """
         configurations = []
 
@@ -131,20 +128,18 @@ class BrowserMatrix:
         return configurations
 
     def get_configuration_count(self) -> int:
-        """Get total number of configurations in matrix.
-
-        Returns:
-            Total configuration count
+        """
+        Get total number of configurations in matrix. Returns: Total
+        configuration count
         """
         return len(self.generate_configurations())
 
 
 class BrowserConfigManager:
-    """Manager for cross-browser configuration and execution.
-
-    Provides centralized management for browser configurations, parallel
-    execution support, and integration with existing DriverFactory
-    infrastructure.
+    """
+    Manager for cross-browser configuration and execution. Provides
+    centralized management for browser configurations, parallel execution
+    support, and integration with existing DriverFactory infrastructure.
     """
 
     def __init__(
@@ -152,11 +147,10 @@ class BrowserConfigManager:
         base_driver_config: DriverConfig | None = None,
         parallel_config: ParallelExecutionConfig | None = None,
     ) -> None:
-        """Initialize browser configuration manager.
-
-        Args:
-            base_driver_config: Base driver configuration for all browsers
-            parallel_config: Parallel execution configuration
+        """
+        Initialize browser configuration manager. Args: base_driver_config:
+        Base driver configuration for all browsers parallel_config: Parallel
+        execution configuration
         """
         self.base_driver_config = base_driver_config or DriverConfig()
         self.parallel_config = parallel_config or ParallelExecutionConfig()
@@ -180,11 +174,9 @@ class BrowserConfigManager:
     def set_browser_capabilities(
         self, browser: BrowserType, capabilities: BrowserCapabilities
     ) -> None:
-        """Set custom capabilities for a specific browser.
-
-        Args:
-            browser: Browser type
-            capabilities: Browser-specific capabilities
+        """
+        Set custom capabilities for a specific browser. Args: browser: Browser
+        type capabilities: Browser-specific capabilities
         """
         capabilities.validate()
         self._browser_capabilities[browser] = capabilities
@@ -196,16 +188,10 @@ class BrowserConfigManager:
     def get_browser_capabilities(
         self, browser: BrowserType
     ) -> BrowserCapabilities:
-        """Get capabilities for a specific browser.
-
-        Args:
-            browser: Browser type
-
-        Returns:
-            Browser capabilities
-
-        Raises:
-            ValueError: If browser is not supported
+        """
+        Get capabilities for a specific browser. Args: browser: Browser type
+        Returns: Browser capabilities Raises: ValueError: If browser is not
+        supported
         """
         if browser not in self._browser_capabilities:
             raise ValueError(
@@ -221,17 +207,11 @@ class BrowserConfigManager:
         browser: BrowserType,
         capabilities_override: BrowserCapabilities | None = None,
     ) -> WebDriver:
-        """Create WebDriver for specific browser with custom capabilities.
-
-        Args:
-            browser: Browser type
-            capabilities_override: Override default browser capabilities
-
-        Returns:
-            Configured WebDriver instance
-
-        Raises:
-            DriverCreationError: If driver creation fails
+        """
+        Create WebDriver for specific browser with custom capabilities. Args:
+        browser: Browser type capabilities_override: Override default browser
+        capabilities Returns: Configured WebDriver instance Raises:
+        DriverCreationError: If driver creation fails
         """
         # Use override capabilities or default
         capabilities = capabilities_override or self.get_browser_capabilities(
@@ -263,14 +243,9 @@ class BrowserConfigManager:
     def _create_browser_driver_config(
         self, browser: BrowserType, capabilities: BrowserCapabilities
     ) -> DriverConfig:
-        """Create DriverConfig from browser capabilities.
-
-        Args:
-            browser: Browser type
-            capabilities: Browser capabilities
-
-        Returns:
-            Driver configuration
+        """
+        Create DriverConfig from browser capabilities. Args: browser: Browser
+        type capabilities: Browser capabilities Returns: Driver configuration
         """
         # Start with base configuration
         config_dict = self.base_driver_config.to_dict()
@@ -297,13 +272,10 @@ class BrowserConfigManager:
     def create_drivers_from_matrix(
         self, matrix: BrowserMatrix
     ) -> dict[str, WebDriver]:
-        """Create drivers for all configurations in browser matrix.
-
-        Args:
-            matrix: Browser matrix configuration
-
-        Returns:
-            Dictionary mapping configuration IDs to WebDriver instances
+        """
+        Create drivers for all configurations in browser matrix. Args: matrix:
+        Browser matrix configuration Returns: Dictionary mapping configuration
+        IDs to WebDriver instances
         """
         configurations = matrix.generate_configurations()
 
@@ -315,13 +287,10 @@ class BrowserConfigManager:
     def _create_drivers_sequential(
         self, configurations: list[BrowserMatrixEntry]
     ) -> dict[str, WebDriver]:
-        """Create drivers sequentially.
-
-        Args:
-            configurations: List of browser configurations
-
-        Returns:
-            Dictionary mapping configuration IDs to WebDriver instances
+        """
+        Create drivers sequentially. Args: configurations: List of browser
+        configurations Returns: Dictionary mapping configuration IDs to
+        WebDriver instances
         """
         drivers = {}
 
@@ -345,13 +314,10 @@ class BrowserConfigManager:
     def _create_drivers_parallel(
         self, configurations: list[BrowserMatrixEntry]
     ) -> dict[str, WebDriver]:
-        """Create drivers in parallel.
-
-        Args:
-            configurations: List of browser configurations
-
-        Returns:
-            Dictionary mapping configuration IDs to WebDriver instances
+        """
+        Create drivers in parallel. Args: configurations: List of browser
+        configurations Returns: Dictionary mapping configuration IDs to
+        WebDriver instances
         """
         drivers = {}
 
@@ -391,14 +357,10 @@ class BrowserConfigManager:
     def _create_driver_from_config(
         self, config_id: str, config: BrowserMatrixEntry
     ) -> WebDriver:
-        """Create driver from configuration entry.
-
-        Args:
-            config_id: Configuration identifier
-            config: Browser configuration entry
-
-        Returns:
-            WebDriver instance
+        """
+        Create driver from configuration entry. Args: config_id: Configuration
+        identifier config: Browser configuration entry Returns: WebDriver
+        instance
         """
         capabilities = self._config_to_capabilities(config)
         return self.create_driver_for_browser(config["browser"], capabilities)
@@ -406,13 +368,9 @@ class BrowserConfigManager:
     def _config_to_capabilities(
         self, config: BrowserMatrixEntry
     ) -> BrowserCapabilities:
-        """Convert configuration entry to browser capabilities.
-
-        Args:
-            config: Browser configuration entry
-
-        Returns:
-            Browser capabilities object
+        """
+        Convert configuration entry to browser capabilities. Args: config:
+        Browser configuration entry Returns: Browser capabilities object
         """
         browser = config["browser"]
 
@@ -484,10 +442,9 @@ class BrowserConfigManager:
             return capabilities
 
     def cleanup_drivers(self, drivers: dict[str, WebDriver]) -> None:
-        """Clean up WebDriver instances.
-
-        Args:
-            drivers: Dictionary of WebDriver instances to cleanup
+        """
+        Clean up WebDriver instances. Args: drivers: Dictionary of WebDriver
+        instances to cleanup
         """
         for config_id, driver in drivers.items():
             try:
@@ -501,14 +458,10 @@ class BrowserConfigManager:
         matrix: BrowserMatrix,
         test_function: Callable[[WebDriver, str], Any],
     ) -> dict[str, Any]:
-        """Execute test function across browser matrix.
-
-        Args:
-            matrix: Browser matrix configuration
-            test_function: Function to execute with each driver
-
-        Returns:
-            Dictionary mapping configuration IDs to test results
+        """
+        Execute test function across browser matrix. Args: matrix: Browser
+        matrix configuration test_function: Function to execute with each
+        driver Returns: Dictionary mapping configuration IDs to test results
         """
         drivers = self.create_drivers_from_matrix(matrix)
         results = {}

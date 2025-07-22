@@ -1,8 +1,8 @@
-"""Integration tests for specialized threading components.
-
-This module tests the threading subsystem integration including thread
-management, synchronization mechanisms, concurrent operations, and thread
-safety for GUI operations. Critical for testing threading/ directory
+"""
+Integration tests for specialized threading components. This module
+tests the threading subsystem integration including thread management,
+synchronization mechanisms, concurrent operations, and thread safety
+for GUI operations. Critical for testing threading/ directory
 specialized components.
 """
 
@@ -30,13 +30,10 @@ class TestThreadingIntegration(WorkflowTestBase):
         }
 
     def validate_threading_config(self, config: dict[str, Any]) -> bool:
-        """Validate threading configuration.
-
-        Args:
-            config: Threading configuration to validate
-
-        Returns:
-            True if configuration is valid, False otherwise
+        """
+        Validate threading configuration. Args: config: Threading
+        configuration to validate Returns: True if configuration is valid,
+        False otherwise
         """
         required_fields = ["max_workers", "thread_timeout"]
         for field in required_fields:
@@ -58,13 +55,9 @@ class TestThreadingIntegration(WorkflowTestBase):
     def execute_thread_management_workflow(
         self, thread_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute thread management workflow.
-
-        Args:
-            thread_config: Thread management configuration
-
-        Returns:
-            Thread management workflow result
+        """
+        Execute thread management workflow. Args: thread_config: Thread
+        management configuration Returns: Thread management workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -116,13 +109,10 @@ class TestThreadingIntegration(WorkflowTestBase):
     def execute_concurrent_operations_workflow(
         self, operations_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute concurrent operations workflow.
-
-        Args:
-            operations_config: Concurrent operations configuration
-
-        Returns:
-            Concurrent operations workflow result
+        """
+        Execute concurrent operations workflow. Args: operations_config:
+        Concurrent operations configuration Returns: Concurrent operations
+        workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -176,13 +166,9 @@ class TestThreadingIntegration(WorkflowTestBase):
     def execute_synchronization_workflow(
         self, sync_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute thread synchronization workflow.
-
-        Args:
-            sync_config: Synchronization configuration
-
-        Returns:
-            Synchronization workflow result
+        """
+        Execute thread synchronization workflow. Args: sync_config:
+        Synchronization configuration Returns: Synchronization workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -234,14 +220,10 @@ class TestThreadingIntegration(WorkflowTestBase):
     def simulate_concurrent_task_execution(
         self, task_count: int, worker_count: int
     ) -> dict[str, Any]:
-        """Simulate concurrent task execution for testing.
-
-        Args:
-            task_count: Number of tasks to execute
-            worker_count: Number of worker threads
-
-        Returns:
-            Execution results
+        """
+        Simulate concurrent task execution for testing. Args: task_count:
+        Number of tasks to execute worker_count: Number of worker threads
+        Returns: Execution results
         """
         if task_count <= 0 or worker_count <= 0:
             return {"success": False, "error": "Invalid parameters"}

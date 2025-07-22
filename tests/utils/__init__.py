@@ -1,7 +1,7 @@
-"""Test utilities module.
-
-This module provides test performance optimization tools and utilities
-for the CrackSeg project testing framework.
+"""
+Test utilities module. This module provides test performance
+optimization tools and utilities for the CrackSeg project testing
+framework.
 """
 
 from .performance_optimizer import (

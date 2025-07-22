@@ -1,7 +1,7 @@
-"""Process monitoring and metrics collection.
-
-This module provides comprehensive process monitoring capabilities including
-memory usage tracking, CPU monitoring, and process lifecycle management.
+"""
+Process monitoring and metrics collection. This module provides
+comprehensive process monitoring capabilities including memory usage
+tracking, CPU monitoring, and process lifecycle management.
 """
 
 import threading
@@ -14,28 +14,21 @@ from .states import ProcessState
 
 
 class ProcessMonitor:
-    """Monitors running processes and collects metrics.
-
-    Provides comprehensive monitoring of subprocess execution including
-    memory usage, CPU utilization, and process state tracking.
-
-    Features:
-    - Real-time memory and CPU monitoring
-    - Process lifecycle tracking
-    - Thread-safe metrics collection
-    - Related process detection
-
-    Example:
-        >>> monitor = ProcessMonitor(process_manager)
-        >>> monitor.start_monitoring()
-        >>> memory_info = monitor.get_memory_usage()
+    """
+    Monitors running processes and collects metrics. Provides
+    comprehensive monitoring of subprocess execution including memory
+    usage, CPU utilization, and process state tracking. Features: -
+    Real-time memory and CPU monitoring - Process lifecycle tracking -
+    Thread-safe metrics collection - Related process detection Example:
+    >>> monitor = ProcessMonitor(process_manager) >>>
+    monitor.start_monitoring() >>> memory_info =
+    monitor.get_memory_usage()
     """
 
     def __init__(self, process_manager: ProcessManager) -> None:
-        """Initialize the process monitor.
-
-        Args:
-            process_manager: ProcessManager instance to monitor
+        """
+        Initialize the process monitor. Args: process_manager: ProcessManager
+        instance to monitor
         """
         self._process_manager = process_manager
 
@@ -52,10 +45,9 @@ class ProcessMonitor:
         monitor_thread.start()
 
     def get_memory_usage(self) -> dict[str, float] | None:
-        """Get memory usage of the training process.
-
-        Returns:
-            Dictionary with memory info or None if process not running
+        """
+        Get memory usage of the training process. Returns: Dictionary with
+        memory info or None if process not running
         """
         process_info = self._process_manager.process_info
         if not process_info.pid:
@@ -75,12 +67,10 @@ class ProcessMonitor:
             return None
 
     def get_process_tree_info(self) -> dict[str, Any]:
-        """Get information about the current process tree.
-
-        Useful for monitoring and debugging process hierarchies.
-
-        Returns:
-            Dictionary with process tree information
+        """
+        Get information about the current process tree. Useful for monitoring
+        and debugging process hierarchies. Returns: Dictionary with process
+        tree information
         """
         subprocess_handle = self._process_manager.subprocess_handle
         if not subprocess_handle or not subprocess_handle.pid:
@@ -93,7 +83,7 @@ class ProcessMonitor:
             children_info = []
             for child in children:
                 try:
-                    children_info.append(
+                    children_info.append(  # type: ignore[arg-type]
                         {
                             "pid": child.pid,
                             "name": child.name(),
@@ -117,20 +107,17 @@ class ProcessMonitor:
                     "memory_mb": main_process.memory_info().rss / 1024 / 1024,
                 },
                 "children": children_info,
-                "total_processes": 1 + len(children_info),
+                "total_processes": 1 + len(children_info),  # type: ignore[arg-type]
             }
 
         except (psutil.NoSuchProcess, psutil.AccessDenied):
             return {"main_process": None, "children": [], "total_processes": 0}
 
     def is_related_process(self, proc: psutil.Process) -> bool:
-        """Check if a process is related to our training process.
-
-        Args:
-            proc: Process to check
-
-        Returns:
-            True if process appears to be related to our training
+        """
+        Check if a process is related to our training process. Args: proc:
+        Process to check Returns: True if process appears to be related to our
+        training
         """
         subprocess_handle = self._process_manager.subprocess_handle
         if not subprocess_handle:

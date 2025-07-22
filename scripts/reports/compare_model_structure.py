@@ -1,19 +1,35 @@
+"""
+Model structure comparison. This script compares the actual model
+directory structure against the expected structure and reports
+differences.
+"""
+
 import json
+from typing import Any
+
+# Type definitions
+type InventoryEntry = dict[str, Any]
+type Inventory = list[InventoryEntry]
+type ExpectedStructure = dict[str, list[str]]
+type FileLocation = tuple[str, str]  # (folder, filename)
+type FileSet = set[FileLocation]
+type MisplacedList = list[FileLocation]
+type StructureReport = dict[str, list[FileLocation] | MisplacedList]
 
 # Cargar inventario real
 with open("scripts/reports/model_inventory.json", encoding="utf-8") as f:
-    inventory = json.load(f)
+    inventory: Inventory = json.load(f)
 
 # Cargar estructura esperada
 with open(
     "scripts/reports/model_expected_structure.json", encoding="utf-8"
 ) as f:
-    expected = json.load(f)
+    expected: ExpectedStructure = json.load(f)
 
 # Construir sets para comparación
-actual_files = set()
+actual_files: FileSet = set()
 for entry in inventory:
-    rel_path = entry["relative_path"]
+    rel_path: str = entry["relative_path"]
     # Determinar carpeta base
     parts = rel_path.split("/")
     if len(parts) == 1:
@@ -28,25 +44,25 @@ for entry in inventory:
         )
     actual_files.add((folder, fname))
 
-expected_files = set()
+expected_files: FileSet = set()
 for folder, files in expected.items():
     for fname in files:
         expected_files.add((folder, fname))
 
 # Archivos faltantes y archivos inesperados
-missing = sorted(expected_files - actual_files)
-unexpected = sorted(actual_files - expected_files)
+missing: list[FileLocation] = sorted(expected_files - actual_files)
+unexpected: list[FileLocation] = sorted(actual_files - expected_files)
 
 # Archivos en ubicaciones incorrectas (nombre esperado pero carpeta incorrecta)
-expected_names = {fname for _, fname in expected_files}
-actual_names = {fname for _, fname in actual_files}
-misplaced = []
+expected_names: set[str] = {fname for _, fname in expected_files}
+actual_names: set[str] = {fname for _, fname in actual_files}
+misplaced: MisplacedList = []
 for folder, fname in actual_files:
     if fname in expected_names and (folder, fname) not in expected_files:
         misplaced.append((folder, fname))
 
 # Generar reporte
-report = {
+report: StructureReport = {
     "missing_files": missing,
     "unexpected_files": unexpected,
     "misplaced_files": misplaced,

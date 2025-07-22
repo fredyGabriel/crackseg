@@ -6,10 +6,10 @@ from .callbacks import BaseCallback
 from .exceptions import MetricCollectionError
 
 if TYPE_CHECKING:
-    import pynvml
+    import pynvml  # type: ignore[import-untyped]
 else:
     try:
-        import pynvml
+        import pynvml  # type: ignore[import-untyped]
     except ImportError:
         pynvml = None
 

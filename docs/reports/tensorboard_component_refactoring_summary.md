@@ -55,7 +55,7 @@ practical implementation for the crack segmentation domain.
 ### Directory Structure
 
 ```txt
-scripts/gui/components/tensorboard/
+gui/components/tensorboard/
 ├── __init__.py                     # Main exports
 ├── component.py                    # Main component (250 lines)
 ├── state/
@@ -165,9 +165,9 @@ def render_no_logs_available(log_dir, error_msg=None):
 All modules pass the mandatory quality gates:
 
 ```bash
-black scripts/gui/components/tensorboard/     # ✅ Formatting
-ruff scripts/gui/components/tensorboard/      # ✅ Linting
-basedpyright scripts/gui/components/tensorboard/  # ✅ Type checking
+black gui/components/tensorboard/     # ✅ Formatting
+ruff gui/components/tensorboard/      # ✅ Linting
+basedpyright gui/components/tensorboard/  # ✅ Type checking
 ```
 
 ## Benefits Achieved

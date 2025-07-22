@@ -1,7 +1,7 @@
-"""JSON export functionality for stakeholder reports.
-
-This module provides JSON export capabilities for external analysis tools
-and automated processing of test results.
+"""
+JSON export functionality for stakeholder reports. This module
+provides JSON export capabilities for external analysis tools and
+automated processing of test results.
 """
 
 import json
@@ -14,10 +14,9 @@ class JsonExportManager:
     """Manager for JSON export functionality."""
 
     def __init__(self, output_base_dir: Path) -> None:
-        """Initialize JSON export manager.
-
-        Args:
-            output_base_dir: Base directory for exported JSON files
+        """
+        Initialize JSON export manager. Args: output_base_dir: Base directory
+        for exported JSON files
         """
         self.output_base_dir = output_base_dir
 
@@ -26,14 +25,10 @@ class JsonExportManager:
         stakeholder_reports: dict[str, dict[str, Any]],
         analysis_results: dict[str, Any],
     ) -> list[Path]:
-        """Export JSON reports for external analysis.
-
-        Args:
-            stakeholder_reports: Stakeholder-specific reports
-            analysis_results: Analysis results
-
-        Returns:
-            List of generated JSON file paths
+        """
+        Export JSON reports for external analysis. Args: stakeholder_reports:
+        Stakeholder-specific reports analysis_results: Analysis results
+        Returns: List of generated JSON file paths
         """
         exported_files = []
 

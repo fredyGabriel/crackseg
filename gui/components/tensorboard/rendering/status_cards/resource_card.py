@@ -49,7 +49,7 @@ class ResourceStatusCard(BaseStatusCard):
                     if f.is_file()
                 )
                 if total_size > 0:
-                    from scripts.gui.components.tensorboard.utils.formatters import (  # noqa: E501
+                    from gui.components.tensorboard.utils.formatters import (  # noqa: E501
                         format_file_size,
                     )
 

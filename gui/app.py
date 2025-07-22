@@ -1,20 +1,17 @@
 """
-CrackSeg - Pavement Crack Segmentation GUI
-Main entry point for the Streamlit application (Refactored)
-
-This is the refactored version with modular architecture for better
-maintainability.
+CrackSeg - Pavement Crack Segmentation GUI Main entry point for the
+Streamlit application (Refactored) This is the refactored version with
+modular architecture for better maintainability.
 """
 
 import sys
-from collections.abc import Callable
+from os.path import join
 from pathlib import Path
-from typing import Any
 
 import streamlit as st
 
 # Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # =============================================================================
@@ -31,7 +28,6 @@ sys.path.insert(0, str(PROJECT_ROOT))
 # - https://discuss.streamlit.io/t/runtimeerror-no-running-event-loop/27287
 # - https://blog.csdn.net/m0_53115174/article/details/146381953
 # =============================================================================
-import os
 
 import torch
 
@@ -43,7 +39,7 @@ try:
         and torch.classes.__file__ is not None  # type: ignore[attr-defined]
     ):
         torch.classes.__path__ = [  # type: ignore[attr-defined]
-            os.path.join(torch.__path__[0], torch.classes.__file__)  # type: ignore[attr-defined]
+            join(torch.__path__[0], torch.classes.__file__)
         ]
 except (AttributeError, FileNotFoundError):
     # If the attributes don't exist, this patch is likely not needed.
@@ -100,9 +96,6 @@ def main() -> None:
     # Apply current theme
     ThemeComponent.apply_current_theme()
 
-    # Get current state
-    state = SessionStateManager.get()
-
     # Render sidebar and get current page
     current_page = render_sidebar(PROJECT_ROOT)
 
@@ -112,9 +105,7 @@ def main() -> None:
     st.markdown("---")
 
     # Page function mapping
-    page_functions: dict[
-        str, Callable[[], None] | Callable[[dict[str, Any]], None]
-    ] = {
+    page_functions = {
         "Home": page_home,
         "Config": page_config,
         "Advanced Config": page_advanced_config,
@@ -123,8 +114,11 @@ def main() -> None:
         "Results": page_results,
     }
 
-    # Use PageRouter to handle page rendering
-    PageRouter.route_to_page(current_page, state, page_functions)  # type: ignore[arg-type]
+    # Route to the appropriate page function
+    if current_page in page_functions:
+        page_functions[current_page]()  # type: ignore
+    else:
+        st.error(f"Page '{current_page}' not found")
 
 
 if __name__ == "__main__":

@@ -12,12 +12,12 @@ from typing import Any
 
 import streamlit as st
 
-from scripts.gui.utils.error_state import (
+from gui.utils.error_state import (
     ErrorMessageFactory,
     ErrorType,
     StandardErrorState,
 )
-from scripts.gui.utils.performance_optimizer import (
+from gui.utils.performance_optimizer import (
     AsyncOperationManager,
     MemoryManager,
     OptimizedHTMLBuilder,
@@ -25,7 +25,7 @@ from scripts.gui.utils.performance_optimizer import (
     should_update,
     track_performance,
 )
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.session_state import SessionStateManager
 
 
 class OptimizedProgressBar:

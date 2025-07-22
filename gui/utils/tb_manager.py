@@ -1,13 +1,11 @@
-"""Backward compatibility wrapper for TensorBoard management.
-
-This module maintains compatibility with existing code that imports
-from the original tb_manager.py location. The actual implementation
-has been refactored into the tensorboard/ package.
-
-All new code should import from scripts.gui.utils.tensorboard package:
-    from scripts.gui.utils.tensorboard import TensorBoardManager
-
-This compatibility layer will be deprecated in future versions.
+"""
+Backward compatibility wrapper for TensorBoard management. This module
+maintains compatibility with existing code that import s from the
+original tb_manager.py location. The actual implementation has been
+refactored into the tensorboard/ package. All new code should import
+from gui.utils.tensorboard package: from
+scripts.gui.utils.tensorboard import TensorBoardManager This
+compatibility layer will be deprecated in future versions.
 """
 
 import warnings
@@ -16,7 +14,7 @@ from pathlib import Path
 # Import everything from the new modular structure
 from .tensorboard import *  # noqa: F403, F401
 
-# Specific imports for exact compatibility
+# Specific import s for exact compatibility
 from .tensorboard import (
     PortAllocation,
     PortRange,
@@ -33,10 +31,10 @@ from .tensorboard.manager import *  # noqa: F403, F401
 
 
 def __deprecated_warning():
-    """Issue deprecation warning for old import style."""
+    """Issue deprecation warning for old import  style."""
     warnings.warn(
         "Importing from 'tb_manager' is deprecated. "
-        "Use 'from scripts.gui.utils.tensorboard import ...' instead. "
+        "Use 'from  scripts.gui.utils.tensorboard  import  ...' instead. "
         "The tb_manager module will be removed in a future version.",
         DeprecationWarning,
         stacklevel=3,
@@ -49,16 +47,16 @@ def start_tensorboard_for_training(
     preferred_port: int | None = None,
     auto_lifecycle: bool = True,
 ) -> tuple[bool, TensorBoardManager, str | None]:
-    """Legacy compatibility function.
-
-    Use tensorboard.manager.create_default_tensorboard_setup instead.
+    """
+    Legacy compatibility function. Use
+    tensorboard.manager.create_default_tensorboard_setup instead.
     """
     __deprecated_warning()
 
     if isinstance(log_dir, str):
         log_dir = Path(log_dir)
 
-    manager, lifecycle = create_default_tensorboard_setup(
+    manager, _ = create_default_tensorboard_setup(
         preferred_port=preferred_port or 6006,
         auto_lifecycle=auto_lifecycle,
     )
@@ -74,9 +72,9 @@ def start_tensorboard_for_training(
 
 
 def stop_all_tensorboard_instances() -> bool:
-    """Legacy compatibility function.
-
-    Use tensorboard.manager.cleanup_all_tensorboard_resources instead.
+    """
+    Legacy compatibility function. Use
+    tensorboard.manager.cleanup_all_tensorboard_resources instead.
     """
     __deprecated_warning()
     from .tensorboard.manager import cleanup_all_tensorboard_resources
@@ -85,9 +83,9 @@ def stop_all_tensorboard_instances() -> bool:
 
 
 def get_tensorboard_status() -> dict[str, object]:
-    """Legacy compatibility function.
-
-    Use tensorboard.manager.get_port_status_summary instead.
+    """
+    Legacy compatibility function. Use
+    tensorboard.manager.get_port_status_summary instead.
     """
     __deprecated_warning()
     from .tensorboard.manager import get_port_status_summary
@@ -99,7 +97,7 @@ def get_tensorboard_status() -> dict[str, object]:
 __version__ = "2.0.0-compat"
 __legacy_module__ = True
 
-# Issue warning when module is imported
+# Issue warning when module is import ed
 __deprecated_warning()
 
 # Backward compatibility exports

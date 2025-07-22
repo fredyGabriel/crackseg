@@ -1,8 +1,8 @@
-"""Test report generator implementation.
-
-This module provides the main TestReportGenerator class that orchestrates
-the collection of data from performance monitoring, capture systems, and
-test execution results to generate comprehensive reports.
+"""
+Test report generator implementation. This module provides the main
+TestReportGenerator class that orchestrates the collection of data
+from performance monitoring, capture systems, and test execution
+results to generate comprehensive reports.
 """
 
 import json
@@ -26,10 +26,10 @@ logger = logging.getLogger(__name__)
 
 
 class TestReportGenerator:
-    """Main class for generating comprehensive test reports.
-
-    Integrates with existing performance monitoring and capture systems
-    to provide detailed reporting with metrics, trends, and insights.
+    """
+    Main class for generating comprehensive test reports. Integrates with
+    existing performance monitoring and capture systems to provide
+    detailed reporting with metrics, trends, and insights.
     """
 
     def __init__(
@@ -37,11 +37,9 @@ class TestReportGenerator:
         config: ReportConfig | None = None,
         capture_storage: CaptureStorage | None = None,
     ) -> None:
-        """Initialize the test report generator.
-
-        Args:
-            config: Report generation configuration
-            capture_storage: Existing capture storage instance
+        """
+        Initialize the test report generator. Args: config: Report generation
+        configuration capture_storage: Existing capture storage instance
         """
         self.config = config or ReportConfig()
         self.capture_storage = capture_storage or CaptureStorage(
@@ -55,10 +53,9 @@ class TestReportGenerator:
         logger.info(f"Test report generator initialized: {self.config.mode}")
 
     def start_test_execution(self, session_id: str | None = None) -> None:
-        """Mark the start of test execution session.
-
-        Args:
-            session_id: Optional session identifier
+        """
+        Mark the start of test execution session. Args: session_id: Optional
+        session identifier
         """
         self._execution_start_time = time.time()
         self._test_results.clear()
@@ -71,14 +68,10 @@ class TestReportGenerator:
     def register_test_start(
         self, test_name: str, enable_performance_monitoring: bool = True
     ) -> str:
-        """Register the start of an individual test.
-
-        Args:
-            test_name: Name of the test
-            enable_performance_monitoring: Enable performance monitoring
-
-        Returns:
-            Test ID for tracking
+        """
+        Register the start of an individual test. Args: test_name: Name of the
+        test enable_performance_monitoring: Enable performance monitoring
+        Returns: Test ID for tracking
         """
         test_id = f"{test_name}_{int(time.time())}"
 
@@ -100,16 +93,12 @@ class TestReportGenerator:
         failure_reason: str | None = None,
         artifact_paths: list[str] | None = None,
     ) -> None:
-        """Register the completion of a test.
-
-        Args:
-            test_id: Test identifier
-            test_name: Name of the test
-            status: Test execution status
-            duration: Test duration in seconds
-            error_message: Error message if test failed
-            failure_reason: Reason for failure
-            artifact_paths: Paths to artifacts (screenshots, videos)
+        """
+        Register the completion of a test. Args: test_id: Test identifier
+        test_name: Name of the test status: Test execution status duration:
+        Test duration in seconds error_message: Error message if test failed
+        failure_reason: Reason for failure artifact_paths: Paths to artifacts
+        (screenshots, videos)
         """
         end_time = time.time()
         start_time = end_time - duration
@@ -139,10 +128,9 @@ class TestReportGenerator:
         logger.debug(f"Test completed: {test_name} ({status.value})")
 
     def generate_execution_summary(self) -> ExecutionSummary:
-        """Generate summary statistics for the test execution.
-
-        Returns:
-            ExecutionSummary with key metrics
+        """
+        Generate summary statistics for the test execution. Returns:
+        ExecutionSummary with key metrics
         """
         if not self._test_results:
             return ExecutionSummary(
@@ -194,13 +182,10 @@ class TestReportGenerator:
     def generate_report(
         self, output_filename: str | None = None
     ) -> dict[str, Path]:
-        """Generate comprehensive test report in configured formats.
-
-        Args:
-            output_filename: Base filename for reports
-
-        Returns:
-            Dictionary mapping format to generated file path
+        """
+        Generate comprehensive test report in configured formats. Args:
+        output_filename: Base filename for reports Returns: Dictionary mapping
+        format to generated file path
         """
         if not output_filename:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")

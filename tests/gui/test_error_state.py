@@ -1,8 +1,7 @@
 """
-Tests for error state management system.
-
-This module tests the error handling functionality for GUI components,
-including error classification, message generation, and user interaction.
+Tests for error state management system. This module tests the error
+handling functionality for GUI components, including error
+classification, message generation, and user interaction.
 """
 
 from unittest.mock import MagicMock, patch

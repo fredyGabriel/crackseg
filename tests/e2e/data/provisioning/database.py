@@ -1,5 +1,5 @@
-"""Database seeding and summary functionality for test data provisioning.
-
+"""
+Database seeding and summary functionality for test data provisioning.
 This module provides database seeding operations and provisioning
 summary reporting functionality.
 """
@@ -16,14 +16,10 @@ if TYPE_CHECKING:
 def seed_test_database(
     self: "TestDataProvisioner", database_path: Path | str
 ) -> bool:
-    """Seed a test database with provisioned data.
-
-    Args:
-        self: TestDataProvisioner instance
-        database_path: Path to the database file to seed
-
-    Returns:
-        True if seeding was successful
+    """
+    Seed a test database with provisioned data. Args: self:
+    TestDataProvisioner instance database_path: Path to the database file
+    to seed Returns: True if seeding was successful
     """
     try:
         database_path = Path(database_path)
@@ -72,13 +68,10 @@ def seed_test_database(
 
 
 def get_provisioning_summary(self: "TestDataProvisioner") -> dict[str, Any]:
-    """Get summary of current provisioning state.
-
-    Args:
-        self: TestDataProvisioner instance
-
-    Returns:
-        Dictionary with provisioning summary
+    """
+    Get summary of current provisioning state. Args: self:
+    TestDataProvisioner instance Returns: Dictionary with provisioning
+    summary
     """
     data_types_count: dict[str, int] = {}
     summary = {

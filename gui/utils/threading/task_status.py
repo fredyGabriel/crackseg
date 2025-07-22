@@ -1,7 +1,7 @@
-"""Task status definitions for UI responsive threading.
-
-This module defines task states and status-related enumerations
-for background task execution and UI responsiveness management.
+"""
+Task status definitions for UI responsive threading. This module
+defines task states and status-related enumerations for background
+task execution and UI responsiveness management.
 """
 
 from enum import Enum
@@ -33,10 +33,9 @@ class TaskStatus(Enum):
     CANCELLED = "cancelled"
 
     def is_terminal(self) -> bool:
-        """Check if this status represents a terminal state.
-
-        Returns:
-            True if the task has finished (success, failure, or cancellation)
+        """
+        Check if this status represents a terminal state. Returns: True if the
+        task has finished (success, failure, or cancellation)
         """
         return self in (
             TaskStatus.COMPLETED,
@@ -45,9 +44,8 @@ class TaskStatus(Enum):
         )
 
     def is_active(self) -> bool:
-        """Check if this status represents an active state.
-
-        Returns:
-            True if the task is currently pending or running
+        """
+        Check if this status represents an active state. Returns: True if the
+        task is currently pending or running
         """
         return self in (TaskStatus.PENDING, TaskStatus.RUNNING)

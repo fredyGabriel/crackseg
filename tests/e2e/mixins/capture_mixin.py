@@ -1,7 +1,6 @@
-"""Capture mixin for E2E testing.
-
-This module provides integration with the comprehensive screenshot and video
-capture system for E2E tests.
+"""
+Capture mixin for E2E testing. This module provides integration with
+the comprehensive screenshot and video capture system for E2E tests.
 """
 
 from pathlib import Path
@@ -20,8 +19,8 @@ from ..capture import (
 
 
 class CaptureMixin(ScreenshotCaptureMixin, VideoRecordingMixin):
-    """Mixin integrating comprehensive capture capabilities with E2E tests.
-
+    """
+    Mixin integrating comprehensive capture capabilities with E2E tests.
     Provides screenshot capture, video recording, and storage management
     with automatic failure handling and configurable retention policies.
     """
@@ -42,19 +41,18 @@ class CaptureMixin(ScreenshotCaptureMixin, VideoRecordingMixin):
             self._capture_storage = CaptureStorage(storage_config)
 
             if hasattr(self, "log_test_step"):
-                self.log_test_step("Capture system initialized")
+                self.log_test_step("Capture system initialized")  # type: ignore[attr-defined]
         except Exception as e:
             if hasattr(self, "log_test_step"):
-                self.log_test_step(f"Failed to setup capture storage: {e}")
+                self.log_test_step(f"Failed to setup capture storage: {e}")  # type: ignore[attr-defined]
             self._capture_storage = None
 
     def configure_capture_from_test_data(
         self, test_data: dict[str, Any]
     ) -> None:
-        """Configure capture settings from test data.
-
-        Args:
-            test_data: Test configuration dictionary
+        """
+        Configure capture settings from test data. Args: test_data: Test
+        configuration dictionary
         """
         capture_config = test_data.get("capture_config", {})
 
@@ -92,14 +90,11 @@ class CaptureMixin(ScreenshotCaptureMixin, VideoRecordingMixin):
                 self._video_recording.config = config
 
     def on_test_failure(self, driver: WebDriver, exception: Exception) -> None:
-        """Handle test failure with comprehensive capture.
-
-        This method should be called by pytest hooks when a test fails.
-        It automatically captures screenshots and stops video recording.
-
-        Args:
-            driver: WebDriver instance
-            exception: Exception that caused the failure
+        """
+        Handle test failure with comprehensive capture. This method should be
+        called by pytest hooks when a test fails. It automatically captures
+        screenshots and stops video recording. Args: driver: WebDriver
+        instance exception: Exception that caused the failure
         """
         if not self._current_test_name:
             return
@@ -111,7 +106,7 @@ class CaptureMixin(ScreenshotCaptureMixin, VideoRecordingMixin):
             )
 
             if screenshot_path and hasattr(self, "log_test_step"):
-                self.log_test_step(
+                self.log_test_step(  # type: ignore[attr-defined]
                     f"Failure evidence captured: {screenshot_path}"
                 )
 
@@ -119,11 +114,11 @@ class CaptureMixin(ScreenshotCaptureMixin, VideoRecordingMixin):
             if hasattr(self, "_video_recording") and self.is_recording():
                 video_path = self.stop_recording(save_video=True)
                 if video_path and hasattr(self, "log_test_step"):
-                    self.log_test_step(f"Failure video saved: {video_path}")
+                    self.log_test_step(f"Failure video saved: {video_path}")  # type: ignore[attr-defined]
 
         except Exception as e:
             if hasattr(self, "log_test_step"):
-                self.log_test_step(f"Failed to capture failure evidence: {e}")
+                self.log_test_step(f"Failed to capture failure evidence: {e}")  # type: ignore[attr-defined]
 
     def capture_test_checkpoint(
         self,
@@ -131,15 +126,11 @@ class CaptureMixin(ScreenshotCaptureMixin, VideoRecordingMixin):
         checkpoint_name: str,
         context: str | None = None,
     ) -> Path | None:
-        """Capture screenshot at a specific test checkpoint.
-
-        Args:
-            driver: WebDriver instance
-            checkpoint_name: Name of the checkpoint
-            context: Optional context information
-
-        Returns:
-            Path to captured screenshot or None if failed
+        """
+        Capture screenshot at a specific test checkpoint. Args: driver:
+        WebDriver instance checkpoint_name: Name of the checkpoint context:
+        Optional context information Returns: Path to captured screenshot or
+        None if failed
         """
         if not self._current_test_name:
             return None
@@ -148,13 +139,9 @@ class CaptureMixin(ScreenshotCaptureMixin, VideoRecordingMixin):
         return self.capture_screenshot(driver, full_name, context)
 
     def start_test_recording(self, driver: WebDriver) -> bool:
-        """Start video recording for the current test.
-
-        Args:
-            driver: WebDriver instance
-
-        Returns:
-            True if recording started successfully
+        """
+        Start video recording for the current test. Args: driver: WebDriver
+        instance Returns: True if recording started successfully
         """
         if not self._current_test_name:
             return False
@@ -162,21 +149,17 @@ class CaptureMixin(ScreenshotCaptureMixin, VideoRecordingMixin):
         return self.start_recording(driver, self._current_test_name)
 
     def stop_test_recording(self, save_video: bool = True) -> Path | None:
-        """Stop video recording for the current test.
-
-        Args:
-            save_video: Whether to save the recorded video
-
-        Returns:
-            Path to saved video or None if not saved
+        """
+        Stop video recording for the current test. Args: save_video: Whether
+        to save the recorded video Returns: Path to saved video or None if not
+        saved
         """
         return self.stop_recording(save_video)
 
     def cleanup_capture_artifacts(self, test_passed: bool = False) -> None:
-        """Clean up capture artifacts based on test result.
-
-        Args:
-            test_passed: Whether the test passed
+        """
+        Clean up capture artifacts based on test result. Args: test_passed:
+        Whether the test passed
         """
         if self._capture_storage and self._current_test_name:
             try:
@@ -184,11 +167,11 @@ class CaptureMixin(ScreenshotCaptureMixin, VideoRecordingMixin):
                 self.cleanup_test_videos(test_passed)
 
                 if hasattr(self, "log_test_step"):
-                    self.log_test_step("Capture artifacts cleaned up")
+                    self.log_test_step("Capture artifacts cleaned up")  # type: ignore[attr-defined]
 
             except Exception as e:
                 if hasattr(self, "log_test_step"):
-                    self.log_test_step(f"Capture cleanup failed: {e}")
+                    self.log_test_step(f"Capture cleanup failed: {e}")  # type: ignore[attr-defined]
 
     def _get_retention_policy(self) -> Any:
         """Get retention policy from test configuration."""

@@ -112,7 +112,7 @@ To start the application, ensure your conda environment is activated and run the
 from the project root:
 
 ```bash
-conda activate crackseg && streamlit run scripts/gui/app.py
+conda activate crackseg && streamlit run gui/app.py
 ```
 
 The application will open in your default web browser.

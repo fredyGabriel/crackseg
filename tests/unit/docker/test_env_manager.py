@@ -1,31 +1,26 @@
 #!/usr/bin/env python3
-"""Unit tests for environment variable management system.
-
-Tests the EnvironmentManager and EnvironmentConfig classes for proper
-validation, configuration loading, and Docker integration.
-
-Designed for Subtask 13.6 - Configure Environment Variable Management
+"""
+Unit tests for environment variable management system. Tests the
+EnvironmentManager and EnvironmentConfig classes for proper
+validation, configuration loading, and Docker integration. Designed
+for Subtask 13.6 - Configure Environment Variable Management
 """
 
 import json
 import os
-import sys
 import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 
-# Add the docker directory to path for env_manager import
-_docker_dir = Path(__file__).parent.parent.parent / "docker"
-if str(_docker_dir) not in sys.path:
-    sys.path.insert(0, str(_docker_dir))
-
-from env_manager import (  # noqa: E402
+# Import directly from docker directory (now in extraPaths)
+from env_manager import (
     Environment,
     EnvironmentConfig,
     EnvironmentManager,
 )
+from env_utils import load_env_file
 
 
 class TestEnvironment:
@@ -166,7 +161,7 @@ class TestEnvironmentManager:
     def setup_method(self) -> None:
         """Set up test fixtures."""
         self.temp_dir = Path(tempfile.mkdtemp())
-        self.docker_dir = self.temp_dir / "tests" / "docker"
+        self.docker_dir = self.temp_dir / "docker"
         self.docker_dir.mkdir(parents=True, exist_ok=True)
         self.manager = EnvironmentManager(base_path=self.temp_dir)
 
@@ -180,13 +175,13 @@ class TestEnvironmentManager:
         """Test EnvironmentManager initialization."""
         manager = EnvironmentManager()
         assert manager.base_path == Path.cwd()
-        assert manager.docker_path == Path.cwd() / "tests" / "docker"
+        assert manager.docker_path == Path.cwd() / "docker"
         assert manager._current_config is None
 
         # Test with custom base path
         custom_manager = EnvironmentManager(self.temp_dir)
         assert custom_manager.base_path == self.temp_dir
-        assert custom_manager.docker_path == self.temp_dir / "tests" / "docker"
+        assert custom_manager.docker_path == self.temp_dir / "docker"
 
     @patch.dict(os.environ, {}, clear=True)
     def test_detect_environment_default(self) -> None:
@@ -227,7 +222,7 @@ class TestEnvironmentManager:
         non_existent_file = self.docker_dir / "non_existent.env"
 
         with pytest.raises(FileNotFoundError):
-            self.manager.load_env_file(non_existent_file)
+            load_env_file(non_existent_file)
 
     def test_load_env_file_valid(self) -> None:
         """Test loading valid environment file."""
@@ -245,7 +240,7 @@ EMPTY_VALUE=
 """
         env_file.write_text(env_content)
 
-        env_vars = self.manager.load_env_file(env_file)
+        env_vars = load_env_file(env_file)
 
         expected_vars = {
             "NODE_ENV": "test",
@@ -269,7 +264,7 @@ DEBUG=true
         env_file.write_text(env_content)
 
         # Should still work, just skip invalid lines
-        env_vars = self.manager.load_env_file(env_file)
+        env_vars = load_env_file(env_file)
 
         expected_vars = {"NODE_ENV": "test", "DEBUG": "true"}
 
@@ -443,12 +438,8 @@ class TestEnvironmentIntegration:
         # Create template file
         template_file = self.docker_dir / "env.test.template"
         template_content = """
-NODE_ENV=test
-CRACKSEG_ENV=test
-DEBUG=false
-TEST_BROWSER=chrome
-STREAMLIT_SERVER_PORT=8501
-FEATURE_ADVANCED_METRICS=true
+NODE_ENV=test CRACKSEG_ENV=test DEBUG=false TEST_BROWSER=chrome
+STREAMLIT_SERVER_PORT=8501 FEATURE_ADVANCED_METRICS=true
 FEATURE_TENSORBOARD=false
 """
         template_file.write_text(template_content)

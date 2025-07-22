@@ -18,7 +18,6 @@ from tests.e2e.config.resource_manager import (
     global_resource_manager,
 )
 from tests.e2e.helpers.performance_monitoring import (
-    ExtendedMemoryMetrics,
     PageLoadMetrics,
     PerformanceMetric,
     PerformanceMonitor,
@@ -44,6 +43,13 @@ class WorkerPerformanceData:
     def duration(self) -> float:
         """Get worker execution duration."""
         return self.end_time - self.start_time
+
+
+@dataclass
+class SuiteMetrics:
+    """Suite-level metrics storage."""
+
+    metrics: list[PerformanceMetric] = field(default_factory=list)
 
 
 @dataclass
@@ -97,12 +103,17 @@ class ParallelPerformanceMonitor:
         """
         self.test_suite_name = test_suite_name
         self.worker_monitors: dict[str, PerformanceMonitor] = {}
-        self.worker_data: dict[str, WorkerPerformanceData] = {}
+        self.worker_data: dict[str, WorkerPerformanceData | SuiteMetrics] = {}
         self.start_time: float = 0.0
         self.end_time: float = 0.0
         self.monitoring_active = False
         self._lock = threading.Lock()
         self.logger = logging.getLogger(f"{__name__}.{test_suite_name}")
+
+    @property
+    def total_duration(self) -> float:
+        """Get total parallel execution duration."""
+        return self.end_time - self.start_time
 
     def start_suite_monitoring(self) -> None:
         """Start monitoring for the entire test suite."""
@@ -224,9 +235,12 @@ class ParallelPerformanceMonitor:
 
         # Store suite-level metrics separately
         if "suite_metrics" not in self.worker_data:
-            self.worker_data["suite_metrics"] = {"metrics": []}
+            self.worker_data["suite_metrics"] = SuiteMetrics()
 
-        self.worker_data["suite_metrics"]["metrics"].append(metric)
+        suite_metrics = self.worker_data["suite_metrics"]
+        if isinstance(suite_metrics, SuiteMetrics):
+            suite_metrics.metrics.append(metric)
+
         self.logger.info(f"Suite metric added: {metric_name} = {value} {unit}")
 
     def generate_consolidated_report(
@@ -311,7 +325,7 @@ class ParallelPerformanceMonitor:
 
         # Performance totals
         all_page_loads: list[PageLoadMetrics] = []
-        all_memory_snapshots: list[ExtendedMemoryMetrics] = []
+        all_memory_snapshots: list[Any] = []  # Accept any memory metrics type
         all_interactions: list[dict[str, Any]] = []
 
         for report in worker_reports:

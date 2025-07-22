@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from scripts.gui.utils.tb_manager import TensorBoardManager
+from gui.utils.tb_manager import TensorBoardManager
 
 from ..state.session_manager import SessionStateManager
 from ..utils.formatters import format_uptime

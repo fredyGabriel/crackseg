@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import plotly.graph_objects as go
+import plotly.graph_objects as go  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 

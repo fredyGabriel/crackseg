@@ -1,7 +1,6 @@
 """
-Pages package for the CrackSeg GUI application.
-
-This package contains all the individual page modules for the application.
+Pages package for the CrackSeg GUI application. This package contains
+all the individual page modules for the application.
 """
 
 from gui.pages.advanced_config_page import page_advanced_config

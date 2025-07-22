@@ -1,30 +1,17 @@
-"""API integration helpers for E2E testing with external services.
-
-This module provides utilities for testing API interactions, health checks,
-load simulation, and response validation. These helpers are specifically
-designed for testing the CrackSeg application's external integrations.
+"""
+API integration utilities for E2E testing. This module provides
+utilities for testing API interactions, health checks, and load
+simulation.
 """
 
-import json
+import importlib.util
+import logging
 import time
-from typing import TYPE_CHECKING, Any, TypedDict
+from typing import Any, TypedDict
 from urllib.parse import urljoin
 
-if TYPE_CHECKING:
-    import requests
-    from requests.adapters import HTTPAdapter
-    from urllib3.util.retry import Retry
-
-try:
-    import requests  # noqa: F401
-    from requests.adapters import HTTPAdapter  # noqa: F401
-    from urllib3.util.retry import Retry  # noqa: F401
-
-    _requests_available = True
-except ImportError:
-    _requests_available = False
-
-import logging
+# Runtime availability check using importlib
+_requests_available = importlib.util.find_spec("requests") is not None
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +59,7 @@ class APITestHelper:
         if not _requests_available:
             return None
 
+        # Import here to avoid circular imports and unused import warnings
         import requests
         from requests.adapters import HTTPAdapter
         from urllib3.util.retry import Retry
@@ -109,7 +97,7 @@ class APITestHelper:
             params: Query parameters
 
         Returns:
-            APIResponse with status and timing information
+            APIResponse with request results
         """
         if not _requests_available:
             return {
@@ -120,6 +108,9 @@ class APITestHelper:
                 "success": False,
                 "error": "requests library not available",
             }
+
+        # Import here to avoid unused import warnings
+        import requests
 
         url = urljoin(self.base_url, endpoint)
         start_time = time.time()
@@ -134,36 +125,31 @@ class APITestHelper:
                 method=method,
                 url=url,
                 headers=headers,
-                json=(
-                    data
-                    if data and method in ["POST", "PUT", "PATCH"]
-                    else None
-                ),
+                json=data if method in ["POST", "PUT", "PATCH"] else None,
+                data=data if method not in ["POST", "PUT", "PATCH"] else None,
                 params=params,
                 timeout=self.timeout,
             )
 
             response_time = time.time() - start_time
 
-            # Try to parse JSON content
-            try:
-                content = response.json()
-            except (ValueError, json.JSONDecodeError):
-                content = response.text
-
             return {
                 "status_code": response.status_code,
                 "response_time": response_time,
-                "content": content,
+                "content": (
+                    response.json()
+                    if response.headers.get("content-type", "").startswith(
+                        "application/json"
+                    )
+                    else response.text
+                ),
                 "headers": dict(response.headers),
-                "success": response.status_code < 400,
+                "success": 200 <= response.status_code < 300,
                 "error": None,
             }
 
-        except Exception as e:
+        except requests.exceptions.RequestException as e:
             response_time = time.time() - start_time
-            self.logger.error(f"Request to {url} failed: {e}")
-
             return {
                 "status_code": 0,
                 "response_time": response_time,
@@ -176,35 +162,19 @@ class APITestHelper:
     def test_endpoint_health(
         self, endpoint: str = "/", expected_status: int = 200
     ) -> bool:
-        """Test if an endpoint is healthy and responding.
+        """Test endpoint health with retry logic.
 
         Args:
-            endpoint: Endpoint path to test
+            endpoint: Endpoint to test
             expected_status: Expected HTTP status code
 
         Returns:
-            True if endpoint is healthy
+            True if endpoint is healthy, False otherwise
         """
         response = self.make_request(endpoint)
-
-        is_healthy = (
-            response["success"]
-            and response["status_code"] == expected_status
-            and response["response_time"] < self.timeout
+        return (
+            response["success"] and response["status_code"] == expected_status
         )
-
-        if is_healthy:
-            self.logger.info(
-                f"Endpoint {endpoint} is healthy "
-                f"(status: {response['status_code']}, "
-                f"time: {response['response_time']:.3f}s)"
-            )
-        else:
-            self.logger.warning(
-                f"Endpoint {endpoint} health check failed: {response}"
-            )
-
-        return is_healthy
 
     def simulate_load_test(
         self,
@@ -217,202 +187,132 @@ class APITestHelper:
         Args:
             endpoint: Endpoint to test
             requests_count: Total number of requests
-            concurrent_users: Number of concurrent users (simplified)
+            concurrent_users: Number of concurrent users
 
         Returns:
-            Load test results with performance metrics
+            Load test results
         """
-        results: dict[str, Any] = {
-            "total_requests": requests_count,
-            "successful_requests": 0,
-            "failed_requests": 0,
-            "average_response_time": 0.0,
-            "min_response_time": float("inf"),
-            "max_response_time": 0.0,
-            "errors": [],
+        if not _requests_available:
+            return {
+                "total_requests": 0,
+                "successful_requests": 0,
+                "failed_requests": 0,
+                "average_response_time": 0.0,
+                "max_response_time": 0.0,
+                "min_response_time": 0.0,
+                "error": "requests library not available",
+            }
+
+        import threading
+
+        responses: list[APIResponse] = []
+        response_lock = threading.Lock()
+
+        def make_requests():
+            for _ in range(requests_count // concurrent_users):
+                response = self.make_request(endpoint)
+                with response_lock:
+                    responses.append(response)
+                time.sleep(0.1)  # Small delay between requests
+
+        threads = []
+        for _ in range(concurrent_users):
+            thread = threading.Thread(target=make_requests)
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        # Calculate statistics
+        successful_requests = sum(1 for r in responses if r["success"])
+        failed_requests = len(responses) - successful_requests
+        response_times = [
+            r["response_time"] for r in responses if r["response_time"] > 0
+        ]
+
+        return {
+            "total_requests": len(responses),
+            "successful_requests": successful_requests,
+            "failed_requests": failed_requests,
+            "average_response_time": (
+                sum(response_times) / len(response_times)
+                if response_times
+                else 0.0
+            ),
+            "max_response_time": (
+                max(response_times) if response_times else 0.0
+            ),
+            "min_response_time": (
+                min(response_times) if response_times else 0.0
+            ),
+            "error": None,
         }
-
-        response_times: list[float] = []
-
-        self.logger.info(
-            f"Starting load test: {requests_count} requests to {endpoint}"
-        )
-
-        for i in range(requests_count):
-            response = self.make_request(endpoint)
-
-            if response["success"]:
-                results["successful_requests"] += 1
-                response_times.append(response["response_time"])
-                results["min_response_time"] = min(
-                    results["min_response_time"], response["response_time"]
-                )
-                results["max_response_time"] = max(
-                    results["max_response_time"], response["response_time"]
-                )
-            else:
-                results["failed_requests"] += 1
-                results["errors"].append(
-                    {
-                        "request_number": i + 1,
-                        "error": response["error"],
-                        "status_code": response["status_code"],
-                    }
-                )
-
-            # Simple delay to simulate concurrent users
-            if i % concurrent_users == 0 and i > 0:
-                time.sleep(0.1)
-
-        if response_times:
-            results["average_response_time"] = sum(response_times) / len(
-                response_times
-            )
-        else:
-            results["min_response_time"] = 0.0
-
-        self.logger.info(
-            f"Load test completed: "
-            f"{results['successful_requests']}/{requests_count} successful"
-        )
-        return results
 
     def validate_api_response(
         self,
         response: APIResponse,
         expected_schema: dict[str, Any] | None = None,
     ) -> bool:
-        """Validate API response against expected criteria.
+        """Validate API response structure and content.
 
         Args:
             response: API response to validate
-            expected_schema: Optional schema to validate against
+            expected_schema: Expected response schema
 
         Returns:
-            True if response is valid
+            True if response is valid, False otherwise
         """
-        # Basic validation
         if not response["success"]:
-            self.logger.error(
-                f"Response validation failed: {response['error']}"
-            )
             return False
 
-        # Schema validation (simplified)
-        if expected_schema and response["content"]:
-            try:
-                # Basic type checking
-                if "type" in expected_schema:
-                    expected_type = expected_schema["type"]
-                    if expected_type == "object" and not isinstance(
-                        response["content"], dict
-                    ):
-                        return False
-                    elif expected_type == "array" and not isinstance(
-                        response["content"], list
-                    ):
-                        return False
-
-                # Check required fields
-                if "required_fields" in expected_schema and isinstance(
-                    response["content"], dict
-                ):
-                    for field in expected_schema["required_fields"]:
-                        if field not in response["content"]:
-                            self.logger.error(
-                                f"Required field '{field}' missing from "
-                                f"response"
-                            )
-                            return False
-
-            except Exception as e:
-                self.logger.error(f"Schema validation error: {e}")
-                return False
+        if expected_schema and isinstance(response["content"], dict):
+            # Basic schema validation
+            for key, expected_type in expected_schema.items():
+                if key not in response["content"]:
+                    return False
+                if not isinstance(response["content"][key], expected_type):
+                    return False
 
         return True
 
 
 def verify_streamlit_health(base_url: str = "http://localhost:8501") -> bool:
-    """Verify that Streamlit application is healthy and responding.
+    """Verify Streamlit application health.
 
     Args:
-        base_url: Base URL of Streamlit application
+        base_url: Streamlit application URL
 
     Returns:
-        True if Streamlit is healthy
+        True if application is healthy, False otherwise
     """
     helper = APITestHelper(base_url)
-
-    # Test main endpoint
-    if not helper.test_endpoint_health("/"):
-        return False
-
-    # Test Streamlit-specific endpoints
-    streamlit_endpoints = [
-        "/healthz",  # Common health check endpoint
-        "/_stcore/health",  # Streamlit internal health
-    ]
-
-    healthy_endpoints = 0
-    for endpoint in streamlit_endpoints:
-        if helper.test_endpoint_health(endpoint, expected_status=200):
-            healthy_endpoints += 1
-        # Don't fail if some endpoints don't exist
-
-    logger.info(
-        f"Streamlit health check: {healthy_endpoints}/"
-        f"{len(streamlit_endpoints) + 1} endpoints healthy"
-    )
-    return True  # Main endpoint working is sufficient
+    return helper.test_endpoint_health("/")
 
 
 def test_crackseg_endpoints(
     base_url: str = "http://localhost:8501",
 ) -> dict[str, bool]:
-    """Test CrackSeg-specific endpoints for functionality.
+    """Test CrackSeg application endpoints.
 
     Args:
-        base_url: Base URL of CrackSeg application
+        base_url: Application base URL
 
     Returns:
-        Dictionary of endpoint test results
+        Dictionary with endpoint test results
     """
     helper = APITestHelper(base_url)
-
-    # CrackSeg-specific endpoints to test
-    endpoints: dict[str, APIEndpoint] = {
-        "main_page": {
-            "url": "/",
-            "method": "GET",
-            "headers": None,
-            "expected_status": 200,
-            "timeout": 10.0,
-        },
-        "static_files": {
-            "url": "/static/style.css",  # Example static file
-            "method": "GET",
-            "headers": None,
-            "expected_status": 200,
-            "timeout": 5.0,
-        },
-    }
-
     results: dict[str, bool] = {}
 
-    for name, config in endpoints.items():
-        response = helper.make_request(
-            config["url"], method=config["method"], headers=config["headers"]
-        )
+    # Test main application endpoints
+    endpoints = [
+        ("/", "Main page"),
+        ("/_stcore/health", "Health check"),
+        ("/_stcore/static", "Static files"),
+    ]
 
-        results[name] = (
-            response["success"]
-            and response["status_code"] == config["expected_status"]
-            and response["response_time"] < config["timeout"]
-        )
-
-        logger.info(
-            f"CrackSeg endpoint {name}: {'✅' if results[name] else '❌'}"
-        )
+    for endpoint, description in endpoints:
+        results[description] = helper.test_endpoint_health(endpoint)
 
     return results
 
@@ -422,97 +322,79 @@ def simulate_api_load(
     duration_seconds: float = 30.0,
     requests_per_second: float = 2.0,
 ) -> dict[str, Any]:
-    """Simulate API load over a specified duration.
+    """Simulate API load testing.
 
     Args:
-        base_url: Base URL to test
-        duration_seconds: How long to run the load test
-        requests_per_second: Target requests per second
+        base_url: Application base URL
+        duration_seconds: Test duration in seconds
+        requests_per_second: Requests per second
 
     Returns:
-        Load test results and performance metrics
+        Load test results
     """
     helper = APITestHelper(base_url)
-
     total_requests = int(duration_seconds * requests_per_second)
 
-    logger.info(
-        f"Starting API load simulation: {total_requests} requests "
-        f"over {duration_seconds}s"
-    )
-
-    start_time = time.time()
-    results = helper.simulate_load_test("/", requests_count=total_requests)
-    actual_duration = time.time() - start_time
-
-    # Add duration metrics
-    results["planned_duration"] = duration_seconds
-    results["actual_duration"] = actual_duration
-    results["planned_rps"] = requests_per_second
-    results["actual_rps"] = (
-        total_requests / actual_duration if actual_duration > 0 else 0
-    )
-
-    logger.info(
-        f"Load simulation completed in {actual_duration:.1f}s "
-        f"(planned: {duration_seconds:.1f}s)"
-    )
-    return results
+    return helper.simulate_load_test("/", total_requests, 2)
 
 
 def validate_api_responses(responses: list[APIResponse]) -> dict[str, Any]:
-    """Validate a collection of API responses for consistency and correctness.
+    """Validate a list of API responses.
 
     Args:
-        responses: List of API responses to validate
+        responses: List of API responses
 
     Returns:
-        Validation report with statistics and issues
+        Validation results
     """
-    if not responses:
-        return {"total": 0, "valid": 0, "invalid": 0, "issues": []}
+    total_responses = len(responses)
+    successful_responses = sum(1 for r in responses if r["success"])
+    failed_responses = total_responses - successful_responses
 
-    validation_report: dict[str, Any] = {
-        "total": len(responses),
-        "valid": 0,
-        "invalid": 0,
-        "issues": [],
-        "response_time_stats": {
-            "min": float("inf"),
-            "max": 0.0,
-            "average": 0.0,
-        },
+    response_times = [
+        r["response_time"] for r in responses if r["response_time"] > 0
+    ]
+
+    return {
+        "total_responses": total_responses,
+        "successful_responses": successful_responses,
+        "failed_responses": failed_responses,
+        "success_rate": (
+            successful_responses / total_responses
+            if total_responses > 0
+            else 0.0
+        ),
+        "average_response_time": (
+            sum(response_times) / len(response_times)
+            if response_times
+            else 0.0
+        ),
+        "max_response_time": max(response_times) if response_times else 0.0,
+        "min_response_time": min(response_times) if response_times else 0.0,
     }
 
-    response_times: list[float] = []
-    helper = APITestHelper()  # For validation methods
 
-    for i, response in enumerate(responses):
-        is_valid = helper.validate_api_response(response)
-
-        if is_valid:
-            validation_report["valid"] += 1
-            response_times.append(response["response_time"])
-        else:
-            validation_report["invalid"] += 1
-            validation_report["issues"].append(
-                {
-                    "response_index": i,
-                    "status_code": response["status_code"],
-                    "error": response["error"],
-                }
-            )
-
-    # Calculate response time statistics
-    if response_times:
-        validation_report["response_time_stats"] = {
-            "min": min(response_times),
-            "max": max(response_times),
-            "average": sum(response_times) / len(response_times),
-        }
-
-    logger.info(
-        f"Response validation: {validation_report['valid']}/"
-        f"{validation_report['total']} valid"
-    )
-    return validation_report
+# Predefined API endpoints for CrackSeg application
+CRACKSEG_ENDPOINTS: dict[str, APIEndpoint] = {
+    "main_page": {
+        "url": "/",
+        "method": "GET",
+        "headers": None,
+        "expected_status": 200,
+        "timeout": 30.0,
+    },
+    "health_check": {
+        "url": "/_stcore/health",
+        "method": "GET",
+        "headers": None,
+        "expected_status": 200,
+        "timeout": 10.0,
+    },
+    "static_files": {
+        "url": "/_stcore/static",
+        "method": "GET",
+        "headers": None,
+        "expected_status": 200,
+        "timeout": 15.0,
+    },
+}

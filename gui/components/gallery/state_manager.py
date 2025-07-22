@@ -12,7 +12,7 @@ from typing import Any
 
 import streamlit as st
 
-from scripts.gui.utils.export_manager import ExportManager
+from gui.utils.export_manager import ExportManager
 
 
 class GalleryStateManager:

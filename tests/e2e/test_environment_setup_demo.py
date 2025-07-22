@@ -1,8 +1,9 @@
-"""Demonstration tests for TestEnvironmentManager functionality.
-
-This module provides comprehensive tests that validate the test environment
-setup system and serve as usage examples for the TestEnvironmentManager.
-Designed for Subtask 16.1 - Test Environment Setup validation.
+"""
+Demonstration tests for TestEnvironmentManager functionality. This
+module provides comprehensive tests that validate the test environment
+setup system and serve as usage examples for the
+TestEnvironmentManager. Designed for Subtask 16.1 - Test Environment
+Setup validation.
 """
 
 import logging
@@ -163,7 +164,6 @@ class TestEnvironmentSetupValidation:
         """Test TestEnvironmentManager initialization."""
         # Test with default configuration
         manager = TestEnvironmentManager()
-
         assert manager.config is not None
         assert manager.resource_manager is not None
         assert manager.browser_config_manager is not None
@@ -175,7 +175,6 @@ class TestEnvironmentSetupValidation:
             hardware=HardwareSpecification(cpu_cores=2),
         )
         custom_manager = TestEnvironmentManager(config=custom_config)
-
         assert custom_manager.config.hardware.cpu_cores == 2
 
     def test_environment_validation(self) -> None:
@@ -287,7 +286,8 @@ class TestEnvironmentSetupIntegration:
         assert hardware.concurrent_tests >= 6
 
         logger.info(
-            f"Performance environment configured with {hardware.cpu_cores} CPU cores"
+            f"Performance environment configured with "
+            f"{hardware.cpu_cores} CPU cores"
         )
         logger.info(f"Memory allocation: {hardware.memory_mb}MB")
 
@@ -302,11 +302,13 @@ class TestEnvironmentSetupIntegration:
 
         # Log validation results for debugging
         logger.info(
-            f"Environment validation: {environment_validation_results['valid']}"
+            f"Environment validation: "
+            f"{environment_validation_results['valid']}"
         )
         if environment_validation_results["warnings"]:
             logger.warning(
-                f"Validation warnings: {environment_validation_results['warnings']}"
+                f"Validation warnings: "
+                f"{environment_validation_results['warnings']}"
             )
 
     def test_hardware_spec_fixtures(
@@ -326,10 +328,13 @@ class TestEnvironmentSetupIntegration:
         assert hardware_spec_high_performance.max_model_batch_size == 16
 
         logger.info(
-            f"Default hardware: {hardware_spec_default.cpu_cores} cores, {hardware_spec_default.memory_mb}MB"
+            f"Default hardware: {hardware_spec_default.cpu_cores} cores, "
+            f"{hardware_spec_default.memory_mb}MB"
         )
         logger.info(
-            f"Performance hardware: {hardware_spec_high_performance.cpu_cores} cores, {hardware_spec_high_performance.memory_mb}MB"
+            f"Performance hardware: "
+            f"{hardware_spec_high_performance.cpu_cores} cores, "
+            f"{hardware_spec_high_performance.memory_mb}MB"
         )
 
     def test_network_conditions_fixtures(
@@ -349,7 +354,8 @@ class TestEnvironmentSetupIntegration:
         assert network_conditions_slow.packet_loss_percent == 1.0
 
         logger.info(
-            f"Default network: {network_conditions_default.latency_ms}ms latency"
+            f"Default network: "
+            f"{network_conditions_default.latency_ms}ms latency"
         )
         logger.info(
             f"Slow network: {network_conditions_slow.latency_ms}ms latency"

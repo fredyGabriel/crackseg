@@ -11,12 +11,12 @@ from typing import Any
 
 import streamlit as st
 
-from scripts.gui.utils.error_state import (
+from gui.utils.error_state import (
     ErrorMessageFactory,
     ErrorType,
     StandardErrorState,
 )
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.session_state import SessionStateManager
 
 
 class ProgressBar:

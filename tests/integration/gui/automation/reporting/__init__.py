@@ -1,7 +1,7 @@
-"""Comprehensive integration test reporting module.
-
-This module provides stakeholder-specific reporting capabilities for the
-CrackSeg integration testing framework, extending the automation infrastructure
+"""
+Comprehensive integration test reporting module. This module provides
+stakeholder-specific reporting capabilities for the CrackSeg
+integration testing framework, extending the automation infrastructure
 from subtasks 9.1-9.7.
 """
 

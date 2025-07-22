@@ -14,7 +14,7 @@ pre-defined configuration with the new interactive GUI.
 From the project root directory, run the following command in your terminal:
 
 ```bash
-streamlit run scripts/gui/app.py
+streamlit run gui/app.py
 ```
 
 This will open the CrackSeg application in your web browser, displaying the new
@@ -22,8 +22,8 @@ This will open the CrackSeg application in your web browser, displaying the new
 
 ## Step 2: Navigate to the Configuration Page
 
-On the Home page, under "Quick Actions", click the **"Configure Experiment"**
-button. This will take you to the **Experiment Configuration** page.
+On the Home page, use the **"Config"** option in the sidebar navigation (left side of the screen).
+This will take you to the **Experiment Configuration** page.
 
 ## Step 3: Load a Configuration
 
@@ -41,18 +41,18 @@ button. This will take you to the **Experiment Configuration** page.
 1. Scroll down and expand the **"Output & Run Directory"** section.
 2. Enter a path for your experiment's output in the text box, for example:
     `outputs/basic_training_run`.
-3. Click the **"Set Directory"** button. This directory will be created if it
-    doesn't exist and will store all your training artifacts (logs,
-    checkpoints, etc.).
+3. The directory will be automatically set when you enter the path. This directory
+    will be created if it doesn't exist and will store all your training artifacts
+    (logs, checkpoints, etc.).
 
 ## Step 5: Start the Training
 
-1. Once the configuration and run directory are set, a "Next Steps" section
-    appears at the bottom.
-2. Click the **"🚀 Start Training"** button.
-3. You will be redirected to the **Train** page.
-4. Click the **"Start Training"** button on this page to begin the process.
-5. You can now monitor the training in real-time:
+1. Once the configuration and run directory are set, you'll see a green "System Ready for Training"
+    status in the Setup Status section at the bottom of the page.
+2. Navigate to the **Train** page using the sidebar or the **"Start New Training"** button
+    on the Home page.
+3. On the Train page, click the **"Start Training"** button to begin the process.
+4. You can now monitor the training in real-time:
     - The **Live Log Viewer** shows the direct output from the training
       script.
     - The **Training Metrics** chart visualizes key metrics like loss as
@@ -62,7 +62,7 @@ button. This will take you to the **Experiment Configuration** page.
 
 Once the training is complete:
 
-1. You can navigate to the **Results** page using the **"📊 View Results"**
+1. You can navigate to the **Results** page using the **"View Latest Results"**
     button available on the Home page.
 2. Here you can view the final metrics and analyze the model's predictions on
     validation images.

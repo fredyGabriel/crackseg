@@ -1,8 +1,7 @@
 """
-Configuration constants and shared settings for the CrackSeg GUI application.
-
-This module contains page configurations, constants, and shared settings
-used throughout the application.
+Configuration constants and shared settings for the CrackSeg GUI
+application. This module contains page configurations, constants, and
+shared settings used throughout the application.
 """
 
 # Importar TypedDict

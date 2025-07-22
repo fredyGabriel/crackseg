@@ -189,7 +189,7 @@ Use this checklist to ensure your installation is complete and functional:
 4. Reinstall PyTorch with correct CUDA version:
 
    ```bash
-   conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+   conda install pytorch pytorch-cuda=12.9 -c pytorch -c nvidia
    ```
 
 ### Issue: Import Errors

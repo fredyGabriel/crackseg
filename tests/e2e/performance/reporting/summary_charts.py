@@ -9,8 +9,8 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+import plotly.graph_objects as go  # type: ignore[import-untyped]
+from plotly.subplots import make_subplots  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 

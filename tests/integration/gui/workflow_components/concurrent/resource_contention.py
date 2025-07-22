@@ -1,7 +1,7 @@
-"""Resource contention testing for concurrent operations.
-
-Handles resource conflict scenarios and access pattern validation.
-Extracted from oversized concurrent_operation_mixin.py for modular organization.
+"""
+Resource contention testing for concurrent operations. Handles
+resource conflict scenarios and access pattern validation. Extracted
+from oversized concurrent_operation_mixin.py for modular organization.
 """
 
 import threading

@@ -131,10 +131,10 @@ def test_cnn_encoder_init(encoder_params: dict[str, Any]):
     expected_skip_channels: list[Any] = []
     for i, block in enumerate(encoder.encoder_blocks):
         expected_out_ch = encoder_params["base_filters"] * (2**i)
-        assert block.conv1.in_channels == current_ch
-        assert block.conv1.out_channels == expected_out_ch
-        assert block.conv2.in_channels == expected_out_ch
-        assert block.conv2.out_channels == expected_out_ch
+        assert block.conv1.in_channels == current_ch  # type: ignore
+        assert block.conv1.out_channels == expected_out_ch  # type: ignore
+        assert block.conv2.in_channels == expected_out_ch  # type: ignore
+        assert block.conv2.out_channels == expected_out_ch  # type: ignore
         assert block.out_channels == expected_out_ch  # Check property
         assert block.skip_channels == [expected_out_ch]
         expected_skip_channels.append(expected_out_ch)
@@ -322,7 +322,7 @@ def test_cnn_decoder_init(decoder_params: dict[str, Any]):
     )
 
     assert isinstance(decoder, DecoderBase)
-    assert len(decoder.decoder_blocks) == decoder_params["depth"]
+    assert len(decoder.decoder_blocks) == decoder_params["depth"]  # type: ignore
     assert decoder.out_channels == decoder_params["out_channels"]
 
 

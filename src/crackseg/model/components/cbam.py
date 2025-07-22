@@ -55,7 +55,7 @@ class ChannelAttention(nn.Module):
         Returns:
             torch.Tensor: Output tensor of same shape as input
         """
-        b, c, h, w = x.size()
+        b, c, _h, _w = x.size()
         # Global average pooling
         avg_pool = F.adaptive_avg_pool2d(x, 1).view(b, c)
         # Global max pooling

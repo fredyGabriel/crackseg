@@ -9,7 +9,7 @@ This module provides automated performance reporting capabilities including:
 - CI/CD pipeline integration for automated reporting
 
 Example Usage:
-    >>> from tests.e2e.performance.reporting import (
+    >>> from  tests.e2e.performance.reporting  import  (
     ...     PerformanceReportGenerator,
     ...     ReportConfiguration,
     ...     create_performance_report_generator,

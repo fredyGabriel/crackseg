@@ -1,22 +1,37 @@
+"""
+Model import s validation. This script validates import statements in
+the model catalog and identifies invalid import patterns that should
+be updated.
+"""
+
 import json
 import os
 import re
+from typing import Any
+
+# Type definitions
+type ImportEntry = dict[str, Any]
+type ImportCatalog = list[ImportEntry]
+type InvalidEntry = dict[str, Any]
+type InvalidImports = list[InvalidEntry]
 
 catalog_path = os.path.join(
-    os.path.dirname(__file__), "model_imports_catalog.json"
+    os.path.dirname(__file__), "model_import s_catalog.json"
 )
-outfile = os.path.join(os.path.dirname(__file__), "model_imports_invalid.json")
+outfile = os.path.join(
+    os.path.dirname(__file__), "model_import s_invalid.json"
+)
 
 with open(catalog_path, encoding="utf-8") as f:
-    catalog = json.load(f)
+    catalog: ImportCatalog = json.load(f)
 
-invalid = []
+invalid: InvalidImports = []
 
-# Patrones válidos para imports internos
+# Patrones válidos para import s internos
 valid_patterns = [
     r"^src\.model\.",
     r"^src/model/",
-    r"^\.",  # relative imports
+    r"^\.",  # relative import s
 ]
 
 # Patrones inválidos (antiguos)
@@ -31,7 +46,7 @@ for entry in catalog:
     module = entry["module"]
     if not module:
         continue
-    # Solo analizar imports internos (no stdlib ni externos)
+    # Solo analizar import s internos (no stdlib ni externos)
     if any(
         module.startswith(p)
         for p in [
@@ -60,8 +75,8 @@ for entry in catalog:
                         "line": entry["line"],
                         "statement": entry["statement"],
                         "error": (
-                            "Old-style import path (should use src.model.* "
-                            "or relative import)"
+                            "Old-style import  path (should use src.model.* "
+                            "or relative import )"
                         ),
                     }
                 )
@@ -70,4 +85,4 @@ for entry in catalog:
 with open(outfile, "w", encoding="utf-8") as f:
     json.dump(invalid, f, indent=2, ensure_ascii=False)
 
-print(f"Invalid imports report written to {outfile}")
+print(f"Invalid import s report written to {outfile}")

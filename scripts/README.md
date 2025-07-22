@@ -1,6 +1,7 @@
 # scripts/
 
-This directory contains auxiliary, experimental, and example scripts for the project. The organization is designed to facilitate easy navigation and maintenance according to each script's purpose.
+This directory contains auxiliary, experimental, and example scripts for the project. The
+organization is designed to facilitate easy navigation and maintenance according to each script's purpose.
 
 ## Structure
 
@@ -20,10 +21,51 @@ This directory contains auxiliary, experimental, and example scripts for the pro
   - Integration examples, API usage, and demonstration scripts.
   - Example: `factory_registry_integration.py`
 
+- **archive/**
+  - Archived files no longer actively used but kept for historical reference.
+  - Contains completed plans and temporary documentation.
+
+## Key Utilities
+
+### **clean_workspace.py** (Enhanced)
+
+Comprehensive workspace maintenance tool combining cleanup and auditing:
+
+```bash
+# Clean workspace only
+python scripts/utils/clean_workspace.py
+
+# Clean + audit file sizes
+python scripts/utils/clean_workspace.py --audit
+
+# Audit only (no cleanup)
+python scripts/utils/clean_workspace.py --audit-only
+
+# Detailed audit with all files
+python scripts/utils/clean_workspace.py --audit --verbose
+```
+
+**Features:**
+
+- Removes cache directories (`__pycache__`, `.pytest_cache`)
+- Cleans temporary files (`.pyc`, log files)
+- Organizes `outputs/` directory
+- **NEW**: File size auditing (300 line preferred, 400 max)
+- **NEW**: Refactoring priority suggestions
+
+### **check_updates.py**
+
+Monitors dependency versions and suggests updates:
+
+```bash
+python scripts/utils/check_updates.py
+```
+
 ## Best Practices
 
-- Scripts in this directory are **not** part of the project core and should **not** be imported by main modules.
-- Remove `__pycache__` and temporary files regularly to keep the workspace clean.
+- Scripts in this directory are **not** part of the project core and should **not** be imported by
+main modules.
+- Use `clean_workspace.py --audit` regularly to monitor code quality.
 - When adding a new script, place it in the appropriate subfolder and update this README if necessary.
 
 ---

@@ -8,6 +8,7 @@ dimensions management.
 import logging
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +165,7 @@ class ViewportDimensions:
             orientation=self.orientation,
         )
 
-    def to_dict(self) -> dict[str, any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary representation.
 
         Returns:

@@ -13,8 +13,10 @@ def test_is_distributed_available_and_initialized_true():
 
 
 def test_is_distributed_available_and_initialized_false():
-    """Should return False if torch.distributed is not available or not
-    initialized."""
+    """
+    Should return False if torch.distributed is not available or not
+    initialized.
+    """
     with (
         mock.patch("torch.distributed.is_available", return_value=False),
         mock.patch("torch.distributed.is_initialized", return_value=True),

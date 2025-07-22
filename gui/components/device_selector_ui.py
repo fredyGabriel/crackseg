@@ -12,14 +12,14 @@ from typing import Any
 import streamlit as st
 
 from crackseg.utils.logging import get_logger
-from scripts.gui.components.device_detector import DeviceDetector
-from scripts.gui.components.device_info import DeviceInfo
-from scripts.gui.utils.error_state import (
+from gui.components.device_detector import DeviceDetector
+from gui.components.device_info import DeviceInfo
+from gui.utils.error_state import (
     ErrorInfo,
     ErrorType,
     StandardErrorState,
 )
-from scripts.gui.utils.performance_optimizer import (
+from gui.utils.performance_optimizer import (
     get_optimizer,
     inject_css_once,
 )

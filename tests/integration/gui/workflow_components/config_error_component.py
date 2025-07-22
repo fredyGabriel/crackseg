@@ -1,6 +1,6 @@
-"""Configuration error testing component for integration testing.
-
-This module extends the configuration workflow component with comprehensive
+"""
+Configuration error testing component for integration testing. This
+module extends the configuration workflow component with comprehensive
 error scenario testing capabilities.
 """
 
@@ -17,10 +17,9 @@ class ConfigurationErrorComponent(
     """Configuration workflow component with error scenario testing."""
 
     def execute_config_error_scenarios(self) -> dict[str, Any]:
-        """Execute comprehensive configuration error scenarios.
-
-        Returns:
-            Results of all configuration error scenarios
+        """
+        Execute comprehensive configuration error scenarios. Returns: Results
+        of all configuration error scenarios
         """
         error_scenarios = {
             "yaml_syntax_errors": self._test_yaml_syntax_errors(),
@@ -254,10 +253,9 @@ class ConfigurationErrorComponent(
         return scenario_result
 
     def execute_directory_error_scenarios(self) -> dict[str, Any]:
-        """Execute directory setup error scenarios.
-
-        Returns:
-            Results of directory error scenarios
+        """
+        Execute directory setup error scenarios. Returns: Results of directory
+        error scenarios
         """
         directory_errors = {
             "permission_denied": self._test_directory_permission_errors(),

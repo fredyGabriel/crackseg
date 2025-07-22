@@ -260,7 +260,7 @@ class PerformanceBenchmarkingComponent(PerformanceInstrumentationMixin):
         results: list[PerformanceMetrics] = []
 
         # Benchmark configuration workflow (9.1)
-        config_result, config_metrics = self.measure_performance(
+        _, config_metrics = self.measure_performance(
             "configuration_workflow_execution",
             self.workflow_automation.execute_configuration_automation,
             config,
@@ -268,7 +268,7 @@ class PerformanceBenchmarkingComponent(PerformanceInstrumentationMixin):
         results.append(config_metrics)
 
         # Benchmark training workflow (9.1)
-        training_result, training_metrics = self.measure_performance(
+        _, training_metrics = self.measure_performance(
             "training_workflow_execution",
             self.workflow_automation.execute_training_automation,
             config,
@@ -276,7 +276,7 @@ class PerformanceBenchmarkingComponent(PerformanceInstrumentationMixin):
         results.append(training_metrics)
 
         # Benchmark concurrent operations (9.4)
-        concurrent_result, concurrent_metrics = self.measure_performance(
+        _, concurrent_metrics = self.measure_performance(
             "concurrent_workflow_execution",
             self.workflow_automation.execute_concurrent_automation,
             config,
@@ -292,14 +292,14 @@ class PerformanceBenchmarkingComponent(PerformanceInstrumentationMixin):
         results: list[PerformanceMetrics] = []
 
         # Memory usage benchmarking
-        memory_result, memory_metrics = self.measure_performance(
+        _, memory_metrics = self.measure_performance(
             "memory_intensive_operation",
             self._simulate_memory_intensive_workflow,
         )
         results.append(memory_metrics)
 
         # CPU usage benchmarking
-        cpu_result, cpu_metrics = self.measure_performance(
+        _, cpu_metrics = self.measure_performance(
             "cpu_intensive_operation", self._simulate_cpu_intensive_workflow
         )
         results.append(cpu_metrics)
@@ -313,7 +313,7 @@ class PerformanceBenchmarkingComponent(PerformanceInstrumentationMixin):
         results: list[PerformanceMetrics] = []
 
         for user_count in [1, 2, 5, 10]:
-            load_result, load_metrics = self.measure_performance(
+            _, load_metrics = self.measure_performance(
                 f"scalability_test_{user_count}_users",
                 self._simulate_concurrent_users,
                 user_count,

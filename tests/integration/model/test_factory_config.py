@@ -1,8 +1,8 @@
 """
-Integration tests for the model factory configuration processing system.
-
-These tests verify that the configuration validation, normalization, and
-processing system works correctly with different types of model configurations.
+Integration tests for the model factory configuration processing
+system. These tests verify that the configuration validation,
+normalization, and processing system works correctly with different
+types of model configurations.
 """
 
 import os

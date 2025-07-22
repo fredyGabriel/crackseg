@@ -35,9 +35,9 @@ segmentation project.
 
 ```bash
 # Quality gates status as of 2025-07-08:
-✅ conda activate crackseg && black scripts/gui/           # PASSING - Code formatting
-✅ conda activate crackseg && python -m ruff check scripts/gui/  # PASSING - Linting
-⚠️ conda activate crackseg && basedpyright scripts/gui/   # 7 TYPE ERRORS - Non-critical
+✅ conda activate crackseg && black gui/           # PASSING - Code formatting
+✅ conda activate crackseg && python -m ruff check gui/  # PASSING - Linting
+⚠️ conda activate crackseg && basedpyright gui/   # 7 TYPE ERRORS - Non-critical
 ```
 
 **Type Safety Issues Identified** (7 errors in config utilities):

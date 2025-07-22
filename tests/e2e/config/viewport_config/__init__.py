@@ -5,7 +5,7 @@ testing responsive design across different screen sizes, device orientations,
 and touch capabilities.
 
 Example usage:
-    from tests.e2e.config.viewport_config import (
+    from  tests.e2e.config.viewport_config  import  (
         ResponsiveTestMatrix,
         ResponsiveDevice,
         ViewportDimensions,

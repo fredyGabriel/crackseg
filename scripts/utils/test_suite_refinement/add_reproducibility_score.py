@@ -1,4 +1,14 @@
+"""
+Add reproducibility score to test inventory. This script calculates
+and adds a reproducibility score to the test inventory based on test
+consistency across multiple runs.
+"""
+
 import csv
+
+# Type definitions
+type CsvRow = list[str]
+type CsvData = list[CsvRow]
 
 CSV_PATH = (
     "outputs/prd_project_refinement/test_suite_evaluation/reports/"
@@ -7,9 +17,9 @@ CSV_PATH = (
 
 with open(CSV_PATH, newline="", encoding="utf-8") as f:
     reader = list(csv.reader(f))
-    explanation: list[str] = reader[0]
-    header = reader[1]
-    data = reader[2:]
+    explanation: CsvRow = reader[0]
+    header: CsvRow = reader[1]
+    data: CsvData = reader[2:]
 
 # Document the criteria in the explanation
 explanation = [
@@ -29,7 +39,7 @@ else:
 
 idx_status = header.index("Status")
 
-updated = [explanation, header]
+updated: CsvData = [explanation, header]
 for row in data:
     status = row[idx_status].strip().lower()
     if status in ("passing", "failing"):

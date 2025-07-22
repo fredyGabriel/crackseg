@@ -1,7 +1,7 @@
-"""File I/O utilities for E2E testing.
-
-This module provides utilities for file operations, configuration management,
-and test artifact handling for the CrackSeg testing framework.
+"""
+File I/O utilities for E2E testing. This module provides utilities for
+file operations, configuration management, and test artifact handling
+for the CrackSeg testing framework.
 """
 
 import json

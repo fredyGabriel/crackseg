@@ -1,8 +1,8 @@
-"""Integration tests for specialized run manager components.
-
-This module tests the run manager subsystem integration including
-orchestration, status updates, UI integration, session management, and
-streaming APIs. Critical for testing run_manager/ directory with 9 specialized
+"""
+Integration tests for specialized run manager components. This module
+tests the run manager subsystem integration including orchestration,
+status updates, UI integration, session management, and streaming
+APIs. Critical for testing run_manager/ directory with 9 specialized
 files.
 """
 
@@ -164,13 +164,9 @@ class TestRunManagerIntegration(WorkflowTestBase):
     def execute_orchestrator_workflow(
         self, config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute orchestrator workflow.
-
-        Args:
-            config: Orchestrator configuration
-
-        Returns:
-            Orchestrator workflow result
+        """
+        Execute orchestrator workflow. Args: config: Orchestrator
+        configuration Returns: Orchestrator workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -213,13 +209,9 @@ class TestRunManagerIntegration(WorkflowTestBase):
     def execute_status_updates_workflow(
         self, status_scenarios: list[dict[str, Any]]
     ) -> dict[str, Any]:
-        """Execute status updates workflow.
-
-        Args:
-            status_scenarios: List of status update scenarios
-
-        Returns:
-            Status updates workflow result
+        """
+        Execute status updates workflow. Args: status_scenarios: List of
+        status update scenarios Returns: Status updates workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -272,13 +264,9 @@ class TestRunManagerIntegration(WorkflowTestBase):
     def execute_ui_integration_workflow(
         self, ui_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute UI integration workflow.
-
-        Args:
-            ui_config: UI integration configuration
-
-        Returns:
-            UI integration workflow result
+        """
+        Execute UI integration workflow. Args: ui_config: UI integration
+        configuration Returns: UI integration workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -319,13 +307,9 @@ class TestRunManagerIntegration(WorkflowTestBase):
     def execute_session_api_workflow(
         self, session_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute session API workflow.
-
-        Args:
-            session_config: Session configuration
-
-        Returns:
-            Session API workflow result
+        """
+        Execute session API workflow. Args: session_config: Session
+        configuration Returns: Session API workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -367,13 +351,9 @@ class TestRunManagerIntegration(WorkflowTestBase):
     def execute_streaming_api_workflow(
         self, streaming_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute streaming API workflow.
-
-        Args:
-            streaming_config: Streaming configuration
-
-        Returns:
-            Streaming API workflow result
+        """
+        Execute streaming API workflow. Args: streaming_config: Streaming
+        configuration Returns: Streaming API workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -417,13 +397,9 @@ class TestRunManagerIntegration(WorkflowTestBase):
     def execute_abort_api_workflow(
         self, abort_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute abort API workflow.
-
-        Args:
-            abort_config: Abort configuration
-
-        Returns:
-            Abort API workflow result
+        """
+        Execute abort API workflow. Args: abort_config: Abort configuration
+        Returns: Abort API workflow result
         """
         result: dict[str, Any] = {
             "success": False,
@@ -466,13 +442,10 @@ class TestRunManagerIntegration(WorkflowTestBase):
     def execute_coordination_workflow(
         self, coordination_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute cross-component coordination workflow.
-
-        Args:
-            coordination_config: Coordination configuration
-
-        Returns:
-            Coordination workflow result
+        """
+        Execute cross-component coordination workflow. Args:
+        coordination_config: Coordination configuration Returns: Coordination
+        workflow result
         """
         result: dict[str, Any] = {
             "success": False,

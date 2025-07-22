@@ -10,7 +10,7 @@ from typing import Any
 
 import streamlit as st
 
-from scripts.gui.utils.tb_manager import (
+from gui.utils.tb_manager import (
     TensorBoardManager,
     get_default_tensorboard_manager,
     get_global_lifecycle_manager,

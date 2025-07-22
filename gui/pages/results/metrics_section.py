@@ -1,8 +1,7 @@
 """
-Metrics analysis section for the results page.
-
-This module handles the metrics analysis tab with performance summaries,
-detailed metrics display, and visualization placeholders.
+Metrics analysis section for the results page. This module handles the
+metrics analysis tab with performance summaries, detailed metrics
+display, and visualization placeholders.
 """
 
 from typing import Any
@@ -59,10 +58,8 @@ def render_metrics_tab(state: Any) -> None:
 
         st.markdown(
             """
-        **Planned Features:**
-        - Loss curves over time
-        - Metric comparisons across epochs
-        - Performance distribution plots
-        - Learning rate scheduling visualization
-        """
+**Planned Features:** - Loss curves over time - Metric comparisons
+across epochs - Performance distribution plots - Learning rate
+scheduling visualization
+"""
         )

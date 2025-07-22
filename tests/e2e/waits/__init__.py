@@ -1,20 +1,15 @@
-"""Wait strategy module for reliable E2E testing.
-
-This module provides comprehensive wait strategies including explicit waits,
-custom wait conditions, and smart wait strategies for reliable element
-interactions across different browsers and test scenarios.
-
-Key Components:
-- WaitStrategy: Main wait strategy orchestrator
-- CustomConditions: Streamlit-specific wait conditions
-- FluentWait: Configurable polling and timeout management
-- SmartWait: Context-aware wait selection
-
-Examples:
-    >>> from tests.e2e.waits import WaitStrategy, StreamlitConditions
-    >>> wait_strategy = WaitStrategy(driver, timeout=15.0)
-    >>> wait_strategy.until(StreamlitConditions.app_ready())
-    >>> element = wait_strategy.for_element_clickable(locator)
+"""
+Wait strategy module for reliable E2E testing. This module provides
+comprehensive wait strategies including explicit waits, custom wait
+conditions, and smart wait strategies for reliable element
+interactions across different browsers and test scenarios. Key
+Components: - WaitStrategy: Main wait strategy orchestrator -
+CustomConditions: Streamlit-specific wait conditions - FluentWait:
+Configurable polling and timeout management - SmartWait: Context-aware
+wait selection Examples: >>> from tests.e2e.waits import WaitStrategy,
+StreamlitConditions >>> wait_strategy = WaitStrategy(driver,
+timeout=15.0) >>> wait_strategy.until(StreamlitConditions.app_ready())
+>>> element = wait_strategy.for_element_clickable(locator)
 """
 
 from .conditions import (

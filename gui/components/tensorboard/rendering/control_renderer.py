@@ -4,7 +4,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from scripts.gui.utils.tb_manager import TensorBoardManager
+from gui.utils.tb_manager import TensorBoardManager
 
 from ..state.session_manager import SessionStateManager
 

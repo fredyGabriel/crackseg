@@ -5,6 +5,8 @@ the configuration management page, including loading configurations,
 validating settings, and managing configuration files.
 """
 
+from selenium.webdriver.common.by import By
+
 from .base_page import BasePage
 from .locators import ConfigPageLocators
 
@@ -297,3 +299,67 @@ class ConfigPage(BasePage):
         # Basic validation for CrackSeg config structure
         required_sections = ["model", "training", "data"]
         return all(section in config_content for section in required_sections)
+
+    def load_configuration_text(self, config_text: str) -> "ConfigPage":
+        """Load configuration from text content.
+
+        Args:
+            config_text: YAML configuration content as string
+
+        Returns:
+            Self for method chaining
+        """
+        # This is a mock implementation for testing purposes
+        # In a real implementation, this would interface with Streamlit's
+        # text area or code editor components
+
+        # Store the text for validation and display
+        self._loaded_config_text = config_text
+
+        # Simulate loading process
+        from ..utils import wait_for_streamlit_rerun
+
+        wait_for_streamlit_rerun(self.driver, 5)
+
+        return self
+
+    def is_config_loaded(self) -> bool:
+        """Check if configuration text has been loaded.
+
+        Returns:
+            True if configuration text is loaded, False otherwise
+        """
+        # Check if we have loaded text or if the standard configuration
+        # is loaded
+        has_loaded_text = (
+            hasattr(self, "_loaded_config_text") and self._loaded_config_text
+        )
+        has_standard_config = self.is_configuration_loaded()
+
+        return bool(has_loaded_text) or bool(has_standard_config)
+
+    def has_error_message(self) -> bool:
+        """Check if there are error messages displayed.
+
+        Returns:
+            True if error messages are present, False otherwise
+        """
+        from .locators import BaseLocators
+
+        # Check for various error indicators
+        error_selectors = [
+            BaseLocators.ERROR_MESSAGE,
+            (By.CSS_SELECTOR, "[data-testid='stAlert']"),
+            (By.CSS_SELECTOR, ".stException"),
+            (By.XPATH, "//*[contains(@class, 'error')]"),
+            (By.XPATH, "//*[contains(text(), 'Error')]"),
+            (By.XPATH, "//*[contains(text(), 'error')]"),
+            (By.XPATH, "//*[contains(text(), 'Invalid')]"),
+            (By.XPATH, "//*[contains(text(), 'invalid')]"),
+        ]
+
+        for selector in error_selectors:
+            if self.is_element_displayed(selector):
+                return True
+
+        return False

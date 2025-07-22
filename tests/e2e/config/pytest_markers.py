@@ -1,8 +1,9 @@
-"""Pytest markers configuration for parallel execution and performance testing.
-
-This module defines custom pytest markers that enable fine-grained control
-over test execution strategies, resource allocation, and performance monitoring
-within the parallel test execution framework.
+"""
+Pytest markers configuration for parallel execution and performance
+testing. This module defines custom pytest markers that enable
+fine-grained control over test execution strategies, resource
+allocation, and performance monitoring within the parallel test
+execution framework.
 """
 
 from typing import Any
@@ -12,10 +13,9 @@ import pytest
 
 # MarkDecorator is not part of pytest's public API; use Any for decorators
 def pytest_configure(config: Any) -> None:
-    """Register custom markers for parallel execution and performance testing.
-
-    Args:
-        config: Pytest configuration object
+    """
+    Register custom markers for parallel execution and performance
+    testing. Args: config: Pytest configuration object
     """
     # Execution strategy markers
     config.addinivalue_line(
@@ -108,26 +108,18 @@ def pytest_configure(config: Any) -> None:
 
 # Marker helper functions for easier test decoration
 def sequential(reason: str = "Requires sequential execution") -> Any:
-    """Mark test for sequential execution.
-
-    Args:
-        reason: Reason why test needs sequential execution
-
-    Returns:
-        Pytest marker decorator
+    """
+    Mark test for sequential execution. Args: reason: Reason why test
+    needs sequential execution Returns: Pytest marker decorator
     """
     return pytest.mark.sequential(reason=reason)
 
 
 def parallel(workers: int | None = None, strategy: str | None = None) -> Any:
-    """Mark test for parallel execution with optional configuration.
-
-    Args:
-        workers: Number of workers to use for this test
-        strategy: Execution strategy override
-
-    Returns:
-        Pytest marker decorator
+    """
+    Mark test for parallel execution with optional configuration. Args:
+    workers: Number of workers to use for this test strategy: Execution
+    strategy override Returns: Pytest marker decorator
     """
     kwargs: dict[str, Any] = {}
     if workers is not None:
@@ -143,15 +135,11 @@ def performance(
     memory_threshold_mb: float = 1024.0,
     regression_check: bool = False,
 ) -> Any:
-    """Mark test for performance monitoring.
-
-    Args:
-        threshold_seconds: Maximum acceptable execution time
-        memory_threshold_mb: Maximum acceptable memory usage
-        regression_check: Enable regression detection
-
-    Returns:
-        Pytest marker decorator
+    """
+    Mark test for performance monitoring. Args: threshold_seconds: Maximum
+    acceptable execution time memory_threshold_mb: Maximum acceptable
+    memory usage regression_check: Enable regression detection Returns:
+    Pytest marker decorator
     """
     return pytest.mark.performance(
         threshold_seconds=threshold_seconds,
@@ -163,14 +151,10 @@ def performance(
 def performance_critical(
     threshold_seconds: float = 10.0, strict_monitoring: bool = True
 ) -> Any:
-    """Mark test for critical performance monitoring.
-
-    Args:
-        threshold_seconds: Strict performance threshold
-        strict_monitoring: Enable detailed monitoring
-
-    Returns:
-        Pytest marker decorator
+    """
+    Mark test for critical performance monitoring. Args:
+    threshold_seconds: Strict performance threshold strict_monitoring:
+    Enable detailed monitoring Returns: Pytest marker decorator
     """
     return pytest.mark.performance_critical(
         threshold_seconds=threshold_seconds,
@@ -179,13 +163,9 @@ def performance_critical(
 
 
 def performance_baseline(baseline_name: str) -> Any:
-    """Mark test as performance baseline.
-
-    Args:
-        baseline_name: Name of the performance baseline
-
-    Returns:
-        Pytest marker decorator
+    """
+    Mark test as performance baseline. Args: baseline_name: Name of the
+    performance baseline Returns: Pytest marker decorator
     """
     return pytest.mark.performance_baseline(baseline_name=baseline_name)
 
@@ -213,15 +193,11 @@ def browser_matrix(
 def resource_requirement(
     memory_mb: int, cpu_cores: float = 1.0, isolated: bool = False
 ) -> Any:
-    """Mark test with specific resource requirements.
-
-    Args:
-        memory_mb: Required memory in MB
-        cpu_cores: Required CPU cores (can be fractional)
-        isolated: Whether test needs isolation
-
-    Returns:
-        Pytest marker decorator
+    """
+    Mark test with specific resource requirements. Args: memory_mb:
+    Required memory in MB cpu_cores: Required CPU cores (can be
+    fractional) isolated: Whether test needs isolation Returns: Pytest
+    marker decorator
     """
     markers: list[Any] = []
 
@@ -285,13 +261,9 @@ def environment(env_type: str) -> Any:
 
 # Utility functions for test configuration
 def get_test_markers(item: Any) -> dict[str, Any]:
-    """Extract marker information from a test item.
-
-    Args:
-        item: Pytest test item
-
-    Returns:
-        Dictionary of marker information
+    """
+    Extract marker information from a test item. Args: item: Pytest test
+    item Returns: Dictionary of marker information
     """
     markers_info: dict[str, Any] = {}
 
@@ -305,13 +277,9 @@ def get_test_markers(item: Any) -> dict[str, Any]:
 
 
 def should_run_parallel(item: Any) -> bool:
-    """Determine if test should run in parallel based on markers.
-
-    Args:
-        item: Pytest test item
-
-    Returns:
-        True if test should run in parallel
+    """
+    Determine if test should run in parallel based on markers. Args: item:
+    Pytest test item Returns: True if test should run in parallel
     """
     # Check for explicit sequential marker
     if item.get_closest_marker("sequential"):
@@ -326,13 +294,9 @@ def should_run_parallel(item: Any) -> bool:
 
 
 def get_worker_count_for_test(item: Any) -> int | None:
-    """Get optimal worker count for a specific test.
-
-    Args:
-        item: Pytest test item
-
-    Returns:
-        Recommended worker count or None for default
+    """
+    Get optimal worker count for a specific test. Args: item: Pytest test
+    item Returns: Recommended worker count or None for default
     """
     markers_info = get_test_markers(item)
 
@@ -354,13 +318,9 @@ def get_worker_count_for_test(item: Any) -> int | None:
 
 
 def get_performance_config_for_test(item: Any) -> dict[str, Any]:
-    """Get performance monitoring configuration for a test.
-
-    Args:
-        item: Pytest test item
-
-    Returns:
-        Performance configuration dictionary
+    """
+    Get performance monitoring configuration for a test. Args: item:
+    Pytest test item Returns: Performance configuration dictionary
     """
     config = {
         "enabled": False,
@@ -406,13 +366,10 @@ def get_performance_config_for_test(item: Any) -> dict[str, Any]:
 
 
 def should_enable_performance_monitoring(item: Any) -> bool:
-    """Check if performance monitoring should be enabled for a test.
-
-    Args:
-        item: Pytest test item
-
-    Returns:
-        True if performance monitoring should be enabled
+    """
+    Check if performance monitoring should be enabled for a test. Args:
+    item: Pytest test item Returns: True if performance monitoring should
+    be enabled
     """
     performance_markers = [
         "performance",
@@ -427,10 +384,9 @@ def should_enable_performance_monitoring(item: Any) -> bool:
 
 
 def get_marker_configuration() -> dict[str, Any]:
-    """Get general marker configuration for tests.
-
-    Returns:
-        Dictionary with marker configuration settings
+    """
+    Get general marker configuration for tests. Returns: Dictionary with
+    marker configuration settings
     """
     return {
         "parallel_enabled": True,
@@ -442,10 +398,9 @@ def get_marker_configuration() -> dict[str, Any]:
 
 
 def get_performance_markers() -> dict[str, Any]:
-    """Get available performance-related markers.
-
-    Returns:
-        Dictionary of performance markers and their configurations
+    """
+    Get available performance-related markers. Returns: Dictionary of
+    performance markers and their configurations
     """
     return {
         "performance": {
@@ -464,10 +419,9 @@ def get_performance_markers() -> dict[str, Any]:
 
 
 def get_resource_markers() -> dict[str, Any]:
-    """Get available resource-related markers.
-
-    Returns:
-        Dictionary of resource markers and their configurations
+    """
+    Get available resource-related markers. Returns: Dictionary of
+    resource markers and their configurations
     """
     return {
         "resource_requirement": {

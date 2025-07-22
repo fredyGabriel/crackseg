@@ -156,12 +156,12 @@
   - [ ] Response time benchmarks
 
 - [ ] **Specialized Subdirectories**
-  - [ ] `scripts/gui/components/gallery/` tests
-  - [ ] `scripts/gui/components/config_editor/` tests
-  - [ ] `scripts/gui/components/tensorboard/` tests
-  - [ ] `scripts/gui/utils/threading/` tests
-  - [ ] `scripts/gui/utils/streaming/` tests
-  - [ ] `scripts/gui/utils/parsing/` tests
+  - [ ] `gui/components/gallery/` tests
+- [ ] `gui/components/config_editor/` tests
+- [ ] `gui/components/tensorboard/` tests
+- [ ] `gui/utils/threading/` tests
+- [ ] `gui/utils/streaming/` tests
+- [ ] `gui/utils/parsing/` tests
 
 - [ ] **Error Recovery & Edge Cases**
   - [ ] Network disconnection scenarios
@@ -242,7 +242,7 @@ task-master show 5.1
 conda activate crackseg && pytest tests/unit/gui/pages/test_config_page.py -v
 
 # Run with coverage
-conda activate crackseg && pytest tests/unit/gui/ --cov=scripts/gui --cov-report=html
+conda activate crackseg && pytest tests/unit/gui/ --cov=gui --cov-report=html
 
 # Quality gates
 conda activate crackseg && black tests/unit/gui/

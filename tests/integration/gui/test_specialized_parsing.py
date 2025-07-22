@@ -1,8 +1,9 @@
-"""Integration tests for specialized parsing components.
-
-This module tests the parsing subsystem integration including override parser
+"""
+Integration tests for specialized parsing components. This module
+tests the parsing subsystem integration including override parser
 functionality, parsing exceptions, and complex parsing scenarios.
-Critical for testing override_parser.py (495 lines) and related components.
+Critical for testing override_parser.py (495 lines) and related
+components.
 """
 
 from typing import Any
@@ -162,13 +163,9 @@ class TestParsingIntegration(WorkflowTestBase):
     def execute_override_parsing_workflow(
         self, overrides: list[str]
     ) -> dict[str, Any]:
-        """Execute basic override parsing workflow.
-
-        Args:
-            overrides: List of override strings to parse
-
-        Returns:
-            Parsing workflow result
+        """
+        Execute basic override parsing workflow. Args: overrides: List of
+        override strings to parse Returns: Parsing workflow result
         """
         result = {
             "success": False,
@@ -204,13 +201,9 @@ class TestParsingIntegration(WorkflowTestBase):
     def execute_complex_override_workflow(
         self, complex_overrides: list[str]
     ) -> dict[str, Any]:
-        """Execute complex override parsing workflow.
-
-        Args:
-            complex_overrides: List of complex override patterns
-
-        Returns:
-            Complex parsing result
+        """
+        Execute complex override parsing workflow. Args: complex_overrides:
+        List of complex override patterns Returns: Complex parsing result
         """
         result = {
             "success": False,
@@ -248,22 +241,18 @@ class TestParsingIntegration(WorkflowTestBase):
             )
 
         except Exception as e:
-            result["error"] = str(e)
+            result["error"] = str(e)  # type: ignore
 
         return result
 
     def execute_parsing_error_workflow(
         self, invalid_overrides: list[str]
     ) -> dict[str, Any]:
-        """Execute parsing error handling workflow.
-
-        Args:
-            invalid_overrides: List of invalid override strings
-
-        Returns:
-            Error handling result
         """
-        result = {
+        Execute parsing error handling workflow. Args: invalid_overrides: List
+        of invalid override strings Returns: Error handling result
+        """
+        result: dict[str, Any] = {
             "error_handling_success": False,
             "syntax_errors_detected": False,
             "graceful_degradation": False,
@@ -279,7 +268,9 @@ class TestParsingIntegration(WorkflowTestBase):
                 len(result["handled_errors"]) > 0
             )
             result["graceful_degradation"] = True  # No exceptions raised
-            result["error_handling_success"] = result["syntax_errors_detected"]
+            result["error_handling_success"] = bool(
+                result["syntax_errors_detected"]
+            )
 
         except Exception:
             # Even parsing errors should be handled gracefully
@@ -291,15 +282,11 @@ class TestParsingIntegration(WorkflowTestBase):
     def execute_parsing_validation_workflow(
         self, validation_scenarios: list[dict[str, Any]]
     ) -> dict[str, Any]:
-        """Execute parsing validation workflow.
-
-        Args:
-            validation_scenarios: List of validation test scenarios
-
-        Returns:
-            Validation workflow result
         """
-        result = {
+        Execute parsing validation workflow. Args: validation_scenarios: List
+        of validation test scenarios Returns: Validation workflow result
+        """
+        result: dict[str, Any] = {
             "success": False,
             "type_validation_passed": False,
             "format_validation_passed": False,
@@ -330,12 +317,14 @@ class TestParsingIntegration(WorkflowTestBase):
             )
             result["semantic_validation_passed"] = True  # Assume semantic OK
 
-            result["success"] = all(
-                [
-                    result["type_validation_passed"],
-                    result["format_validation_passed"],
-                    result["semantic_validation_passed"],
-                ]
+            result["success"] = bool(
+                all(
+                    [
+                        result["type_validation_passed"],
+                        result["format_validation_passed"],
+                        result["semantic_validation_passed"],
+                    ]
+                )
             )
 
         except Exception as e:
@@ -346,14 +335,10 @@ class TestParsingIntegration(WorkflowTestBase):
     def execute_parsing_performance_workflow(
         self, performance_overrides: list[str]
     ) -> dict[str, Any]:
-        """Execute parsing performance workflow.
-
-        Args:
-            performance_overrides: Large list of overrides for performance
-                testing
-
-        Returns:
-            Performance test result
+        """
+        Execute parsing performance workflow. Args: performance_overrides:
+        Large list of overrides for performance testing Returns: Performance
+        test result
         """
         import time
 
@@ -398,15 +383,12 @@ class TestParsingIntegration(WorkflowTestBase):
     def execute_parsing_cross_integration_workflow(
         self, integration_config: dict[str, Any]
     ) -> dict[str, Any]:
-        """Execute parsing cross-component integration workflow.
-
-        Args:
-            integration_config: Cross-component integration configuration
-
-        Returns:
-            Cross-integration result
         """
-        result = {
+        Execute parsing cross-component integration workflow. Args:
+        integration_config: Cross-component integration configuration Returns:
+        Cross-integration result
+        """
+        result: dict[str, Any] = {
             "success": False,
             "config_integration": False,
             "override_application": False,
@@ -448,13 +430,9 @@ class TestParsingIntegration(WorkflowTestBase):
     # Utility methods
 
     def validate_override_syntax(self, override: str) -> bool:
-        """Validate override syntax.
-
-        Args:
-            override: Override string to validate
-
-        Returns:
-            True if syntax is valid
+        """
+        Validate override syntax. Args: override: Override string to validate
+        Returns: True if syntax is valid
         """
         # Basic syntax validation
         if override.startswith("~"):
@@ -479,14 +457,10 @@ class TestParsingIntegration(WorkflowTestBase):
     def validate_override_type(
         self, override: str, expected_type: str
     ) -> bool:
-        """Validate override value type.
-
-        Args:
-            override: Override string
-            expected_type: Expected type name
-
-        Returns:
-            True if type matches expectation
+        """
+        Validate override value type. Args: override: Override string
+        expected_type: Expected type name Returns: True if type matches
+        expectation
         """
         if "=" not in override:
             return False
@@ -505,13 +479,9 @@ class TestParsingIntegration(WorkflowTestBase):
         return validator(value) if validator else False
 
     def validate_override_format(self, override: str) -> bool:
-        """Validate override format.
-
-        Args:
-            override: Override string to validate
-
-        Returns:
-            True if format is valid
+        """
+        Validate override format. Args: override: Override string to validate
+        Returns: True if format is valid
         """
         # Basic format validation
         return (
@@ -521,10 +491,9 @@ class TestParsingIntegration(WorkflowTestBase):
         )
 
     def create_base_config(self) -> dict[str, Any]:
-        """Create a base configuration for integration testing.
-
-        Returns:
-            Base configuration dictionary
+        """
+        Create a base configuration for integration testing. Returns: Base
+        configuration dictionary
         """
         return {
             "model": {"encoder": "resnet50", "decoder": "unet"},

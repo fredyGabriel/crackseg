@@ -44,7 +44,7 @@ def visualize_feature_maps(feature_maps, title):
 
     # Select up to 4 channels to visualize
     num_channels = min(4, feature_maps.size(1))
-    fig, axes = plt.subplots(1, num_channels, figsize=(15, 4))
+    _, axes = plt.subplots(1, num_channels, figsize=(15, 4))
 
     if num_channels == 1:
         axes = [axes]  # Convert to list if there's only one channel
@@ -84,7 +84,8 @@ def main(cfg: DictConfig):
         raise ValueError("Encoder configuration must be a dictionary")
     encoder_params.pop("in_channels", None)
     encoder = SwinTransformerEncoder(
-        in_channels=encoder_cfg.in_channels, **dict(encoder_params)
+        in_channels=encoder_cfg.in_channels,
+        **dict(encoder_params),  # type: ignore[misc]
     )
     logger.info(f"Encoder created: {type(encoder).__name__}")
 

@@ -8,6 +8,7 @@ and memory usage estimates.
 
 import os
 import sys
+from typing import Any, cast
 
 import hydra
 from hydra.core.global_hydra import GlobalHydra
@@ -17,6 +18,7 @@ sys.path.append(os.getcwd())
 
 # Import project modules after adding to path
 from crackseg.model.factory import create_unet  # noqa
+from crackseg.model.base.abstract import UNetBase  # noqa
 
 
 def main() -> None:
@@ -31,14 +33,17 @@ def main() -> None:
     # Clean up hydra state
     GlobalHydra.instance().clear()
 
-    # Create the model
+    # Create the model and cast to correct type
     model = create_unet(cfg.model)
+    unet_model = cast(UNetBase, model)
 
     # Print model summary with example input shape
-    model.print_summary(input_shape=(1, 3, 512, 512))
+    unet_model.print_summary(input_shape=(1, 3, 512, 512))  # type: ignore
 
     # You can also get the summary as a dictionary for programmatic access
-    summary_dict = model.summary(input_shape=(1, 3, 512, 512))
+    summary_dict: dict[str, Any] = unet_model.summary(
+        input_shape=(1, 3, 512, 512)
+    )  # type: ignore
 
     # Example: Extract specific information
     total_params = summary_dict["parameters"]["total"]

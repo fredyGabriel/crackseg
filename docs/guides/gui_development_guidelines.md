@@ -39,7 +39,7 @@ Through comprehensive Task #4 verification, the CrackSeg GUI application has bee
 ### 📁 Directory Structure
 
 ```txt
-scripts/gui/
+gui/
 ├── app.py                 # Main Streamlit application entry point
 ├── pages/                 # Individual page components
 │   ├── home_page.py       # Landing page with navigation
@@ -391,9 +391,9 @@ Before committing GUI code, ensure:
 1. **✅ Quality Gates Pass**:
 
    ```bash
-   conda activate crackseg && python -m ruff check scripts/gui/ --fix
-   conda activate crackseg && black scripts/gui/
-   conda activate crackseg && basedpyright scripts/gui/
+   conda activate crackseg && python -m ruff check gui/ --fix
+   conda activate crackseg && black gui/
+   conda activate crackseg && basedpyright gui/
    ```
 
 2. **✅ Manual Testing**:

@@ -1,18 +1,32 @@
+"""
+Model import s catalog generator. This script analyzes Python files in
+the model directory and generates a catalog of all import statements
+for further analysis.
+"""
+
 import ast
 import json
 import os
+from typing import Any
+
+# Type definitions
+type ImportEntry = dict[str, Any]
+type FileList = list[str]
+type ImportCatalog = list[ImportEntry]
 
 project_root = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "..")
 )
 root_dir = os.path.join(project_root, "src", "model")
 pyfiles_path = os.path.join(os.path.dirname(__file__), "model_pyfiles.json")
-outfile = os.path.join(os.path.dirname(__file__), "model_imports_catalog.json")
+outfile = os.path.join(
+    os.path.dirname(__file__), "model_import s_catalog.json"
+)
 
 with open(pyfiles_path, encoding="utf-8") as f:
-    pyfiles = json.load(f)
+    pyfiles: FileList = json.load(f)
 
-catalog = []
+catalog: ImportCatalog = []
 
 for relpath in pyfiles:
     abspath = os.path.join(root_dir, relpath)
@@ -30,9 +44,9 @@ for relpath in pyfiles:
                     {
                         "file": relpath,
                         "line": node.lineno,
-                        "type": "import",
+                        "type": "import ",
                         "module": alias.name,
-                        "statement": f"import {alias.name}",
+                        "statement": f"import  {alias.name}",
                     }
                 )
         elif isinstance(node, ast.ImportFrom):
@@ -42,9 +56,9 @@ for relpath in pyfiles:
                     {
                         "file": relpath,
                         "line": node.lineno,
-                        "type": "from-import",
+                        "type": "from - import ",
                         "module": module,
-                        "statement": f"from {module} import {alias.name}",
+                        "statement": f"from  {module}  import  {alias.name}",
                     }
                 )
 

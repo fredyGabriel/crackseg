@@ -84,6 +84,25 @@ Historical and archived reports:
 - **Testing patterns** documented and standardized
 - **100% compliance** with quality standards (basedpyright, ruff, black)
 
+## 🧹 Recent Cleanup (January 2025)
+
+### Removed Obsolete Reports
+
+The following temporary and obsolete reports have been removed to improve navigation:
+
+- **Testing Reports**: `e2e_testing_results_4_4.md`, `manual_testing_results_4_3.md`, `subtask_4_3_completion_checklist.md`
+- **Organization Reports**: `reorganization_summary.md`, `legacy_folders_reorganization_summary.md`,
+  `organization_summary.md`
+
+### Benefits Achieved
+
+- **Cleaner Structure**: Removed 6 obsolete files (~50KB)
+- **Better Navigation**: Focus on current and relevant documentation
+- **Reduced Maintenance**: Less obsolete content to maintain
+- **Improved Clarity**: Clear distinction between current and historical content
+
+See `INVENTARIO_REPORTES.md` for complete cleanup documentation.
+
 ## 📝 Naming Conventions
 
 ### Report Types

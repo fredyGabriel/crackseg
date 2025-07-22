@@ -1,6 +1,6 @@
-"""Unit tests for advanced configuration page functionality.
-
-Tests the advanced config page public API without deep implementation details.
+"""
+Unit tests for advanced configuration page functionality. Tests the
+advanced config page public API without deep implementation details.
 """
 
 from typing import Any
@@ -31,7 +31,7 @@ class TestAdvancedConfigPage:
     """Test suite for advanced configuration page."""
 
     def test_advanced_config_page_import(self) -> None:
-        """Test that advanced config page can be imported successfully."""
+        """Test that advanced config page can be import ed successfully."""
         from gui.pages.advanced_config_page import page_advanced_config
 
         assert callable(page_advanced_config)

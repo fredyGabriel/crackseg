@@ -13,7 +13,7 @@ Refactored Architecture:
 - states: Shared state types and exceptions
 
 Example:
-    >>> from scripts.gui.utils.process import TrainingManager
+    >>> from gui.utils.process import TrainingManager
     >>> manager = TrainingManager()
     >>> success = manager.start_training(
     ...     config_path=Path("configs"),

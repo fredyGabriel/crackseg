@@ -1,8 +1,7 @@
-"""Workflow components for integration testing.
-
-This module provides reusable workflow components for GUI integration tests,
-including both standard workflow testing and comprehensive error scenario
-testing.
+"""
+Workflow components for integration testing. This module provides
+reusable workflow components for GUI integration tests, including both
+standard workflow testing and comprehensive error scenario testing.
 """
 
 from .component_interaction_workflow import ComponentInteractionWorkflow

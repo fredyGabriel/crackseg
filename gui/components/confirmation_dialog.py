@@ -12,7 +12,7 @@ from enum import Enum
 from typing import Any
 
 from crackseg.utils.logging import get_logger
-from scripts.gui.utils.performance_optimizer import (
+from gui.utils.performance_optimizer import (
     get_optimizer,
 )
 
@@ -281,14 +281,11 @@ class ConfirmationDialogFactory:
 # Import rendering functionality from separate module
 # This maintains backward compatibility while keeping file size under limits
 try:
-    from scripts.gui.components.confirmation_renderer import (
+    from gui.components.confirmation_renderer import (
         OptimizedConfirmationDialog,  # type: ignore
     )
-    from scripts.gui.components.confirmation_utils import (
+    from gui.components.confirmation_utils import (
         ConfirmationDialogHelper,  # type: ignore
-        activate_confirmation_dialog,
-        confirmation_dialog,
-        is_confirmation_dialog_active,
     )
 except ImportError:
     # Graceful fallback if renderer modules are not available

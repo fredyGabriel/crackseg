@@ -1,8 +1,7 @@
 """
-Model comparison section for the results page.
-
-This module handles the model comparison tab with side-by-side analysis,
-performance comparison tools, and model registry management.
+Model comparison section for the results page. This module handles the
+model comparison tab with side-by-side analysis, performance
+comparison tools, and model registry management.
 """
 
 from typing import Any
@@ -22,13 +21,10 @@ def render_comparison_tab(state: Any) -> None:
 
         st.markdown(
             """
-        **Planned Features:**
-        - Side-by-side metric comparison
-        - Visual prediction comparisons
-        - Performance trend analysis
-        - Best model recommendations
-        - Automated evaluation reports
-        """
+**Planned Features:** - Side-by-side metric comparison - Visual
+prediction comparisons - Performance trend analysis - Best model
+recommendations - Automated evaluation reports
+"""
         )
 
     with col2:

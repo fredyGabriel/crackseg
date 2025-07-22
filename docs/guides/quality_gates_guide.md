@@ -53,9 +53,9 @@ conda activate crackseg && basedpyright src/
 
 ```bash
 # Run all quality gates on GUI code
-conda activate crackseg && python -m ruff check scripts/gui/ --fix
-conda activate crackseg && black scripts/gui/
-conda activate crackseg && basedpyright scripts/gui/
+conda activate crackseg && python -m ruff check gui/ --fix
+conda activate crackseg && black gui/
+conda activate crackseg && basedpyright gui/
 ```
 
 #### Combined Quality Gates
@@ -79,10 +79,10 @@ The quality gates are enforced through GitHub Actions in `.github/workflows/qual
    - Basedpyright type checking on `src/` directory
 
 2. **GUI Quality Gates** (`quality-gates-gui`)
-   - Ruff linting on `scripts/gui/` directory
-   - Black formatting check on `scripts/gui/` directory
-   - Basedpyright type checking on `scripts/gui/` directory
-   - Detailed quality reporting
+   - Ruff linting on `gui/` directory
+   - Black formatting check on `gui/` directory
+   - Basedpyright type checking on `gui/` directory
+      - Detailed quality reporting
 
 3. **Test Coverage** (`test-coverage`)
    - Unit and integration test execution
@@ -115,7 +115,7 @@ Quality gates run automatically on:
 **Manual Fix Command**:
 
 ```bash
-conda activate crackseg && python -m ruff check scripts/gui/ --fix
+conda activate crackseg && python -m ruff check gui/ --fix
 ```
 
 ### 🎨 Black Formatting
@@ -131,7 +131,7 @@ conda activate crackseg && python -m ruff check scripts/gui/ --fix
 **Manual Fix Command**:
 
 ```bash
-conda activate crackseg && black scripts/gui/
+conda activate crackseg && black gui/
 ```
 
 ### 🔬 Basedpyright Type Checking
@@ -159,7 +159,7 @@ Before committing code, always run:
 
 ```bash
 # Quick quality check
-conda activate crackseg && python -m ruff check scripts/gui/ --fix && black scripts/gui/ && basedpyright scripts/gui/
+conda activate crackseg && python -m ruff check gui/ --fix && black gui/ && basedpyright gui/
 ```
 
 ### IDE Integration
@@ -199,7 +199,7 @@ black: The term 'black' is not recognized
 **Solution**: Always activate conda environment first
 
 ```bash
-conda activate crackseg && black scripts/gui/
+conda activate crackseg && black gui/
 ```
 
 #### Problem: Type checking errors
@@ -264,10 +264,10 @@ basedpyright: Cannot resolve import
 
 **Files Impacted**:
 
-- `scripts/gui/pages/home_page.py` - Function signature standardization
-- `scripts/gui/utils/log_parser.py` - Pandas DataFrame compatibility
-- `scripts/gui/utils/performance_optimizer.py` - Type annotations
-- `scripts/gui/utils/results/core.py` - Missing property implementation
+- `gui/pages/home_page.py` - Function signature standardization
+- `gui/utils/log_parser.py` - Pandas DataFrame compatibility
+- `gui/utils/performance_optimizer.py` - Type annotations
+- `gui/utils/results/core.py` - Missing property implementation
 - Multiple import and formatting fixes across GUI codebase
 
 ## Next Steps

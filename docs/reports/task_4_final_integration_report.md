@@ -123,9 +123,9 @@ CrackSeg Streamlit application. Through systematic execution of five subtasks, w
 
 ```bash
 # All critical quality gates passing:
-✅ conda activate crackseg && basedpyright scripts/gui/
-✅ conda activate crackseg && black scripts/gui/
-✅ conda activate crackseg && python -m ruff check scripts/gui/
+✅ conda activate crackseg && basedpyright gui/
+✅ conda activate crackseg && black gui/
+✅ conda activate crackseg && python -m ruff check gui/
 ```
 
 ### Documentation Quality

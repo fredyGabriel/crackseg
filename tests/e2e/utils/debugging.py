@@ -13,7 +13,8 @@ class E2EDebugger:
     """Comprehensive debugging utilities for E2E tests."""
 
     def __init__(self, driver: WebDriver, test_name: str = "unknown") -> None:
-        """Initialize the debugger with WebDriver instance.
+        """
+        Initialize the debugger with WebDriver instance.
 
         Args:
             driver: Selenium WebDriver instance
@@ -23,7 +24,8 @@ class E2EDebugger:
         self.test_name = test_name
 
     def inspect_sidebar_elements(self, verbose: bool = True) -> dict[str, Any]:
-        """Comprehensive inspection of sidebar elements and structure.
+        """
+        Comprehensive inspection of sidebar elements and structure.
 
         Args:
             verbose: Whether to print detailed debugging information
@@ -159,7 +161,8 @@ class E2EDebugger:
     def save_debug_report(
         self, output_dir: Path | str = "test-artifacts"
     ) -> Path | None:
-        """Save comprehensive debug report to file.
+        """
+        Save comprehensive debug report to file.
 
         Args:
             output_dir: Directory to save the debug report
@@ -270,7 +273,8 @@ class E2EDebugger:
     def wait_and_retry_navigation(
         self, page_name: str, max_attempts: int = 3, delay: float = 2.0
     ) -> bool:
-        """Retry navigation with debugging between attempts.
+        """
+        Retry navigation with debugging between attempts.
 
         Args:
             page_name: Name of page to navigate to
@@ -308,11 +312,126 @@ class E2EDebugger:
         )
         return False
 
+    def capture_failure_state(self, error_message: str = "") -> dict[str, Any]:
+        """Capture comprehensive failure state for debugging.
+
+        Args:
+            error_message: Error message that triggered the capture
+
+        Returns:
+            Dictionary containing captured failure state information
+        """
+        try:
+            timestamp = int(time.time())
+
+            failure_state = {
+                "timestamp": timestamp,
+                "test_name": self.test_name,
+                "error_message": error_message,
+                "browser_info": self._get_browser_info(),
+                "page_info": self._get_page_info(),
+                "streamlit_info": self._get_streamlit_info(),
+                "sidebar_inspection": self.inspect_sidebar_elements(
+                    verbose=False
+                ),
+                "screenshot_taken": False,
+                "page_source_captured": False,
+            }
+
+            # Try to take screenshot
+            try:
+                screenshot_path = (
+                    Path("test-artifacts")
+                    / f"failure_{self.test_name}_{timestamp}.png"
+                )
+                screenshot_path.parent.mkdir(exist_ok=True)
+
+                if self.driver.save_screenshot(str(screenshot_path)):
+                    failure_state["screenshot_path"] = str(screenshot_path)
+                    failure_state["screenshot_taken"] = True
+                    print(f"📸 Failure screenshot saved: {screenshot_path}")
+
+            except Exception as e:
+                failure_state["screenshot_error"] = str(e)
+                print(f"❌ Failed to capture screenshot: {e}")
+
+            # Try to capture page source
+            try:
+                source_path = (
+                    Path("test-artifacts")
+                    / f"failure_{self.test_name}_{timestamp}.html"
+                )
+                source_path.parent.mkdir(exist_ok=True)
+
+                with open(source_path, "w", encoding="utf-8") as f:
+                    f.write(self.driver.page_source)
+
+                failure_state["page_source_path"] = str(source_path)
+                failure_state["page_source_captured"] = True
+                print(f"📄 Page source saved: {source_path}")
+
+            except Exception as e:
+                failure_state["page_source_error"] = str(e)
+                print(f"❌ Failed to capture page source: {e}")
+
+            # Save failure state report
+            self._save_failure_state(failure_state)
+
+            print(f"🔍 Failure state captured for test '{self.test_name}'")
+            return failure_state
+
+        except Exception as e:
+            print(f"❌ Failed to capture failure state: {e}")
+            return {"error": str(e), "test_name": self.test_name}
+
+    def cleanup(self) -> bool:
+        """Clean up debugger resources and temporary files.
+
+        Returns:
+            True if cleanup was successful, False otherwise
+        """
+        try:
+            cleanup_successful = True
+
+            # Clear any stored state
+            if hasattr(self, "_debug_data"):
+                delattr(self, "_debug_data")
+
+            # Log cleanup completion
+            print(f"🧹 Debugger cleanup completed for test '{self.test_name}'")
+
+            return cleanup_successful
+
+        except Exception as e:
+            print(f"❌ Debugger cleanup failed: {e}")
+            return False
+
+    def _save_failure_state(self, failure_state: dict[str, Any]) -> None:
+        """Save failure state to JSON file.
+
+        Args:
+            failure_state: Failure state data to save
+        """
+        try:
+            timestamp = failure_state["timestamp"]
+            filename = f"failure_state_{self.test_name}_{timestamp}.json"
+            failure_file = Path("test-artifacts") / filename
+            failure_file.parent.mkdir(exist_ok=True)
+
+            with open(failure_file, "w", encoding="utf-8") as f:
+                json.dump(failure_state, f, indent=2, default=str)
+
+            print(f"💾 Failure state saved: {failure_file}")
+
+        except Exception as e:
+            print(f"❌ Failed to save failure state: {e}")
+
 
 def create_debugger(
     driver: WebDriver, test_name: str = "unknown"
 ) -> E2EDebugger:
-    """Factory function to create an E2EDebugger instance.
+    """
+    Factory function to create an E2EDebugger instance.
 
     Args:
         driver: Selenium WebDriver instance

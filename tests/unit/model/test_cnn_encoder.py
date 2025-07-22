@@ -1,5 +1,8 @@
 # ruff: noqa: PLR2004
+from typing import cast
+
 import torch
+from torch import nn
 
 from crackseg.model.encoder.cnn_encoder import CNNEncoder, EncoderBlock
 
@@ -7,19 +10,27 @@ from crackseg.model.encoder.cnn_encoder import CNNEncoder, EncoderBlock
 def test_cnnencoder_init():
     """Test initialization with different depths."""
     encoder_d3 = CNNEncoder(in_channels=3, init_features=16, depth=3)
-    assert len(encoder_d3.encoder_blocks) == 3
-    assert isinstance(encoder_d3.encoder_blocks[0], EncoderBlock)
-    assert encoder_d3.encoder_blocks[0].conv1.in_channels == 3
-    assert encoder_d3.encoder_blocks[0].conv1.out_channels == 16
-    assert encoder_d3.encoder_blocks[1].conv1.in_channels == 16
-    assert encoder_d3.encoder_blocks[1].conv1.out_channels == 32
-    assert encoder_d3.encoder_blocks[2].conv1.in_channels == 32
-    assert encoder_d3.encoder_blocks[2].conv1.out_channels == 64
+    encoder_blocks = cast(nn.ModuleList, encoder_d3.encoder_blocks)
+    assert len(encoder_blocks) == 3
+
+    # Cast individual blocks to EncoderBlock type
+    block_0 = cast(EncoderBlock, encoder_blocks[0])
+    block_1 = cast(EncoderBlock, encoder_blocks[1])
+    block_2 = cast(EncoderBlock, encoder_blocks[2])
+
+    assert isinstance(block_0, EncoderBlock)
+    assert hasattr(block_0, "conv1") and block_0.conv1.in_channels == 3
+    assert hasattr(block_0, "conv1") and block_0.conv1.out_channels == 16
+    assert hasattr(block_1, "conv1") and block_1.conv1.in_channels == 16
+    assert hasattr(block_1, "conv1") and block_1.conv1.out_channels == 32
+    assert hasattr(block_2, "conv1") and block_2.conv1.in_channels == 32
+    assert hasattr(block_2, "conv1") and block_2.conv1.out_channels == 64
     assert encoder_d3.out_channels == 64  # Channels before last pool
     assert encoder_d3.skip_channels == [16, 32, 64]
 
     encoder_d1 = CNNEncoder(in_channels=1, init_features=8, depth=1)
-    assert len(encoder_d1.encoder_blocks) == 1
+    encoder_blocks_d1 = cast(nn.ModuleList, encoder_d1.encoder_blocks)
+    assert len(encoder_blocks_d1) == 1
     assert encoder_d1.out_channels == 8
     assert encoder_d1.skip_channels == [8]
 

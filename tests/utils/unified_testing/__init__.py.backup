@@ -1,0 +1,73 @@
+"""
+Unified Testing Framework for CrackSeg Streamlit Application. This
+package consolidates GUI testing capabilities, combining functionality
+from: - gui_testing_framework.py (general testing, performance) -
+visual_testing_framework.py (visual regression, snapshots) -
+streamlit_test_helpers.py (specialized helpers, error testing) Public
+API providing unified access to all testing capabilities.
+"""
+
+from  collections.abc  import  Callable
+from  pathlib  import  Path
+from  typing  import   Any, TypeVar
+
+# Import all core components
+from  .core  import  (
+    PerformanceProfile,
+    TestInteractionResult,
+    UnifiedTestConfig,
+    create_comprehensive_test_config,
+    create_minimal_test_config,
+    create_performance_test_config,
+    create_visual_test_config,
+)
+from  .helpers  import  (
+    UnifiedConfigHelper,
+    UnifiedErrorTester,
+    assert_streamlit_interaction,
+)
+from  .mocking  import  UnifiedStreamlitMocker
+from  .performance  import  UnifiedPerformanceTester
+from  .visual  import  UnifiedVisualTester, VisualTestSnapshot
+
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+# Main unified testing class
+class UnifiedTestingFramework:
+    """Main unified testing framework combining all capabilities."""
+def __init__(self, config: UnifiedTestConfig | None = None) -> None:
+self.config = config or UnifiedTestConfig() self.mocker =
+UnifiedStreamlitMocker(self.config) self.performance =
+UnifiedPerformanceTester() self.error_tester = UnifiedErrorTester()
+self.config_helper = UnifiedConfigHelper() # Visual testing (optional)
+if self.config.enable_visual_regression: snapshots_dir =
+Path(self.config.snapshots_dir) self.visual =
+UnifiedVisualTester(snapshots_dir) else: self.visual = None def
+create_comprehensive_test_environment(self) -> dict[str, Any]:
+"""Create a comprehensive test environment with all capabilities."""
+        mock_st = self.mocker.create_comprehensive_streamlit_mock()
+
+        return {
+            "mock_streamlit": mock_st,
+            "mocker": self.mocker,
+            "performance": self.performance,
+            "visual": self.visual,
+            "error_tester": self.error_tester,
+            "config_helper": self.config_helper,
+        }
+
+
+# Export all public components
+__all__ = [
+    "UnifiedTestingFramework",
+    "UnifiedTestConfig",
+    "TestInteractionResult",
+    "PerformanceProfile",
+    "VisualTestSnapshot",
+    "create_minimal_test_config",
+    "create_performance_test_config",
+    "create_visual_test_config",
+    "create_comprehensive_test_config",
+    "assert_streamlit_interaction",
+]

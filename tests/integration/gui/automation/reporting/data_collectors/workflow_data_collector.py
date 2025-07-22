@@ -1,6 +1,6 @@
-"""Workflow scenario data collector.
-
-This module provides data collection for workflow scenarios from subtask 9.1.
+"""
+Workflow scenario data collector. This module provides data collection
+for workflow scenarios from subtask 9.1.
 """
 
 from typing import Any
@@ -10,10 +10,9 @@ class WorkflowDataCollector:
     """Collects workflow scenario data from subtask 9.1."""
 
     def collect_workflow_scenario_data(self) -> dict[str, Any]:
-        """Collect workflow scenario data from subtask 9.1.
-
-        Returns:
-            Workflow scenario testing data
+        """
+        Collect workflow scenario data from subtask 9.1. Returns: Workflow
+        scenario testing data
         """
         # Simulated data collection from workflow scenarios
         # In real implementation, this would query actual test results
@@ -37,10 +36,9 @@ class WorkflowDataCollector:
         }
 
     def collect_error_scenario_data(self) -> dict[str, Any]:
-        """Collect error scenario data from subtask 9.2.
-
-        Returns:
-            Error scenario testing data
+        """
+        Collect error scenario data from subtask 9.2. Returns: Error scenario
+        testing data
         """
         return {
             "total_error_scenarios": 12,
@@ -69,10 +67,9 @@ class WorkflowDataCollector:
         }
 
     def collect_session_state_data(self) -> dict[str, Any]:
-        """Collect session state data from subtask 9.3.
-
-        Returns:
-            Session state verification data
+        """
+        Collect session state data from subtask 9.3. Returns: Session state
+        verification data
         """
         return {
             "total_session_tests": 8,
@@ -90,10 +87,9 @@ class WorkflowDataCollector:
         }
 
     def collect_concurrent_operations_data(self) -> dict[str, Any]:
-        """Collect concurrent operations data from subtask 9.4.
-
-        Returns:
-            Concurrent operations testing data
+        """
+        Collect concurrent operations data from subtask 9.4. Returns:
+        Concurrent operations testing data
         """
         return {
             "total_concurrent_tests": 6,

@@ -1,8 +1,8 @@
-"""Configuration validation package.
-
-This package provides comprehensive YAML configuration validation with detailed
-error reporting and suggestions for fixes. It includes syntax validation,
-structure validation, type checking, and value constraints validation.
+"""
+Configuration validation package. This package provides comprehensive
+YAML configuration validation with detailed error reporting and
+suggestions for fixes. It includes syntax validation, structure
+validation, type checking, and value constraints validation.
 """
 
 import os
@@ -19,14 +19,10 @@ _yaml_validator = YAMLValidator()
 
 
 def validate_yaml_syntax(content: str) -> tuple[bool, str | None]:
-    """Validate YAML syntax without Hydra composition.
-
-    Args:
-        content: YAML content as a string.
-
-    Returns:
-        Tuple of (is_valid, error_message).
-        If valid, error_message is None.
+    """
+    Validate YAML syntax without Hydra composition. Args: content: YAML
+    content as a string. Returns: Tuple of (is_valid, error_message). If
+    valid, error_message is None.
     """
     try:
         yaml.safe_load(content)
@@ -47,13 +43,10 @@ def validate_yaml_syntax(content: str) -> tuple[bool, str | None]:
 
 
 def validate_yaml_advanced(content: str) -> tuple[bool, list[ValidationError]]:
-    """Perform advanced YAML validation with detailed error reporting.
-
-    Args:
-        content: YAML content as string.
-
-    Returns:
-        Tuple of (is_valid, list_of_validation_errors).
+    """
+    Perform advanced YAML validation with detailed error reporting. Args:
+    content: YAML content as string. Returns: Tuple of (is_valid,
+    list_of_validation_errors).
     """
     return _yaml_validator.comprehensive_validate(content)
 
@@ -61,13 +54,10 @@ def validate_yaml_advanced(content: str) -> tuple[bool, list[ValidationError]]:
 def validate_config_structure(
     config: dict[str, object],
 ) -> tuple[bool, list[ValidationError]]:
-    """Validate configuration structure and schema.
-
-    Args:
-        config: Parsed configuration dictionary.
-
-    Returns:
-        Tuple of (is_valid, list_of_validation_errors).
+    """
+    Validate configuration structure and schema. Args: config: Parsed
+    configuration dictionary. Returns: Tuple of (is_valid,
+    list_of_validation_errors).
     """
     return _yaml_validator.validate_structure(config)
 
@@ -75,13 +65,9 @@ def validate_config_structure(
 def validate_config_types(
     config: dict[str, object],
 ) -> tuple[bool, list[ValidationError]]:
-    """Validate configuration data types.
-
-    Args:
-        config: Parsed configuration dictionary.
-
-    Returns:
-        Tuple of (is_valid, list_of_validation_errors).
+    """
+    Validate configuration data types. Args: config: Parsed configuration
+    dictionary. Returns: Tuple of (is_valid, list_of_validation_errors).
     """
     return _yaml_validator.validate_types(config)
 
@@ -89,13 +75,10 @@ def validate_config_types(
 def validate_config_values(
     config: dict[str, object],
 ) -> tuple[bool, list[ValidationError]]:
-    """Validate configuration values and constraints.
-
-    Args:
-        config: Parsed configuration dictionary.
-
-    Returns:
-        Tuple of (is_valid, list_of_validation_errors).
+    """
+    Validate configuration values and constraints. Args: config: Parsed
+    configuration dictionary. Returns: Tuple of (is_valid,
+    list_of_validation_errors).
     """
     return _yaml_validator.validate_values(config)
 
@@ -103,15 +86,11 @@ def validate_config_values(
 def validate_with_hydra(
     config_path: str, config_name: str
 ) -> tuple[bool, str | None]:
-    """Validate configuration using Hydra composition.
-
-    Args:
-        config_path: Path to the configuration directory.
-        config_name: Name of the configuration file (without .yaml extension).
-
-    Returns:
-        Tuple of (is_valid, error_message).
-        If valid, error_message is None.
+    """
+    Validate configuration using Hydra composition. Args: config_path:
+    Path to the configuration directory. config_name: Name of the
+    configuration file (without .yaml extension). Returns: Tuple of
+    (is_valid, error_message). If valid, error_message is None.
     """
     # Clear any existing Hydra instance
     GlobalHydra.instance().clear()

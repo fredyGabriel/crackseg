@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 """
-Utility script to validate rule cross-references.
-
-This script checks that all mdc: links in consolidated-workspace-rules.mdc
-point to existing files, helping maintain the integrity of the rule system.
+Utility script to validate rule cross-references. This script checks
+that all mdc: links in consolidated-workspace-rules.mdc point to
+existing files, helping maintain the integrity of the rule system.
 """
 
 import re
 from pathlib import Path
 
+# Type definitions
+type LinkTuple = tuple[str, str]
+type LinkList = list[LinkTuple]
+type ResultDict = dict[str, list[str]]
 
-def extract_mdc_links(file_path: Path) -> list[tuple[str, str]]:
-    """Extract all mdc: links from a markdown file.
 
-    Args:
-        file_path: Path to the markdown file to scan
-
-    Returns:
-        List of tuples (link_text, file_path) for each mdc: link found
+def extract_mdc_links(file_path: Path) -> LinkList:
+    """
+    Extract all mdc: links from a markdown file. Args: file_path: Path to
+    the markdown file to scan Returns: List of tuples (link_text,
+    file_path) for each mdc: link found
     """
     if not file_path.exists():
         return []
@@ -29,14 +30,11 @@ def extract_mdc_links(file_path: Path) -> list[tuple[str, str]]:
     return matches
 
 
-def validate_rule_references(workspace_root: Path) -> dict[str, list[str]]:
-    """Validate all rule references in the consolidated workspace rules.
-
-    Args:
-        workspace_root: Root directory of the workspace
-
-    Returns:
-        Dictionary with 'valid' and 'broken' keys containing lists of refs
+def validate_rule_references(workspace_root: Path) -> ResultDict:
+    """
+    Validate all rule references in the consolidated workspace rules.
+    Args: workspace_root: Root directory of the workspace Returns:
+    Dictionary with 'valid' and 'broken' keys containing lists of refs
     """
     consolidated_rules = (
         workspace_root
@@ -53,8 +51,8 @@ def validate_rule_references(workspace_root: Path) -> dict[str, list[str]]:
         }
 
     links = extract_mdc_links(consolidated_rules)
-    valid_links = []
-    broken_links = []
+    valid_links: list[str] = []
+    broken_links: list[str] = []
 
     for link_text, file_path in links:
         # Convert mdc: path to actual file path

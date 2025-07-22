@@ -187,19 +187,19 @@ orchestration, and results visualization.
 
 ```python
 # Subdirectory Modules (Complete directories without tests):
-❌ scripts/gui/components/gallery/                     # Gallery components
-❌ scripts/gui/components/config_editor/               # Advanced config editor
-❌ scripts/gui/components/tensorboard/                 # TensorBoard integration
-❌ scripts/gui/utils/config/                          # Config utilities
-❌ scripts/gui/utils/reports/                         # Report generation
-❌ scripts/gui/utils/results/                         # Results processing
-❌ scripts/gui/utils/results_scanning/                # Results scanning
-❌ scripts/gui/utils/tensorboard/                     # TensorBoard utilities
-❌ scripts/gui/utils/run_manager/                     # Run management
-❌ scripts/gui/utils/process/                         # Process management
-❌ scripts/gui/utils/threading/                       # Threading utilities
-❌ scripts/gui/utils/streaming/                       # Data streaming
-❌ scripts/gui/utils/parsing/                         # Data parsing
+❌ gui/components/gallery/                     # Gallery components
+❌ gui/components/config_editor/               # Advanced config editor
+❌ gui/components/tensorboard/                 # TensorBoard integration
+❌ gui/utils/config/                          # Config utilities
+❌ gui/utils/reports/                         # Report generation
+❌ gui/utils/results/                         # Results processing
+❌ gui/utils/results_scanning/                # Results scanning
+❌ gui/utils/tensorboard/                     # TensorBoard utilities
+❌ gui/utils/run_manager/                     # Run management
+❌ gui/utils/process/                         # Process management
+❌ gui/utils/threading/                       # Threading utilities
+❌ gui/utils/streaming/                       # Data streaming
+❌ gui/utils/parsing/                         # Data parsing
 ```
 
 ## Risk Assessment

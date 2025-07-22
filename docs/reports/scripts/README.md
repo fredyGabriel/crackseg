@@ -1,6 +1,7 @@
 # Scripts and Examples - Reports
 
-This folder contains example files and configuration related to reports and documentation for the CrackSeg project.
+This folder contains example files and configuration related to reports and documentation for the
+CrackSeg project.
 
 ## Contents
 
@@ -32,7 +33,8 @@ cat docs/reports/scripts/hydra_examples.txt
 
 ## Notes
 
-- These files were moved from `scripts/reports/` to maintain a clear separation between analysis tools and documentation
+- These files were moved from `scripts/reports/` to maintain a clear separation between analysis
+tools and documentation
 - Analysis scripts remain in `scripts/reports/` as they are development tools, not documentation
 - The `.taskmaster/` structure is kept intact for compatibility
 

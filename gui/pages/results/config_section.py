@@ -1,15 +1,14 @@
 """
-Configuration section for the results page.
-
-This module handles the configuration panel for results display settings,
-including directory selection, validation settings, and display options.
+Configuration section for the results page. This module handles the
+configuration panel for results display settings, including directory
+selection, validation settings, and display options.
 """
 
 from pathlib import Path
 
 import streamlit as st
 
-from scripts.gui.utils.results import ValidationLevel
+from gui.utils.results import ValidationLevel
 
 
 def render_config_panel(predictions_dir: Path | None) -> None:

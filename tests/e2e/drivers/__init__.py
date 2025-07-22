@@ -1,15 +1,12 @@
-"""WebDriver management system for CrackSeg E2E testing.
-
-This module provides a hybrid driver management system that supports both
-Docker Grid and local WebDriver setups with automatic fallback capabilities.
-
-Key Features:
-- Docker-first approach leveraging existing Selenium Grid infrastructure
-- WebDriverManager fallback for local development
-- Automatic version compatibility checks
-- Driver lifecycle management and cleanup
-- Cross-browser support (Chrome, Firefox, Edge)
-- Integration with existing Docker orchestration
+"""
+WebDriver management system for CrackSeg E2E testing. This module
+provides a hybrid driver management system that supports both Docker
+Grid and local WebDriver setups with automatic fallback capabilities.
+Key Features: - Docker-first approach leveraging existing Selenium
+Grid infrastructure - WebDriverManager fallback for local development
+- Automatic version compatibility checks - Driver lifecycle management
+and cleanup - Cross-browser support (Chrome, Firefox, Edge) -
+Integration with existing Docker orchestration
 """
 
 from .config import BrowserType, DriverConfig, DriverMethod, WindowSize

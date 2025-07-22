@@ -1,37 +1,29 @@
-"""Unit tests for the health check system.
-
-This module tests the HealthCheckSystem class and related components
-to ensure correct functionality for Docker service monitoring.
-
-Author: CrackSeg Project
+"""
+Unit tests for the health check system. This module tests the
+HealthCheckSystem class and related components to ensure correct
+functionality for Docker service monitoring. Author: CrackSeg Project
 Version: 1.0 (Subtask 13.7)
 """
 
 import json
 import subprocess
-
-# Import the system under test
-import sys
 from datetime import datetime
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-# Configure pytest-asyncio
-pytest_plugins = ("pytest_asyncio",)
-
-# Add the health_check_system to path
-sys.path.append(str(Path(__file__).parents[3] / "tests" / "docker"))
-
-# Import after path modification
-from health_check_system import (  # noqa: E402
+# Import directly from docker directory (now in extraPaths)
+from health_check_system import (
     HealthCheckResult,
     HealthCheckSystem,
     HealthStatus,
     ServiceConfig,
     SystemHealthReport,
 )
+
+# Configure pytest-asyncio
+pytest_plugins = ("pytest_asyncio",)
 
 # =============================================================================
 # Test Fixtures
@@ -69,7 +61,7 @@ def sample_health_result() -> HealthCheckResult:
 @pytest.fixture
 def mock_config_file(tmp_path: Path) -> Path:
     """Create a temporary configuration file for testing."""
-    config_data = {
+    config_data: dict[str, dict[str, str | int | bool | list[str]]] = {
         "test-service": {
             "name": "test-service",
             "container_name": "test-container",
@@ -96,10 +88,8 @@ def health_system(mock_config_file: Path) -> HealthCheckSystem:
 
 
 # =============================================================================
-# Test Data Models
+# Test Data Models #
 # =============================================================================
-
-
 class TestServiceConfig:
     """Test the ServiceConfig data class."""
 
@@ -722,10 +712,8 @@ class TestMonitoringOperations:
         """Test starting and stopping monitoring."""
         # Initially not monitoring
         assert health_system.monitoring_active is False
-
         # Start monitoring (async method - just test flag)
         assert health_system.monitoring_active is False
-
         # Stop monitoring
         health_system.stop_monitoring()
         assert health_system.monitoring_active is False
@@ -794,7 +782,7 @@ class TestHealthCheckSystemIntegration:
     def test_configuration_merge_with_defaults(self, tmp_path: Path) -> None:
         """Test configuration merging with default values."""
         # Create partial config
-        partial_config = {
+        partial_config: dict[str, dict[str, str | int]] = {
             "custom-service": {
                 "name": "custom-service",
                 "container_name": "custom-container",

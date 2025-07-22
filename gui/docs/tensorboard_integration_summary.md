@@ -9,7 +9,7 @@ process management and secure integration.
 
 ### ✅ Completed Components (Subtasks 6.1, 6.2, 6.3)
 
-#### 1. TensorBoard Process Management (`scripts/gui/utils/tb_manager.py`)
+#### 1. TensorBoard Process Management (`gui/utils/tb_manager.py`)
 
 - **Professional TensorBoard lifecycle management** with thread-safe operations
 - **Complete state tracking** with `TensorBoardState` enum and status callbacks
@@ -25,7 +25,7 @@ process management and secure integration.
 - **Comprehensive port API** for allocation status, availability, and force release
 - **Port range configuration** (6006-6020) with customizable ranges
 
-#### 3. Iframe Embedding Component (`scripts/gui/components/tensorboard_component.py`)
+#### 3. Iframe Embedding Component (`gui/components/tensorboard_component.py`)
 
 - **Secure iframe embedding** using `st.components.v1.iframe`
 - **Complete UI integration** with status indicators and control buttons
@@ -36,14 +36,14 @@ process management and secure integration.
 
 ## Integration Points
 
-### Results Page (`scripts/gui/pages/results_page.py`)
+### Results Page (`gui/pages/results_page.py`)
 
 - **Primary TensorBoard tab** with full-featured interface
 - **Auto-discovery** of log directories from run configuration
 - **Complete control panel** with start/restart/stop operations
 - **Status monitoring** with health indicators and refresh capability
 
-### Training Page (`scripts/gui/pages/train_page.py`)
+### Training Page (`gui/pages/train_page.py`)
 
 - **Compact expandable interface** during active training
 - **Live monitoring** without disrupting training workflow
@@ -110,7 +110,7 @@ process management and secure integration.
 ## File Structure
 
 ```txt
-scripts/gui/
+gui/
 ├── components/
 │   └── tensorboard_component.py    # Main iframe embedding component
 ├── pages/

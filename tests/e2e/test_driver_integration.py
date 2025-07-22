@@ -1,7 +1,7 @@
-"""Integration test for hybrid WebDriver management system.
-
-This test demonstrates the new driver management system integrating with
-the existing CrackSeg E2E testing infrastructure, showing both Docker Grid
+"""
+Integration test for hybrid WebDriver management system. This test
+demonstrates the new driver management system integrating with the
+existing CrackSeg E2E testing infrastructure, showing both Docker Grid
 and WebDriverManager fallback capabilities.
 """
 
@@ -127,11 +127,11 @@ class TestHybridDriverManagement:
     def test_streamlit_application_compatibility(
         self, streamlit_url: str
     ) -> None:
-        """Test new driver system with actual Streamlit application.
-
-        This test verifies that the new driver management system works
-        correctly with the CrackSeg Streamlit application, maintaining
-        compatibility with existing test infrastructure.
+        """
+        Test new driver system with actual Streamlit application. This test
+        verifies that the new driver management system works correctly with
+        the CrackSeg Streamlit application, maintaining compatibility with
+        existing test infrastructure.
         """
         # Skip if Streamlit is not running (development environment)
         pytest.importorskip("requests")
@@ -246,9 +246,7 @@ class TestDockerGridIntegration:
 
     def test_docker_grid_availability_check(self) -> None:
         """Test Docker Grid availability detection."""
-        manager = HybridDriverManager()
-
-        # This should not raise an exception
+        manager = HybridDriverManager()  # This should not raise an exception
         is_available = manager.is_docker_grid_available()
         assert isinstance(is_available, bool)
 

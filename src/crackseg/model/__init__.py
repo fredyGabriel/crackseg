@@ -1,11 +1,8 @@
 """
-Model module initialization.
-
-Imports and exposes the main components and utilities from the model module:
-- Factory functions for creating model components
-- Configuration validation utilities
-- Abstract base models
-- Configuration schema dataclasses
+Model module initialization. Imports and exposes the main components
+and utilities from the model module: - Factory functions for creating
+model components - Configuration validation utilities - Abstract base
+models - Configuration schema dataclasses
 """
 
 # Abstract base model and factory functions

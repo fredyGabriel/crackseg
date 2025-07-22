@@ -1,8 +1,7 @@
 """
-Advanced configuration page with YAML editor for the CrackSeg application.
-
-This module provides an advanced configuration interface with
-Ace editor integration, live validation, and file management.
+Advanced configuration page with YAML editor for the CrackSeg
+application. This module provides an advanced configuration interface
+with Ace editor integration, live validation, and file management.
 """
 
 from pathlib import Path
@@ -10,11 +9,11 @@ from pathlib import Path
 import streamlit as st
 import yaml
 
-from scripts.gui.components.config_editor_component import (
+from gui.components.config_editor_component import (
     ConfigEditorComponent,
 )
-from scripts.gui.utils.gui_config import PAGE_CONFIG
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.gui_config import PAGE_CONFIG
+from gui.utils.session_state import SessionStateManager
 
 
 def page_advanced_config() -> None:
@@ -58,27 +57,12 @@ def page_advanced_config() -> None:
                 st.error(f"Error loading configuration: {str(e)}")
         elif not initial_content:
             # Provide default template when starting fresh
-            initial_content = """# CrackSeg Configuration Template
-# Edit this template to create your configuration
-
-defaults:
-  - data: default
-  - model: architectures/unet_cnn
-  - training: default
-
-experiment:
-  name: my_experiment
-  random_seed: 42
-
-# Training parameters
-training:
-  epochs: 50
-  optimizer:
-    lr: 0.001
-
-# Data parameters
-data:
-  batch_size: 8
+            initial_content = """
+# CrackSeg Configuration Template # Edit this template to create your
+configuration defaults: - data: default - model:
+architectures/unet_cnn - training: default experiment: name:
+my_experiment random_seed: 42 # Training parameters training: epochs:
+50 optimizer: lr: 0.001 # Data parameters data: batch_size: 8
 """
 
         # Render the Ace editor
@@ -94,7 +78,7 @@ data:
 
         with col1:
             if st.button("Validate", use_container_width=True):
-                from scripts.gui.utils.config_io import validate_yaml_advanced
+                from gui.utils.config.validation import validate_yaml_advanced
 
                 is_valid, errors = validate_yaml_advanced(editor_content)
 
@@ -187,45 +171,17 @@ data:
         st.markdown("### Configuration Templates")
 
         templates = {
-            "Basic U-Net": """defaults:
-  - data: default
-  - model: architectures/unet_cnn
-  - training: default
-
-experiment:
-  name: unet_basic
-  random_seed: 42
-
-training:
-  epochs: 50
-  optimizer:
-    lr: 0.001
-
-data:
-  batch_size: 8
+            "Basic U-Net": """
+defaults: - data: default - model: architectures/unet_cnn - training:
+default experiment: name: unet_basic random_seed: 42 training: epochs:
+50 optimizer: lr: 0.001 data: batch_size: 8
 """,
-            "Advanced SwinUNet": """defaults:
-  - data: default
-  - model: architectures/unet_swin
-  - training: default
-
-experiment:
-  name: swin_unet_advanced
-  random_seed: 42
-
-model:
-  encoder:
-    pretrained: true
-    img_size: 224
-
-training:
-  epochs: 100
-  use_amp: true
-  gradient_accumulation_steps: 4
-
-data:
-  batch_size: 4
-  image_size: [224, 224]
+            "Advanced SwinUNet": """
+defaults: - data: default - model: architectures/unet_swin - training:
+default experiment: name: swin_unet_advanced random_seed: 42 model:
+encoder: pretrained: true img_size: 224 training: epochs: 100 use_amp:
+true gradient_accumulation_steps: 4 data: batch_size: 4 image_size:
+[224, 224]
 """,
         }
 

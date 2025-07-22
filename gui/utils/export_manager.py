@@ -13,7 +13,7 @@ from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from scripts.gui.utils.results import ResultTriplet, TripletHealth
+from gui.utils.results import ResultTriplet, TripletHealth
 
 logger = logging.getLogger(__name__)
 

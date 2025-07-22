@@ -1,7 +1,7 @@
-"""Test data factories package.
-
-This package provides modular data factories for E2E testing,
-including configuration, image, model, and coordination factories.
+"""
+Test data factories package. This package provides modular data
+factories for E2E testing, including configuration, image, model, and
+coordination factories.
 """
 
 from .base import BaseDataFactory, DataFactory, TestData

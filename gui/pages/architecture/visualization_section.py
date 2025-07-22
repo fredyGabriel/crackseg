@@ -1,8 +1,7 @@
 """
-Architecture visualization section for the architecture page.
-
-This module handles architecture diagram generation and display,
-including Graphviz integration and error handling.
+Architecture visualization section for the architecture page. This
+module handles architecture diagram generation and display, including
+Graphviz integration and error handling.
 """
 
 import logging
@@ -10,14 +9,14 @@ from pathlib import Path
 
 import streamlit as st
 
-from scripts.gui.components.loading_spinner import LoadingSpinner
-from scripts.gui.utils.architecture_viewer import (
+from gui.components.loading_spinner import LoadingSpinner
+from gui.utils.architecture_viewer import (
     ArchitectureViewerError,
     GraphvizNotInstalledError,
     display_graphviz_installation_help,
     get_architecture_viewer,
 )
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 

@@ -1,8 +1,9 @@
-"""Session state mixin for modular integration testing.
-
-This module provides reusable session state testing patterns that can be mixed
-into workflow components to add comprehensive session state verification
-capabilities. Builds on the workflow and error testing foundation from 9.1/9.2.
+"""
+Session state mixin for modular integration testing. This module
+provides reusable session state testing patterns that can be mixed
+into workflow components to add comprehensive session state
+verification capabilities. Builds on the workflow and error testing
+foundation from 9.1/9.2.
 """
 
 import json
@@ -19,19 +20,17 @@ class SessionStateTestUtilities(Protocol):
 
 
 class SessionStateMixin:
-    """Mixin providing reusable session state testing patterns for workflow
-    components."""
+    """
+    Mixin providing reusable session state testing patterns for workflow
+    components.
+    """
 
     def create_session_state_proxy(
         self, initial_state: dict[str, Any] | None = None
     ) -> dict[str, Any]:
-        """Create a proxy for session state testing.
-
-        Args:
-            initial_state: Initial state values
-
-        Returns:
-            Session state proxy dictionary
+        """
+        Create a proxy for session state testing. Args: initial_state: Initial
+        state values Returns: Session state proxy dictionary
         """
         proxy = initial_state.copy() if initial_state else {}
         default_keys = {
@@ -53,14 +52,10 @@ class SessionStateMixin:
         session_proxy: dict[str, Any],
         state_transitions: list[dict[str, Any]],
     ) -> dict[str, Any]:
-        """Simulate session state persistence across multiple operations.
-
-        Args:
-            session_proxy: Session state proxy
-            state_transitions: List of state changes to apply
-
-        Returns:
-            Persistence test results
+        """
+        Simulate session state persistence across multiple operations. Args:
+        session_proxy: Session state proxy state_transitions: List of state
+        changes to apply Returns: Persistence test results
         """
         persistence_result: dict[str, Any] = {
             "initial_state": session_proxy.copy(),
@@ -109,14 +104,10 @@ class SessionStateMixin:
         session_proxy: dict[str, Any],
         transition_scenario: str,
     ) -> dict[str, Any]:
-        """Test session state transitions for specific scenarios.
-
-        Args:
-            session_proxy: Session state proxy
-            transition_scenario: Type of transition to test
-
-        Returns:
-            Transition test results
+        """
+        Test session state transitions for specific scenarios. Args:
+        session_proxy: Session state proxy transition_scenario: Type of
+        transition to test Returns: Transition test results
         """
         # Initialize with explicit list types
         expected_transitions: list[str] = []
@@ -167,15 +158,11 @@ class SessionStateMixin:
         use_function: Callable[[dict[str, Any]], Any],
         cleanup_function: Callable[[dict[str, Any]], Any],
     ) -> dict[str, Any]:
-        """Test complete session state lifecycle.
-
-        Args:
-            create_function: Function to create session state
-            use_function: Function to use session state
-            cleanup_function: Function to cleanup session state
-
-        Returns:
-            Lifecycle test results
+        """
+        Test complete session state lifecycle. Args: create_function: Function
+        to create session state use_function: Function to use session state
+        cleanup_function: Function to cleanup session state Returns: Lifecycle
+        test results
         """
         lifecycle_result: dict[str, Any] = {
             "creation_successful": False,
@@ -214,13 +201,10 @@ class SessionStateMixin:
     def create_session_state_snapshot(
         self, session_proxy: dict[str, Any]
     ) -> dict[str, Any]:
-        """Create a deep snapshot of session state for comparison.
-
-        Args:
-            session_proxy: Session state proxy
-
-        Returns:
-            Deep copy snapshot with metadata
+        """
+        Create a deep snapshot of session state for comparison. Args:
+        session_proxy: Session state proxy Returns: Deep copy snapshot with
+        metadata
         """
         import copy
 
@@ -235,14 +219,9 @@ class SessionStateMixin:
     def compare_session_state_snapshots(
         self, snapshot1: dict[str, Any], snapshot2: dict[str, Any]
     ) -> dict[str, Any]:
-        """Compare two session state snapshots.
-
-        Args:
-            snapshot1: First snapshot
-            snapshot2: Second snapshot
-
-        Returns:
-            Comparison results
+        """
+        Compare two session state snapshots. Args: snapshot1: First snapshot
+        snapshot2: Second snapshot Returns: Comparison results
         """
         # Create explicit typed lists to prevent type inference issues
         keys_added: list[str] = []
@@ -290,13 +269,9 @@ class SessionStateMixin:
     def _validate_session_state_consistency(
         self, session_proxy: dict[str, Any]
     ) -> bool:
-        """Validate session state consistency.
-
-        Args:
-            session_proxy: Session state to validate
-
-        Returns:
-            True if state is consistent
+        """
+        Validate session state consistency. Args: session_proxy: Session state
+        to validate Returns: True if state is consistent
         """
         try:
             if "_crackseg_state" in session_proxy:

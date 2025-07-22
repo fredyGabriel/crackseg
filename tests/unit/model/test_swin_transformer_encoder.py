@@ -95,17 +95,15 @@ def test_swintransformerencoder_variable_input(
     handle_mode: str, input_size: tuple[int, int]
 ) -> None:
     """
-    Test forward pass with different input sizes and handling modes.
-
-    For handle_mode='resize', the encoder resizes any input to the expected
+    Test forward pass with different input sizes and handling modes. For
+    handle_mode='resize', the encoder resizes any input to the expected
     size. For handle_mode='pad', the encoder currently only supports input
     sizes that exactly match the model's expected img_size (default: 256).
-    If the input size does not match, the test is skipped.
-
-    This skip is intentional and documents the current limitation of the
-    SwinTransformerEncoder: dynamic padding for arbitrary input sizes is not
-    implemented in 'pad' mode. If this changes in the future, this test
-    should be updated to remove the skip and check the new behavior.
+    If the input size does not match, the test is skipped. This skip is
+    intentional and documents the current limitation of the
+    SwinTransformerEncoder: dynamic padding for arbitrary input sizes is
+    not implemented in 'pad' mode. If this changes in the future, this
+    test should be updated to remove the skip and check the new behavior.
     """
     batch_size = 2
     in_channels = 3
@@ -323,7 +321,7 @@ def test_swintransformerencoder_memory_usage():
     mem_before = torch.cuda.memory_allocated() / (1024 * 1024)  # MB
 
     # Forward pass
-    bottleneck, skip_connections = encoder(x)
+    _, _ = encoder(x)
 
     # Record memory after forward pass
     torch.cuda.synchronize()

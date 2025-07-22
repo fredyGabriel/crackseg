@@ -1,33 +1,31 @@
 """
-Configuration page for the CrackSeg application.
-
-This module contains the configuration dashboard content for setting up
-experiments and loading model configurations.
+Configuration page for the CrackSeg application. This module contains
+the configuration dashboard content for setting up experiments and
+loading model configurations.
 """
 
 from pathlib import Path
 
 import streamlit as st
 
-from scripts.gui.components.config_editor_component import (
+from gui.components.config_editor_component import (
     ConfigEditorComponent,
 )
-from scripts.gui.components.file_browser import FileBrowser
-from scripts.gui.components.file_upload_component import FileUploadComponent
-from scripts.gui.components.header_component import render_header
-from scripts.gui.utils.gui_config import PAGE_CONFIG
-from scripts.gui.utils.save_dialog import SaveDialogManager
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.components.file_browser import FileBrowser
+from gui.components.file_upload_component import FileUploadComponent
+from gui.components.header_component import render_header
+from gui.utils.gui_config import PAGE_CONFIG
+from gui.utils.save_dialog import SaveDialogManager
+from gui.utils.session_state import SessionStateManager
 
 
 def page_config() -> None:
     """
-    Renders the main configuration page for the application.
-
-    This page is organized into collapsible sections for clarity:
-    1.  **Model Configuration**: Load configs via file browser or upload.
-    2.  **Editor & Validation**: Edit loaded configs and save changes.
-    3.  **Output & Run Directory**: Set the destination for training outputs.
+    Renders the main configuration page for the application. This page is
+    organized into collapsible sections for clarity: 1. **Model
+    Configuration**: Load configs via file browser or upload. 2. **Editor
+    & Validation**: Edit loaded configs and save changes. 3. **Output &
+    Run Directory**: Set the destination for training outputs.
     """
     st.title(PAGE_CONFIG["Config"]["title"])
     state = SessionStateManager.get()
@@ -35,9 +33,9 @@ def page_config() -> None:
 
     st.markdown(
         """
-        Configure your experiment by loading a YAML file, setting an output
-        directory, and validating the setup before training.
-        """
+Configure your experiment by loading a YAML file, setting an output
+directory, and validating the setup before training.
+"""
     )
 
     # --- Expander 1: Model Configuration ---
@@ -157,11 +155,9 @@ def page_config() -> None:
 
         st.markdown(
             """
-            **The run directory will store:**
-            - Trained models and checkpoints
-            - Training logs and metrics
-            - Evaluation results and visualizations
-            """
+**The run directory will store:** - Trained models and checkpoints -
+Training logs and metrics - Evaluation results and visualizations
+"""
         )
 
         run_dir_input = st.text_input(

@@ -23,7 +23,7 @@ def test_evaluate_model_empty_dataloader():
     loader = DataLoader(EmptyDataset(), batch_size=1)
     metrics = {"dummy": lambda o, t: torch.tensor(1.0)}
     config = OmegaConf.create({})
-    results, (inputs, targets, outputs) = evaluate_model(
+    results, (inputs, _, _) = evaluate_model(
         model, loader, metrics, torch.device("cpu"), config=config
     )
     assert isinstance(results, dict)

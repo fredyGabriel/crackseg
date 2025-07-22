@@ -1,7 +1,7 @@
-"""Model data factory for E2E testing.
-
-This module provides PyTorch model checkpoint generation for testing
-model loading and compatibility scenarios.
+"""
+Model data factory for E2E testing. This module provides PyTorch model
+checkpoint generation for testing model loading and compatibility
+scenarios.
 """
 
 import tempfile
@@ -23,16 +23,12 @@ class ModelDataFactory(BaseDataFactory):
         corrupt_data: bool = False,
         **kwargs: Any,
     ) -> TestData:
-        """Generate test model checkpoint data.
-
-        Args:
-            model_type: Type of model checkpoint ('simple', 'complex')
-            include_optimizer: Whether to include optimizer state
-            corrupt_data: Whether to generate corrupted checkpoint
-            **kwargs: Additional model parameters
-
-        Returns:
-            TestData containing generated model checkpoint
+        """
+        Generate test model checkpoint data. Args: model_type: Type of model
+        checkpoint ('simple', 'complex') include_optimizer: Whether to include
+        optimizer state corrupt_data: Whether to generate corrupted checkpoint
+        **kwargs: Additional model parameters Returns: TestData containing
+        generated model checkpoint
         """
         # Generate model state
         if model_type == "simple":

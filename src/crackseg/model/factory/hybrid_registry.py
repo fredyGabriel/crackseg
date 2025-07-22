@@ -186,7 +186,8 @@ class HybridRegistry:
         # Create a dummy class for registration since architecture_registry
         # expects a class to register
         # Update import to reflect new structure
-        # from crackseg.model.base.abstract import UNetBase # Esta ya está arriba
+        # from crackseg.model.base.abstract import UNetBase
+        # Esta ya está arriba
 
         class DummyArchitectureForRegistration(
             UNetBase

@@ -1,8 +1,7 @@
 """
-Integration test for Swin-UNet architecture
-(SwinTransformerEncoder + CNNDecoder).
-
-This test validates the Swin encoder and the CNN decoder separately.
+Integration test for Swin-UNet architecture (SwinTransformerEncoder +
+CNNDecoder). This test validates the Swin encoder and the CNN decoder
+separately.
 """
 
 import torch

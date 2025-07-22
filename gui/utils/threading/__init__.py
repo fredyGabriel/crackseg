@@ -11,7 +11,7 @@ Refactored Architecture:
 - ui_wrapper: Main UIResponsiveWrapper for background execution
 
 Example:
-    >>> from scripts.gui.utils.threading import UIResponsiveWrapper
+    >>> from  scripts.gui.utils.threading  import  UIResponsiveWrapper
     >>> wrapper = UIResponsiveWrapper()
     >>> result = wrapper.execute_with_progress(
     ...     func=expensive_function,

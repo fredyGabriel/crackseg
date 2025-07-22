@@ -1,9 +1,8 @@
-"""Session management mixins for BaseE2ETest integration.
-
-This module provides mixins that integrate session state management
-capabilities
-with the BaseE2ETest class, following the established mixin pattern used
-throughout the E2E testing framework.
+"""
+Session management mixins for BaseE2ETest integration. This module
+provides mixins that integrate session state management capabilities
+with the BaseE2ETest class, following the established mixin pattern
+used throughout the E2E testing framework.
 """
 
 import logging
@@ -20,10 +19,10 @@ logger = logging.getLogger(__name__)
 
 
 class SessionManagementMixin:
-    """Main session management mixin for BaseE2ETest integration.
-
-    Provides comprehensive session state management including cookies,
-    storage, and state validation for E2E tests.
+    """
+    Main session management mixin for BaseE2ETest integration. Provides
+    comprehensive session state management including cookies, storage, and
+    state validation for E2E tests.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -46,16 +45,10 @@ class SessionManagementMixin:
         value: str,
         **kwargs: Any,
     ) -> bool:
-        """Set a cookie with comprehensive options.
-
-        Args:
-            driver: WebDriver instance
-            name: Cookie name
-            value: Cookie value
-            **kwargs: Additional cookie options
-
-        Returns:
-            True if cookie was set successfully
+        """
+        Set a cookie with comprehensive options. Args: driver: WebDriver
+        instance name: Cookie name value: Cookie value **kwargs: Additional
+        cookie options Returns: True if cookie was set successfully
         """
         success = self._cookie_manager.set_cookie(
             driver, name, value, **kwargs
@@ -70,14 +63,10 @@ class SessionManagementMixin:
         return success
 
     def get_cookie(self, driver: WebDriver, name: str) -> CookieData | None:
-        """Get a specific cookie by name.
-
-        Args:
-            driver: WebDriver instance
-            name: Cookie name to retrieve
-
-        Returns:
-            CookieData object if found, None otherwise
+        """
+        Get a specific cookie by name. Args: driver: WebDriver instance name:
+        Cookie name to retrieve Returns: CookieData object if found, None
+        otherwise
         """
         cookie = self._cookie_manager.get_cookie(driver, name)
 
@@ -90,14 +79,9 @@ class SessionManagementMixin:
         return cookie
 
     def delete_cookie(self, driver: WebDriver, name: str) -> bool:
-        """Delete a specific cookie.
-
-        Args:
-            driver: WebDriver instance
-            name: Cookie name to delete
-
-        Returns:
-            True if cookie was deleted successfully
+        """
+        Delete a specific cookie. Args: driver: WebDriver instance name:
+        Cookie name to delete Returns: True if cookie was deleted successfully
         """
         success = self._cookie_manager.delete_cookie(driver, name)
 
@@ -110,14 +94,10 @@ class SessionManagementMixin:
         return success
 
     def backup_cookies(self, driver: WebDriver, key: str = "default") -> bool:
-        """Backup current cookies for later restoration.
-
-        Args:
-            driver: WebDriver instance
-            key: Backup identifier key
-
-        Returns:
-            True if backup was successful
+        """
+        Backup current cookies for later restoration. Args: driver: WebDriver
+        instance key: Backup identifier key Returns: True if backup was
+        successful
         """
         success = self._cookie_manager.backup_cookies(driver, key)
 
@@ -130,14 +110,9 @@ class SessionManagementMixin:
         return success
 
     def restore_cookies(self, driver: WebDriver, key: str = "default") -> bool:
-        """Restore previously backed up cookies.
-
-        Args:
-            driver: WebDriver instance
-            key: Backup identifier key
-
-        Returns:
-            True if restoration was successful
+        """
+        Restore previously backed up cookies. Args: driver: WebDriver instance
+        key: Backup identifier key Returns: True if restoration was successful
         """
         success = self._cookie_manager.restore_cookies(driver, key)
 
@@ -157,16 +132,10 @@ class SessionManagementMixin:
         value: Any,
         storage_type: StorageType = StorageType.LOCAL,
     ) -> bool:
-        """Set an item in the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            key: Storage key
-            value: Value to store
-            storage_type: Type of storage
-
-        Returns:
-            True if item was set successfully
+        """
+        Set an item in the specified storage. Args: driver: WebDriver instance
+        key: Storage key value: Value to store storage_type: Type of storage
+        Returns: True if item was set successfully
         """
         success = self._storage_manager.set_item(
             driver, key, value, storage_type
@@ -187,16 +156,11 @@ class SessionManagementMixin:
         storage_type: StorageType = StorageType.LOCAL,
         default: Any = None,
     ) -> Any:
-        """Get an item from the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            key: Storage key
-            storage_type: Type of storage
-            default: Default value if key not found
-
-        Returns:
-            Deserialized value or default if not found
+        """
+        Get an item from the specified storage. Args: driver: WebDriver
+        instance key: Storage key storage_type: Type of storage default:
+        Default value if key not found Returns: Deserialized value or default
+        if not found
         """
         value = self._storage_manager.get_item(
             driver, key, storage_type, default
@@ -216,15 +180,10 @@ class SessionManagementMixin:
         key: str,
         storage_type: StorageType = StorageType.LOCAL,
     ) -> bool:
-        """Remove an item from the specified storage.
-
-        Args:
-            driver: WebDriver instance
-            key: Storage key to remove
-            storage_type: Type of storage
-
-        Returns:
-            True if item was removed successfully
+        """
+        Remove an item from the specified storage. Args: driver: WebDriver
+        instance key: Storage key to remove storage_type: Type of storage
+        Returns: True if item was removed successfully
         """
         success = self._storage_manager.remove_item(driver, key, storage_type)
 
@@ -243,14 +202,10 @@ class SessionManagementMixin:
         driver: WebDriver,
         include_metadata: bool = True,
     ) -> SessionSnapshot:
-        """Capture complete session state snapshot.
-
-        Args:
-            driver: WebDriver instance
-            include_metadata: Whether to include additional metadata
-
-        Returns:
-            SessionSnapshot containing complete state
+        """
+        Capture complete session state snapshot. Args: driver: WebDriver
+        instance include_metadata: Whether to include additional metadata
+        Returns: SessionSnapshot containing complete state
         """
         snapshot = self._session_manager.capture_session_snapshot(
             driver, include_metadata
@@ -270,16 +225,11 @@ class SessionManagementMixin:
         strict: bool = True,
         timeout: float = 5.0,
     ) -> bool:
-        """Validate current session state against expected values.
-
-        Args:
-            driver: WebDriver instance
-            expected_state: Expected state values
-            strict: Whether to require exact matches
-            timeout: Timeout for state stabilization
-
-        Returns:
-            True if validation passes
+        """
+        Validate current session state against expected values. Args: driver:
+        WebDriver instance expected_state: Expected state values strict:
+        Whether to require exact matches timeout: Timeout for state
+        stabilization Returns: True if validation passes
         """
         try:
             success = self._session_manager.validate_session_state(
@@ -311,15 +261,10 @@ class SessionManagementMixin:
         snapshot: SessionSnapshot,
         navigate_to_url: bool = True,
     ) -> bool:
-        """Restore session state from snapshot.
-
-        Args:
-            driver: WebDriver instance
-            snapshot: Session snapshot to restore
-            navigate_to_url: Whether to navigate to snapshot URL
-
-        Returns:
-            True if restoration was successful
+        """
+        Restore session state from snapshot. Args: driver: WebDriver instance
+        snapshot: Session snapshot to restore navigate_to_url: Whether to
+        navigate to snapshot URL Returns: True if restoration was successful
         """
         success = self._session_manager.restore_session_state(
             driver, snapshot, navigate_to_url
@@ -336,10 +281,10 @@ class SessionManagementMixin:
 
 
 class MultiTabSessionMixin:
-    """Multi-tab session management mixin.
-
-    Provides utilities for managing session state across multiple browser
-    tabs and windows, including tab coordination and state synchronization.
+    """
+    Multi-tab session management mixin. Provides utilities for managing
+    session state across multiple browser tabs and windows, including tab
+    coordination and state synchronization.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -359,15 +304,10 @@ class MultiTabSessionMixin:
         url: str,
         tab_name: str | None = None,
     ) -> str:
-        """Open a new tab and navigate to URL.
-
-        Args:
-            driver: WebDriver instance
-            url: URL to navigate to in new tab
-            tab_name: Optional name for the tab
-
-        Returns:
-            Tab handle for the new tab
+        """
+        Open a new tab and navigate to URL. Args: driver: WebDriver instance
+        url: URL to navigate to in new tab tab_name: Optional name for the tab
+        Returns: Tab handle for the new tab
         """
         # Store current tab handle
         original_handle = driver.current_window_handle
@@ -399,14 +339,10 @@ class MultiTabSessionMixin:
         driver: WebDriver,
         tab_identifier: str,
     ) -> bool:
-        """Switch to a specific tab.
-
-        Args:
-            driver: WebDriver instance
-            tab_identifier: Tab name or handle
-
-        Returns:
-            True if switch was successful
+        """
+        Switch to a specific tab. Args: driver: WebDriver instance
+        tab_identifier: Tab name or handle Returns: True if switch was
+        successful
         """
         try:
             # Try as tab name first
@@ -438,15 +374,10 @@ class MultiTabSessionMixin:
         tab_identifier: str,
         switch_to_remaining: bool = True,
     ) -> bool:
-        """Close a specific tab.
-
-        Args:
-            driver: WebDriver instance
-            tab_identifier: Tab name or handle
-            switch_to_remaining: Whether to switch to remaining tab
-
-        Returns:
-            True if close was successful
+        """
+        Close a specific tab. Args: driver: WebDriver instance tab_identifier:
+        Tab name or handle switch_to_remaining: Whether to switch to remaining
+        tab Returns: True if close was successful
         """
         try:
             # Get handle
@@ -480,10 +411,10 @@ class MultiTabSessionMixin:
 
 
 class StreamlitSessionMixin:
-    """Streamlit-specific session management mixin.
-
-    Provides specialized utilities for managing Streamlit application session
-    state, including CrackSeg-specific workflows and state validation.
+    """
+    Streamlit-specific session management mixin. Provides specialized
+    utilities for managing Streamlit application session state, including
+    CrackSeg-specific workflows and state validation.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -501,14 +432,10 @@ class StreamlitSessionMixin:
         driver: WebDriver,
         timeout: float = 10.0,
     ) -> dict[str, Any]:
-        """Get Streamlit session_state.
-
-        Args:
-            driver: WebDriver instance
-            timeout: Timeout for session state retrieval
-
-        Returns:
-            Dictionary containing session state
+        """
+        Get Streamlit session_state. Args: driver: WebDriver instance timeout:
+        Timeout for session state retrieval Returns: Dictionary containing
+        session state
         """
         state = self._streamlit_manager.get_streamlit_session_state(
             driver, timeout
@@ -529,16 +456,11 @@ class StreamlitSessionMixin:
         value: Any,
         wait_for_rerun: bool = True,
     ) -> bool:
-        """Set a value in Streamlit session_state.
-
-        Args:
-            driver: WebDriver instance
-            key: Session state key
-            value: Value to set
-            wait_for_rerun: Whether to wait for Streamlit rerun
-
-        Returns:
-            True if value was set successfully
+        """
+        Set a value in Streamlit session_state. Args: driver: WebDriver
+        instance key: Session state key value: Value to set wait_for_rerun:
+        Whether to wait for Streamlit rerun Returns: True if value was set
+        successfully
         """
         success = self._streamlit_manager.set_streamlit_session_value(
             driver, key, value, wait_for_rerun
@@ -559,16 +481,11 @@ class StreamlitSessionMixin:
         model_settings: dict[str, Any] | None = None,
         training_settings: dict[str, Any] | None = None,
     ) -> bool:
-        """Setup CrackSeg application test state.
-
-        Args:
-            driver: WebDriver instance
-            config_overrides: Configuration values to set
-            model_settings: Model settings to configure
-            training_settings: Training settings to configure
-
-        Returns:
-            True if setup was successful
+        """
+        Setup CrackSeg application test state. Args: driver: WebDriver
+        instance config_overrides: Configuration values to set model_settings:
+        Model settings to configure training_settings: Training settings to
+        configure Returns: True if setup was successful
         """
         success = self._streamlit_manager.setup_crackseg_test_state(
             driver, config_overrides, model_settings, training_settings
@@ -589,16 +506,11 @@ class StreamlitSessionMixin:
         expected_model_state: dict[str, Any] | None = None,
         expected_training_state: dict[str, Any] | None = None,
     ) -> bool:
-        """Validate CrackSeg application-specific state.
-
-        Args:
-            driver: WebDriver instance
-            expected_config: Expected configuration state
-            expected_model_state: Expected model state
-            expected_training_state: Expected training state
-
-        Returns:
-            True if validation passes
+        """
+        Validate CrackSeg application-specific state. Args: driver: WebDriver
+        instance expected_config: Expected configuration state
+        expected_model_state: Expected model state expected_training_state:
+        Expected training state Returns: True if validation passes
         """
         success = self._streamlit_manager.validate_crackseg_app_state(
             driver,

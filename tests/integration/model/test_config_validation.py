@@ -1,8 +1,8 @@
 """
-Test configuration validation system for model components.
-
-This test module verifies that the configuration validation system correctly
-validates configurations for various component types and hybrid architectures.
+Test configuration validation system for model components. This test
+module verifies that the configuration validation system correctly
+validates configurations for various component types and hybrid
+architectures.
 """
 
 from typing import Any

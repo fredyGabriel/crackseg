@@ -1,57 +1,31 @@
 #!/usr/bin/env python3
 """
-Main training pipeline for pavement crack segmentation.
-
-This module provides the primary entry point for training crack segmentation
-models using the U-Net architecture with configurable encoders and decoders. It
-integrates with Hydra for configuration management and supports features like:
-
-- Automated experiment tracking and logging
-- Configurable data loading and augmentation
-- Model checkpointing and resume functionality
-- Mixed precision training support
-- Comprehensive error handling and validation
-
-The main training pipeline consists of several stages:
-1. Environment setup (device detection, random seeds)
-2. Data loading (train/validation dataloaders)
-3. Model creation and initialization
-4. Training component setup (optimizer, loss, metrics)
-5. Checkpoint handling and resume logic
-6. Training execution via Trainer class
-7. Cleanup and experiment finalization
-
-Examples:
-    Basic training with default configuration:
-        ```bash
-        python run.py
-        ```
-
-    Training with custom parameters:
-        ```bash
-        python run.py training.epochs=100 data.batch_size=8
-        ```
-
-    Resume from checkpoint:
-        ```bash
-        python run.py training.checkpoints.resume_from_checkpoint=\\
-            path/to/checkpoint.pth
-        ```
-
-Configuration:
-    This module uses Hydra configuration management. The main config file is
-    located at 'configs/config.yaml' with additional configs in subdirectories.
-
-    Key configuration sections:
-    - model: Model architecture and parameters
-    - data: Dataset and dataloader configuration
-    - training: Training hyperparameters and settings
-    - evaluation: Metrics and evaluation settings
-
-Note:
-    This module requires CUDA support for GPU training. CPU training is
-    supported but not recommended for large models due to performance
-    considerations.
+Main training pipeline for pavement crack segmentation. This module
+provides the primary entry point for training crack segmentation
+models using the U-Net architecture with configurable encoders and
+decoders. It integrates with Hydra for configuration management and
+supports features like: - Automated experiment tracking and logging -
+Configurable data loading and augmentation - Model checkpointing and
+resume functionality - Mixed precision training support -
+Comprehensive error handling and validation The main training pipeline
+consists of several stages: 1. Environment setup (device detection,
+random seeds) 2. Data loading (train/validation dataloaders) 3. Model
+creation and initialization 4. Training component setup (optimizer,
+loss, metrics) 5. Checkpoint handling and resume logic 6. Training
+execution via Trainer class 7. Cleanup and experiment finalization
+Examples: Basic training with default configuration: ```bash python
+run.py ``` Training with custom parameters: ```bash python run.py
+training.epochs=100 data.batch_size=8 ``` Resume from checkpoint:
+```bash python run.py training.checkpoints.resume_from_checkpoint=\\
+path/to/checkpoint.pth ``` Configuration: This module uses Hydra
+configuration management. The main config file is located at
+'configs/config.yaml' with additional configs in subdirectories. Key
+configuration sections: - model: Model architecture and parameters -
+data: Dataset and dataloader configuration - training: Training
+hyperparameters and settings - evaluation: Metrics and evaluation
+settings Note: This module requires CUDA support for GPU training. CPU
+training is supported but not recommended for large models due to
+performance considerations.
 """
 
 # In src/main.py (Skeleton and checkpointing logic)
@@ -69,7 +43,7 @@ from torch import optim  # For Optimizer
 from torch.nn import Module
 from torch.utils.data import DataLoader  # Added for DataLoader
 
-# Project imports
+# Project import s
 from crackseg.data.factory import (
     create_dataloaders_from_config,  # Import factory
 )
@@ -162,8 +136,7 @@ def _load_data(cfg: DictConfig) -> tuple[DataLoader[Any], DataLoader[Any]]:
             - cfg.data.dataloader (DictConfig, optional): DataLoader
                 configuration
 
-    Returns:
-        tuple[DataLoader[Any], DataLoader[Any]]: A tuple containing:
+    Returns: tuple[DataLoader[Any], DataLoader[Any]]: A tuple containing:
             - train_loader: DataLoader for training data
             - val_loader: DataLoader for validation data
 
@@ -312,7 +285,7 @@ def _create_model(cfg: DictConfig, device: torch.device) -> torch.nn.Module:
             - Invalid model configuration
             - Missing model dependencies
             - Instantiation errors
-        ImportError: If the specified model class cannot be imported
+        ImportError: If the specified model class cannot be import ed
         AttributeError: If model configuration is malformed
 
     Examples:
@@ -397,7 +370,7 @@ def _setup_training_components(
             - torch.nn.Module: Loss function module
 
     Raises:
-        ImportError: If specified components cannot be imported
+        ImportError: If specified components cannot be import ed
         AttributeError: If configuration is malformed
         ValueError: If configuration values are invalid
         TypeError: If component types are incompatible
@@ -661,113 +634,47 @@ def _handle_checkpointing_and_resume(
 @hydra.main(version_base=None, config_path="../configs", config_name="config")
 def main(cfg: DictConfig) -> None:
     """
-    Main training pipeline entry point for crack segmentation.
-
-    This function orchestrates the complete training workflow including:
-    1. Environment setup and device configuration
-    2. Experiment initialization and logging setup
-    3. Data loading and validation
-    4. Model creation and initialization
-    5. Training component configuration
-    6. Checkpoint handling and resume logic
-    7. Training execution via Trainer class
-    8. Cleanup and resource management
-
-    The function is decorated with Hydra's main decorator to enable
-    configuration management and CLI parameter overrides.
-
-    Args:
-        cfg: Complete Hydra configuration object containing all settings.
-            Key sections:
-            - model: Neural network architecture and parameters
-            - data: Dataset and dataloader configuration
-            - training: Training hyperparameters and settings
-            - evaluation: Metrics and evaluation configuration
-            - experiment: Experiment tracking and logging settings
-
-    Returns:
-        None: Function handles training execution and cleanup internally.
-
-    Raises:
-        ResourceError: If required hardware resources are unavailable
-        DataError: If data loading or validation fails
-        ModelError: If model creation or initialization fails
-        ConfigurationError: If configuration is invalid or incomplete
-        Exception: Any unhandled exception during training execution
-
-    Examples:
-        Training with default configuration:
-        ```bash
-        python run.py
-        ```
-
-        Training with parameter overrides:
-        ```bash
-        python run.py training.epochs=100 \
-                      data.batch_size=8 \
-                      model.encoder_name=resnet50
-        ```
-
-        Resume from checkpoint:
-        ```bash
-        python run.py training.checkpoints.resume_from_checkpoint=\
-            path/to/checkpoint.pth
-        ```
-
-        GPU-specific training:
-        ```bash
-        python run.py training.device=cuda:1 \
-                      training.use_amp=true \
-                      data.num_workers=8
-        ```
-
-    Configuration Examples:
-        Minimal training configuration:
-        ```yaml
-        model:
-          _target_: src.model.core.unet.UNet
-          encoder_name: resnet34
-          classes: 1
-
-        data:
-          data_root: data/
-          batch_size: 16
-
-        training:
-          epochs: 100
-          optimizer:
-            _target_: torch.optim.Adam
-            lr: 0.001
-        ```
-
-        Production training configuration:
-        ```yaml
-        training:
-          epochs: 200
-          use_amp: true
-          checkpoints:
-            save_freq: 10
-            save_best:
-              enabled: true
-              monitor_metric: val_iou
-              monitor_mode: max
-          early_stopping:
-            patience: 20
-            min_delta: 0.001
-        ```
-
-    Note:
-        - Experiment tracking is automatically initialized with unique
-        timestamps
-        - All training artifacts are saved to structured output directories
-        - Comprehensive error handling ensures graceful failure recovery
-        - Final evaluation should be performed separately using evaluate.py
-
-    See Also:
-        - src.evaluate: For model evaluation and inference
-        - src.training.trainer: Core training loop implementation
-        - configs/: Configuration files and examples
-    """
+Main training pipeline entry point for crack segmentation. This
+function orchestrates the complete training workflow including: 1.
+Environment setup and device configuration 2. Experiment
+initialization and logging setup 3. Data loading and validation 4.
+Model creation and initialization 5. Training component configuration
+6. Checkpoint handling and resume logic 7. Training execution via
+Trainer class 8. Cleanup and resource management The function is
+decorated with Hydra's main decorator to enable configuration
+management and CLI parameter overrides. Args: cfg: Complete Hydra
+configuration object containing all settings. Key sections: - model:
+Neural network architecture and parameters - data: Dataset and
+dataloader configuration - training: Training hyperparameters and
+settings - evaluation: Metrics and evaluation configuration -
+experiment: Experiment tracking and logging settings Returns: None:
+Function handles training execution and cleanup internally. Raises:
+ResourceError: If required hardware resources are unavailable
+DataError: If data loading or validation fails ModelError: If model
+creation or initialization fails ConfigurationError: If configuration
+is invalid or incomplete Exception: Any unhandled exception during
+training execution Examples: Training with default configuration:
+```bash python run.py ``` Training with parameter overrides: ```bash
+python run.py training.epochs=100 \\ data.batch_size=8 \
+model.encoder_name=resnet50 ``` Resume from checkpoint: ```bash python
+run.py training.checkpoints.resume_from_checkpoint=\
+path/to/checkpoint.pth ``` GPU-specific training: ```bash python
+run.py training.device=cuda:1 \\ training.use_amp=true \
+data.num_workers=8 ``` Configuration Examples: Minimal training
+configuration: ```yaml model: _target_: src.model.core.unet.UNet
+encoder_name: resnet34 classes: 1 data: data_root: data/ batch_size:
+16 training: epochs: 100 optimizer: _target_: torch.optim.Adam lr:
+0.001 ``` Production training configuration: ```yaml training: epochs:
+200 use_amp: true checkpoints: save_freq: 10 save_best: enabled: true
+monitor_metric: val_iou monitor_mode: max early_stopping: patience: 20
+min_delta: 0.001 ``` Note: - Experiment tracking is automatically
+initialized with unique timestamps - All training artifacts are saved
+to structured output directories - Comprehensive error handling
+ensures graceful failure recovery - Final evaluation should be
+performed separately using evaluate.py See Also: - src.evaluate: For
+model evaluation and inference - src.training.trainer: Core training
+loop implementation - configs/: Configuration files and examples
+"""
     experiment_logger = None
     try:
         # --- 1. Initial Setup ---

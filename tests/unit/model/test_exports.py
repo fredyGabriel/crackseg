@@ -1,4 +1,4 @@
-# Lista de nombres públicos que deben poder importarse desde src.model
+# Lista de nombres públicos que deben poder import arse desde src.model
 PUBLIC_NAMES = [
     # Clases base
     "EncoderBase",
@@ -22,10 +22,10 @@ PUBLIC_NAMES = [
 
 
 def test_public_exports():
-    from src import model
+    from crackseg import model
 
     missing = []
     for name in PUBLIC_NAMES:
         if not hasattr(model, name):
             missing.append(name)
-    assert not missing, f"Missing public exports in src.model: {missing}"
+    assert not missing, f"Missing public exports in crackseg.model: {missing}"

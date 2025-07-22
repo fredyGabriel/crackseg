@@ -1,6 +1,6 @@
 """
-GUI Home Page - Dashboard
-This module defines the layout and content of the application's main dashboard.
+GUI Home Page - Dashboard This module defines the layout and content
+of the application's main dashboard.
 """
 
 from collections.abc import Callable
@@ -8,26 +8,24 @@ from pathlib import Path
 
 import streamlit as st
 
-from scripts.gui.components.header_component import render_header
-from scripts.gui.utils.data_stats import get_dataset_image_counts
-from scripts.gui.utils.gui_config import PAGE_CONFIG
-from scripts.gui.utils.session_state import SessionState, SessionStateManager
+from gui.components.header_component import render_header
+from gui.utils.data_stats import get_dataset_image_counts
+from gui.utils.gui_config import PAGE_CONFIG
+from gui.utils.session_state import SessionState, SessionStateManager
 
 
 def render_project_overview(state: SessionState) -> None:
     """
     Renders the main project overview section with title and description.
-
-    Args:
-        state: The current session state (unused, for consistency).
+    Args: state: The current session state (unused, for consistency).
     """
     st.title("CrackSeg: Pavement Crack Segmentation")
     st.markdown(
         """
-        Welcome to the central dashboard for the CrackSeg project.
-        This GUI allows you to configure experiments, launch training runs,
-        and analyze results.
-        """
+Welcome to the central dashboard for the CrackSeg project. This GUI
+allows you to configure experiments, launch training runs, and analyze
+results.
+"""
     )
     st.markdown("---")
 
@@ -36,12 +34,9 @@ def render_quick_actions(
     state: SessionState, navigate_to: Callable[[str], None]
 ) -> None:
     """
-    Renders a section with quick action buttons for core workflows.
-
-    Args:
-        state: The current session state.
-        navigate_to: A callback function to handle page navigation,
-                     which takes the target page name as a string.
+    Renders a section with quick action buttons for core workflows. Args:
+    state: The current session state. navigate_to: A callback function to
+    handle page navigation, which takes the target page name as a string.
     """
     st.subheader("🚀 Quick Actions")
     col1, col2, col3 = st.columns(3)
@@ -58,13 +53,10 @@ def render_quick_actions(
 
 def render_statistics(state: SessionState) -> None:
     """
-    Renders a section for key dataset statistics.
-
-    This function scans the `data/` directory to count images in the
-    train, validation, and test sets.
-
-    Args:
-        state: The current session state (unused, for consistency).
+    Renders a section for key dataset statistics. This function scans the
+    `data/` directory to count images in the train, validation, and test
+    sets. Args: state: The current session state (unused, for
+    consistency).
     """
     st.subheader("📊 Dataset Statistics")
 
@@ -89,11 +81,10 @@ def render_statistics(state: SessionState) -> None:
 
 def page_home() -> None:
     """
-    Renders the entire home page dashboard, including overview, actions, and
-    stats.
-
-    It defines the navigation logic and orchestrates the layout of the page.
-    Gets the session state internally for consistency with other pages.
+    Renders the entire home page dashboard, including overview, actions,
+    and stats. It defines the navigation logic and orchestrates the layout
+    of the page. Gets the session state internally for consistency with
+    other pages.
     """
     # Get state internally like other pages
     state = SessionStateManager.get()
@@ -108,8 +99,8 @@ def page_home() -> None:
 
     def navigate_to_page(page_name: str) -> None:
         """
-        Callback function to handle navigation.
-        Updates the session state and triggers a rerun.
+        Callback function to handle navigation. Updates the session state and
+        triggers a rerun.
         """
         if st.session_state:
             state.current_page = page_name
@@ -135,7 +126,7 @@ if __name__ == "__main__":
     PROJECT_ROOT = Path(__file__).resolve().parents[3]
     sys.path.insert(0, str(PROJECT_ROOT))
 
-    from scripts.gui.utils.session_state import SessionState
+    from gui.utils.session_state import SessionState
 
     # Initialize a mock session state
     if "session_state_initialized" not in st.session_state:

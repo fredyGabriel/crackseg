@@ -21,4 +21,5 @@ This directory contains YAML configuration files for segmentation model paramete
 - Files named `mock_*.yaml` and `default_*.yaml` are for tests, examples, or as templates.
 - When adding a new architecture, place it in `architectures/` and document its purpose.
 - When adding a new component, place it in the corresponding subfolder and update this README.
-- Keep configuration files minimal, focused, and well-documented to facilitate navigation and maintenance. 
+- Keep configuration files minimal, focused, and well-documented to facilitate navigation and
+  maintenance.

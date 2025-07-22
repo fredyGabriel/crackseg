@@ -1,14 +1,13 @@
 """
-Utility functions for the architecture page module.
-
-This module contains common utilities and helper functions used across
-the architecture page components.
+Utility functions for the architecture page module. This module
+contains common utilities and helper functions used across the
+architecture page components.
 """
 
 import logging
 
-from scripts.gui.utils.architecture_viewer import get_architecture_viewer
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.architecture_viewer import get_architecture_viewer
+from gui.utils.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 

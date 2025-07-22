@@ -17,7 +17,7 @@ for flexibility, reproducibility, and ease of experimentation. The core principl
     (models, data loaders, etc.) based on the Hydra configuration.
 - **Clear Separation of Concerns**: The codebase is organized into distinct sections
     for data handling (`src/data`), model definitions (`src/model`), training logic
-    (`src/training`), and user interface (`scripts/gui`).
+    (`src/training`), and user interface (`gui`).
 
 ---
 
@@ -122,7 +122,7 @@ This module contains the logic for training and validating the model.
 - `checkpointing/` (in `src/utils`): Logic for saving and loading model state,
     allowing training to be resumed.
 
-### 3.5. Graphical User Interface (`scripts/gui/`)
+### 3.5. Graphical User Interface (`gui/`)
 
 The Streamlit-based GUI provides an interactive frontend for the system.
 

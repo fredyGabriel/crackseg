@@ -1,14 +1,13 @@
 """
-Model information section for the architecture page.
-
-This module handles the display of model information, statistics,
-and detailed component breakdown.
+Model information section for the architecture page. This module
+handles the display of model information, statistics, and detailed
+component breakdown.
 """
 
 import streamlit as st
 
-from scripts.gui.utils.architecture_viewer import format_model_summary
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.architecture_viewer import format_model_summary
+from gui.utils.session_state import SessionStateManager
 
 
 def render_model_information_section() -> None:
@@ -60,7 +59,7 @@ def render_model_information_section() -> None:
                 components[component_name] = state.model_summary[key]
 
         if components:
-            for component, type_name in components.items():
+            for component, type_name in components.items():  # type: ignore[assignment]
                 st.markdown(f"**{component}:** {type_name}")
         else:
             st.info("Component information not available")

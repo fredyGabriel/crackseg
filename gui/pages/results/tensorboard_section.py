@@ -1,8 +1,7 @@
 """
-TensorBoard section for the results page.
-
-This module handles the TensorBoard tab with integrated iframe embedding
-for training visualization and monitoring.
+TensorBoard section for the results page. This module handles the
+TensorBoard tab with integrated iframe embedding for training
+visualization and monitoring.
 """
 
 from pathlib import Path
@@ -10,7 +9,7 @@ from typing import Any
 
 import streamlit as st
 
-from scripts.gui.components.tensorboard_component import TensorBoardComponent
+from gui.components.tensorboard_component import TensorBoardComponent
 
 
 def render_tensorboard_tab(state: Any) -> None:

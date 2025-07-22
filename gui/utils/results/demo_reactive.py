@@ -1,12 +1,9 @@
-"""Demonstration of reactive results scanning with events and caching.
-
-This demo showcases Phase 2 features:
-- Event-driven reactive updates
-- LRU cache for performance optimization
-- Real-time progress monitoring
-- Gallery-like UI simulation
-
-Run this script to see the reactive scanning system in action.
+"""
+Demonstration of reactive results scanning with events and caching.
+This demo showcases Phase 2 features: - Event-driven reactive updates
+- LRU cache for performance optimization - Real-time progress
+monitoring - Gallery-like UI simulation Run this script to see the
+reactive scanning system in action.
 """
 
 import asyncio
@@ -31,10 +28,9 @@ class ReactiveGallerySimulator:
     """Simulates a reactive gallery UI that responds to scanner events."""
 
     def __init__(self, cache: TripletCache) -> None:
-        """Initialize the gallery simulator.
-
-        Args:
-            cache: Triplet cache for optimized access
+        """
+        Initialize the gallery simulator. Args: cache: Triplet cache for
+        optimized access
         """
         self.cache = cache
         self.triplets: list[ResultTriplet] = []
@@ -161,10 +157,9 @@ class ReactiveGallerySimulator:
 
 
 async def run_reactive_demo(results_path: Path) -> None:
-    """Run the reactive scanning demo.
-
-    Args:
-        results_path: Path to results directory to scan
+    """
+    Run the reactive scanning demo. Args: results_path: Path to results
+    directory to scan
     """
     print("🎬 Reactive Results Scanner Demo - Phase 2")
     print("=" * 50)
@@ -220,11 +215,10 @@ async def run_reactive_demo(results_path: Path) -> None:
 
 
 def create_sample_triplets(base_path: Path, count: int = 20) -> None:
-    """Create sample triplet files for demo purposes.
-
-    Args:
-        base_path: Directory to create sample files in
-        count: Number of triplets to create
+    """
+    Create sample triplet files for demo purposes. Args: base_path:
+    Directory to create sample files in count: Number of triplets to
+    create
     """
     print(f"📁 Creating {count} sample triplets in {base_path}")
 

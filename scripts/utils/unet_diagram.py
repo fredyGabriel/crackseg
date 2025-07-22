@@ -8,6 +8,7 @@ method to create a diagram (PNG) of the model structure.
 
 import os
 import sys
+from typing import cast
 
 import hydra
 from hydra.core.global_hydra import GlobalHydra
@@ -17,6 +18,7 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 sys.path.insert(0, os.path.join(project_root, ".."))
 
+from crackseg.model.base.abstract import UNetBase  # noqa: E402
 from crackseg.model.factory import create_unet  # noqa: E402
 
 
@@ -30,12 +32,13 @@ def main() -> None:
     cfg = hydra.compose(config_name="model/unet_cnn")
     GlobalHydra.instance().clear()
 
-    # Convert config to dictionary
-    unet = create_unet(cfg.model)
+    # Convert config to dictionary and cast to correct type
+    model = create_unet(cfg.model)
+    unet_model = cast(UNetBase, model)
 
     # Visualize architecture (will save as PNG and open it)
     print("Generando diagrama de arquitectura U-Net...")
-    unet.visualize_architecture(filename="unet_architecture", view=True)
+    unet_model.visualize_architecture(filename="unet_architecture", view=True)  # type: ignore
     print("Diagrama guardado como 'unet_architecture.png'.")
 
 

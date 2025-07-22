@@ -1,15 +1,12 @@
 """
-Edge case and error handling tests for CrackSeg GUI components.
-
-This module implements comprehensive edge case testing for file operations,
-UI interactions, and system boundaries to improve robustness and coverage
-of error scenarios as specified in subtask 7.3.
-
-Focus areas:
+Edge case and error handling tests for CrackSeg GUI components. This
+module implements comprehensive edge case testing for file operations,
+UI interactions, and system boundaries to improve robustness and
+coverage of error scenarios as specified in subtask 7.3. Focus areas:
 1. File operations edge cases (permissions, disk space, invalid paths)
-2. UI boundary tests (input validation, interaction limits)
-3. Error recovery tests (graceful degradation, retry mechanisms)
-4. System boundaries (resource limits, timeout handling)
+2. UI boundary tests (input validation, interaction limits) 3. Error
+recovery tests (graceful degradation, retry mechanisms) 4. System
+boundaries (resource limits, timeout handling)
 """
 
 import os

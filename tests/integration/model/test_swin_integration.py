@@ -1,9 +1,8 @@
-"""Integration tests for SwinTransformerEncoder component with other system
-components.
-
-These tests verify that the SwinTransformerEncoder component can be integrated
-successfully with other system components, including data pipelines and other
-U-Net components.
+"""
+Integration tests for SwinTransformerEncoder component with other
+system components. These tests verify that the SwinTransformerEncoder
+component can be integrated successfully with other system components,
+including data pipelines and other U-Net components.
 """
 
 import os

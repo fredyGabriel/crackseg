@@ -1,7 +1,7 @@
-"""Data generation helpers for E2E testing.
-
-This module provides utilities for generating test data, sample configurations,
-and test scenarios for the CrackSeg Streamlit application testing.
+"""
+Data generation helpers for E2E testing. This module provides
+utilities for generating test data, sample configurations, and test
+scenarios for the CrackSeg Streamlit application testing.
 """
 
 import random
@@ -16,23 +16,13 @@ def generate_random_string(
     include_numbers: bool = True,
     include_special: bool = False,
 ) -> str:
-    """Generate random string for testing purposes.
-
-    Args:
-        length: Length of the generated string
-        include_uppercase: Include uppercase letters
-        include_numbers: Include numeric digits
-        include_special: Include special characters
-
-    Returns:
-        Random string with specified characteristics
-
-    Example:
-        >>> test_string = generate_random_string(
-        ...     length=8, include_numbers=True
-        ... )
-        >>> len(test_string)
-        8
+    """
+    Generate random string for testing purposes. Args: length: Length of
+    the generated string include_uppercase: Include uppercase letters
+    include_numbers: Include numeric digits include_special: Include
+    special characters Returns: Random string with specified
+    characteristics Example: >>> test_string = generate_random_string( ...
+    length=8, include_numbers=True ... ) >>> len(test_string) 8
     """
     chars = string.ascii_lowercase
 
@@ -180,15 +170,11 @@ def get_sample_config_data() -> dict[str, Any]:
 
 
 def get_test_data_combinations() -> list[dict[str, Any]]:
-    """Get various test data combinations for parameterized testing.
-
-    Returns:
-        List of dictionaries with different test scenarios
-
-    Example:
-        >>> combinations = get_test_data_combinations()
-        >>> len(combinations) > 0
-        True
+    """
+    Get various test data combinations for parameterized testing. Returns:
+    List of dictionaries with different test scenarios Example: >>>
+    combinations = get_test_data_combinations() >>> len(combinations) > 0
+    True
     """
     return [
         # Basic training configuration

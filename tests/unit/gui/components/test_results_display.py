@@ -6,10 +6,7 @@ selection, and navigation capabilities.
 
 from unittest.mock import Mock, patch
 
-from tests.unit.gui.components.test_component_base import (
-    ComponentTestBase,
-    MockSessionState,
-)
+from .test_component_base import ComponentTestBase, MockSessionState
 
 
 class TestTripletDisplayComponent(ComponentTestBase):

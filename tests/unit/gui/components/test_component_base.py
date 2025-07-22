@@ -6,6 +6,7 @@ comprehensive component testing across the GUI test suite.
 
 from collections.abc import ItemsView, Iterator, KeysView
 from pathlib import Path
+from typing import Any
 from unittest.mock import Mock
 
 import pytest
@@ -48,44 +49,43 @@ class MockStreamlitColumns:
 class MockSessionState:
     """Mock session state with dynamic attribute support."""
 
-    def __init__(self, **initial_state: object) -> None:
-        self._state: dict[str, object] = initial_state
+    def __init__(self) -> None:
+        self._state: dict[str, Any] = {}
 
-    def __getattr__(self, name: str) -> object:
-        if name.startswith("_"):
-            return super().__getattribute__(name)
-        return self._state.get(name, None)
+    def __getattr__(self, name: str) -> Any:
+        return self._state.get(name)
 
-    def __setattr__(self, name: str, value: object) -> None:
-        if name.startswith("_"):
+    def __setattr__(self, name: str, value: Any) -> None:
+        if name == "_state":
             super().__setattr__(name, value)
         else:
             if not hasattr(self, "_state"):
                 super().__setattr__("_state", {})
             self._state[name] = value
 
+    def __getitem__(self, key: str) -> Any:
+        return self._state[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self._state[key] = value
+
     def __contains__(self, key: str) -> bool:
         return key in self._state
 
-    def __getitem__(self, key: str) -> object:
-        return self._state[key]
-
-    def __setitem__(self, key: str, value: object) -> None:
-        self._state[key] = value
-
-    def __delitem__(self, key: str) -> None:
-        del self._state[key]
-
-    def get(self, key: str, default: object = None) -> object:
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get value with default."""
         return self._state.get(key, default)
 
-    def update(self, updates: dict[str, object]) -> None:
-        self._state.update(updates)
+    def update(self, other: dict[str, Any]) -> None:
+        """Update with another dict."""
+        self._state.update(other)
 
     def keys(self) -> KeysView[str]:
+        """Return keys view."""
         return self._state.keys()
 
-    def items(self) -> ItemsView[str, object]:
+    def items(self) -> ItemsView[str, Any]:
+        """Return items view."""
         return self._state.items()
 
     def clear_notifications(self) -> None:
@@ -166,7 +166,7 @@ def create_mock_component_state(**kwargs: object) -> MockSessionState:
         "model_ready": False,
     }
     defaults.update(kwargs)
-    return MockSessionState(**defaults)
+    return MockSessionState()
 
 
 def assert_streamlit_called_with_pattern(mock_st: Mock, pattern: str) -> None:

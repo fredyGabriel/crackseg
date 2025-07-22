@@ -21,7 +21,7 @@ def test_import_structure():
     # Test new modular imports
     print("📦 Testing New Modular Structure:")
     try:
-        from scripts.gui.utils.tensorboard import (
+        from gui.utils.tensorboard import (
             PortRegistry,
             TensorBoardManager,
         )
@@ -46,7 +46,7 @@ def test_import_structure():
     # Test convenience functions
     print("\n⚡ Testing Convenience Functions:")
     try:
-        from scripts.gui.utils.tensorboard.manager import (
+        from gui.utils.tensorboard.manager import (
             create_default_tensorboard_setup,
         )
 
@@ -67,7 +67,7 @@ def test_import_structure():
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore", DeprecationWarning)
-            from scripts.gui.utils.tb_manager import (
+            from gui.utils.tb_manager import (
                 TensorBoardManager as LegacyTB,
             )
         print(f"   ✅ Legacy import works: {type(LegacyTB).__name__}")

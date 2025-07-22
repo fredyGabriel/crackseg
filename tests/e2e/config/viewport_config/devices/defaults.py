@@ -1,7 +1,7 @@
-"""Default device configurations for responsive testing.
-
-This module provides predefined device configurations for common mobile,
-tablet, and desktop devices used in responsive design testing.
+"""
+Default device configurations for responsive testing. This module
+provides predefined device configurations for common mobile, tablet,
+and desktop devices used in responsive design testing.
 """
 
 from .core import ResponsiveDevice
@@ -13,10 +13,9 @@ from .factories import (
 
 
 def get_default_devices() -> dict[str, ResponsiveDevice]:
-    """Get dictionary of default device configurations.
-
-    Returns:
-        Dictionary mapping device keys to ResponsiveDevice instances
+    """
+    Get dictionary of default device configurations. Returns: Dictionary
+    mapping device keys to ResponsiveDevice instances
     """
     return {
         # Mobile devices
@@ -174,10 +173,9 @@ def get_default_devices() -> dict[str, ResponsiveDevice]:
 
 
 def get_mobile_devices() -> dict[str, ResponsiveDevice]:
-    """Get only mobile device configurations.
-
-    Returns:
-        Dictionary of mobile devices
+    """
+    Get only mobile device configurations. Returns: Dictionary of mobile
+    devices
     """
     all_devices = get_default_devices()
     return {
@@ -188,10 +186,9 @@ def get_mobile_devices() -> dict[str, ResponsiveDevice]:
 
 
 def get_tablet_devices() -> dict[str, ResponsiveDevice]:
-    """Get only tablet device configurations.
-
-    Returns:
-        Dictionary of tablet devices
+    """
+    Get only tablet device configurations. Returns: Dictionary of tablet
+    devices
     """
     all_devices = get_default_devices()
     return {
@@ -202,10 +199,9 @@ def get_tablet_devices() -> dict[str, ResponsiveDevice]:
 
 
 def get_desktop_devices() -> dict[str, ResponsiveDevice]:
-    """Get only desktop device configurations.
-
-    Returns:
-        Dictionary of desktop devices
+    """
+    Get only desktop device configurations. Returns: Dictionary of desktop
+    devices
     """
     all_devices = get_default_devices()
     return {
@@ -216,10 +212,9 @@ def get_desktop_devices() -> dict[str, ResponsiveDevice]:
 
 
 def get_high_priority_devices() -> dict[str, ResponsiveDevice]:
-    """Get only high priority device configurations.
-
-    Returns:
-        Dictionary of high priority devices (priority = 1)
+    """
+    Get only high priority device configurations. Returns: Dictionary of
+    high priority devices (priority = 1)
     """
     all_devices = get_default_devices()
     return {

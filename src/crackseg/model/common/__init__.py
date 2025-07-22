@@ -10,8 +10,8 @@ from .utils import (
     estimate_memory_usage,
     estimate_receptive_field,
     get_layer_hierarchy,
-    render_unet_architecture_diagram,
 )
+from .visualization import render_unet_architecture_diagram
 
 __all__ = [
     "count_parameters",

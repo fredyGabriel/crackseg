@@ -9,7 +9,7 @@ from typing import Any
 
 import streamlit as st
 
-from scripts.gui.utils.config import (
+from gui.utils.config import (
     ConfigError,
     ValidationError,
     create_upload_progress_placeholder,
@@ -17,10 +17,10 @@ from scripts.gui.utils.config import (
     update_upload_progress,
     upload_config_file,
 )
-from scripts.gui.utils.config.validation.error_categorizer import (
+from gui.utils.config.validation.error_categorizer import (
     ErrorCategorizer,
 )
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.session_state import SessionStateManager
 
 
 class FileUploadComponent:

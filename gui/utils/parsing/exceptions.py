@@ -1,7 +1,7 @@
-"""Custom exceptions for override parsing in CrackSeg.
-
-This module defines specific exception types for Hydra override
-parsing errors, validation failures, and security violations.
+"""
+Custom exceptions for override parsing in CrackSeg. This module
+defines specific exception types for Hydra override parsing errors,
+validation failures, and security violations.
 """
 
 

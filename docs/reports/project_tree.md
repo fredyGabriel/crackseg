@@ -2,26 +2,8 @@
 
 ```txt
 └── crackseg/
-    ├── ${TASK_MASTER_PROJECT_ROOT}/
-    ├── archive/
-    │   ├── legacy_docs/
-    │   │   ├── development-guide.mdc
-    │   │   ├── project-structure.mdc
-    │   │   ├── README.md
-    │   │   └── structural-guide.mdc
-    │   └── README.md
-    ├── archived-artifacts/
-    ├── automation_results/
-    ├── checkpoints/
-    ├── comprehensive_failure_analysis/
-    │   └── comprehensive_failures_20250713_063216.json
-    ├── comprehensive_reports/
-    │   ├── comprehensive_dashboard.html
-    │   ├── comprehensive_data.json
-    │   ├── main_report.html
-    │   └── main_report.json
+    ├── artifacts/
     ├── configs/
-    │   ├── __pycache__/
     │   ├── data/
     │   │   ├── dataloader/
     │   │   │   └── default.yaml
@@ -40,7 +22,6 @@
     │   │   │   ├── swinv2_hybrid.yaml
     │   │   │   ├── unet_aspp.yaml
     │   │   │   ├── unet_cnn.yaml
-    │   │   │   ├── unet_mock.yaml
     │   │   │   ├── unet_swin.yaml
     │   │   │   ├── unet_swin_base.yaml
     │   │   │   └── unet_swin_transfer.yaml
@@ -89,7 +70,6 @@
     │   ├── basic_verification.yaml
     │   ├── config.yaml
     │   └── README.md
-    ├── crackseg.egg-info/
     ├── data/
     │   ├── test/
     │   │   ├── images/
@@ -363,6 +343,82 @@
     │   ├── dummy_mask.png
     │   ├── examples
     │   └── README.md
+    ├── docker/
+    │   ├── __pycache__/
+    │   ├── health_check/
+    │   │   ├── analytics/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── dashboard_generator.py
+    │   │   │   ├── metrics_collector.py
+    │   │   │   └── recommendation_engine.py
+    │   │   ├── checkers/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── dependency_validator.py
+    │   │   │   ├── docker_checker.py
+    │   │   │   └── endpoint_checker.py
+    │   │   ├── cli/
+    │   │   │   ├── __init__.py
+    │   │   │   └── commands.py
+    │   │   ├── models/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── config.py
+    │   │   │   ├── enums.py
+    │   │   │   └── results.py
+    │   │   ├── orchestration/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── health_orchestrator.py
+    │   │   │   ├── monitoring.py
+    │   │   │   └── service_registry.py
+    │   │   ├── persistence/
+    │   │   │   ├── __init__.py
+    │   │   │   └── report_saver.py
+    │   │   └── __init__.py
+    │   ├── scripts/
+    │   │   ├── artifact-manager.sh
+    │   │   ├── browser-manager.sh
+    │   │   ├── ci-setup.sh
+    │   │   ├── docker-stack-manager.sh
+    │   │   ├── e2e-test-orchestrator.sh
+    │   │   ├── health-check-manager.sh
+    │   │   ├── manage-grid.sh
+    │   │   ├── network-manager.sh
+    │   │   ├── run-e2e-tests.sh
+    │   │   ├── run-test-runner.sh
+    │   │   ├── setup-env.sh
+    │   │   ├── setup-local-dev.sh
+    │   │   ├── start-test-env.sh
+    │   │   └── system-monitor.sh
+    │   ├── browser-capabilities.json
+    │   ├── docker-compose.README.md
+    │   ├── docker-compose.test.yml
+    │   ├── docker-entrypoint.sh
+    │   ├── Dockerfile.streamlit
+    │   ├── Dockerfile.test-runner
+    │   ├── env-test.yml
+    │   ├── env.local.template
+    │   ├── env.production.template
+    │   ├── env.staging.template
+    │   ├── env.test.template
+    │   ├── env_manager.py
+    │   ├── grid-config.json
+    │   ├── health_check_system.py
+    │   ├── health_check_system.py
+    │   ├── mobile-browser-config.json
+    │   ├── pytest.ini
+    │   ├── README-ARCHITECTURE.md
+    │   ├── README-DOCKER-TESTING.md
+    │   ├── README-LOCAL-DEV.md
+    │   ├── README-TROUBLESHOOTING.md
+    │   ├── README-USAGE.md
+    │   ├── README.artifact-management.md
+    │   ├── README.cross-browser-testing.md
+    │   ├── README.environment-management.md
+    │   ├── README.md
+    │   ├── README.network-setup.md
+    │   ├── selenium-grid-guide.md
+    │   ├── setup-local-dev.sh
+    │   └── test-runner.config
     ├── docs/
     │   ├── api/
     │   │   ├── gui_components.md
@@ -373,6 +429,7 @@
     │   │   ├── logo.png
     │   │   └── loss_registry_design.md
     │   ├── guides/
+    │   │   ├── architectural_decisions.md
     │   │   ├── checkpoint_format_specification.md
     │   │   ├── ci_cd_integration_guide.md
     │   │   ├── ci_cd_stakeholder_training.md
@@ -388,10 +445,12 @@
     │   │   ├── gui_testing_implementation_checklist.md
     │   │   ├── INSTALL.md
     │   │   ├── loss_registry_usage.md
+    │   │   ├── migration_summary_graphviz_to_matplotlib.md
     │   │   ├── performance_benchmarking_system.md
     │   │   ├── quality_gates_guide.md
     │   │   ├── SYSTEM_DEPENDENCIES.md
     │   │   ├── TECHNICAL_ARCHITECTURE.md
+    │   │   ├── TEST_EXECUTION_PLAN.md
     │   │   ├── test_maintenance_procedures.md
     │   │   ├── TROUBLESHOOTING.md
     │   │   ├── USAGE.md
@@ -404,14 +463,17 @@
     │   │   │   ├── rule-consolidation-report.md
     │   │   │   └── rule-system-analysis.md
     │   │   ├── archive/
-    │   │   │   ├── stats_report_20250514_220750.txt
-    │   │   │   └── stats_report_20250516_034210.txt
     │   │   ├── coverage/
     │   │   │   ├── coverage_gaps_analysis.md
     │   │   │   ├── coverage_validation_report.md
     │   │   │   ├── test_coverage_analysis_report.md
     │   │   │   └── test_coverage_comparison_report.md
     │   │   ├── models/
+    │   │   │   ├── model_expected_structure.json
+    │   │   │   ├── model_imports_catalog.json
+    │   │   │   ├── model_inventory.json
+    │   │   │   ├── model_pyfiles.json
+    │   │   │   └── model_structure_diff.json
     │   │   ├── project/
     │   │   │   └── plan_verificacion_post_linting.md
     │   │   ├── scripts/
@@ -424,19 +486,15 @@
     │   │   │   ├── test_coverage_improvement_plan.md
     │   │   │   └── test_inventory.txt
     │   │   ├── automated_test_execution_report.md
+    │   │   ├── basedpyright_analysis_report.md
     │   │   ├── crackseg_paper.md
     │   │   ├── crackseg_paper_es.md
     │   │   ├── documentation_checklist.md
-    │   │   ├── e2e_testing_results_4_4.md
     │   │   ├── gui_corrections_inventory.md
     │   │   ├── gui_test_coverage_analysis.md
-    │   │   ├── legacy_folders_reorganization_summary.md
-    │   │   ├── manual_testing_results_4_3.md
-    │   │   ├── organization_summary.md
     │   │   ├── project_tree.md
+    │   │   ├── pytorch_cuda_compatibility_issue.md
     │   │   ├── README.md
-    │   │   ├── reorganization_summary.md
-    │   │   ├── subtask_4_3_completion_checklist.md
     │   │   ├── task_4_final_integration_report.md
     │   │   ├── technical_report.md
     │   │   ├── tensorboard_component_refactoring_summary.md
@@ -447,250 +505,331 @@
     │   │   ├── artifact_testing_plan.md
     │   │   └── test_patterns_and_best_practices.md
     │   ├── tools/
+    │   │   └── task-master-guide.md
     │   ├── tutorials/
     │   │   ├── 01_basic_training.md
     │   │   ├── 02_custom_experiment.md
     │   │   └── 03_extending_project.md
     │   └── index.md
-    ├── generated_configs/
-    ├── htmlcov/
-    ├── outputs/
-    ├── performance-historical-data/
-    ├── performance-reports/
-    ├── results/
+    ├── gui/
+    │   ├── __pycache__/
+    │   ├── assets/
+    │   │   ├── __pycache__/
+    │   │   ├── css/
+    │   │   │   ├── components/
+    │   │   │   │   ├── navigation.css
+    │   │   │   │   └── README.md
+    │   │   │   ├── global/
+    │   │   │   │   ├── base.css
+    │   │   │   │   └── README.md
+    │   │   │   └── themes/
+    │   │   │       └── README.md
+    │   │   ├── fonts/
+    │   │   │   └── primary/
+    │   │   │       └── README.md
+    │   │   ├── images/
+    │   │   │   ├── backgrounds/
+    │   │   │   │   └── README.md
+    │   │   │   ├── icons/
+    │   │   │   │   └── README.md
+    │   │   │   ├── logos/
+    │   │   │   │   ├── primary-logo.png
+    │   │   │   │   └── README.md
+    │   │   │   └── samples/
+    │   │   │       └── README.md
+    │   │   ├── js/
+    │   │   │   └── components/
+    │   │   │       └── README.md
+    │   │   ├── manifest/
+    │   │   │   ├── asset_registry.json
+    │   │   │   └── optimization_config.json
+    │   │   ├── init_assets.py
+    │   │   ├── manager.py
+    │   │   ├── README.md
+    │   │   └── structure.md
+    │   ├── components/
+    │   │   ├── __pycache__/
+    │   │   ├── config_editor/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── editor_core.py
+    │   │   │   ├── file_browser_integration.py
+    │   │   │   └── validation_panel.py
+    │   │   ├── gallery/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── actions.py
+    │   │   │   ├── event_handlers.py
+    │   │   │   ├── renderer.py
+    │   │   │   └── state_manager.py
+    │   │   ├── tensorboard/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── recovery/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── recovery_strategies.py
+    │   │   │   ├── rendering/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── diagnostics/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── action_controls.py
+    │   │   │   │   │   └── diagnostic_panel.py
+    │   │   │   │   ├── status_cards/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── base_card.py
+    │   │   │   │   │   ├── health_card.py
+    │   │   │   │   │   ├── network_card.py
+    │   │   │   │   │   ├── process_card.py
+    │   │   │   │   │   └── resource_card.py
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── advanced_status_renderer.py
+    │   │   │   │   ├── control_renderer.py
+    │   │   │   │   ├── error_renderer.py
+    │   │   │   │   ├── iframe_renderer.py
+    │   │   │   │   ├── startup_renderer.py
+    │   │   │   │   └── status_renderer.py
+    │   │   │   ├── state/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── progress_tracker.py
+    │   │   │   │   └── session_manager.py
+    │   │   │   ├── utils/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── formatters.py
+    │   │   │   │   └── validators.py
+    │   │   │   ├── __init__.py
+    │   │   │   └── component.py
+    │   │   ├── __init__.py
+    │   │   ├── auto_save_manager.py
+    │   │   ├── config_editor_component.py
+    │   │   ├── confirmation_dialog.py
+    │   │   ├── confirmation_renderer.py
+    │   │   ├── confirmation_utils.py
+    │   │   ├── device_detector.py
+    │   │   ├── device_info.py
+    │   │   ├── device_selector.py
+    │   │   ├── device_selector_backup.py
+    │   │   ├── device_selector_new.py
+    │   │   ├── device_selector_ui.py
+    │   │   ├── error_console.py
+    │   │   ├── file_browser.py
+    │   │   ├── file_browser_component.py
+    │   │   ├── file_upload_component.py
+    │   │   ├── header_component.py
+    │   │   ├── loading_spinner.py
+    │   │   ├── loading_spinner_optimized.py
+    │   │   ├── log_viewer.py
+    │   │   ├── logo_component.py
+    │   │   ├── metrics_viewer.py
+    │   │   ├── page_router.py
+    │   │   ├── progress_bar.py
+    │   │   ├── progress_bar_optimized.py
+    │   │   ├── results_display.py
+    │   │   ├── results_gallery_component.py
+    │   │   ├── sidebar_component.py
+    │   │   ├── tensorboard_component.py
+    │   │   └── theme_component.py
+    │   ├── docs/
+    │   │   ├── error_messaging_system.md
+    │   │   ├── file_upload_guide.md
+    │   │   └── tensorboard_integration_summary.md
+    │   ├── pages/
+    │   │   ├── __pycache__/
+    │   │   ├── architecture/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── config_section.py
+    │   │   │   ├── info_section.py
+    │   │   │   ├── model_section.py
+    │   │   │   ├── utils.py
+    │   │   │   └── visualization_section.py
+    │   │   ├── results/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── comparison_section.py
+    │   │   │   ├── config_section.py
+    │   │   │   ├── gallery_section.py
+    │   │   │   ├── metrics_section.py
+    │   │   │   ├── setup_section.py
+    │   │   │   ├── tensorboard_section.py
+    │   │   │   └── utils.py
+    │   │   ├── __init__.py
+    │   │   ├── advanced_config_page.py
+    │   │   ├── architecture_page.py
+    │   │   ├── config_page.py
+    │   │   ├── home_page.py
+    │   │   ├── page_train.py
+    │   │   ├── results_page.py
+    │   │   ├── results_page_new.py
+    │   │   └── train_page.py
+    │   ├── services/
+    │   │   ├── __pycache__/
+    │   │   ├── __init__.py
+    │   │   ├── gallery_export_service.py
+    │   │   ├── gallery_scanner_service.py
+    │   │   └── gpu_monitor.py
+    │   ├── styles/
+    │   │   └── main.css
+    │   ├── utils/
+    │   │   ├── __pycache__/
+    │   │   ├── config/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── validation/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── error_categorizer.py
+    │   │   │   │   └── yaml_engine.py
+    │   │   │   ├── __init__.py
+    │   │   │   ├── cache.py
+    │   │   │   ├── config_loader.py
+    │   │   │   ├── error_reporter.py
+    │   │   │   ├── exceptions.py
+    │   │   │   ├── formatters.py
+    │   │   │   ├── io.py
+    │   │   │   ├── parsing_engine.py
+    │   │   │   ├── schema_validator.py
+    │   │   │   └── templates.py
+    │   │   ├── parsing/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── exceptions.py
+    │   │   │   └── override_parser.py
+    │   │   ├── process/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── abort_system.py
+    │   │   │   ├── core.py
+    │   │   │   ├── error_handling.py
+    │   │   │   ├── log_integration.py
+    │   │   │   ├── manager_backup.py
+    │   │   │   ├── monitoring.py
+    │   │   │   ├── override_parser.py
+    │   │   │   └── states.py
+    │   │   ├── reports/
+    │   │   │   └── models.py
+    │   │   ├── results/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── advanced_validation.py
+    │   │   │   ├── cache.py
+    │   │   │   ├── core.py
+    │   │   │   ├── demo.py
+    │   │   │   ├── demo_advanced_validation.py
+    │   │   │   ├── demo_reactive.py
+    │   │   │   ├── demo_streamlit_integration.py
+    │   │   │   ├── events.py
+    │   │   │   ├── results_validator.py
+    │   │   │   ├── scanner.py
+    │   │   │   └── validation.py
+    │   │   ├── results_scanning/
+    │   │   │   └── __init__.py
+    │   │   ├── run_manager/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── abort_api.py
+    │   │   │   ├── orchestrator.py
+    │   │   │   ├── session_api.py
+    │   │   │   ├── status_integration.py
+    │   │   │   ├── status_updates.py
+    │   │   │   ├── streaming_api.py
+    │   │   │   ├── ui_integration.py
+    │   │   │   └── ui_status_helpers.py
+    │   │   ├── streaming/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── sources/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── file_watcher.py
+    │   │   │   │   └── stdout_reader.py
+    │   │   │   ├── __init__.py
+    │   │   │   ├── core.py
+    │   │   │   └── exceptions.py
+    │   │   ├── tensorboard/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── core.py
+    │   │   │   ├── demo_refactored.py
+    │   │   │   ├── lifecycle_manager.py
+    │   │   │   ├── manager.py
+    │   │   │   ├── port_management.py
+    │   │   │   └── process_manager.py
+    │   │   ├── threading/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── cancellation.py
+    │   │   │   ├── coordinator.py
+    │   │   │   ├── progress_tracking.py
+    │   │   │   ├── task_results.py
+    │   │   │   ├── task_status.py
+    │   │   │   ├── ui_responsive_backup.py
+    │   │   │   └── ui_wrapper.py
+    │   │   ├── __init__.py
+    │   │   ├── architecture_viewer.py
+    │   │   ├── auto_save.py
+    │   │   ├── config_io.py
+    │   │   ├── data_stats.py
+    │   │   ├── demo_tensorboard.py
+    │   │   ├── error_state.py
+    │   │   ├── export_manager.py
+    │   │   ├── gui_config.py
+    │   │   ├── log_parser.py
+    │   │   ├── override_examples.py
+    │   │   ├── performance_optimizer.py
+    │   │   ├── process_manager.py
+    │   │   ├── save_dialog.py
+    │   │   ├── session_state.py
+    │   │   ├── session_sync.py
+    │   │   ├── streaming_examples.py
+    │   │   ├── styling.py
+    │   │   ├── tb_manager.py
+    │   │   ├── theme.py
+    │   │   └── training_state.py
+    │   ├── __init__.py
+    │   ├── app.py
+    │   ├── debug_page_rendering.py
+    │   └── README.md
+    ├── logs/
     ├── scripts/
     │   ├── __pycache__/
+    │   ├── archive/
+    │   │   ├── limpieza_scripts_summary.md
+    │   │   └── README.md
+    │   ├── debug/
+    │   │   ├── __init__.py
+    │   │   ├── artifact_diagnostics.py
+    │   │   ├── artifact_fixer.py
+    │   │   ├── checkpoint_validator.py
+    │   │   ├── main.py
+    │   │   └── utils.py
     │   ├── examples/
     │   │   ├── factory_registry_integration.py
     │   │   └── tensorboard_port_management_demo.py
     │   ├── experiments/
-    │   ├── gui/
-    │   │   ├── __pycache__/
-    │   │   ├── assets/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── css/
-    │   │   │   │   ├── components/
-    │   │   │   │   │   ├── navigation.css
-    │   │   │   │   │   └── README.md
-    │   │   │   │   ├── global/
-    │   │   │   │   │   ├── base.css
-    │   │   │   │   │   └── README.md
-    │   │   │   │   └── themes/
-    │   │   │   │       └── README.md
-    │   │   │   ├── fonts/
-    │   │   │   │   └── primary/
-    │   │   │   │       └── README.md
-    │   │   │   ├── images/
-    │   │   │   │   ├── backgrounds/
-    │   │   │   │   │   └── README.md
-    │   │   │   │   ├── icons/
-    │   │   │   │   │   └── README.md
-    │   │   │   │   ├── logos/
-    │   │   │   │   │   ├── primary-logo.png
-    │   │   │   │   │   └── README.md
-    │   │   │   │   └── samples/
-    │   │   │   │       └── README.md
-    │   │   │   ├── js/
-    │   │   │   │   └── components/
-    │   │   │   │       └── README.md
-    │   │   │   ├── manifest/
-    │   │   │   │   ├── asset_registry.json
-    │   │   │   │   └── optimization_config.json
-    │   │   │   ├── init_assets.py
-    │   │   │   ├── manager.py
-    │   │   │   ├── README.md
-    │   │   │   └── structure.md
-    │   │   ├── components/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── config_editor/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── editor_core.py
-    │   │   │   │   ├── file_browser_integration.py
-    │   │   │   │   └── validation_panel.py
-    │   │   │   ├── gallery/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── actions.py
-    │   │   │   │   ├── event_handlers.py
-    │   │   │   │   ├── renderer.py
-    │   │   │   │   └── state_manager.py
-    │   │   │   ├── tensorboard/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── auto_save_manager.py
-    │   │   │   ├── config_editor_component.py
-    │   │   │   ├── confirmation_dialog.py
-    │   │   │   ├── confirmation_renderer.py
-    │   │   │   ├── confirmation_utils.py
-    │   │   │   ├── device_detector.py
-    │   │   │   ├── device_info.py
-    │   │   │   ├── device_selector.py
-    │   │   │   ├── device_selector_backup.py
-    │   │   │   ├── device_selector_new.py
-    │   │   │   ├── device_selector_ui.py
-    │   │   │   ├── error_console.py
-    │   │   │   ├── file_browser.py
-    │   │   │   ├── file_browser_component.py
-    │   │   │   ├── file_upload_component.py
-    │   │   │   ├── header_component.py
-    │   │   │   ├── loading_spinner.py
-    │   │   │   ├── loading_spinner_optimized.py
-    │   │   │   ├── log_viewer.py
-    │   │   │   ├── logo_component.py
-    │   │   │   ├── metrics_viewer.py
-    │   │   │   ├── page_router.py
-    │   │   │   ├── progress_bar.py
-    │   │   │   ├── progress_bar_optimized.py
-    │   │   │   ├── results_display.py
-    │   │   │   ├── results_gallery_component.py
-    │   │   │   ├── sidebar_component.py
-    │   │   │   ├── tensorboard_component.py
-    │   │   │   └── theme_component.py
-    │   │   ├── docs/
-    │   │   │   ├── error_messaging_system.md
-    │   │   │   ├── file_upload_guide.md
-    │   │   │   └── tensorboard_integration_summary.md
-    │   │   ├── pages/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── architecture/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── config_section.py
-    │   │   │   │   ├── info_section.py
-    │   │   │   │   ├── model_section.py
-    │   │   │   │   ├── utils.py
-    │   │   │   │   └── visualization_section.py
-    │   │   │   ├── results/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── advanced_config_page.py
-    │   │   │   ├── architecture_page.py
-    │   │   │   ├── config_page.py
-    │   │   │   ├── home_page.py
-    │   │   │   ├── page_train.py
-    │   │   │   ├── results_page.py
-    │   │   │   ├── results_page_new.py
-    │   │   │   └── train_page.py
-    │   │   ├── services/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── gallery_export_service.py
-    │   │   │   ├── gallery_scanner_service.py
-    │   │   │   └── gpu_monitor.py
-    │   │   ├── styles/
-    │   │   │   └── main.css
-    │   │   ├── utils/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── config/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── validation/
-    │   │   │   │   │   ├── __pycache__/
-    │   │   │   │   │   ├── __init__.py
-    │   │   │   │   │   ├── error_categorizer.py
-    │   │   │   │   │   └── yaml_engine.py
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── cache.py
-    │   │   │   │   ├── config_loader.py
-    │   │   │   │   ├── error_reporter.py
-    │   │   │   │   ├── exceptions.py
-    │   │   │   │   ├── formatters.py
-    │   │   │   │   ├── io.py
-    │   │   │   │   ├── parsing_engine.py
-    │   │   │   │   ├── schema_validator.py
-    │   │   │   │   └── templates.py
-    │   │   │   ├── parsing/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── exceptions.py
-    │   │   │   │   └── override_parser.py
-    │   │   │   ├── process/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── abort_system.py
-    │   │   │   │   ├── core.py
-    │   │   │   │   ├── error_handling.py
-    │   │   │   │   ├── log_integration.py
-    │   │   │   │   ├── manager_backup.py
-    │   │   │   │   ├── monitoring.py
-    │   │   │   │   ├── override_parser.py
-    │   │   │   │   └── states.py
-    │   │   │   ├── reports/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   └── models.py
-    │   │   │   ├── results/
-    │   │   │   ├── results_scanning/
-    │   │   │   │   └── __init__.py
-    │   │   │   ├── run_manager/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── abort_api.py
-    │   │   │   │   ├── orchestrator.py
-    │   │   │   │   ├── session_api.py
-    │   │   │   │   ├── status_integration.py
-    │   │   │   │   ├── status_updates.py
-    │   │   │   │   ├── streaming_api.py
-    │   │   │   │   ├── ui_integration.py
-    │   │   │   │   └── ui_status_helpers.py
-    │   │   │   ├── streaming/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── sources/
-    │   │   │   │   │   ├── __pycache__/
-    │   │   │   │   │   ├── __init__.py
-    │   │   │   │   │   ├── file_watcher.py
-    │   │   │   │   │   └── stdout_reader.py
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── core.py
-    │   │   │   │   └── exceptions.py
-    │   │   │   ├── tensorboard/
-    │   │   │   ├── threading/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── cancellation.py
-    │   │   │   │   ├── coordinator.py
-    │   │   │   │   ├── progress_tracking.py
-    │   │   │   │   ├── task_results.py
-    │   │   │   │   ├── task_status.py
-    │   │   │   │   ├── ui_responsive_backup.py
-    │   │   │   │   └── ui_wrapper.py
-    │   │   │   ├── __init__.py
-    │   │   │   ├── architecture_viewer.py
-    │   │   │   ├── auto_save.py
-    │   │   │   ├── config_io.py
-    │   │   │   ├── data_stats.py
-    │   │   │   ├── demo_tensorboard.py
-    │   │   │   ├── error_state.py
-    │   │   │   ├── export_manager.py
-    │   │   │   ├── gui_config.py
-    │   │   │   ├── log_parser.py
-    │   │   │   ├── override_examples.py
-    │   │   │   ├── performance_optimizer.py
-    │   │   │   ├── process_manager.py
-    │   │   │   ├── save_dialog.py
-    │   │   │   ├── session_state.py
-    │   │   │   ├── session_sync.py
-    │   │   │   ├── streaming_examples.py
-    │   │   │   ├── styling.py
-    │   │   │   ├── tb_manager.py
-    │   │   │   ├── theme.py
-    │   │   │   └── training_state.py
-    │   │   ├── utils(results/
-    │   │   │   └── core.py
-    │   │   ├── __init__.py
-    │   │   ├── app.py
-    │   │   ├── app_legacy.py
-    │   │   ├── debug_page_rendering.py
-    │   │   ├── README.md
-    │   │   └── README_REFACTORING.md
+    │   │   ├── benchmark_aspp.py
+    │   │   ├── debug_swin_params.py
+    │   │   ├── hybrid_registry_demo.py
+    │   │   ├── registry_demo.py
+    │   │   ├── test_pipeline_e2e.py
+    │   │   ├── test_swin_encoder.py
+    │   │   ├── test_swin_transfer_learning_script.py
+    │   │   └── test_swin_unet.py
     │   ├── monitoring/
     │   │   └── continuous_coverage.py
-    │   ├── outputs/
+    │   ├── performance/
+    │   │   ├── __init__.py
+    │   │   ├── base_executor.py
+    │   │   ├── baseline_updater.py
+    │   │   ├── cleanup_validator.py
+    │   │   ├── health_checker.py
+    │   │   ├── maintenance_manager.py
+    │   │   └── utils.py
     │   ├── reports/
     │   │   ├── autofix_backups/
     │   │   ├── compare_model_structure.py
     │   │   ├── model_imports_autofix.py
     │   │   ├── model_imports_catalog.py
     │   │   ├── model_imports_cycles.py
-    │   │   ├── model_imports_validation.py
-    │   │   └── model_pyfiles_inventory.py
+    │   │   └── model_imports_validation.py
     │   ├── utils/
     │   │   ├── test_suite_refinement/
     │   │   │   ├── add_reproducibility_score.py
@@ -704,7 +843,6 @@
     │   │   │   ├── tag_test_priority.py
     │   │   │   └── update_test_inventory_status.py
     │   │   ├── audit_rules_checklist.py
-    │   │   ├── check_file_sizes.py
     │   │   ├── check_updates.py
     │   │   ├── clean_workspace.py
     │   │   ├── example_override.py
@@ -715,294 +853,292 @@
     │   │   ├── organize_reports_plan.md
     │   │   ├── reorganize_legacy_folders_plan.md
     │   │   ├── unet_diagram.py
-    │   │   ├── update_test_imports.py
     │   │   ├── validate-rule-references.py
     │   │   └── verify_setup.py
     │   ├── __init__.py
     │   ├── benchmark_tests.py
     │   ├── check_test_files.py
+    │   ├── coverage_check.sh
     │   ├── debug_artifacts.py
-    │   ├── model_inventory.py
     │   ├── performance_maintenance.py
     │   ├── README.md
-    │   ├── test_clean_installation.py
-    │   ├── validate_coverage.py
-    │   ├── validate_test_quality.py
-    │   ├── verify_python_compatibility.py
-    │   └── verify_system_dependencies.py
-    ├── selenium-videos/
-    ├── site/
+    │   ├── run_tests_phased.py
+    │   ├── simple_install_check.sh
+    │   └── validate_test_quality.py
     ├── src/
-    │   ├── __pycache__/
-    │   ├── data/
+    │   ├── crackseg/
     │   │   ├── __pycache__/
-    │   │   ├── __init__.py
-    │   │   ├── dataloader.py
-    │   │   ├── dataset.py
-    │   │   ├── distributed.py
-    │   │   ├── factory.py
-    │   │   ├── memory.py
-    │   │   ├── README.md
-    │   │   ├── sampler.py
-    │   │   ├── splitting.py
-    │   │   ├── transforms.py
-    │   │   └── validation.py
-    │   ├── evaluation/
-    │   │   ├── __pycache__/
-    │   │   ├── __init__.py
-    │   │   ├── __main__.py
-    │   │   ├── core.py
-    │   │   ├── data.py
-    │   │   ├── ensemble.py
-    │   │   ├── loading.py
-    │   │   ├── README.md
-    │   │   ├── results.py
-    │   │   └── setup.py
-    │   ├── integration/
-    │   │   └── model/
-    │   │       └── test_integration.py
-    │   ├── model/
-    │   │   ├── __pycache__/
-    │   │   ├── architectures/
+    │   │   ├── data/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
-    │   │   │   ├── cnn_convlstm_unet.py
-    │   │   │   ├── swinv2_cnn_aspp_unet.py
-    │   │   │   └── unet.py
-    │   │   ├── base/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   └── abstract.py
-    │   │   ├── bottleneck/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   └── cnn_bottleneck.py
-    │   │   ├── common/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   └── utils.py
-    │   │   ├── components/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── aspp.py
-    │   │   │   ├── attention_decorator.py
-    │   │   │   ├── cbam.py
-    │   │   │   ├── convlstm.py
-    │   │   │   └── registry_support.py
-    │   │   ├── config/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── core.py
+    │   │   │   ├── dataloader.py
+    │   │   │   ├── dataset.py
+    │   │   │   ├── distributed.py
     │   │   │   ├── factory.py
-    │   │   │   ├── instantiation.py
-    │   │   │   ├── schemas.py
+    │   │   │   ├── memory.py
+    │   │   │   ├── README.md
+    │   │   │   ├── sampler.py
+    │   │   │   ├── splitting.py
+    │   │   │   ├── transforms.py
     │   │   │   └── validation.py
-    │   │   ├── core/
+    │   │   ├── evaluation/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
-    │   │   │   └── unet.py
-    │   │   ├── decoder/
+    │   │   │   ├── __main__.py
+    │   │   │   ├── core.py
+    │   │   │   ├── data.py
+    │   │   │   ├── ensemble.py
+    │   │   │   ├── loading.py
+    │   │   │   ├── README.md
+    │   │   │   ├── results.py
+    │   │   │   └── setup.py
+    │   │   ├── model/
     │   │   │   ├── __pycache__/
-    │   │   │   ├── common/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   └── channel_utils.py
-    │   │   │   ├── __init__.py
-    │   │   │   └── cnn_decoder.py
-    │   │   ├── encoder/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── cnn_encoder.py
-    │   │   │   ├── feature_info_utils.py
-    │   │   │   ├── swin_transformer_encoder.py
-    │   │   │   └── swin_v2_adapter.py
-    │   │   ├── factory/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── config.py
-    │   │   │   ├── config_schema.py
-    │   │   │   ├── factory.py
-    │   │   │   ├── factory_utils.py
-    │   │   │   ├── hybrid_registry.py
-    │   │   │   ├── registry.py
-    │   │   │   └── registry_setup.py
-    │   │   ├── __init__.py
-    │   │   └── README.md
-    │   ├── outputs/
-    │   ├── training/
-    │   │   ├── __pycache__/
-    │   │   ├── losses/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── combinators/
+    │   │   │   ├── architectures/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── base_combinator.py
-    │   │   │   │   ├── enhanced_product.py
-    │   │   │   │   ├── enhanced_weighted_sum.py
-    │   │   │   │   ├── product.py
-    │   │   │   │   └── weighted_sum.py
+    │   │   │   │   ├── cnn_convlstm_unet.py
+    │   │   │   │   └── swinv2_cnn_aspp_unet.py
+    │   │   │   ├── base/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── abstract.py
+    │   │   │   ├── bottleneck/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── cnn_bottleneck.py
+    │   │   │   ├── common/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── visualization/
+    │   │   │   │   │   ├── matplotlib/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── graphviz_renderer.py
+    │   │   │   │   │   ├── main.py
+    │   │   │   │   │   └── matplotlib_renderer.py
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── spatial_utils.py
+    │   │   │   │   └── utils.py
+    │   │   │   ├── components/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── aspp.py
+    │   │   │   │   ├── attention_decorator.py
+    │   │   │   │   ├── cbam.py
+    │   │   │   │   ├── convlstm.py
+    │   │   │   │   └── registry_support.py
+    │   │   │   ├── config/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── core.py
+    │   │   │   │   ├── factory.py
+    │   │   │   │   ├── instantiation.py
+    │   │   │   │   ├── schemas.py
+    │   │   │   │   └── validation.py
+    │   │   │   ├── core/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── unet.py
+    │   │   │   ├── decoder/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── common/
+    │   │   │   │   │   ├── __pycache__/
+    │   │   │   │   │   └── channel_utils.py
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── cnn_decoder.py
+    │   │   │   ├── encoder/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── swin/
+    │   │   │   │   │   ├── __pycache__/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── config.py
+    │   │   │   │   │   ├── core.py
+    │   │   │   │   │   ├── initialization.py
+    │   │   │   │   │   ├── preprocessing.py
+    │   │   │   │   │   └── transfer_learning.py
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── cnn_encoder.py
+    │   │   │   │   ├── feature_info_utils.py
+    │   │   │   │   ├── swin_transformer_encoder.py
+    │   │   │   │   └── swin_v2_adapter.py
     │   │   │   ├── factory/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── config_parser.py
-    │   │   │   │   ├── config_validator.py
-    │   │   │   │   └── recursive_factory.py
-    │   │   │   ├── interfaces/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   └── loss_interface.py
-    │   │   │   ├── registry/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── clean_registry.py
-    │   │   │   │   ├── enhanced_registry.py
-    │   │   │   │   └── setup_losses.py
+    │   │   │   │   ├── config.py
+    │   │   │   │   ├── config_schema.py
+    │   │   │   │   ├── factory.py
+    │   │   │   │   ├── factory_utils.py
+    │   │   │   │   ├── hybrid_registry.py
+    │   │   │   │   ├── registry.py
+    │   │   │   │   └── registry_setup.py
     │   │   │   ├── __init__.py
-    │   │   │   ├── base_loss.py
-    │   │   │   ├── bce_dice_loss.py
-    │   │   │   ├── bce_loss.py
-    │   │   │   ├── combined_loss.py
-    │   │   │   ├── dice_loss.py
-    │   │   │   ├── focal_loss.py
-    │   │   │   ├── loss_registry_setup.py
-    │   │   │   └── recursive_factory.py
-    │   │   ├── __init__.py
-    │   │   ├── batch_processing.py
-    │   │   ├── config_validation.py
-    │   │   ├── factory.py
-    │   │   ├── metrics.py
-    │   │   ├── README.md
-    │   │   └── trainer.py
-    │   ├── utils/
-    │   │   ├── __pycache__/
-    │   │   ├── checkpointing/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── core.py
-    │   │   │   ├── helpers.py
-    │   │   │   └── setup.py
-    │   │   ├── config/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── env.py
-    │   │   │   ├── init.py
-    │   │   │   ├── override.py
-    │   │   │   ├── schema.py
-    │   │   │   ├── standardized_storage.py
-    │   │   │   └── validation.py
-    │   │   ├── core/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── device.py
-    │   │   │   ├── exceptions.py
-    │   │   │   ├── paths.py
-    │   │   │   └── seeds.py
-    │   │   ├── experiment/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── experiment.py
-    │   │   │   └── manager.py
-    │   │   ├── factory/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── cache.py
-    │   │   │   └── factory.py
-    │   │   ├── logging/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── base.py
-    │   │   │   ├── experiment.py
-    │   │   │   ├── metrics_manager.py
-    │   │   │   ├── setup.py
-    │   │   │   └── training.py
-    │   │   ├── monitoring/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── alert_types.py
-    │   │   │   ├── alerting_system.py
-    │   │   │   ├── callbacks.py
-    │   │   │   ├── coverage_monitor.py
-    │   │   │   ├── exceptions.py
-    │   │   │   ├── gpu_callbacks.py
-    │   │   │   ├── manager.py
-    │   │   │   ├── resource_monitor.py
-    │   │   │   ├── resource_snapshot.py
-    │   │   │   ├── retention.py
-    │   │   │   ├── system_callbacks.py
-    │   │   │   ├── threshold_checker.py
-    │   │   │   └── threshold_config.py
+    │   │   │   └── README.md
+    │   │   ├── outputs/
+    │   │   │   ├── experiments/
+    │   │   │   │   ├── 20250602-041102-basic_verification/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250602-041159-basic_verification/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250602-041325-basic_verification/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250602-041432-basic_verification/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   └── 20250603-010344-basic_verification/
+    │   │   │   │       ├── checkpoints/
+    │   │   │   │       ├── configurations/
+    │   │   │   │       ├── logs/
+    │   │   │   │       ├── metrics/
+    │   │   │   │       ├── results/
+    │   │   │   │       ├── config.json
+    │   │   │   │       └── experiment_info.json
+    │   │   │   ├── shared/
+    │   │   │   └── experiment_registry.json
     │   │   ├── training/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── losses/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── combinators/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── base_combinator.py
+    │   │   │   │   │   ├── enhanced_product.py
+    │   │   │   │   │   ├── enhanced_weighted_sum.py
+    │   │   │   │   │   ├── product.py
+    │   │   │   │   │   └── weighted_sum.py
+    │   │   │   │   ├── factory/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── config_parser.py
+    │   │   │   │   │   ├── config_validator.py
+    │   │   │   │   │   └── recursive_factory.py
+    │   │   │   │   ├── interfaces/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   └── loss_interface.py
+    │   │   │   │   ├── registry/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── clean_registry.py
+    │   │   │   │   │   ├── enhanced_registry.py
+    │   │   │   │   │   └── setup_losses.py
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── base_loss.py
+    │   │   │   │   ├── bce_dice_loss.py
+    │   │   │   │   ├── bce_loss.py
+    │   │   │   │   ├── combined_loss.py
+    │   │   │   │   ├── dice_loss.py
+    │   │   │   │   ├── focal_loss.py
+    │   │   │   │   ├── loss_registry_setup.py
+    │   │   │   │   └── recursive_factory.py
     │   │   │   ├── __init__.py
-    │   │   │   ├── amp_utils.py
-    │   │   │   ├── early_stopping.py
-    │   │   │   ├── early_stopping_setup.py
-    │   │   │   └── scheduler_helper.py
-    │   │   ├── visualization/
+    │   │   │   ├── batch_processing.py
+    │   │   │   ├── config_validation.py
+    │   │   │   ├── factory.py
+    │   │   │   ├── metrics.py
+    │   │   │   ├── README.md
+    │   │   │   └── trainer.py
+    │   │   ├── utils/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── checkpointing/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── core.py
+    │   │   │   │   ├── helpers.py
+    │   │   │   │   └── setup.py
+    │   │   │   ├── config/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── env.py
+    │   │   │   │   ├── init.py
+    │   │   │   │   ├── override.py
+    │   │   │   │   ├── schema.py
+    │   │   │   │   ├── standardized_storage.py
+    │   │   │   │   └── validation.py
+    │   │   │   ├── core/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── device.py
+    │   │   │   │   ├── exceptions.py
+    │   │   │   │   ├── paths.py
+    │   │   │   │   └── seeds.py
+    │   │   │   ├── experiment/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── experiment.py
+    │   │   │   │   └── manager.py
+    │   │   │   ├── factory/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── cache.py
+    │   │   │   │   └── factory.py
+    │   │   │   ├── logging/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── base.py
+    │   │   │   │   ├── experiment.py
+    │   │   │   │   ├── metrics_manager.py
+    │   │   │   │   ├── setup.py
+    │   │   │   │   └── training.py
+    │   │   │   ├── monitoring/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── alert_types.py
+    │   │   │   │   ├── alerting_system.py
+    │   │   │   │   ├── callbacks.py
+    │   │   │   │   ├── coverage_monitor.py
+    │   │   │   │   ├── exceptions.py
+    │   │   │   │   ├── gpu_callbacks.py
+    │   │   │   │   ├── manager.py
+    │   │   │   │   ├── resource_monitor.py
+    │   │   │   │   ├── resource_snapshot.py
+    │   │   │   │   ├── retention.py
+    │   │   │   │   ├── system_callbacks.py
+    │   │   │   │   ├── threshold_checker.py
+    │   │   │   │   └── threshold_config.py
+    │   │   │   ├── training/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── amp_utils.py
+    │   │   │   │   ├── early_stopping.py
+    │   │   │   │   ├── early_stopping_setup.py
+    │   │   │   │   └── scheduler_helper.py
+    │   │   │   ├── visualization/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── plots.py
     │   │   │   ├── __init__.py
-    │   │   │   └── plots.py
+    │   │   │   ├── component_cache.py
+    │   │   │   ├── exceptions.py
+    │   │   │   ├── README.md
+    │   │   │   └── torchvision_compat.py
     │   │   ├── __init__.py
-    │   │   ├── component_cache.py
-    │   │   ├── exceptions.py
+    │   │   ├── __main__.py
+    │   │   ├── dataclasses.py
+    │   │   ├── evaluate.py
     │   │   └── README.md
-    │   ├── __init__.py
-    │   ├── __main__.py
-    │   ├── evaluate.py
-    │   ├── main.py
-    │   └── README.md
-    ├── tasks/
-    ├── test-artifacts/
-    ├── test-results/
-    ├── test_failure_reports/
-    │   └── test_failures_20250713_063004.json
+    │   ├── crackseg.egg-info/
+    │   └── main.py
     ├── tests/
     │   ├── __pycache__/
-    │   ├── docker/
-    │   │   ├── __pycache__/
-    │   │   ├── scripts/
-    │   │   │   ├── artifact-manager.sh
-    │   │   │   ├── browser-manager.sh
-    │   │   │   ├── ci-setup.sh
-    │   │   │   ├── docker-stack-manager.sh
-    │   │   │   ├── e2e-test-orchestrator.sh
-    │   │   │   ├── health-check-manager.sh
-    │   │   │   ├── manage-grid.sh
-    │   │   │   ├── network-manager.sh
-    │   │   │   ├── run-e2e-tests.sh
-    │   │   │   ├── run-test-runner.sh
-    │   │   │   ├── setup-env.sh
-    │   │   │   ├── setup-local-dev.sh
-    │   │   │   ├── start-test-env.sh
-    │   │   │   └── system-monitor.sh
-    │   │   ├── browser-capabilities.json
-    │   │   ├── docker-compose.README.md
-    │   │   ├── docker-compose.test.yml
-    │   │   ├── docker-entrypoint.sh
-    │   │   ├── Dockerfile.streamlit
-    │   │   ├── Dockerfile.test-runner
-    │   │   ├── env-test.yml
-    │   │   ├── env.local.template
-    │   │   ├── env.production.template
-    │   │   ├── env.staging.template
-    │   │   ├── env.test.template
-    │   │   ├── env_manager.py
-    │   │   ├── grid-config.json
-    │   │   ├── health_check_system.py
-    │   │   ├── mobile-browser-config.json
-    │   │   ├── pytest.ini
-    │   │   ├── README-ARCHITECTURE.md
-    │   │   ├── README-DOCKER-TESTING.md
-    │   │   ├── README-LOCAL-DEV.md
-    │   │   ├── README-TROUBLESHOOTING.md
-    │   │   ├── README-USAGE.md
-    │   │   ├── README.artifact-management.md
-    │   │   ├── README.cross-browser-testing.md
-    │   │   ├── README.environment-management.md
-    │   │   ├── README.md
-    │   │   ├── README.network-setup.md
-    │   │   ├── selenium-grid-guide.md
-    │   │   ├── setup-local-dev.sh
-    │   │   └── test-runner.config
     │   ├── e2e/
     │   │   ├── __pycache__/
     │   │   ├── capture/
@@ -1051,9 +1187,7 @@
     │   │   │   ├── test_parallel_framework_validation.py
     │   │   │   └── threshold_validator.py
     │   │   ├── data/
-    │   │   │   ├── __pycache__/
     │   │   │   ├── factories/
-    │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── base.py
     │   │   │   │   ├── config_factory.py
@@ -1061,7 +1195,6 @@
     │   │   │   │   ├── image_factory.py
     │   │   │   │   └── model_factory.py
     │   │   │   ├── provisioning/
-    │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── core.py
     │   │   │   │   ├── database.py
@@ -1109,7 +1242,6 @@
     │   │   ├── performance/
     │   │   │   ├── __pycache__/
     │   │   │   ├── reporting/
-    │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── analysis.py
     │   │   │   │   ├── comparison_charts.py
@@ -1140,9 +1272,7 @@
     │   │   │   ├── regression_alerting_system.py
     │   │   │   └── stress_test.py
     │   │   ├── reporting/
-    │   │   │   ├── __pycache__/
     │   │   │   ├── analysis/
-    │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── failure_analyzer.py
     │   │   │   │   └── trend_analyzer.py
@@ -1170,6 +1300,12 @@
     │   │   │   ├── test_capture_demonstration.py
     │   │   │   ├── test_cross_browser_compatibility.py
     │   │   │   ├── test_edge_cases.py
+    │   │   │   ├── test_edge_cases_boundary.py
+    │   │   │   ├── test_edge_cases_concurrent.py
+    │   │   │   ├── test_edge_cases_corruption.py
+    │   │   │   ├── test_edge_cases_interactions.py
+    │   │   │   ├── test_edge_cases_performance.py
+    │   │   │   ├── test_edge_cases_resources.py
     │   │   │   ├── test_error_scenarios.py
     │   │   │   ├── test_happy_path.py
     │   │   │   └── test_performance_integration.py
@@ -1195,7 +1331,6 @@
     │   │   │   ├── test_environment_manager.py
     │   │   │   └── time.py
     │   │   ├── waits/
-    │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
     │   │   │   ├── conditions.py
     │   │   │   └── strategies.py
@@ -1203,13 +1338,13 @@
     │   │   ├── base_test.py
     │   │   ├── conftest.py
     │   │   ├── README.md
+    │   │   ├── test_cleanup_integration.py
     │   │   ├── test_driver_integration.py
     │   │   ├── test_environment_setup_demo.py
     │   │   ├── test_fixture_usage_example.py
     │   │   ├── test_streamlit_basic.py
     │   │   └── test_workflow_regression_4_4.py
     │   ├── examples/
-    │   │   ├── __pycache__/
     │   │   ├── enhanced_gui_testing_demo.py
     │   │   └── visual_regression_demo.py
     │   ├── fixtures/
@@ -1279,9 +1414,6 @@
     │   │   │   ├── __pycache__/
     │   │   │   ├── test_data_loading_pipeline.py
     │   │   │   └── test_data_pipeline.py
-    │   │   ├── e2e/
-    │   │   │   ├── __pycache__/
-    │   │   │   └── test_cleanup_integration.py
     │   │   ├── end_to_end/
     │   │   ├── evaluation/
     │   │   │   ├── __pycache__/
@@ -1331,7 +1463,6 @@
     │   │   │   │   ├── test_resource_contention.py
     │   │   │   │   └── test_system_stability.py
     │   │   │   ├── helpers/
-    │   │   │   │   └── __pycache__/
     │   │   │   ├── workflow_components/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── concurrent/
@@ -1393,6 +1524,10 @@
     │   │   │   └── test_monitoring_integration.py
     │   │   ├── reporting/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── analysis/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── test_data_aggregation.py
+    │   │   │   │   └── test_trend_analysis.py
     │   │   │   ├── __init__.py
     │   │   │   ├── test_end_to_end_reporting.py
     │   │   │   └── test_sample_report_generation.py
@@ -1409,10 +1544,20 @@
     │   │   │   └── test_training_loop.py
     │   │   ├── utils/
     │   │   └── test_backward_compatibility.py
-    │   ├── unit/
-    │   │   ├── __pycache__/
-    │   │   ├── data/
+    │   ├── tools/
+    │   │   ├── analysis/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── comprehensive_failure_analysis.py
+    │   │   │   ├── test_failure_analysis.py
+    │   │   │   ├── test_failure_categorization.py
+    │   │   │   └── test_priority_matrix_creator.py
+    │   │   ├── testing/
+    │   │   │   ├── __pycache__/
+    │   │   │   └── test_config_system.py
+    │   │   └── utilities/
+    │   │       └── temp_storage.py
+    │   ├── unit/
+    │   │   ├── data/
     │   │   │   ├── test_dataloader.py
     │   │   │   ├── test_dataset_pipeline.py
     │   │   │   ├── test_distributed.py
@@ -1421,43 +1566,9 @@
     │   │   │   └── test_sampler.py
     │   │   ├── docker/
     │   │   │   ├── __pycache__/
-    │   │   │   ├── test_artifact_manager.py
     │   │   │   ├── test_env_manager.py
     │   │   │   └── test_health_check_system.py
-    │   │   ├── e2e/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── capture/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── test_screenshot.py
-    │   │   │   │   └── test_storage.py
-    │   │   │   ├── cleanup/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   └── test_cleanup_manager.py
-    │   │   │   ├── config/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── test_browser_capabilities.py
-    │   │   │   │   ├── test_browser_config_manager.py
-    │   │   │   │   └── test_performance_thresholds.py
-    │   │   │   ├── performance/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── reporting/
-    │   │   │   │   │   ├── __pycache__/
-    │   │   │   │   │   └── test_core.py
-    │   │   │   │   └── test_regression_alerting_system.py
-    │   │   │   ├── waits/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── test_conditions.py
-    │   │   │   │   └── test_strategies.py
-    │   │   │   ├── test_base_test.py
-    │   │   │   ├── test_conftest_fixtures.py
-    │   │   │   ├── test_helpers.py
-    │   │   │   ├── test_performance_integration.py
-    │   │   │   └── test_utils_basic.py
     │   │   ├── evaluation/
-    │   │   │   ├── __pycache__/
     │   │   │   ├── test_core.py
     │   │   │   ├── test_data.py
     │   │   │   ├── test_ensemble.py
@@ -1505,21 +1616,13 @@
     │   │   │   ├── test_error_console_simple.py
     │   │   │   ├── test_essential_coverage.py
     │   │   │   ├── test_file_upload.py
-    │   │   │   ├── test_high_impact_coverage.py
     │   │   │   ├── test_session_state_updates.py
     │   │   │   ├── test_tensorboard_coverage.py
     │   │   │   └── test_threading_integration.py
-    │   │   ├── integration/
-    │   │   │   └── gui/
-    │   │   │       └── automation/
-    │   │   │           └── reporting/
     │   │   ├── model/
-    │   │   │   ├── __pycache__/
     │   │   │   ├── config/
-    │   │   │   │   ├── __pycache__/
     │   │   │   │   └── test_instantiation.py
     │   │   │   ├── decoder/
-    │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── test_channel_utils.py
     │   │   │   │   ├── test_cnn_decoder_channel_handling.py
     │   │   │   │   ├── test_cnn_decoder_error_handling.py
@@ -1549,21 +1652,27 @@
     │   │   │   ├── test_unet.py
     │   │   │   └── test_utils.py
     │   │   ├── training/
-    │   │   │   ├── __pycache__/
     │   │   │   ├── losses/
-    │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── test_clean_factory.py
     │   │   │   │   ├── test_config_parser.py
     │   │   │   │   ├── test_enhanced_combinators.py
     │   │   │   │   ├── test_isolated_clean_factory.py
     │   │   │   │   ├── test_loss_factory.py
     │   │   │   │   ├── test_loss_registry.py
-    │   │   │   │   └── test_recursive_factory.py
+    │   │   │   │   ├── test_recursive_factory.py
+    │   │   │   │   ├── test_recursive_factory_basic.py
+    │   │   │   │   ├── test_recursive_factory_combinations.py
+    │   │   │   │   ├── test_recursive_factory_config.py
+    │   │   │   │   ├── test_recursive_factory_errors.py
+    │   │   │   │   ├── test_recursive_factory_performance.py
+    │   │   │   │   └── test_recursive_factory_regression.py
     │   │   │   ├── test_losses.py
     │   │   │   ├── test_lr_scheduler_factory.py
     │   │   │   ├── test_metrics.py
     │   │   │   ├── test_reproducibility.py
-    │   │   │   └── test_trainer.py
+    │   │   │   ├── test_trainer.py
+    │   │   │   ├── test_trainer_initialization.py
+    │   │   │   └── test_trainer_training.py
     │   │   ├── utils/
     │   │   │   ├── __pycache__/
     │   │   │   ├── config/
@@ -1586,40 +1695,36 @@
     │   │   │   ├── test_override.py
     │   │   │   ├── test_schema.py
     │   │   │   ├── test_splitting.py
-    │   │   │   ├── test_transforms.py
     │   │   │   └── test_validation.py
-    │   │   └── test_main.py
+    │   │   ├── test_main_data.py
+    │   │   ├── test_main_environment.py
+    │   │   ├── test_main_integration.py
+    │   │   ├── test_main_model.py
+    │   │   └── test_main_training.py
     │   ├── utils/
-    │   │   ├── __pycache__/
+    │   │   ├── unified_testing/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── core.py
+    │   │   │   ├── helpers.py
+    │   │   │   ├── mocking.py
+    │   │   │   ├── performance.py
+    │   │   │   └── visual.py
     │   │   ├── __init__.py
-    │   │   ├── gui_testing_framework.py
     │   │   ├── performance_optimizer.py
     │   │   ├── pytest_performance_plugin.py
-    │   │   ├── streamlit_test_helpers.py
     │   │   ├── test_benchmark.py
-    │   │   ├── visual_regression_benchmarks.py
-    │   │   └── visual_testing_framework.py
+    │   │   └── visual_regression_benchmarks.py
     │   ├── __init__.py
     │   ├── conftest.py
     │   ├── README.md
     │   └── requirements-testing.txt
     ├── CHANGELOG.md
     ├── codecov.yml
-    ├── comprehensive_failure_analysis.py
-    ├── crackseg_packages_backup.txt
-    ├── debug_parsing.py
     ├── environment.yml
     ├── mkdocs.yml
     ├── pyproject.toml
     ├── pyrightconfig.json
     ├── README.md
     ├── requirements.txt
-    ├── run.py
-    ├── temp_storage.py
-    ├── test_config_system.py
-    ├── test_failure_analysis.py
-    ├── test_failure_categorization.py
-    ├── test_failure_categorization_report.json
-    ├── test_priority_matrix_creator.py
-    └── test_priority_matrix_report.json
+    └── run.py
 ```

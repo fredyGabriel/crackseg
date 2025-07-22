@@ -1,8 +1,7 @@
 """
-Unit tests for MonitoringManager.
-
-Tests the core functionality of the monitoring manager including
-metrics logging, context switching, and history management.
+Unit tests for MonitoringManager. Tests the core functionality of the
+monitoring manager including metrics logging, context switching, and
+history management.
 """
 
 from unittest.mock import patch

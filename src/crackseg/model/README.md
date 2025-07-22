@@ -263,3 +263,67 @@ clarity. Each submodule encapsulates a specific responsibility, making it easier
 - When adding new modules, update the mermaid diagram and this section.
 
 For more details, see the [project-structure.mdc](../../.cursor/rules/project-structure.mdc).
+
+## Model Architecture Features
+
+### Encoder-Decoder Design
+
+The CrackSeg models use an encoder-decoder architecture optimized for crack segmentation:
+
+- **Encoder**: Feature extraction with hierarchical representations
+- **Decoder**: Progressive upsampling with skip connections
+- **Skip Connections**: Multi-scale feature fusion for preserving fine details
+- **Bottleneck**: Feature processing at the lowest resolution
+
+### Model Capabilities
+
+- **Multi-scale crack detection**: From hairline cracks (1-2 pixels) to large structural damage
+- **Class imbalance handling**: Specialized loss functions for sparse crack patterns
+- **Memory efficiency**: Optimized for RTX 3070 Ti (8GB VRAM) constraints
+- **Modular design**: Composable components via Hydra configuration
+- **Performance monitoring**: FLOPs counting, parameter estimation, memory usage, and architecture visualization
+
+### Architecture Visualization
+
+**✅ NEW**: Matplotlib-based Visualization (Default)
+
+- Built-in matplotlib backend for architecture diagrams
+- No external dependencies required
+- Cross-platform compatibility
+- Multiple output formats (PNG, PDF, SVG)
+
+**⚠️ LEGACY**: Graphviz Support (Optional)
+
+- Available for users who have graphviz installed
+- Automatic fallback from matplotlib if requested
+
+```python
+from src.crackseg.model.common.utils import render_unet_architecture_diagram
+
+# Use matplotlib (default - recommended)
+render_unet_architecture_diagram(hierarchy, "arch.png", view=True)
+
+# Force matplotlib with custom size
+render_unet_architecture_diagram(
+    hierarchy, "arch.pdf", backend="matplotlib", figsize=(16, 10)
+)
+
+# Auto-select backend (matplotlib first, then graphviz if available)
+render_unet_architecture_diagram(hierarchy, "arch.png", backend="auto")
+```
+
+## Key Benefits
+
+- **Thin Structure Detection:** Optimized for detecting 1-5 pixel width cracks
+- **Edge Preservation:** Maintains crack boundaries with high precision
+- **Multi-Scale Processing:** Handles crack patterns at different scales
+- **Memory Efficient:** Designed for consumer GPUs (RTX series)
+- **Architecture Visualization:** Generate architecture diagrams with matplotlib backend
+- **Modular Configuration:** Easy experimentation with different components
+
+### Requirements
+
+- **PyTorch 2.7+**: Core deep learning framework
+- **Python 3.12+**: Modern Python with type hints support
+- **CUDA-compatible GPU**: Recommended for training (RTX 3070 Ti or better)
+- **Matplotlib**: For architecture visualization (automatically included)

@@ -1,274 +1,224 @@
-# System Dependencies - CrackSeg Project
+# System Dependencies Guide
 
-This document lists all system (non-Python) dependencies required for the CrackSeg pavement crack
-segmentation project.
+## Overview
 
-## 📋 System Dependencies Overview
+This guide covers the system-level dependencies required to run the CrackSeg project, including
+hardware requirements, operating system considerations, and installation instructions.
 
-### Required Dependencies
+## Required Dependencies
 
-- **Graphviz**: For model architecture visualization
-- **Git**: For version control
-- **Conda/Miniconda**: For Python environment management
+### Core Requirements
 
-### Optional Dependencies
+- **Python 3.12+**: Via Conda/Miniconda
+- **Git**: For version control and repository management
+- **Compatible Graphics Driver**: NVIDIA drivers recommended for CUDA acceleration
 
-- **CUDA Toolkit**: For GPU acceleration (recommended for training)
-- **FFmpeg**: For video processing (future functionality)
+### ~~Removed Dependencies~~
+
+- ~~**Graphviz**: No longer required~~ ✅ **Replaced with matplotlib** (ADR-001)
+  - **Reason**: Complex compilation issues on Windows with PyTorch 2.7
+  - **Alternative**: Built-in matplotlib-based architecture visualization
+  - **Benefits**: Simpler setup, better cross-platform compatibility
+
+### 1. ~~Graphviz~~ → **Matplotlib Architecture Visualization**
+
+**✅ NEW**: Matplotlib-based visualization (default)
+
+```bash
+# Already included in conda environment
+conda activate crackseg
+python -c "import matplotlib.pyplot as plt; print('✅ Matplotlib available')"
+```
+
+**⚠️ LEGACY**: Graphviz (optional, for advanced users)
+
+```bash
+# Windows - Advanced users only
+choco install graphviz
+# OR download from https://graphviz.org/download/
+# Add to PATH: C:\Program Files\Graphviz\bin
+
+# Linux - Advanced users only
+sudo apt install graphviz graphviz-dev
+
+# macOS - Advanced users only
+brew install graphviz
+```
+
+**Test architecture visualization:**
+
+```bash
+python -c "
+from src.crackseg.model.common.utils import render_unet_architecture_diagram
+print('✅ Architecture visualization ready (matplotlib backend)')
+"
+```
 
 ---
 
-## 🖥️ Windows (Primary Environment)
+## Cross-Platform Installation Guide
 
-### 1. Graphviz
+### 1. Basic System Requirements
 
-**Purpose**: Model architecture visualization and flowchart diagrams
+**Core Requirements:**
 
-**Installation**:
+- **Git**: Version control (any recent version)
+- **Conda/Miniconda**: Python environment management
+- **Compatible GPU drivers**: NVIDIA drivers for CUDA support (optional)
 
-```bash
-# Option 1: Conda (Recommended)
-conda install -c conda-forge graphviz
-
-# Option 2: Chocolatey
-choco install graphviz
-
-# Option 3: Manual
-# Download from https://graphviz.org/download/
-# Add to PATH: C:\Program Files\Graphviz\bin
-```
-
-**Verification**:
+**Platform-Specific Installation:**
 
 ```bash
-dot -V
-python -c "import graphviz; print('✅ Graphviz working')"
+# Windows (using Chocolatey)
+choco install git miniconda3
+
+# Linux (Ubuntu/Debian)
+sudo apt update && sudo apt install -y git curl
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+
+# macOS (using Homebrew)
+brew install git miniconda
 ```
 
-### 2. Git
+### 2. CrackSeg Environment Setup
 
-**Purpose**: Version control and repository cloning
-
-**Installation**:
+**Create and activate the environment:**
 
 ```bash
-# Option 1: Chocolatey
-choco install git
+# Clone repository
+git clone https://github.com/crackseg/crackseg.git
+cd crackseg
 
-# Option 2: Manual
-# Download from https://git-scm.com/download/win
+# Create environment from file
+conda env create -f environment.yml
+
+# Activate environment
+conda activate crackseg
+
+# Verify installation
+python -c "import torch, matplotlib; print('✅ Core dependencies ready')"
 ```
 
-**Verification**:
+### 3. Optional: GPU Support
 
-```bash
-git --version
-```
-
-### 3. Conda/Miniconda
-
-**Purpose**: Python environment management and scientific dependencies
-
-**Installation**:
-
-```bash
-# Option 1: Miniconda (Recommended - lighter)
-# Download from https://docs.conda.io/en/latest/miniconda.html
-
-# Option 2: Anaconda (Complete)
-# Download from https://www.anaconda.com/products/distribution
-```
-
-**Verification**:
-
-```bash
-conda --version
-```
-
-### 4. CUDA Toolkit (Optional - GPU)
-
-**Purpose**: GPU acceleration for model training
-
-**Installation**:
+**For NVIDIA GPU acceleration:**
 
 ```bash
 # Check GPU compatibility
 nvidia-smi
 
-# Install CUDA Toolkit 12.1 (compatible with PyTorch 2.5+)
-# Download from https://developer.nvidia.com/cuda-downloads
-```
-
-**Verification**:
-
-```bash
-nvcc --version
-python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
-```
-
----
-
-## 🐧 Linux (Ubuntu/Debian)
-
-### Install All Dependencies
-
-```bash
-# Update repositories
-sudo apt update
-
-# Basic dependencies
-sudo apt install -y \
-    git \
-    graphviz \
-    graphviz-dev \
-    build-essential \
-    curl \
-    wget
-
-# Miniconda
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
-bash Miniconda3-latest-Linux-x86_64.sh -b -p $HOME/miniconda3
-echo 'export PATH="$HOME/miniconda3/bin:$PATH"' >> ~/.bashrc
-source ~/.bashrc
-
-# CUDA (if you have NVIDIA GPU)
-# Follow official NVIDIA instructions for your distribution
+# CUDA is included in environment.yml - verify it works
+conda activate crackseg && python -c "
+import torch
+print(f'CUDA Available: {torch.cuda.is_available()}')
+if torch.cuda.is_available():
+    print(f'GPU: {torch.cuda.get_device_name(0)}')
+"
 ```
 
 ---
 
-## 🍎 macOS
+## Verification & Testing
 
-### Installation with Homebrew
+### 1. Complete System Verification
 
-```bash
-# Install Homebrew if not installed
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install dependencies
-brew install git
-brew install graphviz
-brew install --cask miniconda
-
-# Verify installations
-git --version
-dot -V
-conda --version
-```
-
----
-
-## 🔧 Post-Installation Configuration
-
-### 1. Environment Variables
-
-Add to shell configuration file (`.bashrc`, `.zshrc`, etc.):
+**Run comprehensive verification:**
 
 ```bash
-# Windows (PowerShell Profile)
-# Add to $PROFILE
+conda activate crackseg && python -c "
+import torch
+import matplotlib.pyplot as plt
+import streamlit as st
+import hydra
+import numpy as np
 
-# Linux/macOS
-export PATH="/path/to/graphviz/bin:$PATH"
-export GRAPHVIZ_ROOT="/path/to/graphviz"
+print('✅ Core dependencies verified')
+print(f'PyTorch: {torch.__version__}')
+print(f'CUDA Available: {torch.cuda.is_available()}')
+
+try:
+    from src.crackseg.model.common.utils import render_unet_architecture_diagram
+    print('✅ Architecture visualization ready')
+except ImportError as e:
+    print(f'⚠️ Project modules: {e}')
+"
 ```
 
-### 2. Complete System Verification
+### 2. Common Issues
 
-Run the verification script:
+**Environment not found:**
 
 ```bash
-# From project directory
-python scripts/verify_system_dependencies.py
+# List available environments
+conda env list
+
+# Recreate if corrupted
+conda env remove -n crackseg
+conda env create -f environment.yml
 ```
 
----
-
-## 🐳 Docker (Alternative)
-
-To avoid manual installations, Docker can be used:
-
-```dockerfile
-# Dockerfile includes all system dependencies
-FROM continuumio/miniconda3:latest
-
-RUN apt-get update && apt-get install -y \
-    graphviz \
-    graphviz-dev \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-# Rest of configuration is in project Dockerfile
-```
-
----
-
-## 🚨 Common Troubleshooting
-
-### Graphviz Not Found
+**GPU not detected:**
 
 ```bash
-# Windows
-# Verify that C:\Program Files\Graphviz\bin is in PATH
-
-# Linux
-sudo apt install graphviz-dev
-
-# macOS
-brew install graphviz
-```
-
-### CUDA Not Detected
-
-```bash
-# Check NVIDIA drivers
+# Check NVIDIA driver
 nvidia-smi
 
-# Check compatible CUDA version
-python -c "import torch; print(torch.version.cuda)"
-
-# Reinstall PyTorch with CUDA
-conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
-```
-
-### Conda Not Working
-
-```bash
-# Reinitialize conda
-conda init
-# Restart terminal
-
-# Or use full path
-/path/to/miniconda3/bin/conda --version
+# Verify PyTorch CUDA
+conda activate crackseg && python -c "
+import torch
+print(f'CUDA devices: {torch.cuda.device_count()}')
+if torch.cuda.is_available():
+    print(f'Current device: {torch.cuda.current_device()}')
+    print(f'Device name: {torch.cuda.get_device_name(0)}')
+"
 ```
 
 ---
 
-## 📋 Verification Checklist
+## Hardware Requirements
 
-- [ ] **Git installed and working**
-- [ ] **Conda/Miniconda installed**
-- [ ] **Graphviz installed and in PATH**
-- [ ] **Python 3.12+ available in conda**
-- [ ] **CUDA Toolkit installed (if using GPU)**
-- [ ] **Environment variables configured**
-- [ ] **Verification script executed successfully**
+### Minimum Configuration
 
----
+- **CPU**: 4+ cores
+- **RAM**: 8GB
+- **GPU**: Any CUDA-compatible (optional for CPU-only development)
+- **Storage**: 10GB free space
 
-## 🔗 References
+### Recommended Configuration
 
-- [Graphviz Downloads](https://graphviz.org/download/)
-- [Git Downloads](https://git-scm.com/downloads)
-- [Miniconda Downloads](https://docs.conda.io/en/latest/miniconda.html)
-- [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads)
-- [PyTorch Installation Guide](https://pytorch.org/get-started/locally/)
+- **CPU**: 8+ cores for efficient data loading
+- **RAM**: 16GB+ for large datasets
+- **GPU**: RTX 3070 Ti or better (8GB+ VRAM)
+- **Storage**: NVMe SSD for faster I/O
 
 ---
 
-## 📝 Version Notes
+## 📋 Setup Checklist
 
-- **Last updated**: January 2025
-- **Recommended CUDA version**: 12.1+
-- **Recommended Python version**: 3.12+
-- **Minimum Graphviz version**: 2.40+
+- [ ] **Miniconda/Conda installed**
+- [ ] **Git available**
+- [ ] **Repository cloned**
+- [ ] **Environment created from environment.yml**
+- [ ] **Environment activation works**
+- [ ] **Core packages import successfully**
+- [ ] **GPU detected (if available)**
+- [ ] **Architecture visualization functional**
+
+---
+
+## 🔗 Resources
+
+- **[PyTorch Installation](https://pytorch.org/get-started/locally/)**: Official PyTorch setup guide
+- **[Conda Documentation](https://docs.conda.io/en/latest/)**: Environment management guide
+- **[CUDA Toolkit](https://developer.nvidia.com/cuda-downloads)**: GPU acceleration setup
+- **[Project ADR-001](architectural_decisions.md#adr-001)**: Graphviz migration details
+
+---
+
+## 📝 Updated January 2025
+
+- **Simplified dependencies**: Removed graphviz requirement
+- **Matplotlib-first**: Architecture visualization via matplotlib
+- **PyTorch 2.7**: Latest stable with CUDA 12.9 support
+- **Cross-platform**: Tested on Windows, Linux, macOS

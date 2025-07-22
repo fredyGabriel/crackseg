@@ -1,7 +1,6 @@
-"""Test data provisioning suites.
-
-This module provides various test data provisioning suites
-for different testing scenarios.
+"""
+Test data provisioning suites. This module provides various test data
+provisioning suites for different testing scenarios.
 """
 
 import time
@@ -12,13 +11,9 @@ if TYPE_CHECKING:
 
 
 def provision_basic_suite(self: "TestDataProvisioner") -> "ProvisioningResult":
-    """Provision a basic test data suite.
-
-    Args:
-        self: TestDataProvisioner instance
-
-    Returns:
-        ProvisioningResult with operation details
+    """
+    Provision a basic test data suite. Args: self: TestDataProvisioner
+    instance Returns: ProvisioningResult with operation details
     """
     start_time = time.time()
     provisioned_items = []
@@ -83,13 +78,10 @@ def provision_basic_suite(self: "TestDataProvisioner") -> "ProvisioningResult":
 def provision_comprehensive_suite(
     self: "TestDataProvisioner",
 ) -> "ProvisioningResult":
-    """Provision a comprehensive test data suite with multiple data types.
-
-    Args:
-        self: TestDataProvisioner instance
-
-    Returns:
-        ProvisioningResult with operation details
+    """
+    Provision a comprehensive test data suite with multiple data types.
+    Args: self: TestDataProvisioner instance Returns: ProvisioningResult
+    with operation details
     """
     start_time = time.time()
     provisioned_items = []
@@ -176,13 +168,10 @@ def provision_comprehensive_suite(
 def provision_error_test_data(
     self: "TestDataProvisioner",
 ) -> "ProvisioningResult":
-    """Provision test data specifically for error condition testing.
-
-    Args:
-        self: TestDataProvisioner instance
-
-    Returns:
-        ProvisioningResult with operation details
+    """
+    Provision test data specifically for error condition testing. Args:
+    self: TestDataProvisioner instance Returns: ProvisioningResult with
+    operation details
     """
     start_time = time.time()
     provisioned_items = []

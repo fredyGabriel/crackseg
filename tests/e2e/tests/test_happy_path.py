@@ -1,9 +1,9 @@
-"""E2E Happy Path Tests for CrackSeg Application.
-
-This module contains tests that simulate a successful user journey through the
-main functionalities of the CrackSeg application, from configuration to
-viewing results. Performance monitoring is optionally integrated via pytest
-markers.
+"""
+E2E Happy Path Tests for CrackSeg Application. This module contains
+tests that simulate a successful user journey through the main
+functionalities of the CrackSeg application, from configuration to
+viewing results. Performance monitoring is optionally integrated via
+pytest markers.
 """
 
 from typing import Any
@@ -20,10 +20,9 @@ class TestHappyPathWorkflow(BaseE2ETest):
     """Test suite for the main successful user workflow."""
 
     def setup_test_data(self) -> dict[str, Any]:
-        """Set up test-specific data for the happy path workflow.
-
-        Returns:
-            Dictionary containing test data.
+        """
+        Set up test-specific data for the happy path workflow. Returns:
+        Dictionary containing test data.
         """
         return {
             "config_file": "basic_verification.yaml",
@@ -34,14 +33,12 @@ class TestHappyPathWorkflow(BaseE2ETest):
     def test_full_workflow(
         self, webdriver: WebDriver, streamlit_base_url: str
     ) -> None:
-        """Test the full user workflow from config to results.
-
-        This test implements the complete 'happy path' workflow using robust
-        navigation strategies and comprehensive error handling.
-
-        Args:
-            webdriver: The Selenium WebDriver instance.
-            streamlit_base_url: The base URL of the Streamlit application.
+        """
+        Test the full user workflow from config to results. This test
+        implements the complete 'happy path' workflow using robust navigation
+        strategies and comprehensive error handling. Args: webdriver: The
+        Selenium WebDriver instance. streamlit_base_url: The base URL of the
+        Streamlit application.
         """
         self.log_test_step("Start of the happy path E2E test")
         self.navigate_and_verify(webdriver, streamlit_base_url)
@@ -188,17 +185,14 @@ class TestHappyPathWorkflow(BaseE2ETest):
     def test_full_workflow_with_performance_monitoring(
         self, webdriver: WebDriver, streamlit_base_url: str
     ) -> None:
-        """Test the full user workflow with comprehensive performance
-        monitoring.
-
+        """
+        Test the full user workflow with comprehensive performance monitoring.
         This test demonstrates the same happy path workflow with optional
         performance monitoring enabled via the @pytest.mark.performance
         decorator. All functionality remains identical, but performance
-        metrics are captured.
-
-        Args:
-            webdriver: The Selenium WebDriver instance.
-            streamlit_base_url: The base URL of the Streamlit application.
+        metrics are captured. Args: webdriver: The Selenium WebDriver
+        instance. streamlit_base_url: The base URL of the Streamlit
+        application.
         """
         self.log_test_step("Start of performance-monitored happy path test")
 
@@ -414,10 +408,15 @@ class TestHappyPathWorkflow(BaseE2ETest):
                 try:
                     emergency_report = self.generate_performance_report()
                     if emergency_report:
+                        duration = emergency_report.get(
+                            "total_duration", "N/A"
+                        )
+                        memory = emergency_report.get(
+                            "peak_memory_usage", "N/A"
+                        )
                         self.log_test_step(
                             f"🔍 Performance context at failure: "
-                            f"Duration: {emergency_report.get('total_duration', 'N/A')}s, "
-                            f"Memory: {emergency_report.get('peak_memory_usage', 'N/A')}MB"
+                            f"Duration: {duration}s, Memory: {memory}MB"
                         )
                 except Exception:
                     pass  # Don't fail the test further if reporting fails

@@ -12,7 +12,7 @@ Before launching, ensure your Conda environment is activated. Run the following 
 the project's root directory:
 
 ```bash
-conda activate crackseg && streamlit run scripts/gui/app.py
+conda activate crackseg && streamlit run gui/app.py
 ```
 
 The application will open in your default web browser, presenting the main interface.

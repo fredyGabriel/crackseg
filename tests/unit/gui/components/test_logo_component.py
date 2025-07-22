@@ -1,7 +1,6 @@
-"""Test module for LogoComponent.
-
-Tests logo rendering functionality including generation,
-fallback handling, and caching capabilities.
+"""
+Test module for LogoComponent. Tests logo rendering functionality
+including generation, fallback handling, and caching capabilities.
 """
 
 from pathlib import Path
@@ -9,16 +8,14 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from tests.unit.gui.components.test_component_base import (
-    ComponentTestBase,
-)
+from .test_component_base import ComponentTestBase
 
 
 class TestLogoComponent(ComponentTestBase):
     """Test suite for LogoComponent functionality."""
 
     def test_logo_component_import(self) -> None:
-        """Test that LogoComponent can be imported successfully."""
+        """Test that LogoComponent can be import ed successfully."""
         from gui.components.logo_component import LogoComponent
 
         assert LogoComponent is not None
@@ -298,3 +295,13 @@ class TestLogoComponent(ComponentTestBase):
         # Check cache exists and is a dict
         assert hasattr(LogoComponent, "_cache")
         assert isinstance(LogoComponent._cache, dict)
+
+    @patch("gui.components.logo_component.st")
+    def test_render_default_logo(self, mock_st):
+        """Verify component renders default logo when no path is provided."""
+        from gui.components.logo_component import LogoComponent
+
+        component = LogoComponent()
+        component.render()
+        mock_st.image.assert_called_once()
+        # More specific checks can be added here based on the default logo path

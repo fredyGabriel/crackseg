@@ -1,10 +1,12 @@
 # Configuration Storage Specification
 
-This document defines the standardized configuration storage system for consistent experiment configuration management across the crack segmentation project.
+This document defines the standardized configuration storage system for consistent experiment
+configuration management across the crack segmentation project.
 
 ## Overview
 
-The standardized configuration storage system ensures that all training configurations are stored with complete metadata, validation, and environment information for reproducible experiments.
+The standardized configuration storage system ensures that all training configurations are stored
+with complete metadata, validation, and environment information for reproducible experiments.
 
 ## Key Features
 

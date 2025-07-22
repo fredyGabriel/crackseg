@@ -7,10 +7,7 @@ state management, and project information display.
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from tests.unit.gui.components.test_component_base import (
-    ComponentTestBase,
-    MockSessionState,
-)
+from .test_component_base import ComponentTestBase, MockSessionState
 
 
 class TestSidebarComponent(ComponentTestBase):

@@ -1,7 +1,8 @@
-"""Test data automation component for workflow automation scenarios.
-
-This module provides automated test data generation capabilities for
-supporting the workflow automation framework with realistic test scenarios.
+"""
+Test data automation component for workflow automation scenarios. This
+module provides automated test data generation capabilities for
+supporting the workflow automation framework with realistic test
+scenarios.
 """
 
 import json
@@ -16,19 +17,17 @@ class TestDataAutomator:
     """Automated test data generation for workflow automation scenarios."""
 
     def __init__(self, base_path: Path) -> None:
-        """Initialize test data automator with base path for generated files.
-
-        Args:
-            base_path: Base directory for generated test data files
+        """
+        Initialize test data automator with base path for generated files.
+        Args: base_path: Base directory for generated test data files
         """
         self.base_path = base_path
         self.base_path.mkdir(parents=True, exist_ok=True)
 
     def generate_configuration_scenarios(self) -> list[dict[str, Any]]:
-        """Generate various configuration scenarios for automated testing.
-
-        Returns:
-            List of configuration scenarios with metadata
+        """
+        Generate various configuration scenarios for automated testing.
+        Returns: List of configuration scenarios with metadata
         """
         scenarios = []
 
@@ -148,10 +147,9 @@ class TestDataAutomator:
         return scenarios
 
     def generate_training_scenarios(self) -> list[dict[str, Any]]:
-        """Generate training automation scenarios for testing.
-
-        Returns:
-            List of training scenarios with metadata
+        """
+        Generate training automation scenarios for testing. Returns: List of
+        training scenarios with metadata
         """
         scenarios = []
 
@@ -219,10 +217,9 @@ class TestDataAutomator:
         return scenarios
 
     def generate_concurrent_scenarios(self) -> list[dict[str, Any]]:
-        """Generate concurrent operation scenarios for testing.
-
-        Returns:
-            List of concurrent scenarios with metadata
+        """
+        Generate concurrent operation scenarios for testing. Returns: List of
+        concurrent scenarios with metadata
         """
         scenarios = []
 
@@ -261,14 +258,10 @@ class TestDataAutomator:
     def save_scenario_to_file(
         self, scenario: dict[str, Any], filename: str
     ) -> Path:
-        """Save a scenario configuration to a YAML file.
-
-        Args:
-            scenario: Scenario configuration dictionary
-            filename: Name of the output file
-
-        Returns:
-            Path to the saved file
+        """
+        Save a scenario configuration to a YAML file. Args: scenario: Scenario
+        configuration dictionary filename: Name of the output file Returns:
+        Path to the saved file
         """
         output_path = self.base_path / f"{filename}.yaml"
 
@@ -278,10 +271,9 @@ class TestDataAutomator:
         return output_path
 
     def generate_test_artifacts(self) -> dict[str, list[Path]]:
-        """Generate all test artifacts for automation scenarios.
-
-        Returns:
-            Dictionary mapping artifact types to file paths
+        """
+        Generate all test artifacts for automation scenarios. Returns:
+        Dictionary mapping artifact types to file paths
         """
         artifacts: dict[str, list[Path]] = {
             "configuration_scenarios": [],
@@ -313,13 +305,10 @@ class TestDataAutomator:
         return artifacts
 
     def create_mock_training_data(self, scenario_name: str) -> dict[str, Path]:
-        """Create mock training data for automation scenarios.
-
-        Args:
-            scenario_name: Name of the scenario for data generation
-
-        Returns:
-            Dictionary with paths to generated mock data
+        """
+        Create mock training data for automation scenarios. Args:
+        scenario_name: Name of the scenario for data generation Returns:
+        Dictionary with paths to generated mock data
         """
         data_dir = self.base_path / "mock_data" / scenario_name
         data_dir.mkdir(parents=True, exist_ok=True)
@@ -351,13 +340,10 @@ class TestDataAutomator:
         }
 
     def cleanup_test_artifacts(self, older_than_hours: int = 24) -> int:
-        """Clean up old test artifacts to manage disk space.
-
-        Args:
-            older_than_hours: Remove artifacts older than this many hours
-
-        Returns:
-            Number of files removed
+        """
+        Clean up old test artifacts to manage disk space. Args:
+        older_than_hours: Remove artifacts older than this many hours Returns:
+        Number of files removed
         """
         cutoff_time = datetime.now() - timedelta(hours=older_than_hours)
         removed_count = 0

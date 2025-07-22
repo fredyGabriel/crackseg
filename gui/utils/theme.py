@@ -264,7 +264,7 @@ class ThemeManager:
     @staticmethod
     def apply_theme(theme_name: str) -> ThemeConfig:
         """Apply theme and return the configuration."""
-        from scripts.gui.utils.session_state import SessionStateManager
+        from gui.utils.session_state import SessionStateManager
 
         theme_config = ThemeManager.get_theme_config(theme_name)
 
@@ -471,7 +471,7 @@ class ThemeManager:
     @staticmethod
     def get_current_theme() -> str:
         """Get current theme name from session state."""
-        from scripts.gui.utils.session_state import SessionStateManager
+        from gui.utils.session_state import SessionStateManager
 
         state = SessionStateManager.get()
         return state.theme or "dark"
@@ -488,7 +488,7 @@ class ThemeManager:
         if new_theme not in ThemeManager._themes:
             return False
 
-        from scripts.gui.utils.session_state import SessionStateManager
+        from gui.utils.session_state import SessionStateManager
 
         # Update session state
         SessionStateManager.update({"theme": new_theme})

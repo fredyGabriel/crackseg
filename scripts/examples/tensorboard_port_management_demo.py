@@ -1,27 +1,22 @@
 #!/usr/bin/env python3
-"""Demonstration of enhanced TensorBoard port management capabilities.
-
-This script showcases the new dynamic port allocation, reservation strategy,
-and conflict resolution features implemented in subtask 6.2.
-
-Features demonstrated:
-- Port reservation and allocation tracking
-- Global port registry management
-- Port release strategies
-- Factory functions for creating managers
-
-Usage:
-    python scripts/examples/tensorboard_port_management_demo.py
+"""
+Demonstration of enhanced TensorBoard port management capabilities.
+This script showcases the new dynamic port allocation, reservation
+strategy, and conflict resolution features implemented in subtask 6.2.
+Features demonstrated: - Port reservation and allocation tracking -
+Global port registry management - Port release strategies - Factory
+functions for creating managers Usage: python
+scripts/examples/tensorboard_port_management_demo.py
 """
 
 import sys
 import time
 from pathlib import Path
 
-# Add project root to path for imports
+# Add project root to path for import s
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from scripts.gui.utils.tb_manager import (
+from gui.utils.tb_manager import (
     PortAllocation,
     PortRegistry,
     TensorBoardManager,

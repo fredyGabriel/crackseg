@@ -20,6 +20,7 @@ ENV/
 .idea/
 .vscode/
 .cursor/
+.roo/
 *.suo
 *.ntvs*
 *.njsproj

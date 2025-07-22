@@ -1,8 +1,6 @@
 """
-Demo script for the registry system.
-
-This script muestra cómo registrar y listar componentes en el sistema de
-registros de modelos.
+Demo script for the registry system. This script muestra cómo
+registrar y listar componentes en el sistema de registros de modelos.
 No es un test automatizado, sino una referencia para desarrolladores.
 """
 
@@ -16,7 +14,7 @@ sys.path.append(os.path.abspath("."))
 from crackseg.model.components.registry_support import (
     register_all_components,
 )
-from crackseg.model.registry_setup import (
+from crackseg.model.factory.registry_setup import (
     component_registries,
     list_available_components,
 )
@@ -30,9 +28,6 @@ print("Available components:", list_available_components())
 # Test component registries
 print("\nComponent registries:")
 for name, registry in component_registries.items():
-    print(
-        f"- {name}: "
-        f"{registry.list_available() if registry is not None else None}"
-    )
+    print(f"- {name}: {registry.list_components()}")
 
 print("\nRegistry completed successfully!")

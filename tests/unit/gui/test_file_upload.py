@@ -1,7 +1,7 @@
-"""Unit tests for file upload functionality.
-
-This module tests the YAML file upload, validation, and processing
-functionality of the GUI application.
+"""
+Unit tests for file upload functionality. This module tests the YAML
+file upload, validation, and processing functionality of the GUI
+application.
 """
 
 import tempfile
@@ -67,15 +67,9 @@ class TestFileUploadFunctions:
     def test_validate_uploaded_content_valid_yaml(self):
         """Test validation of valid YAML content."""
         valid_yaml = """
-        model:
-          name: test_model
-          parameters:
-            learning_rate: 0.001
-            batch_size: 32
-        data:
-          train_path: /path/to/train
-          val_path: /path/to/val
-        """
+model: name: test_model parameters: learning_rate: 0.001 batch_size:
+32 data: train_path: /path/to/train val_path: /path/to/val
+"""
 
         is_valid, errors = validate_uploaded_content(valid_yaml)
 
@@ -87,13 +81,9 @@ class TestFileUploadFunctions:
     def test_validate_uploaded_content_invalid_yaml(self):
         """Test validation of invalid YAML content."""
         invalid_yaml = """
-        model:
-          name: test_model
-          parameters:
-            learning_rate: 0.001
-            batch_size: 32
-          - invalid_structure  # This is invalid YAML
-        """
+model: name: test_model parameters: learning_rate: 0.001 batch_size:
+32 - invalid_structure # This is invalid YAML
+"""
 
         is_valid, errors = validate_uploaded_content(invalid_yaml)
 
@@ -164,14 +154,12 @@ model:
         mock_file.name = "invalid_config.yaml"
         mock_file.size = 1024
         mock_file.read.return_value = b"""
-        model:
-          name: test_model
-        - invalid: structure
-        """
+model: name: test_model - invalid: structure
+"""
 
         with tempfile.TemporaryDirectory() as temp_dir:
             # Function should not raise exception, but return validation errors
-            file_path, config_dict, validation_errors = upload_config_file(
+            _, config_dict, validation_errors = upload_config_file(
                 mock_file, target_directory=temp_dir
             )
 
@@ -255,7 +243,7 @@ class TestFileUploadValidationEdgeCases:
 class TestFileUploadProgressFunctions:
     """Test progress indication functions."""
 
-    @patch("scripts.gui.utils.config.io.st")
+    @patch("gui.utils.config.io.st")
     def test_create_upload_progress_placeholder(
         self, mock_st: MagicMock
     ) -> None:
@@ -272,7 +260,7 @@ class TestFileUploadProgressFunctions:
         assert result == mock_placeholder
         mock_st.empty.assert_called_once()
 
-    @patch("scripts.gui.utils.config.io.st")
+    @patch("gui.utils.config.io.st")
     def test_update_upload_progress_stages(self, mock_st: MagicMock) -> None:
         """Test progress updates for different stages."""
         mock_placeholder = Mock()

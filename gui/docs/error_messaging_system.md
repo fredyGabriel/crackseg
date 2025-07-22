@@ -2,13 +2,15 @@
 
 ## Overview
 
-The CrackSeg error messaging system provides detailed and user-friendly feedback for YAML configuration validation errors, designed to significantly improve the user experience when working with machine learning model configurations.
+The CrackSeg error messaging system provides detailed and user-friendly feedback for YAML
+configuration validation errors, designed to significantly improve the user experience when working
+with machine learning model configurations.
 
 ## Main Components
 
 ### 1. ErrorCategorizer
 
-**File:** `scripts/gui/utils/config/validation/error_categorizer.py`
+**File:** `gui/utils/config/validation/error_categorizer.py`
 
 Classifies and enriches validation errors with:
 
@@ -40,7 +42,7 @@ Classifies and enriches validation errors with:
 
 ### 2. ErrorConsole
 
-**File:** `scripts/gui/components/error_console.py`
+**File:** `gui/components/error_console.py`
 
 Interface component that renders categorized errors with:
 
@@ -63,7 +65,7 @@ error_console.render_error_summary(
 
 ### 3. CategorizedError
 
-**File:** `scripts/gui/utils/config/validation/error_categorizer.py`
+**File:** `gui/utils/config/validation/error_categorizer.py`
 
 Enriched data class containing:
 

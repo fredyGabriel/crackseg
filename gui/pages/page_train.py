@@ -1,9 +1,8 @@
 """
-Training page for CrackSeg application.
-
-This module provides the user interface for training configuration and
-monitoring. Contains comprehensive controls for model training, including
-device selection, parameter configuration, and progress monitoring.
+Training page for CrackSeg application. This module provides the user
+interface for training configuration and monitoring. Contains
+comprehensive controls for model training, including device selection,
+parameter configuration, and progress monitoring.
 """
 
 import logging
@@ -12,11 +11,11 @@ from typing import Any
 import streamlit as st
 import torch
 
-from scripts.gui.components.device_selector import device_selector
-from scripts.gui.components.tensorboard.component import TensorBoardComponent
-from scripts.gui.services.gpu_monitor import GPUMonitor
-from scripts.gui.utils.error_state import ErrorMessageFactory, ErrorType
-from scripts.gui.utils.training_state import TrainingState
+from gui.components.device_selector import device_selector
+from gui.components.tensorboard.component import TensorBoardComponent
+from gui.services.gpu_monitor import GPUMonitor
+from gui.utils.error_state import ErrorMessageFactory, ErrorType
+from gui.utils.training_state import TrainingState
 
 # Set up logging
 logging.basicConfig(
@@ -342,6 +341,6 @@ def page_train(state: dict[str, Any]) -> None:
 
             # Memory usage chart
             if gpu_info.get("memory_history"):
-                st.line_chart(gpu_info["memory_history"])
+                st.line_chart(gpu_info["memory_history"])  # type: ignore[misc]
 
     # // ... existing code ...

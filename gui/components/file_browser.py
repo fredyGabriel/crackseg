@@ -1,8 +1,7 @@
 """
-File Browser Component for Streamlit
-
-This module provides a reusable file browser component to navigate
-and select files within a Streamlit application.
+File Browser Component for Streamlit This module provides a reusable
+file browser component to navigate and select files within a Streamlit
+application.
 """
 
 from collections.abc import Callable
@@ -13,20 +12,15 @@ import streamlit as st
 
 class FileBrowser:
     """
-    A simple file browser component to navigate directories and select a file.
-
-    This component maintains its own state (current directory) within
-    Streamlit's session state, allowing it to be a reusable UI element.
-
-    Attributes:
-        root_dir (Path): The absolute path to the root directory for the
-            browser.
-        filter_glob (str): A glob pattern to filter the files displayed.
-        on_select (Callable[[str], None] | None): A callback function that is
-            triggered when a file is selected. It receives the absolute path
-            of the selected file.
-        key (str): A unique key to isolate the component's state in
-            st.session_state.
+    A simple file browser component to navigate directories and select a
+    file. This component maintains its own state (current directory)
+    within Streamlit's session state, allowing it to be a reusable UI
+    element. Attributes: root_dir (Path): The absolute path to the root
+    directory for the browser. filter_glob (str): A glob pattern to filter
+    the files displayed. on_select (Callable[[str], None] | None): A
+    callback function that is triggered when a file is selected. It
+    receives the absolute path of the selected file. key (str): A unique
+    key to isolate the component's state in st.session_state.
     """
 
     def __init__(
@@ -58,10 +52,9 @@ class FileBrowser:
 
     def render(self) -> None:
         """
-        Render the file browser UI.
-
-        This includes the current path display, an 'Up' button for navigation,
-        and lists of directories and selectable files.
+        Render the file browser UI. This includes the current path display, an
+        'Up' button for navigation, and lists of directories and selectable
+        files.
         """
         # Display the current path relative to the root for user orientation.
         display_path = self.current_dir.relative_to(self.root_dir)

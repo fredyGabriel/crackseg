@@ -1,8 +1,8 @@
-"""UI helper functions for status updates in Streamlit components.
-
-This module provides convenient functions for Streamlit components to
-display status updates, manage callbacks, and format status information
-in a user-friendly way.
+"""
+UI helper functions for status updates in Streamlit components. This
+module provides convenient functions for Streamlit components to
+display status updates, manage callbacks, and format status
+information in a user-friendly way.
 """
 
 from __future__ import annotations
@@ -22,12 +22,10 @@ from .status_updates import StatusUpdate, StatusUpdateType
 
 
 def initialize_ui_status_system() -> bool:
-    """Initialize the status update system for UI components.
-
-    Should be called once when the Streamlit app starts.
-
-    Returns:
-        True if initialization successful, False otherwise
+    """
+    Initialize the status update system for UI components. Should be
+    called once when the Streamlit app starts. Returns: True if
+    initialization successful, False otherwise
     """
     if "status_system_initialized" not in st.session_state:
         success = initialize_status_integration()
@@ -38,10 +36,10 @@ def initialize_ui_status_system() -> bool:
 
 
 def display_training_status() -> None:
-    """Display comprehensive training status in Streamlit UI.
-
-    Creates a formatted status display with process state, streaming info,
-    and recent updates.
+    """
+    Display comprehensive training status in Streamlit UI. Creates a
+    formatted status display with process state, streaming info, and
+    recent updates.
     """
     try:
         status = get_comprehensive_status()
@@ -102,10 +100,9 @@ def display_training_status() -> None:
 
 
 def display_status_updates_feed(max_updates: int = 20) -> None:
-    """Display a live feed of status updates.
-
-    Args:
-        max_updates: Maximum number of updates to display
+    """
+    Display a live feed of status updates. Args: max_updates: Maximum
+    number of updates to display
     """
     from .status_updates import get_status_update_manager
 
@@ -149,8 +146,8 @@ def display_status_updates_feed(max_updates: int = 20) -> None:
 
 
 def create_status_callback_for_ui() -> None:
-    """Create and register a status callback that updates Streamlit state.
-
+    """
+    Create and register a status callback that updates Streamlit state.
     This allows UI components to react to status changes by checking
     session state variables.
     """
@@ -211,10 +208,9 @@ def cleanup_ui_status_callback() -> None:
 
 
 def get_training_status_indicator() -> tuple[str, str]:
-    """Get a simple training status indicator for UI display.
-
-    Returns:
-        Tuple of (status_text, status_color)
+    """
+    Get a simple training status indicator for UI display. Returns: Tuple
+    of (status_text, status_color)
     """
     try:
         status = get_comprehensive_status()
@@ -278,13 +274,9 @@ def display_metrics_summary() -> None:
 
 
 def _format_update_title(update: StatusUpdate) -> str:
-    """Format a status update title for display.
-
-    Args:
-        update: Status update to format
-
-    Returns:
-        Formatted title string
+    """
+    Format a status update title for display. Args: update: Status update
+    to format Returns: Formatted title string
     """
     type_titles = {
         StatusUpdateType.PROCESS_STARTED: "Training Started",
@@ -319,13 +311,10 @@ def _format_update_title(update: StatusUpdate) -> str:
 
 
 def check_status_changes_since(last_check: datetime) -> dict[str, Any]:
-    """Check for status changes since a given timestamp.
-
-    Args:
-        last_check: Timestamp to check changes since
-
-    Returns:
-        Dictionary with change information
+    """
+    Check for status changes since a given timestamp. Args: last_check:
+    Timestamp to check changes since Returns: Dictionary with change
+    information
     """
     try:
         from .status_updates import get_status_update_manager

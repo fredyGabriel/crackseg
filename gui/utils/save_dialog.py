@@ -1,8 +1,7 @@
 """
-Save dialog utilities for YAML configuration files.
-
-This module provides advanced save functionality with Hydra validation,
-file naming patterns, and comprehensive error handling.
+Save dialog utilities for YAML configuration files. This module
+provides advanced save functionality with Hydra validation, file
+naming patterns, and comprehensive error handling.
 """
 
 import logging
@@ -16,8 +15,8 @@ from hydra import compose, initialize_config_dir
 from hydra.core.global_hydra import GlobalHydra
 from hydra.errors import ConfigCompositionException
 
-from scripts.gui.utils.config import validate_yaml_advanced
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.config import validate_yaml_advanced
+from gui.utils.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 
@@ -26,11 +25,9 @@ class SaveDialogManager:
     """Advanced save dialog manager for YAML configuration files."""
 
     def __init__(self, project_root: Path | None = None) -> None:
-        """Initialize save dialog manager.
-
-        Args:
-            project_root: Root directory of the project. If None, uses current
-                directory.
+        """
+        Initialize save dialog manager. Args: project_root: Root directory of
+        the project. If None, uses current directory.
         """
         self.project_root = project_root or Path.cwd()
         self.save_locations = [
@@ -48,16 +45,12 @@ class SaveDialogManager:
         default_name: str = "config",
         show_advanced_options: bool = True,
     ) -> bool:
-        """Render the save dialog UI component.
-
-        Args:
-            content: YAML content to save.
-            key: Unique key for the dialog component.
-            default_name: Default filename base.
-            show_advanced_options: Whether to show advanced save options.
-
-        Returns:
-            True if file was saved successfully, False otherwise.
+        """
+        Render the save dialog UI component. Args: content: YAML content to
+        save. key: Unique key for the dialog component. default_name: Default
+        filename base. show_advanced_options: Whether to show advanced save
+        options. Returns: True if file was saved successfully, False
+        otherwise.
         """
         if not content.strip():
             st.warning("⚠️ No content to save")
@@ -75,16 +68,11 @@ class SaveDialogManager:
         default_name: str,
         show_advanced_options: bool,
     ) -> bool:
-        """Render the main save form.
-
-        Args:
-            content: YAML content to save.
-            key: Unique key for form components.
-            default_name: Default filename base.
-            show_advanced_options: Whether to show advanced options.
-
-        Returns:
-            True if file was saved successfully, False otherwise.
+        """
+        Render the main save form. Args: content: YAML content to save. key:
+        Unique key for form components. default_name: Default filename base.
+        show_advanced_options: Whether to show advanced options. Returns: True
+        if file was saved successfully, False otherwise.
         """
         # Step 1: Validation
         validation_passed = self._render_validation_step(content, key)
@@ -100,14 +88,10 @@ class SaveDialogManager:
         return self._render_save_step(content, filename, save_location, key)
 
     def _render_validation_step(self, content: str, key: str) -> bool:
-        """Render validation step with detailed feedback.
-
-        Args:
-            content: YAML content to validate.
-            key: Unique key for validation components.
-
-        Returns:
-            True if validation passed, False otherwise.
+        """
+        Render validation step with detailed feedback. Args: content: YAML
+        content to validate. key: Unique key for validation components.
+        Returns: True if validation passed, False otherwise.
         """
         st.markdown("**📋 Step 1: Validation**")
 
@@ -152,15 +136,11 @@ class SaveDialogManager:
     def _render_file_options(
         self, key: str, default_name: str, show_advanced_options: bool
     ) -> tuple[str, str]:
-        """Render file naming and location options.
-
-        Args:
-            key: Unique key for option components.
-            default_name: Default filename base.
-            show_advanced_options: Whether to show advanced options.
-
-        Returns:
-            Tuple of (filename, save_location).
+        """
+        Render file naming and location options. Args: key: Unique key for
+        option components. default_name: Default filename base.
+        show_advanced_options: Whether to show advanced options. Returns:
+        Tuple of (filename, save_location).
         """
         st.markdown("**📁 Step 2: Name and Location**")
 
@@ -233,16 +213,11 @@ class SaveDialogManager:
     def _render_save_step(
         self, content: str, filename: str, save_location: str, key: str
     ) -> bool:
-        """Render the final save step with confirmation.
-
-        Args:
-            content: YAML content to save.
-            filename: Target filename.
-            save_location: Target directory.
-            key: Unique key for save components.
-
-        Returns:
-            True if file was saved successfully, False otherwise.
+        """
+        Render the final save step with confirmation. Args: content: YAML
+        content to save. filename: Target filename. save_location: Target
+        directory. key: Unique key for save components. Returns: True if file
+        was saved successfully, False otherwise.
         """
         st.markdown("**💾 Step 3: Save**")
 
@@ -260,7 +235,7 @@ class SaveDialogManager:
                 return False
 
         # Save button
-        col1, col2, col3 = st.columns([1, 2, 1])
+        _, col2, _ = st.columns([1, 2, 1])
         with col2:
             if st.button(
                 "💾 Save File",
@@ -273,15 +248,10 @@ class SaveDialogManager:
         return False
 
     def _save_file(self, content: str, file_path: Path, key: str) -> bool:
-        """Save content to file with error handling.
-
-        Args:
-            content: YAML content to save.
-            file_path: Target file path.
-            key: Component key for status messages.
-
-        Returns:
-            True if saved successfully, False otherwise.
+        """
+        Save content to file with error handling. Args: content: YAML content
+        to save. file_path: Target file path. key: Component key for status
+        messages. Returns: True if saved successfully, False otherwise.
         """
         try:
             # Create directory if it doesn't exist
@@ -311,14 +281,10 @@ class SaveDialogManager:
     def _validate_with_hydra_compose(
         self, content: str, key: str
     ) -> tuple[bool, str | None]:
-        """Validate YAML content using Hydra compose dry-run.
-
-        Args:
-            content: YAML content to validate.
-            key: Component key for temp files.
-
-        Returns:
-            Tuple of (is_valid, error_message).
+        """
+        Validate YAML content using Hydra compose dry-run. Args: content: YAML
+        content to validate. key: Component key for temp files. Returns: Tuple
+        of (is_valid, error_message).
         """
         temp_path: Path | None = None
 
@@ -361,13 +327,9 @@ class SaveDialogManager:
                 pass  # Ignore cleanup errors
 
     def _create_backup(self, file_path: Path) -> Path:
-        """Create backup of existing file.
-
-        Args:
-            file_path: Path to file to backup.
-
-        Returns:
-            Path to backup file.
+        """
+        Create backup of existing file. Args: file_path: Path to file to
+        backup. Returns: Path to backup file.
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_name = f"{file_path.stem}_backup_{timestamp}{file_path.suffix}"
@@ -377,11 +339,9 @@ class SaveDialogManager:
         return backup_path
 
     def _atomic_write(self, content: str, file_path: Path) -> None:
-        """Write content to file atomically.
-
-        Args:
-            content: Content to write.
-            file_path: Target file path.
+        """
+        Write content to file atomically. Args: content: Content to write.
+        file_path: Target file path.
         """
         # Write to temporary file first
         temp_path = file_path.with_suffix(f"{file_path.suffix}.tmp")
@@ -396,10 +356,9 @@ class SaveDialogManager:
             raise
 
     def _update_session_state(self, file_path: Path) -> None:
-        """Update session state with save information.
-
-        Args:
-            file_path: Path to saved file.
+        """
+        Update session state with save information. Args: file_path: Path to
+        saved file.
         """
         try:
             state = SessionStateManager.get()

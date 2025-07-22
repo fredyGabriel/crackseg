@@ -1,8 +1,7 @@
 """
-Model instantiation section for the architecture page.
-
-This module handles model instantiation interface and progress tracking
-for complex model loading operations.
+Model instantiation section for the architecture page. This module
+handles model instantiation interface and progress tracking for
+complex model loading operations.
 """
 
 import logging
@@ -13,14 +12,14 @@ from typing import Any
 import streamlit as st
 import torch
 
-from scripts.gui.components.loading_spinner import LoadingSpinner
-from scripts.gui.components.progress_bar import create_step_progress
-from scripts.gui.utils.architecture_viewer import (
+from gui.components.loading_spinner import LoadingSpinner
+from gui.components.progress_bar import create_step_progress
+from gui.utils.architecture_viewer import (
     GraphvizNotInstalledError,
     ModelInstantiationError,
     get_architecture_viewer,
 )
-from scripts.gui.utils.session_state import SessionStateManager
+from gui.utils.session_state import SessionStateManager
 
 from .utils import clear_model_state
 
@@ -93,9 +92,7 @@ def _instantiate_model_with_progress(
 ) -> None:
     """Instantiate model with progress tracking for complex models."""
     # Use LoadingSpinner for quick initialization
-    message, subtext, spinner_type = LoadingSpinner.get_contextual_message(
-        "model"
-    )
+    _, _, spinner_type = LoadingSpinner.get_contextual_message("model")
 
     try:
         with LoadingSpinner.spinner(

@@ -265,7 +265,7 @@ def enable_mixed_precision() -> GradScaler | None:
         )
         return None
 
-    return GradScaler("cuda")
+    return GradScaler()
 
 
 def format_memory_stats(stats: dict[str, float]) -> str:

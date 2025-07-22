@@ -1,7 +1,8 @@
-"""Multi-user workflow simulation for concurrent operation testing.
-
+"""
+Multi-user workflow simulation for concurrent operation testing.
 Handles concurrent user simulation and workflow execution patterns.
-Extracted from oversized concurrent_operation_mixin.py for modular organization.
+Extracted from oversized concurrent_operation_mixin.py for modular
+organization.
 """
 
 import threading

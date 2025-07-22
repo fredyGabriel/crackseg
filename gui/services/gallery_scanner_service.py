@@ -14,7 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from scripts.gui.utils.results import (
+from gui.utils.results import (
     ScanEvent,
     ValidationLevel,
     create_results_scanner,
@@ -23,7 +23,7 @@ from scripts.gui.utils.results import (
 )
 
 if TYPE_CHECKING:
-    from scripts.gui.utils.results import AsyncResultsScanner, EventManager
+    from gui.utils.results import AsyncResultsScanner, EventManager
 
 logger = logging.getLogger(__name__)
 

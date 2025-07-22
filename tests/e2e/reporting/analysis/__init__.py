@@ -1,7 +1,7 @@
-"""Analysis components for test reporting system.
-
-This package provides failure analysis and trend analysis capabilities
-for comprehensive test result analysis and insights generation.
+"""
+Analysis components for test reporting system. This package provides
+failure analysis and trend analysis capabilities for comprehensive
+test result analysis and insights generation.
 """
 
 from tests.e2e.reporting.analysis.failure_analyzer import FailureAnalyzer

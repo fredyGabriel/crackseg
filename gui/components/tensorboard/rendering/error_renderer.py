@@ -1,7 +1,7 @@
-"""Error rendering for TensorBoard component.
-
-This module handles rendering of error states, diagnostics, and
-troubleshooting information for the TensorBoard component.
+"""
+Error rendering for TensorBoard component. This module handles
+rendering of error states, diagnostics, and troubleshooting
+information for the TensorBoard component.
 """
 
 from pathlib import Path
@@ -14,27 +14,22 @@ from ..state.session_manager import SessionStateManager
 def render_no_logs_available(
     log_dir: Path | None, error_msg: str | None = None
 ) -> None:
-    """Render UI when no log directory is available.
-
-    Args:
-        log_dir: Log directory path (None if not specified).
-        error_msg: Optional error message to display.
+    """
+    Render UI when no log directory is available. Args: log_dir: Log
+    directory path (None if not specified). error_msg: Optional error
+    message to display.
     """
     if log_dir is None:
         st.info("📊 No log directory specified for TensorBoard")
         with st.expander("💡 How to get TensorBoard logs", expanded=False):
             st.markdown(
                 """
-            **To view TensorBoard logs:**
-            1. Start a training run from the Training page
-            2. Ensure your model logs to `logs/tensorboard/` directory
-            3. TensorBoard will automatically detect and display logs
-
-            **Supported log formats:**
-            - Scalar metrics (loss, accuracy, etc.)
-            - Images and histograms
-            - Model graph visualization
-            """
+**To view TensorBoard logs:** 1. Start a training run from the
+Training page 2. Ensure your model logs to `logs/tensorboard/`
+directory 3. TensorBoard will automatically detect and display logs
+**Supported log formats:** - Scalar metrics (loss, accuracy, etc.) -
+Images and histograms - Model graph visualization
+"""
             )
     else:
         if error_msg:
@@ -56,15 +51,12 @@ def render_no_logs_available(
         with st.expander("🔧 Troubleshooting", expanded=False):
             st.markdown(
                 f"""
-            **Expected log directory:** `{log_dir}`
-
-            **Common solutions:**
-            - Ensure training has started and is writing logs
-            - Check that the run directory is correctly configured
-            - Verify that TensorBoard logging is enabled in your training
-              config
-            - Wait a few seconds after training starts for logs to appear
-            """
+**Expected log directory:** `{log_dir}` **Common solutions:** - Ensure
+training has started and is writing logs - Check that the run
+directory is correctly configured - Verify that TensorBoard logging is
+enabled in your training config - Wait a few seconds after training
+starts for logs to appear
+"""
             )
 
 
@@ -74,13 +66,11 @@ def render_not_running_state(
     show_controls: bool,
     max_startup_attempts: int,
 ) -> None:
-    """Render UI when TensorBoard is not running.
-
-    Args:
-        session_manager: Session state manager instance.
-        log_dir: Current log directory.
-        show_controls: Whether controls are shown.
-        max_startup_attempts: Maximum startup attempts allowed.
+    """
+    Render UI when TensorBoard is not running. Args: session_manager:
+    Session state manager instance. log_dir: Current log directory.
+    show_controls: Whether controls are shown. max_startup_attempts:
+    Maximum startup attempts allowed.
     """
     # Show error information if available
     if session_manager.has_error():
@@ -115,13 +105,12 @@ def render_not_running_state(
     with st.expander("💡 Tips for TensorBoard", expanded=False):
         st.markdown(
             """
-        **TensorBoard Tips:**
-        - TensorBoard automatically refreshes when new logs are written
-        - Use the scalars tab to view training metrics
-        - The graphs tab shows your model architecture
-        - Images tab displays sample predictions (if logged)
-        - Use the time series selector to focus on specific metrics
-        """
+**TensorBoard Tips:** - TensorBoard automatically refreshes when new
+logs are written - Use the scalars tab to view training metrics - The
+graphs tab shows your model architecture - Images tab displays sample
+predictions (if logged) - Use the time series selector to focus on
+specific metrics
+"""
         )
 
 
@@ -130,12 +119,11 @@ def _render_error_status(
     error_type: str | None,
     session_manager: SessionStateManager,
 ) -> None:
-    """Render detailed error status with recovery options.
-
-    Args:
-        error_message: Error message to display.
-        error_type: Type of error for categorization.
-        session_manager: Session state manager for recovery actions.
+    """
+    Render detailed error status with recovery options. Args:
+    error_message: Error message to display. error_type: Type of error for
+    categorization. session_manager: Session state manager for recovery
+    actions.
     """
     if not error_message:
         return

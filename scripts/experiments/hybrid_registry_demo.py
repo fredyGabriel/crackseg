@@ -1,9 +1,8 @@
 """
 Demo script for validating the hybrid architecture registry system.
-
-This script shows how to register, list, and query hybrid architectures
-in the registry system.
-It is not an automated test, but a reference for developers.
+This script shows how to register, list, and query hybrid
+architectures in the registry system. It is not an automated test, but
+a reference for developers.
 """
 
 import os
@@ -34,9 +33,9 @@ try:
         encoder_registry,
     )
 except ImportError:
-    # Si estos módulos no existen, comenta los imports y documenta el motivo
+    # Si estos módulos no existen, comenta los import s y documenta el motivo
     print(
-        "[ADVERTENCIA] No se pudieron importar los módulos de registro. "
+        "[ADVERTENCIA] No se pudieron import ar los módulos de registro. "
         "Verifica que src/model/hybrid_registry.py y "
         "src/model/registry_setup.py existan."
     )

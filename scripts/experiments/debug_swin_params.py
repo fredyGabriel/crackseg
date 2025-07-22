@@ -1,7 +1,7 @@
 import os
 import sys
 
-# Añadir el directorio raíz al path para importar desde src
+# Añadir el directorio raíz al path para import ar desde src
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from crackseg.model.encoder.swin_transformer_encoder import (
@@ -24,7 +24,13 @@ def print_model_structure():
         print("\nModel basic properties:")
         print(f"- Has 'stages' attribute: {hasattr(encoder.swin, 'stages')}")
         if hasattr(encoder.swin, "stages"):
-            print(f"- Number of stages: {len(encoder.swin.stages)}")
+            stages = encoder.swin.stages
+            if hasattr(stages, "__len__"):
+                from typing import Any, cast
+
+                print(f"- Number of stages: {len(cast(Any, stages))}")
+            else:
+                print(f"- Stages type: {type(stages).__name__}")
 
         # Analizar todos los parámetros
         print("\nCounting parameters:")
@@ -32,7 +38,7 @@ def print_model_structure():
         print(f"- Total parameter count: {len(all_params)}")
 
         # Encontrar prefijos únicos
-        prefixes = set()
+        prefixes: set[str] = set()
         for name, _ in all_params:
             main_part = name.split(".")[0]
             prefixes.add(main_part)

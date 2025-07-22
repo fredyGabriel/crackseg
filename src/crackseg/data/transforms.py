@@ -215,6 +215,8 @@ def _load_image(
     """
     if isinstance(image, str | Path):
         img_array = cv2.imread(str(image))
+        if img_array is None:
+            raise ValueError(f"Failed to load image from {image}")
         return cv2.cvtColor(img_array, cv2.COLOR_BGR2RGB)
     return image
 

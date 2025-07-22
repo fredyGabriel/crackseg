@@ -2,8 +2,8 @@
 
 from typing import Any
 
-from scripts.gui.components.tensorboard.utils.formatters import format_uptime
-from scripts.gui.utils.tb_manager import TensorBoardState
+from gui.components.tensorboard.utils.formatters import format_uptime
+from gui.utils.tb_manager import TensorBoardState
 
 from .base_card import BaseStatusCard, StatusInfo
 

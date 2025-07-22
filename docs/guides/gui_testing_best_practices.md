@@ -256,7 +256,7 @@ def test_widget_interaction_flow():
 ```bash
 # Run coverage analysis
 conda activate crackseg && pytest tests/unit/gui/ tests/integration/gui/ \
-    --cov=scripts/gui \
+                --cov=gui \
     --cov-report=html \
     --cov-report=term-missing \
     --cov-report=xml
@@ -307,7 +307,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           pytest tests/unit/gui/ tests/integration/gui/ \
-            --cov=scripts/gui \
+            --cov=gui \
             --cov-report=xml \
             --cov-fail-under=80
       - name: Upload coverage to Codecov
@@ -320,13 +320,13 @@ All GUI code must pass these quality gates:
 
 ```bash
 # Format code
-conda activate crackseg && black scripts/gui/
+conda activate crackseg && black gui/
 
 # Lint code
-conda activate crackseg && python -m ruff check scripts/gui/ --fix
+conda activate crackseg && python -m ruff check gui/ --fix
 
 # Type checking
-conda activate crackseg && basedpyright scripts/gui/
+conda activate crackseg && basedpyright gui/
 
 # Run tests
 conda activate crackseg && pytest tests/unit/gui/ -v
@@ -437,7 +437,7 @@ def mock_session_state():
 
 1. **Run single test**: `pytest tests/unit/gui/test_component.py::TestComponent::test_method -v`
 2. **Add debugging**: Use `pytest.set_trace()` for breakpoints
-3. **Check coverage**: `pytest --cov=scripts/gui --cov-report=html`
+3. **Check coverage**: `pytest --cov=gui --cov-report=html`
 4. **Verbose output**: Add `-v` and `-s` flags for detailed output
 
 ## Maintenance Guidelines

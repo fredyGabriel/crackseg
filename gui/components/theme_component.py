@@ -7,8 +7,8 @@ in the Streamlit interface.
 
 import streamlit as st
 
-from scripts.gui.assets.manager import asset_manager
-from scripts.gui.utils.theme import ThemeManager
+from gui.assets.manager import asset_manager
+from gui.utils.theme import ThemeManager
 
 
 class ThemeComponent:

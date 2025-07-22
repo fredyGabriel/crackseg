@@ -1,6 +1,6 @@
-"""Error scenario mixin for modular integration testing.
-
-This module provides reusable error testing patterns that can be mixed into
+"""
+Error scenario mixin for modular integration testing. This module
+provides reusable error testing patterns that can be mixed into
 workflow components to add comprehensive error scenario capabilities.
 """
 
@@ -18,13 +18,10 @@ class ErrorScenarioMixin:
     def create_corrupted_config_file(
         self, corruption_type: str = "yaml_syntax"
     ) -> Path:
-        """Create various types of corrupted configuration files.
-
-        Args:
-            corruption_type: Type of corruption to introduce
-
-        Returns:
-            Path to corrupted config file
+        """
+        Create various types of corrupted configuration files. Args:
+        corruption_type: Type of corruption to introduce Returns: Path to
+        corrupted config file
         """
         temp_dir = getattr(self, "temp_path", Path(tempfile.mkdtemp()))
         corrupted_file = temp_dir / f"corrupted_{corruption_type}.yaml"
@@ -60,14 +57,10 @@ class ErrorScenarioMixin:
         error_type: str = "permission_denied",
         target_path: Path | None = None,
     ) -> dict[str, Any]:
-        """Simulate various file system error conditions.
-
-        Args:
-            error_type: Type of file system error to simulate
-            target_path: Target path for error simulation
-
-        Returns:
-            Error simulation context and cleanup function
+        """
+        Simulate various file system error conditions. Args: error_type: Type
+        of file system error to simulate target_path: Target path for error
+        simulation Returns: Error simulation context and cleanup function
         """
         error_context: dict[str, Any] = {
             "error_type": error_type,
@@ -118,15 +111,11 @@ class ErrorScenarioMixin:
         recovery_function: Callable[[], Any],
         expected_recovery_state: dict[str, Any],
     ) -> dict[str, Any]:
-        """Test error recovery mechanisms.
-
-        Args:
-            error_function: Function that should trigger an error
-            recovery_function: Function that should handle recovery
-            expected_recovery_state: Expected state after recovery
-
-        Returns:
-            Recovery test results
+        """
+        Test error recovery mechanisms. Args: error_function: Function that
+        should trigger an error recovery_function: Function that should handle
+        recovery expected_recovery_state: Expected state after recovery
+        Returns: Recovery test results
         """
         recovery_result: dict[str, Any] = {
             "error_triggered": False,
@@ -165,13 +154,10 @@ class ErrorScenarioMixin:
     def simulate_vram_exhaustion(
         self, model_size_mb: int = 9000
     ) -> dict[str, Any]:
-        """Simulate VRAM exhaustion for RTX 3070 Ti (8GB limit).
-
-        Args:
-            model_size_mb: Simulated model size in MB
-
-        Returns:
-            VRAM exhaustion simulation result
+        """
+        Simulate VRAM exhaustion for RTX 3070 Ti (8GB limit). Args:
+        model_size_mb: Simulated model size in MB Returns: VRAM exhaustion
+        simulation result
         """
         vram_simulation: dict[str, Any] = {
             "model_size_mb": model_size_mb,
@@ -198,14 +184,11 @@ class ErrorScenarioMixin:
     def validate_error_isolation(
         self, test_function: Callable[[], Any], shared_state: dict[str, Any]
     ) -> dict[str, Any]:
-        """Validate that error scenarios don't affect other tests.
-
-        Args:
-            test_function: Test function that might cause side effects
-            shared_state: Shared state to monitor for contamination
-
-        Returns:
-            Isolation validation results
+        """
+        Validate that error scenarios don't affect other tests. Args:
+        test_function: Test function that might cause side effects
+        shared_state: Shared state to monitor for contamination Returns:
+        Isolation validation results
         """
         isolation_result: dict[str, Any] = {
             "initial_state": shared_state.copy(),

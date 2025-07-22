@@ -1,7 +1,7 @@
-"""Device factory functions for creating responsive devices.
-
-This module provides factory functions to easily create ResponsiveDevice
-instances for different device categories with appropriate defaults.
+"""
+Device factory functions for creating responsive devices. This module
+provides factory functions to easily create ResponsiveDevice instances
+for different device categories with appropriate defaults.
 """
 
 from ..core import (
@@ -22,19 +22,12 @@ def create_mobile_device(
     priority: int = 1,
     **kwargs,
 ) -> ResponsiveDevice:
-    """Create a mobile device configuration.
-
-    Args:
-        name: Device name
-        width: Viewport width
-        height: Viewport height
-        pixel_ratio: Device pixel ratio
-        user_agent: Mobile user agent string
-        priority: Device priority (1-3)
-        **kwargs: Additional ResponsiveDevice parameters
-
-    Returns:
-        Configured ResponsiveDevice for mobile
+    """
+    Create a mobile device configuration. Args: name: Device name width:
+    Viewport width height: Viewport height pixel_ratio: Device pixel ratio
+    user_agent: Mobile user agent string priority: Device priority (1-3)
+    **kwargs: Additional ResponsiveDevice parameters Returns: Configured
+    ResponsiveDevice for mobile
     """
     viewport = ViewportDimensions(
         width, height, pixel_ratio, Orientation.PORTRAIT
@@ -61,19 +54,12 @@ def create_tablet_device(
     priority: int = 2,
     **kwargs,
 ) -> ResponsiveDevice:
-    """Create a tablet device configuration.
-
-    Args:
-        name: Device name
-        width: Viewport width
-        height: Viewport height
-        pixel_ratio: Device pixel ratio
-        user_agent: Tablet user agent string
-        priority: Device priority (1-3)
-        **kwargs: Additional ResponsiveDevice parameters
-
-    Returns:
-        Configured ResponsiveDevice for tablet
+    """
+    Create a tablet device configuration. Args: name: Device name width:
+    Viewport width height: Viewport height pixel_ratio: Device pixel ratio
+    user_agent: Tablet user agent string priority: Device priority (1-3)
+    **kwargs: Additional ResponsiveDevice parameters Returns: Configured
+    ResponsiveDevice for tablet
     """
     viewport = ViewportDimensions(
         width, height, pixel_ratio, Orientation.PORTRAIT
@@ -100,19 +86,12 @@ def create_desktop_device(
     priority: int = 1,
     **kwargs,
 ) -> ResponsiveDevice:
-    """Create a desktop device configuration.
-
-    Args:
-        name: Device name
-        width: Viewport width
-        height: Viewport height
-        pixel_ratio: Device pixel ratio
-        touch_capability: Touch capability level
-        priority: Device priority (1-3)
-        **kwargs: Additional ResponsiveDevice parameters
-
-    Returns:
-        Configured ResponsiveDevice for desktop
+    """
+    Create a desktop device configuration. Args: name: Device name width:
+    Viewport width height: Viewport height pixel_ratio: Device pixel ratio
+    touch_capability: Touch capability level priority: Device priority
+    (1-3) **kwargs: Additional ResponsiveDevice parameters Returns:
+    Configured ResponsiveDevice for desktop
     """
     viewport = ViewportDimensions(
         width, height, pixel_ratio, Orientation.LANDSCAPE

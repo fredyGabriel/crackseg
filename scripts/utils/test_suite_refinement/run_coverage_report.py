@@ -1,7 +1,14 @@
+"""
+Coverage report generator for test suite refinement. This script runs
+pytest with coverage reporting and moves the generated reports to the
+appropriate directory for test suite evaluation.
+"""
+
 import os
 import shutil
 import subprocess
 
+# Type definitions
 REPORTS_DIR = "outputs/prd_project_refinement/test_suite_evaluation/reports/"
 HTMLCOV_SRC = "htmlcov"
 HTMLCOV_DST = os.path.join(REPORTS_DIR, "htmlcov")

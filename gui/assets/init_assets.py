@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
-Asset initialization script for CrackSeg GUI.
-
-This script registers existing assets and sets up the asset management system.
+Asset initialization script for CrackSeg GUI. This script registers
+existing assets and sets up the asset management system.
 """
 
 import sys
@@ -13,7 +12,7 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # Import after path setup to access project modules
-from scripts.gui.assets.manager import asset_manager  # noqa: E402
+from gui.assets.manager import asset_manager  # noqa: E402
 
 
 def register_css_assets() -> None:
@@ -73,87 +72,57 @@ def register_existing_images() -> None:
 def create_readme_files() -> None:
     """Create README files for asset directories."""
     readmes = {
-        "css/global/README.md": """# Global CSS Assets
-
-This directory contains global CSS files that apply to the entire application.
-
-## Files:
-- `base.css` - Core application styles, CSS variables, Streamlit customizations
-- `reset.css` - CSS reset and normalization (if needed)
-- `utilities.css` - Utility classes and helpers (if needed)
+        "css/global/README.md": """
+# Global CSS Assets This directory contains global CSS files that
+apply to the entire application. ## Files: - `base.css` - Core
+application styles, CSS variables, Streamlit customizations -
+`reset.css` - CSS reset and normalization (if needed) -
+`utilities.css` - Utility classes and helpers (if needed)
 """,
-        "css/components/README.md": """# Component CSS Assets
-
-This directory contains CSS files specific to individual components.
-
-## Files:
-- `navigation.css` - Sidebar navigation and breadcrumb styles
-- `theme-switcher.css` - Theme selector component styles
-- `status-panel.css` - Status panel and indicators styles
+        "css/components/README.md": """
+# Component CSS Assets This directory contains CSS files specific to
+individual components. ## Files: - `navigation.css` - Sidebar
+navigation and breadcrumb styles - `theme-switcher.css` - Theme
+selector component styles - `status-panel.css` - Status panel and
+indicators styles
 """,
-        "css/themes/README.md": """# Theme CSS Assets
-
-This directory contains theme-specific CSS overrides.
-
-## Structure:
-- `dark/` - Dark theme customizations
-- `light/` - Light theme customizations
-- `auto/` - Auto theme adjustments
+        "css/themes/README.md": """
+# Theme CSS Assets This directory contains theme-specific CSS
+overrides. ## Structure: - `dark/` - Dark theme customizations -
+`light/` - Light theme customizations - `auto/` - Auto theme
+adjustments
 """,
-        "images/logos/README.md": """# Logo Assets
-
-This directory contains application logos and branding.
-
-## Files:
-- `primary-logo.png` - Main application logo
-- `logo-small.png` - Small variant for favicons/icons
-- `logo-large.png` - Large variant for headers
-- `favicon.png` - Browser favicon
+        "images/logos/README.md": """
+# Logo Assets This directory contains application logos and branding.
+## Files: - `primary-logo.png` - Main application logo -
+`logo-small.png` - Small variant for favicons/icons - `logo-large.png`
+- Large variant for headers - `favicon.png` - Browser favicon
 """,
-        "images/icons/README.md": """# Icon Assets
-
-This directory contains UI icons and symbols.
-
-## Categories:
-- Navigation icons
-- Status indicators
-- Action buttons
-- File type indicators
+        "images/icons/README.md": """
+# Icon Assets This directory contains UI icons and symbols. ##
+Categories: - Navigation icons - Status indicators - Action buttons -
+File type indicators
 """,
-        "images/backgrounds/README.md": """# Background Assets
-
-This directory contains background images and patterns.
-
-## Types:
-- Texture patterns
-- Gradient overlays
-- Hero images
+        "images/backgrounds/README.md": """
+# Background Assets This directory contains background images and
+patterns. ## Types: - Texture patterns - Gradient overlays - Hero
+images
 """,
-        "images/samples/README.md": """# Sample Assets
-
-This directory contains sample images for testing and demonstration.
-
-## Purpose:
-- Demo crack images
-- Test data visualization
-- UI mockups
+        "images/samples/README.md": """
+# Sample Assets This directory contains sample images for testing and
+demonstration. ## Purpose: - Demo crack images - Test data
+visualization - UI mockups
 """,
-        "fonts/primary/README.md": """# Primary Fonts
-
-This directory contains the main application fonts.
-
-## Fonts:
-- System fonts are preferred for better performance
-- Custom fonts only if branding requires it
+        "fonts/primary/README.md": """
+# Primary Fonts This directory contains the main application fonts. ##
+Fonts: - System fonts are preferred for better performance - Custom
+fonts only if branding requires it
 """,
-        "js/components/README.md": """# JavaScript Components
-
-This directory contains JavaScript for enhanced component functionality.
-
-## Files:
-- Component-specific interactive features
-- Streamlit custom components
-- Third-party integrations
+        "js/components/README.md": """
+# JavaScript Components This directory contains JavaScript for
+enhanced component functionality. ## Files: - Component-specific
+interactive features - Streamlit custom components - Third-party
+integrations
 """,
     }
 

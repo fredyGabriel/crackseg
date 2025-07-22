@@ -9,7 +9,7 @@ modify, and save a custom configuration for your experiment.
 
 ## Step 1: Load a Base Configuration
 
-1. Launch the GUI (`streamlit run scripts/gui/app.py`).
+1. Launch the GUI (`streamlit run gui/app.py`).
 2. Navigate to the **Experiment Configuration** page.
 3. Load the `configs/base.yaml` file using the file browser, just as you did
     in the previous tutorial.

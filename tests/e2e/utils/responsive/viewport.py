@@ -1,7 +1,7 @@
-"""Viewport manipulation utilities for responsive testing.
-
-This module provides functions for viewport resizing, orientation changes,
-and viewport stabilization with proper waiting and error handling.
+"""
+Viewport manipulation utilities for responsive testing. This module
+provides functions for viewport resizing, orientation changes, and
+viewport stabilization with proper waiting and error handling.
 """
 
 import logging
@@ -20,15 +20,11 @@ def set_viewport_size(
     viewport: ViewportDimensions,
     stabilization_delay: float = 0.5,
 ) -> bool:
-    """Set browser viewport to specified dimensions.
-
-    Args:
-        driver: WebDriver instance
-        viewport: Target viewport dimensions
-        stabilization_delay: Time to wait for viewport stabilization
-
-    Returns:
-        True if successful, False otherwise
+    """
+    Set browser viewport to specified dimensions. Args: driver: WebDriver
+    instance viewport: Target viewport dimensions stabilization_delay:
+    Time to wait for viewport stabilization Returns: True if successful,
+    False otherwise
     """
     try:
         logger.debug(f"Setting viewport to {viewport}")
@@ -80,22 +76,17 @@ def set_viewport_size(
 
 
 def get_actual_viewport_size(driver: WebDriver) -> dict[str, int]:
-    """Get actual viewport size from browser.
-
-    Args:
-        driver: WebDriver instance
-
-    Returns:
-        Dictionary with width and height of actual viewport
+    """
+    Get actual viewport size from browser. Args: driver: WebDriver
+    instance Returns: Dictionary with width and height of actual viewport
     """
     try:
         # Use JavaScript to get viewport dimensions
         viewport_script = """
-        return {
-            width: window.innerWidth || document.documentElement.clientWidth,
-            height: window.innerHeight || document.documentElement.clientHeight
-        };
-        """
+return { width: window.innerWidth ||
+document.documentElement.clientWidth, height: window.innerHeight ||
+document.documentElement.clientHeight };
+"""
 
         result = driver.execute_script(viewport_script)
         return {"width": int(result["width"]), "height": int(result["height"])}
@@ -108,26 +99,19 @@ def get_actual_viewport_size(driver: WebDriver) -> dict[str, int]:
 
 
 def _calculate_viewport_adjustment(driver: WebDriver) -> dict[str, int]:
-    """Calculate browser chrome size to adjust for viewport.
-
-    Args:
-        driver: WebDriver instance
-
-    Returns:
-        Dictionary with width and height adjustments needed
+    """
+    Calculate browser chrome size to adjust for viewport. Args: driver:
+    WebDriver instance Returns: Dictionary with width and height
+    adjustments needed
     """
     try:
         # Get window outer dimensions and viewport dimensions
         dimensions_script = """
-        return {
-            outerWidth: window.outerWidth || 0,
-            outerHeight: window.outerHeight || 0,
-            innerWidth: window.innerWidth ||
-                        document.documentElement.clientWidth,
-            innerHeight: window.innerHeight ||
-                         document.documentElement.clientHeight
-        };
-        """
+return { outerWidth: window.outerWidth || 0, outerHeight:
+window.outerHeight || 0, innerWidth: window.innerWidth ||
+document.documentElement.clientWidth, innerHeight: window.innerHeight
+|| document.documentElement.clientHeight };
+"""
 
         dimensions = driver.execute_script(dimensions_script)
 
@@ -152,16 +136,12 @@ def simulate_orientation_change(
     current_viewport: ViewportDimensions,
     change_delay: float = 1.0,
 ) -> ViewportDimensions | None:
-    """Simulate device orientation change.
-
-    Args:
-        driver: WebDriver instance
-        target_orientation: Target orientation
-        current_viewport: Current viewport dimensions
-        change_delay: Time to wait during orientation change
-
-    Returns:
-        New ViewportDimensions after orientation change, None if failed
+    """
+    Simulate device orientation change. Args: driver: WebDriver instance
+    target_orientation: Target orientation current_viewport: Current
+    viewport dimensions change_delay: Time to wait during orientation
+    change Returns: New ViewportDimensions after orientation change, None
+    if failed
     """
     try:
         logger.debug(
@@ -205,24 +185,17 @@ def simulate_orientation_change(
 
 
 def _trigger_resize_events(driver: WebDriver) -> None:
-    """Trigger browser resize events to notify responsive code.
-
-    Args:
-        driver: WebDriver instance
+    """
+    Trigger browser resize events to notify responsive code. Args: driver:
+    WebDriver instance
     """
     try:
         resize_script = """
-        // Trigger resize event
-        window.dispatchEvent(new Event('resize'));
-
-        // Trigger orientationchange event if supported
-        if ('onorientationchange' in window) {
-            window.dispatchEvent(new Event('orientationchange'));
-        }
-
-        // Give time for handlers to execute
-        return true;
-        """
+// Trigger resize event window.dispatchEvent(new Event('resize')); //
+Trigger orientationchange event if supported if ('onorientationchange'
+in window) { window.dispatchEvent(new Event('orientationchange')); }
+// Give time for handlers to execute return true;
+"""
 
         driver.execute_script(resize_script)
 
@@ -239,16 +212,11 @@ def wait_for_viewport_stabilization(
     timeout: float = 5.0,
     check_interval: float = 0.1,
 ) -> bool:
-    """Wait for viewport to stabilize at expected dimensions.
-
-    Args:
-        driver: WebDriver instance
-        expected_viewport: Expected viewport dimensions
-        timeout: Maximum time to wait
-        check_interval: Time between stability checks
-
-    Returns:
-        True if viewport stabilized, False if timeout
+    """
+    Wait for viewport to stabilize at expected dimensions. Args: driver:
+    WebDriver instance expected_viewport: Expected viewport dimensions
+    timeout: Maximum time to wait check_interval: Time between stability
+    checks Returns: True if viewport stabilized, False if timeout
     """
     start_time = time.time()
     tolerance = 10  # pixels
@@ -285,13 +253,9 @@ def wait_for_viewport_stabilization(
 
 
 def get_device_pixel_ratio(driver: WebDriver) -> float:
-    """Get device pixel ratio from browser.
-
-    Args:
-        driver: WebDriver instance
-
-    Returns:
-        Device pixel ratio (1.0 if unable to determine)
+    """
+    Get device pixel ratio from browser. Args: driver: WebDriver instance
+    Returns: Device pixel ratio (1.0 if unable to determine)
     """
     try:
         ratio_script = "return window.devicePixelRatio || 1.0;"
@@ -304,14 +268,10 @@ def get_device_pixel_ratio(driver: WebDriver) -> float:
 
 
 def is_mobile_viewport(driver: WebDriver, mobile_threshold: int = 768) -> bool:
-    """Check if current viewport is mobile-sized.
-
-    Args:
-        driver: WebDriver instance
-        mobile_threshold: Width threshold for mobile detection
-
-    Returns:
-        True if viewport width is below mobile threshold
+    """
+    Check if current viewport is mobile-sized. Args: driver: WebDriver
+    instance mobile_threshold: Width threshold for mobile detection
+    Returns: True if viewport width is below mobile threshold
     """
     try:
         viewport = get_actual_viewport_size(driver)

@@ -1,15 +1,14 @@
-"""Training execution orchestration for CrackSeg GUI.
-
-This package provides the main interface for training execution,
-integrating override parsing and process management. Acts as the
-coordination layer between GUI components and core functionality.
-
-The package is organized by functionality for better maintainability:
-- orchestrator: Main training session functions and core logic
-- streaming_api: Log streaming functions and callbacks
-- abort_api: Enhanced abort functionality and process tree management
-- ui_integration: UI responsive functions and threading coordination
-- session_api: Session state synchronization and management
+"""
+Training execution orchestration for CrackSeg GUI. This package
+provides the main interface for training execution, integrating
+override parsing and process management. Acts as the coordination
+layer between GUI components and core functionality. The package is
+organized by functionality for better maintainability: - orchestrator:
+Main training session functions and core logic - streaming_api: Log
+streaming functions and callbacks - abort_api: Enhanced abort
+functionality and process tree management - ui_integration: UI
+responsive functions and threading coordination - session_api: Session
+state synchronization and management
 """
 
 # Import all public APIs from submodules
@@ -91,9 +90,9 @@ from .streaming_api import (
 )
 from .ui_integration import (
     cleanup_ui_wrapper,
-    execute_training_async,
-    execute_with_progress,
-    get_ui_wrapper,
+    execute_training_async,  # type: ignore[misc]
+    execute_with_progress,  # type: ignore[misc]
+    get_ui_wrapper,  # type: ignore[misc]
 )
 from .ui_status_helpers import (
     check_status_changes_since,

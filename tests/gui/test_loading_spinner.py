@@ -1,8 +1,6 @@
 """
-Unit tests for the LoadingSpinner component.
-
-Tests cover spinner functionality, styling, timeout handling, and contextual
-messaging.
+Unit tests for the LoadingSpinner component. Tests cover spinner
+functionality, styling, timeout handling, and contextual messaging.
 """
 
 import time
@@ -132,7 +130,7 @@ class TestLoadingSpinner:
         assert "please wait" in subtext.lower()
         assert spinner_type == "default"
 
-    @patch("scripts.gui.components.loading_spinner.SessionStateManager")
+    @patch("gui.components.loading_spinner.SessionStateManager")
     @patch("streamlit.spinner")
     @patch("streamlit.empty")
     def test_spinner_context_manager_basic(
@@ -155,7 +153,7 @@ class TestLoadingSpinner:
         # Verify spinner was called
         mock_spinner.assert_called_once_with("Test message")
 
-    @patch("scripts.gui.components.loading_spinner.SessionStateManager")
+    @patch("gui.components.loading_spinner.SessionStateManager")
     @patch("streamlit.spinner")
     @patch("streamlit.empty")
     @patch("time.time")
@@ -205,7 +203,7 @@ class TestLoadingSpinner:
             assert "Operation took longer than expected" in call_args[0][0]
             assert "crackseg-timeout-warning" in call_args[0][0]
 
-    @patch("scripts.gui.components.loading_spinner.SessionStateManager")
+    @patch("gui.components.loading_spinner.SessionStateManager")
     @patch("streamlit.spinner")
     @patch("streamlit.empty")
     def test_spinner_error_handling(
@@ -280,7 +278,7 @@ class TestLoadingSpinner:
 class TestLoadingSpinnerIntegration:
     """Integration tests for LoadingSpinner component."""
 
-    @patch("scripts.gui.components.loading_spinner.SessionStateManager")
+    @patch("gui.components.loading_spinner.SessionStateManager")
     @patch("streamlit.spinner")
     @patch("streamlit.empty")
     @patch("time.sleep")
@@ -314,7 +312,7 @@ class TestLoadingSpinnerIntegration:
             mock_session_state.add_notification.call_count >= 2
         )  # Start and end notifications
 
-    @patch("scripts.gui.components.loading_spinner.SessionStateManager")
+    @patch("gui.components.loading_spinner.SessionStateManager")
     @patch("streamlit.spinner")
     @patch("streamlit.empty")
     def test_training_workflow_integration(
@@ -384,7 +382,7 @@ class TestLoadingSpinnerIntegration:
             "tensorboard",
             "export",
         ]
-        used_styles = set()
+        used_styles: set[str] = set()
 
         for op_type in operation_types:
             _, _, spinner_type = LoadingSpinner.get_contextual_message(op_type)
@@ -398,7 +396,7 @@ class TestLoadingSpinnerIntegration:
 class TestLoadingSpinnerPerformance:
     """Performance tests for LoadingSpinner component."""
 
-    @patch("scripts.gui.components.loading_spinner.SessionStateManager")
+    @patch("gui.components.loading_spinner.SessionStateManager")
     @patch("streamlit.spinner")
     @patch("streamlit.empty")
     def test_spinner_performance_overhead(

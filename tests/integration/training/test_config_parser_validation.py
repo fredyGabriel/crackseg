@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Standalone test for ConfigParser functionality.
-This script verifies that the configuration parsing logic works correctly.
+Standalone test for ConfigParser functionality. This script verifies
+that the configuration parsing logic works correctly.
 """
 
 import os
@@ -16,7 +16,7 @@ def test_config_parser() -> bool:
     """Test the configuration parser functionality."""
     print("🧪 Testing ConfigParser standalone...")
 
-    # Create a minimal mock for testing without importing the full system
+    # Create a minimal mock for testing without import ing the full system
 
     # Mock ParsedNode
     class ParsedNode:

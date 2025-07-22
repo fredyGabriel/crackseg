@@ -30,7 +30,7 @@ modular architecture to facilitate maintenance and extensibility.
 To launch the GUI, run the following command from the project root:
 
 ```bash
-streamlit run scripts/gui/app.py
+streamlit run gui/app.py
 ```
 
 ## Development

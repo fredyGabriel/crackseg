@@ -1,7 +1,7 @@
-"""CI/CD integration for performance benchmarking.
-
-This module provides integration utilities for running performance benchmarks
-in CI/CD environments, handling configuration, result processing, and
+"""
+CI/CD integration for performance benchmarking. This module provides
+integration utilities for running performance benchmarks in CI/CD
+environments, handling configuration, result processing, and
 coordination with cleanup validation systems.
 """
 

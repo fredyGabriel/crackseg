@@ -14,7 +14,7 @@ from typing import Any
 import streamlit as st
 
 from crackseg.dataclasses import asdict, dataclass
-from scripts.gui.utils.performance_optimizer import (
+from gui.utils.performance_optimizer import (
     should_update,
     track_performance,
 )

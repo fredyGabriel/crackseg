@@ -1,6 +1,6 @@
-"""Demonstration script for AsyncResultsScanner functionality.
-
-This script demonstrates the basic capabilities of the results scanner
+"""
+Demonstration script for AsyncResultsScanner functionality. This
+script demonstrates the basic capabilities of the results scanner
 including async scanning, progress tracking, and triplet validation.
 """
 
@@ -52,10 +52,10 @@ async def demo_basic_scanning() -> None:
         "incomplete_003.png",  # Incomplete triplet
     ]
 
-    for filename in test_files:
-        file_path = test_dir / filename
+    for filename in test_files:  # type: ignore[assignment]
+        file_path = test_dir / filename  # type: ignore[assignment]
         if not file_path.exists():
-            file_path.write_text(f"Dummy content for {filename}")
+            file_path.write_text(f"Dummy content for {filename} ")  # type: ignore[misc]
 
     try:
         # Create scanner with progress callback
@@ -74,9 +74,24 @@ async def demo_basic_scanning() -> None:
         async for triplet in scanner.scan_async():
             triplet_count += 1
             print(f"  Found triplet: {triplet.id}")
-            print(f"    Image: {triplet.image_path.name}")
-            print(f"    Mask: {triplet.mask_path.name}")
-            print(f"    Prediction: {triplet.prediction_path.name}")
+            image_name = (
+                triplet.image_path.name
+                if triplet.image_path is not None
+                else "N/A"
+            )  # type: ignore[union-attr]
+            print(f"    Image: {image_name}")
+            mask_name = (
+                triplet.mask_path.name  # type: ignore[union-attr]
+                if triplet.mask_path is not None
+                else "N/A"
+            )
+            pred_name = (
+                triplet.prediction_path.name  # type: ignore[union-attr]
+                if triplet.prediction_path is not None
+                else "N/A"
+            )
+            print(f"    Mask: {mask_name}")
+            print(f"    Prediction: {pred_name}")
             print(f"    Complete: {triplet.is_complete}")
             print()
 
@@ -93,9 +108,9 @@ async def demo_basic_scanning() -> None:
         raise
     finally:
         # Cleanup demo files
-        for filename in test_files:
+        for filename in test_files:  # type: ignore[assignment]
             try:
-                (test_dir / filename).unlink(missing_ok=True)
+                (test_dir / filename).unlink(missing_ok=True)  # type: ignore[misc]
             except Exception:
                 pass
         try:
@@ -122,12 +137,12 @@ async def demo_concurrent_performance() -> None:
             f"batch_{i:03d}_mask.png",
             f"batch_{i:03d}_pred.png",
         ]
-        test_files.extend(files)
+        test_files.extend(files)  # type: ignore[arg-type]
 
     # Create dummy files
-    for filename in test_files:
-        file_path = test_dir / filename
-        file_path.write_text(f"Test content for {filename}")
+    for filename in test_files:  # type: ignore[assignment]
+        file_path = test_dir / filename  # type: ignore[assignment]
+        file_path.write_text(f"Test content for {filename} ")  # type: ignore[misc]
 
     try:
         # Test different concurrency levels
@@ -150,9 +165,9 @@ async def demo_concurrent_performance() -> None:
 
     finally:
         # Cleanup
-        for filename in test_files:
+        for filename in test_files:  # type: ignore[assignment]
             try:
-                (test_dir / filename).unlink(missing_ok=True)
+                (test_dir / filename).unlink(missing_ok=True)  # type: ignore[misc]
             except Exception:
                 pass
         try:

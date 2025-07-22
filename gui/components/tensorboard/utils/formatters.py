@@ -1,7 +1,7 @@
-"""Formatting utilities for TensorBoard component.
-
-This module provides functions for formatting various data types used
-in the TensorBoard component, such as uptime, error messages, and sizes.
+"""
+Formatting utilities for TensorBoard component. This module provides
+functions for formatting various data types used in the TensorBoard
+component, such as uptime, error messages, and sizes.
 """
 
 from typing import Any
@@ -101,14 +101,10 @@ def format_progress_percentage(progress: float) -> str:
 
 
 def format_metric_value(value: Any, metric_type: str = "default") -> str:
-    """Format metric values for consistent display.
-
-    Args:
-        value: The metric value to format.
-        metric_type: Type of metric for specialized formatting.
-
-    Returns:
-        Formatted metric string.
+    """
+    Format metric values for consistent display. Args: value: The metric
+    value to format. metric_type: Type of metric for specialized
+    formatting. Returns: Formatted metric string.
     """
     if value is None:
         return "N/A"

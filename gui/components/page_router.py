@@ -1,16 +1,15 @@
 """
-Page routing system for the CrackSeg application.
-
-This module provides centralized page routing, navigation validation,
-and page metadata management.
+Page routing system for the CrackSeg application. This module provides
+centralized page routing, navigation validation, and page metadata
+management.
 """
 
 from collections.abc import Callable
 
 import streamlit as st
 
-from scripts.gui.utils.gui_config import PAGE_CONFIG
-from scripts.gui.utils.session_state import SessionState, SessionStateManager
+from gui.utils.gui_config import PAGE_CONFIG
+from gui.utils.session_state import SessionState, SessionStateManager
 
 
 class PageRouter:
@@ -82,13 +81,9 @@ class PageRouter:
 
     @staticmethod
     def get_available_pages(state: SessionState) -> list[str]:
-        """Get list of currently available pages based on state.
-
-        Args:
-            state: Current session state
-
-        Returns:
-            List of available page names
+        """
+        Get list of currently available pages based on state. Args: state:
+        Current session state Returns: List of available page names
         """
         available = []
 
@@ -113,15 +108,10 @@ class PageRouter:
     def validate_page_transition(
         from_page: str, to_page: str, state: SessionState
     ) -> tuple[bool, str]:
-        """Validate if page transition is allowed.
-
-        Args:
-            from_page: Current page name
-            to_page: Target page name
-            state: Current session state
-
-        Returns:
-            Tuple of (is_valid, error_message)
+        """
+        Validate if page transition is allowed. Args: from_page: Current page
+        name to_page: Target page name state: Current session state Returns:
+        Tuple of (is_valid, error_message)
         """
         available_pages = PageRouter.get_available_pages(state)
 
@@ -148,12 +138,10 @@ class PageRouter:
         state: SessionState,
         page_functions: dict[str, Callable[[], None]],
     ) -> None:
-        """Route to the specified page with validation.
-
-        Args:
-            page_name: Name of the page to route to
-            state: Current session state
-            page_functions: Dictionary mapping page names to functions
+        """
+        Route to the specified page with validation. Args: page_name: Name of
+        the page to route to state: Current session state page_functions:
+        Dictionary mapping page names to functions
         """
         # Validate transition
         is_valid, error_msg = PageRouter.validate_page_transition(
@@ -191,14 +179,10 @@ class PageRouter:
 
     @staticmethod
     def handle_navigation_change(new_page: str, state: SessionState) -> bool:
-        """Handle navigation change with validation and state update.
-
-        Args:
-            new_page: New page to navigate to
-            state: Current session state
-
-        Returns:
-            True if navigation was successful
+        """
+        Handle navigation change with validation and state update. Args:
+        new_page: New page to navigate to state: Current session state
+        Returns: True if navigation was successful
         """
         if new_page == state.current_page:
             return True
@@ -218,13 +202,9 @@ class PageRouter:
 
     @staticmethod
     def get_page_breadcrumbs(current_page: str) -> str:
-        """Generate breadcrumb navigation for current page.
-
-        Args:
-            current_page: Current page name
-
-        Returns:
-            Breadcrumb HTML string
+        """
+        Generate breadcrumb navigation for current page. Args: current_page:
+        Current page name Returns: Breadcrumb HTML string
         """
         pages = ["Config", "Architecture", "Train", "Results"]
         breadcrumbs = []

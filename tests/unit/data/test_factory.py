@@ -6,7 +6,7 @@ from omegaconf import OmegaConf
 from torch.utils.data import DataLoader, Dataset
 
 from crackseg.data import factory as data_factory
-from crackseg.data.dataloader import create_dataloader
+from crackseg.data.dataloader import DataLoaderConfig, create_dataloader
 from crackseg.data.factory import create_dataloaders_from_config
 
 
@@ -21,105 +21,106 @@ class DummyDataset(Dataset[torch.Tensor]):
         return torch.tensor([idx], dtype=torch.float32)
 
 
-def test_dataloader_basic_init() -> None:
-    ds = DummyDataset(10)
-    loader = create_dataloader(ds)
+def test_create_dataloader_uses_default_config() -> None:
+    """Verify DataLoader is created with default settings."""
+    dataset = DummyDataset(10)
+    loader = create_dataloader(dataset)
     assert isinstance(loader, DataLoader)
-    batch = next(iter(loader))
-    # batch_size=32 default, but if ds<32, batch=ds
-    assert batch.shape[0] == 10 or batch.shape[0] == 32  # noqa: PLR2004
+    assert loader.batch_size == 32  # Default batch_size
 
 
-def test_dataloader_custom_batch_size() -> None:
-    ds = DummyDataset(50)
-    loader = create_dataloader(ds, batch_size=8)
+def test_create_dataloader_with_custom_batch_size() -> None:
+    """Test creating a DataLoader with a custom batch size."""
+    dataset = DummyDataset(50)
+    loader = create_dataloader(dataset, batch_size=8)
     batches = list(loader)
-    assert all(b.shape[0] == 8 for b in batches[:-1])  # noqa: PLR2004
-    assert batches[-1].shape[0] == 2  # 50 % 8 = 2  # noqa: PLR2004
+    assert all(b.shape[0] == 8 for b in batches[:-1])
+    assert batches[-1].shape[0] == 2  # 50 % 8 = 2
 
 
-def test_dataloader_shuffle() -> None:
-    ds = DummyDataset(100)
-    loader1 = create_dataloader(ds)  # shuffle no soportado
-    loader2 = create_dataloader(ds)
+def test_create_dataloader_with_shuffle_enabled() -> None:
+    """Test that shuffling produces different batch orders."""
+    dataset = DummyDataset(100)
+    config = DataLoaderConfig(shuffle=True)
+    loader1 = create_dataloader(dataset, config=config)
+    loader2 = create_dataloader(dataset, config=config)
     batch1 = next(iter(loader1)).tolist()
     batch2 = next(iter(loader2)).tolist()
-    assert batch1 != batch2 or batch1 == batch2
+    assert (
+        batch1 != batch2
+    ), "Shuffled loaders should produce different batches"
 
 
-def test_dataloader_num_workers() -> None:
-    ds = DummyDataset(20)
-    loader = create_dataloader(ds)  # num_workers no soportado
-    assert isinstance(loader, DataLoader)
-    loader2 = create_dataloader(ds)
-    assert isinstance(loader2, DataLoader)
+@pytest.mark.parametrize("num_workers", [0, 1, 2])
+def test_create_dataloader_with_num_workers(num_workers: int) -> None:
+    """Verify DataLoader is created correctly with different workers."""
+    dataset = DummyDataset(20)
+    config = DataLoaderConfig(num_workers=num_workers)
+    loader = create_dataloader(dataset, config=config)
+    assert loader.num_workers == num_workers
 
 
 @pytest.mark.parametrize("batch_size", [1, 8, 16, 64])
 def test_dataloader_various_batch_sizes(batch_size: int) -> None:
-    ds = DummyDataset(100)
-    loader = create_dataloader(ds, batch_size=batch_size)
+    """Test that the dataloader respects various batch sizes."""
+    dataset = DummyDataset(100)
+    loader = create_dataloader(dataset, batch_size=batch_size)
     for batch in loader:
         assert batch.shape[0] <= batch_size
 
 
-@pytest.mark.parametrize("prefetch_factor", [1, 2, 4])
+@pytest.mark.parametrize("prefetch_factor", [2, 4])
 def test_dataloader_prefetch_factor(prefetch_factor: int) -> None:
-    ds = DummyDataset(20)
-    loader = create_dataloader(ds)  # prefetch_factor no soportado
-    assert isinstance(loader, DataLoader)
+    """Verify DataLoader is created with a prefetch factor."""
+    dataset = DummyDataset(20)
+    # prefetch_factor only works for num_workers > 0
+    config = DataLoaderConfig(num_workers=1, prefetch_factor=prefetch_factor)
+    loader = create_dataloader(dataset, config=config)
+    assert loader.prefetch_factor == prefetch_factor
 
 
 @pytest.mark.parametrize("pin_memory", [True, False])
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA not available")
 def test_dataloader_pin_memory(pin_memory: bool) -> None:
-    ds = DummyDataset(10)
-    loader = create_dataloader(ds)  # pin_memory no soportado
-    assert isinstance(loader, DataLoader)
+    """Test DataLoader with pin_memory enabled and disabled."""
+    dataset = DummyDataset(10)
+    config = DataLoaderConfig(pin_memory=pin_memory)
+    loader = create_dataloader(dataset, config=config)
+    assert loader.pin_memory == pin_memory
 
 
-def test_dataloader_invalid_batch_size() -> None:
-    ds = DummyDataset(10)
-    with pytest.raises(ValueError):
-        create_dataloader(ds, batch_size=0)
+def test_dataloader_raises_error_for_invalid_batch_size() -> None:
+    """Test that a ValueError is raised for a batch size of 0."""
+    dataset = DummyDataset(10)
+    with pytest.raises(
+        ValueError, match="batch_size must be a positive integer"
+    ):
+        create_dataloader(dataset, batch_size=0)
 
 
-def test_dataloader_invalid_prefetch_factor() -> None:
-    ds = DummyDataset(10)
-    with pytest.raises(TypeError):
-        create_dataloader(ds)  # prefetch_factor no soportado, fuerza error
-
-
-def test_dataloader_invalid_num_workers() -> None:
-    ds = DummyDataset(10)
-    with pytest.raises(TypeError):
-        create_dataloader(ds)  # num_workers no soportado, fuerza error
-
-
-def test_dataloader_fp16_option() -> None:
-    ds = DummyDataset(10)
-    loader = create_dataloader(ds)  # fp16 no soportado
+def test_dataloader_fp16_config_is_respected() -> None:
+    """Test that the fp16 configuration flag is handled correctly."""
+    dataset = DummyDataset(10)
+    # The function itself doesn't change tensor dtype, but we can check the
+    # config path
+    config = DataLoaderConfig(fp16=True)
+    loader = create_dataloader(dataset, config=config)
     batch = next(iter(loader))
-    assert batch.dtype == torch.float32
-    loader = create_dataloader(ds)
-    batch = next(iter(loader))
-    assert batch.dtype == torch.float32
+    assert batch.dtype == torch.float32  # Dtype should remain as created
+    # No direct assertion on fp16, just that it doesn't crash
 
 
-def test_dataloader_max_memory_mb() -> None:
-    ds = DummyDataset(100)
-    loader = create_dataloader(ds)  # max_memory_mb no soportado
+def test_dataloader_adaptive_batch_size_config() -> None:
+    """Test that the adaptive batch size configuration is handled."""
+    dataset = DummyDataset(100)
+    config = DataLoaderConfig(adaptive_batch_size=True, max_memory_mb=1024)
+    loader = create_dataloader(dataset, config=config)
     assert isinstance(loader, DataLoader)
     batch = next(iter(loader))
     assert batch.shape[0] > 0
-
-
-def test_dataloader_adaptive_batch_size() -> None:
-    ds = DummyDataset(100)
-    loader = create_dataloader(ds, batch_size=32)
-    assert isinstance(loader, DataLoader)
-    batch = next(iter(loader))
-    assert batch.shape[0] > 0
-    assert batch.shape[0] <= 32  # noqa: PLR2004
+    # Actual batch size depends on available memory, so we check it's <=
+    # default
+    assert batch.shape[0] <= 32
 
 
 # --- Tests for create_dataloaders_from_config ---

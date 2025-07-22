@@ -1,7 +1,7 @@
-"""Test data provisioning package.
-
-This package provides comprehensive test data provisioning functionality
-including basic provisioning, suite generation, and database seeding.
+"""
+Test data provisioning package. This package provides comprehensive
+test data provisioning functionality including basic provisioning,
+suite generation, and database seeding.
 """
 
 from .core import ProvisioningResult, TestDataProvisioner

@@ -1,8 +1,7 @@
 """
-Log Parsing Utilities
-
-This module provides functions to parse real-time logs from the training
-process and extract structured data, such as metrics.
+Log Parsing Utilities This module provides functions to parse
+real-time logs from the training process and extract structured data,
+such as metrics.
 """
 
 import re
@@ -13,13 +12,9 @@ import pandas as pd
 
 def parse_metrics_from_log_line(line: str) -> dict[str, float] | None:
     """
-    Parses a log line to extract training or validation metrics.
-
-    Args:
-        line: A single line of log output.
-
-    Returns:
-        A dictionary of metrics if found, otherwise None.
+    Parses a log line to extract training or validation metrics. Args:
+    line: A single line of log output. Returns: A dictionary of metrics if
+    found, otherwise None.
     """
     # Regex for validation logs, e.g., "Validation - Epoch: [1/10],
     # Val Loss: 0.123, F1: 0.987"
@@ -61,7 +56,7 @@ def initialize_metrics_df() -> pd.DataFrame:
     # Create empty DataFrame with explicit structure to avoid type issues
     data: dict[str, Any] = {"epoch": [], "train_loss": [], "val_loss": []}
     df = pd.DataFrame(data)
-    df = df.set_index("epoch")
+    df = df.set_index("epoch")  # type: ignore[misc]
     return df
 
 
@@ -69,14 +64,10 @@ def update_metrics_df(
     df: pd.DataFrame, metrics: dict[str, float]
 ) -> pd.DataFrame:
     """
-    Updates the metrics DataFrame with a new dictionary of metrics.
-
-    Args:
-        df: The existing pandas DataFrame of metrics.
-        metrics: A new dictionary of metrics to add or update.
-
-    Returns:
-        The updated DataFrame.
+    Updates the metrics DataFrame with a new dictionary of metrics. Args:
+    df: The existing pandas DataFrame of metrics. metrics: A new
+    dictionary of metrics to add or update. Returns: The updated
+    DataFrame.
     """
     epoch = metrics.pop("epoch")
     for col, value in metrics.items():

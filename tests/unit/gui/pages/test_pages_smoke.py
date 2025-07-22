@@ -1,11 +1,10 @@
 """
-Smoke tests for the main GUI application and its navigation.
-
-This test file ensures that the main application initializes correctly
-and that navigating to each page via the sidebar does not cause errors.
+Smoke tests for the main GUI application and its navigation. This test
+file ensures that the main application initializes correctly and that
+navigating to each page via the sidebar does not cause errors.
 """
 
-# Add project root to allow imports
+# Add project root to allow import s
 import sys
 from pathlib import Path
 
@@ -35,11 +34,10 @@ def test_main_app_initializes_without_error(app_test: AppTest):
 
 def test_sidebar_navigation_and_page_rendering(app_test: AppTest):
     """
-    Simulates navigating to available pages from the sidebar and checks for
-    basic rendering and absence of errors.
-
-    Note: Only tests pages that have navigation buttons available.
-    Pages may not have buttons if they don't meet their requirements.
+    Simulates navigating to available pages from the sidebar and checks
+    for basic rendering and absence of errors. Note: Only tests pages that
+    have navigation buttons available. Pages may not have buttons if they
+    don't meet their requirements.
     """
     # Get all available navigation buttons in the sidebar
     available_nav_buttons = []

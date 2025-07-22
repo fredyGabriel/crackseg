@@ -24,13 +24,63 @@ import logging
 import subprocess
 import time
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from selenium.common.exceptions import TimeoutException, WebDriverException
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webdriver import WebDriver
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+if TYPE_CHECKING:
+    from selenium.common.exceptions import (  # type: ignore[import-untyped]
+        TimeoutException,
+        WebDriverException,
+    )
+    from selenium.webdriver.common.by import By  # type: ignore[import-untyped]
+    from selenium.webdriver.remote.webdriver import (
+        WebDriver,  # type: ignore[import-untyped]
+    )
+    from selenium.webdriver.support import (
+        expected_conditions as EC,  # type: ignore[import-untyped]
+    )
+    from selenium.webdriver.support.ui import (
+        WebDriverWait,  # type: ignore[import-untyped]
+    )
+else:
+    try:
+        from selenium.common.exceptions import (
+            TimeoutException,
+            WebDriverException,
+        )
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.remote.webdriver import WebDriver
+        from selenium.webdriver.support import expected_conditions as EC
+        from selenium.webdriver.support.ui import WebDriverWait
+    except ImportError:
+        # Mock classes when selenium is not available
+        class WebDriver:  # type: ignore[no-redef]
+            pass
+
+        class WebDriverWait:  # type: ignore[no-redef]
+            def __init__(self, driver: Any, timeout: int) -> None:
+                pass
+
+        class TimeoutException(Exception):  # type: ignore[no-redef]
+            pass
+
+        class WebDriverException(Exception):  # type: ignore[no-redef]
+            pass
+
+        class By:  # type: ignore[no-redef]
+            TAG_NAME = "tag_name"
+            CLASS_NAME = "class_name"
+            CSS_SELECTOR = "css_selector"
+            XPATH = "xpath"
+
+        class EC:  # type: ignore[no-redef]
+            @staticmethod
+            def presence_of_element_located(locator: Any) -> Any:
+                return lambda driver: True
+
+            @staticmethod
+            def element_to_be_clickable(locator: Any) -> Any:
+                return lambda driver: True
+
 
 # Optional import with proper handling
 _requests_available = False
@@ -130,7 +180,7 @@ def start_streamlit_app(
 
         # Check if process is still running
         if process.poll() is not None:
-            stdout, stderr = process.communicate()
+            _, stderr = process.communicate()
             raise RuntimeError(f"Streamlit app failed to start: {stderr}")
 
         time.sleep(1)

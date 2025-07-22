@@ -52,8 +52,8 @@ def get_input_channels(model: Any) -> int:
         int: Number of input channels
     """
     if isinstance(model, Sequential):
-        return model[0].get_input_channels()
-    return model.get_input_channels()
+        return model[0].get_input_channels()  # type: ignore
+    return model.get_input_channels()  # type: ignore
 
 
 def get_output_channels(model: Any) -> int:
@@ -68,8 +68,8 @@ def get_output_channels(model: Any) -> int:
         int: Number of output channels
     """
     if isinstance(model, Sequential):
-        return model[0].get_output_channels()
-    return model.get_output_channels()
+        return model[0].get_output_channels()  # type: ignore
+    return model.get_output_channels()  # type: ignore
 
 
 def load_test_config(config_name: str = "unet_mock") -> DictConfig:
@@ -138,7 +138,9 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
             "model": {
                 "_target_": "crackseg.model.core.unet.BaseUNet",
                 "encoder": {
-                    "_target_": "crackseg.model.encoder.cnn_encoder.CNNEncoder",
+                    "_target_": (
+                        "crackseg.model.encoder.cnn_encoder.CNNEncoder"
+                    ),
                     "in_channels": 3,
                     "init_features": 64,
                     "depth": 4,
@@ -152,7 +154,9 @@ def load_test_config(config_name: str = "unet_mock") -> DictConfig:
                     "dropout": 0.5,
                 },
                 "decoder": {
-                    "_target_": "crackseg.model.decoder.cnn_decoder.CNNDecoder",
+                    "_target_": (
+                        "crackseg.model.decoder.cnn_decoder.CNNDecoder"
+                    ),
                     "in_channels": 1024,
                     "skip_channels_list": [512, 256, 128, 64],
                     "out_channels": 1,

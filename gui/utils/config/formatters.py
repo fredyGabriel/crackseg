@@ -1,7 +1,7 @@
-"""Validation reporting and formatting utilities.
-
-This module provides functions for formatting validation errors into readable
-reports and extracting actionable suggestions from validation results.
+"""
+Validation reporting and formatting utilities. This module provides
+functions for formatting validation errors into readable reports and
+extracting actionable suggestions from validation results.
 """
 
 from .exceptions import ValidationError
@@ -10,13 +10,10 @@ from .exceptions import ValidationError
 def get_validation_suggestions(
     errors: list[ValidationError],
 ) -> dict[str, list[str]]:
-    """Extract and organize validation suggestions by category.
-
-    Args:
-        errors: List of validation errors.
-
-    Returns:
-        Dictionary mapping error categories to suggestions.
+    """
+    Extract and organize validation suggestions by category. Args: errors:
+    List of validation errors. Returns: Dictionary mapping error
+    categories to suggestions.
     """
     suggestions_by_category: dict[str, list[str]] = {
         "syntax": [],
@@ -53,13 +50,10 @@ def get_validation_suggestions(
 
 
 def format_validation_report(errors: list[ValidationError]) -> str:
-    """Format validation errors into a human-readable report.
-
-    Args:
-        errors: List of validation errors.
-
-    Returns:
-        Formatted validation report as string.
+    """
+    Format validation errors into a human-readable report. Args: errors:
+    List of validation errors. Returns: Formatted validation report as
+    string.
     """
     if not errors:
         return "✅ Configuration validation passed successfully!"

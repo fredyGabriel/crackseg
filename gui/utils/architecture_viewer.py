@@ -263,7 +263,7 @@ class ArchitectureViewer:
 
             # Generate architecture diagram
             # The model's visualize_architecture method will save to the file
-            model.visualize_architecture(str(temp_file), view=False)
+            model.visualize_architecture(str(temp_file), view=False)  # type: ignore[attr-defined]
 
             # Verify the file was created
             if not temp_file.exists():
@@ -295,7 +295,7 @@ class ArchitectureViewer:
         try:
             # Check if model has summary method
             if hasattr(model, "summary"):
-                return model.summary()
+                return model.summary()  # type: ignore[attr-defined]
 
             # Fallback: basic model information
             return {

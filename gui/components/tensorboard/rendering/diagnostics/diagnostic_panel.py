@@ -5,7 +5,7 @@ from typing import Any
 
 import streamlit as st
 
-from scripts.gui.components.tensorboard.utils.formatters import format_uptime
+from gui.components.tensorboard.utils.formatters import format_uptime
 
 
 class DiagnosticPanel:

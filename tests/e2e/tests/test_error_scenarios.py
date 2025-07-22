@@ -1,7 +1,7 @@
-"""E2E tests for error scenarios and error handling.
-
-This module contains tests that validate error handling, error messages,
-recovery mechanisms, and system robustness under various failure conditions.
+"""
+E2E tests for error scenarios and error handling. This module contains
+tests that validate error handling, error messages, recovery
+mechanisms, and system robustness under various failure conditions.
 """
 
 import time
@@ -25,15 +25,11 @@ class ErrorTestUtilities:
     def create_invalid_config_file(
         config_type: str, output_dir: Path | str = "test-artifacts"
     ) -> Path:
-        """Create temporary invalid configuration files for testing.
-
-        Args:
-            config_type: Type of invalid config
-                ('syntax', 'missing_fields', 'conflicts')
-            output_dir: Directory to save test config files
-
-        Returns:
-            Path to created invalid config file
+        """
+        Create temporary invalid configuration files for testing. Args:
+        config_type: Type of invalid config ('syntax', 'missing_fields',
+        'conflicts') output_dir: Directory to save test config files Returns:
+        Path to created invalid config file
         """
         output_path = Path(output_dir)
         output_path.mkdir(exist_ok=True)
@@ -59,14 +55,10 @@ class ErrorTestUtilities:
     def wait_for_error_message(
         driver: WebDriver, timeout: float = 10.0
     ) -> str | None:
-        """Wait for and capture error message from Streamlit alerts.
-
-        Args:
-            driver: WebDriver instance
-            timeout: Maximum time to wait for error message
-
-        Returns:
-            Error message text or None if no error found
+        """
+        Wait for and capture error message from Streamlit alerts. Args:
+        driver: WebDriver instance timeout: Maximum time to wait for error
+        message Returns: Error message text or None if no error found
         """
         try:
             from selenium.webdriver.support import expected_conditions as EC
@@ -91,13 +83,9 @@ class ErrorTestUtilities:
 
     @staticmethod
     def check_error_recovery_options(driver: WebDriver) -> dict[str, bool]:
-        """Check for available error recovery mechanisms in the UI.
-
-        Args:
-            driver: WebDriver instance
-
-        Returns:
-            Dictionary with available recovery options
+        """
+        Check for available error recovery mechanisms in the UI. Args: driver:
+        WebDriver instance Returns: Dictionary with available recovery options
         """
         recovery_options = {
             "retry_button": False,
@@ -144,15 +132,11 @@ class ErrorTestUtilities:
     def simulate_network_timeout(
         driver: WebDriver, timeout_seconds: int = 5
     ) -> None:
-        """Simulate network timeout by setting very short timeouts.
-
-        Args:
-            driver: WebDriver instance
-            timeout_seconds: Timeout duration to simulate
-
-        Note:
-            This is a simplified simulation. Real network issues would
-            require more sophisticated mocking.
+        """
+        Simulate network timeout by setting very short timeouts. Args: driver:
+        WebDriver instance timeout_seconds: Timeout duration to simulate Note:
+        This is a simplified simulation. Real network issues would require
+        more sophisticated mocking.
         """
         # Set very short timeouts to simulate network issues
         driver.set_page_load_timeout(timeout_seconds)
@@ -164,10 +148,9 @@ class TestErrorScenarios(BaseE2ETest):
     """Test suite for comprehensive error scenario validation."""
 
     def setup_test_data(self) -> dict[str, Any]:
-        """Set up test-specific data for error scenarios.
-
-        Returns:
-            Dictionary containing error test data and configuration.
+        """
+        Set up test-specific data for error scenarios. Returns: Dictionary
+        containing error test data and configuration.
         """
         return {
             "expected_error_keywords": ["error", "invalid", "failed"],
@@ -178,14 +161,11 @@ class TestErrorScenarios(BaseE2ETest):
     def test_configuration_validation_errors(
         self, webdriver: WebDriver, streamlit_base_url: str
     ) -> None:
-        """Test configuration validation error scenarios.
-
-        Tests various configuration error conditions including:
-        - Invalid YAML syntax
-        - Missing required fields
-        - Conflicting dependencies
-        - Validation error message display
-        - Error recovery mechanisms
+        """
+        Test configuration validation error scenarios. Tests various
+        configuration error conditions including: - Invalid YAML syntax -
+        Missing required fields - Conflicting dependencies - Validation error
+        message display - Error recovery mechanisms
         """
         self.log_test_step("Start configuration validation error tests")
         self.navigate_and_verify(webdriver, streamlit_base_url)
@@ -270,13 +250,11 @@ class TestErrorScenarios(BaseE2ETest):
     def test_training_process_errors(
         self, webdriver: WebDriver, streamlit_base_url: str
     ) -> None:
-        """Test training process error scenarios.
-
-        Tests various training error conditions including:
-        - Resource exhaustion simulation
-        - Process interruption handling
-        - Training timeout scenarios
-        - Error state recovery
+        """
+        Test training process error scenarios. Tests various training error
+        conditions including: - Resource exhaustion simulation - Process
+        interruption handling - Training timeout scenarios - Error state
+        recovery
         """
         self.log_test_step("Start training process error tests")
         self.navigate_and_verify(webdriver, streamlit_base_url)
@@ -388,13 +366,11 @@ class TestErrorScenarios(BaseE2ETest):
     def test_ui_error_handling_validation(
         self, webdriver: WebDriver, streamlit_base_url: str
     ) -> None:
-        """Test UI error handling and user feedback mechanisms.
-
-        Tests various UI error conditions including:
-        - Error message display validation
-        - User feedback mechanisms
-        - UI state consistency during errors
-        - Accessibility of error information
+        """
+        Test UI error handling and user feedback mechanisms. Tests various UI
+        error conditions including: - Error message display validation - User
+        feedback mechanisms - UI state consistency during errors -
+        Accessibility of error information
         """
         self.log_test_step("Start UI error handling validation tests")
         self.navigate_and_verify(webdriver, streamlit_base_url)
@@ -503,13 +479,11 @@ class TestErrorScenarios(BaseE2ETest):
     def test_system_integration_errors(
         self, webdriver: WebDriver, streamlit_base_url: str
     ) -> None:
-        """Test system integration error scenarios.
-
-        Tests various system-level error conditions including:
-        - Service availability issues
-        - Resource constraint handling
-        - Network connectivity problems
-        - System state recovery
+        """
+        Test system integration error scenarios. Tests various system-level
+        error conditions including: - Service availability issues - Resource
+        constraint handling - Network connectivity problems - System state
+        recovery
         """
         self.log_test_step("Start system integration error tests")
         self.navigate_and_verify(webdriver, streamlit_base_url)

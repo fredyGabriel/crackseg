@@ -1,281 +1,84 @@
+# CrackSeg Environment - PyTorch 2.7 Focused & Minimal
+# Strategy: Specify only CRITICAL versions, let conda resolve the rest
+# Priority: Latest PyTorch > GUI stability
+# Hardware: RTX 3070 Ti Laptop (8GB VRAM, 5888 CUDA Cores)
+
 name: crackseg
 channels:
-  - pytorch
-  - nvidia
-  - conda-forge
+  - conda-forge        # PRIMARY CHANNEL (post PyTorch deprecation)
+  - nvidia             # CUDA Toolkit
   - defaults
-  - https://repo.anaconda.com/pkgs/main
-  - https://repo.anaconda.com/pkgs/r
-  - https://repo.anaconda.com/pkgs/msys2
-dependencies:
-  - _libavif_api=1.2.0=h57928b3_1
-  - absl-py=2.1.0=pyhd8ed1ab_1
-  - albucore=0.0.23=pyhd8ed1ab_0
-  - albumentations=2.0.5=pyhd8ed1ab_0
-  - annotated-types=0.7.0=pyhd8ed1ab_1
-  - antlr-python-runtime=4.9.3=pyhd8ed1ab_1
-  - aom=3.9.1=he0c23c2_0
-  - black=25.1.0=pyh866005b_0
-  - blas=1.0=mkl
-  - blosc=1.21.6=hfd34d9b_1
-  - brotli=1.1.0=h2466b09_2
-  - brotli-bin=1.1.0=h2466b09_2
-  - brotli-python=1.1.0=py312h275cf98_2
-  - bzip2=1.0.8=h2466b09_7
-  - c-ares=1.34.4=h2466b09_0
-  - c-blosc2=2.15.2=h9e57077_1
-  - ca-certificates=2025.1.31=h56e8100_0
-  - cairo=1.18.4=h5782bbf_0
-  - certifi=2025.1.31=pyhd8ed1ab_0
-  - cffi=1.17.1=py312h4389bb4_0
-  - charls=2.4.2=h1537add_0
-  - charset-normalizer=3.4.1=pyhd8ed1ab_0
-  - click=8.1.8=pyh7428d3b_0
-  - colorama=0.4.6=pyhd8ed1ab_1
-  - contourpy=1.3.1=py312hd5eb7cc_0
-  - coverage=7.8.0=py312h31fea79_0
-  - cuda-cccl=12.8.90=0
-  - cuda-cccl_win-64=12.8.90=0
-  - cuda-cudart=12.4.127=0
-  - cuda-cudart-dev=12.4.127=0
-  - cuda-cupti=12.4.127=0
-  - cuda-libraries=12.4.1=0
-  - cuda-libraries-dev=12.4.1=0
-  - cuda-nvrtc=12.4.127=0
-  - cuda-nvrtc-dev=12.4.127=0
-  - cuda-nvtx=12.4.127=0
-  - cuda-opencl=12.8.90=0
-  - cuda-opencl-dev=12.8.90=0
-  - cuda-profiler-api=12.8.90=0
-  - cuda-runtime=12.4.1=0
-  - cuda-version=12.8=3
-  - cycler=0.12.1=pyhd8ed1ab_1
-  - dav1d=1.2.1=hcfcfb64_0
-  - double-conversion=3.3.1=he0c23c2_0
-  - eval-type-backport=0.2.2=pyhd8ed1ab_0
-  - eval_type_backport=0.2.2=pyha770c72_0
-  - exceptiongroup=1.2.2=pyhd8ed1ab_1
-  - ffmpeg=7.1.1=gpl_h1be5d69_701
-  - filelock=3.18.0=pyhd8ed1ab_0
-  - harfbuzz=10.4.0=h9e37d49_0
-  - hdf5=1.14.3=nompi_hb2c4d47_109
-  - hpack=4.1.0=pyhd8ed1ab_0
-  - huggingface_hub=0.29.3=pyhd8ed1ab_0
-  - hydra-core=1.3.2=pyhd8ed1ab_1
-  - hyperframe=6.1.0=pyhd8ed1ab_0
-  - icu=75.1=he0c23c2_0
-  - idna=3.10=pyhd8ed1ab_1
-  - imagecodecs=2024.12.30=py312hf5bc1e8_0
-  - imageio=2.37.0=pyhfb79c49_0
-  - imath=3.1.12=hbb528cf_0
-  - importlib-metadata=8.6.1=pyha770c72_0
-  - iniconfig=2.0.0=pyhd8ed1ab_1
-  - intel-openmp=2025.0.4=h57928b3_1528
-  - jasper=4.2.4=hcb1a123_0
-  - jinja2=3.1.6=pyhd8ed1ab_0
-  - joblib=1.4.2=pyhd8ed1ab_1
-  - jxrlib=1.1=hcfcfb64_3
-  - khronos-opencl-icd-loader=2024.10.24=h2466b09_1
-  - kiwisolver=1.4.8=py312hc790b64_0
-  - krb5=1.21.3=hdf4eb48_0
-  - lazy-loader=0.4=pyhd8ed1ab_2
-  - lazy_loader=0.4=pyhd8ed1ab_2
-  - lcms2=2.17=hbcf6048_0
-  - lerc=4.0.0=h63175ca_0
-  - libabseil=20240722.0=cxx17_h4eb7d71_4
-  - libaec=1.1.3=h63175ca_0
-  - libasprintf=0.22.5=h5728263_3
-  - libavif16=1.2.0=h62bbbde_1
-  - libblas=3.9.0=1_h8933c1f_netlib
-  - libbrotlicommon=1.1.0=h2466b09_2
-  - libbrotlidec=1.1.0=h2466b09_2
-  - libbrotlienc=1.1.0=h2466b09_2
-  - libcblas=3.9.0=8_h719fc58_netlib
-  - libclang13=19.1.7=default_ha5278ca_1
-  - libcublas=12.4.5.8=0
-  - libcublas-dev=12.4.5.8=0
-  - libcufft=11.2.1.3=0
-  - libcufft-dev=11.2.1.3=0
-  - libcurand=10.3.9.90=0
-  - libcurand-dev=10.3.9.90=0
-  - libcurl=8.12.1=h88aaa65_0
-  - libcusolver=11.6.1.9=0
-  - libcusolver-dev=11.6.1.9=0
-  - libcusparse=12.3.1.170=0
-  - libcusparse-dev=12.3.1.170=0
-  - libdeflate=1.23=h9062f6e_0
-  - libexpat=2.6.4=he0c23c2_0
-  - libffi=3.4.6=h537db12_0
-  - libgettextpo=0.22.5=h5728263_3
-  - libglib=2.82.2=h7025463_1
-  - libgrpc=1.68.2=h0ac93cb_0
-  - libhwloc=2.11.2=default_hc8275d1_1000
-  - libhwy=1.1.0=h91493d7_0
-  - libiconv=1.18=h135ad9c_1
-  - libintl=0.22.5=h5728263_3
-  - libjpeg-turbo=3.0.0=hcfcfb64_1
-  - libjxl=0.11.1=h456c5fc_0
-  - liblapack=3.9.0=8_h719fc58_netlib
-  - liblapacke=3.9.0=8_h719fc58_netlib
-  - liblzma=5.6.4=h2466b09_0
-  - libnpp=12.2.5.30=0
-  - libnpp-dev=12.2.5.30=0
-  - libnvfatbin=12.8.90=0
-  - libnvfatbin-dev=12.8.90=0
-  - libnvjitlink=12.4.127=0
-  - libnvjitlink-dev=12.4.127=0
-  - libnvjpeg=12.3.1.117=0
-  - libnvjpeg-dev=12.3.1.117=0
-  - libogg=1.3.5=h2466b09_0
-  - libopencv=4.11.0=qt6_py312h8c2cf4d_602
-  - libopenvino=2025.0.0=hb1d9b14_2
-  - libopenvino-auto-batch-plugin=2025.0.0=h04f32e0_2
-  - libopenvino-auto-plugin=2025.0.0=h04f32e0_2
-  - libopenvino-hetero-plugin=2025.0.0=hb61b842_2
-  - libopenvino-intel-cpu-plugin=2025.0.0=hb1d9b14_2
-  - libopenvino-intel-gpu-plugin=2025.0.0=hb1d9b14_2
-  - libopenvino-ir-frontend=2025.0.0=hb61b842_2
-  - libopenvino-onnx-frontend=2025.0.0=h6e6c283_2
-  - libopenvino-paddle-frontend=2025.0.0=h6e6c283_2
-  - libopenvino-pytorch-frontend=2025.0.0=he0c23c2_2
-  - libopenvino-tensorflow-frontend=2025.0.0=ha83d810_2
-  - libopenvino-tensorflow-lite-frontend=2025.0.0=he0c23c2_2
-  - libopus=1.3.1=h8ffe710_1
-  - libpng=1.6.47=had7236b_0
-  - libprotobuf=5.28.3=h8309712_1
-  - libre2-11=2024.07.02=h4eb7d71_2
-  - librsvg=2.58.4=h5ce5fed_2
-  - libsqlite=3.49.1=h67fdade_1
-  - libssh2=1.11.1=he619c9f_0
-  - libtiff=4.7.0=h797046b_3
-  - libusb=1.0.27=h2466b09_101
-  - libuv=1.50.0=h2466b09_0
-  - libvorbis=1.3.7=h0e60522_0
-  - libwebp=1.5.0=h3b0e114_0
-  - libwebp-base=1.5.0=h3b0e114_0
-  - libxcb=1.16=h013a479_1
-  - libxml2=2.13.6=he286e8c_0
-  - libxslt=1.1.39=h3df6e99_0
-  - libzlib=1.3.1=h2466b09_2
-  - libzopfli=1.0.3=h0e60522_0
-  - lz4-c=1.10.0=h2466b09_1
-  - m2w64-gcc-libgfortran=5.3.0=6
-  - m2w64-gcc-libs=5.3.0=7
-  - m2w64-gcc-libs-core=5.3.0=7
-  - m2w64-gmp=6.1.0=2
-  - m2w64-libwinpthread-git=5.0.0.4634.697f757=2
-  - markdown=3.6=pyhd8ed1ab_0
-  - markupsafe=3.0.2=py312h31fea79_1
-  - matplotlib=3.10.1=py312h2e8e312_0
-  - matplotlib-base=3.10.1=py312h90004f6_0
-  - mkl=2023.1.0=h6a75c08_48682
-  - mpmath=1.3.0=pyhd8ed1ab_1
-  - msys2-conda-epoch=20160418=1
-  - munkres=1.1.4=pyh9f0ad1d_0
-  - mypy=1.4.1=py312h2615798_0
-  - mypy_extensions=1.0.0=pyha770c72_1
-  - networkx=3.4.2=pyh267e887_2
-  - numpy=2.2.3=py312h3150e54_0
-  - omegaconf=2.3.0=pyhd8ed1ab_0
-  - opencl-headers=2024.10.24=he0c23c2_0
-  - opencv=4.11.0=qt6_py312h54cea10_602
-  - openexr=3.3.2=h3924f79_1
-  - openh264=2.6.0=hb17fa0b_0
-  - openjpeg=2.5.3=h4d64b90_0
-  - openssl=3.5.0=ha4e3fda_0
-  - packaging=24.2=pyhd8ed1ab_2
-  - pandas=2.2.3=py312h72972c8_3
-  - pango=1.56.2=h286b592_0
-  - pathspec=0.12.1=pyhd8ed1ab_1
-  - patsy=1.0.1=pyhd8ed1ab_1
-  - pcre2=10.44=h3d7b363_2
-  - pillow=10.4.0=py312h381445a_1
-  - pip=25.0.1=pyh8b19718_0
-  - pixman=0.44.2=had0cd8c_0
-  - platformdirs=4.3.7=pyh29332c3_0
-  - pluggy=1.5.0=pyhd8ed1ab_1
-  - pre-commit=3.7.1=pyhd8ed1ab_0
-  - protobuf=5.28.3=py312h275cf98_0
-  - psutil=7.0.0=py312h4389bb4_0
-  - pthread-stubs=0.4=hcd874cb_1001
-  - pthreads-win32=2.9.1=h2466b09_4
-  - pugixml=1.15=h372dad0_0
-  - py-opencv=4.11.0=qt6_py312h53463f2_602
-  - pycparser=2.22=pyh29332c3_1
-  - pydantic=2.10.6=pyh3cfb1c2_0
-  - pydantic-core=2.27.2=py312h2615798_0
-  - pyparsing=3.2.1=pyhd8ed1ab_0
-  - pyside6=6.8.2=py312h2ee7485_1
-  - pysocks=1.7.1=pyh09c184e_7
-  - pytest=8.3.5=pyhd8ed1ab_0
-  - pytest-cov=6.1.1=pyhd8ed1ab_0
-  - python=3.12.9=h3f84c4b_1_cpython
-  - python-dateutil=2.9.0.post0=pyhff2d567_1
-  - python-tzdata=2025.2=pyhd8ed1ab_0
-  - python_abi=3.12=5_cp312
-  - pytorch=2.5.1=py3.12_cuda12.4_cudnn9_0
-  - pytorch-cuda=12.4=h3fd98bf_7
-  - pytorch-mutex=1.0=cuda
-  - pytz=2025.2=pyhd8ed1ab_0
-  - pywavelets=1.8.0=py312h1a27103_0
-  - pyyaml=6.0.2=py312h31fea79_2
-  - qhull=2020.2=hc790b64_5
-  - qt6-main=6.8.2=h1259614_0
-  - rav1e=0.6.6=h975169c_2
-  - re2=2024.07.02=haf4117d_2
-  - requests=2.32.3=pyhd8ed1ab_1
-  - safetensors=0.5.3=py312h2615798_0
-  - scikit-image=0.25.2=py312h72972c8_0
-  - scikit-learn=1.6.1=py312h816cc57_0
-  - scipy=1.15.2=py312h451d5c4_0
-  - sdl2=2.32.50=hecf2515_1
-  - sdl3=3.2.8=he0c23c2_0
-  - seaborn=0.13.2=hd8ed1ab_3
-  - seaborn-base=0.13.2=pyhd8ed1ab_3
-  - setuptools=75.8.2=pyhff2d567_0
-  - simsimd=6.4.0=py312h4389bb4_0
-  - six=1.17.0=pyhd8ed1ab_0
-  - snappy=1.2.1=h500f7fa_1
-  - statsmodels=0.14.4=py312h1a27103_0
-  - streamlit=1.45.1=pyhd8ed1ab_0
-  - stringzilla=3.12.3=py312h4389bb4_0
-  - svt-av1=3.0.1=he0c23c2_0
-  - tbb=2021.13.0=h62715c5_1
-  - tensorboard=2.19.0=pyhd8ed1ab_0
-  - tensorboard-data-server=0.7.0=py312h2e8e312_2
-  - threadpoolctl=3.6.0=pyhecae5ae_0
-  - tifffile=2025.3.13=pyhd8ed1ab_0
-  - timm=1.0.15=pyhd8ed1ab_0
-  - tk=8.6.13=h5226925_1
-  - toml=0.10.2=pyhd8ed1ab_1
-  - tomli=2.2.1=pyhd8ed1ab_1
-  - tornado=6.4.2=py312h4389bb4_0
-  - tqdm=4.67.1=pyhd8ed1ab_1
-  - typing-extensions=4.12.2=hd8ed1ab_1
-  - typing_extensions=4.12.2=pyha770c72_1
-  - tzdata=2025a=h78e105d_0
-  - ucrt=10.0.22621.0=h57928b3_1
-  - unicodedata2=16.0.0=py312h4389bb4_0
-  - urllib3=2.3.0=pyhd8ed1ab_0
-  - vc=14.3=hbf610ac_24
-  - vc14_runtime=14.42.34438=hfd919c2_24
-  - vs2015_runtime=14.42.34438=h7142326_24
-  - werkzeug=3.1.3=pyhd8ed1ab_1
-  - wheel=0.45.1=pyhd8ed1ab_1
-  - win_inet_pton=1.1.0=pyh7428d3b_8
-  - x264=1!164.3095=h8ffe710_2
-  - x265=3.5=h2d74725_3
-  - xorg-libxau=1.0.11=hcd874cb_0
-  - xorg-libxdmcp=1.1.3=hcd874cb_0
-  - yaml=0.2.5=h8ffe710_2
-  - zfp=1.0.1=he0c23c2_0
-  - zipp=3.21.0=pyhd8ed1ab_1
-  - zlib-ng=2.2.4=hbb528cf_0
-  - zstandard=0.23.0=py312h4389bb4_1
-  - zstd=1.5.7=ha9a3a3d_0
-  - pip:
-    - pyflakes==3.3.2
-prefix: C:\Users\fgrv\miniconda3\envs\crackseg
 
+dependencies:
+  # 🚀 CRITICAL CORE (Exact versions)
+  - python=3.12
+  - pytorch=2.7          # LATEST STABLE - Core priority
+  - cuda-toolkit=12.9    # RTX 3070 Ti optimization
+
+  # 📊 ESSENTIAL ML STACK (Flexible ranges)
+  - numpy                # Latest stable with performance improvements
+  - opencv               # Computer vision
+  - scikit-learn         # Classical ML
+  - pandas               # Data manipulation
+  - matplotlib           # Basic plotting + architecture visualization
+
+  # 🏗️ COMPUTER VISION MODELS (conda-forge prioritized)
+  - timm                 # Swin Transformer models (replaces torchvision.models)
+  - albumentations       # Image augmentations (replaces torchvision.transforms)
+  - segmentation-models-pytorch  # Pre-trained segmentation models
+
+  # 🧪 DEVELOPMENT & TESTING
+  - pytest               # Testing framework
+  - black                # Code formatting
+  - ruff                 # Fast linting
+  - basedpyright         # Static type checking
+  - coverage             # Code coverage
+  - selenium             # Web browser automation for E2E testing
+
+  # 📊 DATA FORMATS & PROCESSING
+  - pillow               # Image processing
+  - h5py                 # HDF5 support
+  - scipy                # Scientific computing
+  - scikit-image         # Image processing algorithms
+
+  # 📈 DATA ANALYSIS & VISUALIZATION
+  - seaborn              # Statistical data visualization
+  - tqdm                 # Progress bars
+
+  # 🔧 MODEL UTILITIES & MONITORING
+  - tensorboard          # TensorBoard for monitoring
+
+  # ⚙️ SYSTEM & UTILITIES
+  - psutil               # System and process utilities
+  - pyyaml               # YAML parser
+  - toml                 # TOML parser
+  - click                # Command line interface creation
+  - requests             # HTTP library
+  - python-dotenv        # .env file support for environment variables
+  # Note: pynvml not included - optional GPU monitoring with graceful fallback
+  # Install manually if advanced GPU monitoring is needed: conda install pynvml
+  # - graphviz             # REMOVED: ADR-001 - Replaced with matplotlib for architecture visualization
+  #                        # Reason: gdk-pixbuf compilation issues on Windows with PyTorch 2.7
+  #                        # Alternative: matplotlib-based rendering in src/model/common/utils.py
+  #                        # Reference: docs/guides/architectural_decisions.md#adr-001
+
+  # 🎨 GUI & CONFIGURATION (TEMPORARILY REDUCED)
+  # - streamlit            # TEMPORARILY DISABLED - GUI issues on Windows
+  - hydra-core           # Configuration management framework
+  - omegaconf            # Configuration system
+
+  # 📦 PIP FALLBACK (ONLY if not available in conda)
+  - pip
+
+  - pip:
+    # Streamlit installed via pip to avoid gdk-pixbuf issues
+    - streamlit
+    # GUI components not available in conda channels
+    - streamlit-ace       # Ace editor for YAML editing
+    # Currently empty - all packages moved to conda!
+    # This section is kept for future pip-only dependencies
+
+# ENVIRONMENT VARIABLES
 variables:
   NO_ALBUMENTATIONS_UPDATE: 1
+  CUDA_VISIBLE_DEVICES: 0

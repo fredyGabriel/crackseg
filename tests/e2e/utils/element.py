@@ -1,8 +1,8 @@
-"""Element interaction utilities for Selenium E2E testing.
-
-This module provides robust utilities for common Selenium element interactions
-with built-in error handling, retry mechanisms, and enhanced reliability
-for testing Streamlit applications.
+"""
+Element interaction utilities for Selenium E2E testing. This module
+provides robust utilities for common Selenium element interactions
+with built-in error handling, retry mechanisms, and enhanced
+reliability for testing Streamlit applications.
 """
 
 import logging
@@ -78,15 +78,10 @@ def wait_for_element_visible(
     locator: tuple[str, str],
     timeout: float = 10.0,
 ) -> WebElement | None:
-    """Wait for element to be visible and return it.
-
-    Args:
-        driver: WebDriver instance
-        locator: Selenium locator tuple
-        timeout: Maximum time to wait
-
-    Returns:
-        WebElement if visible, None otherwise
+    """
+    Wait for element to be visible and return it. Args: driver: WebDriver
+    instance locator: Selenium locator tuple timeout: Maximum time to wait
+    Returns: WebElement if visible, None otherwise
     """
     try:
         wait = WebDriverWait(driver, timeout)
@@ -103,15 +98,10 @@ def wait_for_element_to_be_clickable(
     locator: tuple[str, str],
     timeout: float = 10.0,
 ) -> WebElement | None:
-    """Wait for element to be clickable and return it.
-
-    Args:
-        driver: WebDriver instance
-        locator: Selenium locator tuple
-        timeout: Maximum time to wait
-
-    Returns:
-        WebElement if clickable, None otherwise
+    """
+    Wait for element to be clickable and return it. Args: driver:
+    WebDriver instance locator: Selenium locator tuple timeout: Maximum
+    time to wait Returns: WebElement if clickable, None otherwise
     """
     try:
         wait = WebDriverWait(driver, timeout)
@@ -128,15 +118,10 @@ def wait_for_element_to_disappear(
     locator: tuple[str, str],
     timeout: float = 10.0,
 ) -> bool:
-    """Wait for element to disappear from DOM.
-
-    Args:
-        driver: WebDriver instance
-        locator: Selenium locator tuple
-        timeout: Maximum time to wait
-
-    Returns:
-        True if element disappeared, False otherwise
+    """
+    Wait for element to disappear from DOM. Args: driver: WebDriver
+    instance locator: Selenium locator tuple timeout: Maximum time to wait
+    Returns: True if element disappeared, False otherwise
     """
     try:
         wait = WebDriverWait(driver, timeout)
@@ -154,16 +139,11 @@ def wait_for_elements_count(
     expected_count: int,
     timeout: float = 10.0,
 ) -> list[WebElement]:
-    """Wait for specific number of elements to be present.
-
-    Args:
-        driver: WebDriver instance
-        locator: Selenium locator tuple
-        expected_count: Expected number of elements
-        timeout: Maximum time to wait
-
-    Returns:
-        List of WebElements if count matches, empty list otherwise
+    """
+    Wait for specific number of elements to be present. Args: driver:
+    WebDriver instance locator: Selenium locator tuple expected_count:
+    Expected number of elements timeout: Maximum time to wait Returns:
+    List of WebElements if count matches, empty list otherwise
     """
     try:
         wait = WebDriverWait(driver, timeout)
@@ -191,15 +171,10 @@ def click_element_safely(
     element: WebElement,
     retry_count: int = 3,
 ) -> bool:
-    """Click element safely with retry mechanism.
-
-    Args:
-        driver: WebDriver instance
-        element: WebElement to click
-        retry_count: Number of retry attempts
-
-    Returns:
-        True if click successful, False otherwise
+    """
+    Click element safely with retry mechanism. Args: driver: WebDriver
+    instance element: WebElement to click retry_count: Number of retry
+    attempts Returns: True if click successful, False otherwise
     """
     for attempt in range(retry_count + 1):
         try:
@@ -244,14 +219,10 @@ def click_element_safely(
 
 
 def scroll_to_element(driver: WebDriver, element: WebElement) -> bool:
-    """Scroll to make element visible in viewport.
-
-    Args:
-        driver: WebDriver instance
-        element: WebElement to scroll to
-
-    Returns:
-        True if scroll successful, False otherwise
+    """
+    Scroll to make element visible in viewport. Args: driver: WebDriver
+    instance element: WebElement to scroll to Returns: True if scroll
+    successful, False otherwise
     """
     try:
         # Use JavaScript to scroll element into view
@@ -269,14 +240,10 @@ def scroll_to_element(driver: WebDriver, element: WebElement) -> bool:
 
 
 def is_element_present(driver: WebDriver, locator: tuple[str, str]) -> bool:
-    """Check if element is present in DOM.
-
-    Args:
-        driver: WebDriver instance
-        locator: Selenium locator tuple
-
-    Returns:
-        True if element present, False otherwise
+    """
+    Check if element is present in DOM. Args: driver: WebDriver instance
+    locator: Selenium locator tuple Returns: True if element present,
+    False otherwise
     """
     try:
         driver.find_element(*locator)
@@ -286,14 +253,10 @@ def is_element_present(driver: WebDriver, locator: tuple[str, str]) -> bool:
 
 
 def is_element_visible(driver: WebDriver, locator: tuple[str, str]) -> bool:
-    """Check if element is visible on page.
-
-    Args:
-        driver: WebDriver instance
-        locator: Selenium locator tuple
-
-    Returns:
-        True if element visible, False otherwise
+    """
+    Check if element is visible on page. Args: driver: WebDriver instance
+    locator: Selenium locator tuple Returns: True if element visible,
+    False otherwise
     """
     try:
         element = driver.find_element(*locator)
@@ -305,14 +268,10 @@ def is_element_visible(driver: WebDriver, locator: tuple[str, str]) -> bool:
 def get_element_text_safely(
     driver: WebDriver, locator: tuple[str, str]
 ) -> str:
-    """Get element text with safe error handling.
-
-    Args:
-        driver: WebDriver instance
-        locator: Selenium locator tuple
-
-    Returns:
-        Element text or empty string if not found
+    """
+    Get element text with safe error handling. Args: driver: WebDriver
+    instance locator: Selenium locator tuple Returns: Element text or
+    empty string if not found
     """
     try:
         element = driver.find_element(*locator)
@@ -330,15 +289,11 @@ def get_element_attribute_safely(
     locator: tuple[str, str],
     attribute: str,
 ) -> str:
-    """Get element attribute with safe error handling.
-
-    Args:
-        driver: WebDriver instance
-        locator: Selenium locator tuple
-        attribute: Attribute name to retrieve
-
-    Returns:
-        Attribute value or empty string if not found
+    """
+    Get element attribute with safe error handling. Args: driver:
+    WebDriver instance locator: Selenium locator tuple attribute:
+    Attribute name to retrieve Returns: Attribute value or empty string if
+    not found
     """
     try:
         element = driver.find_element(*locator)

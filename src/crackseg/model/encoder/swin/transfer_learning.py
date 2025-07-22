@@ -39,8 +39,10 @@ class SwinTransferLearning:
                 if hasattr(model, "stages"):
                     # Handle stages attribute with proper type checking
                     stages_attr = model.stages
-                    if hasattr(stages_attr, "__len__"):
-                        num_stages = len(stages_attr)
+                    if hasattr(stages_attr, "__len__") and not isinstance(
+                        stages_attr, torch.Tensor
+                    ):
+                        num_stages = len(stages_attr)  # type: ignore[arg-type]
                         freeze_patterns = [
                             "patch_embed",
                             *(f"stages.{i}" for i in range(num_stages - 1)),

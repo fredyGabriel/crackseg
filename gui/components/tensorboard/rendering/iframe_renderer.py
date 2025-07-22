@@ -1,7 +1,7 @@
-"""TensorBoard iframe rendering for Streamlit.
-
-This module handles the embedding of TensorBoard URLs in Streamlit
-using secure iframe components with proper error handling.
+"""
+TensorBoard iframe rendering for Streamlit. This module handles the
+embedding of TensorBoard URLs in Streamlit using secure iframe
+components with proper error handling.
 """
 
 from pathlib import Path
@@ -16,16 +16,11 @@ def render_tensorboard_iframe(
     height: int,
     width: int | None,
 ) -> bool:
-    """Render TensorBoard iframe in Streamlit.
-
-    Args:
-        url: TensorBoard URL to embed.
-        log_dir: Log directory being displayed.
-        height: Iframe height in pixels.
-        width: Iframe width in pixels (None for responsive).
-
-    Returns:
-        True if iframe was rendered successfully, False otherwise.
+    """
+    Render TensorBoard iframe in Streamlit. Args: url: TensorBoard URL to
+    embed. log_dir: Log directory being displayed. height: Iframe height
+    in pixels. width: Iframe width in pixels (None for responsive).
+    Returns: True if iframe was rendered successfully, False otherwise.
     """
     if not url:
         st.error("🔴 TensorBoard is running but URL is not available")
@@ -83,12 +78,9 @@ def _render_iframe_fallback(url: str) -> None:
     with st.expander("🔧 Troubleshooting Options", expanded=False):
         st.markdown(
             f"""
-        **If the iframe doesn't load:**
-        1. Click the direct link above to open in a new tab
-        2. Check if your browser blocks iframes
-        3. Try refreshing this page
-        4. Restart TensorBoard using the controls above
-
-        **Direct URL:** `{url}`
-        """
+**If the iframe doesn't load:** 1. Click the direct link above to open
+in a new tab 2. Check if your browser blocks iframes 3. Try refreshing
+this page 4. Restart TensorBoard using the controls above **Direct
+URL:** `{url}`
+"""
         )
