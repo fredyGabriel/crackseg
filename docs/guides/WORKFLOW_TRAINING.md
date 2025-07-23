@@ -53,6 +53,9 @@ Before you start, make sure you have the following:
 conda env create -f environment.yml
 conda activate crackseg
 
+# Install the module in editable mode for development
+pip install -e . --no-deps
+
 # Verify Python version (required: 3.12+)
 python --version
 

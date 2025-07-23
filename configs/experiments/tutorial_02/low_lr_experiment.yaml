@@ -1,0 +1,24 @@
+# Tutorial 02: Low Learning Rate Experiment Configuration
+#
+# This configuration tests conservative learning for maximum stability.
+# Learning rate is 10x lower than default to see if we can achieve
+# better final performance through slow, stable convergence.
+#
+# Reference: docs/tutorials/02_custom_experiment_cli.md
+
+# Hydra configuration composition - inherits from basic_verification config
+defaults:
+  - basic_verification  # Basic verification configuration with default settings
+  - _self_              # This file overrides basic_verification settings
+
+# Training hyperparameters override
+training:
+  learning_rate: 0.00001  # Very low learning rate (1/10th of default 0.0001)
+                          # for stable, conservative learning
+  epochs: 100             # More epochs needed for slow convergence
+
+# Data loading configuration override
+data:
+  dataloader:
+    batch_size: 16        # Larger batch size since low LR is more stable
+                          # Allows for better gradient estimates

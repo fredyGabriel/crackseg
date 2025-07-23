@@ -34,7 +34,7 @@ architecture visualization in the CrackSeg project.
 ### Default Matplotlib Backend
 
 ```python
-from src.crackseg.model.common.utils import render_unet_architecture_diagram
+from crackseg.model.common.visualization import render_unet_architecture_diagram
 
 # Use matplotlib (default)
 render_unet_architecture_diagram(
@@ -73,7 +73,7 @@ render_unet_architecture_diagram(
 ### Direct Function Calls
 
 ```python
-from src.crackseg.model.common.utils import (
+from crackseg.model.common.utils import (
     render_unet_architecture_matplotlib,
     render_unet_architecture_graphviz
 )
@@ -170,8 +170,8 @@ render_unet_architecture_graphviz(layer_hierarchy, "arch.png", view=True)
    - **Alternative**: Specify `backend="matplotlib"` explicitly
 
 3. **"Import errors in model utils"**
-   - **Solution**: Check PYTHONPATH and ensure project is properly installed
-   - **Command**: `pip install -e .` to install in development mode
+   - **Solution**: Install the module in editable mode for development
+   - **Command**: `conda activate crackseg && pip install -e . --no-deps`
 
 ### Support
 

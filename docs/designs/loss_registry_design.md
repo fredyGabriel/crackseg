@@ -17,7 +17,7 @@ leveraging a robust and feature-rich registry system.
 - **Initialization**:
 
 ```python
-    from src.model.factory.registry import Registry
+    from crackseg.model.factory.registry import Registry
     import torch.nn as nn
 
     loss_registry = Registry(base_class=nn.Module, name="LossFunctions")
@@ -52,7 +52,7 @@ The `loss_registry` instance inherits all functionalities from the generic `Regi
     # src/training/losses/custom_losses.py
     import torch
     import torch.nn as nn
-    from src.training.losses.loss_registry_setup import loss_registry
+    from crackseg.training.losses.loss_registry_setup import loss_registry
 
     @loss_registry.register(name="my_dice_loss", tags=["segmentation"])
     class MyDiceLoss(nn.Module):

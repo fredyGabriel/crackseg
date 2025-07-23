@@ -62,7 +62,7 @@ Examples:
 ### Saving Standardized Checkpoint
 
 ```python
-from src.utils.checkpointing import save_checkpoint, CheckpointSaveConfig
+from crackseg.utils.checkpointing import save_checkpoint, CheckpointSaveConfig
 
 config = CheckpointSaveConfig(
     checkpoint_dir="experiments/checkpoints",
@@ -87,7 +87,7 @@ save_checkpoint(
 ### Loading Checkpoint with Validation
 
 ```python
-from src.utils.checkpointing import load_checkpoint
+from crackseg.utils.checkpointing import load_checkpoint
 
 # Load with strict validation
 checkpoint_data = load_checkpoint(
@@ -106,7 +106,7 @@ print(f"Best metric: {checkpoint_data.get('best_metric_value', 'N/A')}")
 ### Verifying Checkpoint Integrity
 
 ```python
-from src.utils.checkpointing import verify_checkpoint_integrity
+from crackseg.utils.checkpointing import verify_checkpoint_integrity
 
 result = verify_checkpoint_integrity("path/to/checkpoint.pth")
 
@@ -124,7 +124,7 @@ else:
 ### Legacy Checkpoint Adaptation
 
 ```python
-from src.utils.checkpointing import adapt_legacy_checkpoint, load_checkpoint
+from crackseg.utils.checkpointing import adapt_legacy_checkpoint, load_checkpoint
 
 # Load old format checkpoint
 legacy_data = load_checkpoint(
@@ -164,7 +164,7 @@ class CheckpointSaveConfig:
 ### CheckpointSpec Customization
 
 ```python
-from src.utils.checkpointing import CheckpointSpec
+from crackseg.utils.checkpointing import CheckpointSpec
 
 # Custom specification for specialized use cases
 custom_spec = CheckpointSpec()
@@ -195,7 +195,7 @@ save_checkpoint(..., training_config=training_config)
 ### 2. Use Meaningful Filenames
 
 ```python
-from src.utils.checkpointing import create_standardized_filename
+from crackseg.utils.checkpointing import create_standardized_filename
 
 # Create descriptive, timestamped filenames
 filename = create_standardized_filename(
@@ -240,7 +240,7 @@ except ValueError:
 ```python
 import glob
 from pathlib import Path
-from src.utils.checkpointing import verify_checkpoint_integrity, load_and_adapt_legacy_checkpoint
+from crackseg.utils.checkpointing import verify_checkpoint_integrity, load_and_adapt_legacy_checkpoint
 
 def migrate_checkpoints(checkpoint_dir: str):
     """Migrate all checkpoints in directory to standardized format."""

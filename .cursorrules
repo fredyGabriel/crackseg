@@ -51,10 +51,8 @@ system
 
 After loading rules, verify your understanding of:
 
-- [ ] **Quality Gates**: Can execute `conda activate crackseg && black .`,
-  `conda activate crackseg && python -m ruff . --fix`,
-  `conda activate crackseg && basedpyright .` commands (**CRITICAL**: Always
-  use `conda activate crackseg &&` prefix)
+- [ ] **Quality Gates**: Can execute `black .`, `python -m ruff . --fix`,
+  `basedpyright .` commands (environment should be pre-activated)
 - [ ] **Terminal Efficiency**: DO NOT use unnecessary `echo` for feedback -
   communicate directly in chat response
 - [ ] **Language Compliance**: ALL technical files MUST be in English only
@@ -196,9 +194,8 @@ See [taskmaster.mdc](/.cursor/rules/taskmaster.mdc) for details.
 
 - **Hardware**: RTX 3070 Ti with 8GB VRAM limitations
 - **Framework**: PyTorch with Hydra configuration system
-- **Quality Gates**: All code must pass `conda activate crackseg && basedpyright`,
-  `conda activate crackseg && black`,
-  `conda activate crackseg && python -m ruff` (**Environment Activation Required**)
+- **Quality Gates**: All code must pass `basedpyright`, `black`, `python -m ruff`
+  (environment should be pre-activated)
 - **Testing**: >80% coverage on core functionality
 
 ## Implementation Priorities
@@ -264,46 +261,35 @@ See [taskmaster.mdc](/.cursor/rules/taskmaster.mdc) for details.
 
 ### Quality Gates Environment Issues
 
-#### Conda Environment Not Active
+#### Conda Environment Management
 
-**Problem:** PowerShell sessions don't maintain conda environment activation
-between separate `run_terminal_cmd` calls.
+**Current Status:** The conda environment is maintained between terminal commands,
+so explicit activation is not required for each command.
 
-**Symptoms:**
-
-- `black: The term 'black' is not recognized`
-- `basedpyright: The term 'basedpyright' is not recognized`
-- `No module named black` when using `python -m black`
-- Tools work individually but fail in scripts/automation
-
-**Root Cause:** Each terminal command runs in a fresh session without the
-`crackseg` environment activated.
-
-**✅ SOLUTION - Always use explicit activation:**
+**✅ CORRECT PATTERN:**
 
 ```bash
-# ✅ Correct pattern for ALL quality gate commands
-conda activate crackseg && black archivo.py
-conda activate crackseg && python -m ruff check archivo.py --fix
-conda activate crackseg && basedpyright archivo.py
+# ✅ Direct commands work when environment is active
+black archivo.py
+python -m ruff check archivo.py --fix
+basedpyright archivo.py
 
 # ✅ Combined quality gates
-conda activate crackseg && python -m ruff check . && black . --check && basedpyright .
+python -m ruff check . && black . --check && basedpyright .
 ```
 
-**🚫 NEVER use direct commands without activation:**
+**🚫 AVOID unnecessary activation:**
 
 ```bash
-# ❌ These will fail in fresh PowerShell sessions
-black archivo.py
-python -m black archivo.py
-basedpyright archivo.py
+# ❌ Unnecessary - environment is already active
+conda activate crackseg && black archivo.py
+conda activate crackseg && python -m ruff check archivo.py --fix
 ```
 
 **Verification Test:**
 
 ```bash
-conda activate crackseg && echo "Environment verified" && which black && which basedpyright
+echo "Environment verified" && which black && which basedpyright
 ```
 
 ---

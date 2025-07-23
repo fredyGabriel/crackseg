@@ -102,7 +102,7 @@ src/utils/
 Provides caching mechanisms for expensive component operations:
 
 ```python
-from src.utils.component_cache import ComponentCache
+# TODO: Function not yet implemented - # TODO: Function not implemented - from crackseg.utils.component_cache import ComponentCache
 
 cache = ComponentCache()
 cached_result = cache.get_or_compute(key, expensive_function, *args)
@@ -113,9 +113,9 @@ cached_result = cache.get_or_compute(key, expensive_function, *args)
 Defines project-specific exception classes:
 
 ```python
-from src.utils.exceptions import ConfigurationError, ModelError
+from crackseg.utils.core.exceptions import ConfigError, ModelError
 
-raise ConfigurationError("Invalid model configuration")
+raise ConfigError("Invalid model configuration")
 ```
 
 ## Usage Examples
@@ -123,7 +123,7 @@ raise ConfigurationError("Invalid model configuration")
 ### Device Management
 
 ```python
-from src.utils.core.device import get_device, set_device
+from crackseg.utils.core.device import get_device, set_device
 
 device = get_device()  # Auto-detect best available device
 set_device('cuda:0')   # Force specific device
@@ -132,15 +132,15 @@ set_device('cuda:0')   # Force specific device
 ### Seed Control
 
 ```python
-from src.utils.core.seeds import set_seed
+from crackseg.utils.core.seeds import set_random_seeds
 
-set_seed(42)  # Set deterministic seed for reproducibility
+set_random_seeds(42)  # Set deterministic seed for reproducibility
 ```
 
 ### Checkpoint Management
 
 ```python
-from src.utils.checkpointing import save_checkpoint, load_checkpoint
+from crackseg.utils.checkpointing import save_checkpoint, load_checkpoint
 
 # Save checkpoint
 save_checkpoint(model, optimizer, epoch, metrics, 'checkpoint.pth')
@@ -153,16 +153,16 @@ model.load_state_dict(checkpoint['model_state_dict'])
 ### Logging Setup
 
 ```python
-from src.utils.logging import setup_logger
+from crackseg.utils.logging import get_logger
 
-logger = setup_logger('training', level='INFO', file_output=True)
+logger = get_logger('training', level='INFO')
 logger.info("Training started")
 ```
 
 ### Early Stopping
 
 ```python
-from src.utils.training.early_stopping import EarlyStopping
+from crackseg.utils.training.early_stopping import EarlyStopping
 
 early_stopping = EarlyStopping(patience=10, min_delta=0.001)
 if early_stopping(val_loss):

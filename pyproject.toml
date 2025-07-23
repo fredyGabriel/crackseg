@@ -20,13 +20,15 @@ classifiers = [
 ]
 
 # Core dependencies for the project
+# NOTE: If using conda environment, install with: pip install -e . --no-deps
+# Then install conda packages: conda install py-opencv pillow albumentations scikit-image
 dependencies = [
     # Core ML Framework
     "torch>=2.7.0",
     # REMOVED: torchvision - replaced by timm + albumentations (see environment.yml)
 
     # Computer Vision & Image Processing
-    "opencv",  # Aligned with conda package name (was opencv-python)
+    "opencv-python",  # Use opencv-python for pip, or py-opencv for conda
     "pillow",
     "albumentations",
     "scikit-image",
@@ -58,6 +60,9 @@ dependencies = [
 
     # Data Formats
     "h5py",
+
+    # Environment & System
+    "python-dotenv",  # .env file support for environment variables
 ]
 
 # Development dependencies (not installed by default)
@@ -65,8 +70,6 @@ dependencies = [
 dev = [
     # Testing
     "pytest>=8.4.0",
-    "pytest-cov",
-    "pytest-xdist",
     "coverage",
 
     # Code Quality
@@ -74,15 +77,13 @@ dev = [
     "ruff",
     "basedpyright",
 
-    # Type Checking
-    "mypy",
-    "types-requests",
-    "types-pillow",
-    "types-pyyaml",
+    # Testing & Automation
+    "selenium",  # Web browser automation for E2E testing
 ]
 
 gui = [
     "streamlit",
+    "streamlit-ace",  # Ace editor for YAML editing
 ]
 
 # All dependencies including development tools

@@ -8,8 +8,9 @@ defaults:
   - training: default
   - model: default
   - data: default
+  - data/transform: augmentations
+  - data/dataloader: default
   - evaluation: default
-  - hydra: default
   - optional local: local # for local overrides
 
 # General project settings
@@ -36,3 +37,10 @@ thresholds:
 visualization:
   num_cols: 3
   num_cols_no_targets: 2
+
+# Hydra configuration
+hydra:
+  run:
+    dir: artifacts/outputs/${now:%Y%m%d-%H%M%S}
+  job:
+    chdir: false

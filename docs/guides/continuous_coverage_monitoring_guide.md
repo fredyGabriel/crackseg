@@ -117,6 +117,9 @@ pip install pytest pytest-cov coverage[toml] sqlite3
 
 # Project dependencies
 pip install -r requirements.txt
+
+# Install module in editable mode
+pip install -e . --no-deps
 ```
 
 ### Basic Setup
@@ -154,7 +157,7 @@ The GitHub Actions workflow is automatically triggered on:
 Create a custom alert configuration:
 
 ```python
-from src.utils.monitoring.coverage_monitor import AlertConfig
+from crackseg.utils.monitoring.coverage_monitor import AlertConfig
 
 alert_config = AlertConfig(
     enabled=True,
@@ -518,7 +521,7 @@ CREATE TABLE coverage_history (
 #### Query Recent Trends
 
 ```python
-from src.utils.monitoring.coverage_monitor import CoverageMonitor
+from crackseg.utils.monitoring.coverage_monitor import CoverageMonitor
 
 monitor = CoverageMonitor()
 trend_data = monitor.analyze_trends(days=30)
@@ -598,7 +601,7 @@ sqlite3 outputs/coverage_monitoring/coverage_history.db ".schema coverage_histor
 python scripts/monitoring/continuous_coverage.py --mode alerts --verbose
 
 # Check alert configuration
-python -c "from src.utils.monitoring.coverage_monitor import AlertConfig; print(AlertConfig())"
+python -c "from crackseg.utils.monitoring.coverage_monitor import AlertConfig; print(AlertConfig())"
 ```
 
 **Solutions**:

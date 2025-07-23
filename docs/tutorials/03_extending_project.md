@@ -7,6 +7,13 @@ configuration system.
 **Goal**: Understand the factory and registry pattern to add custom code.
 **Prerequisite**: [Tutorial 2: Configuring a New Experiment](02_custom_experiment.md)
 
+## Prerequisites
+
+- You have completed Tutorial 2 and understand custom experiment configuration.
+- **CRITICAL**: You have installed the `crackseg` package (`pip install -e . --no-deps`).
+- You have verified the installation works (`python -c "import crackseg"`).
+- You understand that the package must be installed for imports to work.
+
 ---
 
 ## Step 1: Create the New Component File
@@ -22,7 +29,7 @@ Let's create a new loss function called "Smooth L1 Loss".
 # src/training/losses/smooth_l1_loss.py
 import torch
 import torch.nn as nn
-from src.training.losses.registry import register_loss
+from crackseg.training.losses.registry import register_loss
 
 @register_loss("smooth_l1")
 class SmoothL1Loss(nn.Module):
@@ -35,6 +42,14 @@ class SmoothL1Loss(nn.Module):
         # Your custom logic here, if any.
         # For this example, we directly use PyTorch's implementation.
         return self.loss_fn(y_pred, y_true)
+```
+
+**Important**: The import `from crackseg.training.losses.registry import register_loss`
+only works if the `crackseg` package is installed. If you get import errors, run:
+
+```bash
+conda activate crackseg
+pip install -e . --no-deps
 ```
 
 ## Step 2: Register the Component
@@ -78,14 +93,14 @@ Now, let's create the corresponding YAML file so Hydra can use your new loss.
 
 ```yaml
 # configs/training/loss/smooth_l1.yaml
-_target_: src.training.losses.smooth_l1_loss.SmoothL1Loss
+_target_: crackseg.training.losses.smooth_l1_loss.SmoothL1Loss
 _name_: smooth_l1
 
 # You can define default parameters here
 beta: 1.0
 ```
 
-- `_target_`: This is the **full Python path** to your new class.
+- `_target_`: This is the **full Python path** to your new class (note: uses `crackseg.` prefix).
 - `_name_`: This should match the **unique name** you used in the decorator.
 - `beta: 1.0`: You can expose parameters to be configured via Hydra.
 
@@ -95,37 +110,98 @@ You can now use your new loss function in any experiment by overriding the
 configuration from the command line:
 
 ```bash
-python src/main.py --config-name base training/loss=smooth_l1 training/loss.beta=0.5
+conda activate crackseg
+python run.py --config-name basic_verification training.loss=smooth_l1 training.loss.beta=0.5
 ```
 
 - `training/loss=smooth_l1`: Selects your new loss.
 - `training/loss.beta=0.5`: Overrides the `beta` parameter within your loss config.
 
-### Step 2.4: Create and Use Your Experiment Config
+### Alternative: Create and Use Your Experiment Config
 
-Create a new main experiment file (e.g., `generated_configs/focal_loss_exp.yaml`) or
+Create a new main experiment file (e.g., `generated_configs/smooth_l1_exp.yaml`) or
 modify an existing one using the GUI editor. To use your new loss, change
 the defaults section:
 
 ```yaml
 # In your main experiment config
 defaults:
-  - training/loss: focal
+  - training/loss: smooth_l1
   # ... other defaults
 ```
 
 Now, when you run this experiment, the training pipeline will automatically
-instantiate `FocalLoss` with the specified parameters.
+instantiate `SmoothL1Loss` with the specified parameters.
 
-## 3. Running the Experiment with the GUI
+## Step 6: Running the Experiment
+
+### Option A: Using CLI
+
+```bash
+conda activate crackseg
+python run.py --config-name smooth_l1_exp
+```
+
+### Option B: Using the GUI
 
 1. Launch the GUI and navigate to the **Experiment Configuration** page.
 2. Load the experiment configuration file that uses your new component (e.g.,
-    `focal_loss_exp.yaml`).
+    `smooth_l1_exp.yaml`).
 3. Set a **Run Directory**.
 4. Navigate to the **Train** page by clicking **"🚀 Start Training"**.
 5. Start the process and monitor the training. The system will now use your
-    custom `FocalLoss` component.
+    custom `SmoothL1Loss` component.
+
+## Verification and Testing
+
+### Test Your Component
+
+Verify that your component works correctly:
+
+```bash
+conda activate crackseg
+python -c "
+import torch
+from crackseg.training.losses.smooth_l1_loss import SmoothL1Loss
+loss_fn = SmoothL1Loss(beta=0.5)
+pred = torch.randn(2, 1, 64, 64)
+target = torch.randn(2, 1, 64, 64)
+loss = loss_fn(pred, target)
+print(f'✅ SmoothL1Loss works: {loss.item():.4f}')
+"
+```
+
+### Quality Gates
+
+After adding new components, run quality gates:
+
+```bash
+conda activate crackseg
+black .
+python -m ruff . --fix
+basedpyright .
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Import Error: No module named 'crackseg'**
+
+    - Solution: Run `pip install -e . --no-deps` from the project root
+
+2. **Import Error: No module named 'crackseg.training.losses.registry'**
+
+    - Solution: Ensure the package is installed and the registry file exists
+
+3. **Configuration Error: Component not found**
+
+    - Solution: Check that the component is properly registered in `__init__.py`
+    - Verify the `_target_` path in the YAML file
+
+4. **Hydra Instantiation Error**
+
+    - Solution: Check YAML syntax and ensure all required parameters are provided
 
 ## Summary
 

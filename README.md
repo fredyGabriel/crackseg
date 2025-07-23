@@ -60,6 +60,9 @@ python scripts/utils/verify_system_dependencies.py
 conda env create -f environment.yml
 conda activate crackseg
 
+# Install the module in editable mode for development
+pip install -e . --no-deps
+
 # Copy environment template and configure
 cp .env.example .env  # Edit with your specific settings
 ```
@@ -77,6 +80,7 @@ cp .env.example .env  # Edit with your specific settings
 conda env remove -n crackseg
 conda env create -f environment.yml
 conda activate crackseg
+pip install -e . --no-deps
 ```
 
 ### 2. Data Preparation
@@ -402,7 +406,7 @@ cp .env.example .env
 - **`ANTHROPIC_API_KEY`**: API key for Task Master integration
 - **`DEBUG`**: Enable/disable debug mode (`true`/`false`)
 - **`CUDA_VISIBLE_DEVICES`**: GPU device selection
-- **`PYTHONPATH`**: Automatically configured by `run.py`
+- **`PYTHONPATH`**: Automatically configured by `run.py` (after module installation)
 
 ## Migration Guide from v0.1.0
 

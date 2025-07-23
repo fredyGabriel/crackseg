@@ -1,0 +1,35 @@
+# Tutorial 02: DeepLabV3+ Architecture Experiment Configuration
+#
+# This configuration tests DeepLabV3+ architecture for crack segmentation.
+# DeepLabV3+ uses ASPP (Atrous Spatial Pyramid Pooling) and decoder refinement
+# for better multi-scale feature extraction, which is important for detecting
+# cracks of varying widths (1-5 pixels to large structural damage).
+#
+# Reference: docs/tutorials/02_custom_experiment_cli.md
+
+# Hydra configuration composition - inherits from basic_verification config
+defaults:
+  - basic_verification  # Basic verification configuration with default settings
+  - _self_              # This file overrides basic_verification settings
+
+# Model architecture override - DeepLabV3+ with ResNet50 encoder
+model:
+  _target_: crackseg.model.core.deeplabv3.DeepLabV3Plus  # Main model class
+  encoder:
+    _target_: crackseg.model.encoder.resnet.ResNetEncoder  # ResNet50 backbone
+    backbone: resnet50    # Pre-trained ResNet50 for feature extraction
+  decoder:
+    _target_: crackseg.model.decoder.deeplabv3.DeepLabV3PlusDecoder  # Decoder with ASPP
+    low_level_channels: 256  # Channels for low-level features (edges, textures)
+    aspp_channels: 256       # Channels for ASPP module (multi-scale context)
+
+# Training hyperparameters override
+training:
+  learning_rate: 0.0001  # Default learning rate for DeepLabV3+
+  epochs: 100            # More epochs for complex architecture convergence
+
+# Data loading configuration override
+data:
+  dataloader:
+    batch_size: 8        # Smaller batch size for larger model (DeepLabV3+)
+                         # Prevents GPU memory overflow with complex architecture

@@ -197,16 +197,27 @@ Use this checklist to ensure your installation is complete and functional:
 **Symptoms:**
 
 - Cannot import project modules
-- ModuleNotFoundError for src.* modules
+- ModuleNotFoundError for crackseg modules
 
 **Solutions:**
 
 1. Ensure you're in the project root directory
-2. Set PYTHONPATH: `export PYTHONPATH=$PWD` (Linux/Mac) or `$env:PYTHONPATH = $PWD` (Windows PowerShell)
-3. Run scripts with proper environment:
+2. Install the module in editable mode:
 
    ```bash
-   PYTHONPATH=$PWD python scripts/verify_python_compatibility.py
+   conda activate crackseg && pip install -e . --no-deps
+   ```
+
+3. Verify the installation:
+
+   ```bash
+   conda activate crackseg && python -c "import crackseg; print('✅ Module installed successfully')"
+   ```
+
+4. If issues persist, check that all dependencies are installed:
+
+   ```bash
+   conda activate crackseg && conda list | grep crackseg
    ```
 
 ### Issue: Type Checking Errors

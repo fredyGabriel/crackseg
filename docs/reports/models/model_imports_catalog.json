@@ -186,49 +186,49 @@
     "line": 6,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import EncoderBase"
+    "statement": "from crackseg.model.base.abstract import EncoderBase"
   },
   {
     "file": "architectures/cnn_convlstm_unet.py",
     "line": 6,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import BottleneckBase"
+    "statement": "from crackseg.model.base.abstract import BottleneckBase"
   },
   {
     "file": "architectures/cnn_convlstm_unet.py",
     "line": 6,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import DecoderBase"
+    "statement": "from crackseg.model.base.abstract import DecoderBase"
   },
   {
     "file": "architectures/cnn_convlstm_unet.py",
     "line": 6,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import UNetBase"
+    "statement": "from crackseg.model.base.abstract import UNetBase"
   },
   {
     "file": "architectures/cnn_convlstm_unet.py",
     "line": 10,
     "type": "from-import",
     "module": "src.model.encoder.cnn_encoder",
-    "statement": "from src.model.encoder.cnn_encoder import EncoderBlock"
+    "statement": "from crackseg.model.encoder.cnn_encoder import EncoderBlock"
   },
   {
     "file": "architectures/cnn_convlstm_unet.py",
     "line": 11,
     "type": "from-import",
     "module": "src.model.components.convlstm",
-    "statement": "from src.model.components.convlstm import ConvLSTM"
+    "statement": "from crackseg.model.components.convlstm import ConvLSTM"
   },
   {
     "file": "architectures/cnn_convlstm_unet.py",
     "line": 12,
     "type": "from-import",
     "module": "src.model.decoder.cnn_decoder",
-    "statement": "from src.model.decoder.cnn_decoder import DecoderBlock"
+    "statement": "from crackseg.model.decoder.cnn_decoder import DecoderBlock"
   },
   {
     "file": "architectures/swinv2_cnn_aspp_unet.py",
@@ -277,56 +277,56 @@
     "line": 9,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import UNetBase"
+    "statement": "from crackseg.model.base.abstract import UNetBase"
   },
   {
     "file": "architectures/swinv2_cnn_aspp_unet.py",
     "line": 12,
     "type": "from-import",
     "module": "src.model.encoder.swin_v2_adapter",
-    "statement": "from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter"
+    "statement": "from crackseg.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter"
   },
   {
     "file": "architectures/swinv2_cnn_aspp_unet.py",
     "line": 13,
     "type": "from-import",
     "module": "src.model.components.aspp",
-    "statement": "from src.model.components.aspp import ASPPModule"
+    "statement": "from crackseg.model.components.aspp import ASPPModule"
   },
   {
     "file": "architectures/swinv2_cnn_aspp_unet.py",
     "line": 14,
     "type": "from-import",
     "module": "src.model.decoder.cnn_decoder",
-    "statement": "from src.model.decoder.cnn_decoder import CNNDecoder"
+    "statement": "from crackseg.model.decoder.cnn_decoder import CNNDecoder"
   },
   {
     "file": "architectures/__init__.py",
     "line": 3,
     "type": "from-import",
     "module": "src.model.architectures.cnn_convlstm_unet",
-    "statement": "from src.model.architectures.cnn_convlstm_unet import CNNEncoder"
+    "statement": "from crackseg.model.architectures.cnn_convlstm_unet import CNNEncoder"
   },
   {
     "file": "architectures/__init__.py",
     "line": 3,
     "type": "from-import",
     "module": "src.model.architectures.cnn_convlstm_unet",
-    "statement": "from src.model.architectures.cnn_convlstm_unet import ConvLSTMBottleneck"
+    "statement": "from crackseg.model.architectures.cnn_convlstm_unet import ConvLSTMBottleneck"
   },
   {
     "file": "architectures/__init__.py",
     "line": 3,
     "type": "from-import",
     "module": "src.model.architectures.cnn_convlstm_unet",
-    "statement": "from src.model.architectures.cnn_convlstm_unet import CNNDecoder"
+    "statement": "from crackseg.model.architectures.cnn_convlstm_unet import CNNDecoder"
   },
   {
     "file": "architectures/__init__.py",
     "line": 3,
     "type": "from-import",
     "module": "src.model.architectures.cnn_convlstm_unet",
-    "statement": "from src.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet"
+    "statement": "from crackseg.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet"
   },
   {
     "file": "base/abstract.py",
@@ -417,28 +417,28 @@
     "line": 3,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import BottleneckBase"
+    "statement": "from crackseg.model.base.abstract import BottleneckBase"
   },
   {
     "file": "bottleneck/cnn_bottleneck.py",
     "line": 4,
     "type": "from-import",
     "module": "src.model.factory.registry_setup",
-    "statement": "from src.model.factory.registry_setup import bottleneck_registry"
+    "statement": "from crackseg.model.factory.registry_setup import bottleneck_registry"
   },
   {
     "file": "bottleneck/__init__.py",
     "line": 3,
     "type": "from-import",
     "module": "src.model.bottleneck.cnn_bottleneck",
-    "statement": "from src.model.bottleneck.cnn_bottleneck import BottleneckBlock"
+    "statement": "from crackseg.model.bottleneck.cnn_bottleneck import BottleneckBlock"
   },
   {
     "file": "bottleneck/__init__.py",
     "line": 4,
     "type": "from-import",
     "module": "src.model.components.aspp",
-    "statement": "from src.model.components.aspp import ASPPModule"
+    "statement": "from crackseg.model.components.aspp import ASPPModule"
   },
   {
     "file": "common/utils.py",
@@ -557,21 +557,21 @@
     "line": 6,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import BottleneckBase"
+    "statement": "from crackseg.model.base.abstract import BottleneckBase"
   },
   {
     "file": "components/aspp.py",
     "line": 7,
     "type": "from-import",
     "module": "src.model.factory.registry_setup",
-    "statement": "from src.model.factory.registry_setup import bottleneck_registry"
+    "statement": "from crackseg.model.factory.registry_setup import bottleneck_registry"
   },
   {
     "file": "components/attention_decorator.py",
     "line": 8,
     "type": "from-import",
     "module": "src.model.base",
-    "statement": "from src.model.base import DecoderBase"
+    "statement": "from crackseg.model.base import DecoderBase"
   },
   {
     "file": "components/cbam.py",
@@ -599,7 +599,7 @@
     "line": 6,
     "type": "from-import",
     "module": "src.model.factory.registry_setup",
-    "statement": "from src.model.factory.registry_setup import component_registries"
+    "statement": "from crackseg.model.factory.registry_setup import component_registries"
   },
   {
     "file": "components/convlstm.py",
@@ -627,112 +627,112 @@
     "line": 16,
     "type": "from-import",
     "module": "src.model.registry_setup",
-    "statement": "from src.model.registry_setup import encoder_registry"
+    "statement": "from crackseg.model.registry_setup import encoder_registry"
   },
   {
     "file": "components/registry_support.py",
     "line": 16,
     "type": "from-import",
     "module": "src.model.registry_setup",
-    "statement": "from src.model.registry_setup import bottleneck_registry"
+    "statement": "from crackseg.model.registry_setup import bottleneck_registry"
   },
   {
     "file": "components/registry_support.py",
     "line": 16,
     "type": "from-import",
     "module": "src.model.registry_setup",
-    "statement": "from src.model.registry_setup import architecture_registry"
+    "statement": "from crackseg.model.registry_setup import architecture_registry"
   },
   {
     "file": "components/registry_support.py",
     "line": 16,
     "type": "from-import",
     "module": "src.model.registry_setup",
-    "statement": "from src.model.registry_setup import component_registries"
+    "statement": "from crackseg.model.registry_setup import component_registries"
   },
   {
     "file": "components/registry_support.py",
     "line": 22,
     "type": "from-import",
     "module": "src.model.hybrid_registry",
-    "statement": "from src.model.hybrid_registry import register_standard_hybrid"
+    "statement": "from crackseg.model.hybrid_registry import register_standard_hybrid"
   },
   {
     "file": "components/registry_support.py",
     "line": 22,
     "type": "from-import",
     "module": "src.model.hybrid_registry",
-    "statement": "from src.model.hybrid_registry import register_complex_hybrid"
+    "statement": "from crackseg.model.hybrid_registry import register_complex_hybrid"
   },
   {
     "file": "components/registry_support.py",
     "line": 42,
     "type": "from-import",
     "module": "src.model.components.convlstm",
-    "statement": "from src.model.components.convlstm import ConvLSTMCell"
+    "statement": "from crackseg.model.components.convlstm import ConvLSTMCell"
   },
   {
     "file": "components/registry_support.py",
     "line": 42,
     "type": "from-import",
     "module": "src.model.components.convlstm",
-    "statement": "from src.model.components.convlstm import ConvLSTM"
+    "statement": "from crackseg.model.components.convlstm import ConvLSTM"
   },
   {
     "file": "components/registry_support.py",
     "line": 60,
     "type": "from-import",
     "module": "src.model.bottleneck.convlstm_bottleneck",
-    "statement": "from src.model.bottleneck.convlstm_bottleneck import ConvLSTMBottleneck"
+    "statement": "from crackseg.model.bottleneck.convlstm_bottleneck import ConvLSTMBottleneck"
   },
   {
     "file": "components/registry_support.py",
     "line": 73,
     "type": "from-import",
     "module": "src.model.architectures.cnn_convlstm_unet",
-    "statement": "from src.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet"
+    "statement": "from crackseg.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet"
   },
   {
     "file": "components/registry_support.py",
     "line": 105,
     "type": "from-import",
     "module": "src.model.encoder.swin_v2_adapter",
-    "statement": "from src.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter"
+    "statement": "from crackseg.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter"
   },
   {
     "file": "components/registry_support.py",
     "line": 117,
     "type": "from-import",
     "module": "src.model.architectures.swinv2_cnn_aspp_unet",
-    "statement": "from src.model.architectures.swinv2_cnn_aspp_unet import SwinV2CNNASPPUNet"
+    "statement": "from crackseg.model.architectures.swinv2_cnn_aspp_unet import SwinV2CNNASPPUNet"
   },
   {
     "file": "components/registry_support.py",
     "line": 153,
     "type": "from-import",
     "module": "src.model.components.aspp",
-    "statement": "from src.model.components.aspp import ASPPModule"
+    "statement": "from crackseg.model.components.aspp import ASPPModule"
   },
   {
     "file": "components/registry_support.py",
     "line": 175,
     "type": "from-import",
     "module": "src.model.components.cbam",
-    "statement": "from src.model.components.cbam import CBAM"
+    "statement": "from crackseg.model.components.cbam import CBAM"
   },
   {
     "file": "components/registry_support.py",
     "line": 175,
     "type": "from-import",
     "module": "src.model.components.cbam",
-    "statement": "from src.model.components.cbam import ChannelAttention"
+    "statement": "from crackseg.model.components.cbam import ChannelAttention"
   },
   {
     "file": "components/registry_support.py",
     "line": 175,
     "type": "from-import",
     "module": "src.model.components.cbam",
-    "statement": "from src.model.components.cbam import SpatialAttention"
+    "statement": "from crackseg.model.components.cbam import SpatialAttention"
   },
   {
     "file": "config/core.py",
@@ -1334,63 +1334,63 @@
     "line": 17,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import UNetBase"
+    "statement": "from crackseg.model.base.abstract import UNetBase"
   },
   {
     "file": "core/unet.py",
     "line": 17,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import EncoderBase"
+    "statement": "from crackseg.model.base.abstract import EncoderBase"
   },
   {
     "file": "core/unet.py",
     "line": 17,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import BottleneckBase"
+    "statement": "from crackseg.model.base.abstract import BottleneckBase"
   },
   {
     "file": "core/unet.py",
     "line": 17,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import DecoderBase"
+    "statement": "from crackseg.model.base.abstract import DecoderBase"
   },
   {
     "file": "core/unet.py",
     "line": 23,
     "type": "from-import",
     "module": "src.model.common.utils",
-    "statement": "from src.model.common.utils import count_parameters"
+    "statement": "from crackseg.model.common.utils import count_parameters"
   },
   {
     "file": "core/unet.py",
     "line": 23,
     "type": "from-import",
     "module": "src.model.common.utils",
-    "statement": "from src.model.common.utils import estimate_receptive_field"
+    "statement": "from crackseg.model.common.utils import estimate_receptive_field"
   },
   {
     "file": "core/unet.py",
     "line": 23,
     "type": "from-import",
     "module": "src.model.common.utils",
-    "statement": "from src.model.common.utils import estimate_memory_usage"
+    "statement": "from crackseg.model.common.utils import estimate_memory_usage"
   },
   {
     "file": "core/unet.py",
     "line": 23,
     "type": "from-import",
     "module": "src.model.common.utils",
-    "statement": "from src.model.common.utils import get_layer_hierarchy"
+    "statement": "from crackseg.model.common.utils import get_layer_hierarchy"
   },
   {
     "file": "core/unet.py",
     "line": 23,
     "type": "from-import",
     "module": "src.model.common.utils",
-    "statement": "from src.model.common.utils import render_unet_architecture_diagram"
+    "statement": "from crackseg.model.common.utils import render_unet_architecture_diagram"
   },
   {
     "file": "core/__init__.py",
@@ -1453,35 +1453,35 @@
     "line": 8,
     "type": "from-import",
     "module": "src.model.components.cbam",
-    "statement": "from src.model.components.cbam import CBAM"
+    "statement": "from crackseg.model.components.cbam import CBAM"
   },
   {
     "file": "decoder/cnn_decoder.py",
     "line": 9,
     "type": "from-import",
     "module": "src.model.factory.registry_setup",
-    "statement": "from src.model.factory.registry_setup import decoder_registry"
+    "statement": "from crackseg.model.factory.registry_setup import decoder_registry"
   },
   {
     "file": "decoder/cnn_decoder.py",
     "line": 10,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import DecoderBase"
+    "statement": "from crackseg.model.base.abstract import DecoderBase"
   },
   {
     "file": "decoder/__init__.py",
     "line": 3,
     "type": "from-import",
     "module": "src.model.decoder.cnn_decoder",
-    "statement": "from src.model.decoder.cnn_decoder import CNNDecoder"
+    "statement": "from crackseg.model.decoder.cnn_decoder import CNNDecoder"
   },
   {
     "file": "decoder/__init__.py",
     "line": 3,
     "type": "from-import",
     "module": "src.model.decoder.cnn_decoder",
-    "statement": "from src.model.decoder.cnn_decoder import DecoderBlock"
+    "statement": "from crackseg.model.decoder.cnn_decoder import DecoderBlock"
   },
   {
     "file": "encoder/cnn_encoder.py",
@@ -1516,14 +1516,14 @@
     "line": 4,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import EncoderBase"
+    "statement": "from crackseg.model.base.abstract import EncoderBase"
   },
   {
     "file": "encoder/cnn_encoder.py",
     "line": 6,
     "type": "from-import",
     "module": "src.model.factory.registry_setup",
-    "statement": "from src.model.factory.registry_setup import encoder_registry"
+    "statement": "from crackseg.model.factory.registry_setup import encoder_registry"
   },
   {
     "file": "encoder/swin_transformer_encoder.py",
@@ -1586,7 +1586,7 @@
     "line": 9,
     "type": "from-import",
     "module": "src.model.base",
-    "statement": "from src.model.base import EncoderBase"
+    "statement": "from crackseg.model.base import EncoderBase"
   },
   {
     "file": "encoder/swin_transformer_encoder.py",
@@ -1670,35 +1670,35 @@
     "line": 7,
     "type": "from-import",
     "module": "src.model.base",
-    "statement": "from src.model.base import EncoderBase"
+    "statement": "from crackseg.model.base import EncoderBase"
   },
   {
     "file": "encoder/swin_v2_adapter.py",
     "line": 8,
     "type": "from-import",
     "module": "src.model.encoder.swin_transformer_encoder",
-    "statement": "from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder"
+    "statement": "from crackseg.model.encoder.swin_transformer_encoder import SwinTransformerEncoder"
   },
   {
     "file": "encoder/__init__.py",
     "line": 3,
     "type": "from-import",
     "module": "src.model.encoder.cnn_encoder",
-    "statement": "from src.model.encoder.cnn_encoder import CNNEncoder"
+    "statement": "from crackseg.model.encoder.cnn_encoder import CNNEncoder"
   },
   {
     "file": "encoder/__init__.py",
     "line": 3,
     "type": "from-import",
     "module": "src.model.encoder.cnn_encoder",
-    "statement": "from src.model.encoder.cnn_encoder import EncoderBlock"
+    "statement": "from crackseg.model.encoder.cnn_encoder import EncoderBlock"
   },
   {
     "file": "encoder/__init__.py",
     "line": 4,
     "type": "from-import",
     "module": "src.model.encoder.swin_transformer_encoder",
-    "statement": "from src.model.encoder.swin_transformer_encoder import SwinTransformerEncoder"
+    "statement": "from crackseg.model.encoder.swin_transformer_encoder import SwinTransformerEncoder"
   },
   {
     "file": "factory/config.py",
@@ -1768,28 +1768,28 @@
     "line": 16,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import EncoderBase"
+    "statement": "from crackseg.model.base.abstract import EncoderBase"
   },
   {
     "file": "factory/config.py",
     "line": 16,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import BottleneckBase"
+    "statement": "from crackseg.model.base.abstract import BottleneckBase"
   },
   {
     "file": "factory/config.py",
     "line": 16,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import DecoderBase"
+    "statement": "from crackseg.model.base.abstract import DecoderBase"
   },
   {
     "file": "factory/config.py",
     "line": 16,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import UNetBase"
+    "statement": "from crackseg.model.base.abstract import UNetBase"
   },
   {
     "file": "factory/config.py",
@@ -1978,14 +1978,14 @@
     "line": 15,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import UNetBase"
+    "statement": "from crackseg.model.base.abstract import UNetBase"
   },
   {
     "file": "factory/factory.py",
     "line": 15,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import DecoderBase"
+    "statement": "from crackseg.model.base.abstract import DecoderBase"
   },
   {
     "file": "factory/factory.py",
@@ -2062,7 +2062,7 @@
     "line": 31,
     "type": "from-import",
     "module": "src.model.components.cbam",
-    "statement": "from src.model.components.cbam import CBAM"
+    "statement": "from crackseg.model.components.cbam import CBAM"
   },
   {
     "file": "factory/factory.py",
@@ -2230,7 +2230,7 @@
     "line": 180,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import UNetBase"
+    "statement": "from crackseg.model.base.abstract import UNetBase"
   },
   {
     "file": "factory/registry.py",
@@ -2328,28 +2328,28 @@
     "line": 15,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import EncoderBase"
+    "statement": "from crackseg.model.base.abstract import EncoderBase"
   },
   {
     "file": "factory/registry_setup.py",
     "line": 15,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import DecoderBase"
+    "statement": "from crackseg.model.base.abstract import DecoderBase"
   },
   {
     "file": "factory/registry_setup.py",
     "line": 15,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import BottleneckBase"
+    "statement": "from crackseg.model.base.abstract import BottleneckBase"
   },
   {
     "file": "factory/registry_setup.py",
     "line": 15,
     "type": "from-import",
     "module": "src.model.base.abstract",
-    "statement": "from src.model.base.abstract import UNetBase"
+    "statement": "from crackseg.model.base.abstract import UNetBase"
   },
   {
     "file": "factory/registry_setup.py",

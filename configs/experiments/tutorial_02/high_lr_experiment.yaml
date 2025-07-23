@@ -1,0 +1,23 @@
+# Tutorial 02: High Learning Rate Experiment Configuration
+#
+# This configuration tests aggressive learning for faster convergence.
+# Learning rate is 10x higher than default to see if we can achieve
+# faster training while maintaining reasonable performance.
+#
+# Reference: docs/tutorials/02_custom_experiment_cli.md
+
+# Hydra configuration composition - inherits from basic_verification config
+defaults:
+  - basic_verification  # Basic verification configuration with default settings
+  - _self_              # This file overrides basic_verification settings
+
+# Training hyperparameters override
+training:
+  learning_rate: 0.001  # High learning rate (10x default 0.0001) for fast convergence
+  epochs: 50            # Reduced epochs since high LR should converge faster
+
+# Data loading configuration override
+data:
+  dataloader:
+    batch_size: 8       # Smaller batch size to accommodate higher learning rate
+                        # Prevents gradient explosion with aggressive learning

@@ -79,6 +79,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install black ruff basedpyright pytest pytest-cov
+          pip install -e . --no-deps
 
       - name: Format check (Black)
         run: black --check gui/ src/
@@ -122,6 +123,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-cov pytest-xdist
+          pip install -e . --no-deps
 
       - name: Run GUI tests with coverage
         run: |

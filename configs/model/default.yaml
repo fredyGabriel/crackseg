@@ -2,24 +2,24 @@
 
 # Base UNet configuration schema for segmentation model - SIMPLIFIED FOR VERIFICATION
 
-_target_: src.model.core.unet.BaseUNet   # Main UNet class to instantiate
+_target_: crackseg.model.core.unet.BaseUNet   # Main UNet class to instantiate
 
 # --- Component Configurations ---
 # Each section defines the configuration for a model component
 
 encoder:
-  _target_: src.model.encoder.CNNEncoder   # Encoder class
+  _target_: crackseg.model.encoder.CNNEncoder   # Encoder class
   in_channels: 3                          # Number of input channels (e.g., RGB)
   init_features: 16                       # Initial number of features - REDUCED for fast testing
   depth: 3                                # Number of encoder blocks - REDUCED (16, 32, 64)
 
 bottleneck:
-  _target_: src.model.bottleneck.cnn_bottleneck.BottleneckBlock  # Bottleneck class
+  _target_: crackseg.model.bottleneck.cnn_bottleneck.BottleneckBlock  # Bottleneck class
   in_channels: 64                         # Must match encoder output: init_features * 2^(depth-1) = 16*4=64
   out_channels: 128                       # Output channels - REDUCED for memory
 
 decoder:
-  _target_: src.model.decoder.cnn_decoder.CNNDecoder  # Decoder class
+  _target_: crackseg.model.decoder.cnn_decoder.CNNDecoder  # Decoder class
   in_channels: 128                        # Must match bottleneck out_channels
   skip_channels_list: [64, 32, 16]        # Skip connection channels (HIGH to LOW resolution order, descending as required)
   out_channels: 1                         # Number of output classes

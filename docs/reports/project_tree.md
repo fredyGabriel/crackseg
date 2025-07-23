@@ -69,6 +69,7 @@
     │   ├── base.yaml
     │   ├── basic_verification.yaml
     │   ├── config.yaml
+    │   ├── experiment_quick_test.yaml
     │   └── README.md
     ├── data/
     │   ├── test/
@@ -400,9 +401,10 @@
     │   ├── env.production.template
     │   ├── env.staging.template
     │   ├── env.test.template
+    │   ├── env_config.py
     │   ├── env_manager.py
+    │   ├── env_utils.py
     │   ├── grid-config.json
-    │   ├── health_check_system.py
     │   ├── health_check_system.py
     │   ├── mobile-browser-config.json
     │   ├── pytest.ini
@@ -450,7 +452,6 @@
     │   │   ├── quality_gates_guide.md
     │   │   ├── SYSTEM_DEPENDENCIES.md
     │   │   ├── TECHNICAL_ARCHITECTURE.md
-    │   │   ├── TEST_EXECUTION_PLAN.md
     │   │   ├── test_maintenance_procedures.md
     │   │   ├── TROUBLESHOOTING.md
     │   │   ├── USAGE.md
@@ -462,7 +463,6 @@
     │   │   │   ├── final-rule-cleanup-summary.md
     │   │   │   ├── rule-consolidation-report.md
     │   │   │   └── rule-system-analysis.md
-    │   │   ├── archive/
     │   │   ├── coverage/
     │   │   │   ├── coverage_gaps_analysis.md
     │   │   │   ├── coverage_validation_report.md
@@ -608,8 +608,6 @@
     │   │   ├── device_detector.py
     │   │   ├── device_info.py
     │   │   ├── device_selector.py
-    │   │   ├── device_selector_backup.py
-    │   │   ├── device_selector_new.py
     │   │   ├── device_selector_ui.py
     │   │   ├── error_console.py
     │   │   ├── file_browser.py
@@ -661,7 +659,8 @@
     │   │   ├── page_train.py
     │   │   ├── results_page.py
     │   │   ├── results_page_new.py
-    │   │   └── train_page.py
+    │   │   ├── train_page.py
+    │   │   └── train_page.py.backup
     │   ├── services/
     │   │   ├── __pycache__/
     │   │   ├── __init__.py
@@ -784,6 +783,7 @@
     │   │   ├── tb_manager.py
     │   │   ├── theme.py
     │   │   └── training_state.py
+    │   ├── utils(results/
     │   ├── __init__.py
     │   ├── app.py
     │   ├── debug_page_rendering.py
@@ -800,22 +800,38 @@
     │   │   ├── artifact_fixer.py
     │   │   ├── checkpoint_validator.py
     │   │   ├── main.py
+    │   │   ├── mass_git_restore.py
+    │   │   ├── syntax_scanner.py
     │   │   └── utils.py
     │   ├── examples/
     │   │   ├── factory_registry_integration.py
     │   │   └── tensorboard_port_management_demo.py
     │   ├── experiments/
+    │   │   ├── e2e/
+    │   │   │   ├── modules/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── checkpointing.py
+    │   │   │   │   ├── config.py
+    │   │   │   │   ├── data.py
+    │   │   │   │   ├── dataclasses.py
+    │   │   │   │   ├── evaluation.py
+    │   │   │   │   ├── setup.py
+    │   │   │   │   ├── training.py
+    │   │   │   │   └── utils.py
+    │   │   │   ├── __init__.py
+    │   │   │   ├── README.md
+    │   │   │   └── test_pipeline_e2e.py
     │   │   ├── benchmark_aspp.py
     │   │   ├── debug_swin_params.py
     │   │   ├── hybrid_registry_demo.py
     │   │   ├── registry_demo.py
-    │   │   ├── test_pipeline_e2e.py
     │   │   ├── test_swin_encoder.py
     │   │   ├── test_swin_transfer_learning_script.py
     │   │   └── test_swin_unet.py
     │   ├── monitoring/
     │   │   └── continuous_coverage.py
     │   ├── performance/
+    │   │   ├── __pycache__/
     │   │   ├── __init__.py
     │   │   ├── base_executor.py
     │   │   ├── baseline_updater.py
@@ -866,13 +882,16 @@
     │   ├── simple_install_check.sh
     │   └── validate_test_quality.py
     ├── src/
+    │   ├── __pycache__/
     │   ├── crackseg/
     │   │   ├── __pycache__/
     │   │   ├── data/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
     │   │   │   ├── dataloader.py
+    │   │   │   ├── dataloader.py.backup
     │   │   │   ├── dataset.py
+    │   │   │   ├── dataset.py.backup
     │   │   │   ├── distributed.py
     │   │   │   ├── factory.py
     │   │   │   ├── memory.py
@@ -886,23 +905,27 @@
     │   │   │   ├── __init__.py
     │   │   │   ├── __main__.py
     │   │   │   ├── core.py
+    │   │   │   ├── core.py.backup
     │   │   │   ├── data.py
     │   │   │   ├── ensemble.py
     │   │   │   ├── loading.py
     │   │   │   ├── README.md
     │   │   │   ├── results.py
     │   │   │   └── setup.py
+    │   │   ├── integration/
     │   │   ├── model/
     │   │   │   ├── __pycache__/
     │   │   │   ├── architectures/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── cnn_convlstm_unet.py
-    │   │   │   │   └── swinv2_cnn_aspp_unet.py
+    │   │   │   │   ├── swinv2_cnn_aspp_unet.py
+    │   │   │   │   └── unet.py
     │   │   │   ├── base/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
-    │   │   │   │   └── abstract.py
+    │   │   │   │   ├── abstract.py
+    │   │   │   │   └── abstract.py.backup
     │   │   │   ├── bottleneck/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
@@ -917,7 +940,8 @@
     │   │   │   │   │   └── matplotlib_renderer.py
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── spatial_utils.py
-    │   │   │   │   └── utils.py
+    │   │   │   │   ├── utils.py
+    │   │   │   │   └── utils.py.backup
     │   │   │   ├── components/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
@@ -1055,7 +1079,8 @@
     │   │   │   ├── factory.py
     │   │   │   ├── metrics.py
     │   │   │   ├── README.md
-    │   │   │   └── trainer.py
+    │   │   │   ├── trainer.py
+    │   │   │   └── trainer.py.backup
     │   │   ├── utils/
     │   │   │   ├── __pycache__/
     │   │   │   ├── checkpointing/
@@ -1137,8 +1162,11 @@
     │   │   └── README.md
     │   ├── crackseg.egg-info/
     │   └── main.py
+    ├── test-artifacts/
+    │   └── fixture-cache/
     ├── tests/
     │   ├── __pycache__/
+    │   ├── docker/
     │   ├── e2e/
     │   │   ├── __pycache__/
     │   │   ├── capture/
@@ -1345,6 +1373,7 @@
     │   │   ├── test_streamlit_basic.py
     │   │   └── test_workflow_regression_4_4.py
     │   ├── examples/
+    │   │   ├── __pycache__/
     │   │   ├── enhanced_gui_testing_demo.py
     │   │   └── visual_regression_demo.py
     │   ├── fixtures/
@@ -1548,6 +1577,10 @@
     │   │   ├── analysis/
     │   │   │   ├── __pycache__/
     │   │   │   ├── comprehensive_failure_analysis.py
+    │   │   │   ├── failure_data.json
+    │   │   │   ├── pytest_executor.py
+    │   │   │   ├── pytest_output_parser.py
+    │   │   │   ├── report_generator.py
     │   │   │   ├── test_failure_analysis.py
     │   │   │   ├── test_failure_categorization.py
     │   │   │   └── test_priority_matrix_creator.py
@@ -1568,6 +1601,13 @@
     │   │   │   ├── __pycache__/
     │   │   │   ├── test_env_manager.py
     │   │   │   └── test_health_check_system.py
+    │   │   ├── e2e/
+    │   │   │   ├── capture/
+    │   │   │   ├── cleanup/
+    │   │   │   ├── config/
+    │   │   │   ├── performance/
+    │   │   │   │   └── reporting/
+    │   │   │   └── waits/
     │   │   ├── evaluation/
     │   │   │   ├── test_core.py
     │   │   │   ├── test_data.py
@@ -1609,6 +1649,7 @@
     │   │   │   │   ├── test_gui_config.py
     │   │   │   │   ├── test_performance_optimizer.py
     │   │   │   │   └── test_session_state.py
+    │   │   │   ├── __init__.py
     │   │   │   ├── test_critical_coverage_paths.py
     │   │   │   ├── test_edge_cases.py
     │   │   │   ├── test_enhanced_abort.py
@@ -1619,6 +1660,10 @@
     │   │   │   ├── test_session_state_updates.py
     │   │   │   ├── test_tensorboard_coverage.py
     │   │   │   └── test_threading_integration.py
+    │   │   ├── integration/
+    │   │   │   └── gui/
+    │   │   │       └── automation/
+    │   │   │           └── reporting/
     │   │   ├── model/
     │   │   │   ├── config/
     │   │   │   │   └── test_instantiation.py
@@ -1696,30 +1741,46 @@
     │   │   │   ├── test_schema.py
     │   │   │   ├── test_splitting.py
     │   │   │   └── test_validation.py
+    │   │   ├── __init__.py
     │   │   ├── test_main_data.py
     │   │   ├── test_main_environment.py
     │   │   ├── test_main_integration.py
     │   │   ├── test_main_model.py
     │   │   └── test_main_training.py
     │   ├── utils/
+    │   │   ├── __pycache__/
     │   │   ├── unified_testing/
+    │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
+    │   │   │   ├── __init__.py.backup
     │   │   │   ├── core.py
+    │   │   │   ├── core.py.backup
     │   │   │   ├── helpers.py
+    │   │   │   ├── helpers.py.backup
     │   │   │   ├── mocking.py
+    │   │   │   ├── mocking.py.backup
     │   │   │   ├── performance.py
+    │   │   │   ├── performance.py.backup
     │   │   │   └── visual.py
     │   │   ├── __init__.py
     │   │   ├── performance_optimizer.py
+    │   │   ├── performance_optimizer.py.backup
     │   │   ├── pytest_performance_plugin.py
     │   │   ├── test_benchmark.py
-    │   │   └── visual_regression_benchmarks.py
+    │   │   ├── test_benchmark.py.backup
+    │   │   ├── visual_regression_benchmarks.py
+    │   │   └── visual_regression_benchmarks.py.backup
     │   ├── __init__.py
     │   ├── conftest.py
     │   ├── README.md
     │   └── requirements-testing.txt
+    ├── tools/
+    │   ├── analysis/
+    │   ├── testing/
+    │   └── utilities/
     ├── CHANGELOG.md
     ├── codecov.yml
+    ├── corrupted_files.txt
     ├── environment.yml
     ├── mkdocs.yml
     ├── pyproject.toml

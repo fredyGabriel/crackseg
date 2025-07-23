@@ -83,8 +83,8 @@ The module is organized into several submodules:
 ### Basic Usage with Default Configuration
 
 ```python
-from src.model.architectures.unet import UNet
-from src.model.factory.factory import create_unet
+from crackseg.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet as UNet
+from crackseg.model.factory.factory import create_unet
 from omegaconf import OmegaConf
 
 # Load configuration
@@ -100,10 +100,10 @@ output = model(input_tensor)
 ### Creating Components Individually
 
 ```python
-from src.model.encoder.cnn_encoder import CNNEncoder
-from src.model.bottleneck.bottleneck_block import BottleneckBlock
-from src.model.decoder.cnn_decoder import CNNDecoder
-from src.model.factory.hybrid_model import instantiate_hybrid_model
+from crackseg.model.encoder.cnn_encoder import CNNEncoder
+
+from crackseg.model.decoder.cnn_decoder import CNNDecoder
+
 
 # Create components
 encoder = CNNEncoder(**encoder_config)
@@ -188,13 +188,13 @@ All utility functions are documented with concise docstrings and are tested inde
 - **Importing Models:**
 
   ```python
-  from src.model.architectures.unet import UNet
+  from crackseg.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet as UNet
   ```
 
 - **Using Utilities:**
 
   ```python
-  from src.model.common.utils import count_parameters, render_unet_architecture_diagram
+  from crackseg.model.common.visualization import count_parameters, render_unet_architecture_diagram
   ```
 
 - **Visualization Example:**
@@ -250,7 +250,8 @@ clarity. Each submodule encapsulates a specific responsibility, making it easier
 ### Best Practices
 
 - **Explicit Imports**: Always import from the most specific submodule
-  (e.g., `from src.model.architectures.unet import UNet`) for clarity and IDE support.
+  (e.g., `from crackseg.model.architectures.cnn_convlstm_unet import CNNConvLSTMUNet as UNet`) for
+  clarity and IDE support.
 - **Configuration**: Use Hydra/YAML for all parameters; avoid hardcoding.
 - **Extending**: Add new components in the appropriate subdirectory and register them if needed.
 - **Testing**: Place tests in `tests/model/` and use mocks for utilities.
@@ -298,7 +299,7 @@ The CrackSeg models use an encoder-decoder architecture optimized for crack segm
 - Automatic fallback from matplotlib if requested
 
 ```python
-from src.crackseg.model.common.utils import render_unet_architecture_diagram
+from crackseg.model.common.visualization import render_unet_architecture_diagram
 
 # Use matplotlib (default - recommended)
 render_unet_architecture_diagram(hierarchy, "arch.png", view=True)

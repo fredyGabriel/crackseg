@@ -9,6 +9,71 @@ import torch.nn as nn
 from torch.cuda.amp import GradScaler
 
 
+def optimize_batch_size(
+    model: nn.Module,
+    dataset: torch.utils.data.Dataset,
+    device: torch.device | str | int | None = None,
+    max_memory_gb: float | None = None,
+    start_batch_size: int = 32,
+    min_batch_size: int = 1,
+    safety_factor: float = 0.8,
+    fp16: bool = False,
+) -> int:
+    """Optimize batch size for the given model and dataset.
+
+    This is a convenience wrapper around estimate_batch_size that provides
+    a simpler interface for common use cases.
+
+    Args:
+        model: PyTorch model to optimize batch size for
+        dataset: Dataset to use for optimization
+        device: CUDA device to use (None for current device)
+        max_memory_gb: Maximum GPU memory to use in GB
+        start_batch_size: Starting batch size to test
+        min_batch_size: Minimum batch size to allow
+        safety_factor: Safety factor for memory usage (0.0-1.0)
+        fp16: Whether to use FP16 precision
+
+    Returns:
+        Optimized batch size that fits in available memory
+
+    Example:
+        >>> model = MyModel()
+        >>> dataset = MyDataset()
+        >>> optimal_batch_size = optimize_batch_size(
+        ...     model=model,
+        ...     dataset=dataset,
+        ...     max_memory_gb=8.0
+        ... )
+        >>> print(f"Optimal batch size: {optimal_batch_size}")
+    """
+    # Get sample from dataset to determine input shape
+    sample = dataset[0]
+    if isinstance(sample, tuple | list):
+        input_tensor = sample[0]  # Assume first element is input
+    else:
+        input_tensor = sample
+
+    input_shape = input_tensor.shape[1:]  # Remove batch dimension
+
+    # Convert GB to MB if specified
+    max_memory_mb = max_memory_gb * 1024 if max_memory_gb is not None else None
+
+    # Create arguments for estimate_batch_size
+    args = BatchSizeEstimationArgs(
+        model=model,
+        input_shape=input_shape,
+        max_memory_mb=max_memory_mb,
+        start_batch_size=start_batch_size,
+        min_batch_size=min_batch_size,
+        safety_factor=safety_factor,
+        fp16=fp16,
+        device=device,
+    )
+
+    return estimate_batch_size(args)
+
+
 def get_available_gpu_memory(
     device: torch.device | str | int | None = None, in_mb: bool = True
 ) -> float:

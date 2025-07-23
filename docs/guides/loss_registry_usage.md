@@ -12,7 +12,7 @@ functions in `src.training.losses.loss_registry_setup.py`.
 - **Must be `torch.nn.Module` classes**: To be registered, your loss function must be a class that
 inherits from `torch.nn.Module`.
 - **Registry Instance**: Import the dedicated loss registry instance:
-`from src.training.losses.loss_registry_setup import loss_registry`.
+`from crackseg.training.losses.loss_registry_setup import loss_registry`.
 - **Mandatory Type Annotations**: Follow our code standards with complete type hints.
 
 ## Registering a New Loss Function (Module)
@@ -46,7 +46,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 # Import the specific loss_registry instance
-from src.training.losses.loss_registry_setup import loss_registry
+from crackseg.training.losses.loss_registry_setup import loss_registry
 
 @loss_registry.register(name="weighted_mse_loss", tags=["regression"])
 class WeightedMSELoss(nn.Module):
@@ -237,7 +237,7 @@ class BadLoss(nn.Module):
 You can inspect available losses programmatically:
 
 ```python
-from src.training.losses.loss_registry_setup import loss_registry
+from crackseg.training.losses.loss_registry_setup import loss_registry
 from typing import List, Dict
 
 # List all registered losses

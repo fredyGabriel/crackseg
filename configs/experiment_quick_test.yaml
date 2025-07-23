@@ -1,0 +1,68 @@
+# Quick Test Experiment Configuration
+# Optimized for RTX 3070 Ti (8GB VRAM) with minimal training time
+# Purpose: Verify training pipeline and model functionality
+
+defaults:
+  - _self_
+  - model: architectures/unet_cnn
+  - training: default
+  - data: default
+  - evaluation: default
+  - hydra: default
+
+# Override base settings for quick testing
+seed: 42
+experiment_name: "quick_test_verification"
+
+# Data configuration for quick testing
+data:
+  batch_size: 2              # Small batch size for 8GB VRAM
+  image_size: [256, 256]     # Reduced image size for faster processing
+  num_workers: 2             # Conservative worker count
+  in_memory_cache: false     # Disable memory cache to save VRAM
+
+# Training configuration for verification
+training:
+  epochs: 3                  # Very few epochs for quick verification
+  learning_rate: 0.001       # Standard learning rate
+  weight_decay: 0.0001       # Light regularization
+
+  # Memory optimization for RTX 3070 Ti
+  mixed_precision: true      # Enable AMP for memory efficiency
+  gradient_accumulation_steps: 4  # Effective batch size = 2 * 4 = 8
+
+  # Early stopping for quick verification
+  early_stopping_patience: 2
+  early_stopping_min_delta: 0.001
+
+# Model configuration
+model:
+  encoder:
+    depth: 3                 # Reduced depth for faster training
+    init_features: 32        # Smaller feature maps
+
+  decoder:
+    depth: 3                 # Match encoder depth
+    skip_channels_list: [256, 128, 32]  # Adjusted for reduced depth
+
+# Logging and output configuration
+output_dir: artifacts/outputs/quick_test_${now:%Y%m%d_%H%M%S}
+
+# Hydra configuration
+hydra:
+  run:
+    dir: ${output_dir}
+  sweep:
+    dir: ${output_dir}
+    subdir: ${hydra.job.num}
+
+# Logging configuration
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Validation configuration
+evaluation:
+  save_predictions: true
+  save_visualizations: true
+  num_samples: 5             # Save only a few samples for verification

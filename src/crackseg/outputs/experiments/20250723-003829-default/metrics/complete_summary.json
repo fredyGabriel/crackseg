@@ -1,0 +1,77 @@
+{
+  "experiment_info": {
+    "directory": "C:\\Users\\fgrv\\Dev\\CursorProjects\\crackseg\\src\\crackseg\\outputs\\experiments\\20250723-003829-default",
+    "start_time": "2025-07-23T00:38:30.022407",
+    "total_epochs": 2
+  },
+  "best_metrics": {
+    "loss": {
+      "value": 0.7658224999904633,
+      "epoch": 2,
+      "timestamp": "2025-07-23T00:38:48.696617"
+    },
+    "iou": {
+      "value": 1.8463727213813286e-09,
+      "epoch": 1,
+      "timestamp": "2025-07-23T00:38:48.247631"
+    },
+    "f1": {
+      "value": 1.8463727213813286e-09,
+      "epoch": 1,
+      "timestamp": "2025-07-23T00:38:48.247631"
+    },
+    "precision": {
+      "value": 1.0,
+      "epoch": 1,
+      "timestamp": "2025-07-23T00:38:48.247631"
+    },
+    "recall": {
+      "value": 1.8463727213813286e-09,
+      "epoch": 1,
+      "timestamp": "2025-07-23T00:38:48.247631"
+    }
+  },
+  "epoch_summaries": [
+    {
+      "timestamp": "2025-07-23T00:38:48.247631",
+      "epoch": 1,
+      "train_metrics": {
+        "loss": 0.7580837458372116
+      },
+      "val_metrics": {
+        "loss": 0.7820691466331482,
+        "iou": 1.8463727213813286e-09,
+        "f1": 1.8463727213813286e-09,
+        "precision": 1.0,
+        "recall": 1.8463727213813286e-09
+      },
+      "learning_rate": 0.001
+    },
+    {
+      "timestamp": "2025-07-23T00:38:48.696617",
+      "epoch": 2,
+      "train_metrics": {
+        "loss": 0.7307479679584503
+      },
+      "val_metrics": {
+        "loss": 0.7658224999904633,
+        "iou": 1.8463727213813286e-09,
+        "f1": 1.8463727213813286e-09,
+        "precision": 1.0,
+        "recall": 1.8463727213813286e-09
+      },
+      "learning_rate": 0.001
+    }
+  ],
+  "available_metrics": {
+    "train": [],
+    "val": [
+      "val_loss",
+      "val_iou",
+      "val_f1",
+      "val_precision",
+      "val_recall"
+    ],
+    "test": []
+  }
+}

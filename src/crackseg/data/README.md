@@ -49,11 +49,11 @@ strategies, augmentation techniques, and memory optimization approaches.
 ### Basic Dataset Creation
 
 ```python
-from src.data.dataset import CrackSegmentationDataset
-from src.data.transforms import get_transforms
+from crackseg.data.dataset import CrackSegmentationDataset
+from crackseg.data.transforms import get_transforms_from_config
 
 # Create dataset with transforms
-transforms = get_transforms('train')
+transforms = get_transforms_from_config('train')
 dataset = CrackSegmentationDataset(
     data_dir='data/train',
     transforms=transforms
@@ -68,7 +68,7 @@ print(f"Mask shape: {mask.shape}")    # (1, 512, 512)
 ### DataLoader Configuration
 
 ```python
-from src.data.dataloader import create_dataloader
+from crackseg.data.dataloader import create_dataloader
 from omegaconf import OmegaConf
 
 # Load configuration
@@ -90,7 +90,7 @@ for batch_idx, (images, masks) in enumerate(dataloader):
 ### Factory Pattern Usage
 
 ```python
-from src.data.factory import create_datasets, create_dataloaders
+from crackseg.data.factory import create_datasets, create_dataloaders
 
 # Create all datasets from configuration
 datasets = create_datasets(config)
@@ -106,7 +106,7 @@ val_loader = dataloaders['val']
 ### Custom Transforms
 
 ```python
-from src.data.transforms import create_transform_pipeline
+from crackseg.data.transforms import create_transform_pipeline
 
 # Create custom transform pipeline
 custom_transforms = create_transform_pipeline([
@@ -170,10 +170,10 @@ data/
 ### Data Validation
 
 ```python
-from src.data.validation import validate_dataset
+from crackseg.data.validation import validate_data_config
 
 # Validate dataset integrity
-validation_results = validate_dataset('data/train')
+validation_results = validate_data_config('data/train')
 if validation_results['valid']:
     print("Dataset validation passed")
 else:
@@ -201,7 +201,7 @@ dataset = CrackSegmentationDataset(
 ### Batch Size Optimization
 
 ```python
-from src.data.memory import optimize_batch_size
+from crackseg.data.memory import optimize_batch_size
 
 # Automatically determine optimal batch size
 optimal_batch_size = optimize_batch_size(
@@ -215,7 +215,7 @@ optimal_batch_size = optimize_batch_size(
 ## Distributed Training Support
 
 ```python
-from src.data.distributed import create_distributed_sampler
+from crackseg.data.distributed import create_distributed_sampler
 
 # Create distributed sampler for multi-GPU training
 sampler = create_distributed_sampler(
@@ -236,7 +236,7 @@ dataloader = DataLoader(
 ### Data Loading Profiling
 
 ```python
-from src.data.profiling import profile_dataloader
+
 
 # Profile dataloader performance
 stats = profile_dataloader(dataloader, num_batches=100)
@@ -247,7 +247,7 @@ print(f"Data loading efficiency: {stats['efficiency']:.2%}")
 ### Memory Usage Tracking
 
 ```python
-from src.data.memory import track_memory_usage
+from crackseg.data.memory import track_memory_usage
 
 # Monitor memory usage during data loading
 with track_memory_usage() as tracker:

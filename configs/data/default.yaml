@@ -1,5 +1,4 @@
 # Default data configuration
-# NOTE: 'batch_size' and 'num_workers' are the single source of truth for all modules (including DataLoader). Edit them here to affect all data loading behavior.
 # Edit these values for your dataset
 
 data_root: data/           # Root directory for all dataset files
@@ -7,9 +6,7 @@ train_split: 0.7           # Fraction of data used for training
 val_split: 0.15            # Fraction of data used for validation
 test_split: 0.15           # Fraction of data used for testing
 image_size: [256, 256]     # Target image size as [height, width] - REDUCED for faster testing
-batch_size: 4              # Number of samples per batch - REDUCED for verification
-num_workers: 2             # Number of worker processes for data loading - REDUCED for stability
-seed: ${random_seed}       # Random seed for reproducibility (from base.yaml)
+seed: ${seed}       # Random seed for reproducibility (from base.yaml)
 in_memory_cache: false     # Whether to cache data in memory (improves speed, uses more RAM)
 
 # Tensor shape constants

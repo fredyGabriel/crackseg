@@ -1,0 +1,14 @@
+{"name": "train/epoch_loss", "value": 0.7580837458372116, "step": 1, "timestamp": "2025-07-23T00:38:40.338581"}
+{"name": "val_loss", "value": 0.7820691466331482, "step": 1, "timestamp": "2025-07-23T00:38:48.241981"}
+{"name": "val_iou", "value": 1.8463727213813286e-09, "step": 1, "timestamp": "2025-07-23T00:38:48.242988"}
+{"name": "val_f1", "value": 1.8463727213813286e-09, "step": 1, "timestamp": "2025-07-23T00:38:48.243986"}
+{"name": "val_precision", "value": 1.0, "step": 1, "timestamp": "2025-07-23T00:38:48.244987"}
+{"name": "val_recall", "value": 1.8463727213813286e-09, "step": 1, "timestamp": "2025-07-23T00:38:48.244987"}
+{"name": "lr", "value": 0.001, "step": 1, "timestamp": "2025-07-23T00:38:48.246344"}
+{"name": "train/epoch_loss", "value": 0.7307479679584503, "step": 2, "timestamp": "2025-07-23T00:38:48.618054"}
+{"name": "val_loss", "value": 0.7658224999904633, "step": 2, "timestamp": "2025-07-23T00:38:48.690241"}
+{"name": "val_iou", "value": 1.8463727213813286e-09, "step": 2, "timestamp": "2025-07-23T00:38:48.692379"}
+{"name": "val_f1", "value": 1.8463727213813286e-09, "step": 2, "timestamp": "2025-07-23T00:38:48.693395"}
+{"name": "val_precision", "value": 1.0, "step": 2, "timestamp": "2025-07-23T00:38:48.693395"}
+{"name": "val_recall", "value": 1.8463727213813286e-09, "step": 2, "timestamp": "2025-07-23T00:38:48.694608"}
+{"name": "lr", "value": 0.001, "step": 2, "timestamp": "2025-07-23T00:38:48.695615"}

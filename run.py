@@ -50,11 +50,18 @@ logging.basicConfig(
 )
 logger = logging.getLogger("crackseg.runner")
 
-# Ensure the project root directory is in PYTHONPATH for module import s
+# Ensure the project root directory and src directory are in PYTHONPATH for
+# module imports
 current_dir = str(Path(__file__).resolve().parent)
+src_dir = str(Path(__file__).resolve().parent / "src")
+
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
     logger.info(f"Added to PYTHONPATH: {current_dir}")
+
+if src_dir not in sys.path:
+    sys.path.insert(0, src_dir)
+    logger.info(f"Added to PYTHONPATH: {src_dir}")
 
 
 def run_main() -> None:
@@ -81,8 +88,8 @@ def run_main() -> None:
     automation scripts.
     """
     try:
-        logger.info("Importing main function from main module...")
-        from main import main
+        logger.info("Importing main function from src.main module...")
+        from src.main import main
 
         logger.info("Starting main() execution with Hydra configuration...")
         main()

@@ -275,7 +275,9 @@ class Trainer:
 
     def _setup_optimizer_and_scheduler(self):
         """Sets up the optimizer and learning rate scheduler."""
-        self.optimizer = create_optimizer(self.model, self.cfg.optimizer)
+        self.optimizer = create_optimizer(
+            self.model.parameters(), self.cfg.optimizer
+        )
         self.scheduler = (
             create_lr_scheduler(self.optimizer, self.cfg.lr_scheduler)
             if "lr_scheduler" in self.cfg

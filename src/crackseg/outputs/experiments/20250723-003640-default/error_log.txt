@@ -1,0 +1,51 @@
+[2025-07-23T00:36:40.494892] [Main execution] Error occurred: ValueError: Error instantiating optimizer from DictConfig: {'_target_': 'torch.optim.Adam', 'lr': 0.001} - Error in call to target 'torch.optim.adam.Adam':
+TypeError("'BaseUNet' object is not iterable")
+full_key: training.optimizer
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\fgrv\miniconda3\envs\crackseg\Lib\site-packages\hydra\_internal\instantiate\_instantiate2.py", line 92, in _call_target
+    return _target_(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\miniconda3\envs\crackseg\Lib\site-packages\torch\optim\adam.py", line 100, in __init__
+    super().__init__(params, defaults)
+  File "C:\Users\fgrv\miniconda3\envs\crackseg\Lib\site-packages\torch\optim\optimizer.py", line 362, in __init__
+    param_groups = list(params)
+                   ^^^^^^^^^^^^
+TypeError: 'BaseUNet' object is not iterable
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\crackseg\training\factory.py", line 131, in create_optimizer
+    return cast(Optimizer, instantiate(cfg, params=model_params))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\miniconda3\envs\crackseg\Lib\site-packages\hydra\_internal\instantiate\_instantiate2.py", line 226, in instantiate
+    return instantiate_node(
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\miniconda3\envs\crackseg\Lib\site-packages\hydra\_internal\instantiate\_instantiate2.py", line 347, in instantiate_node
+    return _call_target(_target_, partial, args, kwargs, full_key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\miniconda3\envs\crackseg\Lib\site-packages\hydra\_internal\instantiate\_instantiate2.py", line 97, in _call_target
+    raise InstantiationException(msg) from e
+hydra.errors.InstantiationException: Error in call to target 'torch.optim.adam.Adam':
+TypeError("'BaseUNet' object is not iterable")
+full_key: training.optimizer
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\main.py", line 714, in main
+    trainer = Trainer(
+              ^^^^^^^^
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\crackseg\training\trainer.py", line 91, in __init__
+    self._setup_optimizer_and_scheduler()
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\crackseg\training\trainer.py", line 278, in _setup_optimizer_and_scheduler
+    self.optimizer = create_optimizer(self.model, self.cfg.optimizer)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\crackseg\training\factory.py", line 134, in create_optimizer
+    raise ValueError(
+ValueError: Error instantiating optimizer from DictConfig: {'_target_': 'torch.optim.Adam', 'lr': 0.001} - Error in call to target 'torch.optim.adam.Adam':
+TypeError("'BaseUNet' object is not iterable")
+full_key: training.optimizer
+
+--- --- ---

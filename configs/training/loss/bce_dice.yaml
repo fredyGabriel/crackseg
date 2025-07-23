@@ -1,8 +1,8 @@
 # config/training/loss/bce_dice.yaml
 # BCE + Dice Loss Configuration
-_target_: src.training.losses.BCEDiceLoss
+_target_: crackseg.training.losses.BCEDiceLoss
 config:
-  _target_: src.training.losses.bce_dice_loss.BCEDiceLossConfig
+  _target_: crackseg.training.losses.bce_dice_loss.BCEDiceLossConfig
   bce_weight: ${thresholds.loss_weight}
   dice_weight: ${thresholds.loss_weight}
   dice_smooth: 1.0

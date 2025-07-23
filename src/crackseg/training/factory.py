@@ -128,7 +128,7 @@ def create_optimizer(
             # might vary.
             # For now, we assume `instantiate` can handle `params` if `cfg`
             # is structured correctly for it.
-            return cast(Optimizer, instantiate(cfg, params=model_params))
+            return cast(Optimizer, instantiate(cfg, model_params))
         except Exception as e:
             # Add more specific error handling or logging if needed
             raise ValueError(

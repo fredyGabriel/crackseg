@@ -1,0 +1,27 @@
+[2025-07-23T00:23:38.460775] [Main execution] Error occurred: DataError: Error during data loading: Transform config missing for split: train
+Traceback:
+Traceback (most recent call last):
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\main.py", line 224, in _load_data
+    dataloaders_dict = create_dataloaders_from_config(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\crackseg\data\factory.py", line 662, in create_dataloaders_from_config
+    split_datasets = _create_or_load_split_datasets(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\crackseg\data\factory.py", line 215, in _create_or_load_split_datasets
+    temp_split_datasets = create_split_datasets(
+                          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\crackseg\data\splitting.py", line 239, in create_split_datasets
+    raise ValueError(
+ValueError: Transform config missing for split: train
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\main.py", line 689, in main
+    train_loader, val_loader = _load_data(cfg)
+                               ^^^^^^^^^^^^^^^
+  File "C:\Users\fgrv\Dev\CursorProjects\crackseg\src\main.py", line 257, in _load_data
+    raise DataError(f"Error during data loading: {str(e)}") from e
+crackseg.utils.core.exceptions.DataError: Error during data loading: Transform config missing for split: train
+
+--- --- ---

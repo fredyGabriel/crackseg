@@ -129,7 +129,7 @@ The system automatically monitors resources during test execution:
 ### Manual Resource Monitoring
 
 ```python
-from src.utils.monitoring.resource_monitor import ResourceMonitor
+from crackseg.utils.monitoring.resource_monitor import ResourceMonitor
 
 # Start monitoring
 monitor = ResourceMonitor(interval=1.0)
@@ -314,7 +314,7 @@ python scripts/performance_maintenance.py --full-maintenance --generate-report
    ```bash
    # Analyze resource usage patterns
    python -c "
-   from src.utils.monitoring.resource_monitor import ResourceMonitor
+   from crackseg.utils.monitoring.resource_monitor import ResourceMonitor
    monitor = ResourceMonitor()
    report = monitor.generate_usage_report()
    print(report)
@@ -452,7 +452,7 @@ python scripts/performance_maintenance.py --validate-cleanup
 
 # Check monitoring dependencies
 python -c "
-from src.utils.monitoring.resource_monitor import ResourceMonitor
+from crackseg.utils.monitoring.resource_monitor import ResourceMonitor
 monitor = ResourceMonitor()
 print('Resource monitoring OK')
 "
@@ -469,7 +469,7 @@ print('Resource monitoring OK')
 pip install psutil GPUtil
 
 # Test monitoring manually
-python -c "from src.utils.monitoring.resource_monitor import ResourceMonitor; print('OK')"
+python -c "from crackseg.utils.monitoring.resource_monitor import ResourceMonitor; print('OK')"
 ```
 
 #### 3. Cleanup Validation Failures

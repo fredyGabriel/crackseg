@@ -167,10 +167,10 @@ class TestInputValidation:
             model(invalid_input)
 
     def test_empty_configuration_raises_error(self) -> None:
-        """Test that empty configuration raises ConfigurationError."""
+        """Test that empty configuration raises ConfigError."""
         empty_config = OmegaConf.create({})
 
-        with pytest.raises(ConfigurationError, match="Missing required"):
+        with pytest.raises(ConfigError, match="Missing required"):
             create_unet(empty_config)
 ```
 

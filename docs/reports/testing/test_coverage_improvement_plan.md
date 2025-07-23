@@ -99,7 +99,7 @@ class TestMainTraining:
 import pytest
 import torch
 import torch.nn as nn
-from src.model.common.utils import (
+from crackseg.model.common.utils import (
     count_parameters,
     estimate_memory_usage,
     freeze_layers,
@@ -182,7 +182,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 import numpy as np
 from PIL import Image
-from src.data.dataset import CrackSegmentationDataset, create_crackseg_dataset
+from crackseg.data.dataset import CrackSegmentationDataset, create_crackseg_dataset
 
 class TestCrackSegmentationDataset:
     """Unit tests for CrackSegmentationDataset"""
@@ -269,7 +269,7 @@ class TestCrackSegmentationDataset:
 import pytest
 import torch
 from torch.utils.data import DataLoader
-from src.data.dataloader import (
+from crackseg.data.dataloader import (
     create_dataloader,
     _validate_dataloader_params,
     _calculate_adaptive_batch_size,
@@ -343,7 +343,7 @@ class TestDataLoaderFactory:
 import pytest
 import torch
 import torch.nn as nn
-from src.model.architectures.cnn_convlstm_unet import (
+from crackseg.model.architectures.cnn_convlstm_unet import (
     SimpleEncoderBlock,
     CNNEncoder,
     ConvLSTMBottleneck,
@@ -495,7 +495,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from pathlib import Path
 import torch
-from src.evaluation.__main__ import main as evaluation_main
+from crackseg.evaluation.__main__ import main as evaluation_main
 
 class TestEvaluationMain:
     """Integration tests for evaluation main pipeline"""
@@ -563,7 +563,7 @@ import pytest
 import torch
 import numpy as np
 from PIL import Image
-from src.data.transforms import (
+from crackseg.data.transforms import (
     get_transforms_from_config,
     apply_transforms_consistently,
     CrackAugmentation,
@@ -784,7 +784,7 @@ jobs:
 import pytest
 import torch
 from unittest.mock import patch, MagicMock
-from src.module.component import ComponentClass
+from crackseg.module.component import ComponentClass
 
 class TestComponentClass:
     """Comprehensive tests for ComponentClass"""

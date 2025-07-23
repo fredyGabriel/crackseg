@@ -33,15 +33,24 @@ This guide provides instructions for setting up the environment for the CrackSeg
 
 4. **Install in Editable Mode**:
     Install the project in editable mode to ensure that the Python interpreter can find the source
-    code in the `scripts` directory.
+    code. This is required for proper module imports and development tools.
 
     ```bash
-    pip install -e .
+    pip install -e . --no-deps
     ```
+
+    **Note**: We use `--no-deps` because conda manages all dependencies via `environment.yml`.
+    This ensures clean separation between conda (dependencies) and pip (development mode).
 
 ## Verify Installation
 
-To verify that the installation was successful, you can run the application's help command.
+To verify that the installation was successful, you can test the module import:
+
+```bash
+python -c "import crackseg; print('✅ Module installed successfully')"
+```
+
+You can also run the application's help command:
 
 ```bash
 streamlit run gui/app.py -- --help

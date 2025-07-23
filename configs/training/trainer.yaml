@@ -6,7 +6,7 @@ defaults:
 
 # Default configuration for the Trainer class
 
-_target_: src.training.trainer.Trainer  # Target Trainer class for instantiation
+_target_: crackseg.training.trainer.Trainer  # Target Trainer class for instantiation
 
 # Basic Training Parameters
 # epochs: 10
@@ -43,7 +43,7 @@ save_best:
 
 # Early Stopping settings - RELAXED for basic verification
 early_stopping:
-  _target_: src.utils.early_stopping.EarlyStopping  # EarlyStopping class
+  _target_: crackseg.utils.early_stopping.EarlyStopping  # EarlyStopping class
   monitor: "val_loss"      # Metric to monitor for early stopping
   patience: 5              # Number of epochs with no improvement to wait - INCREASED
   mode: "min"              # 'min' for loss, 'max' for accuracy/metric
