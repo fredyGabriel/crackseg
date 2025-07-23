@@ -1,9 +1,4 @@
-"""Model architecture implementations."""
+from . import simple_unet
+from .registry import get_model, list_models, register_model
 
-from crackseg.model.architectures.cnn_convlstm_unet import (
-    CNNConvLSTMUNet,
-    CNNEncoder,
-)
-from crackseg.model.decoder.cnn_decoder import CNNDecoder
-
-__all__ = ["CNNEncoder", "CNNDecoder", "CNNConvLSTMUNet"]
+__all__ = ["register_model", "get_model", "list_models", "simple_unet"]

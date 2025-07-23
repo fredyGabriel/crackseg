@@ -1,0 +1,3 @@
+# Smooth L1 Loss configuration
+_target_: src.training.losses.smooth_l1_loss.SmoothL1Loss
+beta: 1.0  # Smoothing parameter

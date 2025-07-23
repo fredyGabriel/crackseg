@@ -19,101 +19,112 @@ available to the configuration system.
 First, let's examine how the registry system works:
 
 ```bash
-conda activate crackseg
-# Look at the loss registry
-cat src/crackseg/training/losses/registry.py
+# Look at the loss registry setup
+cat src/crackseg/training/losses/loss_registry_setup.py
 
 # Look at existing loss functions
 dir src/crackseg/training/losses/
 
 # Check the __init__.py file
 cat src/crackseg/training/losses/__init__.py
+
+# Examine the registry system
+dir src/crackseg/training/losses/registry/
 ```
 
-The registry system uses decorators to automatically register components when modules are imported.
+The project uses an advanced registry system with multiple layers:
+
+- **Main Registry**: `loss_registry_setup.py` - Global registry instance
+- **Clean Registry**: `registry/clean_registry.py` - Lazy loading system
+- **Enhanced Registry**: `registry/enhanced_registry.py` - Production-ready with caching
 
 ## Step 2: Create a New Loss Function
 
 Let's create a new loss function called "Smooth L1 Loss":
 
 ```bash
-conda activate crackseg
 # Create the new loss function file
 cat > src/crackseg/training/losses/smooth_l1_loss.py << 'EOF'
 import torch
 import torch.nn as nn
-from crackseg.training.losses.registry import register_loss
 
-@register_loss("smooth_l1")
-class SmoothL1Loss(nn.Module):
-    def __init__(self, beta: float = 1.0):
+from crackseg.training.losses.base_loss import SegmentationLoss
+from crackseg.training.losses.loss_registry_setup import loss_registry
+
+
+@loss_registry.register(
+    name="smooth_l1_loss", tags=["segmentation", "regression"]
+)
+class SmoothL1Loss(SegmentationLoss):
+    def __init__(self, beta: float = 1.0, config=None, **kwargs):
         super().__init__()
         self.beta = beta
         self.loss_fn = nn.SmoothL1Loss(beta=self.beta)
 
-    def forward(self, y_pred: torch.Tensor, y_true: torch.Tensor) -> torch.Tensor:
-        # Your custom logic here, if any.
-        # For this example, we directly use PyTorch's implementation.
+    def forward(
+        self, y_pred: torch.Tensor, y_true: torch.Tensor
+    ) -> torch.Tensor:
         return self.loss_fn(y_pred, y_true)
 EOF
 ```
 
-**Important**: The import `from crackseg.training.losses.registry import register_loss`
+**Important**: The import `from crackseg.training.losses.loss_registry_setup import loss_registry`
 only works if the `crackseg` package is installed. If you get import errors, run:
 
 ```bash
-conda activate crackseg
 pip install -e . --no-deps
 ```
 
 ## Step 3: Register the Component
 
-The key to making your component available to the system is the `@register_loss`
-decorator, which we imported from `crackseg.training.losses.registry`.
+The key to making your component available to the system is the `@loss_registry.register`
+decorator, which we imported from `crackseg.training.losses.loss_registry_setup`.
 
 ```python
-@register_loss("smooth_l1")
+@loss_registry.register(name="smooth_l1_loss", tags=["segmentation", "regression"])
 ```
 
-- `@register_loss(...)`: This function adds your class to a central dictionary (the "registry").
-- `"smooth_l1"`: This is the **unique name** you will use in the configuration files
-    to refer to your new loss function.
+- `@loss_registry.register(...)`: This function adds your class to the global registry.
+- `name="smooth_l1_loss"`: This is the **unique name** you will use in the configuration files.
+- `tags=["segmentation", "regression"]`: Optional tags for categorization.
 
 ## Step 4: Make the Component Discoverable
 
 The registry system needs to import your file to find the decorated class.
 
 ```bash
-conda activate crackseg
-# Add import to __init__.py
-echo "from . import smooth_l1_loss" >> src/crackseg/training/losses/__init__.py
+# Add import to __init__.py (update the existing file)
+cat >> src/crackseg/training/losses/__init__.py << 'EOF'
+
+# Import after __all__ to ensure registration
+from . import smooth_l1_loss
+from .smooth_l1_loss import SmoothL1Loss
+
+# Ensure the module is loaded for registration
+_ = smooth_l1_loss
+EOF
 
 # Verify the import was added
 Get-Content src/crackseg/training/losses/__init__.py | Select-Object -Last 5
 ```
 
 By importing the module in the package's `__init__.py`, you ensure that the
-`@register_loss` decorator runs when the `losses` package is loaded, making your
-new loss available to the factory.
+`@loss_registry.register` decorator runs when the `losses` package is loaded.
 
 ## Step 5: Create the Configuration File
 
 Now, let's create the corresponding YAML file so Hydra can use your new loss:
 
 ```bash
-conda activate crackseg
 # Create the configuration file
 cat > configs/training/loss/smooth_l1.yaml << 'EOF'
+# Smooth L1 Loss configuration
 _target_: crackseg.training.losses.smooth_l1_loss.SmoothL1Loss
-_name_: smooth_l1
-
-# You can define default parameters here
-beta: 1.0
+beta: 1.0  # Smoothing parameter
 EOF
 ```
 
-- `_target_`: This is the **full Python path** to your new class (note: uses `crackseg.` prefix).
-- `_name_`: This should match the **unique name** you used in the decorator.
+- `_target_`: This is the **full Python path** to your new class (note: uses `src.` prefix).
 - `beta: 1.0`: You can expose parameters to be configured via Hydra.
 
 ## Step 6: Test Your Component
@@ -121,7 +132,6 @@ EOF
 Before using it in training, let's test that your component works correctly:
 
 ```bash
-conda activate crackseg
 # Test the component directly
 python -c "
 import torch
@@ -147,9 +157,8 @@ You can now use your new loss function in any experiment by overriding the
 configuration from the command line:
 
 ```bash
-conda activate crackseg
 # Use your new loss function
-python run.py --config-name basic_verification training.loss=smooth_l1 training.loss.beta=0.5
+python run.py --config-name basic_verification training.loss._target_=crackseg.training.losses.smooth_l1_loss.SmoothL1Loss training.loss.beta=0.5
 ```
 
 - `training.loss=smooth_l1`: Selects your new loss.
@@ -160,9 +169,11 @@ python run.py --config-name basic_verification training.loss=smooth_l1 training.
 Create a new experiment configuration that uses your component:
 
 ```bash
-conda activate crackseg
+# Create experiments directory if it doesn't exist
+mkdir -p configs/experiments/tutorial_03
+
 # Create experiment configuration
-cat > generated_configs/smooth_l1_experiment.yaml << 'EOF'
+cat > configs/experiments/tutorial_03/smooth_l1_experiment.yaml << 'EOF'
 # Experiment using the new SmoothL1Loss
 defaults:
   - basic_verification
@@ -189,9 +200,8 @@ EOF
 **IMPORTANT**: Use `run.py` instead of `src/main.py` for proper execution:
 
 ```bash
-conda activate crackseg
 # Run the experiment
-python run.py --config-name smooth_l1_experiment
+python run.py --config-name experiments/tutorial_03/smooth_l1_experiment
 ```
 
 ## Step 10: Create Additional Custom Components
@@ -201,7 +211,6 @@ Let's create another custom component - a new optimizer:
 ### Create a Custom Optimizer
 
 ```bash
-conda activate crackseg
 # Create optimizer registry if it doesn't exist
 mkdir -p src/crackseg/training/optimizers
 
@@ -245,9 +254,19 @@ EOF
 # Create __init__.py for optimizers
 cat > src/crackseg/training/optimizers/__init__.py << 'EOF'
 from .registry import register_optimizer, get_optimizer, list_optimizers
+
+__all__ = [
+    "register_optimizer",
+    "get_optimizer",
+    "list_optimizers",
+    "CustomAdam",
+]
+
+# Import after __all__ to ensure registration
 from . import custom_adam
 
-__all__ = ['register_optimizer', 'get_optimizer', 'list_optimizers']
+# Ensure the module is loaded for registration
+_ = custom_adam
 EOF
 
 # Add optimizers to training __init__.py
@@ -257,14 +276,12 @@ echo "from . import optimizers" >> src/crackseg/training/__init__.py
 ### Create Optimizer Configuration
 
 ```bash
-conda activate crackseg
 # Create optimizer config directory
 mkdir -p configs/training/optimizer
 
 # Create configuration file
 cat > configs/training/optimizer/custom_adam.yaml << 'EOF'
 _target_: crackseg.training.optimizers.custom_adam.CustomAdam
-_name_: custom_adam
 
 # Default parameters
 lr: 0.001
@@ -277,7 +294,6 @@ EOF
 ### Test the New Optimizer
 
 ```bash
-conda activate crackseg
 # Test the optimizer
 python -c "
 import torch
@@ -300,7 +316,6 @@ Let's create a custom model component:
 ### Create a Custom Model
 
 ```bash
-conda activate crackseg
 # Create model registry if it doesn't exist
 mkdir -p src/crackseg/model/architectures
 
@@ -355,26 +370,34 @@ EOF
 # Create __init__.py for architectures
 cat > src/crackseg/model/architectures/__init__.py << 'EOF'
 from .registry import register_model, get_model, list_models
+
+__all__ = [
+    "register_model",
+    "get_model",
+    "list_models",
+    "SimpleUNet",
+]
+
+# Import after __all__ to ensure registration
 from . import simple_unet
 
-__all__ = ['register_model', 'get_model', 'list_models']
+# Ensure the module is loaded for registration
+_ = simple_unet
 EOF
 
-# Add architectures to model __init__.py
+# Add architectures to model __init__.py (if not already present)
 echo "from . import architectures" >> src/crackseg/model/__init__.py
 ```
 
 ### Create Model Configuration
 
 ```bash
-conda activate crackseg
 # Create model config directory
 mkdir -p configs/model/architecture
 
 # Create configuration file
 cat > configs/model/architecture/simple_unet.yaml << 'EOF'
 _target_: crackseg.model.architectures.simple_unet.SimpleUNet
-_name_: simple_unet
 
 # Model parameters
 in_channels: 3
@@ -385,7 +408,6 @@ EOF
 ### Test the New Model
 
 ```bash
-conda activate crackseg
 # Test the model
 python -c "
 import torch
@@ -410,9 +432,8 @@ print(f'✅ Output range: [{output.min():.4f}, {output.max():.4f}]')
 Now let's create an experiment that uses all your custom components:
 
 ```bash
-conda activate crackseg
 # Create comprehensive experiment
-cat > generated_configs/custom_components_experiment.yaml << 'EOF'
+cat > configs/experiments/tutorial_03/custom_components_experiment.yaml << 'EOF'
 # Experiment using all custom components
 defaults:
   - basic_verification
@@ -452,9 +473,8 @@ EOF
 **IMPORTANT**: Use `run.py` instead of `src/main.py` for proper execution:
 
 ```bash
-conda activate crackseg
 # Run the experiment with all custom components
-python run.py --config-name custom_components_experiment
+python run.py --config-name experiments/tutorial_03/custom_components_experiment
 ```
 
 ## Step 14: Verify Component Registration
@@ -462,11 +482,10 @@ python run.py --config-name custom_components_experiment
 Check that all your components are properly registered:
 
 ```bash
-conda activate crackseg
 # Verify loss functions
 python -c "
-from crackseg.training.losses.registry import list_losses
-print('Registered losses:', list_losses())
+from crackseg.training.losses.loss_registry_setup import loss_registry
+print('Registered losses:', loss_registry.list_components())
 "
 
 # Verify optimizers
@@ -487,7 +506,6 @@ print('Registered models:', list_models())
 After adding new components, run quality gates:
 
 ```bash
-conda activate crackseg
 # Format code
 black .
 
@@ -509,7 +527,7 @@ python -m pytest tests/unit/training/test_losses.py -v
 
     - Solution: Run `pip install -e . --no-deps` from the project root
 
-2. **Import Error**: No module named 'crackseg.training.losses.registry'
+2. **Import Error**: No module named 'crackseg.training.losses.loss_registry_setup'
 
     - Solution: Ensure the package is installed and the registry file exists
 
@@ -530,12 +548,11 @@ python -m pytest tests/unit/training/test_losses.py -v
 ### Debugging Component Registration
 
 ```bash
-conda activate crackseg
 # Debug registry contents
 python -c "
 import crackseg.training.losses
-from crackseg.training.losses.registry import list_losses
-print('Available losses:', list_losses())
+from crackseg.training.losses.loss_registry_setup import loss_registry
+print('Available losses:', loss_registry.list_components())
 
 import crackseg.training.optimizers
 from crackseg.training.optimizers.registry import list_optimizers
@@ -557,13 +574,13 @@ without modifying existing code.
 
 ```bash
 # Create new component
-conda activate crackseg
 cat > src/crackseg/training/losses/my_loss.py << 'EOF'
 import torch.nn as nn
-from crackseg.training.losses.registry import register_loss
+from crackseg.training.losses.loss_registry_setup import loss_registry
+from crackseg.training.losses.base_loss import SegmentationLoss
 
-@register_loss("my_loss")
-class MyLoss(nn.Module):
+@loss_registry.register(name="my_loss", tags=["segmentation"])
+class MyLoss(SegmentationLoss):
     def __init__(self, param=1.0):
         super().__init__()
         self.param = param
@@ -578,29 +595,34 @@ echo "from . import my_loss" >> src/crackseg/training/losses/__init__.py
 # Create config
 cat > configs/training/loss/my_loss.yaml << 'EOF'
 _target_: crackseg.training.losses.my_loss.MyLoss
-_name_: my_loss
 param: 1.0
 EOF
 
 # Test component
-conda activate crackseg
 python -c "from crackseg.training.losses.my_loss import MyLoss; print('✅ Component works')"
 
 # Use in experiment
-conda activate crackseg
-python run.py --config-name basic_verification training.loss=my_loss
+python run.py --config-name basic_verification \
+  training.loss._target_=crackseg.training.losses.my_loss.MyLoss
 ```
 
 ## Summary of Corrections Made
 
-1. **Entry Point**: Changed from `src/main.py` to `run.py` for proper execution
-2. **Base Configuration**: Use `basic_verification` instead of `base` to avoid Hydra dependency issues
-3. **PowerShell Commands**: Updated `ls` to `dir` and `tail` to `Get-Content | Select-Object`
-4. **Configuration Structure**: Updated to use proper `_target_` syntax for component instantiation
-5. **Component Registration**: Ensured proper import paths and registry usage
+1. **Registry System**: Updated to use the current `loss_registry_setup.py` instead of obsolete registry
+2. **Configuration Paths**: Changed from `src.` to `crackseg.` prefix in `_target_` paths for
+  proper module resolution
+3. **Directory Structure**: Updated to use `configs/experiments/tutorial_03/` instead of
+  non-existent `generated_configs/`
+4. **Import Patterns**: Updated to match current project structure and inheritance patterns
+5. **Base Class**: Added proper inheritance from `SegmentationLoss` base class
+6. **Registry Decorators**: Updated to use current registry system with tags and proper naming
+7. **Constructor Compatibility**: Added `config=None, **kwargs` parameters for Hydra compatibility
+8. ****init**.py Structure**: Updated to include proper `__all__` declarations and import patterns
+9. **Registry Methods**: Updated to use `list_components()` instead of `list()` for loss registry
+10. **Command Line Usage**: Updated to use `_target_` override syntax instead of simple name references
 
 ---
 
-**Congratulations!** You have successfully extended the project with multiple custom components
-using the CLI approach. This same pattern applies to adding new data transforms, evaluation metrics,
-and more.
+**Congratulations!** You have successfully extended the project with multiple custom
+components using the CLI approach. This same pattern applies to adding new data transforms,
+evaluation metrics, and more.

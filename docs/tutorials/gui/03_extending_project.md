@@ -1,5 +1,7 @@
 # Tutorial 3: Extending the Project with a New Component
 
+**TODO: This tutorial needs verification and testing with the current GUI implementation.**
+
 This advanced tutorial walks you through the process of adding a new, custom component
 to the project. We will create a new loss function and make it available to the
 configuration system.

@@ -17,21 +17,21 @@ Use command-line tools for automation, scripting, and server environments.
 
 ## Tutorial Tracks
 
-### GUI Track
+### 🖥️ GUI Track
 
-| Tutorial | Description | Prerequisites |
-|----------|-------------|---------------|
-| [01_basic_training.md](01_basic_training.md) | Basic training workflow using the GUI | Project installation |
-| [02_custom_experiment.md](02_custom_experiment.md) | Creating custom experiments with GUI editor | Tutorial 1 |
-| [03_extending_project.md](03_extending_project.md) | Adding custom components (loss functions, models) | Tutorial 2 |
+| Tutorial | Description | Prerequisites | Status |
+|----------|-------------|---------------|--------|
+| [01_basic_training.md](gui/01_basic_training.md) | Basic training workflow using the GUI | Project installation | ⚠️ Needs verification |
+| [02_custom_experiment.md](gui/02_custom_experiment.md) | Creating custom experiments with GUI editor | Tutorial 1 | ⚠️ Needs verification |
+| [03_extending_project.md](gui/03_extending_project.md) | Adding custom components (loss functions, models) | Tutorial 2 | ⚠️ Needs verification |
 
-### CLI Track
+### 💻 CLI Track
 
-| Tutorial | Description | Prerequisites |
-|----------|-------------|---------------|
-| [01_basic_training_cli.md](01_basic_training_cli.md) | Basic training workflow using CLI only | Project installation |
-| [02_custom_experiment_cli.md](02_custom_experiment_cli.md) | Creating custom experiments with CLI and YAML | Tutorial 1 CLI |
-| [03_extending_project_cli.md](03_extending_project_cli.md) | Adding custom components using CLI | Tutorial 2 CLI |
+| Tutorial | Description | Prerequisites | Status |
+|----------|-------------|---------------|--------|
+| [01_basic_training_cli.md](cli/01_basic_training_cli.md) | Basic training workflow using CLI only | Project installation | ✅ Verified |
+| [02_custom_experiment_cli.md](cli/02_custom_experiment_cli.md) | Creating custom experiments with CLI and YAML | Tutorial 1 CLI | ✅ Verified |
+| [03_extending_project_cli.md](cli/03_extending_project_cli.md) | Adding custom components using CLI | Tutorial 2 CLI | ✅ Verified |
 
 ## Prerequisites
 
@@ -77,19 +77,19 @@ python run.py --config-name basic_verification
 ### Beginner Path (GUI)
 
 ```bash
-01_basic_training.md → 02_custom_experiment.md → 03_extending_project.md
+gui/01_basic_training.md → gui/02_custom_experiment.md → gui/03_extending_project.md
 ```
 
 ### Advanced Path (CLI)
 
 ```bash
-01_basic_training_cli.md → 02_custom_experiment_cli.md → 03_extending_project_cli.md
+cli/01_basic_training_cli.md → cli/02_custom_experiment_cli.md → cli/03_extending_project_cli.md
 ```
 
 ### Mixed Path (Recommended)
 
 ```bash
-01_basic_training.md → 02_custom_experiment_cli.md → 03_extending_project_cli.md
+gui/01_basic_training.md → cli/02_custom_experiment_cli.md → cli/03_extending_project_cli.md
 ```
 
 ## What You'll Learn
@@ -194,6 +194,23 @@ After completing the tutorials:
 3. **Run the Test Suite**: Execute `python -m pytest tests/` to verify everything works
 4. **Join the Community**: Contribute your custom components and experiments
 
+## Tutorial Verification Status
+
+### ✅ CLI Tutorials (Verified)
+
+- **01_basic_training_cli.md**: ✅ Tested and working
+- **02_custom_experiment_cli.md**: ✅ Tested and working
+- **03_extending_project_cli.md**: ✅ Tested and working
+
+### ⚠️ GUI Tutorials (Needs Verification)
+
+- **01_basic_training.md**: ⚠️ TODO: Needs testing with current GUI implementation
+- **02_custom_experiment.md**: ⚠️ TODO: Needs testing with current GUI implementation
+- **03_extending_project.md**: ⚠️ TODO: Needs testing with current GUI implementation
+
+**Note**: The CLI tutorials have been thoroughly tested and are ready for use. The GUI tutorials
+need verification to ensure they work with the current GUI implementation.
+
 ## Tutorial Feedback
 
 If you encounter issues or have suggestions for improving the tutorials:
@@ -206,5 +223,5 @@ If you encounter issues or have suggestions for improving the tutorials:
 
 Happy Training! 🚀
 
-Start with [Tutorial 1: Basic Training](01_basic_training.md) or
-[Tutorial 1 CLI: Basic Training Workflow](01_basic_training_cli.md) depending on your preference.
+Start with [Tutorial 1: Basic Training](gui/01_basic_training.md) or
+[Tutorial 1 CLI: Basic Training Workflow](cli/01_basic_training_cli.md) depending on your preference.

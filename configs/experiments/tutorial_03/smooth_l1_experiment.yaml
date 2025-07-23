@@ -1,0 +1,18 @@
+# Experiment using the new SmoothL1Loss
+defaults:
+  - basic_verification
+  - _self_
+
+# Use the new loss function
+training:
+  loss:
+    _target_: src.training.losses.smooth_l1_loss.SmoothL1Loss
+    beta: 0.5  # Custom beta parameter
+
+# Other experiment parameters
+training:
+  learning_rate: 0.0001
+  epochs: 50
+
+dataloader:
+  batch_size: 12

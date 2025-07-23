@@ -53,17 +53,20 @@ Before you start, make sure you have the following:
 conda env create -f environment.yml
 conda activate crackseg
 
-# Install the module in editable mode for development
+# Install the module in editable mode for development (CRITICAL)
 pip install -e . --no-deps
 
 # Verify Python version (required: 3.12+)
 python --version
 
+# Verify package installation
+python -c "import crackseg; print('✅ CrackSeg package imported successfully')"
+
 # Check quality tools (mandatory)
-conda activate crackseg && black --version
-conda activate crackseg && ruff --version
-conda activate crackseg && basedpyright --version
-conda activate crackseg && pytest --version
+black --version
+ruff --version
+basedpyright --version
+pytest --version
 ```
 
 ### 2. Data Structure
@@ -82,10 +85,10 @@ cp .env.example .env
 
 ```bash
 # Ensure code meets professional standards (mandatory before training)
-conda activate crackseg && black .
-conda activate crackseg && ruff . --fix
-conda activate crackseg && basedpyright .
-conda activate crackseg && pytest tests/ --cov=src --cov-report=term-missing
+black .
+python -m ruff . --fix
+basedpyright .
+pytest tests/ --cov=src --cov-report=term-missing
 ```
 
 ## Project Structure
@@ -115,7 +118,8 @@ To start the application, ensure your conda environment is activated and run the
 from the project root:
 
 ```bash
-conda activate crackseg && streamlit run gui/app.py
+conda activate crackseg
+streamlit run gui/app.py
 ```
 
 The application will open in your default web browser.
@@ -144,33 +148,49 @@ The application will open in your default web browser.
 
 ### Main Configuration
 
-The main configuration file is `configs/config.yaml`. You can override any
+The main configuration file is `configs/base.yaml`. You can override any
 configuration directly from the command line using Hydra.
+
+### Available Configurations
+
+Explore available configurations:
+
+```bash
+# List available configurations
+dir configs/
+
+# Examine base configuration
+cat configs/base.yaml
+
+# Check basic verification config (recommended for testing)
+cat configs/basic_verification.yaml
+```
 
 ### Configuration Examples
 
-1. **Basic training with default U-Net**:
+1. **Basic training with default configuration**:
 
     ```bash
-    python run.py
+    python run.py --config-name basic_verification
     ```
 
 2. **Switch to SwinUNet architecture**:
 
     ```bash
-    python run.py model=architectures/unet_swin data.batch_size=4
+    python run.py --config-name basic_verification model=architectures/unet_swin data.batch_size=4
     ```
 
 3. **Use combined loss function**:
 
     ```bash
-    python run.py training.loss=bce_dice
+    python run.py --config-name basic_verification training.loss=bce_dice
     ```
 
 4. **Configuration optimized for 8GB VRAM (RTX 3070 Ti)**:
 
     ```bash
-    python run.py data.batch_size=4 \
+    python run.py --config-name basic_verification \
+                  data.batch_size=4 \
                   training.use_amp=true \
                   training.gradient_accumulation_steps=4
     ```
@@ -181,10 +201,11 @@ For automated scripts and command-line enthusiasts, the CLI remains a powerful o
 
 ### Basic Training
 
-To start training with the default configuration:
+**IMPORTANT**: Use `run.py` instead of `src/main.py` for proper execution:
 
 ```bash
-python run.py
+# Start training with the basic verification configuration
+python run.py --config-name basic_verification
 ```
 
 ### Training with Reproducibility Standards
@@ -193,13 +214,41 @@ To follow our ML research standards for reproducibility:
 
 ```bash
 # Reproducible training with fixed seed
-python run.py random_seed=42 \
+python run.py --config-name basic_verification \
+              random_seed=42 \
               experiment.name="baseline_reproducible"
 
 # Monitor GPU memory usage during training
-python run.py training.verbose=true \
+python run.py --config-name basic_verification \
+              training.verbose=true \
               data.batch_size=4 \
               training.use_amp=true
+```
+
+### Custom Experiment Configurations
+
+Create custom experiment configurations:
+
+```bash
+# Create experiments directory
+mkdir -p configs/experiments/my_experiments
+
+# Create custom configuration
+cat > configs/experiments/my_experiments/high_lr_experiment.yaml << 'EOF'
+defaults:
+  - basic_verification
+  - _self_
+
+training:
+  learning_rate: 0.001  # Increased from default
+  epochs: 50
+
+dataloader:
+  batch_size: 8
+EOF
+
+# Run custom experiment
+python run.py --config-name high_lr_experiment
 ```
 
 ## Model Evaluation
@@ -228,8 +277,10 @@ Git, and ML standards.
 
 - **`CUDA out of memory`**: Reduce `data.batch_size`, enable `training.use_amp=true`,
   or use `training.gradient_accumulation_steps`.
-- **`ModuleNotFoundError`**: Ensure you have activated the `crackseg` conda environment.
+- **`ModuleNotFoundError`**: Ensure you have activated the `crackseg` conda environment
+  and installed the package with `pip install -e . --no-deps`.
 - **`basedpyright` errors**: Check for complete and correct type annotations.
+- **Import errors**: Verify package installation with `python -c "import crackseg"`.
 
 ### Getting Help
 
@@ -245,12 +296,24 @@ This training workflow is part of a larger professional development process.
 - **Task Management**: Refer to the project's Task Master guide.
 - **Loss Registry**: See [Loss Registry Guide](loss_registry_usage.md).
 - **Configuration Storage**: Review the specifications for configuration management.
+- **Tutorials**: Follow the verified CLI tutorials in `docs/tutorials/cli/`.
 
 ### 🛠️ Key Principles
 
 - **Evidence-Based**: All results must be supported by logs and metrics.
 - **Reproducible**: Experiments must be repeatable.
 - **Modular**: Components should be designed for reuse and independent testing.
+- **Verified**: Use only tested and verified configurations and commands.
+
+### ✅ Verified Commands and Configurations
+
+The following have been tested and verified to work:
+
+- **Entry Point**: `python run.py` (not `src/main.py`)
+- **Base Config**: `basic_verification` (recommended over `base`)
+- **Package Installation**: `pip install -e . --no-deps` (for conda environments)
+- **Registry System**: Advanced multi-layer registry with lazy loading
+- **Quality Gates**: `black .`, `python -m ruff . --fix`, `basedpyright .`
 
 ---
 

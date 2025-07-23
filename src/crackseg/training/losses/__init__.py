@@ -15,4 +15,12 @@ __all__ = [
     "FocalLoss",
     "CombinedLoss",
     "BCEDiceLoss",
+    "SmoothL1Loss",
 ]
+
+# Import after __all__ to ensure registration
+from . import smooth_l1_loss
+from .smooth_l1_loss import SmoothL1Loss
+
+# Ensure the module is loaded for registration
+_ = smooth_l1_loss

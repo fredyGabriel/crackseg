@@ -1,5 +1,7 @@
 # Tutorial 1: Basic Training Workflow
 
+**TODO: This tutorial needs verification and testing with the current GUI implementation.**
+
 This tutorial guides you through running a basic training experiment using a
 pre-defined configuration. You can use either the interactive GUI or direct CLI commands.
 

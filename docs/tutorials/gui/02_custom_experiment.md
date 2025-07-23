@@ -1,5 +1,7 @@
 # Tutorial 2: Creating a Custom Experiment
 
+**TODO: This tutorial needs verification and testing with the current GUI implementation.**
+
 This tutorial explains how to use the GUI's advanced features to create,
 modify, and save a custom configuration for your experiment. You can also use CLI commands.
 

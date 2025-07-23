@@ -7,7 +7,7 @@ models - Configuration schema dataclasses
 
 # Abstract base model and factory functions
 # Main concrete implementations
-from .architectures import CNNConvLSTMUNet, CNNDecoder, CNNEncoder
+# from .architectures import CNNConvLSTMUNet  # Temporarily disabled
 
 # Optional: advanced/variant implementations
 from .architectures.swinv2_cnn_aspp_unet import SwinV2CnnAsppUNet
@@ -20,6 +20,8 @@ from .components.aspp import ASPPModule
 
 # Main concrete implementation
 from .core.unet import BaseUNet
+from .decoder import CNNDecoder
+from .encoder import CNNEncoder
 from .encoder.swin_v2_adapter import SwinV2EncoderAdapter
 
 # Configuration validation
@@ -90,7 +92,7 @@ __all__ = [
     # Main concrete implementations
     "CNNEncoder",
     "CNNDecoder",
-    "CNNConvLSTMUNet",
+    # "CNNConvLSTMUNet",  # Temporarily disabled for tutorial
     # Optional: advanced/variant implementations
     "SwinV2CnnAsppUNet",
     "SwinV2EncoderAdapter",

@@ -4,6 +4,7 @@
 └── crackseg/
     ├── artifacts/
     ├── configs/
+    │   ├── __pycache__/
     │   ├── data/
     │   │   ├── dataloader/
     │   │   │   └── default.yaml
@@ -13,9 +14,19 @@
     │   │   └── README.md
     │   ├── evaluation/
     │   │   └── default.yaml
+    │   ├── experiments/
+    │   │   ├── tutorial_02/
+    │   │   │   ├── deeplabv3_experiment.yaml
+    │   │   │   ├── focal_loss_experiment.yaml
+    │   │   │   ├── high_lr_experiment.yaml
+    │   │   │   ├── low_lr_experiment.yaml
+    │   │   │   └── README.md
+    │   │   └── tutorial_03/
+    │   │       └── smooth_l1_experiment.yaml
     │   ├── linting/
     │   │   └── config.yaml
     │   ├── model/
+    │   │   ├── architecture/
     │   │   ├── architectures/
     │   │   │   ├── cnn_convlstm_unet.yaml
     │   │   │   ├── README.md
@@ -52,7 +63,8 @@
     │   │   │   ├── bce_dice.yaml
     │   │   │   ├── combined.yaml
     │   │   │   ├── dice.yaml
-    │   │   │   └── focal.yaml
+    │   │   │   ├── focal.yaml
+    │   │   │   └── smooth_l1.yaml
     │   │   ├── lr_scheduler/
     │   │   │   ├── cosine.yaml
     │   │   │   ├── reduce_on_plateau.yaml
@@ -62,6 +74,7 @@
     │   │   │   ├── iou.yaml
     │   │   │   ├── precision.yaml
     │   │   │   └── recall.yaml
+    │   │   ├── optimizer/
     │   │   ├── default.yaml
     │   │   ├── README.md
     │   │   └── trainer.yaml
@@ -70,7 +83,8 @@
     │   ├── basic_verification.yaml
     │   ├── config.yaml
     │   ├── experiment_quick_test.yaml
-    │   └── README.md
+    │   ├── README.md
+    │   └── simple_test.yaml
     ├── data/
     │   ├── test/
     │   │   ├── images/
@@ -434,20 +448,16 @@
     │   │   ├── architectural_decisions.md
     │   │   ├── checkpoint_format_specification.md
     │   │   ├── ci_cd_integration_guide.md
-    │   │   ├── ci_cd_stakeholder_training.md
     │   │   ├── ci_cd_testing_integration.md
     │   │   ├── CLEAN_INSTALLATION.md
     │   │   ├── comprehensive_integration_test_reporting_guide.md
     │   │   ├── configuration_storage_specification.md
     │   │   ├── continuous_coverage_monitoring_guide.md
     │   │   ├── CONTRIBUTING.md
-    │   │   ├── DEVELOPMENT.md
     │   │   ├── gui_development_guidelines.md
     │   │   ├── gui_testing_best_practices.md
     │   │   ├── gui_testing_implementation_checklist.md
-    │   │   ├── INSTALL.md
     │   │   ├── loss_registry_usage.md
-    │   │   ├── migration_summary_graphviz_to_matplotlib.md
     │   │   ├── performance_benchmarking_system.md
     │   │   ├── quality_gates_guide.md
     │   │   ├── SYSTEM_DEPENDENCIES.md
@@ -485,6 +495,10 @@
     │   │   │   ├── next_testing_priorities.md
     │   │   │   ├── test_coverage_improvement_plan.md
     │   │   │   └── test_inventory.txt
+    │   │   ├── tutorial_02_plots/
+    │   │   │   ├── experiment_comparison.csv
+    │   │   │   ├── performance_radar.png
+    │   │   │   └── training_curves.png
     │   │   ├── automated_test_execution_report.md
     │   │   ├── basedpyright_analysis_report.md
     │   │   ├── crackseg_paper.md
@@ -507,9 +521,15 @@
     │   ├── tools/
     │   │   └── task-master-guide.md
     │   ├── tutorials/
-    │   │   ├── 01_basic_training.md
-    │   │   ├── 02_custom_experiment.md
-    │   │   └── 03_extending_project.md
+    │   │   ├── cli/
+    │   │   │   ├── 01_basic_training_cli.md
+    │   │   │   ├── 02_custom_experiment_cli.md
+    │   │   │   └── 03_extending_project_cli.md
+    │   │   ├── gui/
+    │   │   │   ├── 01_basic_training.md
+    │   │   │   ├── 02_custom_experiment.md
+    │   │   │   └── 03_extending_project.md
+    │   │   └── README.md
     │   └── index.md
     ├── gui/
     │   ├── __pycache__/
@@ -821,9 +841,15 @@
     │   │   │   ├── __init__.py
     │   │   │   ├── README.md
     │   │   │   └── test_pipeline_e2e.py
+    │   │   ├── tutorial_02/
+    │   │   │   ├── tutorial_02_batch.ps1
+    │   │   │   ├── tutorial_02_compare.py
+    │   │   │   └── tutorial_02_visualize.py
     │   │   ├── benchmark_aspp.py
     │   │   ├── debug_swin_params.py
+    │   │   ├── experiment_visualizer.py
     │   │   ├── hybrid_registry_demo.py
+    │   │   ├── README.md
     │   │   ├── registry_demo.py
     │   │   ├── test_swin_encoder.py
     │   │   ├── test_swin_transfer_learning_script.py
@@ -879,7 +905,9 @@
     │   ├── performance_maintenance.py
     │   ├── README.md
     │   ├── run_tests_phased.py
+    │   ├── simple_final_report.py
     │   ├── simple_install_check.sh
+    │   ├── tutorial_03_verification.py
     │   └── validate_test_quality.py
     ├── src/
     │   ├── __pycache__/
@@ -919,6 +947,8 @@
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── cnn_convlstm_unet.py
+    │   │   │   │   ├── registry.py
+    │   │   │   │   ├── simple_unet.py
     │   │   │   │   ├── swinv2_cnn_aspp_unet.py
     │   │   │   │   └── unet.py
     │   │   │   ├── base/
@@ -933,6 +963,7 @@
     │   │   │   ├── common/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── visualization/
+    │   │   │   │   │   ├── __pycache__/
     │   │   │   │   │   ├── matplotlib/
     │   │   │   │   │   ├── __init__.py
     │   │   │   │   │   ├── graphviz_renderer.py
@@ -1030,7 +1061,165 @@
     │   │   │   │   │   ├── results/
     │   │   │   │   │   ├── config.json
     │   │   │   │   │   └── experiment_info.json
-    │   │   │   │   └── 20250603-010344-basic_verification/
+    │   │   │   │   ├── 20250603-010344-basic_verification/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250722-235914-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-000037-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-001601-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   └── results/
+    │   │   │   │   ├── 20250723-002338-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-002515-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-002758-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-002957-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-003357-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-003548-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-003640-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-003740-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-003741-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-003829-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-005521-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-005704-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-010032-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-172135-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-172227-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   ├── error_log.txt
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   ├── 20250723-172329-default/
+    │   │   │   │   │   ├── checkpoints/
+    │   │   │   │   │   ├── configurations/
+    │   │   │   │   │   ├── logs/
+    │   │   │   │   │   ├── metrics/
+    │   │   │   │   │   ├── results/
+    │   │   │   │   │   ├── config.json
+    │   │   │   │   │   └── experiment_info.json
+    │   │   │   │   └── 20250723-173339-default/
     │   │   │   │       ├── checkpoints/
     │   │   │   │       ├── configurations/
     │   │   │   │       ├── logs/
@@ -1072,7 +1261,13 @@
     │   │   │   │   ├── dice_loss.py
     │   │   │   │   ├── focal_loss.py
     │   │   │   │   ├── loss_registry_setup.py
-    │   │   │   │   └── recursive_factory.py
+    │   │   │   │   ├── recursive_factory.py
+    │   │   │   │   └── smooth_l1_loss.py
+    │   │   │   ├── optimizers/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── custom_adam.py
+    │   │   │   │   └── registry.py
     │   │   │   ├── __init__.py
     │   │   │   ├── batch_processing.py
     │   │   │   ├── config_validation.py
@@ -1162,8 +1357,6 @@
     │   │   └── README.md
     │   ├── crackseg.egg-info/
     │   └── main.py
-    ├── test-artifacts/
-    │   └── fixture-cache/
     ├── tests/
     │   ├── __pycache__/
     │   ├── docker/
@@ -1591,6 +1784,7 @@
     │   │       └── temp_storage.py
     │   ├── unit/
     │   │   ├── data/
+    │   │   │   ├── __pycache__/
     │   │   │   ├── test_dataloader.py
     │   │   │   ├── test_dataset_pipeline.py
     │   │   │   ├── test_distributed.py
@@ -1764,12 +1958,9 @@
     │   │   │   └── visual.py
     │   │   ├── __init__.py
     │   │   ├── performance_optimizer.py
-    │   │   ├── performance_optimizer.py.backup
     │   │   ├── pytest_performance_plugin.py
     │   │   ├── test_benchmark.py
-    │   │   ├── test_benchmark.py.backup
-    │   │   ├── visual_regression_benchmarks.py
-    │   │   └── visual_regression_benchmarks.py.backup
+    │   │   └── visual_regression_benchmarks.py
     │   ├── __init__.py
     │   ├── conftest.py
     │   ├── README.md
@@ -1780,7 +1971,6 @@
     │   └── utilities/
     ├── CHANGELOG.md
     ├── codecov.yml
-    ├── corrupted_files.txt
     ├── environment.yml
     ├── mkdocs.yml
     ├── pyproject.toml
