@@ -478,7 +478,7 @@ def _validate_normalize_params(params: dict[str, Any] | DictConfig) -> None:
 
     # Validate mean parameter format
     if not (
-        isinstance(mean_val, list | tuple)
+        isinstance(mean_val, list | tuple | ListConfig)
         and len(mean_val_for_len) == 3  # noqa: PLR2004
     ):
         raise ValueError(
@@ -489,7 +489,7 @@ def _validate_normalize_params(params: dict[str, Any] | DictConfig) -> None:
 
     # Validate std parameter format
     if not (
-        isinstance(std_val, list | tuple)
+        isinstance(std_val, list | tuple | ListConfig)
         and len(std_val_for_len) == 3  # noqa: PLR2004
     ):
         raise ValueError(
@@ -497,6 +497,75 @@ def _validate_normalize_params(params: dict[str, Any] | DictConfig) -> None:
             f"for RGB channels. Got {type(std_val).__name__} with length "
             f"{len(std_val_for_len) if hasattr(std_val, '__len__') else 'unknown'}"  # noqa: E501
         )
+
+
+def _convert_albumentations_format_to_standard(
+    transform_config: (
+        list[dict[str, Any] | DictConfig]
+        | ListConfig
+        | dict[str, Any]
+        | DictConfig
+    ),
+) -> list[dict[str, Any] | DictConfig]:
+    """Convert Albumentations direct format to standard format.
+
+    Converts Albumentations direct format:
+    [
+        {"Resize": {"height": 256, "width": 256}},
+        {"Normalize": {"mean": [0.485, 0.456, 0.406]}}
+    ]
+
+    To standard format:
+    [
+        {"name": "Resize", "params": {"height": 256, "width": 256}},
+        {"name": "Normalize", "params": {"mean": [0.485, 0.456, 0.406]}}
+    ]
+
+    Also handles nested structure with 'augmentations' key.
+    """
+    if isinstance(transform_config, dict | DictConfig):
+        # Check if it has 'augmentations' key (nested structure)
+        if "augmentations" in transform_config:
+            return _convert_albumentations_format_to_standard(
+                transform_config["augmentations"]
+            )
+        else:
+            # Convert dict format to list format
+            converted_list = []
+            for name_key, params_val in transform_config.items():
+                str_name_key = str(name_key)
+                # Handle special case for resize transform
+                actual_transform_name = (
+                    "Resize"
+                    if str_name_key.lower() == "resize"
+                    else str_name_key
+                )
+                converted_list.append(
+                    {"name": actual_transform_name, "params": params_val}
+                )
+            return converted_list
+    elif isinstance(transform_config, list | ListConfig):
+        converted_list = []
+        for item in transform_config:
+            if isinstance(item, dict | DictConfig):
+                # Check if it's already in standard format
+                if "name" in item and "params" in item:
+                    converted_list.append(item)
+                else:
+                    # Convert from Albumentations direct format
+                    for transform_name, transform_params in item.items():
+                        converted_list.append(
+                            {
+                                "name": str(transform_name),
+                                "params": transform_params,
+                            }
+                        )
+            else:
+                converted_list.append(item)
+        return converted_list
+    else:
+        # For other types, return as-is
+        return [transform_config]
 
 
 def validate_transform_config(
@@ -614,8 +683,11 @@ def validate_transform_config(
         - Custom validation rules for specific transforms
         - Integration with transform capability checking
     """
-    # Normalize configuration format for consistent processing
-    actual_transform_list = _normalize_transform_config_input(transform_config)
+    # Normalize configuration format using the same function as
+    # get_transforms_from_config
+    actual_transform_list = _convert_albumentations_format_to_standard(
+        transform_config
+    )
 
     # Warn if configuration is empty (may indicate configuration issues)
     if not actual_transform_list:
@@ -658,9 +730,9 @@ def validate_transform_config(
             "Missing required 'Resize' transform in the configuration. "
             "Resize transform is essential for consistent input dimensions."
         )
+
     if not normalize_found and actual_transform_list:
         raise ValueError(
             "Missing required 'Normalize' transform in the configuration. "
-            "Normalize transform is essential for proper model input "
-            "preprocessing."
+            "Normalize transform is essential for model input preprocessing."
         )

@@ -117,7 +117,7 @@ class SpatialAttention(nn.Module):
         return x * attn
 
 
-@attention_registry.register(name="CBAM")
+@attention_registry.register(name="CBAM", force=True)
 class CBAM(nn.Module):
     """
     Convolutional Block Attention Module (CBAM).

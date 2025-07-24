@@ -301,4 +301,4 @@ This document should be updated when:
 - Implementation: `tests/integration/training/test_training_artifacts_integration.py`
 - Performance Tests: `tests/integration/training/test_artifacts_performance_regression.py`
 - Debugging Tools: `scripts/debug_artifacts.py`
-- Configuration Standards: `docs/guides/configuration_storage_specification.md`
+- Configuration Standards: `docs/guides/specifications/configuration_storage_specification.md`

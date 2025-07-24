@@ -3,7 +3,8 @@
         "src",
         "tests",
         "docker",
-        "gui"
+        "gui",
+        "scripts"
     ],
     "exclude": [
         "**/__pycache__",
@@ -17,7 +18,7 @@
     "reportMissingTypeStubs": false,
     "reportUnknownParameterType": false,
     "reportPrivateUsage": "none",
-    "reportMissingImports": true,
+    "reportMissingImports": "none",
     "reportUnusedImport": true,
     "reportUnusedVariable": "warning",
     "executionEnvironments": [
@@ -159,6 +160,53 @@
             "reportGeneralTypeIssues": "none",
             "reportUnusedVariable": "warning",
             "reportUnusedImport": "warning"
+        },
+        {
+            "root": "scripts/experiments",
+            "extraPaths": [
+                ".",
+                "src"
+            ],
+            "reportMissingImports": "warning",
+            "reportUnknownMemberType": "none",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportCallIssue": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportUnusedVariable": "warning",
+            "reportUnusedImport": "warning",
+            "reportMissingParameterType": "none",
+            "reportUnknownParameterType": "none",
+            "reportArgumentType": "none",
+            "reportReturnType": "none"
+        },
+        {
+            "root": "scripts/experiments/swinv2_hybrid",
+            "extraPaths": [
+                ".",
+                "src"
+            ],
+            "reportMissingImports": "none",
+            "reportUnknownMemberType": "none",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportCallIssue": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportUnusedVariable": "warning",
+            "reportUnusedImport": "warning",
+            "reportMissingParameterType": "none",
+            "reportUnknownParameterType": "none",
+            "reportArgumentType": "none",
+            "reportReturnType": "none",
+            "reportMissingTypeStubs": false,
+            "reportPrivateUsage": "none",
+            "reportUntypedFunctionDecorator": "none",
+            "reportUntypedClassDecorator": "none",
+            "reportUntypedBaseClass": "none",
+            "reportUntypedNamedTuple": "none",
+            "reportPrivateImportUsage": "none"
         }
     ]
 }

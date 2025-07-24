@@ -61,7 +61,7 @@ crackseg/
 │   ├── evaluation/      # Evaluation and metrics
 │   └── utils/           # Common utilities
 ├── tests/               # Unit and integration tests
-└── docs/guides/         # Project-specific documentation
+└── docs/guides/         # Project-specific documentation (organized by category)
 ```
 
 ### Architectural Principles
@@ -239,6 +239,6 @@ For questions about:
 
 - **Technical standards**: See rules in `.cursor/rules/`
 - **Specific issues**: Open an issue in the repository
-- **Implementation doubts**: See documentation in `docs/guides/`
+- **Implementation doubts**: See documentation in `docs/guides/` (organized by category)
 
 **Thank you for contributing to the advancement of crack segmentation research!** 🚀

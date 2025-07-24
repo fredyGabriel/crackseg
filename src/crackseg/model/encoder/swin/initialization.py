@@ -144,6 +144,28 @@ class SwinModelInitializer:
                 )
 
             actual_all_channels = [feat.shape[1] for feat in dummy_features]
+
+            # Check if features are in HWC format
+            # (common for vision transformers)
+            # If the last dimension matches known Swin channel counts,
+            # it's likely HWC
+            if dummy_features and dummy_features[-1].ndim == 4:
+                last_feat = dummy_features[-1]
+                if last_feat.shape[-1] in [
+                    96,
+                    192,
+                    384,
+                    768,
+                    1536,
+                ]:  # Common Swin channels
+                    logger.info(
+                        "Detected HWC format, extracting channels from last "
+                        "dimension"
+                    )
+                    actual_all_channels = [
+                        feat.shape[-1] for feat in dummy_features
+                    ]
+
             logger.info(
                 "Detected feature channels from dummy pass: "
                 f"{actual_all_channels}"

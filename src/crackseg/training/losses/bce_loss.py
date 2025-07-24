@@ -10,7 +10,9 @@ from .base_loss import SegmentationLoss  # Import base class
 
 
 @loss_registry.register(
-    name="bce_loss", tags=["segmentation", "binary", "cross_entropy"]
+    name="bce_loss",
+    tags=["segmentation", "binary", "cross_entropy"],
+    force=True,
 )
 class BCELoss(SegmentationLoss):
     """Binary Cross Entropy loss for binary segmentation."""

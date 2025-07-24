@@ -8,7 +8,7 @@ pre-defined configuration. You can use either the interactive GUI or direct CLI 
 ## Prerequisites
 
 - You have successfully installed the project and its dependencies. See
-  [CLEAN_INSTALLATION.md](../../guides/CLEAN_INSTALLATION.md).
+  [CLEAN_INSTALLATION.md](../../guides/workflows/CLEAN_INSTALLATION.md).
 - You have activated the `crackseg` conda environment.
 - **CRITICAL**: You have installed the `crackseg` package in development mode.
 

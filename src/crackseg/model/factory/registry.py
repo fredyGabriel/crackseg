@@ -26,6 +26,11 @@ class Registry[T]:
     def __init__(self, base_class: type[T], name: str) -> None:
         """
         Initialize a Registry for components.
+
+        Args:
+            base_class: Base class that all registered components must inherit
+                from.
+            name: Human-readable name for this registry.
         """
         self._base_class = base_class
         self._name = name
@@ -37,7 +42,10 @@ class Registry[T]:
     # Registration methods
     #
     def register(
-        self, name: str | None = None, tags: list[str] | None = None
+        self,
+        name: str | None = None,
+        tags: list[str] | None = None,
+        force: bool = False,
     ) -> Callable[[type[T]], type[T]]:
         """
         Thread-safe decorator to register a component class in the registry.
@@ -46,6 +54,8 @@ class Registry[T]:
             name: Name to register the component with.
                   If None, uses the class name.
             tags: Tags for categorizing components.
+            force: If True, overwrite existing registration. If False, raise
+            error.
 
         Returns:
             Decorator function that registers the component.
@@ -65,9 +75,25 @@ class Registry[T]:
             component_name: str = name if name is not None else cls.__name__
             with self._lock:
                 if component_name in self._components:
-                    raise ValueError(
-                        f"Component '{component_name}' is already registered"
-                    )
+                    # If the same class is being registered, allow it silently
+                    if self._components[component_name] is cls:
+                        return cls
+                    # If force is True, allow overwriting
+                    if force:
+                        # Log the re-registration for debugging
+                        import logging
+
+                        logger = logging.getLogger(__name__)
+                        logger.warning(
+                            f"Component '{component_name}' already registered "
+                            f"in '{self._name}' registry. Overwriting with "
+                            "new implementation."
+                        )
+                    else:
+                        raise ValueError(
+                            f"Component '{component_name}' is already "
+                            "registered with a different class"
+                        )
                 self._components[component_name] = cls
                 self._tags[component_name] = list(tags) if tags else []
             return cls

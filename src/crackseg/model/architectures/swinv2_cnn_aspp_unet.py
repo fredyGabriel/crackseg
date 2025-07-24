@@ -138,12 +138,18 @@ import torch
 from torch import nn
 
 # Base class
-from crackseg.model.base.abstract import BottleneckBase, DecoderBase, UNetBase
+from crackseg.model.base.abstract import (
+    BottleneckBase,
+    DecoderBase,
+    EncoderBase,
+    UNetBase,
+)
 from crackseg.model.components.aspp import ASPPModule
 from crackseg.model.decoder.cnn_decoder import CNNDecoder
 
 # Components
 from crackseg.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
+from crackseg.model.factory.registry_setup import architecture_registry
 
 # Activation factory if needed
 # from crackseg.model.factory import create_activation # Assuming exists
@@ -151,6 +157,11 @@ from crackseg.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
 logger = logging.getLogger(__name__)
 
 
+@architecture_registry.register(
+    name="SwinV2CnnAsppUNet",
+    tags=["hybrid", "transformer", "aspp", "cnn", "swinv2"],
+    force=True,
+)
 class SwinV2CnnAsppUNet(UNetBase):
     """
     Hybrid U-Net architecture combining SwinV2 encoder, ASPP bottleneck, and
@@ -266,9 +277,9 @@ class SwinV2CnnAsppUNet(UNetBase):
 
     def __init__(
         self,
-        encoder_cfg: dict[str, Any],
-        bottleneck_cfg: dict[str, Any],
-        decoder_cfg: dict[str, Any],
+        encoder_cfg: dict[str, Any] | EncoderBase,
+        bottleneck_cfg: dict[str, Any] | BottleneckBase,
+        decoder_cfg: dict[str, Any] | DecoderBase,
         num_classes: int = 1,
         # e.g., 'sigmoid', 'softmax', None
         final_activation: str | None = "sigmoid",
@@ -370,74 +381,132 @@ class SwinV2CnnAsppUNet(UNetBase):
             - Target output size derived from encoder img_size parameter
             - Component compatibility validated during UNetBase initialization
         """
-        # 1. Instantiate Encoder
-        if "in_channels" not in encoder_cfg:
-            encoder_cfg["in_channels"] = 3
-            logger.warning(
-                "encoder_cfg missing 'in_channels', defaulting to 3."
+        # 1. Handle Encoder (config or instance)
+        if isinstance(encoder_cfg, dict):
+            # Configuration provided - instantiate encoder
+            if "in_channels" not in encoder_cfg:
+                encoder_cfg["in_channels"] = 3
+                logger.warning(
+                    "encoder_cfg missing 'in_channels', defaulting to 3."
+                )
+            # *** Get target image size from encoder config ***
+            # Check for target_img_size first, then img_size as fallback
+            target_img_size = encoder_cfg.get(
+                "target_img_size"
+            ) or encoder_cfg.get("img_size", 256)
+            logger.info(f"DEBUG: encoder_cfg keys: {encoder_cfg.keys()}")
+            logger.info(
+                "DEBUG: target_img_size from config: "
+                f"{encoder_cfg.get('target_img_size')}"
             )
-        # *** Get target image size from encoder config ***
-        # Default if not specified
-        target_img_size = encoder_cfg.get("img_size", 256)
-        logger.info(
-            "Target output spatial size set to: "
-            f"{target_img_size}x{target_img_size}"
-        )
-        encoder = SwinV2EncoderAdapter(**encoder_cfg)
-
-        # 2. Instantiate Bottleneck
-        # Infer in_channels from encoder output
-        bottleneck_in_channels = encoder.out_channels
-        # ASPPModule inherits from BottleneckBase, cast for type checker
-        bottleneck: BottleneckBase = cast(
-            BottleneckBase,
-            ASPPModule(in_channels=bottleneck_in_channels, **bottleneck_cfg),
-        )
-
-        # 3. Instantiate Decoder
-        # Infer in_channels from bottleneck output
-        # Infer skip_channels_list from encoder output (high-res to low-res)
-        decoder_in_channels = bottleneck.out_channels
-        # IMPORTANT: Reverse skip channels for the decoder
-        # Skip channels must go from LOW->HIGH resolution
-        decoder_skip_channels = list(reversed(encoder.skip_channels))
-
-        logger.info(
-            f"Encoder skip channels (HIGH->LOW): {encoder.skip_channels}"
-        )
-        logger.info(
-            f"Decoder skip channels (LOW->HIGH): {decoder_skip_channels}"
-        )
-
-        # *** FIX: Derive decoder depth from the number of skip connections ***
-        decoder_depth = len(decoder_skip_channels)
-
-        # Remove 'depth' from decoder_cfg if present, as it's now derived
-        if "depth" in decoder_cfg:
-            logger.debug(
-                "Ignoring 'depth' in decoder_cfg, deriving from encoder skips."
+            logger.info(
+                f"DEBUG: img_size from config: {encoder_cfg.get('img_size')}"
             )
-            # Create a copy to avoid modifying the original config object if
-            # passed by ref
-            decoder_cfg_copy = {
-                k: v for k, v in decoder_cfg.items() if k != "depth"
-            }
+            logger.info(f"DEBUG: final target_img_size: {target_img_size}")
+            logger.info(
+                "Target output spatial size set to: "
+                f"{target_img_size}x{target_img_size}"
+            )
+            encoder = SwinV2EncoderAdapter(**encoder_cfg)
         else:
-            decoder_cfg_copy = decoder_cfg
+            # Instance provided - use directly
+            encoder = encoder_cfg
+            # Try to get target size from encoder attributes - check
+            # target_img_size first
+            # If not found, default to 256 (standard input size)
+            target_img_size = getattr(
+                encoder, "target_img_size", None
+            ) or getattr(encoder, "img_size", 256)
+            logger.info(
+                "DEBUG: Using provided encoder instance. "
+                "Available attributes: "
+                f"{[attr for attr in dir(encoder) if not attr.startswith('_')]}"  # noqa: E501
+            )
+            logger.info(
+                "DEBUG: target_img_size from encoder: "
+                f"{getattr(encoder, 'target_img_size', 'NOT FOUND')}"
+            )
+            logger.info(
+                "DEBUG: img_size from encoder: "
+                f"{getattr(encoder, 'img_size', 'NOT FOUND')}"
+            )
+            logger.info(f"DEBUG: final target_img_size: {target_img_size}")
+            logger.info(
+                "Using provided encoder instance. Target size: "
+                f"{target_img_size}x{target_img_size}"
+            )
 
-        # CNNDecoder inherits from DecoderBase, cast for type checker
-        decoder: DecoderBase = cast(
-            DecoderBase,
-            CNNDecoder(
-                in_channels=decoder_in_channels,
-                skip_channels_list=decoder_skip_channels,
-                out_channels=num_classes,
-                # *** Pass target size ***
-                target_size=(target_img_size, target_img_size),
-                depth=decoder_depth,  # *** Pass the derived depth ***
-                **decoder_cfg_copy,  # Pass other config params
-            ),
-        )
+        # 2. Handle Bottleneck (config or instance)
+        if isinstance(bottleneck_cfg, dict):
+            # Configuration provided - instantiate bottleneck
+            # Infer in_channels from encoder output
+            bottleneck_in_channels = encoder.out_channels
+            # ASPPModule inherits from BottleneckBase, cast for type checker
+            bottleneck: BottleneckBase = cast(
+                BottleneckBase,
+                ASPPModule(
+                    in_channels=bottleneck_in_channels, **bottleneck_cfg
+                ),
+            )
+        else:
+            # Instance provided - use directly
+            bottleneck = bottleneck_cfg
+
+        # 3. Handle Decoder (config or instance)
+        if isinstance(decoder_cfg, dict):
+            # Configuration provided - instantiate decoder
+            # Infer in_channels from bottleneck output
+            # Infer skip_channels_list from encoder output (high-res to low-res
+            # )
+            decoder_in_channels = bottleneck.out_channels
+            # IMPORTANT: Reverse skip channels for the decoder
+            # Encoder provides HIGH->LOW, decoder needs LOW->HIGH
+            decoder_skip_channels = list(reversed(encoder.skip_channels))
+
+            logger.info(
+                f"Encoder skip channels (HIGH->LOW): {encoder.skip_channels}"
+            )
+            logger.info(
+                f"Decoder skip channels (LOW->HIGH): {decoder_skip_channels}"
+            )
+
+            # FIX: Derive decoder depth from the number of skip connections
+            decoder_depth = len(decoder_skip_channels)
+
+            # Remove 'depth' from decoder_cfg if present, as it's now derived
+            if "depth" in decoder_cfg:
+                logger.debug(
+                    "Ignoring 'depth' in decoder_cfg, deriving from encoder "
+                    "skips."
+                )
+                # Create a copy to avoid modifying the original config object
+                # if passed by reference
+                decoder_cfg_copy = {
+                    k: v for k, v in decoder_cfg.items() if k != "depth"
+                }
+            else:
+                decoder_cfg_copy = decoder_cfg
+
+            # CNNDecoder inherits from DecoderBase, cast for type checker
+            logger.info(
+                "DEBUG: Creating decoder with "
+                f"target_size=({target_img_size}, {target_img_size})"
+            )
+            decoder: DecoderBase = cast(
+                DecoderBase,
+                CNNDecoder(
+                    in_channels=decoder_in_channels,
+                    skip_channels_list=decoder_skip_channels,
+                    out_channels=num_classes,
+                    # *** Pass target size ***
+                    target_size=(target_img_size, target_img_size),
+                    depth=decoder_depth,  # *** Pass the derived depth ***
+                    **decoder_cfg_copy,  # Pass other config params
+                ),
+            )
+        else:
+            # Instance provided - use directly
+            decoder = decoder_cfg
 
         # 4. Initialize UNetBase with the components
         # This call also validates component compatibility

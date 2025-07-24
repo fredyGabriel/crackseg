@@ -37,7 +37,8 @@ Use command-line tools for automation, scripting, and server environments.
 
 Before starting any tutorial, ensure you have:
 
-1. **Project Installed**: Follow the [CLEAN_INSTALLATION.md](../guides/CLEAN_INSTALLATION.md) guide
+1. **Project Installed**: Follow the
+  [CLEAN_INSTALLATION.md](../guides/workflows/CLEAN_INSTALLATION.md) guide
 2. **Conda Environment Activated**: `conda activate crackseg`
 3. **Package Installed**: `pip install -e . --no-deps` (for conda environments)
 4. **Installation Verified**: `python -c "import crackseg; print('✅ Success')"`
@@ -181,7 +182,7 @@ basedpyright .
 ### Getting Help
 
 1. **Check the troubleshooting sections** in each tutorial
-2. **Review the [CLEAN_INSTALLATION.md](../guides/CLEAN_INSTALLATION.md)** guide
+2. **Review the [CLEAN_INSTALLATION.md](../guides/workflows/CLEAN_INSTALLATION.md)** guide
 3. **Examine the [project documentation](../index.md)**
 4. **Check the [configuration examples](../configs/)** directory
 

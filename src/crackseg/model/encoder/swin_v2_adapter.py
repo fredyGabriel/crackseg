@@ -118,8 +118,9 @@ class SwinV2EncoderAdapter(EncoderBase):
     @property
     def skip_channels(self) -> list[int]:
         """List of channels for skip connections (high to low resolution)."""
-        # Directly use the property from the wrapped encoder
-        return self.encoder.skip_channels
+        # The underlying encoder returns channels in ascending order,
+        # but we need to return them in descending order (HIGH to LOW)
+        return list(reversed(self.encoder.skip_channels))
 
     def get_feature_info(self) -> list[dict[str, Any]]:
         """
@@ -297,9 +298,23 @@ class SwinV2EncoderAdapter(EncoderBase):
             bottleneck_features, x
         )
 
-        # Return the potentially permuted/reshaped bottleneck and original
+        # Also convert skip connections from HWC to CHW if needed
+        converted_skips = []
+        for skip in skip_connections:
+            if skip.ndim == 4 and skip.shape[-1] in [96, 192, 384, 768]:
+                # Skip is in HWC format [B, H, W, C],
+                # convert to CHW [B, C, H, W]
+                skip = skip.permute(0, 3, 1, 2).contiguous()
+                logger.debug(f"Converted skip from HWC to CHW: {skip.shape}")
+            converted_skips.append(skip)
+
+        # Reverse the order to match skip_channels property
+        # (HIGH to LOW resolution)
+        converted_skips = list(reversed(converted_skips))
+
+        # Return the potentially permuted/reshaped bottleneck and converted
         # skips
-        return bottleneck_features, skip_connections
+        return bottleneck_features, converted_skips
 
     def get_optimizer_param_groups(
         self, base_lr: float = 0.001

@@ -200,70 +200,79 @@ def _create_or_load_split_datasets(
     max_val_samples = dataloader_config.get("max_val_samples", None)
     max_test_samples = dataloader_config.get("max_test_samples", None)
 
+    # Check if we should use unified splitting (skip split directories)
+    use_unified_splitting = data_config.get("use_unified_splitting", False)
+
     # Primary approach: Use optimized dataset creation
-    try:
-        dataset_creation_cfg = DatasetCreationConfig(
-            data_root=data_root,
-            transform_cfg=transform_config,
-            dataset_cls=dataset_class,
-            seed=seed,
-            cache_flag=in_memory_cache,
-            max_train_samples=max_train_samples,
-            max_val_samples=max_val_samples,
-            max_test_samples=max_test_samples,
-        )
-        temp_split_datasets = create_split_datasets(
-            config=dataset_creation_cfg
-        )
-        return cast(dict[str, Dataset[Any]], temp_split_datasets)
-    except (FileNotFoundError, RuntimeError) as e:
-        # Fallback approach: Manual sample discovery and splitting
+    # (only if not using unified splitting)
+    if not use_unified_splitting:
+        try:
+            dataset_creation_cfg = DatasetCreationConfig(
+                data_root=data_root,
+                transform_cfg=transform_config,
+                dataset_cls=dataset_class,
+                seed=seed,
+                cache_flag=in_memory_cache,
+                max_train_samples=max_train_samples,
+                max_val_samples=max_val_samples,
+                max_test_samples=max_test_samples,
+            )
+            temp_split_datasets = create_split_datasets(
+                config=dataset_creation_cfg
+            )
+            return cast(dict[str, Dataset[Any]], temp_split_datasets)
+        except (FileNotFoundError, RuntimeError):
+            # Fallback approach: Manual sample discovery and splitting
+            from .splitting import get_all_samples, split_indices
+    else:
+        # Use unified splitting approach directly
         from .splitting import get_all_samples, split_indices
 
-        all_samples = get_all_samples(data_root)
-        if not all_samples:
-            raise RuntimeError(f"No valid samples found in {data_root}") from e
+    # Fallback approach: Manual sample discovery and splitting
+    all_samples = get_all_samples(data_root)
+    if not all_samples:
+        raise RuntimeError(f"No valid samples found in {data_root}")
 
-        # Create index-based splits
-        indices_map = split_indices(
-            num_samples=len(all_samples),
-            ratios=ratios,
-            seed=seed,
-            shuffle=True,
-        )
+    # Create index-based splits
+    indices_map = split_indices(
+        num_samples=len(all_samples),
+        ratios=ratios,
+        seed=seed,
+        shuffle=True,
+    )
 
-        # Create datasets for each split
-        split_datasets_fallback: dict[str, Dataset[Any]] = {}
-        for split_name in ["train", "val", "test"]:
-            split_indices_list = indices_map[split_name]
-            split_samples_list = [all_samples[i] for i in split_indices_list]
+    # Create datasets for each split
+    split_datasets_fallback: dict[str, Dataset[Any]] = {}
+    for split_name in ["train", "val", "test"]:
+        split_indices_list = indices_map[split_name]
+        split_samples_list = [all_samples[i] for i in split_indices_list]
 
-            if split_name not in transform_config:
-                raise ValueError(
-                    f"Transform config missing for split: {split_name}"
-                ) from e
-
-            split_transform_cfg = transform_config[split_name]
-
-            # Apply sample limits per split
-            max_samples_for_split = None
-            if split_name == "train":
-                max_samples_for_split = max_train_samples
-            elif split_name == "val":
-                max_samples_for_split = max_val_samples
-            elif split_name == "test":
-                max_samples_for_split = max_test_samples
-
-            # Create dataset with fallback configuration
-            split_datasets_fallback[split_name] = create_crackseg_dataset(
-                data_cfg=data_config,
-                transform_cfg=split_transform_cfg,
-                mode=split_name,
-                samples_list=split_samples_list,
-                in_memory_cache=in_memory_cache,
-                max_samples=max_samples_for_split,
+        if split_name not in transform_config:
+            raise ValueError(
+                f"Transform config missing for split: {split_name}"
             )
-        return split_datasets_fallback
+
+        split_transform_cfg = transform_config[split_name]
+
+        # Apply sample limits per split
+        max_samples_for_split = None
+        if split_name == "train":
+            max_samples_for_split = max_train_samples
+        elif split_name == "val":
+            max_samples_for_split = max_val_samples
+        elif split_name == "test":
+            max_samples_for_split = max_test_samples
+
+        # Create dataset with fallback configuration
+        split_datasets_fallback[split_name] = create_crackseg_dataset(
+            data_cfg=data_config,
+            transform_cfg=split_transform_cfg,
+            mode=split_name,
+            samples_list=split_samples_list,
+            in_memory_cache=in_memory_cache,
+            max_samples=max_samples_for_split,
+        )
+    return split_datasets_fallback
 
 
 def _prepare_dataloader_params(
@@ -463,6 +472,7 @@ def _prepare_dataloader_params(
                 "max_train_samples",
                 "max_val_samples",
                 "max_test_samples",
+                "persistent_workers",  # Add this to exclude list
             ]
         ],
     )

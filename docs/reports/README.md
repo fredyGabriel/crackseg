@@ -5,31 +5,56 @@ development of the pavement crack segmentation project.
 
 ## 📊 Organizational Structure
 
+### 📋 Project (`project/`)
+
+Core project documentation and technical papers:
+
+- **`documentation_checklist.md`** - Comprehensive documentation progress tracking
+- **`technical_report.md`** - Main technical report of the crack segmentation algorithm
+- **`crackseg_paper.md`** - Academic paper on deep learning-based crack segmentation
+- **`crackseg_paper_es.md`** - Spanish version of the academic paper
+- **`project_tree.md`** - Complete project structure documentation
+- **`plan_verificacion_post_linting.md`** - Post-linting project verification plan
+
+### 🔍 Analysis (`analysis/`)
+
+Technical analysis and code quality reports:
+
+- **`tensorboard_component_refactoring_summary.md`** - TensorBoard component refactoring analysis
+- **`pytorch_cuda_compatibility_issue.md`** - PyTorch CUDA compatibility analysis
+- **`basedpyright_analysis_report.md`** - Type checking analysis report
+- **`rule-system-analysis.md`** - Rule system analysis and recommendations
+- **`rule-consolidation-report.md`** - Rule consolidation implementation report
+- **`duplication-mapping.md`** - Code duplication analysis
+- **`consolidation-implementation-summary.md`** - Implementation consolidation summary
+- **`final-rule-cleanup-summary.md`** - Final rule cleanup summary
+
 ### 🧪 Testing (`testing/`)
 
-Reports related to testing, coverage, and code quality:
+Testing reports and coverage analysis:
 
-- **`next_testing_priorities.md`** - Strategic 8-week roadmap for testing improvements
-- **`test_coverage_improvement_plan.md`** - Detailed test coverage improvement plan
+- **`test_coverage_improvement_plan.md`** - Strategic test coverage improvement plan
+- **`test_fixes_validation_report.md`** - Test fixes validation and results
+- **`gui_test_coverage_analysis.md`** - GUI testing coverage analysis
+- **`gui_corrections_inventory.md`** - GUI corrections inventory and status
+- **`automated_test_execution_report.md`** - Automated test execution results
+- **`next_testing_priorities.md`** - Strategic testing priorities roadmap
 - **`test_inventory.txt`** - Complete project test inventory
 
 ### 📈 Coverage (`coverage/`)
 
 Code coverage analysis and quality metrics:
 
+- **`test_coverage_analysis_report.md`** - Technical testing coverage analysis
 - **`test_coverage_comparison_report.md`** - Before/after coverage improvement comparison (25% → 66%)
 - **`coverage_gaps_analysis.md`** - Detailed coverage gaps analysis and prioritization
-- **`test_coverage_analysis_report.md`** - Technical testing coverage analysis
 - **`coverage_validation_report.md`** - Coverage reports validation
 
 ### 📋 Tasks (`tasks/`)
 
 Task progress and completion reports:
 
-- **`task_10_completion_summary.md`** - Task 10 completion summary (Coverage Expansion)
-- **`task_10_5_completion_summary.md`** - Specific subtask 10.5 summary
-- **`task-complexity-report.json`** - Project task complexity analysis
-- **`temp_update_10_5.txt`** - Temporary task 10.5 update file
+- **`task_4_final_integration_report.md`** - Task 4 final integration and completion summary
 
 ### 🏗️ Models (`models/`)
 
@@ -41,12 +66,6 @@ Model architecture analysis and reports:
 - **`model_expected_structure.json`** - Expected model structure
 - **`model_pyfiles.json`** - Model Python files inventory
 
-### 🎯 Project (`project/`)
-
-Project-level reports and planning:
-
-- **`plan_verificacion_post_linting.md`** - Post-linting project verification plan
-
 ### 📜 Scripts (`scripts/`)
 
 Example files and configuration templates:
@@ -55,12 +74,9 @@ Example files and configuration templates:
 - **`hydra_examples.txt`** - Hydra command-line override examples
 - **`README.md`** - Usage instructions for example files
 
-### 📚 Archive (`archive/`)
+### 📊 Tutorial Plots (`tutorial_02_plots/`)
 
-Historical and archived reports:
-
-- **`stats_report_20250516_034210.txt`** - Statistical report from 05/16/2025
-- **`stats_report_20250514_220750.txt`** - Statistical report from 05/14/2025
+Visualization outputs from tutorial experiments
 
 ## 🔍 Featured Reports
 
@@ -84,66 +100,34 @@ Historical and archived reports:
 - **Testing patterns** documented and standardized
 - **100% compliance** with quality standards (basedpyright, ruff, black)
 
-## 🧹 Recent Cleanup (January 2025)
+## 🧹 Recent Reorganization (January 2025)
 
-### Removed Obsolete Reports
+### Improved File Organization
 
-The following temporary and obsolete reports have been removed to improve navigation:
+The reports directory has been reorganized for better navigation and logical grouping:
 
-- **Testing Reports**: `e2e_testing_results_4_4.md`, `manual_testing_results_4_3.md`, `subtask_4_3_completion_checklist.md`
-- **Organization Reports**: `reorganization_summary.md`, `legacy_folders_reorganization_summary.md`,
-  `organization_summary.md`
+- **Project Documentation**: Core technical papers and project overview moved to `project/`
+- **Technical Analysis**: Code quality and refactoring reports moved to `analysis/`
+- **Testing Reports**: All testing-related documentation consolidated in `testing/`
+- **Task Progress**: Task completion reports organized in `tasks/`
+- **Coverage Analysis**: Code coverage reports remain in `coverage/`
 
 ### Benefits Achieved
 
-- **Cleaner Structure**: Removed 6 obsolete files (~50KB)
-- **Better Navigation**: Focus on current and relevant documentation
-- **Reduced Maintenance**: Less obsolete content to maintain
-- **Improved Clarity**: Clear distinction between current and historical content
+- **Better Navigation**: Logical grouping by content type
+- **Reduced Clutter**: Root directory now contains only essential files
+- **Improved Discovery**: Related reports grouped together
+- **Maintained Structure**: Existing subdirectories preserved and enhanced
 
-See `INVENTARIO_REPORTES.md` for complete cleanup documentation.
+## 📋 Quick Reference
 
-## 📝 Naming Conventions
-
-### Report Types
-
-- **`*_report.md`** - Analysis and results reports
-- **`*_analysis.md`** - Detailed technical analysis
-- **`*_summary.md`** - Completion and progress summaries
-- **`*_plan.md`** - Plans and roadmaps
-- **`*.json`** - Structured data and metrics
-- **`*.txt`** - Logs and inventories
-
-### Dates and Versions
-
-- **Date format:** `YYYYMMDD_HHMMSS` for timestamped files
-- **Task versions:** `task_X_Y_*` where X is main task and Y is subtask
-
-## 🔄 Maintenance
-
-### Report Updates
-
-- Coverage reports are automatically updated with each test execution
-- Task reports are generated upon completion of each task/subtask
-- Model analysis is updated when there are architectural changes
-
-### Archiving
-
-- Old reports (>3 months) are automatically moved to `archive/`
-- Temporary reports are cleaned weekly
-- Development reports are maintained until project completion
-
-## 🛠️ Development Tools
-
-Note: Analysis tools and scripts are maintained separately in
-[`scripts/reports/`](../../scripts/reports/) to distinguish between documentation and development utilities.
-
-## 📞 Contact and Support
-
-For questions about specific reports or requests for new analysis, consult the project documentation
-or contact the development team.
-
----
-
-*Last updated: January 2025*
-*Organizational structure updated with scripts section - Task Master compatibility preserved*
+| Need to find... | Look in... |
+|---|---|
+| Technical documentation | `project/` |
+| Code quality analysis | `analysis/` |
+| Testing reports | `testing/` |
+| Coverage metrics | `coverage/` |
+| Task progress | `tasks/` |
+| Model architecture | `models/` |
+| Example scripts | `scripts/` |
+| Tutorial outputs | `tutorial_02_plots/` |

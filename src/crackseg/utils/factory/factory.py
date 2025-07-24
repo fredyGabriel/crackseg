@@ -9,7 +9,7 @@ from omegaconf import DictConfig, ListConfig
 from torch import nn
 
 # Import specific losses for type checking if needed, or rely on name
-from crackseg.training.losses import BCEDiceLoss, CombinedLoss
+from crackseg.training.losses import BCEDiceLoss, CombinedLoss, FocalDiceLoss
 from crackseg.utils.core.exceptions import ConfigError
 from crackseg.utils.logging import get_logger
 
@@ -142,6 +142,27 @@ def get_loss_fn(loss_cfg: DictConfig) -> TypingCallable[..., object]:
             }
             return cast(TypingCallable[..., object], BCEDiceLoss(**params))
 
+        elif loss_class is FocalDiceLoss:
+            # FocalDiceLoss expects a config parameter with FocalDiceLossConfig
+            if "config" in loss_cfg:
+                # If config is provided, use it directly
+                config_params = {
+                    str(k): v
+                    for k, v in loss_cfg.config.items()
+                    if k != "_target_"
+                }
+                from crackseg.training.losses.focal_dice_loss import (
+                    FocalDiceLossConfig,
+                )
+
+                config = FocalDiceLossConfig(**config_params)
+                return cast(
+                    TypingCallable[..., object], FocalDiceLoss(config=config)
+                )
+            else:
+                # If no config provided, use default parameters
+                return cast(TypingCallable[..., object], FocalDiceLoss())
+
         # --- Default Handling ---
         else:
             params = {
@@ -159,24 +180,58 @@ def get_loss_fn(loss_cfg: DictConfig) -> TypingCallable[..., object]:
 
 
 def get_metrics_from_cfg(
-    metrics_cfg: DictConfig,
+    metrics_cfg: DictConfig | list[str],
 ) -> dict[str, TypingCallable[..., object]]:
     """Create metric functions from config.
 
     Args:
-        metrics_cfg: Metrics configuration dictionary
+        metrics_cfg: Metrics configuration - either a dictionary with full
+                     configs or a list of metric names
 
     Returns:
         Dictionary mapping metric names to their functions
     """
     metrics = {}
-    for name, cfg in metrics_cfg.items():
-        try:
-            metric_class = import_class(cfg._target_)
-            metric_params = {k: v for k, v in cfg.items() if k != "_target_"}
-            metrics[str(name)] = metric_class(**metric_params)
-        except Exception as e:
-            raise ConfigError(
-                f"Failed to create metric {name!r}", details=str(e)
-            ) from e
+
+    # Handle list of metric names (simplified format)
+    if isinstance(metrics_cfg, list | ListConfig):
+        # Import default metric classes
+        from crackseg.training.metrics import (
+            F1Score,
+            IoUScore,
+            PrecisionScore,
+            RecallScore,
+        )
+
+        # Mapping of metric names to classes
+        metric_mapping = {
+            "accuracy": IoUScore,  # Use IoU as proxy for accuracy
+            "dice": F1Score,  # F1 is equivalent to Dice for binary segment.
+            "f1": F1Score,
+            "iou": IoUScore,
+            "precision": PrecisionScore,
+            "recall": RecallScore,
+        }
+
+        for metric_name in metrics_cfg:
+            metric_name_str = str(metric_name).lower()
+            if metric_name_str in metric_mapping:
+                metrics[metric_name_str] = metric_mapping[metric_name_str]()
+            else:
+                logger.warning(f"Unknown metric name: {metric_name}")
+
+    # Handle dictionary format (full configuration)
+    else:
+        for name, cfg in metrics_cfg.items():
+            try:
+                metric_class = import_class(cfg._target_)
+                metric_params = {
+                    k: v for k, v in cfg.items() if k != "_target_"
+                }
+                metrics[str(name)] = metric_class(**metric_params)
+            except Exception as e:
+                raise ConfigError(
+                    f"Failed to create metric {name!r}", details=str(e)
+                ) from e
+
     return cast(dict[str, TypingCallable[..., object]], metrics)

@@ -6,14 +6,13 @@ from torch import nn
 
 from crackseg.training.losses.loss_registry_setup import loss_registry
 
-from .base_loss import SegmentationLoss  # Import base class
-
 
 @loss_registry.register(
     name="combined_loss",
-    tags=["segmentation", "utility", "meta"],
+    tags=["segmentation", "combined", "hybrid"],
+    force=True,
 )
-class CombinedLoss(SegmentationLoss):
+class CombinedLoss(nn.Module):
     """
     Combined loss function that applies multiple loss functions with weights.
     Losses are expected to be nn.Module instances.

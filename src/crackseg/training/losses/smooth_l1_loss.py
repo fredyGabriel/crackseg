@@ -6,7 +6,9 @@ from crackseg.training.losses.loss_registry_setup import loss_registry
 
 
 @loss_registry.register(
-    name="smooth_l1_loss", tags=["segmentation", "regression"]
+    name="smooth_l1_loss",
+    tags=["regression", "smooth_l1", "huber"],
+    force=True,
 )
 class SmoothL1Loss(SegmentationLoss):
     def __init__(self, beta: float = 1.0, config=None, **kwargs):

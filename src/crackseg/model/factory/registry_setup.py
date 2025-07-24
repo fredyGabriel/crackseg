@@ -19,6 +19,7 @@ from .registry import Registry
 log = logging.getLogger(__name__)
 
 # Initialize registries for main component types
+# Singleton pattern in Registry class ensures only one instance per type
 encoder_registry = Registry(nn.Module, "Encoder")
 bottleneck_registry = Registry(nn.Module, "Bottleneck")
 decoder_registry = Registry(nn.Module, "Decoder")

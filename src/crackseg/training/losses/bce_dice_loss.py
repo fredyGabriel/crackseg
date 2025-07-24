@@ -27,7 +27,8 @@ class BCEDiceLossConfig:
 
 @loss_registry.register(
     name="bce_dice_loss",
-    tags=["segmentation", "binary", "hybrid", "bce", "dice"],
+    tags=["segmentation", "bce", "dice", "combined"],
+    force=True,
 )
 class BCEDiceLoss(SegmentationLoss):
     """

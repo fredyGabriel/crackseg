@@ -93,6 +93,7 @@ from typing import Any
 import torch
 from torch.utils.data import DataLoader, Dataset, Sampler
 
+from .collate import mixed_collate_fn
 from .memory import get_available_gpu_memory
 from .sampler import SamplerFactoryArgs, sampler_factory
 
@@ -641,6 +642,7 @@ def create_dataloader(
         pin_memory=can_pin_memory,
         prefetch_factor=actual_prefetch_factor,
         persistent_workers=True if actual_num_workers > 0 else False,
+        collate_fn=mixed_collate_fn,
         **dataloader_kwargs,
     )
 

@@ -29,14 +29,8 @@ class FocalDiceLossConfig:
 
 @loss_registry.register(
     name="focal_dice_loss",
-    tags=[
-        "segmentation",
-        "binary",
-        "hybrid",
-        "focal",
-        "dice",
-        "crack_optimized",
-    ],
+    tags=["segmentation", "focal", "dice", "combined", "crack"],
+    force=True,
 )
 class FocalDiceLoss(SegmentationLoss):
     """

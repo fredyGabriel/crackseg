@@ -1,0 +1,20 @@
+{
+  "is_valid": false,
+  "missing_required": [
+    "data.root_dir"
+  ],
+  "missing_recommended": [
+    "data.batch_size",
+    "model.encoder._target_",
+    "model.decoder._target_"
+  ],
+  "missing_environment": [
+    "environment.pytorch_version",
+    "environment.python_version",
+    "environment.platform",
+    "environment.cuda_available",
+    "environment.cuda_version",
+    "environment.timestamp"
+  ],
+  "completeness_score": 0.6666666666666666
+}

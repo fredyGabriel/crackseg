@@ -1,0 +1,195 @@
+# SwinV2 Hybrid Architecture Experiment Configuration
+#
+# This configuration tests the hybrid SwinV2 + ASPP + CNN architecture for crack segmentation.
+# This state-of-the-art combination leverages:
+# 1. SwinV2 Transformer: Hierarchical feature extraction with shifted window attention
+# 2. ASPP Bottleneck: Multi-scale context modeling for comprehensive crack understanding
+# 3. CNN Decoder: Precise localization with skip connections for thin crack structures
+# 4. Focal Dice Loss: Optimized for extreme class imbalance (<5% positive pixels)
+#
+# Architecture: SwinV2CnnAsppUNet
+# Loss: FocalDiceLoss (focal_weight=0.6, dice_weight=0.4)
+# Target: Optimize for thin crack detection (1-5 pixels wide)
+#
+# Hardware: Optimized for RTX 3070 Ti (8GB VRAM)
+# Expected Performance: IoU > 0.85, F1 > 0.90 on crack segmentation tasks
+
+# Hydra configuration composition - inherits from base config
+defaults:
+  - /base  # Base configuration with all components
+  - _self_ # This file overrides base settings
+
+# Model architecture override - SwinV2CnnAsppUNet hybrid architecture
+model:
+  _target_: crackseg.model.architectures.swinv2_cnn_aspp_unet.SwinV2CnnAsppUNet
+  type: "SwinV2CnnAsppUNet"  # Model type for factory registration
+  encoder:
+    _target_: crackseg.model.encoder.swin_v2_adapter.SwinV2EncoderAdapter
+    model_name: "swinv2_tiny_window8_256"  # SwinV2-Tiny from timm
+    img_size: 256                          # Input image size for SwinV2
+    target_img_size: 256                   # Target output size for decoder upsampling
+    in_channels: 3                         # RGB input channels
+  bottleneck:
+    _target_: crackseg.model.components.aspp.ASPPModule
+    in_channels: 768                         # Input channels from SwinV2 Tiny
+    output_channels: 256                      # Bottleneck output channels
+    dilation_rates: [1, 6, 12, 18]          # Multi-scale dilation rates
+    dropout_rate: 0.1                      # Regularization
+  decoder:
+    _target_: crackseg.model.decoder.cnn_decoder.CNNDecoder
+    in_channels: 256                         # Input channels from bottleneck
+    config:
+      use_cbam: true                         # Channel and spatial attention
+      cbam_reduction: 16                     # Channel reduction ratio
+      upsample_mode: "bilinear"              # Upsampling method
+      kernel_size: 3                         # Convolution kernel size
+      padding: 1                             # Padding for convolution
+      upsample_scale_factor: 2               # Upsampling scale factor
+  num_classes: 1                           # Binary segmentation (background/crack)
+  final_activation: "sigmoid"              # Sigmoid for binary segmentation
+
+# Training configuration with Focal Dice Loss
+training:
+  device: "cuda"                           # Use CUDA for GPU training
+  loss:
+    _target_: crackseg.training.losses.focal_dice_loss.FocalDiceLoss
+    config:
+      _target_: crackseg.training.losses.focal_dice_loss.FocalDiceLossConfig
+      focal_weight: 0.6                      # Weight for Focal Loss component
+      dice_weight: 0.4                       # Weight for Dice Loss component
+      focal_alpha: 0.25                      # Alpha for positive class (optimized for <5% positive pixels)
+      focal_gamma: 2.0                       # Gamma for hard example focusing
+      focal_reduction: "mean"                # Reduction method
+      dice_smooth: 1.0                       # Smoothing factor
+      dice_sigmoid: true                     # Apply sigmoid before Dice computation
+      dice_eps: 1e-6                         # Epsilon for numerical stability
+      total_loss_weight: 1.0                 # Overall loss weight
+  learning_rate: 0.0001                    # Learning rate optimized for hybrid architecture
+  epochs: 100                              # Sufficient epochs for convergence
+  batch_size: 4                            # Optimized for RTX 3070 Ti (8GB VRAM)
+  gradient_accumulation_steps: 4           # Effective batch size = 16
+  use_amp: true                            # Mixed precision training for memory efficiency
+  early_stopping_patience: 15              # Early stopping patience
+  optimizer:
+    _target_: torch.optim.AdamW
+    lr: 0.0001
+    weight_decay: 0.01
+    betas: [0.9, 0.999]
+  scheduler:
+    _target_: torch.optim.lr_scheduler.CosineAnnealingWarmRestarts
+    T_0: 10                                # Initial restart period
+    T_mult: 2                              # Period multiplier
+    eta_min: 1e-6                          # Minimum learning rate
+
+# Data loading configuration optimized for crack segmentation
+data:
+  data_root: "data/unified"                # Path to unified dataset directory
+  image_size: [256, 256]                   # Input image size for training [height, width]
+  train_split: 0.7                         # Training data ratio (70%)
+  val_split: 0.2                           # Validation data ratio (20%)
+  test_split: 0.1                          # Test data ratio (10%)
+  in_memory_cache: false                   # Disable for memory efficiency
+  seed: 42                                 # Random seed for data splitting
+  use_unified_splitting: true              # Use unified directory with automatic splitting
+  # Structure: data/unified/images/ and data/unified/masks/
+  dataloader:
+    batch_size: 4                          # Small batch size for memory efficiency
+    num_workers: 4                         # Parallel data loading
+    pin_memory: true                       # Pin memory for GPU transfer
+    persistent_workers: true               # Keep workers alive between epochs
+    prefetch_factor: 2                     # Prefetch batches
+    drop_last: true                        # Drop incomplete batches
+  transform:
+    train:
+      augmentations:
+        - Resize:
+            height: 256
+            width: 256
+        - RandomRotate90:
+            p: 0.5
+        - HorizontalFlip:
+            p: 0.5
+        - ShiftScaleRotate:
+            shift_limit: 0.1
+            scale_limit: 0.1
+            rotate_limit: 15
+            border_mode: 1  # cv2.BORDER_REFLECT
+            p: 0.5
+        - ElasticTransform:
+            alpha: 50
+            sigma: 5
+            alpha_affine: 0
+            p: 0.3
+        - RandomBrightnessContrast:
+            brightness_limit: 0.2
+            contrast_limit: 0.2
+            p: 0.5
+        - CLAHE:
+            p: 0.3
+        - Normalize:
+            mean: [0.485, 0.456, 0.406]
+            std: [0.229, 0.224, 0.225]
+        - ToTensorV2: {}
+    val:
+      augmentations:
+        - Resize:
+            height: 256
+            width: 256
+        - Normalize:
+            mean: [0.485, 0.456, 0.406]
+            std: [0.229, 0.224, 0.225]
+        - ToTensorV2: {}
+    test:
+      augmentations:
+        - Resize:
+            height: 256
+            width: 256
+        - Normalize:
+            mean: [0.485, 0.456, 0.406]
+            std: [0.229, 0.224, 0.225]
+        - ToTensorV2: {}
+
+# Evaluation configuration
+evaluation:
+  metrics:
+    - "iou"                               # Intersection over Union
+    - "dice"                              # Dice coefficient
+    - "f1"                                # F1 score
+    - "precision"                         # Precision
+    - "recall"                            # Recall
+    - "accuracy"                          # Accuracy
+  threshold: 0.5                          # Binary classification threshold
+  save_predictions: true                  # Save prediction visualizations
+  save_metrics: true                      # Save detailed metrics
+
+# Logging and monitoring
+logging:
+  log_every_n_steps: 10                   # Log training progress
+  save_every_n_epochs: 5                  # Save checkpoints
+  tensorboard: true                       # Enable TensorBoard logging
+  wandb: false                            # Disable Weights & Biases for simplicity
+
+# Experiment metadata
+experiment:
+  name: "swinv2_hybrid_focal_dice"
+  description: "SwinV2 + ASPP + CNN hybrid architecture with Focal Dice Loss for crack segmentation"
+  tags:
+    - "hybrid_architecture"
+    - "swinv2"
+    - "aspp"
+    - "focal_dice_loss"
+    - "crack_segmentation"
+    - "rtx3070ti_optimized"
+
+# Hardware optimization for RTX 3070 Ti
+hardware:
+  device: "cuda"
+  memory_efficient: true
+  gradient_checkpointing: false            # Disabled for SwinV2 (may cause issues)
+  mixed_precision: true                   # Use AMP for memory efficiency
+  deterministic: false                    # Disable for performance
+
+# Reproducibility settings
+random_seed: 42                           # Fixed seed for reproducibility
+deterministic_operations: false           # Disable for performance
+benchmark_cudnn: true                     # Enable cuDNN benchmarking

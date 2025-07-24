@@ -142,7 +142,7 @@ class EncoderBlockAlias(EncoderBlock):
     pass
 
 
-@encoder_registry.register("CNNEncoder")
+@encoder_registry.register("CNNEncoder", force=True)
 class CNNEncoder(EncoderBase):
     """
     Standard CNN Encoder for U-Net style architectures.

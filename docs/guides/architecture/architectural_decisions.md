@@ -92,7 +92,7 @@ compilation issues with Graphviz:
 ```yaml
 # environment.yml
 # - graphviz             # REMOVED: Replaced with matplotlib-based visualization
-# See docs/guides/architectural_decisions.md ADR-001 for rationale
+# See docs/guides/architecture/architectural_decisions.md ADR-001 for rationale
 ```
 
 **Code Changes:**

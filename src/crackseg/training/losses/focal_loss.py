@@ -10,7 +10,8 @@ from .base_loss import SegmentationLoss  # Import base class
 
 @loss_registry.register(
     name="focal_loss",
-    tags=["segmentation", "binary", "focal", "imbalance"],
+    tags=["segmentation", "focal", "imbalanced"],
+    force=True,
 )
 class FocalLoss(SegmentationLoss):
     """

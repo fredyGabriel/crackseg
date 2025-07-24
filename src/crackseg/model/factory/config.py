@@ -278,40 +278,44 @@ def instantiate_hybrid_model(
         InstantiationError: If model instantiation fails
     """
     try:
-        # Attempt to get the model class from the registry
+        # Ensure components are registered
+        try:
+            from ..components.registry_support import register_all_components
+
+            register_all_components()
+        except ImportError:
+            pass  # Registry support not available
+
+        # Get the model class from the registry
         from .registry_setup import architecture_registry
 
-        if model_type in architecture_registry:
-            model_cls = architecture_registry.get(model_type)
-            model = model_cls(encoder, bottleneck, decoder)
-            log_component_creation("Hybrid Model", model_type)
-            return cast(UNetBase, model)
-
-        # Fallback to direct import
-        import importlib
-
-        if "." in model_type:
-            # Assume it's a fully qualified class name
-            module_name, class_name = model_type.rsplit(".", 1)
-            module = importlib.import_module(module_name)
-            model_cls = getattr(module, class_name)
-        else:
-            # Try a few common locations
-            locations = ["src.model.core.unet", "src.model.unet", "src.model"]
-
-            for location in locations:
+        if model_type not in architecture_registry:
+            # Registry approach failed, try direct import as fallback
+            if model_type == "SwinV2CnnAsppUNet":
                 try:
-                    module = importlib.import_module(location)
-                    if hasattr(module, model_type):
-                        model_cls = getattr(module, model_type)
-                        break
-                except (ImportError, AttributeError):
-                    continue
-            else:
-                raise InstantiationError(
-                    f"Could not find model class '{model_type}'"
-                )
+                    from ..architectures.swinv2_cnn_aspp_unet import (
+                        SwinV2CnnAsppUNet,
+                    )
 
+                    model = SwinV2CnnAsppUNet(encoder, bottleneck, decoder)
+                    log_component_creation("Hybrid Model", model_type)
+                    return cast(UNetBase, model)
+                except ImportError as import_error:
+                    log.error(
+                        f"Direct import failed for {model_type}: "
+                        f"{import_error}"
+                    )
+
+            # If direct import also fails, show registry error
+            available_models = architecture_registry.list_components()
+            base_msg = (
+                f"Model class '{model_type}' not found in "
+                f"architecture registry."
+            )
+            error_msg = f"{base_msg} Available models: {available_models}"
+            raise InstantiationError(error_msg)
+
+        model_cls = architecture_registry.get(model_type)
         model = model_cls(encoder, bottleneck, decoder)
         log_component_creation("Hybrid Model", model_type)
         return cast(UNetBase, model)

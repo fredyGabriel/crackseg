@@ -60,7 +60,7 @@ import cv2
 import numpy as np
 import torch
 from albumentations.pytorch import ToTensorV2
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig, ListConfig, OmegaConf
 
 # Mask processing constants
 MASK_BINARIZATION_THRESHOLD = 127
@@ -424,18 +424,48 @@ def _get_transform_specs(
         - Compatible with both programmatic and YAML-based configurations
     """
     if isinstance(config_list, dict | DictConfig):
-        specs_from_mapping: list[dict[str, Any] | DictConfig] = []
-        for name_key, params_val in config_list.items():
-            str_name_key = str(name_key)
-            # Handle special case for resize transform
-            actual_transform_name = (
-                "Resize" if str_name_key.lower() == "resize" else str_name_key
-            )
-            specs_from_mapping.append(
-                {"name": actual_transform_name, "params": params_val}
-            )
-        return specs_from_mapping
-    return config_list
+        # Check if it has 'augmentations' key (nested structure)
+        if "augmentations" in config_list:
+            return _get_transform_specs(config_list["augmentations"])
+        else:
+            specs_from_mapping: list[dict[str, Any] | DictConfig] = []
+            for name_key, params_val in config_list.items():
+                str_name_key = str(name_key)
+                # Handle special case for resize transform
+                actual_transform_name = (
+                    "Resize"
+                    if str_name_key.lower() == "resize"
+                    else str_name_key
+                )
+                specs_from_mapping.append(
+                    {"name": actual_transform_name, "params": params_val}
+                )
+            return specs_from_mapping
+    elif isinstance(config_list, list | ListConfig):
+        # Check if list items are in Albumentations direct format
+        converted_list = []
+        for item in config_list:
+            if isinstance(item, dict | DictConfig):
+                # Check if it's already in standard format
+                if "name" in item and "params" in item:
+                    converted_list.append(item)
+                else:
+                    # Convert from Albumentations direct format
+                    # Each item is like
+                    # {"Resize": {"height": 256, "width": 256}}
+                    for transform_name, transform_params in item.items():
+                        converted_list.append(
+                            {
+                                "name": str(transform_name),
+                                "params": transform_params,
+                            }
+                        )
+            else:
+                converted_list.append(item)
+        return converted_list
+    else:
+        # Return as list if it's neither dict nor list
+        return [config_list]
 
 
 def get_transforms_from_config(

@@ -5,7 +5,7 @@ from crackseg.model.base.abstract import BottleneckBase
 from crackseg.model.factory.registry_setup import bottleneck_registry
 
 
-@bottleneck_registry.register("BottleneckBlock")
+@bottleneck_registry.register("BottleneckBlock", force=True)
 class BottleneckBlock(BottleneckBase):
     """
     CNN Bottleneck block for U-Net architecture.

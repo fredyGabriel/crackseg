@@ -15,6 +15,8 @@
     │   ├── evaluation/
     │   │   └── default.yaml
     │   ├── experiments/
+    │   │   ├── swinv2_hybrid/
+    │   │   │   └── swinv2_hybrid_experiment.yaml
     │   │   ├── tutorial_02/
     │   │   │   ├── focal_loss_experiment.yaml
     │   │   │   ├── high_lr_experiment.yaml
@@ -315,6 +317,269 @@
     │   │       ├── 96.png
     │   │       ├── 97.png
     │   │       └── 98.png
+    │   ├── unified/
+    │   │   ├── images/
+    │   │   │   ├── 1.jpg
+    │   │   │   ├── 10.jpg
+    │   │   │   ├── 100.jpg
+    │   │   │   ├── 101.jpg
+    │   │   │   ├── 102.jpg
+    │   │   │   ├── 103.jpg
+    │   │   │   ├── 104.jpg
+    │   │   │   ├── 105.jpg
+    │   │   │   ├── 106.jpg
+    │   │   │   ├── 107.jpg
+    │   │   │   ├── 108.jpg
+    │   │   │   ├── 109.jpg
+    │   │   │   ├── 11.jpg
+    │   │   │   ├── 110.jpg
+    │   │   │   ├── 111.jpg
+    │   │   │   ├── 112.jpg
+    │   │   │   ├── 113.jpg
+    │   │   │   ├── 114.jpg
+    │   │   │   ├── 115.jpg
+    │   │   │   ├── 116.jpg
+    │   │   │   ├── 117.jpg
+    │   │   │   ├── 118.jpg
+    │   │   │   ├── 119.jpg
+    │   │   │   ├── 12.jpg
+    │   │   │   ├── 120.jpg
+    │   │   │   ├── 121.jpg
+    │   │   │   ├── 122.jpg
+    │   │   │   ├── 123.jpg
+    │   │   │   ├── 124.jpg
+    │   │   │   ├── 125.jpg
+    │   │   │   ├── 126.jpg
+    │   │   │   ├── 127.jpg
+    │   │   │   ├── 128.jpg
+    │   │   │   ├── 129.jpg
+    │   │   │   ├── 13.jpg
+    │   │   │   ├── 130.jpg
+    │   │   │   ├── 14.jpg
+    │   │   │   ├── 15.jpg
+    │   │   │   ├── 16.jpg
+    │   │   │   ├── 17.jpg
+    │   │   │   ├── 18.jpg
+    │   │   │   ├── 19.jpg
+    │   │   │   ├── 2.jpg
+    │   │   │   ├── 20.jpg
+    │   │   │   ├── 21.jpg
+    │   │   │   ├── 22.jpg
+    │   │   │   ├── 23.jpg
+    │   │   │   ├── 24.jpg
+    │   │   │   ├── 25.jpg
+    │   │   │   ├── 26.jpg
+    │   │   │   ├── 27.jpg
+    │   │   │   ├── 28.jpg
+    │   │   │   ├── 29.jpg
+    │   │   │   ├── 3.jpg
+    │   │   │   ├── 30.jpg
+    │   │   │   ├── 31.jpg
+    │   │   │   ├── 32.jpg
+    │   │   │   ├── 33.jpg
+    │   │   │   ├── 34.jpg
+    │   │   │   ├── 35.jpg
+    │   │   │   ├── 36.jpg
+    │   │   │   ├── 37.jpg
+    │   │   │   ├── 38.jpg
+    │   │   │   ├── 39.jpg
+    │   │   │   ├── 4.jpg
+    │   │   │   ├── 40.jpg
+    │   │   │   ├── 41.jpg
+    │   │   │   ├── 42.jpg
+    │   │   │   ├── 43.jpg
+    │   │   │   ├── 44.jpg
+    │   │   │   ├── 45.jpg
+    │   │   │   ├── 46.jpg
+    │   │   │   ├── 47.jpg
+    │   │   │   ├── 48.jpg
+    │   │   │   ├── 49.jpg
+    │   │   │   ├── 5.jpg
+    │   │   │   ├── 50.jpg
+    │   │   │   ├── 51.jpg
+    │   │   │   ├── 52.jpg
+    │   │   │   ├── 53.jpg
+    │   │   │   ├── 54.jpg
+    │   │   │   ├── 55.jpg
+    │   │   │   ├── 56.jpg
+    │   │   │   ├── 57.jpg
+    │   │   │   ├── 58.jpg
+    │   │   │   ├── 59.jpg
+    │   │   │   ├── 6.jpg
+    │   │   │   ├── 60.jpg
+    │   │   │   ├── 61.jpg
+    │   │   │   ├── 62.jpg
+    │   │   │   ├── 63.jpg
+    │   │   │   ├── 64.jpg
+    │   │   │   ├── 65.jpg
+    │   │   │   ├── 66.jpg
+    │   │   │   ├── 67.jpg
+    │   │   │   ├── 68.jpg
+    │   │   │   ├── 69.jpg
+    │   │   │   ├── 7.jpg
+    │   │   │   ├── 70.jpg
+    │   │   │   ├── 71.jpg
+    │   │   │   ├── 72.jpg
+    │   │   │   ├── 73.jpg
+    │   │   │   ├── 74.jpg
+    │   │   │   ├── 75.jpg
+    │   │   │   ├── 76.jpg
+    │   │   │   ├── 77.jpg
+    │   │   │   ├── 78.jpg
+    │   │   │   ├── 79.jpg
+    │   │   │   ├── 8.jpg
+    │   │   │   ├── 80.jpg
+    │   │   │   ├── 81.jpg
+    │   │   │   ├── 82.jpg
+    │   │   │   ├── 83.jpg
+    │   │   │   ├── 84.jpg
+    │   │   │   ├── 85.jpg
+    │   │   │   ├── 86.jpg
+    │   │   │   ├── 87.jpg
+    │   │   │   ├── 88.jpg
+    │   │   │   ├── 89.jpg
+    │   │   │   ├── 9.jpg
+    │   │   │   ├── 90.jpg
+    │   │   │   ├── 91.jpg
+    │   │   │   ├── 92.jpg
+    │   │   │   ├── 93.jpg
+    │   │   │   ├── 94.jpg
+    │   │   │   ├── 95.jpg
+    │   │   │   ├── 96.jpg
+    │   │   │   ├── 97.jpg
+    │   │   │   ├── 98.jpg
+    │   │   │   └── 99.jpg
+    │   │   └── masks/
+    │   │       ├── 1.png
+    │   │       ├── 10.png
+    │   │       ├── 100.png
+    │   │       ├── 101.png
+    │   │       ├── 102.png
+    │   │       ├── 103.png
+    │   │       ├── 104.png
+    │   │       ├── 105.png
+    │   │       ├── 106.png
+    │   │       ├── 107.png
+    │   │       ├── 108.png
+    │   │       ├── 109.png
+    │   │       ├── 11.png
+    │   │       ├── 110.png
+    │   │       ├── 111.png
+    │   │       ├── 112.png
+    │   │       ├── 113.png
+    │   │       ├── 114.png
+    │   │       ├── 115.png
+    │   │       ├── 116.png
+    │   │       ├── 117.png
+    │   │       ├── 118.png
+    │   │       ├── 119.png
+    │   │       ├── 12.png
+    │   │       ├── 120.png
+    │   │       ├── 121.png
+    │   │       ├── 122.png
+    │   │       ├── 123.png
+    │   │       ├── 124.png
+    │   │       ├── 125.png
+    │   │       ├── 126.png
+    │   │       ├── 127.png
+    │   │       ├── 128.png
+    │   │       ├── 129.png
+    │   │       ├── 13.png
+    │   │       ├── 130.png
+    │   │       ├── 14.png
+    │   │       ├── 15.png
+    │   │       ├── 16.png
+    │   │       ├── 17.png
+    │   │       ├── 18.png
+    │   │       ├── 19.png
+    │   │       ├── 2.png
+    │   │       ├── 20.png
+    │   │       ├── 21.png
+    │   │       ├── 22.png
+    │   │       ├── 23.png
+    │   │       ├── 24.png
+    │   │       ├── 25.png
+    │   │       ├── 26.png
+    │   │       ├── 27.png
+    │   │       ├── 28.png
+    │   │       ├── 29.png
+    │   │       ├── 3.png
+    │   │       ├── 30.png
+    │   │       ├── 31.png
+    │   │       ├── 32.png
+    │   │       ├── 33.png
+    │   │       ├── 34.png
+    │   │       ├── 35.png
+    │   │       ├── 36.png
+    │   │       ├── 37.png
+    │   │       ├── 38.png
+    │   │       ├── 39.png
+    │   │       ├── 4.png
+    │   │       ├── 40.png
+    │   │       ├── 41.png
+    │   │       ├── 42.png
+    │   │       ├── 43.png
+    │   │       ├── 44.png
+    │   │       ├── 45.png
+    │   │       ├── 46.png
+    │   │       ├── 47.png
+    │   │       ├── 48.png
+    │   │       ├── 49.png
+    │   │       ├── 5.png
+    │   │       ├── 50.png
+    │   │       ├── 51.png
+    │   │       ├── 52.png
+    │   │       ├── 53.png
+    │   │       ├── 54.png
+    │   │       ├── 55.png
+    │   │       ├── 56.png
+    │   │       ├── 57.png
+    │   │       ├── 58.png
+    │   │       ├── 59.png
+    │   │       ├── 6.png
+    │   │       ├── 60.png
+    │   │       ├── 61.png
+    │   │       ├── 62.png
+    │   │       ├── 63.png
+    │   │       ├── 64.png
+    │   │       ├── 65.png
+    │   │       ├── 66.png
+    │   │       ├── 67.png
+    │   │       ├── 68.png
+    │   │       ├── 69.png
+    │   │       ├── 7.png
+    │   │       ├── 70.png
+    │   │       ├── 71.png
+    │   │       ├── 72.png
+    │   │       ├── 73.png
+    │   │       ├── 74.png
+    │   │       ├── 75.png
+    │   │       ├── 76.png
+    │   │       ├── 77.png
+    │   │       ├── 78.png
+    │   │       ├── 79.png
+    │   │       ├── 8.png
+    │   │       ├── 80.png
+    │   │       ├── 81.png
+    │   │       ├── 82.png
+    │   │       ├── 83.png
+    │   │       ├── 84.png
+    │   │       ├── 85.png
+    │   │       ├── 86.png
+    │   │       ├── 87.png
+    │   │       ├── 88.png
+    │   │       ├── 89.png
+    │   │       ├── 9.png
+    │   │       ├── 90.png
+    │   │       ├── 91.png
+    │   │       ├── 92.png
+    │   │       ├── 93.png
+    │   │       ├── 94.png
+    │   │       ├── 95.png
+    │   │       ├── 96.png
+    │   │       ├── 97.png
+    │   │       ├── 98.png
+    │   │       └── 99.png
     │   ├── val/
     │   │   ├── images/
     │   │   │   ├── 1.jpg
@@ -356,8 +621,6 @@
     │   │       ├── 87.png
     │   │       ├── 89.png
     │   │       └── 95.png
-    │   ├── dummy_mask.png
-    │   ├── examples
     │   └── README.md
     ├── docker/
     │   ├── __pycache__/
@@ -437,6 +700,8 @@
     │   ├── setup-local-dev.sh
     │   └── test-runner.config
     ├── docs/
+    │   ├── analysis/
+    │   │   └── singleton_pattern_analysis.md
     │   ├── api/
     │   │   ├── gui_components.md
     │   │   ├── gui_pages.md
@@ -459,6 +724,8 @@
     │   │   │   ├── gui_development_guidelines.md
     │   │   │   ├── README.md
     │   │   │   └── SYSTEM_DEPENDENCIES.md
+    │   │   ├── experiments/
+    │   │   │   └── README_swinv2_hybrid.md
     │   │   ├── monitoring/
     │   │   │   ├── continuous_coverage_monitoring_guide.md
     │   │   │   └── README.md
@@ -489,11 +756,14 @@
     │   │   └── README.md
     │   ├── reports/
     │   │   ├── analysis/
+    │   │   │   ├── basedpyright_analysis_report.md
     │   │   │   ├── consolidation-implementation-summary.md
     │   │   │   ├── duplication-mapping.md
     │   │   │   ├── final-rule-cleanup-summary.md
+    │   │   │   ├── pytorch_cuda_compatibility_issue.md
     │   │   │   ├── rule-consolidation-report.md
-    │   │   │   └── rule-system-analysis.md
+    │   │   │   ├── rule-system-analysis.md
+    │   │   │   └── tensorboard_component_refactoring_summary.md
     │   │   ├── coverage/
     │   │   │   ├── coverage_gaps_analysis.md
     │   │   │   ├── coverage_validation_report.md
@@ -506,34 +776,30 @@
     │   │   │   ├── model_pyfiles.json
     │   │   │   └── model_structure_diff.json
     │   │   ├── project/
-    │   │   │   └── plan_verificacion_post_linting.md
+    │   │   │   ├── crackseg_paper.md
+    │   │   │   ├── crackseg_paper_es.md
+    │   │   │   ├── documentation_checklist.md
+    │   │   │   ├── plan_verificacion_post_linting.md
+    │   │   │   ├── project_tree.md
+    │   │   │   └── technical_report.md
     │   │   ├── scripts/
     │   │   │   ├── example_prd.txt
     │   │   │   ├── hydra_examples.txt
     │   │   │   └── README.md
     │   │   ├── tasks/
     │   │   ├── testing/
+    │   │   │   ├── automated_test_execution_report.md
+    │   │   │   ├── gui_corrections_inventory.md
+    │   │   │   ├── gui_test_coverage_analysis.md
     │   │   │   ├── next_testing_priorities.md
     │   │   │   ├── test_coverage_improvement_plan.md
+    │   │   │   ├── test_fixes_validation_report.md
     │   │   │   └── test_inventory.txt
     │   │   ├── tutorial_02_plots/
     │   │   │   ├── experiment_comparison.csv
     │   │   │   ├── performance_radar.png
     │   │   │   └── training_curves.png
-    │   │   ├── automated_test_execution_report.md
-    │   │   ├── basedpyright_analysis_report.md
-    │   │   ├── crackseg_paper.md
-    │   │   ├── crackseg_paper_es.md
-    │   │   ├── documentation_checklist.md
-    │   │   ├── gui_corrections_inventory.md
-    │   │   ├── gui_test_coverage_analysis.md
-    │   │   ├── project_tree.md
-    │   │   ├── pytorch_cuda_compatibility_issue.md
-    │   │   ├── README.md
-    │   │   ├── task_4_final_integration_report.md
-    │   │   ├── technical_report.md
-    │   │   ├── tensorboard_component_refactoring_summary.md
-    │   │   └── test_fixes_validation_report.md
+    │   │   └── README.md
     │   ├── stylesheets/
     │   │   └── extra.css
     │   ├── testing/
@@ -830,6 +1096,13 @@
     │   ├── debug_page_rendering.py
     │   └── README.md
     ├── logs/
+    ├── outputs/
+    │   ├── checkpoints/
+    │   ├── configurations/
+    │   │   └── default_experiment/
+    │   │       ├── training_config.yaml
+    │   │       └── training_config_validation.json
+    │   └── metrics/
     ├── scripts/
     │   ├── __pycache__/
     │   ├── archive/
@@ -862,6 +1135,12 @@
     │   │   │   ├── __init__.py
     │   │   │   ├── README.md
     │   │   │   └── test_pipeline_e2e.py
+    │   │   ├── swinv2_hybrid/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── README.md
+    │   │   │   ├── run_swinv2_hybrid_experiment.py
+    │   │   │   ├── swinv2_hybrid_analysis.py
+    │   │   │   └── test_swinv2_hybrid_setup.py
     │   │   ├── tutorial_02/
     │   │   │   ├── tutorial_02_batch.ps1
     │   │   │   ├── tutorial_02_compare.py
@@ -937,6 +1216,7 @@
     │   │   ├── data/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
+    │   │   │   ├── collate.py
     │   │   │   ├── dataloader.py
     │   │   │   ├── dataloader.py.backup
     │   │   │   ├── dataset.py
@@ -1754,6 +2034,9 @@
     │   │   │   └── workflow_scenarios.py
     │   │   ├── model/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── factory/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   └── test_registry_integration.py
     │   │   │   ├── conftest.py
     │   │   │   ├── test_cbam_integration.py
     │   │   │   ├── test_cnn_convlstm_unet.py
@@ -1886,6 +2169,7 @@
     │   │   │       └── automation/
     │   │   │           └── reporting/
     │   │   ├── model/
+    │   │   │   ├── __pycache__/
     │   │   │   ├── config/
     │   │   │   │   └── test_instantiation.py
     │   │   │   ├── decoder/
@@ -1895,6 +2179,9 @@
     │   │   │   │   ├── test_cnn_decoder_forward_pass.py
     │   │   │   │   ├── test_cnn_decoder_initialization.py
     │   │   │   │   └── test_cnn_decoder_special_features.py
+    │   │   │   ├── factory/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   └── test_registry.py
     │   │   │   ├── architectures
     │   │   │   ├── conftest.py
     │   │   │   ├── test_aspp.py
@@ -2000,6 +2287,7 @@
     │   └── utilities/
     ├── CHANGELOG.md
     ├── codecov.yml
+    ├── debug_output.txt
     ├── environment.yml
     ├── mkdocs.yml
     ├── pyproject.toml

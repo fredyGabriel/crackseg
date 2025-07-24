@@ -43,21 +43,19 @@ def test_import_implementation_classes_specific():
     """
     Test import of main implementation classes from their specific modules.
     """
-    from crackseg.model.architectures import (
-        CNNConvLSTMUNet,
-        CNNDecoder,
-        CNNEncoder,
-    )
+    # Import individual components
+    # Import architectures
     from crackseg.model.architectures.swinv2_cnn_aspp_unet import (
         SwinV2CnnAsppUNet,
     )
     from crackseg.model.bottleneck.cnn_bottleneck import BottleneckBlock
     from crackseg.model.components.aspp import ASPPModule
+    from crackseg.model.decoder import CNNDecoder
+    from crackseg.model.encoder import CNNEncoder
     from crackseg.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
 
     assert CNNEncoder is not None
     assert CNNDecoder is not None
-    assert CNNConvLSTMUNet is not None
     assert SwinV2CnnAsppUNet is not None
     assert SwinV2EncoderAdapter is not None
     assert ASPPModule is not None
@@ -70,7 +68,6 @@ def test_import_implementation_classes_global():
     from crackseg.model import (
         ASPPModule,
         BottleneckBlock,
-        CNNConvLSTMUNet,
         CNNDecoder,
         CNNEncoder,
         SwinV2CnnAsppUNet,
@@ -79,7 +76,6 @@ def test_import_implementation_classes_global():
 
     assert CNNEncoder is not None
     assert CNNDecoder is not None
-    assert CNNConvLSTMUNet is not None
     assert SwinV2CnnAsppUNet is not None
     assert SwinV2EncoderAdapter is not None
     assert ASPPModule is not None

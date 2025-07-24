@@ -855,13 +855,50 @@ def create_crackseg_dataset(  # noqa: PLR0913
         # Optionally, raise an error or use a default value; for now, it
         # remains None
 
+    # Process transform configuration for dataset
+    if transform_cfg_for_dataset is not None:
+        # Handle different transform configuration formats
+        # Case 1: transform_cfg is the complete config with all splits
+        # Case 2: transform_cfg is already the specific split config
+        if mode in transform_cfg_for_dataset:
+            # Case 1: Complete config, extract the specific mode
+            if "augmentations" in transform_cfg_for_dataset[mode]:
+                transform_cfg_for_dataset = transform_cfg_for_dataset[mode][
+                    "augmentations"
+                ]
+            else:
+                transform_cfg_for_dataset = transform_cfg_for_dataset[mode]
+        else:
+            # Case 2: Already the specific split config
+            if "augmentations" in transform_cfg_for_dataset:
+                transform_cfg_for_dataset = transform_cfg_for_dataset[
+                    "augmentations"
+                ]
+
     # data_cfg is DictConfig by type hint, no isinstance needed
     seed_val = data_cfg.get("seed", 42)
 
     # Validate both configs
     # We assume that the validation functions can handle DictConfig or dict
     validate_data_config(data_cfg)
-    validate_transform_config(transform_cfg)
+
+    # Handle different transform configuration formats
+    # Case 1: transform_cfg is the complete config with all splits
+    # Case 2: transform_cfg is already the specific split config
+    if mode in transform_cfg:
+        # Case 1: Complete config, extract the specific mode
+        if "augmentations" in transform_cfg[mode]:
+            validate_transform_config(transform_cfg[mode].augmentations)
+        else:
+            # Fallback: try to validate the mode directly
+            validate_transform_config(transform_cfg[mode])
+    else:
+        # Case 2: Already the specific split config
+        if "augmentations" in transform_cfg:
+            validate_transform_config(transform_cfg.augmentations)
+        else:
+            # Fallback: try to validate directly
+            validate_transform_config(transform_cfg)
 
     # Create the dataset
     dataset = CrackSegmentationDataset(

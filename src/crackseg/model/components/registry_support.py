@@ -127,31 +127,8 @@ def register_swinv2_components() -> None:
     except ImportError:
         log.debug("SwinV2 encoder adapter not found, skipping registration")
 
-    try:
-        from crackseg.model.architectures.swinv2_cnn_aspp_unet import (
-            SwinV2CnnAsppUNet,
-        )
-
-        if "SwinV2CNNASPPUNet" not in architecture_registry:
-            architecture_registry.register(
-                name="SwinV2CNNASPPUNet",
-                tags=["hybrid", "transformer", "aspp"],
-            )(SwinV2CnnAsppUNet)
-            log.info("Registered SwinV2-CNN-ASPP hybrid architecture")
-
-            register_standard_hybrid(
-                name="SwinV2CNNASPPUNet",
-                encoder_type="SwinV2",
-                bottleneck_type="ASPPModule",
-                decoder_type="CNNDecoder",
-                tags=["transformer", "aspp"],
-            )
-            log.info("Registered SwinV2-CNN-ASPP as hybrid architecture")
-    except (ImportError, ValueError):
-        log.debug(
-            "SwinV2-CNN-ASPP hybrid architecture not found or dependencies "
-            "missing, skipping"
-        )
+    # SwinV2CnnAsppUNet is now registered via decorator in the class definition
+    # No manual registration needed here
 
 
 def register_aspp_components() -> None:
@@ -246,6 +223,9 @@ def register_hybrid_architectures() -> None:
     except Exception as e:
         log.warning(f"Failed to register SwinV2ASPPCNNWithCBAM: {e}")
 
+    # SwinV2CnnAsppUNet is now registered via decorator in the class definition
+    # No manual registration needed here
+
     # Example: CNN with a different type of attention in decoder
     # try:
     #     register_complex_hybrid(
@@ -276,9 +256,14 @@ def register_all_components() -> None:
     log.info("Component and architecture registration complete.")
 
 
+# Manual registration - call register_all_components() when needed
+# Auto-registration removed to prevent import circular dependencies
+
 if __name__ == "__main__":
     # Basic logging setup for testing registration
     logging.basicConfig(level=logging.INFO)
+
+    # Manual registration for testing
     register_all_components()
 
     # Example: You can try to retrieve a registered component or architecture

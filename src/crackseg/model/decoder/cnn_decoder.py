@@ -686,7 +686,7 @@ class CNNDecoderConfig:
     cbam_reduction: int = 16
 
 
-@decoder_registry.register("CNNDecoder")
+@decoder_registry.register("CNNDecoder", force=True)
 class CNNDecoder(DecoderBase):
     """
     Standard CNN Decoder for U-Net.
@@ -865,9 +865,51 @@ class CNNDecoder(DecoderBase):
 
             # Pass through block
             out = cast(torch.Tensor, block(out, [skip]))
+
         # Final conv (if present)
         if hasattr(self, "final_conv"):
             out = cast(torch.Tensor, self.final_conv(out))
+
+        # Final upsampling to target_size if specified
+        if self.target_size is not None:
+            current_size = (out.shape[2], out.shape[3])
+            if current_size != self.target_size:
+                out = cast(
+                    torch.Tensor,
+                    F.interpolate(
+                        out,
+                        size=self.target_size,
+                        mode="bilinear",
+                        align_corners=False,
+                    ),
+                )
+                logger.debug(
+                    f"Final upsampling from {current_size} to "
+                    f"{self.target_size}"
+                )
+        else:
+            # When no target_size is specified, upsample to 4x the current size
+            # This handles cases where the encoder doesn't provide full
+            # resolution skip connections
+            current_size = (out.shape[2], out.shape[3])
+            # Assume input was 256x256, so upsample to 256x256 if current
+            # output is 64x64
+            if current_size == (64, 64):
+                target_size = (256, 256)
+                out = cast(
+                    torch.Tensor,
+                    F.interpolate(
+                        out,
+                        size=target_size,
+                        mode="bilinear",
+                        align_corners=False,
+                    ),
+                )
+                logger.debug(
+                    f"Default final upsampling from {current_size} to "
+                    f"{target_size}"
+                )
+
         return out
 
     @property

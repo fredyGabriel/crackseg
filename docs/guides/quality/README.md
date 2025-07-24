@@ -12,7 +12,8 @@ This directory contains guides for maintaining code quality and implementing com
   for implementing GUI testing
 - **[gui_testing_best_practices.md](gui_testing_best_practices.md)** - Best practices for testing
   Streamlit GUI applications
-- **[comprehensive_integration_test_reporting_guide.md](comprehensive_integration_test_reporting_guide.md)** - Guide for comprehensive integration test reporting
+- **[comprehensive_integration_test_reporting_guide.md](comprehensive_integration_test_reporting_guide.md)** - Guide for comprehensive integration test
+  reporting
 
 ## Purpose
 

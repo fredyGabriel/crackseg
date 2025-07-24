@@ -199,7 +199,7 @@ def register_mock_components() -> Generator[None, None, None]:  # noqa: PLR0912
         if "CNNEncoder" not in encoder_registry:
             encoder_registry.register(name="CNNEncoder")(CNNEncoder)
         if "BottleneckBlock" not in bottleneck_registry:
-            bottleneck_registry.register(name="BottleneckBlock")(
+            bottleneck_registry.register(name="BottleneckBlock", force=True)(
                 BottleneckBlock
             )
         if "CNNDecoder" not in decoder_registry:
@@ -233,6 +233,8 @@ def pytest_configure(config: object) -> None:
     if "CNNEncoder" not in encoder_registry:
         encoder_registry.register(name="CNNEncoder")(CNNEncoder)
     if "BottleneckBlock" not in bottleneck_registry:
-        bottleneck_registry.register(name="BottleneckBlock")(BottleneckBlock)
+        bottleneck_registry.register(name="BottleneckBlock", force=True)(
+            BottleneckBlock
+        )
     if "CNNDecoder" not in decoder_registry:
         decoder_registry.register(name="CNNDecoder")(CNNDecoder)

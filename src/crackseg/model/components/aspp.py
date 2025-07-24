@@ -8,7 +8,7 @@ from crackseg.model.base.abstract import BottleneckBase
 from crackseg.model.factory.registry_setup import bottleneck_registry
 
 
-@bottleneck_registry.register("ASPPModule")
+@bottleneck_registry.register("ASPPModule", force=True)
 class ASPPModule(BottleneckBase):
     """Atrous Spatial Pyramid Pooling module for semantic segmentation
     networks.

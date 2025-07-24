@@ -8,7 +8,8 @@ from .base_loss import SegmentationLoss  # Import base class
 
 @loss_registry.register(
     name="dice_loss",
-    tags=["segmentation", "binary", "dice"],
+    tags=["segmentation", "dice", "iou"],
+    force=True,
 )
 class DiceLoss(SegmentationLoss):
     """Dice loss for binary segmentation with optional smoothing."""
