@@ -4,14 +4,13 @@
 # This file centralizes common settings.
 
 defaults:
-  - _self_
   - training: default
   - model: default
   - data: default
   - data/transform: augmentations
   - data/dataloader: default
   - evaluation: default
-  - optional local: local # for local overrides
+  - _self_
 
 # General project settings
 project_name: "crack-segmentation"
@@ -21,7 +20,20 @@ data_dir: data/               # Default directory for datasets
 # Seed for reproducibility. A specific seed ensures that any randomness
 # in the model initialization, data shuffling, or augmentations is consistent
 # across runs.
-seed: 42
+random_seed: 42
+
+# Experiment configuration
+experiment:
+  name: "default_experiment"
+  output_dir: "outputs"
+
+# Logging configuration
+log_level: "INFO"
+log_to_file: true
+
+# Device configuration
+require_cuda: false        # Allow CPU execution for testing
+device: "auto"            # Auto-select device (GPU if available, CPU otherwise)
 
 timestamp_parsing:
   min_parts: 2
@@ -41,6 +53,6 @@ visualization:
 # Hydra configuration
 hydra:
   run:
-    dir: artifacts/outputs/${now:%Y%m%d-%H%M%S}
+    dir: artifacts/outputs/${now:%Y%m%d-%H%M%S}-${experiment.name}
   job:
     chdir: false

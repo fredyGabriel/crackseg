@@ -159,19 +159,36 @@ Explore available configurations:
 # List available configurations
 dir configs/
 
-# Examine base configuration
+# Examine base configuration (now fixed)
 cat configs/base.yaml
 
-# Check basic verification config (recommended for testing)
+# Check basic verification config (optimized for testing)
 cat configs/basic_verification.yaml
 ```
+
+### Configuration Differences
+
+**`base.yaml`** - Main configuration for production training:
+
+- Full training setup with all components
+- Standard batch sizes and image sizes
+- Complete data augmentation pipeline
+- Suitable for full experiments
+
+**`basic_verification.yaml`** - Optimized for testing and verification:
+
+- Reduced batch size (4) for faster processing
+- Smaller image size (256x256) for memory efficiency
+- Short training (2 epochs) for quick verification
+- Limited data samples for testing
+- Perfect for validating system functionality
 
 ### Configuration Examples
 
 1. **Basic training with default configuration**:
 
     ```bash
-    python run.py --config-name basic_verification
+    python run.py --config-name base
     ```
 
 2. **Switch to SwinUNet architecture**:
@@ -204,8 +221,8 @@ For automated scripts and command-line enthusiasts, the CLI remains a powerful o
 **IMPORTANT**: Use `run.py` instead of `src/main.py` for proper execution:
 
 ```bash
-# Start training with the basic verification configuration
-python run.py --config-name basic_verification
+# Start training with the base configuration
+python run.py --config-name base
 ```
 
 ### Training with Reproducibility Standards
@@ -214,12 +231,12 @@ To follow our ML research standards for reproducibility:
 
 ```bash
 # Reproducible training with fixed seed
-python run.py --config-name basic_verification \
+python run.py --config-name base \
               random_seed=42 \
               experiment.name="baseline_reproducible"
 
 # Monitor GPU memory usage during training
-python run.py --config-name basic_verification \
+python run.py --config-name base \
               training.verbose=true \
               data.batch_size=4 \
               training.use_amp=true
@@ -236,7 +253,7 @@ mkdir -p configs/experiments/my_experiments
 # Create custom configuration
 cat > configs/experiments/my_experiments/high_lr_experiment.yaml << 'EOF'
 defaults:
-  - basic_verification
+  - base
   - _self_
 
 training:
@@ -310,7 +327,8 @@ This training workflow is part of a larger professional development process.
 The following have been tested and verified to work:
 
 - **Entry Point**: `python run.py` (not `src/main.py`)
-- **Base Config**: `basic_verification` (recommended over `base`)
+- **Base Config**: `base` (now fixed and working)
+- **Testing Config**: `basic_verification` (optimized for quick testing)
 - **Package Installation**: `pip install -e . --no-deps` (for conda environments)
 - **Registry System**: Advanced multi-layer registry with lazy loading
 - **Quality Gates**: `black .`, `python -m ruff . --fix`, `basedpyright .`
