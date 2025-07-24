@@ -19,8 +19,8 @@
     │   │   │   ├── focal_loss_experiment.yaml
     │   │   │   ├── high_lr_experiment.yaml
     │   │   │   ├── low_lr_experiment.yaml
-    │   │   │   ├── swin_unet_experiment.yaml
-    │   │   │   └── README.md
+    │   │   │   ├── README.md
+    │   │   │   └── swin_unet_experiment.yaml
     │   │   └── tutorial_03/
     │   │       └── smooth_l1_experiment.yaml
     │   ├── linting/
@@ -64,6 +64,7 @@
     │   │   │   ├── combined.yaml
     │   │   │   ├── dice.yaml
     │   │   │   ├── focal.yaml
+    │   │   │   ├── focal_dice.yaml
     │   │   │   └── smooth_l1.yaml
     │   │   ├── lr_scheduler/
     │   │   │   ├── cosine.yaml
@@ -445,27 +446,47 @@
     │   │   ├── logo.png
     │   │   └── loss_registry_design.md
     │   ├── guides/
-    │   │   ├── architectural_decisions.md
-    │   │   ├── checkpoint_format_specification.md
-    │   │   ├── ci_cd_integration_guide.md
-    │   │   ├── ci_cd_testing_integration.md
-    │   │   ├── CLEAN_INSTALLATION.md
-    │   │   ├── comprehensive_integration_test_reporting_guide.md
-    │   │   ├── configuration_storage_specification.md
-    │   │   ├── continuous_coverage_monitoring_guide.md
-    │   │   ├── CONTRIBUTING.md
-    │   │   ├── gui_development_guidelines.md
-    │   │   ├── gui_testing_best_practices.md
-    │   │   ├── gui_testing_implementation_checklist.md
-    │   │   ├── loss_registry_usage.md
-    │   │   ├── performance_benchmarking_system.md
-    │   │   ├── quality_gates_guide.md
-    │   │   ├── SYSTEM_DEPENDENCIES.md
-    │   │   ├── TECHNICAL_ARCHITECTURE.md
-    │   │   ├── test_maintenance_procedures.md
-    │   │   ├── TROUBLESHOOTING.md
-    │   │   ├── USAGE.md
-    │   │   └── WORKFLOW_TRAINING.md
+    │   │   ├── architecture/
+    │   │   │   ├── architectural_decisions.md
+    │   │   │   ├── README.md
+    │   │   │   └── TECHNICAL_ARCHITECTURE.md
+    │   │   ├── cicd/
+    │   │   │   ├── ci_cd_integration_guide.md
+    │   │   │   ├── ci_cd_testing_integration.md
+    │   │   │   └── README.md
+    │   │   ├── development/
+    │   │   │   ├── CONTRIBUTING.md
+    │   │   │   ├── gui_development_guidelines.md
+    │   │   │   ├── README.md
+    │   │   │   └── SYSTEM_DEPENDENCIES.md
+    │   │   ├── monitoring/
+    │   │   │   ├── continuous_coverage_monitoring_guide.md
+    │   │   │   └── README.md
+    │   │   ├── quality/
+    │   │   │   ├── comprehensive_integration_test_reporting_guide.md
+    │   │   │   ├── gui_testing_best_practices.md
+    │   │   │   ├── gui_testing_implementation_checklist.md
+    │   │   │   ├── quality_gates_guide.md
+    │   │   │   ├── README.md
+    │   │   │   └── test_maintenance_procedures.md
+    │   │   ├── specifications/
+    │   │   │   ├── checkpoint_format_specification.md
+    │   │   │   ├── configuration_storage_specification.md
+    │   │   │   ├── performance_benchmarking_system.md
+    │   │   │   └── README.md
+    │   │   ├── troubleshooting/
+    │   │   │   ├── README.md
+    │   │   │   └── TROUBLESHOOTING.md
+    │   │   ├── usage/
+    │   │   │   ├── focal_dice_loss_usage.md
+    │   │   │   ├── loss_registry_usage.md
+    │   │   │   ├── README.md
+    │   │   │   └── USAGE.md
+    │   │   ├── workflows/
+    │   │   │   ├── CLEAN_INSTALLATION.md
+    │   │   │   ├── README.md
+    │   │   │   └── WORKFLOW_TRAINING.md
+    │   │   └── README.md
     │   ├── reports/
     │   │   ├── analysis/
     │   │   │   ├── consolidation-implementation-summary.md
@@ -1234,6 +1255,7 @@
     │   │   │   ├── losses/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── combinators/
+    │   │   │   │   │   ├── __pycache__/
     │   │   │   │   │   ├── __init__.py
     │   │   │   │   │   ├── base_combinator.py
     │   │   │   │   │   ├── enhanced_product.py
@@ -1241,14 +1263,17 @@
     │   │   │   │   │   ├── product.py
     │   │   │   │   │   └── weighted_sum.py
     │   │   │   │   ├── factory/
+    │   │   │   │   │   ├── __pycache__/
     │   │   │   │   │   ├── __init__.py
     │   │   │   │   │   ├── config_parser.py
     │   │   │   │   │   ├── config_validator.py
     │   │   │   │   │   └── recursive_factory.py
     │   │   │   │   ├── interfaces/
+    │   │   │   │   │   ├── __pycache__/
     │   │   │   │   │   ├── __init__.py
     │   │   │   │   │   └── loss_interface.py
     │   │   │   │   ├── registry/
+    │   │   │   │   │   ├── __pycache__/
     │   │   │   │   │   ├── __init__.py
     │   │   │   │   │   ├── clean_registry.py
     │   │   │   │   │   ├── enhanced_registry.py
@@ -1259,6 +1284,7 @@
     │   │   │   │   ├── bce_loss.py
     │   │   │   │   ├── combined_loss.py
     │   │   │   │   ├── dice_loss.py
+    │   │   │   │   ├── focal_dice_loss.py
     │   │   │   │   ├── focal_loss.py
     │   │   │   │   ├── loss_registry_setup.py
     │   │   │   │   ├── recursive_factory.py
@@ -1783,6 +1809,7 @@
     │   │   └── utilities/
     │   │       └── temp_storage.py
     │   ├── unit/
+    │   │   ├── __pycache__/
     │   │   ├── data/
     │   │   │   ├── __pycache__/
     │   │   │   ├── test_dataloader.py
@@ -1892,9 +1919,11 @@
     │   │   │   └── test_utils.py
     │   │   ├── training/
     │   │   │   ├── losses/
+    │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── test_clean_factory.py
     │   │   │   │   ├── test_config_parser.py
     │   │   │   │   ├── test_enhanced_combinators.py
+    │   │   │   │   ├── test_focal_dice_loss.py
     │   │   │   │   ├── test_isolated_clean_factory.py
     │   │   │   │   ├── test_loss_factory.py
     │   │   │   │   ├── test_loss_registry.py
