@@ -176,8 +176,8 @@ python run.py --config-name low_lr_experiment
 # Run focal loss experiment
 python run.py --config-name focal_loss_experiment
 
-# Run DeepLabV3+ experiment
-python run.py --config-name deeplabv3_experiment
+# Run Swin-UNet experiment
+python run.py --config-name swin_unet_experiment
 ```
 
 ## Step 7: Compare Results
@@ -372,8 +372,8 @@ python run.py --config-name low_lr_experiment
 # Run focal loss experiment
 python run.py --config-name focal_loss_experiment
 
-# Run DeepLabV3+ experiment
-python run.py --config-name deeplabv3_experiment
+# Run Swin-UNet experiment
+python run.py --config-name swin_unet_experiment
 ```
 
 ### Creating Custom Batch Scripts
@@ -554,10 +554,12 @@ python scripts/experiments/experiment_visualizer.py --experiments my_exp --auto-
 
 ## Important Note: Architecture Corrections
 
-**⚠️ DeepLabV3+ References**: The original tutorial referenced DeepLabV3+ architecture components that were not implemented in the current project. These have been corrected to use available components:
+**⚠️ DeepLabV3+ References**: The original tutorial referenced DeepLabV3+ architecture components
+that were not implemented in the current project. These have been corrected to use available components:
 
 - **DeepLabV3Plus** → **BaseUNet** (available in `crackseg.model.core.unet`)
 - **ResNetEncoder** → **SwinTransformerEncoder** (available in `crackseg.model.encoder`)
 - **DeepLabV3PlusDecoder** → **CNNDecoder** (available in `crackseg.model.decoder`)
 
-The corrected configuration uses Swin-UNet architecture which is fully implemented and tested in the project.
+The corrected configuration uses Swin-UNet architecture which is fully implemented and tested in
+the project.

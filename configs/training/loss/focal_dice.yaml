@@ -1,0 +1,21 @@
+# configs/training/loss/focal_dice.yaml
+# Focal + Dice Loss Configuration - Optimized for Crack Segmentation
+_target_: crackseg.training.losses.FocalDiceLoss
+config:
+  _target_: crackseg.training.losses.focal_dice_loss.FocalDiceLossConfig
+  # Loss component weights (should sum to 1.0)
+  focal_weight: 0.6        # Higher weight for Focal Loss to handle class imbalance
+  dice_weight: 0.4         # Complementary weight for Dice Loss
+
+  # Focal Loss parameters (optimized for <5% positive pixels)
+  focal_alpha: 0.25        # Weighting factor for rare class (cracks)
+  focal_gamma: 2.0         # Focusing parameter for hard examples
+  focal_reduction: mean    # Reduction method
+
+  # Dice Loss parameters
+  dice_smooth: 1.0         # Smoothing factor for numerical stability
+  dice_sigmoid: true       # Apply sigmoid to predictions
+  dice_eps: 1e-6           # Epsilon for numerical stability
+
+  # Global weight for the entire loss
+  total_loss_weight: 1.0   # Global scaling factor

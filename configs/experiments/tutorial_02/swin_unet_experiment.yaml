@@ -7,49 +7,57 @@
 #
 # Reference: docs/tutorials/02_custom_experiment_cli.md
 
-# Hydra configuration composition - inherits from basic_verification config
+# Hydra configuration composition - inherits from base config
 defaults:
-  - basic_verification  # Basic verification configuration with default settings
-  - _self_              # This file overrides basic_verification settings
+  - /base  # Base configuration with all components
+  - _self_ # This file overrides base settings
 
 # Model architecture override - Swin-UNet with Swin-T encoder
 model:
   _target_: crackseg.model.core.unet.BaseUNet  # Main model class
   encoder:
-    _target_: crackseg.model.encoder.SwinTransformerEncoder  # Swin-T backbone
-    img_size: 256
-    patch_size: 4
-    in_chans: 3
-    embed_dim: 96
-    depths: [2, 2, 6, 2]
-    num_heads: [3, 6, 12, 24]
-    window_size: 7
-    mlp_ratio: 4.0
-    qkv_bias: true
-    drop_rate: 0.0
-    attn_drop_rate: 0.0
-    drop_path_rate: 0.1
-    norm_layer: nn.LayerNorm
-    patch_norm: true
+    _target_: src.model.factory.create_encoder  # Factory function for encoder
+    type: "SwinTransformerEncoder"             # Use Swin Transformer as encoder
+    in_channels: 3                             # Number of input channels (e.g., RGB)
+    model_name: "swinv2_tiny_window16_256"     # SwinV2 model variant
+    pretrained: true                           # Use ImageNet pretrained weights
+    img_size: 256                              # Input image size for SwinV2
+    patch_size: 4                              # Patch size for Swin Transformer
+    handle_input_size: "resize"                # Resize input images for compatibility
+    output_hidden_states: true                  # Output all hidden states
+    features_only: true                        # Only output feature maps
+    out_indices: [0, 1, 2, 3]                  # Indices of feature maps to use as skips
+    output_norm: true                          # Apply normalization to output features
   bottleneck:
-    _target_: crackseg.model.bottleneck.aspp_bottleneck.ASPPModule
-    in_channels: 768  # Swin-T output channels
+    _target_: src.model.factory.create_bottleneck  # Factory function for bottleneck
+    type: "ASPPModule"                         # Use ASPP bottleneck
+    # For swinv2_tiny_window16_256, feature channels are [96, 192, 384, 768]
+    # Bottleneck receives last feature map (768 channels)
+    in_channels: 768
     output_channels: 256
     dilation_rates: [1, 6, 12, 18]
+    dropout_rate: 0.1
+    output_stride: 16
   decoder:
-    _target_: crackseg.model.decoder.cnn_decoder.CNNDecoder
-    in_channels: 256
-    skip_channels_list: [384, 192, 96, 48]  # Swin-T skip connections
-    out_channels: 1
-    depth: 4
+    _target_: src.model.factory.create_decoder     # Factory function for decoder
+    type: "CNNDecoder"                           # Use CNN decoder
+    in_channels: 256                             # Match bottleneck output channels
+    # Skip connection channels for swinv2_tiny_window16_256 (reverse order)
+    # [384, 192, 96] from encoder's skip_channels
+    skip_channels_list: [384, 192, 96]
+    out_channels: 1                               # Binary segmentation by default
+    depth: 3                                      # Swin model has 3 skip connections
+    config:
+      upsample_scale_factor: 2
+      upsample_mode: "bilinear"
+      kernel_size: 3
+      padding: 1
+      use_cbam: false
+      cbam_reduction: 16
 
 # Training hyperparameters override
 training:
   learning_rate: 0.0001  # Default learning rate for Swin-UNet
   epochs: 100            # More epochs for complex architecture convergence
 
-# Data loading configuration override
-data:
-  dataloader:
-    batch_size: 8        # Smaller batch size for larger model (Swin-UNet)
-                         # Prevents GPU memory overflow with complex architecture
+# Override batch size for larger model (use command line: data.dataloader.batch_size=8)

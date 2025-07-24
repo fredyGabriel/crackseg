@@ -8,8 +8,8 @@
 
 # Hydra configuration composition - inherits from basic_verification config
 defaults:
-  - basic_verification  # Basic verification configuration with default settings
-  - _self_              # This file overrides basic_verification settings
+  - /basic_verification
+  - _self_
 
 # Training hyperparameters override
 training:

@@ -1,4 +1,4 @@
-# [Proposed Title: Deep Learning-Based Crack Segmentation in Asphalt Pavement Using a Hybrid Swin Transformer U-Net Architecture]
+# Deep Learning-Based Crack Segmentation in Asphalt Pavement Using a Hybrid Swin Transformer U-Net Architecture
 
 ---
 

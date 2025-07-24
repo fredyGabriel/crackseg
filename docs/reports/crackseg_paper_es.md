@@ -1,4 +1,4 @@
-# Segmentación de Fisuras en Asfalto mediante Deep Learning con Arquitectura Híbrida Swin Transformer U-Net
+# Segmentación de Fisuras en Asfalto mediante Deep Learning con Arq. Híbrida Swin Transformer U-Net
 
 ---
 

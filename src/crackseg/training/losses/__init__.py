@@ -6,6 +6,7 @@ from .bce_dice_loss import BCEDiceLoss
 from .bce_loss import BCELoss
 from .combined_loss import CombinedLoss
 from .dice_loss import DiceLoss
+from .focal_dice_loss import FocalDiceLoss
 from .focal_loss import FocalLoss
 
 __all__ = [
@@ -15,6 +16,7 @@ __all__ = [
     "FocalLoss",
     "CombinedLoss",
     "BCEDiceLoss",
+    "FocalDiceLoss",
     "SmoothL1Loss",
 ]
 

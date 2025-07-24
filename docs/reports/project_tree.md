@@ -16,10 +16,10 @@
     │   │   └── default.yaml
     │   ├── experiments/
     │   │   ├── tutorial_02/
-    │   │   │   ├── deeplabv3_experiment.yaml
     │   │   │   ├── focal_loss_experiment.yaml
     │   │   │   ├── high_lr_experiment.yaml
     │   │   │   ├── low_lr_experiment.yaml
+    │   │   │   ├── swin_unet_experiment.yaml
     │   │   │   └── README.md
     │   │   └── tutorial_03/
     │   │       └── smooth_l1_experiment.yaml

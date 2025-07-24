@@ -1,6 +1,7 @@
 # Data Directory
 
-This directory contains the data used for training, validation, and testing of the pavement crack segmentation model.
+This directory contains the data used for training, validation, and testing of the pavement crack
+segmentation model.
 
 ## Directory Structure
 
