@@ -1,0 +1,55 @@
+# Tutorial 02: Swin-UNet Architecture Experiment Configuration
+#
+# This configuration tests Swin-UNet architecture for crack segmentation.
+# Swin-UNet combines Swin Transformer encoder with CNN decoder for
+# better multi-scale feature extraction, which is important for detecting
+# cracks of varying widths (1-5 pixels to large structural damage).
+#
+# Reference: docs/tutorials/02_custom_experiment_cli.md
+
+# Hydra configuration composition - inherits from basic_verification config
+defaults:
+  - basic_verification  # Basic verification configuration with default settings
+  - _self_              # This file overrides basic_verification settings
+
+# Model architecture override - Swin-UNet with Swin-T encoder
+model:
+  _target_: crackseg.model.core.unet.BaseUNet  # Main model class
+  encoder:
+    _target_: crackseg.model.encoder.SwinTransformerEncoder  # Swin-T backbone
+    img_size: 256
+    patch_size: 4
+    in_chans: 3
+    embed_dim: 96
+    depths: [2, 2, 6, 2]
+    num_heads: [3, 6, 12, 24]
+    window_size: 7
+    mlp_ratio: 4.0
+    qkv_bias: true
+    drop_rate: 0.0
+    attn_drop_rate: 0.0
+    drop_path_rate: 0.1
+    norm_layer: nn.LayerNorm
+    patch_norm: true
+  bottleneck:
+    _target_: crackseg.model.bottleneck.aspp_bottleneck.ASPPModule
+    in_channels: 768  # Swin-T output channels
+    output_channels: 256
+    dilation_rates: [1, 6, 12, 18]
+  decoder:
+    _target_: crackseg.model.decoder.cnn_decoder.CNNDecoder
+    in_channels: 256
+    skip_channels_list: [384, 192, 96, 48]  # Swin-T skip connections
+    out_channels: 1
+    depth: 4
+
+# Training hyperparameters override
+training:
+  learning_rate: 0.0001  # Default learning rate for Swin-UNet
+  epochs: 100            # More epochs for complex architecture convergence
+
+# Data loading configuration override
+data:
+  dataloader:
+    batch_size: 8        # Smaller batch size for larger model (Swin-UNet)
+                         # Prevents GPU memory overflow with complex architecture

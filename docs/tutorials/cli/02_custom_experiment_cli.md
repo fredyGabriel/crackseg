@@ -117,20 +117,40 @@ EOF
 
 ```bash
 conda activate crackseg
-cat > configs/experiments/tutorial_02/deeplabv3_experiment.yaml << 'EOF'
+cat > configs/experiments/tutorial_02/swin_unet_experiment.yaml << 'EOF'
 defaults:
   - basic_verification
   - _self_
 
 model:
-  _target_: src.model.core.deeplabv3.DeepLabV3Plus
+  _target_: crackseg.model.core.unet.BaseUNet
   encoder:
-    _target_: src.model.encoder.resnet.ResNetEncoder
-    backbone: resnet50
+    _target_: crackseg.model.encoder.SwinTransformerEncoder
+    img_size: 256
+    patch_size: 4
+    in_chans: 3
+    embed_dim: 96
+    depths: [2, 2, 6, 2]
+    num_heads: [3, 6, 12, 24]
+    window_size: 7
+    mlp_ratio: 4.0
+    qkv_bias: true
+    drop_rate: 0.0
+    attn_drop_rate: 0.0
+    drop_path_rate: 0.1
+    norm_layer: nn.LayerNorm
+    patch_norm: true
+  bottleneck:
+    _target_: crackseg.model.bottleneck.aspp_bottleneck.ASPPModule
+    in_channels: 768  # Swin-T output channels
+    output_channels: 256
+    dilation_rates: [1, 6, 12, 18]
   decoder:
-    _target_: src.model.decoder.deeplabv3.DeepLabV3PlusDecoder
-    low_level_channels: 256
-    aspp_channels: 256
+    _target_: crackseg.model.decoder.cnn_decoder.CNNDecoder
+    in_channels: 256
+    skip_channels_list: [384, 192, 96, 48]  # Swin-T skip connections
+    out_channels: 1
+    depth: 4
 
 training:
   learning_rate: 0.0001
@@ -184,8 +204,8 @@ cat artifacts/outputs/low_lr_experiment/metrics/final_metrics.json
 echo "=== Focal Loss Experiment ==="
 cat artifacts/outputs/focal_loss_experiment/metrics/final_metrics.json
 
-echo "=== DeepLabV3+ Experiment ==="
-cat artifacts/outputs/deeplabv3_experiment/metrics/final_metrics.json
+echo "=== Swin-UNet Experiment ==="
+cat artifacts/outputs/swin_unet_experiment/metrics/final_metrics.json
 ```
 
 ### Compare Results Using Built-in Tools
@@ -220,7 +240,7 @@ For more control, use the generic experiment visualizer:
 ```bash
 conda activate crackseg
 python scripts/experiments/experiment_visualizer.py \
-  --experiments high_lr_experiment,low_lr_experiment,focal_loss_experiment,deeplabv3_experiment \
+  --experiments high_lr_experiment,low_lr_experiment,focal_loss_experiment,swin_unet_experiment \
   --output-dir docs/reports/tutorial_02_analysis \
   --title "Tutorial 02: Custom Experiments Analysis"
 ```
@@ -366,7 +386,7 @@ $experiments = @(
     "high_lr_experiment",
     "low_lr_experiment",
     "focal_loss_experiment",
-    "deeplabv3_experiment"
+    "swin_unet_experiment"
 )
 
 conda activate crackseg
@@ -531,3 +551,13 @@ python scripts/experiments/experiment_visualizer.py --experiments my_exp --auto-
 8. **Analysis Tools**: Updated to use built-in experiment analysis tools instead of manual scripts
 9. **Visualization**: Added references to generic experiment visualizer and tutorial-specific wrappers
 10. **Script Organization**: Updated references to reflect new organized script structure
+
+## Important Note: Architecture Corrections
+
+**⚠️ DeepLabV3+ References**: The original tutorial referenced DeepLabV3+ architecture components that were not implemented in the current project. These have been corrected to use available components:
+
+- **DeepLabV3Plus** → **BaseUNet** (available in `crackseg.model.core.unet`)
+- **ResNetEncoder** → **SwinTransformerEncoder** (available in `crackseg.model.encoder`)
+- **DeepLabV3PlusDecoder** → **CNNDecoder** (available in `crackseg.model.decoder`)
+
+The corrected configuration uses Swin-UNet architecture which is fully implemented and tested in the project.
