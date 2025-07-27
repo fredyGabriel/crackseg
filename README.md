@@ -308,7 +308,7 @@ For detailed code quality guidelines, see [**Coding Standards**](.cursor/rules/c
 
 Training outputs are organized by timestamp and configuration:
 
-```txt
+```bash
 outputs/experiments/
 └── {timestamp}-{config_name}/
     ├── checkpoints/    # Model checkpoints (.pth files)

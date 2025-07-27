@@ -846,10 +846,15 @@ def create_crackseg_dataset(  # noqa: PLR0913
         transform_cfg_for_dataset = typing.cast(
             dict[Any, Any], container_result
         )
+    elif isinstance(container_result, list):
+        # Handle list-based transform configurations
+        # This is normal for split-specific transforms like train/val/test
+        transform_cfg_for_dataset = None
     else:
         warn_msg = (
-            f"OmegaConf.to_container did not return a dict for "
-            f"transform_cfg. Got {type(container_result)}"
+            f"OmegaConf.to_container returned unexpected type for "
+            f"transform_cfg. Got {type(container_result)}, expected dict or "
+            "list"
         )
         warnings.warn(warn_msg, stacklevel=2)
         # Optionally, raise an error or use a default value; for now, it

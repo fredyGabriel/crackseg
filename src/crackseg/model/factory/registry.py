@@ -80,15 +80,20 @@ class Registry[T]:
                         return cls
                     # If force is True, allow overwriting
                     if force:
-                        # Log the re-registration for debugging
-                        import logging
+                        # Only log warning if it's actually a different
+                        # implementation
+                        existing_class = self._components[component_name]
+                        if existing_class != cls:
+                            # Log the re-registration for debugging
+                            import logging
 
-                        logger = logging.getLogger(__name__)
-                        logger.warning(
-                            f"Component '{component_name}' already registered "
-                            f"in '{self._name}' registry. Overwriting with "
-                            "new implementation."
-                        )
+                            logger = logging.getLogger(__name__)
+                            logger.debug(  # Changed from warning to debug
+                                f"Component '{component_name}' already "
+                                f"registered in '{self._name}' registry. "
+                                "Overwriting {existing_class.__name__} "
+                                f"with {cls.__name__}."
+                            )
                     else:
                         raise ValueError(
                             f"Component '{component_name}' is already "

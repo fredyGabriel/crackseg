@@ -48,7 +48,7 @@ def base_config():
     )
 
     # Load the config using hydra.compose
-    cfg = compose(config_name="config.yaml")
+    cfg = compose(config_name="base.yaml")
 
     # Ensure random_seed exists and set it
     if "random_seed" not in cfg:

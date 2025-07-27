@@ -631,7 +631,7 @@ def _handle_checkpointing_and_resume(
     return start_epoch, best_metric_value
 
 
-@hydra.main(version_base=None, config_path="../configs", config_name="config")
+@hydra.main(version_base=None, config_path="../configs", config_name="base")
 def main(cfg: DictConfig) -> None:
     """
 Main training pipeline entry point for crack segmentation. This

@@ -146,7 +146,7 @@ def simulate_gradual_unfreeze_training(encoder, num_epochs=20):
             display_model_info(encoder, f"After Epoch {epoch}")
 
 
-@hydra.main(version_base=None, config_path="../configs", config_name="config")
+@hydra.main(version_base=None, config_path="../configs", config_name="base")
 def main(cfg: DictConfig):
     """Demonstrate various transfer learning techniques."""
     print("\n=== DEMO 1: Different Parameter Freezing Strategies ===")

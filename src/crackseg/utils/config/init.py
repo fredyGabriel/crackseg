@@ -27,7 +27,8 @@ def load_config(overrides: list[str] | None = None) -> DictConfig:
     """
     if overrides is None:
         overrides = []
-    cfg = compose(config_name="config", overrides=overrides)
+    initialize_hydra()
+    cfg = compose(config_name="base", overrides=overrides)
     return cfg
 
 

@@ -1,0 +1,79 @@
+{
+  "experiment_info": {
+    "directory": "outputs",
+    "start_time": "2025-07-27T05:04:06.310479",
+    "total_epochs": 2
+  },
+  "best_metrics": {
+    "loss": {
+      "value": 0.45464758574962616,
+      "epoch": 2,
+      "timestamp": "2025-07-27T05:04:25.449709"
+    },
+    "iou": {
+      "value": 0.15816817432641983,
+      "epoch": 2,
+      "timestamp": "2025-07-27T05:04:25.449709"
+    },
+    "f1": {
+      "value": 0.25828249007463455,
+      "epoch": 2,
+      "timestamp": "2025-07-27T05:04:25.449709"
+    },
+    "precision": {
+      "value": 0.7325292825698853,
+      "epoch": 2,
+      "timestamp": "2025-07-27T05:04:25.449709"
+    },
+    "recall": {
+      "value": 0.9667363166809082,
+      "epoch": 1,
+      "timestamp": "2025-07-27T05:04:24.571930"
+    }
+  },
+  "epoch_summaries": [
+    {
+      "timestamp": "2025-07-27T05:04:24.571930",
+      "epoch": 1,
+      "train_metrics": {
+        "loss": 0.43648261576890945
+      },
+      "val_metrics": {
+        "loss": 0.4673849642276764,
+        "iou": 0.015256526414304972,
+        "f1": 0.029822257347404957,
+        "precision": 0.015268050134181976,
+        "recall": 0.9667363166809082
+      },
+      "learning_rate": 0.001
+    },
+    {
+      "timestamp": "2025-07-27T05:04:25.449709",
+      "epoch": 2,
+      "train_metrics": {
+        "loss": 0.42699213325977325
+      },
+      "val_metrics": {
+        "loss": 0.45464758574962616,
+        "iou": 0.15816817432641983,
+        "f1": 0.25828249007463455,
+        "precision": 0.7325292825698853,
+        "recall": 0.16864685714244843
+      },
+      "learning_rate": 0.001
+    }
+  ],
+  "available_metrics": {
+    "train": [],
+    "val": [
+      "val_loss",
+      "val_iou",
+      "val_dice",
+      "val_f1",
+      "val_precision",
+      "val_recall",
+      "val_accuracy"
+    ],
+    "test": []
+  }
+}

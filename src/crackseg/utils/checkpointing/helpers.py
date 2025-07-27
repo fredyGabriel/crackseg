@@ -28,6 +28,9 @@ class CheckpointContext:
     monitor_metric: str
     monitor_mode: str
     best_metric_value: float
+    experiment_config: dict | None = (
+        None  # Configuration to include in checkpoint
+    )
 
 
 @dataclass
@@ -86,6 +89,11 @@ def handle_epoch_checkpointing(
             additional_data={
                 "metrics": context.val_results,
                 "best_metric_value": context.best_metric_value,
+                "config": (
+                    context.experiment_config
+                    if hasattr(context, "experiment_config")
+                    else None
+                ),
             },
             keep_last_n=config.keep_last_n,
         ),
@@ -112,6 +120,11 @@ def handle_epoch_checkpointing(
                 additional_data={
                     "metrics": context.val_results,
                     "best_metric_value": updated_best_metric_value,
+                    "config": (
+                        context.experiment_config
+                        if hasattr(context, "experiment_config")
+                        else None
+                    ),
                 },
                 keep_last_n=1,
             ),

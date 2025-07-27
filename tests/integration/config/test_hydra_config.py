@@ -24,7 +24,7 @@ class TestHydraConfiguration:
     def test_basic_config_loading(self, config_dir: str) -> None:
         """Test basic Hydra configuration loading."""
         with initialize_config_dir(config_dir=config_dir, version_base=None):
-            cfg = compose(config_name="config.yaml")
+            cfg = compose(config_name="base.yaml")
             assert isinstance(
                 cfg, DictConfig
             ), "Configuration should be a DictConfig"
@@ -32,7 +32,7 @@ class TestHydraConfiguration:
     def test_model_configuration(self, config_dir: str) -> None:
         """Test model configuration sections."""
         with initialize_config_dir(config_dir=config_dir, version_base=None):
-            cfg = compose(config_name="config.yaml")
+            cfg = compose(config_name="base.yaml")
 
             # Check model section exists
             assert hasattr(
@@ -58,7 +58,7 @@ class TestHydraConfiguration:
     def test_training_configuration(self, config_dir: str) -> None:
         """Test training configuration sections."""
         with initialize_config_dir(config_dir=config_dir, version_base=None):
-            cfg = compose(config_name="config.yaml")
+            cfg = compose(config_name="base.yaml")
 
             # Check training section exists
             assert hasattr(
@@ -85,7 +85,7 @@ class TestHydraConfiguration:
     def test_early_stopping_configuration(self, config_dir: str) -> None:
         """Test early stopping configuration."""
         with initialize_config_dir(config_dir=config_dir, version_base=None):
-            cfg = compose(config_name="config.yaml")
+            cfg = compose(config_name="base.yaml")
 
             # Early stopping should exist from trainer config
             if hasattr(cfg.training, "early_stopping"):
@@ -99,7 +99,7 @@ class TestHydraConfiguration:
     def test_experiment_configuration(self, config_dir: str) -> None:
         """Test experiment configuration sections."""
         with initialize_config_dir(config_dir=config_dir, version_base=None):
-            cfg = compose(config_name="config.yaml")
+            cfg = compose(config_name="base.yaml")
 
             # Check experiment section exists
             assert hasattr(
@@ -113,19 +113,19 @@ class TestHydraConfiguration:
     def test_data_configuration(self, config_dir: str) -> None:
         """Test data configuration sections."""
         with initialize_config_dir(config_dir=config_dir, version_base=None):
-            cfg = compose(config_name="config.yaml")
+            cfg = compose(config_name="base.yaml")
 
             # Check data section exists
             assert hasattr(cfg, "data"), "Data configuration section not found"
-            assert hasattr(cfg.data, "root_dir"), "Data root_dir not found"
+            assert hasattr(cfg.data, "data_root"), "Data data_root not found"
             assert isinstance(
-                cfg.data.root_dir, str
-            ), "Data root_dir should be a string"
+                cfg.data.data_root, str
+            ), "Data data_root should be a string"
 
     def test_configuration_completeness(self, config_dir: str) -> None:
         """Test that all major configuration sections are present."""
         with initialize_config_dir(config_dir=config_dir, version_base=None):
-            cfg = compose(config_name="config.yaml")
+            cfg = compose(config_name="base.yaml")
 
             required_sections = ["model", "training", "data", "experiment"]
             for section in required_sections:

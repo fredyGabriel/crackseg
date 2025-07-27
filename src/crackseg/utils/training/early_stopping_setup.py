@@ -22,6 +22,10 @@ def setup_early_stopping(
 ) -> object | None:
     """
     Sets up EarlyStopping from config. Returns early_stopper or None.
+
+    This function properly filters configuration parameters to match
+    the EarlyStopping constructor signature, avoiding parameter mismatch
+    errors.
     """
 
     def safe_log(
@@ -34,17 +38,58 @@ def setup_early_stopping(
     early_stopper = None
     early_stopping_cfg = cfg.get("early_stopping", None)
     if early_stopping_cfg:
+        # Check if early stopping is explicitly disabled
+        if not early_stopping_cfg.get("enabled", True):
+            safe_log(
+                logger, "info", "Early stopping explicitly disabled in config."
+            )
+            return None
+
         try:
             es_monitor = early_stopping_cfg.get("monitor", monitor_metric)
             if not es_monitor.startswith("val_"):
                 es_monitor = f"val_{es_monitor}"
+
+            # Filter parameters to match EarlyStopping constructor signature
+            # EarlyStopping expects: patience, min_delta, mode, verbose
+            allowed_params = {
+                "patience",
+                "min_delta",
+                "mode",
+                "verbose",
+                "_target_",
+            }
+
+            # Create filtered configuration for EarlyStopping instantiation
+            filtered_config = {
+                k: v
+                for k, v in early_stopping_cfg.items()
+                if k in allowed_params
+            }
+
+            # Override with function parameters if not in config
+            if "mode" not in filtered_config:
+                filtered_config["mode"] = monitor_mode
+            if "verbose" not in filtered_config:
+                filtered_config["verbose"] = verbose
+
+            # Instantiate EarlyStopping with filtered parameters
             early_stopper = instantiate(
-                early_stopping_cfg,
+                filtered_config,
                 _recursive_=False,
-                monitor_metric=es_monitor,
-                mode=monitor_mode,
-                verbose=verbose,
             )
+
+            # Store the monitor metric information separately for the trainer
+            # to use (EarlyStopping doesn't need to know the metric name,
+            # just the values)
+            early_stopper.monitor_metric = es_monitor
+            early_stopper.monitor_mode = filtered_config.get(
+                "mode", monitor_mode
+            )
+            early_stopper.enabled = (
+                True  # Mark as enabled since we successfully created it
+            )
+
             safe_log(
                 logger,
                 "info",

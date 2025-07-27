@@ -41,13 +41,13 @@ save_best:
   monitor_mode: "min"         # 'min' for minimizing (e.g. loss), 'max' for maximizing (e.g. accuracy)
   best_filename: "model_best.pth.tar"
 
-# Early Stopping settings - RELAXED for basic verification
+# Early Stopping settings - PROFESSIONAL SOLUTION IMPLEMENTED
 early_stopping:
-  _target_: crackseg.utils.early_stopping.EarlyStopping  # EarlyStopping class
-  monitor: "val_loss"      # Metric to monitor for early stopping
-  patience: 5              # Number of epochs with no improvement to wait - INCREASED
+  enabled: true            # Re-enabled with proper parameter filtering
+  _target_: crackseg.utils.training.early_stopping.EarlyStopping  # EarlyStopping class
+  patience: 5              # Number of epochs with no improvement to wait
   mode: "min"              # 'min' for loss, 'max' for accuracy/metric
-  min_delta: 0.01          # Minimum change to qualify as improvement - RELAXED
+  min_delta: 0.01          # Minimum change to qualify as improvement
   verbose: true            # Print early stopping messages
 
 # Verbosity / Progress reporting

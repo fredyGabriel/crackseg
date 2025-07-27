@@ -1,0 +1,2 @@
+Experiment,Final Loss,Final IoU,Final F1,Final Precision,Final Recall,Total Epochs,Best Epoch
+outputs,0.4976625343163808,0.3043036436041196,0.4459318220615387,0.7378983000914255,0.9861163000265757,100,

@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 from torch.utils.data import DataLoader
 
 from crackseg.training.batch_processing import train_step, val_step
@@ -391,6 +391,7 @@ class Trainer:
                 monitor_metric=self.monitor_metric,
                 monitor_mode=self.monitor_mode,
                 best_metric_value=self.best_metric_value,
+                experiment_config=self._safe_config_to_dict(self.cfg),
             )
             checkpoint_config = CheckpointConfig(
                 checkpoint_dir=str(self.checkpoint_dir),
@@ -606,6 +607,14 @@ class Trainer:
             metrics=metrics,
             logger=self.internal_logger,
         )
+
+    def _safe_config_to_dict(self, cfg: DictConfig) -> dict | None:
+        """Safely convert OmegaConf to dict, ensuring type safety."""
+        try:
+            result = OmegaConf.to_container(cfg, resolve=True)
+            return result if isinstance(result, dict) else None
+        except Exception:
+            return None
 
     def _check_if_best(self, metrics: dict[str, float]) -> bool:
         """Checks if the current model is the best one based on the monitored

@@ -55,6 +55,19 @@ class EarlyStopping:
             f"Initialized early stopping (mode={mode}, patience={patience})"
         )
 
+    def should_stop(self, current_value: float | None) -> bool:
+        """Check if training should stop (alias for __call__).
+
+        This method provides trainer compatibility.
+
+        Args:
+            current_value: Current value of the monitored metric.
+
+        Returns:
+            True if training should stop, False otherwise.
+        """
+        return self.__call__(current_value)
+
     def __call__(self, current_value: float | None) -> bool:
         """Check if training should stop.
 

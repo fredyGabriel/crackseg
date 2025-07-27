@@ -68,7 +68,7 @@ def visualize_feature_maps(feature_maps, title):
     plt.show()
 
 
-@hydra.main(version_base=None, config_path="../configs", config_name="config")
+@hydra.main(version_base=None, config_path="../configs", config_name="base")
 def main(cfg: DictConfig):
     """Visual demonstration of the Swin Transformer V2 encoder."""
     # Load the specific encoder configuration

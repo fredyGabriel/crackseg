@@ -178,7 +178,7 @@ def cfg():
 
     # Carga la configuración principal de Hydra
     with hydra.initialize_config_dir(config_dir=config_dir, version_base=None):
-        config = hydra.compose(config_name="config.yaml")
+        config = hydra.compose(config_name="base.yaml")
     return config
 
 
