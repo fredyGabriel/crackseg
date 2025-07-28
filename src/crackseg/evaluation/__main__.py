@@ -25,7 +25,7 @@ from omegaconf import errors as omegaconf_errors
 from omegaconf.dictconfig import DictConfig
 from torch.utils.data import DataLoader
 
-from crackseg.evaluation.core import evaluate_model
+from crackseg.evaluation.core import evaluate_model  # type: ignore
 from crackseg.evaluation.data import get_evaluation_dataloader
 from crackseg.evaluation.ensemble import ensemble_evaluate
 from crackseg.evaluation.loading import load_model_from_checkpoint

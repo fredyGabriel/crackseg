@@ -1,9 +1,20 @@
-"""
-Evaluation package for crack segmentation models.
+"""CrackSeg evaluation module for model analysis and prediction."""
 
-This package contains modules for evaluating trained models, including:
-- Data loading and preparation
-- Core evaluation logic
-- Ensemble evaluation
-- Results saving and visualization
-"""
+from .core.analyzer import PredictionAnalyzer
+from .core.image_processor import ImageProcessor
+from .core.model_loader import ModelLoader
+from .metrics.batch_processor import BatchProcessor
+from .metrics.calculator import MetricsCalculator
+from .visualization.prediction_viz import PredictionVisualizer
+
+__all__ = [
+    # Core components
+    "PredictionAnalyzer",
+    "ModelLoader",
+    "ImageProcessor",
+    # Metrics
+    "MetricsCalculator",
+    "BatchProcessor",
+    # Visualization
+    "PredictionVisualizer",
+]
