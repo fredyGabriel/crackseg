@@ -50,7 +50,10 @@ dmypy.json
 
 # --- Project Artifacts ---
 # This single entry covers all generated outputs, reports, logs, checkpoints, etc.
+# But exclude test directories to ensure test files are tracked
 artifacts/
+!tests/**/artifacts/
+!**/tests/**/artifacts/
 
 # --- Jupyter Notebooks ---
 .ipynb_checkpoints

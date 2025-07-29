@@ -145,7 +145,7 @@ def predict_and_visualize(
 
     # Create visualization
     num_plots = 4 if gt_mask is not None else 3
-    fig, axes = plt.subplots(1, num_plots, figsize=(5 * num_plots, 5))
+    _, axes = plt.subplots(1, num_plots, figsize=(5 * num_plots, 5))
 
     # Original image
     axes[0].imshow(image_resized)

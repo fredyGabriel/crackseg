@@ -7,6 +7,11 @@ handling.
 
 # --- Core Utilities ---
 # --- Checkpointing ---
+# --- Artifact Management ---
+from .artifact_manager import (
+    ArtifactManager,
+    ArtifactMetadata,
+)
 from .checkpointing import (
     CheckpointConfig,
     CheckpointContext,
@@ -131,6 +136,9 @@ __all__ = [
     # Experiment management
     "initialize_experiment",
     "ExperimentManager",
+    # Artifact management
+    "ArtifactManager",
+    "ArtifactMetadata",
     # Configuration
     "ConfigSchema",
     "validate_config",

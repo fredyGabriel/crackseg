@@ -76,10 +76,12 @@ python scripts/analyze_predictions.py \
 
 ### How It Works
 
-The automatic mask inference feature eliminates the need to manually specify mask paths. Here's how it works:
+The automatic mask inference feature eliminates the need to manually specify mask paths. Here's how
+it works:
 
 1. **Filename Matching**: The system extracts the base filename from the image (without extension)
-2. **Extension Flexibility**: It searches for masks with common extensions (.png, .jpg, .jpeg, .tiff, .tif)
+2. **Extension Flexibility**: It searches for masks with common extensions
+  (.png, .jpg, .jpeg, .tiff, .tif)
 3. **Directory Search**: Looks in the specified mask directory for matching files
 4. **Graceful Fallback**: If no mask is found, performs prediction-only analysis
 
@@ -335,7 +337,7 @@ This demonstrates:
 
 #### 1. Checkpoint Not Found
 
-```
+```bash
 Error: Checkpoint not found: outputs/checkpoints/model_best.pth.tar
 ```
 
@@ -343,7 +345,7 @@ Error: Checkpoint not found: outputs/checkpoints/model_best.pth.tar
 
 #### 2. Mask Not Found
 
-```
+```bash
 Warning: No mask found for image 98.jpg in data/train/masks
 ```
 
@@ -355,7 +357,7 @@ Warning: No mask found for image 98.jpg in data/train/masks
 
 #### 3. Import Errors
 
-```
+```bash
 ModuleNotFoundError: No module named 'crackseg'
 ```
 
@@ -363,7 +365,7 @@ ModuleNotFoundError: No module named 'crackseg'
 
 #### 4. CUDA Out of Memory
 
-```
+```bash
 RuntimeError: CUDA out of memory
 ```
 
@@ -396,7 +398,7 @@ python scripts/analyze_predictions.py \
 
 The system expects this directory structure:
 
-```
+```bash
 data/
 ├── train/
 │   ├── images/

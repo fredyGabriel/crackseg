@@ -43,6 +43,7 @@ dependencies:
 
   # 📈 DATA ANALYSIS & VISUALIZATION
   - seaborn              # Statistical data visualization
+  - plotly               # Interactive plotting for advanced visualizations
   - tqdm                 # Progress bars
 
   # 🔧 MODEL UTILITIES & MONITORING
@@ -75,6 +76,8 @@ dependencies:
     - streamlit
     # GUI components not available in conda channels
     - streamlit-ace       # Ace editor for YAML editing
+    # Plotly image export support
+    - kaleido             # Static image export for Plotly (PNG, PDF, SVG)
     # Currently empty - all packages moved to conda!
     # This section is kept for future pip-only dependencies
 

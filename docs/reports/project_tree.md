@@ -2,9 +2,13 @@
 
 ```txt
 └── crackseg/
+    ├── ${TASK_MASTER_PROJECT_ROOT}/
     ├── artifacts/
     ├── configs/
     │   ├── __pycache__/
+    │   ├── archive/
+    │   │   ├── config.yaml.backup
+    │   │   └── experiment_quick_test.yaml.backup
     │   ├── data/
     │   │   ├── dataloader/
     │   │   │   └── default.yaml
@@ -84,8 +88,6 @@
     │   ├── __init__.py
     │   ├── base.yaml
     │   ├── basic_verification.yaml
-    │   ├── config.yaml
-    │   ├── experiment_quick_test.yaml
     │   ├── README.md
     │   └── simple_test.yaml
     ├── data/
@@ -706,7 +708,8 @@
     │   │   ├── gui_components.md
     │   │   ├── gui_pages.md
     │   │   ├── gui_services.md
-    │   │   └── utilities.md
+    │   │   ├── utilities.md
+    │   │   └── visualization_api.md
     │   ├── designs/
     │   │   ├── logo.png
     │   │   └── loss_registry_design.md
@@ -736,6 +739,9 @@
     │   │   │   ├── quality_gates_guide.md
     │   │   │   ├── README.md
     │   │   │   └── test_maintenance_procedures.md
+    │   │   ├── reporting/
+    │   │   │   ├── experiment_reporter_architecture.md
+    │   │   │   └── experiment_reporter_usage.md
     │   │   ├── specifications/
     │   │   │   ├── checkpoint_format_specification.md
     │   │   │   ├── configuration_storage_specification.md
@@ -749,11 +755,17 @@
     │   │   │   ├── loss_registry_usage.md
     │   │   │   ├── README.md
     │   │   │   └── USAGE.md
+    │   │   ├── visualization/
+    │   │   │   ├── visualization_customization_guide.md
+    │   │   │   └── visualization_usage_examples.md
     │   │   ├── workflows/
     │   │   │   ├── CLEAN_INSTALLATION.md
     │   │   │   ├── README.md
     │   │   │   └── WORKFLOW_TRAINING.md
+    │   │   ├── prediction_analysis_guide.md
     │   │   └── README.md
+    │   ├── plans/
+    │   │   └── artifact_system_development_plan.md
     │   ├── reports/
     │   │   ├── analysis/
     │   │   │   ├── basedpyright_analysis_report.md
@@ -769,6 +781,15 @@
     │   │   │   ├── coverage_validation_report.md
     │   │   │   ├── test_coverage_analysis_report.md
     │   │   │   └── test_coverage_comparison_report.md
+    │   │   ├── experiment_plots/
+    │   │   │   ├── experiment_comparison_20250724_081112.csv
+    │   │   │   ├── experiment_comparison_20250724_081136.csv
+    │   │   │   ├── performance_radar_20250724_081112.png
+    │   │   │   ├── performance_radar_20250724_081136.png
+    │   │   │   ├── swinv2_hybrid_summary_20250724_081510.csv
+    │   │   │   ├── swinv2_hybrid_training_curves_20250724_081510.png
+    │   │   │   ├── training_curves_20250724_081112.png
+    │   │   │   └── training_curves_20250724_081136.png
     │   │   ├── models/
     │   │   │   ├── model_expected_structure.json
     │   │   │   ├── model_imports_catalog.json
@@ -799,12 +820,14 @@
     │   │   │   ├── experiment_comparison.csv
     │   │   │   ├── performance_radar.png
     │   │   │   └── training_curves.png
+    │   │   ├── project_tree.md
     │   │   └── README.md
     │   ├── stylesheets/
     │   │   └── extra.css
     │   ├── testing/
     │   │   ├── artifact_testing_plan.md
-    │   │   └── test_patterns_and_best_practices.md
+    │   │   ├── test_patterns_and_best_practices.md
+    │   │   └── visualization_testing_guide.md
     │   ├── tools/
     │   │   └── task-master-guide.md
     │   ├── tutorials/
@@ -1098,11 +1121,1087 @@
     ├── logs/
     ├── outputs/
     │   ├── checkpoints/
+    │   │   ├── checkpoint_last.pth
+    │   │   └── model_best.pth.tar
     │   ├── configurations/
     │   │   └── default_experiment/
+    │   │       ├── config_epoch_0001.yaml
+    │   │       ├── config_epoch_0001_validation.json
+    │   │       ├── config_epoch_0002.yaml
+    │   │       ├── config_epoch_0002_validation.json
+    │   │       ├── config_epoch_0003.yaml
+    │   │       ├── config_epoch_0003_validation.json
+    │   │       ├── config_epoch_0004.yaml
+    │   │       ├── config_epoch_0004_validation.json
+    │   │       ├── config_epoch_0005.yaml
+    │   │       ├── config_epoch_0005_validation.json
+    │   │       ├── config_epoch_0006.yaml
+    │   │       ├── config_epoch_0006_validation.json
+    │   │       ├── config_epoch_0007.yaml
+    │   │       ├── config_epoch_0007_validation.json
+    │   │       ├── config_epoch_0008.yaml
+    │   │       ├── config_epoch_0008_validation.json
+    │   │       ├── config_epoch_0009.yaml
+    │   │       ├── config_epoch_0009_validation.json
+    │   │       ├── config_epoch_0010.yaml
+    │   │       ├── config_epoch_0010_validation.json
+    │   │       ├── config_epoch_0011.yaml
+    │   │       ├── config_epoch_0011_validation.json
+    │   │       ├── config_epoch_0012.yaml
+    │   │       ├── config_epoch_0012_validation.json
+    │   │       ├── config_epoch_0013.yaml
+    │   │       ├── config_epoch_0013_validation.json
+    │   │       ├── config_epoch_0014.yaml
+    │   │       ├── config_epoch_0014_validation.json
+    │   │       ├── config_epoch_0015.yaml
+    │   │       ├── config_epoch_0015_validation.json
+    │   │       ├── config_epoch_0016.yaml
+    │   │       ├── config_epoch_0016_validation.json
+    │   │       ├── config_epoch_0017.yaml
+    │   │       ├── config_epoch_0017_validation.json
+    │   │       ├── config_epoch_0018.yaml
+    │   │       ├── config_epoch_0018_validation.json
+    │   │       ├── config_epoch_0019.yaml
+    │   │       ├── config_epoch_0019_validation.json
+    │   │       ├── config_epoch_0020.yaml
+    │   │       ├── config_epoch_0020_validation.json
+    │   │       ├── config_epoch_0021.yaml
+    │   │       ├── config_epoch_0021_validation.json
+    │   │       ├── config_epoch_0022.yaml
+    │   │       ├── config_epoch_0022_validation.json
+    │   │       ├── config_epoch_0023.yaml
+    │   │       ├── config_epoch_0023_validation.json
+    │   │       ├── config_epoch_0024.yaml
+    │   │       ├── config_epoch_0024_validation.json
+    │   │       ├── config_epoch_0025.yaml
+    │   │       ├── config_epoch_0025_validation.json
+    │   │       ├── config_epoch_0026.yaml
+    │   │       ├── config_epoch_0026_validation.json
+    │   │       ├── config_epoch_0027.yaml
+    │   │       ├── config_epoch_0027_validation.json
+    │   │       ├── config_epoch_0028.yaml
+    │   │       ├── config_epoch_0028_validation.json
+    │   │       ├── config_epoch_0029.yaml
+    │   │       ├── config_epoch_0029_validation.json
+    │   │       ├── config_epoch_0030.yaml
+    │   │       ├── config_epoch_0030_validation.json
+    │   │       ├── config_epoch_0031.yaml
+    │   │       ├── config_epoch_0031_validation.json
+    │   │       ├── config_epoch_0032.yaml
+    │   │       ├── config_epoch_0032_validation.json
+    │   │       ├── config_epoch_0033.yaml
+    │   │       ├── config_epoch_0033_validation.json
+    │   │       ├── config_epoch_0034.yaml
+    │   │       ├── config_epoch_0034_validation.json
+    │   │       ├── config_epoch_0035.yaml
+    │   │       ├── config_epoch_0035_validation.json
+    │   │       ├── config_epoch_0036.yaml
+    │   │       ├── config_epoch_0036_validation.json
+    │   │       ├── config_epoch_0037.yaml
+    │   │       ├── config_epoch_0037_validation.json
+    │   │       ├── config_epoch_0038.yaml
+    │   │       ├── config_epoch_0038_validation.json
+    │   │       ├── config_epoch_0039.yaml
+    │   │       ├── config_epoch_0039_validation.json
+    │   │       ├── config_epoch_0040.yaml
+    │   │       ├── config_epoch_0040_validation.json
+    │   │       ├── config_epoch_0041.yaml
+    │   │       ├── config_epoch_0041_validation.json
+    │   │       ├── config_epoch_0042.yaml
+    │   │       ├── config_epoch_0042_validation.json
+    │   │       ├── config_epoch_0043.yaml
+    │   │       ├── config_epoch_0043_validation.json
+    │   │       ├── config_epoch_0044.yaml
+    │   │       ├── config_epoch_0044_validation.json
+    │   │       ├── config_epoch_0045.yaml
+    │   │       ├── config_epoch_0045_validation.json
+    │   │       ├── config_epoch_0046.yaml
+    │   │       ├── config_epoch_0046_validation.json
+    │   │       ├── config_epoch_0047.yaml
+    │   │       ├── config_epoch_0047_validation.json
+    │   │       ├── config_epoch_0048.yaml
+    │   │       ├── config_epoch_0048_validation.json
+    │   │       ├── config_epoch_0049.yaml
+    │   │       ├── config_epoch_0049_validation.json
+    │   │       ├── config_epoch_0050.yaml
+    │   │       ├── config_epoch_0050_validation.json
+    │   │       ├── config_epoch_0051.yaml
+    │   │       ├── config_epoch_0051_validation.json
+    │   │       ├── config_epoch_0052.yaml
+    │   │       ├── config_epoch_0052_validation.json
+    │   │       ├── config_epoch_0053.yaml
+    │   │       ├── config_epoch_0053_validation.json
+    │   │       ├── config_epoch_0054.yaml
+    │   │       ├── config_epoch_0054_validation.json
+    │   │       ├── config_epoch_0055.yaml
+    │   │       ├── config_epoch_0055_validation.json
+    │   │       ├── config_epoch_0056.yaml
+    │   │       ├── config_epoch_0056_validation.json
+    │   │       ├── config_epoch_0057.yaml
+    │   │       ├── config_epoch_0057_validation.json
+    │   │       ├── config_epoch_0058.yaml
+    │   │       ├── config_epoch_0058_validation.json
+    │   │       ├── config_epoch_0059.yaml
+    │   │       ├── config_epoch_0059_validation.json
+    │   │       ├── config_epoch_0060.yaml
+    │   │       ├── config_epoch_0060_validation.json
+    │   │       ├── config_epoch_0061.yaml
+    │   │       ├── config_epoch_0061_validation.json
+    │   │       ├── config_epoch_0062.yaml
+    │   │       ├── config_epoch_0062_validation.json
+    │   │       ├── config_epoch_0063.yaml
+    │   │       ├── config_epoch_0063_validation.json
+    │   │       ├── config_epoch_0064.yaml
+    │   │       ├── config_epoch_0064_validation.json
+    │   │       ├── config_epoch_0065.yaml
+    │   │       ├── config_epoch_0065_validation.json
+    │   │       ├── config_epoch_0066.yaml
+    │   │       ├── config_epoch_0066_validation.json
+    │   │       ├── config_epoch_0067.yaml
+    │   │       ├── config_epoch_0067_validation.json
+    │   │       ├── config_epoch_0068.yaml
+    │   │       ├── config_epoch_0068_validation.json
+    │   │       ├── config_epoch_0069.yaml
+    │   │       ├── config_epoch_0069_validation.json
+    │   │       ├── config_epoch_0070.yaml
+    │   │       ├── config_epoch_0070_validation.json
+    │   │       ├── config_epoch_0071.yaml
+    │   │       ├── config_epoch_0071_validation.json
+    │   │       ├── config_epoch_0072.yaml
+    │   │       ├── config_epoch_0072_validation.json
+    │   │       ├── config_epoch_0073.yaml
+    │   │       ├── config_epoch_0073_validation.json
+    │   │       ├── config_epoch_0074.yaml
+    │   │       ├── config_epoch_0074_validation.json
+    │   │       ├── config_epoch_0075.yaml
+    │   │       ├── config_epoch_0075_validation.json
+    │   │       ├── config_epoch_0076.yaml
+    │   │       ├── config_epoch_0076_validation.json
+    │   │       ├── config_epoch_0077.yaml
+    │   │       ├── config_epoch_0077_validation.json
+    │   │       ├── config_epoch_0078.yaml
+    │   │       ├── config_epoch_0078_validation.json
+    │   │       ├── config_epoch_0079.yaml
+    │   │       ├── config_epoch_0079_validation.json
+    │   │       ├── config_epoch_0080.yaml
+    │   │       ├── config_epoch_0080_validation.json
+    │   │       ├── config_epoch_0081.yaml
+    │   │       ├── config_epoch_0081_validation.json
+    │   │       ├── config_epoch_0082.yaml
+    │   │       ├── config_epoch_0082_validation.json
+    │   │       ├── config_epoch_0083.yaml
+    │   │       ├── config_epoch_0083_validation.json
+    │   │       ├── config_epoch_0084.yaml
+    │   │       ├── config_epoch_0084_validation.json
+    │   │       ├── config_epoch_0085.yaml
+    │   │       ├── config_epoch_0085_validation.json
+    │   │       ├── config_epoch_0086.yaml
+    │   │       ├── config_epoch_0086_validation.json
+    │   │       ├── config_epoch_0087.yaml
+    │   │       ├── config_epoch_0087_validation.json
+    │   │       ├── config_epoch_0088.yaml
+    │   │       ├── config_epoch_0088_validation.json
+    │   │       ├── config_epoch_0089.yaml
+    │   │       ├── config_epoch_0089_validation.json
+    │   │       ├── config_epoch_0090.yaml
+    │   │       ├── config_epoch_0090_validation.json
+    │   │       ├── config_epoch_0091.yaml
+    │   │       ├── config_epoch_0091_validation.json
+    │   │       ├── config_epoch_0092.yaml
+    │   │       ├── config_epoch_0092_validation.json
+    │   │       ├── config_epoch_0093.yaml
+    │   │       ├── config_epoch_0093_validation.json
+    │   │       ├── config_epoch_0094.yaml
+    │   │       ├── config_epoch_0094_validation.json
+    │   │       ├── config_epoch_0095.yaml
+    │   │       ├── config_epoch_0095_validation.json
+    │   │       ├── config_epoch_0096.yaml
+    │   │       ├── config_epoch_0096_validation.json
+    │   │       ├── config_epoch_0097.yaml
+    │   │       ├── config_epoch_0097_validation.json
+    │   │       ├── config_epoch_0098.yaml
+    │   │       ├── config_epoch_0098_validation.json
+    │   │       ├── config_epoch_0099.yaml
+    │   │       ├── config_epoch_0099_validation.json
+    │   │       ├── config_epoch_0100.yaml
+    │   │       ├── config_epoch_0100_validation.json
+    │   │       ├── config_epoch_0101.yaml
+    │   │       ├── config_epoch_0101_validation.json
+    │   │       ├── config_epoch_0102.yaml
+    │   │       ├── config_epoch_0102_validation.json
+    │   │       ├── config_epoch_0103.yaml
+    │   │       ├── config_epoch_0103_validation.json
+    │   │       ├── config_epoch_0104.yaml
+    │   │       ├── config_epoch_0104_validation.json
+    │   │       ├── config_epoch_0105.yaml
+    │   │       ├── config_epoch_0105_validation.json
+    │   │       ├── config_epoch_0106.yaml
+    │   │       ├── config_epoch_0106_validation.json
+    │   │       ├── config_epoch_0107.yaml
+    │   │       ├── config_epoch_0107_validation.json
+    │   │       ├── config_epoch_0108.yaml
+    │   │       ├── config_epoch_0108_validation.json
+    │   │       ├── config_epoch_0109.yaml
+    │   │       ├── config_epoch_0109_validation.json
+    │   │       ├── config_epoch_0110.yaml
+    │   │       ├── config_epoch_0110_validation.json
+    │   │       ├── config_epoch_0111.yaml
+    │   │       ├── config_epoch_0111_validation.json
+    │   │       ├── config_epoch_0112.yaml
+    │   │       ├── config_epoch_0112_validation.json
+    │   │       ├── config_epoch_0113.yaml
+    │   │       ├── config_epoch_0113_validation.json
+    │   │       ├── config_epoch_0114.yaml
+    │   │       ├── config_epoch_0114_validation.json
+    │   │       ├── config_epoch_0115.yaml
+    │   │       ├── config_epoch_0115_validation.json
+    │   │       ├── config_epoch_0116.yaml
+    │   │       ├── config_epoch_0116_validation.json
+    │   │       ├── config_epoch_0117.yaml
+    │   │       ├── config_epoch_0117_validation.json
+    │   │       ├── config_epoch_0118.yaml
+    │   │       ├── config_epoch_0118_validation.json
+    │   │       ├── config_epoch_0119.yaml
+    │   │       ├── config_epoch_0119_validation.json
+    │   │       ├── config_epoch_0120.yaml
+    │   │       ├── config_epoch_0120_validation.json
+    │   │       ├── config_epoch_0121.yaml
+    │   │       ├── config_epoch_0121_validation.json
+    │   │       ├── config_epoch_0122.yaml
+    │   │       ├── config_epoch_0122_validation.json
+    │   │       ├── config_epoch_0123.yaml
+    │   │       ├── config_epoch_0123_validation.json
+    │   │       ├── config_epoch_0124.yaml
+    │   │       ├── config_epoch_0124_validation.json
+    │   │       ├── config_epoch_0125.yaml
+    │   │       ├── config_epoch_0125_validation.json
+    │   │       ├── config_epoch_0126.yaml
+    │   │       ├── config_epoch_0126_validation.json
+    │   │       ├── config_epoch_0127.yaml
+    │   │       ├── config_epoch_0127_validation.json
+    │   │       ├── config_epoch_0128.yaml
+    │   │       ├── config_epoch_0128_validation.json
+    │   │       ├── config_epoch_0129.yaml
+    │   │       ├── config_epoch_0129_validation.json
+    │   │       ├── config_epoch_0130.yaml
+    │   │       ├── config_epoch_0130_validation.json
+    │   │       ├── config_epoch_0131.yaml
+    │   │       ├── config_epoch_0131_validation.json
+    │   │       ├── config_epoch_0132.yaml
+    │   │       ├── config_epoch_0132_validation.json
+    │   │       ├── config_epoch_0133.yaml
+    │   │       ├── config_epoch_0133_validation.json
+    │   │       ├── config_epoch_0134.yaml
+    │   │       ├── config_epoch_0134_validation.json
+    │   │       ├── config_epoch_0135.yaml
+    │   │       ├── config_epoch_0135_validation.json
+    │   │       ├── config_epoch_0136.yaml
+    │   │       ├── config_epoch_0136_validation.json
+    │   │       ├── config_epoch_0137.yaml
+    │   │       ├── config_epoch_0137_validation.json
+    │   │       ├── config_epoch_0138.yaml
+    │   │       ├── config_epoch_0138_validation.json
+    │   │       ├── config_epoch_0139.yaml
+    │   │       ├── config_epoch_0139_validation.json
+    │   │       ├── config_epoch_0140.yaml
+    │   │       ├── config_epoch_0140_validation.json
+    │   │       ├── config_epoch_0141.yaml
+    │   │       ├── config_epoch_0141_validation.json
+    │   │       ├── config_epoch_0142.yaml
+    │   │       ├── config_epoch_0142_validation.json
+    │   │       ├── config_epoch_0143.yaml
+    │   │       ├── config_epoch_0143_validation.json
+    │   │       ├── config_epoch_0144.yaml
+    │   │       ├── config_epoch_0144_validation.json
+    │   │       ├── config_epoch_0145.yaml
+    │   │       ├── config_epoch_0145_validation.json
+    │   │       ├── config_epoch_0146.yaml
+    │   │       ├── config_epoch_0146_validation.json
+    │   │       ├── config_epoch_0147.yaml
+    │   │       ├── config_epoch_0147_validation.json
+    │   │       ├── config_epoch_0148.yaml
+    │   │       ├── config_epoch_0148_validation.json
+    │   │       ├── config_epoch_0149.yaml
+    │   │       ├── config_epoch_0149_validation.json
+    │   │       ├── config_epoch_0150.yaml
+    │   │       ├── config_epoch_0150_validation.json
+    │   │       ├── config_epoch_0151.yaml
+    │   │       ├── config_epoch_0151_validation.json
+    │   │       ├── config_epoch_0152.yaml
+    │   │       ├── config_epoch_0152_validation.json
+    │   │       ├── config_epoch_0153.yaml
+    │   │       ├── config_epoch_0153_validation.json
+    │   │       ├── config_epoch_0154.yaml
+    │   │       ├── config_epoch_0154_validation.json
+    │   │       ├── config_epoch_0155.yaml
+    │   │       ├── config_epoch_0155_validation.json
+    │   │       ├── config_epoch_0156.yaml
+    │   │       ├── config_epoch_0156_validation.json
+    │   │       ├── config_epoch_0157.yaml
+    │   │       ├── config_epoch_0157_validation.json
+    │   │       ├── config_epoch_0158.yaml
+    │   │       ├── config_epoch_0158_validation.json
+    │   │       ├── config_epoch_0159.yaml
+    │   │       ├── config_epoch_0159_validation.json
+    │   │       ├── config_epoch_0160.yaml
+    │   │       ├── config_epoch_0160_validation.json
+    │   │       ├── config_epoch_0161.yaml
+    │   │       ├── config_epoch_0161_validation.json
+    │   │       ├── config_epoch_0162.yaml
+    │   │       ├── config_epoch_0162_validation.json
+    │   │       ├── config_epoch_0163.yaml
+    │   │       ├── config_epoch_0163_validation.json
+    │   │       ├── config_epoch_0164.yaml
+    │   │       ├── config_epoch_0164_validation.json
+    │   │       ├── config_epoch_0165.yaml
+    │   │       ├── config_epoch_0165_validation.json
+    │   │       ├── config_epoch_0166.yaml
+    │   │       ├── config_epoch_0166_validation.json
+    │   │       ├── config_epoch_0167.yaml
+    │   │       ├── config_epoch_0167_validation.json
+    │   │       ├── config_epoch_0168.yaml
+    │   │       ├── config_epoch_0168_validation.json
+    │   │       ├── config_epoch_0169.yaml
+    │   │       ├── config_epoch_0169_validation.json
+    │   │       ├── config_epoch_0170.yaml
+    │   │       ├── config_epoch_0170_validation.json
+    │   │       ├── config_epoch_0171.yaml
+    │   │       ├── config_epoch_0171_validation.json
+    │   │       ├── config_epoch_0172.yaml
+    │   │       ├── config_epoch_0172_validation.json
+    │   │       ├── config_epoch_0173.yaml
+    │   │       ├── config_epoch_0173_validation.json
+    │   │       ├── config_epoch_0174.yaml
+    │   │       ├── config_epoch_0174_validation.json
+    │   │       ├── config_epoch_0175.yaml
+    │   │       ├── config_epoch_0175_validation.json
+    │   │       ├── config_epoch_0176.yaml
+    │   │       ├── config_epoch_0176_validation.json
+    │   │       ├── config_epoch_0177.yaml
+    │   │       ├── config_epoch_0177_validation.json
+    │   │       ├── config_epoch_0178.yaml
+    │   │       ├── config_epoch_0178_validation.json
+    │   │       ├── config_epoch_0179.yaml
+    │   │       ├── config_epoch_0179_validation.json
+    │   │       ├── config_epoch_0180.yaml
+    │   │       ├── config_epoch_0180_validation.json
+    │   │       ├── config_epoch_0181.yaml
+    │   │       ├── config_epoch_0181_validation.json
+    │   │       ├── config_epoch_0182.yaml
+    │   │       ├── config_epoch_0182_validation.json
+    │   │       ├── config_epoch_0183.yaml
+    │   │       ├── config_epoch_0183_validation.json
+    │   │       ├── config_epoch_0184.yaml
+    │   │       ├── config_epoch_0184_validation.json
+    │   │       ├── config_epoch_0185.yaml
+    │   │       ├── config_epoch_0185_validation.json
+    │   │       ├── config_epoch_0186.yaml
+    │   │       ├── config_epoch_0186_validation.json
+    │   │       ├── config_epoch_0187.yaml
+    │   │       ├── config_epoch_0187_validation.json
+    │   │       ├── config_epoch_0188.yaml
+    │   │       ├── config_epoch_0188_validation.json
+    │   │       ├── config_epoch_0189.yaml
+    │   │       ├── config_epoch_0189_validation.json
+    │   │       ├── config_epoch_0190.yaml
+    │   │       ├── config_epoch_0190_validation.json
+    │   │       ├── config_epoch_0191.yaml
+    │   │       ├── config_epoch_0191_validation.json
+    │   │       ├── config_epoch_0192.yaml
+    │   │       ├── config_epoch_0192_validation.json
+    │   │       ├── config_epoch_0193.yaml
+    │   │       ├── config_epoch_0193_validation.json
+    │   │       ├── config_epoch_0194.yaml
+    │   │       ├── config_epoch_0194_validation.json
+    │   │       ├── config_epoch_0195.yaml
+    │   │       ├── config_epoch_0195_validation.json
+    │   │       ├── config_epoch_0196.yaml
+    │   │       ├── config_epoch_0196_validation.json
+    │   │       ├── config_epoch_0197.yaml
+    │   │       ├── config_epoch_0197_validation.json
+    │   │       ├── config_epoch_0198.yaml
+    │   │       ├── config_epoch_0198_validation.json
+    │   │       ├── config_epoch_0199.yaml
+    │   │       ├── config_epoch_0199_validation.json
+    │   │       ├── config_epoch_0200.yaml
+    │   │       ├── config_epoch_0200_validation.json
+    │   │       ├── config_epoch_0201.yaml
+    │   │       ├── config_epoch_0201_validation.json
+    │   │       ├── config_epoch_0202.yaml
+    │   │       ├── config_epoch_0202_validation.json
+    │   │       ├── config_epoch_0203.yaml
+    │   │       ├── config_epoch_0203_validation.json
+    │   │       ├── config_epoch_0204.yaml
+    │   │       ├── config_epoch_0204_validation.json
+    │   │       ├── config_epoch_0205.yaml
+    │   │       ├── config_epoch_0205_validation.json
+    │   │       ├── config_epoch_0206.yaml
+    │   │       ├── config_epoch_0206_validation.json
+    │   │       ├── config_epoch_0207.yaml
+    │   │       ├── config_epoch_0207_validation.json
+    │   │       ├── config_epoch_0208.yaml
+    │   │       ├── config_epoch_0208_validation.json
+    │   │       ├── config_epoch_0209.yaml
+    │   │       ├── config_epoch_0209_validation.json
+    │   │       ├── config_epoch_0210.yaml
+    │   │       ├── config_epoch_0210_validation.json
+    │   │       ├── config_epoch_0211.yaml
+    │   │       ├── config_epoch_0211_validation.json
+    │   │       ├── config_epoch_0212.yaml
+    │   │       ├── config_epoch_0212_validation.json
+    │   │       ├── config_epoch_0213.yaml
+    │   │       ├── config_epoch_0213_validation.json
+    │   │       ├── config_epoch_0214.yaml
+    │   │       ├── config_epoch_0214_validation.json
+    │   │       ├── config_epoch_0215.yaml
+    │   │       ├── config_epoch_0215_validation.json
+    │   │       ├── config_epoch_0216.yaml
+    │   │       ├── config_epoch_0216_validation.json
+    │   │       ├── config_epoch_0217.yaml
+    │   │       ├── config_epoch_0217_validation.json
+    │   │       ├── config_epoch_0218.yaml
+    │   │       ├── config_epoch_0218_validation.json
+    │   │       ├── config_epoch_0219.yaml
+    │   │       ├── config_epoch_0219_validation.json
+    │   │       ├── config_epoch_0220.yaml
+    │   │       ├── config_epoch_0220_validation.json
+    │   │       ├── config_epoch_0221.yaml
+    │   │       ├── config_epoch_0221_validation.json
+    │   │       ├── config_epoch_0222.yaml
+    │   │       ├── config_epoch_0222_validation.json
+    │   │       ├── config_epoch_0223.yaml
+    │   │       ├── config_epoch_0223_validation.json
+    │   │       ├── config_epoch_0224.yaml
+    │   │       ├── config_epoch_0224_validation.json
+    │   │       ├── config_epoch_0225.yaml
+    │   │       ├── config_epoch_0225_validation.json
+    │   │       ├── config_epoch_0226.yaml
+    │   │       ├── config_epoch_0226_validation.json
+    │   │       ├── config_epoch_0227.yaml
+    │   │       ├── config_epoch_0227_validation.json
+    │   │       ├── config_epoch_0228.yaml
+    │   │       ├── config_epoch_0228_validation.json
+    │   │       ├── config_epoch_0229.yaml
+    │   │       ├── config_epoch_0229_validation.json
+    │   │       ├── config_epoch_0230.yaml
+    │   │       ├── config_epoch_0230_validation.json
+    │   │       ├── config_epoch_0231.yaml
+    │   │       ├── config_epoch_0231_validation.json
+    │   │       ├── config_epoch_0232.yaml
+    │   │       ├── config_epoch_0232_validation.json
+    │   │       ├── config_epoch_0233.yaml
+    │   │       ├── config_epoch_0233_validation.json
+    │   │       ├── config_epoch_0234.yaml
+    │   │       ├── config_epoch_0234_validation.json
+    │   │       ├── config_epoch_0235.yaml
+    │   │       ├── config_epoch_0235_validation.json
+    │   │       ├── config_epoch_0236.yaml
+    │   │       ├── config_epoch_0236_validation.json
+    │   │       ├── config_epoch_0237.yaml
+    │   │       ├── config_epoch_0237_validation.json
+    │   │       ├── config_epoch_0238.yaml
+    │   │       ├── config_epoch_0238_validation.json
+    │   │       ├── config_epoch_0239.yaml
+    │   │       ├── config_epoch_0239_validation.json
+    │   │       ├── config_epoch_0240.yaml
+    │   │       ├── config_epoch_0240_validation.json
+    │   │       ├── config_epoch_0241.yaml
+    │   │       ├── config_epoch_0241_validation.json
+    │   │       ├── config_epoch_0242.yaml
+    │   │       ├── config_epoch_0242_validation.json
+    │   │       ├── config_epoch_0243.yaml
+    │   │       ├── config_epoch_0243_validation.json
+    │   │       ├── config_epoch_0244.yaml
+    │   │       ├── config_epoch_0244_validation.json
+    │   │       ├── config_epoch_0245.yaml
+    │   │       ├── config_epoch_0245_validation.json
+    │   │       ├── config_epoch_0246.yaml
+    │   │       ├── config_epoch_0246_validation.json
+    │   │       ├── config_epoch_0247.yaml
+    │   │       ├── config_epoch_0247_validation.json
+    │   │       ├── config_epoch_0248.yaml
+    │   │       ├── config_epoch_0248_validation.json
+    │   │       ├── config_epoch_0249.yaml
+    │   │       ├── config_epoch_0249_validation.json
+    │   │       ├── config_epoch_0250.yaml
+    │   │       ├── config_epoch_0250_validation.json
+    │   │       ├── config_epoch_0251.yaml
+    │   │       ├── config_epoch_0251_validation.json
+    │   │       ├── config_epoch_0252.yaml
+    │   │       ├── config_epoch_0252_validation.json
+    │   │       ├── config_epoch_0253.yaml
+    │   │       ├── config_epoch_0253_validation.json
+    │   │       ├── config_epoch_0254.yaml
+    │   │       ├── config_epoch_0254_validation.json
+    │   │       ├── config_epoch_0255.yaml
+    │   │       ├── config_epoch_0255_validation.json
+    │   │       ├── config_epoch_0256.yaml
+    │   │       ├── config_epoch_0256_validation.json
+    │   │       ├── config_epoch_0257.yaml
+    │   │       ├── config_epoch_0257_validation.json
+    │   │       ├── config_epoch_0258.yaml
+    │   │       ├── config_epoch_0258_validation.json
+    │   │       ├── config_epoch_0259.yaml
+    │   │       ├── config_epoch_0259_validation.json
+    │   │       ├── config_epoch_0260.yaml
+    │   │       ├── config_epoch_0260_validation.json
+    │   │       ├── config_epoch_0261.yaml
+    │   │       ├── config_epoch_0261_validation.json
+    │   │       ├── config_epoch_0262.yaml
+    │   │       ├── config_epoch_0262_validation.json
+    │   │       ├── config_epoch_0263.yaml
+    │   │       ├── config_epoch_0263_validation.json
+    │   │       ├── config_epoch_0264.yaml
+    │   │       ├── config_epoch_0264_validation.json
+    │   │       ├── config_epoch_0265.yaml
+    │   │       ├── config_epoch_0265_validation.json
+    │   │       ├── config_epoch_0266.yaml
+    │   │       ├── config_epoch_0266_validation.json
+    │   │       ├── config_epoch_0267.yaml
+    │   │       ├── config_epoch_0267_validation.json
+    │   │       ├── config_epoch_0268.yaml
+    │   │       ├── config_epoch_0268_validation.json
+    │   │       ├── config_epoch_0269.yaml
+    │   │       ├── config_epoch_0269_validation.json
+    │   │       ├── config_epoch_0270.yaml
+    │   │       ├── config_epoch_0270_validation.json
+    │   │       ├── config_epoch_0271.yaml
+    │   │       ├── config_epoch_0271_validation.json
+    │   │       ├── config_epoch_0272.yaml
+    │   │       ├── config_epoch_0272_validation.json
+    │   │       ├── config_epoch_0273.yaml
+    │   │       ├── config_epoch_0273_validation.json
+    │   │       ├── config_epoch_0274.yaml
+    │   │       ├── config_epoch_0274_validation.json
+    │   │       ├── config_epoch_0275.yaml
+    │   │       ├── config_epoch_0275_validation.json
+    │   │       ├── config_epoch_0276.yaml
+    │   │       ├── config_epoch_0276_validation.json
+    │   │       ├── config_epoch_0277.yaml
+    │   │       ├── config_epoch_0277_validation.json
+    │   │       ├── config_epoch_0278.yaml
+    │   │       ├── config_epoch_0278_validation.json
+    │   │       ├── config_epoch_0279.yaml
+    │   │       ├── config_epoch_0279_validation.json
+    │   │       ├── config_epoch_0280.yaml
+    │   │       ├── config_epoch_0280_validation.json
+    │   │       ├── config_epoch_0281.yaml
+    │   │       ├── config_epoch_0281_validation.json
+    │   │       ├── config_epoch_0282.yaml
+    │   │       ├── config_epoch_0282_validation.json
+    │   │       ├── config_epoch_0283.yaml
+    │   │       ├── config_epoch_0283_validation.json
+    │   │       ├── config_epoch_0284.yaml
+    │   │       ├── config_epoch_0284_validation.json
+    │   │       ├── config_epoch_0285.yaml
+    │   │       ├── config_epoch_0285_validation.json
+    │   │       ├── config_epoch_0286.yaml
+    │   │       ├── config_epoch_0286_validation.json
+    │   │       ├── config_epoch_0287.yaml
+    │   │       ├── config_epoch_0287_validation.json
+    │   │       ├── config_epoch_0288.yaml
+    │   │       ├── config_epoch_0288_validation.json
+    │   │       ├── config_epoch_0289.yaml
+    │   │       ├── config_epoch_0289_validation.json
+    │   │       ├── config_epoch_0290.yaml
+    │   │       ├── config_epoch_0290_validation.json
+    │   │       ├── config_epoch_0291.yaml
+    │   │       ├── config_epoch_0291_validation.json
+    │   │       ├── config_epoch_0292.yaml
+    │   │       ├── config_epoch_0292_validation.json
+    │   │       ├── config_epoch_0293.yaml
+    │   │       ├── config_epoch_0293_validation.json
+    │   │       ├── config_epoch_0294.yaml
+    │   │       ├── config_epoch_0294_validation.json
+    │   │       ├── config_epoch_0295.yaml
+    │   │       ├── config_epoch_0295_validation.json
+    │   │       ├── config_epoch_0296.yaml
+    │   │       ├── config_epoch_0296_validation.json
+    │   │       ├── config_epoch_0297.yaml
+    │   │       ├── config_epoch_0297_validation.json
+    │   │       ├── config_epoch_0298.yaml
+    │   │       ├── config_epoch_0298_validation.json
+    │   │       ├── config_epoch_0299.yaml
+    │   │       ├── config_epoch_0299_validation.json
+    │   │       ├── config_epoch_0300.yaml
+    │   │       ├── config_epoch_0300_validation.json
+    │   │       ├── config_epoch_0301.yaml
+    │   │       ├── config_epoch_0301_validation.json
+    │   │       ├── config_epoch_0302.yaml
+    │   │       ├── config_epoch_0302_validation.json
+    │   │       ├── config_epoch_0303.yaml
+    │   │       ├── config_epoch_0303_validation.json
+    │   │       ├── config_epoch_0304.yaml
+    │   │       ├── config_epoch_0304_validation.json
+    │   │       ├── config_epoch_0305.yaml
+    │   │       ├── config_epoch_0305_validation.json
+    │   │       ├── config_epoch_0306.yaml
+    │   │       ├── config_epoch_0306_validation.json
+    │   │       ├── config_epoch_0307.yaml
+    │   │       ├── config_epoch_0307_validation.json
+    │   │       ├── config_epoch_0308.yaml
+    │   │       ├── config_epoch_0308_validation.json
+    │   │       ├── config_epoch_0309.yaml
+    │   │       ├── config_epoch_0309_validation.json
+    │   │       ├── config_epoch_0310.yaml
+    │   │       ├── config_epoch_0310_validation.json
+    │   │       ├── config_epoch_0311.yaml
+    │   │       ├── config_epoch_0311_validation.json
+    │   │       ├── config_epoch_0312.yaml
+    │   │       ├── config_epoch_0312_validation.json
+    │   │       ├── config_epoch_0313.yaml
+    │   │       ├── config_epoch_0313_validation.json
+    │   │       ├── config_epoch_0314.yaml
+    │   │       ├── config_epoch_0314_validation.json
+    │   │       ├── config_epoch_0315.yaml
+    │   │       ├── config_epoch_0315_validation.json
+    │   │       ├── config_epoch_0316.yaml
+    │   │       ├── config_epoch_0316_validation.json
+    │   │       ├── config_epoch_0317.yaml
+    │   │       ├── config_epoch_0317_validation.json
+    │   │       ├── config_epoch_0318.yaml
+    │   │       ├── config_epoch_0318_validation.json
+    │   │       ├── config_epoch_0319.yaml
+    │   │       ├── config_epoch_0319_validation.json
+    │   │       ├── config_epoch_0320.yaml
+    │   │       ├── config_epoch_0320_validation.json
+    │   │       ├── config_epoch_0321.yaml
+    │   │       ├── config_epoch_0321_validation.json
+    │   │       ├── config_epoch_0322.yaml
+    │   │       ├── config_epoch_0322_validation.json
+    │   │       ├── config_epoch_0323.yaml
+    │   │       ├── config_epoch_0323_validation.json
+    │   │       ├── config_epoch_0324.yaml
+    │   │       ├── config_epoch_0324_validation.json
+    │   │       ├── config_epoch_0325.yaml
+    │   │       ├── config_epoch_0325_validation.json
+    │   │       ├── config_epoch_0326.yaml
+    │   │       ├── config_epoch_0326_validation.json
+    │   │       ├── config_epoch_0327.yaml
+    │   │       ├── config_epoch_0327_validation.json
+    │   │       ├── config_epoch_0328.yaml
+    │   │       ├── config_epoch_0328_validation.json
+    │   │       ├── config_epoch_0329.yaml
+    │   │       ├── config_epoch_0329_validation.json
+    │   │       ├── config_epoch_0330.yaml
+    │   │       ├── config_epoch_0330_validation.json
+    │   │       ├── config_epoch_0331.yaml
+    │   │       ├── config_epoch_0331_validation.json
+    │   │       ├── config_epoch_0332.yaml
+    │   │       ├── config_epoch_0332_validation.json
+    │   │       ├── config_epoch_0333.yaml
+    │   │       ├── config_epoch_0333_validation.json
+    │   │       ├── config_epoch_0334.yaml
+    │   │       ├── config_epoch_0334_validation.json
+    │   │       ├── config_epoch_0335.yaml
+    │   │       ├── config_epoch_0335_validation.json
+    │   │       ├── config_epoch_0336.yaml
+    │   │       ├── config_epoch_0336_validation.json
+    │   │       ├── config_epoch_0337.yaml
+    │   │       ├── config_epoch_0337_validation.json
+    │   │       ├── config_epoch_0338.yaml
+    │   │       ├── config_epoch_0338_validation.json
+    │   │       ├── config_epoch_0339.yaml
+    │   │       ├── config_epoch_0339_validation.json
+    │   │       ├── config_epoch_0340.yaml
+    │   │       ├── config_epoch_0340_validation.json
+    │   │       ├── config_epoch_0341.yaml
+    │   │       ├── config_epoch_0341_validation.json
+    │   │       ├── config_epoch_0342.yaml
+    │   │       ├── config_epoch_0342_validation.json
+    │   │       ├── config_epoch_0343.yaml
+    │   │       ├── config_epoch_0343_validation.json
+    │   │       ├── config_epoch_0344.yaml
+    │   │       ├── config_epoch_0344_validation.json
+    │   │       ├── config_epoch_0345.yaml
+    │   │       ├── config_epoch_0345_validation.json
+    │   │       ├── config_epoch_0346.yaml
+    │   │       ├── config_epoch_0346_validation.json
+    │   │       ├── config_epoch_0347.yaml
+    │   │       ├── config_epoch_0347_validation.json
+    │   │       ├── config_epoch_0348.yaml
+    │   │       ├── config_epoch_0348_validation.json
+    │   │       ├── config_epoch_0349.yaml
+    │   │       ├── config_epoch_0349_validation.json
+    │   │       ├── config_epoch_0350.yaml
+    │   │       ├── config_epoch_0350_validation.json
+    │   │       ├── config_epoch_0351.yaml
+    │   │       ├── config_epoch_0351_validation.json
+    │   │       ├── config_epoch_0352.yaml
+    │   │       ├── config_epoch_0352_validation.json
+    │   │       ├── config_epoch_0353.yaml
+    │   │       ├── config_epoch_0353_validation.json
+    │   │       ├── config_epoch_0354.yaml
+    │   │       ├── config_epoch_0354_validation.json
+    │   │       ├── config_epoch_0355.yaml
+    │   │       ├── config_epoch_0355_validation.json
+    │   │       ├── config_epoch_0356.yaml
+    │   │       ├── config_epoch_0356_validation.json
+    │   │       ├── config_epoch_0357.yaml
+    │   │       ├── config_epoch_0357_validation.json
+    │   │       ├── config_epoch_0358.yaml
+    │   │       ├── config_epoch_0358_validation.json
+    │   │       ├── config_epoch_0359.yaml
+    │   │       ├── config_epoch_0359_validation.json
+    │   │       ├── config_epoch_0360.yaml
+    │   │       ├── config_epoch_0360_validation.json
+    │   │       ├── config_epoch_0361.yaml
+    │   │       ├── config_epoch_0361_validation.json
+    │   │       ├── config_epoch_0362.yaml
+    │   │       ├── config_epoch_0362_validation.json
+    │   │       ├── config_epoch_0363.yaml
+    │   │       ├── config_epoch_0363_validation.json
+    │   │       ├── config_epoch_0364.yaml
+    │   │       ├── config_epoch_0364_validation.json
+    │   │       ├── config_epoch_0365.yaml
+    │   │       ├── config_epoch_0365_validation.json
+    │   │       ├── config_epoch_0366.yaml
+    │   │       ├── config_epoch_0366_validation.json
+    │   │       ├── config_epoch_0367.yaml
+    │   │       ├── config_epoch_0367_validation.json
+    │   │       ├── config_epoch_0368.yaml
+    │   │       ├── config_epoch_0368_validation.json
+    │   │       ├── config_epoch_0369.yaml
+    │   │       ├── config_epoch_0369_validation.json
+    │   │       ├── config_epoch_0370.yaml
+    │   │       ├── config_epoch_0370_validation.json
+    │   │       ├── config_epoch_0371.yaml
+    │   │       ├── config_epoch_0371_validation.json
+    │   │       ├── config_epoch_0372.yaml
+    │   │       ├── config_epoch_0372_validation.json
+    │   │       ├── config_epoch_0373.yaml
+    │   │       ├── config_epoch_0373_validation.json
+    │   │       ├── config_epoch_0374.yaml
+    │   │       ├── config_epoch_0374_validation.json
+    │   │       ├── config_epoch_0375.yaml
+    │   │       ├── config_epoch_0375_validation.json
+    │   │       ├── config_epoch_0376.yaml
+    │   │       ├── config_epoch_0376_validation.json
+    │   │       ├── config_epoch_0377.yaml
+    │   │       ├── config_epoch_0377_validation.json
+    │   │       ├── config_epoch_0378.yaml
+    │   │       ├── config_epoch_0378_validation.json
+    │   │       ├── config_epoch_0379.yaml
+    │   │       ├── config_epoch_0379_validation.json
+    │   │       ├── config_epoch_0380.yaml
+    │   │       ├── config_epoch_0380_validation.json
+    │   │       ├── config_epoch_0381.yaml
+    │   │       ├── config_epoch_0381_validation.json
+    │   │       ├── config_epoch_0382.yaml
+    │   │       ├── config_epoch_0382_validation.json
+    │   │       ├── config_epoch_0383.yaml
+    │   │       ├── config_epoch_0383_validation.json
+    │   │       ├── config_epoch_0384.yaml
+    │   │       ├── config_epoch_0384_validation.json
+    │   │       ├── config_epoch_0385.yaml
+    │   │       ├── config_epoch_0385_validation.json
+    │   │       ├── config_epoch_0386.yaml
+    │   │       ├── config_epoch_0386_validation.json
+    │   │       ├── config_epoch_0387.yaml
+    │   │       ├── config_epoch_0387_validation.json
+    │   │       ├── config_epoch_0388.yaml
+    │   │       ├── config_epoch_0388_validation.json
+    │   │       ├── config_epoch_0389.yaml
+    │   │       ├── config_epoch_0389_validation.json
+    │   │       ├── config_epoch_0390.yaml
+    │   │       ├── config_epoch_0390_validation.json
+    │   │       ├── config_epoch_0391.yaml
+    │   │       ├── config_epoch_0391_validation.json
+    │   │       ├── config_epoch_0392.yaml
+    │   │       ├── config_epoch_0392_validation.json
+    │   │       ├── config_epoch_0393.yaml
+    │   │       ├── config_epoch_0393_validation.json
+    │   │       ├── config_epoch_0394.yaml
+    │   │       ├── config_epoch_0394_validation.json
+    │   │       ├── config_epoch_0395.yaml
+    │   │       ├── config_epoch_0395_validation.json
+    │   │       ├── config_epoch_0396.yaml
+    │   │       ├── config_epoch_0396_validation.json
+    │   │       ├── config_epoch_0397.yaml
+    │   │       ├── config_epoch_0397_validation.json
+    │   │       ├── config_epoch_0398.yaml
+    │   │       ├── config_epoch_0398_validation.json
+    │   │       ├── config_epoch_0399.yaml
+    │   │       ├── config_epoch_0399_validation.json
+    │   │       ├── config_epoch_0400.yaml
+    │   │       ├── config_epoch_0400_validation.json
+    │   │       ├── config_epoch_0401.yaml
+    │   │       ├── config_epoch_0401_validation.json
+    │   │       ├── config_epoch_0402.yaml
+    │   │       ├── config_epoch_0402_validation.json
+    │   │       ├── config_epoch_0403.yaml
+    │   │       ├── config_epoch_0403_validation.json
+    │   │       ├── config_epoch_0404.yaml
+    │   │       ├── config_epoch_0404_validation.json
+    │   │       ├── config_epoch_0405.yaml
+    │   │       ├── config_epoch_0405_validation.json
+    │   │       ├── config_epoch_0406.yaml
+    │   │       ├── config_epoch_0406_validation.json
+    │   │       ├── config_epoch_0407.yaml
+    │   │       ├── config_epoch_0407_validation.json
+    │   │       ├── config_epoch_0408.yaml
+    │   │       ├── config_epoch_0408_validation.json
+    │   │       ├── config_epoch_0409.yaml
+    │   │       ├── config_epoch_0409_validation.json
+    │   │       ├── config_epoch_0410.yaml
+    │   │       ├── config_epoch_0410_validation.json
+    │   │       ├── config_epoch_0411.yaml
+    │   │       ├── config_epoch_0411_validation.json
+    │   │       ├── config_epoch_0412.yaml
+    │   │       ├── config_epoch_0412_validation.json
+    │   │       ├── config_epoch_0413.yaml
+    │   │       ├── config_epoch_0413_validation.json
+    │   │       ├── config_epoch_0414.yaml
+    │   │       ├── config_epoch_0414_validation.json
+    │   │       ├── config_epoch_0415.yaml
+    │   │       ├── config_epoch_0415_validation.json
+    │   │       ├── config_epoch_0416.yaml
+    │   │       ├── config_epoch_0416_validation.json
+    │   │       ├── config_epoch_0417.yaml
+    │   │       ├── config_epoch_0417_validation.json
+    │   │       ├── config_epoch_0418.yaml
+    │   │       ├── config_epoch_0418_validation.json
+    │   │       ├── config_epoch_0419.yaml
+    │   │       ├── config_epoch_0419_validation.json
+    │   │       ├── config_epoch_0420.yaml
+    │   │       ├── config_epoch_0420_validation.json
+    │   │       ├── config_epoch_0421.yaml
+    │   │       ├── config_epoch_0421_validation.json
+    │   │       ├── config_epoch_0422.yaml
+    │   │       ├── config_epoch_0422_validation.json
+    │   │       ├── config_epoch_0423.yaml
+    │   │       ├── config_epoch_0423_validation.json
+    │   │       ├── config_epoch_0424.yaml
+    │   │       ├── config_epoch_0424_validation.json
+    │   │       ├── config_epoch_0425.yaml
+    │   │       ├── config_epoch_0425_validation.json
+    │   │       ├── config_epoch_0426.yaml
+    │   │       ├── config_epoch_0426_validation.json
+    │   │       ├── config_epoch_0427.yaml
+    │   │       ├── config_epoch_0427_validation.json
+    │   │       ├── config_epoch_0428.yaml
+    │   │       ├── config_epoch_0428_validation.json
+    │   │       ├── config_epoch_0429.yaml
+    │   │       ├── config_epoch_0429_validation.json
+    │   │       ├── config_epoch_0430.yaml
+    │   │       ├── config_epoch_0430_validation.json
+    │   │       ├── config_epoch_0431.yaml
+    │   │       ├── config_epoch_0431_validation.json
+    │   │       ├── config_epoch_0432.yaml
+    │   │       ├── config_epoch_0432_validation.json
+    │   │       ├── config_epoch_0433.yaml
+    │   │       ├── config_epoch_0433_validation.json
+    │   │       ├── config_epoch_0434.yaml
+    │   │       ├── config_epoch_0434_validation.json
+    │   │       ├── config_epoch_0435.yaml
+    │   │       ├── config_epoch_0435_validation.json
+    │   │       ├── config_epoch_0436.yaml
+    │   │       ├── config_epoch_0436_validation.json
+    │   │       ├── config_epoch_0437.yaml
+    │   │       ├── config_epoch_0437_validation.json
+    │   │       ├── config_epoch_0438.yaml
+    │   │       ├── config_epoch_0438_validation.json
+    │   │       ├── config_epoch_0439.yaml
+    │   │       ├── config_epoch_0439_validation.json
+    │   │       ├── config_epoch_0440.yaml
+    │   │       ├── config_epoch_0440_validation.json
+    │   │       ├── config_epoch_0441.yaml
+    │   │       ├── config_epoch_0441_validation.json
+    │   │       ├── config_epoch_0442.yaml
+    │   │       ├── config_epoch_0442_validation.json
+    │   │       ├── config_epoch_0443.yaml
+    │   │       ├── config_epoch_0443_validation.json
+    │   │       ├── config_epoch_0444.yaml
+    │   │       ├── config_epoch_0444_validation.json
+    │   │       ├── config_epoch_0445.yaml
+    │   │       ├── config_epoch_0445_validation.json
+    │   │       ├── config_epoch_0446.yaml
+    │   │       ├── config_epoch_0446_validation.json
+    │   │       ├── config_epoch_0447.yaml
+    │   │       ├── config_epoch_0447_validation.json
+    │   │       ├── config_epoch_0448.yaml
+    │   │       ├── config_epoch_0448_validation.json
+    │   │       ├── config_epoch_0449.yaml
+    │   │       ├── config_epoch_0449_validation.json
+    │   │       ├── config_epoch_0450.yaml
+    │   │       ├── config_epoch_0450_validation.json
+    │   │       ├── config_epoch_0451.yaml
+    │   │       ├── config_epoch_0451_validation.json
+    │   │       ├── config_epoch_0452.yaml
+    │   │       ├── config_epoch_0452_validation.json
+    │   │       ├── config_epoch_0453.yaml
+    │   │       ├── config_epoch_0453_validation.json
+    │   │       ├── config_epoch_0454.yaml
+    │   │       ├── config_epoch_0454_validation.json
+    │   │       ├── config_epoch_0455.yaml
+    │   │       ├── config_epoch_0455_validation.json
+    │   │       ├── config_epoch_0456.yaml
+    │   │       ├── config_epoch_0456_validation.json
+    │   │       ├── config_epoch_0457.yaml
+    │   │       ├── config_epoch_0457_validation.json
+    │   │       ├── config_epoch_0458.yaml
+    │   │       ├── config_epoch_0458_validation.json
+    │   │       ├── config_epoch_0459.yaml
+    │   │       ├── config_epoch_0459_validation.json
+    │   │       ├── config_epoch_0460.yaml
+    │   │       ├── config_epoch_0460_validation.json
+    │   │       ├── config_epoch_0461.yaml
+    │   │       ├── config_epoch_0461_validation.json
+    │   │       ├── config_epoch_0462.yaml
+    │   │       ├── config_epoch_0462_validation.json
+    │   │       ├── config_epoch_0463.yaml
+    │   │       ├── config_epoch_0463_validation.json
+    │   │       ├── config_epoch_0464.yaml
+    │   │       ├── config_epoch_0464_validation.json
+    │   │       ├── config_epoch_0465.yaml
+    │   │       ├── config_epoch_0465_validation.json
+    │   │       ├── config_epoch_0466.yaml
+    │   │       ├── config_epoch_0466_validation.json
+    │   │       ├── config_epoch_0467.yaml
+    │   │       ├── config_epoch_0467_validation.json
+    │   │       ├── config_epoch_0468.yaml
+    │   │       ├── config_epoch_0468_validation.json
+    │   │       ├── config_epoch_0469.yaml
+    │   │       ├── config_epoch_0469_validation.json
+    │   │       ├── config_epoch_0470.yaml
+    │   │       ├── config_epoch_0470_validation.json
+    │   │       ├── config_epoch_0471.yaml
+    │   │       ├── config_epoch_0471_validation.json
+    │   │       ├── config_epoch_0472.yaml
+    │   │       ├── config_epoch_0472_validation.json
+    │   │       ├── config_epoch_0473.yaml
+    │   │       ├── config_epoch_0473_validation.json
+    │   │       ├── config_epoch_0474.yaml
+    │   │       ├── config_epoch_0474_validation.json
+    │   │       ├── config_epoch_0475.yaml
+    │   │       ├── config_epoch_0475_validation.json
+    │   │       ├── config_epoch_0476.yaml
+    │   │       ├── config_epoch_0476_validation.json
+    │   │       ├── config_epoch_0477.yaml
+    │   │       ├── config_epoch_0477_validation.json
+    │   │       ├── config_epoch_0478.yaml
+    │   │       ├── config_epoch_0478_validation.json
+    │   │       ├── config_epoch_0479.yaml
+    │   │       ├── config_epoch_0479_validation.json
+    │   │       ├── config_epoch_0480.yaml
+    │   │       ├── config_epoch_0480_validation.json
+    │   │       ├── config_epoch_0481.yaml
+    │   │       ├── config_epoch_0481_validation.json
+    │   │       ├── config_epoch_0482.yaml
+    │   │       ├── config_epoch_0482_validation.json
+    │   │       ├── config_epoch_0483.yaml
+    │   │       ├── config_epoch_0483_validation.json
+    │   │       ├── config_epoch_0484.yaml
+    │   │       ├── config_epoch_0484_validation.json
+    │   │       ├── config_epoch_0485.yaml
+    │   │       ├── config_epoch_0485_validation.json
+    │   │       ├── config_epoch_0486.yaml
+    │   │       ├── config_epoch_0486_validation.json
+    │   │       ├── config_epoch_0487.yaml
+    │   │       ├── config_epoch_0487_validation.json
+    │   │       ├── config_epoch_0488.yaml
+    │   │       ├── config_epoch_0488_validation.json
+    │   │       ├── config_epoch_0489.yaml
+    │   │       ├── config_epoch_0489_validation.json
+    │   │       ├── config_epoch_0490.yaml
+    │   │       ├── config_epoch_0490_validation.json
+    │   │       ├── config_epoch_0491.yaml
+    │   │       ├── config_epoch_0491_validation.json
+    │   │       ├── config_epoch_0492.yaml
+    │   │       ├── config_epoch_0492_validation.json
+    │   │       ├── config_epoch_0493.yaml
+    │   │       ├── config_epoch_0493_validation.json
+    │   │       ├── config_epoch_0494.yaml
+    │   │       ├── config_epoch_0494_validation.json
+    │   │       ├── config_epoch_0495.yaml
+    │   │       ├── config_epoch_0495_validation.json
+    │   │       ├── config_epoch_0496.yaml
+    │   │       ├── config_epoch_0496_validation.json
+    │   │       ├── config_epoch_0497.yaml
+    │   │       ├── config_epoch_0497_validation.json
+    │   │       ├── config_epoch_0498.yaml
+    │   │       ├── config_epoch_0498_validation.json
+    │   │       ├── config_epoch_0499.yaml
+    │   │       ├── config_epoch_0499_validation.json
+    │   │       ├── config_epoch_0500.yaml
+    │   │       ├── config_epoch_0500_validation.json
     │   │       ├── training_config.yaml
     │   │       └── training_config_validation.json
-    │   └── metrics/
+    │   ├── demo_experiment/
+    │   │   ├── demo_experiment/
+    │   │   │   ├── configs/
+    │   │   │   ├── logs/
+    │   │   │   ├── metrics/
+    │   │   │   ├── models/
+    │   │   │   ├── predictions/
+    │   │   │   ├── reports/
+    │   │   │   ├── visualizations/
+    │   │   │   │   ├── learning_rate_analysis_learning_rate_analysis
+    │   │   │   │   └── parameter_distributions_parameter_distributions
+    │   │   │   └── metadata.json
+    │   │   ├── experiment_data/
+    │   │   │   ├── metrics/
+    │   │   │   │   ├── complete_summary.json
+    │   │   │   │   └── metrics.jsonl
+    │   │   │   ├── config.yaml
+    │   │   │   └── model_best.pth
+    │   │   └── visualizations/
+    │   │       ├── learning_rate_analysis.html
+    │   │       ├── learning_rate_analysis.png
+    │   │       ├── parameter_distributions.html
+    │   │       ├── parameter_distributions.png
+    │   │       └── training_curves.html
+    │   ├── demo_interactive/
+    │   │   ├── 3d_confidence_map.html
+    │   │   ├── 3d_confidence_map.pdf
+    │   │   ├── 3d_confidence_map.png
+    │   │   ├── error_analysis.html
+    │   │   ├── error_analysis.pdf
+    │   │   ├── error_analysis.png
+    │   │   ├── prediction_grid.html
+    │   │   ├── prediction_grid.pdf
+    │   │   ├── prediction_grid.png
+    │   │   ├── real_time_dashboard.html
+    │   │   ├── real_time_dashboard.pdf
+    │   │   ├── real_time_dashboard.png
+    │   │   ├── template_prediction_grid.html
+    │   │   ├── template_prediction_grid.pdf
+    │   │   ├── template_prediction_grid.png
+    │   │   ├── template_training_curves.html
+    │   │   ├── template_training_curves.png
+    │   │   ├── training_curves.html
+    │   │   ├── training_curves.pdf
+    │   │   └── training_curves.png
+    │   ├── demo_prediction/
+    │   │   ├── comparison_grid.png
+    │   │   ├── confidence_map.png
+    │   │   ├── custom_styled_grid.png
+    │   │   ├── error_analysis.png
+    │   │   ├── sample_image_0.jpg
+    │   │   ├── sample_image_1.jpg
+    │   │   ├── sample_image_2.jpg
+    │   │   ├── sample_image_3.jpg
+    │   │   ├── sample_image_4.jpg
+    │   │   ├── sample_image_5.jpg
+    │   │   ├── segmentation_overlay.png
+    │   │   └── tabular_comparison.png
+    │   ├── metrics/
+    │   │   ├── complete_summary.json
+    │   │   ├── summary.json
+    │   │   └── validation_metrics.jsonl
+    │   └── template_demo/
+    │       ├── base_template_demo.png
+    │       ├── customized_template_demo.png
+    │       ├── prediction_template_demo.png
+    │       └── training_template_demo.png
+    ├── publication_figures/
+    │   ├── performance_comparison.pdf
+    │   ├── performance_comparison.png
+    │   ├── performance_comparison.svg
+    │   ├── test_exp_1_training_curves.pdf
+    │   ├── test_exp_1_training_curves.png
+    │   └── test_exp_1_training_curves.svg
+    ├── reports/
     ├── scripts/
     │   ├── __pycache__/
     │   ├── archive/
@@ -1118,7 +2217,12 @@
     │   │   ├── syntax_scanner.py
     │   │   └── utils.py
     │   ├── examples/
+    │   │   ├── advanced_prediction_viz_demo.py
+    │   │   ├── advanced_training_viz_demo.py
     │   │   ├── factory_registry_integration.py
+    │   │   ├── interactive_plotly_demo.py
+    │   │   ├── prediction_analysis_demo.py
+    │   │   ├── template_system_demo.py
     │   │   └── tensorboard_port_management_demo.py
     │   ├── experiments/
     │   │   ├── e2e/
@@ -1145,15 +2249,12 @@
     │   │   │   ├── tutorial_02_batch.ps1
     │   │   │   ├── tutorial_02_compare.py
     │   │   │   └── tutorial_02_visualize.py
+    │   │   ├── automated_comparison.py
     │   │   ├── benchmark_aspp.py
     │   │   ├── debug_swin_params.py
-    │   │   ├── experiment_visualizer.py
     │   │   ├── hybrid_registry_demo.py
     │   │   ├── README.md
-    │   │   ├── registry_demo.py
-    │   │   ├── test_swin_encoder.py
-    │   │   ├── test_swin_transfer_learning_script.py
-    │   │   └── test_swin_unet.py
+    │   │   └── registry_demo.py
     │   ├── monitoring/
     │   │   └── continuous_coverage.py
     │   ├── performance/
@@ -1203,6 +2304,7 @@
     │   ├── coverage_check.sh
     │   ├── debug_artifacts.py
     │   ├── performance_maintenance.py
+    │   ├── predict_image.py
     │   ├── README.md
     │   ├── run_tests_phased.py
     │   ├── simple_final_report.py
@@ -1231,10 +2333,47 @@
     │   │   │   └── validation.py
     │   │   ├── evaluation/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── cli/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── prediction_cli.py
+    │   │   │   ├── core/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── analyzer.py
+    │   │   │   │   ├── image_processor.py
+    │   │   │   │   └── model_loader.py
+    │   │   │   ├── metrics/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── batch_processor.py
+    │   │   │   │   └── calculator.py
+    │   │   │   ├── visualization/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── interactive_plotly/
+    │   │   │   │   │   ├── __pycache__/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── core.py
+    │   │   │   │   │   ├── export_handlers.py
+    │   │   │   │   │   └── metadata_handlers.py
+    │   │   │   │   ├── templates/
+    │   │   │   │   │   ├── __pycache__/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── base_template.py
+    │   │   │   │   │   ├── prediction_template.py
+    │   │   │   │   │   └── training_template.py
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── advanced_prediction_viz.py
+    │   │   │   │   ├── advanced_training_viz.py
+    │   │   │   │   ├── architecture.md
+    │   │   │   │   ├── experiment_viz.py
+    │   │   │   │   ├── learning_rate_analysis.py
+    │   │   │   │   ├── parameter_analysis.py
+    │   │   │   │   ├── prediction_viz.py
+    │   │   │   │   └── training_curves.py
     │   │   │   ├── __init__.py
     │   │   │   ├── __main__.py
     │   │   │   ├── core.py
-    │   │   │   ├── core.py.backup
     │   │   │   ├── data.py
     │   │   │   ├── ensemble.py
     │   │   │   ├── loading.py
@@ -1530,6 +2669,40 @@
     │   │   │   │       └── experiment_info.json
     │   │   │   ├── shared/
     │   │   │   └── experiment_registry.json
+    │   │   ├── reporting/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── comparison/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── engine.py
+    │   │   │   ├── figures/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── publication_figure_generator.py
+    │   │   │   ├── performance/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── analyzer.py
+    │   │   │   │   ├── anomaly_detector.py
+    │   │   │   │   ├── metric_evaluator.py
+    │   │   │   │   ├── recommendation_engine.py
+    │   │   │   │   └── training_analyzer.py
+    │   │   │   ├── recommendations/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   └── engine.py
+    │   │   │   ├── templates/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── html_templates.py
+    │   │   │   │   ├── latex_templates.py
+    │   │   │   │   ├── markdown_templates.py
+    │   │   │   │   └── template_manager.py
+    │   │   │   ├── __init__.py
+    │   │   │   ├── config.py
+    │   │   │   ├── core.py
+    │   │   │   ├── data_loader.py
+    │   │   │   └── interfaces.py
     │   │   ├── training/
     │   │   │   ├── __pycache__/
     │   │   │   ├── losses/
@@ -1584,6 +2757,13 @@
     │   │   │   └── trainer.py.backup
     │   │   ├── utils/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── artifact_manager/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── core.py
+    │   │   │   │   ├── metadata.py
+    │   │   │   │   ├── storage.py
+    │   │   │   │   └── validation.py
     │   │   │   ├── checkpointing/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
@@ -1652,6 +2832,7 @@
     │   │   │   │   ├── __init__.py
     │   │   │   │   └── plots.py
     │   │   │   ├── __init__.py
+    │   │   │   ├── artifact_manager.py
     │   │   │   ├── component_cache.py
     │   │   │   ├── exceptions.py
     │   │   │   ├── README.md
@@ -2060,6 +3241,7 @@
     │   │   │   │   ├── test_data_aggregation.py
     │   │   │   │   └── test_trend_analysis.py
     │   │   │   ├── __init__.py
+    │   │   │   ├── test_automated_comparison.py
     │   │   │   ├── test_end_to_end_reporting.py
     │   │   │   └── test_sample_report_generation.py
     │   │   ├── training/
@@ -2074,7 +3256,8 @@
     │   │   │   ├── test_training_artifacts_integration.py
     │   │   │   └── test_training_loop.py
     │   │   ├── utils/
-    │   │   └── test_backward_compatibility.py
+    │   │   ├── test_backward_compatibility.py
+    │   │   └── test_visualization_integration.py
     │   ├── tools/
     │   │   ├── analysis/
     │   │   │   ├── __pycache__/
@@ -2113,6 +3296,8 @@
     │   │   │   │   └── reporting/
     │   │   │   └── waits/
     │   │   ├── evaluation/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── test_advanced_training_viz.py
     │   │   │   ├── test_core.py
     │   │   │   ├── test_data.py
     │   │   │   ├── test_ensemble.py
@@ -2171,8 +3356,10 @@
     │   │   ├── model/
     │   │   │   ├── __pycache__/
     │   │   │   ├── config/
+    │   │   │   │   ├── __pycache__/
     │   │   │   │   └── test_instantiation.py
     │   │   │   ├── decoder/
+    │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── test_channel_utils.py
     │   │   │   │   ├── test_cnn_decoder_channel_handling.py
     │   │   │   │   ├── test_cnn_decoder_error_handling.py
@@ -2200,11 +3387,20 @@
     │   │   │   ├── test_import_compat.py
     │   │   │   ├── test_registry.py
     │   │   │   ├── test_swin_basic.py
+    │   │   │   ├── test_swin_encoder.py
+    │   │   │   ├── test_swin_transfer_learning_script.py
     │   │   │   ├── test_swin_transformer_encoder.py
+    │   │   │   ├── test_swin_unet.py
     │   │   │   ├── test_thread_safety.py
     │   │   │   ├── test_unet.py
     │   │   │   └── test_utils.py
+    │   │   ├── reporting/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── test_configurable_templates.py
+    │   │   │   ├── test_publication_figures.py
+    │   │   │   └── test_recommendation_engine.py
     │   │   ├── training/
+    │   │   │   ├── __pycache__/
     │   │   │   ├── losses/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── test_clean_factory.py
@@ -2242,6 +3438,7 @@
     │   │   │   │   ├── test_callbacks.py
     │   │   │   │   ├── test_monitoring_manager.py
     │   │   │   │   └── test_retention.py
+    │   │   │   ├── test_artifact_manager.py
     │   │   │   ├── test_checkpointing.py
     │   │   │   ├── test_dataset.py
     │   │   │   ├── test_early_stopping.py
@@ -2252,11 +3449,14 @@
     │   │   │   ├── test_splitting.py
     │   │   │   └── test_validation.py
     │   │   ├── __init__.py
+    │   │   ├── test_data_loader.py
+    │   │   ├── test_interactive_plotly.py
     │   │   ├── test_main_data.py
     │   │   ├── test_main_environment.py
     │   │   ├── test_main_integration.py
     │   │   ├── test_main_model.py
-    │   │   └── test_main_training.py
+    │   │   ├── test_main_training.py
+    │   │   └── test_performance_analyzer.py
     │   ├── utils/
     │   │   ├── __pycache__/
     │   │   ├── unified_testing/
@@ -2281,10 +3481,6 @@
     │   ├── conftest.py
     │   ├── README.md
     │   └── requirements-testing.txt
-    ├── tools/
-    │   ├── analysis/
-    │   ├── testing/
-    │   └── utilities/
     ├── CHANGELOG.md
     ├── codecov.yml
     ├── debug_output.txt

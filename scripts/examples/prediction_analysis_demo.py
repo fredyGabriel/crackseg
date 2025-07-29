@@ -1,50 +1,54 @@
 #!/usr/bin/env python3
 """
-Demo script for the SimplePredictionAnalyzer with automatic mask inference.
+Demo script for the new modular PredictionAnalyzer.
 
-This script demonstrates how to use the analyzer with automatic mask path
-inference, so you only need to provide the image path and the mask directory.
+This script demonstrates the new modular architecture for crack segmentation
+prediction analysis with automatic mask inference and professional
+visualizations.
 """
 
 import logging
 from pathlib import Path
 
-from crackseg.evaluation.simple_prediction_analyzer import (
-    SimplePredictionAnalyzer,
-)
+from crackseg.evaluation import PredictionAnalyzer, PredictionVisualizer
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 logger = logging.getLogger(__name__)
 
 
 def demo_automatic_mask_inference():
     """Demonstrate automatic mask inference functionality."""
+    logger.info("\n" + "=" * 60)
+    logger.info("DEMO: Automatic Mask Inference")
+    logger.info("=" * 60)
 
     # Configuration
     checkpoint_path = "outputs/checkpoints/model_best.pth.tar"
     config_path = "outputs/configurations/default_experiment/config.yaml"
-    mask_dir = "data/train/masks"  # Directory containing ground truth masks
+    mask_dir = "data/train/masks"
 
-    # Test images from different directories
+    # Test images
     test_images = [
-        "data/train/images/98.jpg",  # Should find data/train/masks/98.png
-        "data/val/images/1.jpg",  # Should find data/val/masks/1.png
-        "data/test/images/1.jpg",  # Should find data/test/masks/1.png
+        "data/train/images/98.jpg",
+        "data/train/images/99.jpg",
+        "data/train/images/100.jpg",
     ]
 
-    # Initialize analyzer with mask directory
+    # Initialize analyzer with mask directory for auto-inference
     logger.info(
-        "Initializing SimplePredictionAnalyzer with automatic mask "
-        "inference..."
+        "Initializing PredictionAnalyzer with automatic mask inference"
     )
-    analyzer = SimplePredictionAnalyzer(
+    analyzer = PredictionAnalyzer(
         checkpoint_path=checkpoint_path,
         config_path=config_path,
-        mask_dir=mask_dir,
+        mask_dir=mask_dir,  # Enable auto-inference
     )
 
-    # Print model information
+    # Print model info
     model_info = analyzer.get_model_info()
     logger.info("Model Information:")
     for key, value in model_info.items():
@@ -82,68 +86,16 @@ def demo_automatic_mask_inference():
             output_path = f"outputs/predictions/{image_path.stem}_analysis.png"
             Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-            analyzer.create_visualization(result, output_path)
+            visualizer = PredictionVisualizer(analyzer.config)
+            visualizer.create_visualization(result, output_path)
             logger.info(f"Visualization saved to: {output_path}")
 
         except Exception as e:
             logger.error(f"Error analyzing {image_path}: {e}")
 
 
-def demo_manual_mask_specification():
-    """Demonstrate manual mask specification (for comparison)."""
-
-    logger.info("\n" + "=" * 60)
-    logger.info("DEMO: Manual Mask Specification")
-    logger.info("=" * 60)
-
-    # Configuration
-    checkpoint_path = "outputs/checkpoints/model_best.pth.tar"
-    config_path = "outputs/configurations/default_experiment/config.yaml"
-
-    # Specific image and mask paths
-    image_path = "data/train/images/98.jpg"
-    mask_path = "data/train/masks/98.png"
-
-    # Initialize analyzer without mask directory
-    analyzer = SimplePredictionAnalyzer(
-        checkpoint_path=checkpoint_path,
-        config_path=config_path,
-    )
-
-    logger.info("Analyzing with manual mask specification:")
-    logger.info(f"  Image: {image_path}")
-    logger.info(f"  Mask: {mask_path}")
-
-    try:
-        result = analyzer.analyze_image(
-            image_path=image_path,
-            mask_path=mask_path,  # Explicitly specify mask
-            threshold=0.5,
-            auto_find_mask=False,  # Disable automatic inference
-        )
-
-        # Print results
-        if "metrics" in result:
-            logger.info("Analysis Results:")
-            if "iou" in result:
-                logger.info(f"  IoU: {result['iou']:.3f}")
-            for metric, value in result["metrics"].items():
-                logger.info(f"  {metric}: {value:.3f}")
-
-        # Create visualization
-        output_path = "outputs/predictions/manual_mask_analysis.png"
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-
-        analyzer.create_visualization(result, output_path)
-        logger.info(f"Visualization saved to: {output_path}")
-
-    except Exception as e:
-        logger.error(f"Error in manual analysis: {e}")
-
-
 def demo_prediction_only():
     """Demonstrate prediction-only analysis (no ground truth)."""
-
     logger.info("\n" + "=" * 60)
     logger.info("DEMO: Prediction Only (No Ground Truth)")
     logger.info("=" * 60)
@@ -156,7 +108,7 @@ def demo_prediction_only():
     image_path = "data/train/images/98.jpg"
 
     # Initialize analyzer without mask directory
-    analyzer = SimplePredictionAnalyzer(
+    analyzer = PredictionAnalyzer(
         checkpoint_path=checkpoint_path,
         config_path=config_path,
     )
@@ -179,40 +131,129 @@ def demo_prediction_only():
         output_path = "outputs/predictions/prediction_only_analysis.png"
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
-        analyzer.create_visualization(result, output_path)
+        visualizer = PredictionVisualizer(analyzer.config)
+        visualizer.create_visualization(result, output_path)
         logger.info(f"Visualization saved to: {output_path}")
 
     except Exception as e:
         logger.error(f"Error in prediction-only analysis: {e}")
 
 
-def main():
-    """Run all demonstration scenarios."""
+def demo_batch_processing():
+    """Demonstrate batch processing capabilities."""
+    logger.info("\n" + "=" * 60)
+    logger.info("DEMO: Batch Processing")
+    logger.info("=" * 60)
 
-    logger.info("SimplePredictionAnalyzer Demo with Automatic Mask Inference")
-    logger.info("=" * 80)
+    # Configuration
+    checkpoint_path = "outputs/checkpoints/model_best.pth.tar"
+    config_path = "outputs/configurations/default_experiment/config.yaml"
+    image_dir = "data/train/images"
+    mask_dir = "data/train/masks"
 
-    # Check if checkpoint exists
-    checkpoint_path = Path("outputs/checkpoints/model_best.pth.tar")
-    if not checkpoint_path.exists():
-        logger.error(f"Checkpoint not found: {checkpoint_path}")
-        logger.error("Please run a training experiment first.")
-        return
+    # Initialize analyzer
+    analyzer = PredictionAnalyzer(
+        checkpoint_path=checkpoint_path,
+        config_path=config_path,
+        mask_dir=mask_dir,
+    )
 
-    # Run demonstrations
+    # Import batch processor
+    from crackseg.evaluation import BatchProcessor
+
+    batch_processor = BatchProcessor(analyzer.image_processor)
+
+    logger.info("Performing batch analysis:")
+    logger.info(f"  Image directory: {image_dir}")
+    logger.info(f"  Mask directory: {mask_dir}")
+
     try:
-        demo_automatic_mask_inference()
-        demo_manual_mask_specification()
-        demo_prediction_only()
-
-        logger.info("\n" + "=" * 80)
-        logger.info("All demonstrations completed successfully!")
-        logger.info(
-            "Check the 'outputs/predictions/' directory for visualizations."
+        summary = batch_processor.process_batch(
+            image_dir=image_dir,
+            mask_dir=mask_dir,
+            output_dir="outputs/batch_analysis",
+            save_visualizations=True,
         )
 
+        logger.info("Batch analysis completed successfully")
+        logger.info("Summary:")
+        for key, value in summary.items():
+            logger.info(f"  {key}: {value}")
+
     except Exception as e:
-        logger.error(f"Demo failed: {e}")
+        logger.error(f"Error in batch analysis: {e}")
+
+
+def demo_visualization_features():
+    """Demonstrate advanced visualization features."""
+    logger.info("\n" + "=" * 60)
+    logger.info("DEMO: Advanced Visualization Features")
+    logger.info("=" * 60)
+
+    # Configuration
+    checkpoint_path = "outputs/checkpoints/model_best.pth.tar"
+    config_path = "outputs/configurations/default_experiment/config.yaml"
+    mask_dir = "data/train/masks"
+
+    # Initialize analyzer and visualizer
+    analyzer = PredictionAnalyzer(
+        checkpoint_path=checkpoint_path,
+        config_path=config_path,
+        mask_dir=mask_dir,
+    )
+    visualizer = PredictionVisualizer(analyzer.config)
+
+    # Test images for comparison
+    test_images = [
+        "data/train/images/98.jpg",
+        "data/train/images/99.jpg",
+        "data/train/images/100.jpg",
+    ]
+
+    # Analyze multiple images
+    results = []
+    for image_path in test_images:
+        image_path = Path(image_path)
+        if not image_path.exists():
+            continue
+
+        try:
+            result = analyzer.analyze_image(
+                image_path=image_path,
+                threshold=0.5,
+                auto_find_mask=True,
+            )
+            results.append(result)
+        except Exception as e:
+            logger.error(f"Error analyzing {image_path}: {e}")
+
+    if results:
+        # Create comparison grid
+        output_path = "outputs/predictions/comparison_grid.png"
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+        visualizer.create_comparison_grid(
+            results, save_path=output_path, max_images=9
+        )
+        logger.info(f"Comparison grid saved to: {output_path}")
+
+
+def main():
+    """Run all demos."""
+    logger.info("CrackSeg Prediction Analysis Demo")
+    logger.info("New Modular Architecture")
+    logger.info("=" * 60)
+
+    # Run demos
+    demo_automatic_mask_inference()
+    demo_prediction_only()
+    demo_batch_processing()
+    demo_visualization_features()
+
+    logger.info("\n" + "=" * 60)
+    logger.info("All demos completed successfully!")
+    logger.info("Check outputs/predictions/ for generated visualizations")
+    logger.info("=" * 60)
 
 
 if __name__ == "__main__":

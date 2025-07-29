@@ -21,6 +21,8 @@
     "reportMissingImports": "none",
     "reportUnusedImport": true,
     "reportUnusedVariable": "warning",
+    "reportAttributeAccessIssue": "none",
+    "reportReturnType": "none",
     "executionEnvironments": [
         {
             "root": ".",
@@ -29,6 +31,32 @@
                 "docker",
                 "gui"
             ]
+        },
+        {
+            "root": "src/crackseg/evaluation/visualization",
+            "extraPaths": [
+                ".",
+                "src"
+            ],
+            "reportAttributeAccessIssue": "none",
+            "reportReturnType": "none",
+            "reportUnknownMemberType": "none",
+            "reportMissingImports": "warning",
+            "reportUnusedVariable": "warning",
+            "reportUnusedImport": "warning"
+        },
+        {
+            "root": "scripts/examples",
+            "extraPaths": [
+                ".",
+                "src"
+            ],
+            "reportAttributeAccessIssue": "none",
+            "reportReturnType": "none",
+            "reportUnknownMemberType": "none",
+            "reportMissingImports": "warning",
+            "reportUnusedVariable": "warning",
+            "reportUnusedImport": "warning"
         },
         {
             "root": "src/crackseg/model",

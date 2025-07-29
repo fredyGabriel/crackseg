@@ -199,8 +199,9 @@ def create_split_datasets(
         RuntimeError: If no samples are found in data_root.
         ValueError: If dataset_cls is None.
     """
-    # Validate required configuration - dataset_cls is guaranteed by type
-    # annotation
+    # Validate required configuration
+    if config.dataset_cls is None:
+        raise ValueError("dataset_cls must be provided")
 
     datasets: dict[str, CrackSegmentationDataset] = {}
     # Define max samples for each split

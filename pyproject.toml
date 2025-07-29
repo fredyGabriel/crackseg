@@ -152,63 +152,6 @@ reportMissingModuleSource = false
 
 # Test-specific suppression for GUI components
 [[tool.basedpyright.overrides]]
-include = ["tests/unit/gui/components/**/*.py"]
-# Suppress false positives in GUI component tests using mocks
-reportCallIssue = false
-reportAttributeAccessIssue = false
-reportUnknownMemberType = false
-reportGeneralTypeIssues = false
-
-# Pytest fixtures and testing framework
-[[tool.basedpyright.overrides]]
-include = ["tests/**/*.py"]
-# Suppress pytest dynamic behavior
-reportUnknownMemberType = false
-reportUnknownArgumentType = false
-reportAttributeAccessIssue = false
-reportFunctionMemberAccess = false
-reportOptionalCall = false
-reportOptionalMemberAccess = false
-
-# PyTorch and ML libraries suppression
-[[tool.basedpyright.overrides]]
-include = ["tests/**/*.py"]
-# Suppress PyTorch internal type issues
-reportUnknownParameterType = false
-reportUnknownVariableType = false
-reportGeneralTypeIssues = false
-reportCallIssue = false
-
-# Mock and fixture heavy tests
-[[tool.basedpyright.overrides]]
-include = ["tests/unit/**/*.py", "tests/integration/**/*.py"]
-# Allow dynamic test patterns
-reportArgumentType = false
-reportIncompatibleMethodOverride = false
-reportIncompatibleVariableOverride = false
-
-# E2E and complex testing patterns
-[[tool.basedpyright.overrides]]
-include = ["tests/e2e/**/*.py"]
-# E2E tests use many dynamic patterns
-reportUnknownMemberType = false
-reportUnknownArgumentType = false
-reportUnknownVariableType = false
-reportAttributeAccessIssue = false
-reportCallIssue = false
-reportGeneralTypeIssues = false
-
-# Docker and environment tests
-[[tool.basedpyright.overrides]]
-include = ["tests/docker/**/*.py"]
-# Docker tests interact with external systems
-reportUnknownMemberType = false
-reportUnknownArgumentType = false
-reportImportCycles = false
-reportMissingImports = false
-
-# ML/PyTorch specific suppressions
-[[tool.basedpyright.overrides]]
 include = ["tests/**/*.py"]
 # Aggressive suppression for external ML libraries
 reportUnknownMemberType = false
@@ -222,6 +165,24 @@ reportCallIssue = false
 reportArgumentType = false
 reportAssignmentType = false
 reportReturnType = false
+
+# # Visualization and matplotlib specific suppressions
+# [[tool.basedpyright.overrides]]
+# include = ["src/crackseg/evaluation/visualization/*.py"]
+# # Suppress matplotlib-related false positives
+# reportAttributeAccessIssue = false
+# reportReturnType = false
+# reportUnknownMemberType = false
+# reportMissingImports = false
+
+# # Scripts examples with matplotlib
+# [[tool.basedpyright.overrides]]
+# include = ["scripts/examples/*.py"]
+# # Suppress matplotlib-related false positives
+# reportAttributeAccessIssue = false
+# reportReturnType = false
+# reportUnknownMemberType = false
+# reportMissingImports = false
 
 [tool.ruff]
 line-length = 79
