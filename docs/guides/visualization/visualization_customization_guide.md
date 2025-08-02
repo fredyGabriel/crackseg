@@ -27,6 +27,7 @@ styling to advanced features.
 ```python
 from crackseg.evaluation.visualization.templates import BaseVisualizationTemplate
 
+
 class CustomTrainingTemplate(BaseVisualizationTemplate):
     """Custom template for training visualizations."""
 
@@ -73,6 +74,7 @@ class CustomTrainingTemplate(BaseVisualizationTemplate):
 
 ```python
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
+
 
 # Create custom template
 custom_template = CustomTrainingTemplate()

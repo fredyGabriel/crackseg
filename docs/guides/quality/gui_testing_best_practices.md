@@ -51,7 +51,7 @@ def test_device_selector_updates_session_state():
         assert mock_state['selected_device'] == 'cuda:0'
         assert device_selector.get_selected_device() == 'cuda:0'
 
-# ❌ Bad: Test implementation details
+#  Bad: Test implementation details
 def test_device_selector_has_specific_widget_count():
     """Don't test internal widget structure."""
     device_selector = DeviceSelector()
@@ -495,5 +495,5 @@ coverage that supports the project's quality objectives.
 
 - [Testing Standards](/.cursor/rules/testing-standards.mdc)
 - [Development Workflow](/.cursor/rules/development-workflow.mdc)
-- [GUI Test Coverage Analysis](../reports/gui_test_coverage_analysis.md)
+- [GUI Test Coverage Analysis](gui_test_coverage_analysis.md)
 - [CI/CD Integration Guide](ci_cd_integration_guide.md)

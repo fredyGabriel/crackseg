@@ -9,7 +9,7 @@
 
 **Overall Progress**: ⬜ 0/5 phases complete
 **Task Master**: Task #5 with 5 subtasks configured
-**Documentation**: ✅ Analysis complete in `docs/reports/gui_test_coverage_analysis.md`
+**Documentation**: ✅ Analysis complete in `dogui_test_coverage_analysis.md`
 
 ---
 
@@ -196,7 +196,7 @@
   - [ ] No flaky or unstable tests
 
 - [ ] **Documentation Updates**
-  - [ ] Update `docs/reports/gui_test_coverage_analysis.md`
+  - [ ] Update `dogui_test_coverage_analysis.md`
   - [ ] Create testing best practices guide
   - [ ] Document test maintenance procedures
   - [ ] Update project README with testing info
@@ -276,7 +276,7 @@ conda activate crackseg && basedpyright tests/unit/gui/
 ## 🔗 Quick Links
 
 - **Task Master**: Task #5 and subtasks 5.1-5.5
-- **Analysis Report**: `docs/reports/gui_test_coverage_analysis.md`
+- **Analysis Report**: `dogui_test_coverage_analysis.md`
 - **Existing Tests**: `tests/unit/gui/pages/test_home_page.py` (reference)
 - **Project Tree**: `docs/reports/project_tree.md`
 

@@ -159,6 +159,7 @@ Create a custom alert configuration:
 ```python
 from crackseg.utils.monitoring.coverage_monitor import AlertConfig
 
+
 alert_config = AlertConfig(
     enabled=True,
     email_recipients=["team@company.com"],
@@ -522,6 +523,7 @@ CREATE TABLE coverage_history (
 
 ```python
 from crackseg.utils.monitoring.coverage_monitor import CoverageMonitor
+
 
 monitor = CoverageMonitor()
 trend_data = monitor.analyze_trends(days=30)

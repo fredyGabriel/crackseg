@@ -68,7 +68,7 @@ lista las referencias.
 - **Entorno:**
   - Python 3.12+, PyTorch >=2.5.0
   - GPU: NVIDIA RTX 3070 Ti (8GB VRAM)
-  - Reproducibilidad: control de semillas y almacenamiento completo de la configuración (`docs/guides/specifications/configuration_storage_specification.md`)
+  - Reproducibilidad: control de semillas y almacenamiento completo de la configuración (`doconfiguration_storage_specification.md`)
 - **Validación:**
   - Validación periódica y guardado de checkpoints
   - Early stopping basado en IoU de validación
@@ -156,8 +156,8 @@ lista las referencias.
 Esta sección debe ser completada manualmente con las citas académicas pertinentes. Véase también:
 
 - [Informe Técnico](./technical_report.md)
-- [Especificación de Formato de Checkpoints](../guides/specifications/checkpoint_format_specification.md)
-- [Especificación de Almacenamiento de Configuración](../guides/specifications/configuration_storage_specification.md)
+- [Especificación de Formato de Checkpoints](checkpoint_format_specification.md)
+- [Especificación de Almacenamiento de Configuración](configuration_storage_specification.md)
 - [Documentación de Hydra](https://hydra.cc/)
 - [Albumentations](https://albumentations.ai/)
 - [PyTorch](https://pytorch.org/)

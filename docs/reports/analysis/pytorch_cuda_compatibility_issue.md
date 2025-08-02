@@ -83,10 +83,10 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 ### What Doesn't Work
 
-- ❌ PyTorch import (DLL loading error)
-- ❌ TorchVision import (DLL loading error)
-- ❌ Test execution (fails during module import)
-- ❌ CUDA detection and usage
+-  PyTorch import (DLL loading error)
+-  TorchVision import (DLL loading error)
+-  Test execution (fails during module import)
+-  CUDA detection and usage
 
 ## Project Requirements
 

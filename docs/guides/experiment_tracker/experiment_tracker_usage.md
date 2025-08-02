@@ -34,6 +34,7 @@ from pathlib import Path
 from omegaconf import DictConfig, OmegaConf
 from crackseg.utils.experiment.tracker import ExperimentTracker
 
+
 # Initialize tracker
 tracker = ExperimentTracker(
     experiment_dir=Path("outputs/experiments/my_experiment"),

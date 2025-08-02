@@ -372,7 +372,11 @@ class BaseUNet(UNetBase):
 
         # Apply final activation if configured
         if self.final_activation is not None:
-            output = self.final_activation(output)
+            if isinstance(self.final_activation, nn.Module):
+                output = self.final_activation(output)
+            else:
+                # Skip if final_activation is a dict (configuration)
+                pass
 
         return cast(torch.Tensor, output)
 

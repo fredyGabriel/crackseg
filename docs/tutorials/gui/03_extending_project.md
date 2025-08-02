@@ -33,6 +33,7 @@ import torch
 import torch.nn as nn
 from crackseg.training.losses.registry import register_loss
 
+
 @register_loss("smooth_l1")
 class SmoothL1Loss(nn.Module):
     def __init__(self, beta: float = 1.0):
@@ -57,7 +58,7 @@ pip install -e . --no-deps
 ## Step 2: Register the Component
 
 The key to making your component available to the system is the `@register_loss`
-decorator, which we imported from `src.training.losses.registry`.
+decorator, which we imported from `crackseg.training.losses.registry`.
 
 ```python
 @register_loss("smooth_l1")
@@ -165,6 +166,7 @@ conda activate crackseg
 python -c "
 import torch
 from crackseg.training.losses.smooth_l1_loss import SmoothL1Loss
+
 loss_fn = SmoothL1Loss(beta=0.5)
 pred = torch.randn(2, 1, 64, 64)
 target = torch.randn(2, 1, 64, 64)

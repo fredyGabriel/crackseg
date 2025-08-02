@@ -49,11 +49,13 @@ def test_data_pipeline_end_to_end() -> None:
     # Create dummy data
     n = 8
     images: list[NDArray[np.uint8]] = [
-        np.random.randint(0, 255, (32, 32, 3), dtype=np.uint8)
+        np.random.randint(0, 255, (32, 32, 3), dtype=np.uint8).astype(np.uint8)
         for _ in range(n)
     ]
     masks: list[NDArray[np.uint8]] = [
-        np.random.randint(0, 2, (32, 32), dtype=np.uint8) * 255
+        (np.random.randint(0, 2, (32, 32), dtype=np.uint8) * 255).astype(
+            np.uint8
+        )
         for _ in range(n)
     ]
     # Compose transforms

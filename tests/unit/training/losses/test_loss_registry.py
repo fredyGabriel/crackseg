@@ -53,7 +53,7 @@ def isolated_loss_registry(
 
 class DummyLoss1(nn.Module):
     def __init__(self, param1: int = 0) -> None:
-        super().__init__()  # type: ignore[misc]
+        super().__init__()
         self.param1 = param1
 
     def forward(
@@ -64,7 +64,7 @@ class DummyLoss1(nn.Module):
 
 class DummyLoss2(nn.Module):
     def __init__(self, param_a: str = "default") -> None:
-        super().__init__()  # type: ignore[misc]
+        super().__init__()
         self.param_a = param_a
 
     def forward(
@@ -86,7 +86,7 @@ class TestLossRegistry:
     ) -> None:
         """Test basic properties of the loss_registry instance."""
         assert isolated_loss_registry.name == "LossFunctions"
-        assert isolated_loss_registry.base_class == nn.Module
+        assert isolated_loss_registry.base_class is nn.Module
         assert isinstance(isolated_loss_registry, Registry)
 
     def test_initial_state(

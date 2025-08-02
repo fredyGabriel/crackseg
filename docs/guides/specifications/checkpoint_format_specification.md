@@ -64,6 +64,7 @@ Examples:
 ```python
 from crackseg.utils.checkpointing import save_checkpoint, CheckpointSaveConfig
 
+
 config = CheckpointSaveConfig(
     checkpoint_dir="experiments/checkpoints",
     filename="checkpoint_epoch_010.pth",
@@ -89,6 +90,7 @@ save_checkpoint(
 ```python
 from crackseg.utils.checkpointing import load_checkpoint
 
+
 # Load with strict validation
 checkpoint_data = load_checkpoint(
     checkpoint_path="path/to/checkpoint.pth",
@@ -108,6 +110,7 @@ print(f"Best metric: {checkpoint_data.get('best_metric_value', 'N/A')}")
 ```python
 from crackseg.utils.checkpointing import verify_checkpoint_integrity
 
+
 result = verify_checkpoint_integrity("path/to/checkpoint.pth")
 
 if result["is_valid"]:
@@ -115,7 +118,7 @@ if result["is_valid"]:
     print(f"   Size: {result['file_size_mb']:.1f} MB")
     print(f"   PyTorch: {result['pytorch_version']}")
 else:
-    print(f"❌ Invalid checkpoint")
+    print(f" Invalid checkpoint")
     print(f"   Missing: {result['missing_required_fields']}")
     if result["error"]:
         print(f"   Error: {result['error']}")
@@ -125,6 +128,7 @@ else:
 
 ```python
 from crackseg.utils.checkpointing import adapt_legacy_checkpoint, load_checkpoint
+
 
 # Load old format checkpoint
 legacy_data = load_checkpoint(
@@ -166,6 +170,7 @@ class CheckpointSaveConfig:
 ```python
 from crackseg.utils.checkpointing import CheckpointSpec
 
+
 # Custom specification for specialized use cases
 custom_spec = CheckpointSpec()
 custom_spec.required_fields.add("custom_field")
@@ -196,6 +201,7 @@ save_checkpoint(..., training_config=training_config)
 
 ```python
 from crackseg.utils.checkpointing import create_standardized_filename
+
 
 # Create descriptive, timestamped filenames
 filename = create_standardized_filename(
@@ -241,6 +247,7 @@ except ValueError:
 import glob
 from pathlib import Path
 from crackseg.utils.checkpointing import verify_checkpoint_integrity, load_and_adapt_legacy_checkpoint
+
 
 def migrate_checkpoints(checkpoint_dir: str):
     """Migrate all checkpoints in directory to standardized format."""

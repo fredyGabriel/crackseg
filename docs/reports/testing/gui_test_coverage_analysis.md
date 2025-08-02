@@ -53,19 +53,19 @@ major system components lack adequate testing.
 | `components.tensorboard.state` | 39.4% | ⚠️ Needs Improvement |
 | `utils.config` | 38.9% | ⚠️ Needs Improvement |
 | `utils.process` | 36.0% | ⚠️ Needs Improvement |
-| `components` | 32.7% | ❌ Low |
-| `utils.tensorboard` | 31.5% | ❌ Low |
-| `utils.run_manager` | 27.5% | ❌ Low |
-| `components.config_editor` | 23.7% | ❌ Low |
-| `components.tensorboard` | 23.9% | ❌ Low |
-| `pages` | 20.3% | ❌ Critical Gap |
-| `services` | 20.3% | ❌ Critical Gap |
-| `pages.architecture` | 19.1% | ❌ Critical Gap |
-| `pages.results` | 19.7% | ❌ Critical Gap |
-| `utils.results` | 17.6% | ❌ Critical Gap |
-| `components.tensorboard.utils` | 14.4% | ❌ Critical Gap |
-| `components.tensorboard.recovery` | 0.0% | ❌ No Coverage |
-| `utils.results_scanning` | 0.0% | ❌ No Coverage |
+| `components` | 32.7% |  Low |
+| `utils.tensorboard` | 31.5% |  Low |
+| `utils.run_manager` | 27.5% |  Low |
+| `components.config_editor` | 23.7% |  Low |
+| `components.tensorboard` | 23.9% |  Low |
+| `pages` | 20.3% |  Critical Gap |
+| `services` | 20.3% |  Critical Gap |
+| `pages.architecture` | 19.1% |  Critical Gap |
+| `pages.results` | 19.7% |  Critical Gap |
+| `utils.results` | 17.6% |  Critical Gap |
+| `components.tensorboard.utils` | 14.4% |  Critical Gap |
+| `components.tensorboard.recovery` | 0.0% |  No Coverage |
+| `utils.results_scanning` | 0.0% |  No Coverage |
 
 ### Infrastructure Validation
 
@@ -111,11 +111,11 @@ major system components lack adequate testing.
 
 ```python
 # High Priority Page Tests Needed:
-❌ tests/unit/gui/pages/test_config_page.py         # 222 lines of code
-❌ tests/unit/gui/pages/test_advanced_config_page.py # 270 lines of code
-❌ tests/unit/gui/pages/test_train_page.py          # 281 lines of code
-❌ tests/unit/gui/pages/test_architecture_page.py   # 20 lines of code
-❌ tests/unit/gui/pages/test_results_page.py        # 25 lines of code
+ tests/unit/gui/pages/test_config_page.py         # 222 lines of code
+ tests/unit/gui/pages/test_advanced_config_page.py # 270 lines of code
+ tests/unit/gui/pages/test_train_page.py          # 281 lines of code
+ tests/unit/gui/pages/test_architecture_page.py   # 20 lines of code
+ tests/unit/gui/pages/test_results_page.py        # 25 lines of code
 
 # Existing:
 ✅ tests/unit/gui/pages/test_pages_smoke.py         # 84 lines (Basic smoke tests)
@@ -131,22 +131,22 @@ orchestration, and results visualization.
 
 ```python
 # Navigation & Layout:
-❌ tests/unit/gui/components/test_sidebar_component.py     # 154 lines of code
-❌ tests/unit/gui/components/test_header_component.py      # 41 lines of code
+ tests/unit/gui/components/test_sidebar_component.py     # 154 lines of code
+ tests/unit/gui/components/test_header_component.py      # 41 lines of code
 
 # File Management:
-❌ tests/unit/gui/components/test_file_browser.py          # 109 lines of code
-❌ tests/unit/gui/components/test_file_upload_component.py # 435 lines of code
-❌ tests/unit/gui/components/test_file_browser_component.py # 432 lines of code
+ tests/unit/gui/components/test_file_browser.py          # 109 lines of code
+ tests/unit/gui/components/test_file_upload_component.py # 435 lines of code
+ tests/unit/gui/components/test_file_browser_component.py # 432 lines of code
 
 # Visualization:
-❌ tests/unit/gui/components/test_logo_component.py        # 386 lines of code
-❌ tests/unit/gui/components/test_metrics_viewer.py        # 35 lines of code
-❌ tests/unit/gui/components/test_log_viewer.py           # 30 lines of code
-❌ tests/unit/gui/components/test_results_display.py      # 324 lines of code
+ tests/unit/gui/components/test_logo_component.py        # 386 lines of code
+ tests/unit/gui/components/test_metrics_viewer.py        # 35 lines of code
+ tests/unit/gui/components/test_log_viewer.py           # 30 lines of code
+ tests/unit/gui/components/test_results_display.py      # 324 lines of code
 
 # Integration:
-❌ tests/unit/gui/components/test_tensorboard_component.py # 24 lines of code
+ tests/unit/gui/components/test_tensorboard_component.py # 24 lines of code
 
 # Existing:
 ✅ tests/unit/gui/components/test_page_router.py          # 280+ lines (NEW)
@@ -159,22 +159,22 @@ orchestration, and results visualization.
 
 ```python
 # Configuration Management:
-❌ tests/unit/gui/utils/test_gui_config.py              # 47 lines of code
-❌ tests/unit/gui/utils/test_config_io.py               # 68 lines of code
+ tests/unit/gui/utils/test_gui_config.py              # 47 lines of code
+ tests/unit/gui/utils/test_config_io.py               # 68 lines of code
 
 # Performance & State:
-❌ tests/unit/gui/utils/test_performance_optimizer.py   # 468 lines of code
-❌ tests/unit/gui/utils/test_session_sync.py            # 405 lines of code
-❌ tests/unit/gui/utils/test_theme.py                   # 565 lines of code
+ tests/unit/gui/utils/test_performance_optimizer.py   # 468 lines of code
+ tests/unit/gui/utils/test_session_sync.py            # 405 lines of code
+ tests/unit/gui/utils/test_theme.py                   # 565 lines of code
 
 # Data Processing:
-❌ tests/unit/gui/utils/test_data_stats.py              # 34 lines of code
-❌ tests/unit/gui/utils/test_export_manager.py          # 149 lines of code
-❌ tests/unit/gui/utils/test_architecture_viewer.py     # 402 lines of code
+ tests/unit/gui/utils/test_data_stats.py              # 34 lines of code
+ tests/unit/gui/utils/test_export_manager.py          # 149 lines of code
+ tests/unit/gui/utils/test_architecture_viewer.py     # 402 lines of code
 
 # Integration Services:
-❌ tests/unit/gui/utils/test_tb_manager.py              # 125 lines of code
-❌ tests/unit/gui/utils/test_process_manager.py         # 103 lines of code
+ tests/unit/gui/utils/test_tb_manager.py              # 125 lines of code
+ tests/unit/gui/utils/test_process_manager.py         # 103 lines of code
 
 # Existing Limited Coverage:
 ⚠️  tests/unit/gui/test_session_state_updates.py       # 532 lines (partial utils coverage)
@@ -187,19 +187,19 @@ orchestration, and results visualization.
 
 ```python
 # Subdirectory Modules (Complete directories without tests):
-❌ gui/components/gallery/                     # Gallery components
-❌ gui/components/config_editor/               # Advanced config editor
-❌ gui/components/tensorboard/                 # TensorBoard integration
-❌ gui/utils/config/                          # Config utilities
-❌ gui/utils/reports/                         # Report generation
-❌ gui/utils/results/                         # Results processing
-❌ gui/utils/results_scanning/                # Results scanning
-❌ gui/utils/tensorboard/                     # TensorBoard utilities
-❌ gui/utils/run_manager/                     # Run management
-❌ gui/utils/process/                         # Process management
-❌ gui/utils/threading/                       # Threading utilities
-❌ gui/utils/streaming/                       # Data streaming
-❌ gui/utils/parsing/                         # Data parsing
+ gui/components/gallery/                     # Gallery components
+ gui/components/config_editor/               # Advanced config editor
+ gui/components/tensorboard/                 # TensorBoard integration
+ gui/utils/config/                          # Config utilities
+ gui/utils/reports/                         # Report generation
+ gui/utils/results/                         # Results processing
+ gui/utils/results_scanning/                # Results scanning
+ gui/utils/tensorboard/                     # TensorBoard utilities
+ gui/utils/run_manager/                     # Run management
+ gui/utils/process/                         # Process management
+ gui/utils/threading/                       # Threading utilities
+ gui/utils/streaming/                       # Data streaming
+ gui/utils/parsing/                         # Data parsing
 ```
 
 ## Risk Assessment
@@ -208,9 +208,9 @@ orchestration, and results visualization.
 
 1. **Page Router System** ✅ RESOLVED - Now tested
 2. **Theme Management** ✅ RESOLVED - Now tested
-3. **Configuration Pages** ❌ CRITICAL - No tests for config/advanced config
-4. **Training Page** ❌ CRITICAL - Core workflow without tests
-5. **File Management** ❌ HIGH - Multiple file components untested
+3. **Configuration Pages**  CRITICAL - No tests for config/advanced config
+4. **Training Page**  CRITICAL - Core workflow without tests
+5. **File Management**  HIGH - Multiple file components untested
 
 ### Medium Risk Areas
 

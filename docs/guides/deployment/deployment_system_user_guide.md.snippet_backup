@@ -1,0 +1,529 @@
+# Deployment System User Guide
+
+**Subtask 5.10**: Document System and Provide User Guides
+
+## Overview
+
+The CrackSeg Deployment System provides a comprehensive solution for deploying machine learning
+artifacts to production environments. This guide covers system configuration, operation,
+troubleshooting, and extension capabilities.
+
+## Table of Contents
+
+1. [System Architecture](#system-architecture)
+2. [Quick Start Guide](#quick-start-guide)
+3. [Configuration](#configuration)
+4. [Operation](#operation)
+5. [Troubleshooting](#troubleshooting)
+6. [Extension](#extension)
+7. [Best Practices](#best-practices)
+8. [API Reference](#api-reference)
+
+## System Architecture
+
+### Core Components
+
+The deployment system consists of several key components:
+
+- **ArtifactSelector**: Manages artifact selection and validation
+- **ArtifactOptimizer**: Performs model optimization (quantization, pruning)
+- **DeploymentOrchestrator**: Handles deployment orchestration and rollback
+- **ProductionReadinessValidator**: Validates deployment readiness
+- **MultiTargetDeploymentManager**: Manages multi-environment deployments
+- **DeploymentHealthMonitor**: Monitors deployment health and performance
+
+### Deployment Pipeline
+
+```bash
+Artifact Selection → Optimization → Packaging → Validation → Deployment → Monitoring
+```
+
+## Quick Start Guide
+
+### Basic Deployment
+
+```python
+from crackseg.utils.deployment.config import DeploymentConfig
+from crackseg.utils.deployment.orchestration import DeploymentOrchestrator
+
+# Create deployment configuration
+config = DeploymentConfig(
+    artifact_id="crackseg-model-v1",
+    target_environment="production",
+    enable_health_checks=True,
+    enable_metrics_collection=True
+)
+
+# Initialize orchestrator
+orchestrator = DeploymentOrchestrator()
+
+# Deploy artifact
+result = orchestrator.deploy_artifact(config)
+print(f"Deployment successful: {result.success}")
+```
+
+### Multi-Target Deployment
+
+```python
+from crackseg.utils.deployment.multi_target import (
+    MultiTargetDeploymentManager,
+    TargetEnvironment
+)
+
+# Initialize multi-target manager
+manager = MultiTargetDeploymentManager()
+
+# Deploy to multiple environments
+environments = [TargetEnvironment.STAGING, TargetEnvironment.PRODUCTION]
+results = manager.deploy_to_multiple_environments(
+    config=config,
+    environments=environments,
+    deployment_func=orchestrator.deploy_artifact
+)
+
+for env, result in results.items():
+    print(f"{env.value}: {'✅' if result.success else '❌'}")
+```
+
+## Configuration
+
+### Environment Configuration
+
+Each deployment environment has specific configuration:
+
+```python
+from crackseg.utils.deployment.multi_target import EnvironmentConfig
+from crackseg.utils.deployment.orchestration import DeploymentStrategy
+
+# Production environment configuration
+prod_config = EnvironmentConfig(
+    name=TargetEnvironment.PRODUCTION,
+    deployment_strategy=DeploymentStrategy.CANARY,
+    health_check_timeout=60,
+    max_retries=3,
+    auto_rollback=True,
+    performance_thresholds={
+        "response_time_ms": 500.0,
+        "memory_usage_mb": 2048.0
+    },
+    resource_limits={
+        "memory_mb": 4096,
+        "cpu_cores": 4
+    }
+)
+```
+
+### Health Monitoring Configuration
+
+```python
+from crackseg.utils.deployment.health_monitoring import (
+    DefaultHealthChecker,
+    DefaultResourceMonitor,
+    DeploymentHealthMonitor
+)
+
+# Configure health monitoring
+health_checker = DefaultHealthChecker()
+resource_monitor = DefaultResourceMonitor()
+
+monitor = DeploymentHealthMonitor(
+    health_checker=health_checker,
+    resource_monitor=resource_monitor,
+    check_interval=30,  # seconds
+    alert_threshold=0.8  # 80% resource usage
+)
+```
+
+## Operation
+
+### Deployment Workflow
+
+1. **Artifact Selection**
+
+   ```python
+   # Select artifact for deployment
+   artifact = orchestrator.select_artifact("crackseg-model-v1")
+   ```
+
+2. **Optimization**
+
+   ```python
+   # Optimize artifact for deployment
+   optimized_artifact = orchestrator.optimize_artifact(artifact)
+   ```
+
+3. **Validation**
+
+   ```python
+   # Validate deployment readiness
+   validation_result = orchestrator.validate_deployment(optimized_artifact)
+   if not validation_result.ready:
+       print(f"Validation failed: {validation_result.issues}")
+   ```
+
+4. **Deployment**
+
+   ```python
+   # Deploy to target environment
+   result = orchestrator.deploy_artifact(config)
+   ```
+
+5. **Monitoring**
+
+   ```python
+   # Monitor deployment health
+   orchestrator.add_deployment_monitoring(
+       deployment_id=result.deployment_id,
+       health_check_url=result.health_check_url,
+       process_name=config.artifact_id
+   )
+   ```
+
+### Rollback Procedures
+
+```python
+# Manual rollback
+success = orchestrator.manual_rollback("deployment-123")
+
+# Automatic rollback on failure
+if not result.success:
+    orchestrator.auto_rollback(result.deployment_id)
+```
+
+### Health Monitoring
+
+```python
+# Check deployment health
+health_status = monitor.check_deployment_health("deployment-123")
+
+# Get resource metrics
+metrics = monitor.get_resource_metrics("deployment-123")
+
+# Set up alerts
+monitor.setup_alerts(
+    deployment_id="deployment-123",
+    alert_handlers=[LoggingAlertHandler(), EmailAlertHandler()]
+)
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Deployment Validation Failures
+
+**Problem**: Deployment validation fails with performance or resource issues.
+
+**Solution**:
+
+```python
+# Check validation details
+validation = orchestrator.validate_deployment(artifact)
+for issue in validation.issues:
+    print(f"Issue: {issue}")
+
+# Adjust performance thresholds
+config.performance_thresholds = {
+    "response_time_ms": 1000.0,  # Increase threshold
+    "memory_usage_mb": 4096.0    # Increase memory limit
+}
+```
+
+#### 2. Health Check Failures
+
+**Problem**: Health checks are failing after deployment.
+
+**Solution**:
+
+```python
+# Check health check configuration
+health_config = monitor.get_health_config("deployment-123")
+
+# Adjust health check parameters
+monitor.update_health_config(
+    deployment_id="deployment-123",
+    timeout=120,  # Increase timeout
+    retries=5     # Increase retries
+)
+```
+
+#### 3. Resource Exhaustion
+
+**Problem**: Deployment fails due to insufficient resources.
+
+**Solution**:
+
+```python
+# Check resource requirements
+requirements = orchestrator.get_resource_requirements(artifact)
+
+# Optimize artifact for resource constraints
+optimized = orchestrator.optimize_artifact(
+    artifact,
+    target_memory_mb=2048,
+    target_cpu_cores=2
+)
+```
+
+#### 4. Rollback Failures
+
+**Problem**: Rollback procedure fails.
+
+**Solution**:
+
+```python
+# Check rollback status
+rollback_status = orchestrator.get_rollback_status("deployment-123")
+
+# Force rollback if needed
+orchestrator.force_rollback("deployment-123", force=True)
+
+# Check previous deployment
+previous = orchestrator.get_previous_deployment("deployment-123")
+```
+
+### Debugging Tools
+
+```python
+# Enable debug logging
+import logging
+logging.getLogger("deployment").setLevel(logging.DEBUG)
+
+# Get detailed deployment logs
+logs = orchestrator.get_deployment_logs("deployment-123")
+
+# Check system diagnostics
+diagnostics = orchestrator.run_diagnostics()
+```
+
+## Extension
+
+### Custom Health Checkers
+
+```python
+from crackseg.utils.deployment.health_monitoring import HealthChecker
+
+class CustomHealthChecker(HealthChecker):
+    def check_health(self, deployment_id: str) -> dict[str, Any]:
+        # Implement custom health check logic
+        return {
+            "status": "healthy",
+            "custom_metric": 0.95
+        }
+
+# Use custom health checker
+monitor = DeploymentHealthMonitor(
+    health_checker=CustomHealthChecker(),
+    resource_monitor=DefaultResourceMonitor()
+)
+```
+
+### Custom Alert Handlers
+
+```python
+from crackseg.utils.deployment.orchestration import AlertHandler
+
+class SlackAlertHandler(AlertHandler):
+    def send_alert(self, message: str, level: str, **kwargs) -> None:
+        # Implement Slack notification
+        pass
+
+# Register custom alert handler
+orchestrator.register_alert_handler(SlackAlertHandler())
+```
+
+### Custom Deployment Strategies
+
+```python
+from crackseg.utils.deployment.orchestration import DeploymentStrategy
+
+class CustomDeploymentStrategy(DeploymentStrategy):
+    def deploy(self, config: DeploymentConfig) -> DeploymentResult:
+        # Implement custom deployment logic
+        pass
+
+# Use custom strategy
+config.deployment_strategy = CustomDeploymentStrategy()
+```
+
+## Best Practices
+
+### 1. Environment Isolation
+
+- Use separate configurations for each environment
+- Implement proper access controls
+- Maintain environment-specific resource limits
+
+### 2. Monitoring and Alerting
+
+- Set up comprehensive health monitoring
+- Configure appropriate alert thresholds
+- Implement automated rollback triggers
+
+### 3. Resource Management
+
+- Monitor resource usage continuously
+- Implement resource scaling policies
+- Set up resource alerts
+
+### 4. Security
+
+- Use secure artifact storage
+- Implement proper access controls
+- Regular security audits
+
+### 5. Testing
+
+- Test deployments in staging environments
+- Validate performance before production
+- Regular rollback testing
+
+## API Reference
+
+### DeploymentConfig
+
+```python
+@dataclass
+class DeploymentConfig:
+    artifact_id: str
+    target_environment: str
+    enable_health_checks: bool = True
+    enable_metrics_collection: bool = True
+```
+
+### DeploymentResult
+
+```python
+@dataclass
+class DeploymentResult:
+    success: bool
+    deployment_id: str
+    artifact_id: str
+    target_environment: str
+    deployment_url: str | None = None
+    health_check_url: str | None = None
+    error_message: str | None = None
+```
+
+### EnvironmentConfig
+
+```python
+@dataclass
+class EnvironmentConfig:
+    name: TargetEnvironment
+    deployment_strategy: DeploymentStrategy
+    health_check_timeout: int = 30
+    max_retries: int = 3
+    auto_rollback: bool = True
+    performance_thresholds: dict[str, float] | None = None
+    resource_limits: dict[str, Any] | None = None
+    security_requirements: dict[str, Any] | None = None
+    monitoring_config: dict[str, Any] | None = None
+```
+
+### DeploymentOrchestrator
+
+Key methods:
+
+- `deploy_artifact(config: DeploymentConfig) -> DeploymentResult`
+- `validate_deployment(artifact: ArtifactEntity) -> ProductionReadinessResult`
+- `manual_rollback(deployment_id: str) -> bool`
+- `get_deployment_status(deployment_id: str) -> dict[str, Any]`
+
+### MultiTargetDeploymentManager
+
+Key methods:
+
+- `deploy_to_multiple_environments(config, environments, deployment_func) -> dict`
+- `validate_environment_readiness(environment: TargetEnvironment) -> dict`
+- `rollback_across_environments(deployment_id: str, environments: list) -> dict`
+
+### DeploymentHealthMonitor
+
+Key methods:
+
+- `check_deployment_health(deployment_id: str) -> dict[str, Any]`
+- `get_resource_metrics(deployment_id: str) -> dict[str, Any]`
+- `setup_alerts(deployment_id: str, alert_handlers: list) -> None`
+
+## Examples
+
+### Complete Deployment Workflow
+
+```python
+from crackseg.utils.deployment.config import DeploymentConfig
+from crackseg.utils.deployment.orchestration import DeploymentOrchestrator
+from crackseg.utils.deployment.multi_target import MultiTargetDeploymentManager
+
+# Initialize components
+orchestrator = DeploymentOrchestrator()
+manager = MultiTargetDeploymentManager()
+
+# Configure deployment
+config = DeploymentConfig(
+    artifact_id="crackseg-model-v1",
+    target_environment="production",
+    enable_health_checks=True,
+    enable_metrics_collection=True
+)
+
+# Deploy to staging first
+staging_result = manager.deploy_to_environment(
+    config=config,
+    environment=TargetEnvironment.STAGING,
+    deployment_func=orchestrator.deploy_artifact
+)
+
+if staging_result.success:
+    # Deploy to production
+    prod_result = manager.deploy_to_environment(
+        config=config,
+        environment=TargetEnvironment.PRODUCTION,
+        deployment_func=orchestrator.deploy_artifact
+    )
+
+    # Monitor production deployment
+    if prod_result.success:
+        orchestrator.add_deployment_monitoring(
+            deployment_id=prod_result.deployment_id,
+            health_check_url=prod_result.health_check_url,
+            process_name=config.artifact_id
+        )
+```
+
+### Health Monitoring Setup
+
+```python
+from crackseg.utils.deployment.health_monitoring import (
+    DeploymentHealthMonitor,
+    DefaultHealthChecker,
+    DefaultResourceMonitor
+)
+
+# Initialize health monitoring
+monitor = DeploymentHealthMonitor(
+    health_checker=DefaultHealthChecker(),
+    resource_monitor=DefaultResourceMonitor(),
+    check_interval=30,
+    alert_threshold=0.8
+)
+
+# Monitor deployment
+monitor.start_monitoring("deployment-123")
+
+# Check health status
+health = monitor.check_deployment_health("deployment-123")
+print(f"Health status: {health['status']}")
+
+# Get resource metrics
+metrics = monitor.get_resource_metrics("deployment-123")
+print(f"CPU usage: {metrics['cpu_percent']}%")
+print(f"Memory usage: {metrics['memory_percent']}%")
+```
+
+---
+
+**Status**: ✅ **COMPLETED**
+
+This user guide provides comprehensive documentation for the deployment system, covering all aspects
+from basic usage to advanced customization and troubleshooting.

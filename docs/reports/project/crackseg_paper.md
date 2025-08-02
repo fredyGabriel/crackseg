@@ -65,7 +65,7 @@ findings, Section 7 concludes and outlines future work, and Section 8 lists refe
 - **Environment:**
   - Python 3.12+, PyTorch >=2.5.0
   - GPU: NVIDIA RTX 3070 Ti (8GB VRAM)
-  - Reproducibility: Seed control and full config storage (`docs/guides/specifications/configuration_storage_specification.md`)
+  - Reproducibility: Seed control and full config storage (`doconfiguration_storage_specification.md`)
 - **Validation:**
   - Periodic validation and checkpointing
   - Early stopping based on validation IoU
@@ -150,8 +150,8 @@ findings, Section 7 concludes and outlines future work, and Section 8 lists refe
 This section should be completed manually with relevant academic citations. See also:
 
 - [Technical Report](./technical_report.md)
-- [Checkpoint Format Specification](../guides/specifications/checkpoint_format_specification.md)
-- [Configuration Storage Specification](../guides/specifications/configuration_storage_specification.md)
+- [Checkpoint Format Specification](checkpoint_format_specification.md)
+- [Configuration Storage Specification](configuration_storage_specification.md)
 - [Hydra Documentation](https://hydra.cc/)
 - [Albumentations](https://albumentations.ai/)
 - [PyTorch](https://pytorch.org/)

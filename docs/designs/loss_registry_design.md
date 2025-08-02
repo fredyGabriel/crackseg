@@ -5,7 +5,7 @@ This document outlines the design for the loss function registry system in the `
 ## 1. Overview
 
 The project utilizes a generic, type-safe, and thread-safe `Registry` system, primarily defined in
-`src.model.factory.registry.py`. For managing loss functions, a dedicated instance of this generic
+`crackseg.model.factory.registry.py`. For managing loss functions, a dedicated instance of this generic
 `Registry` is configured.
 
 This approach ensures consistency in how components are registered and managed across the project,
@@ -13,11 +13,12 @@ leveraging a robust and feature-rich registry system.
 
 ## 2. Core Registry Instance for Losses
 
-- **Location**: `src.training.losses.loss_registry_setup.py`
+- **Location**: `crackseg.training.losses.loss_registry_setup.py`
 - **Initialization**:
 
 ```python
     from crackseg.model.factory.registry import Registry
+
     import torch.nn as nn
 
     loss_registry = Registry(base_class=nn.Module, name="LossFunctions")
@@ -26,7 +27,7 @@ leveraging a robust and feature-rich registry system.
 
 ## 3. Key Functionality (Provided by Generic `Registry`)
 
-The `loss_registry` instance inherits all functionalities from the generic `Registry` class (`src.model.factory.registry.Registry`), including:
+The `loss_registry` instance inherits all functionalities from the generic `Registry` class (`crackseg.model.factory.registry.Registry`), including:
 
 -   **Registration**: Via the `@loss_registry.register()` decorator.
     -   `@loss_registry.register(name: Optional[str] = None, tags: Optional[List[str]] = None)`
@@ -53,6 +54,7 @@ The `loss_registry` instance inherits all functionalities from the generic `Regi
     import torch
     import torch.nn as nn
     from crackseg.training.losses.loss_registry_setup import loss_registry
+
 
     @loss_registry.register(name="my_dice_loss", tags=["segmentation"])
     class MyDiceLoss(nn.Module):

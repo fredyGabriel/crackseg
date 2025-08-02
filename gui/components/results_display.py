@@ -69,15 +69,16 @@ class TripletDisplayComponent:
         if container is None:
             container = st.container()
 
-        with container:
-            st.write(f"Displaying {len(self.triplets)} result triplets.")
-            # --- Phase 2: Basic Layout will be implemented here ---
-            # This will include pagination and the grid display.
+        if container is not None:
+            with container:
+                st.write(f"Displaying {len(self.triplets)} result triplets.")
+                # --- Phase 2: Basic Layout will be implemented here ---
+                # This will include pagination and the grid display.
 
-            # --- Phase 3: Core Interactivity will be implemented here ---
-            # This will handle the modal view for detailed inspection.
-            self._render_grid()
-            self._render_detail_view()
+                # --- Phase 3: Core Interactivity will be implemented here ---
+                # This will handle the modal view for detailed inspection.
+                self._render_grid()
+                self._render_detail_view()
 
     def _render_grid(self) -> None:
         """Renders the grid of triplet thumbnails with pagination."""
@@ -99,7 +100,7 @@ class TripletDisplayComponent:
         # --- Selection Controls ---
         st.markdown("#### Select Results for Export")
         page_triplet_ids = {t.id for t in page_triplets}
-        col_sel1, col_sel2, col_sel3 = st.columns([2, 2, 8])
+        col_sel1, col_sel2, _ = st.columns([2, 2, 8])
         if col_sel1.button("Select All on Page", use_container_width=True):
             self.on_batch_selection_change(page_triplet_ids, True)
             st.rerun()

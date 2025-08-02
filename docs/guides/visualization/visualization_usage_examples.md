@@ -23,6 +23,7 @@ from pathlib import Path
 import numpy as np
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 
+
 # Create sample training data
 training_data = {
     "loss": [2.0, 1.5, 1.2, 0.9, 0.7],
@@ -54,6 +55,7 @@ fig.show()
 ```python
 import numpy as np
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
+
 
 # Create sample prediction data
 prediction_data = [
@@ -93,6 +95,7 @@ fig.show()
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 import time
 
+
 # Initialize visualizer with real-time capabilities
 visualizer = InteractivePlotlyVisualizer(
     responsive=True,
@@ -130,6 +133,7 @@ for epoch in range(1, 11):
 import numpy as np
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 
+
 # Create confidence data
 confidence_data = {
     "confidence_map": np.random.random((512, 512)),
@@ -154,6 +158,7 @@ fig.show()
 from crackseg.evaluation.visualization import AdvancedPredictionVisualizer
 import numpy as np
 from pathlib import Path
+
 
 # Initialize advanced prediction visualizer
 visualizer = AdvancedPredictionVisualizer()
@@ -238,6 +243,7 @@ from crackseg.evaluation.visualization import AdvancedTrainingVisualizer
 from pathlib import Path
 import numpy as np
 
+
 # Initialize advanced training visualizer
 visualizer = AdvancedTrainingVisualizer(interactive=True)
 
@@ -318,6 +324,7 @@ from crackseg.evaluation.visualization import ExperimentVisualizer
 from pathlib import Path
 import pandas as pd
 
+
 # Initialize experiment visualizer
 visualizer = ExperimentVisualizer()
 
@@ -393,6 +400,7 @@ from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 from pathlib import Path
 import json
 
+
 # Initialize visualizer with multiple export formats
 visualizer = InteractivePlotlyVisualizer(
     export_formats=["html", "png", "pdf", "svg", "json"]
@@ -447,6 +455,7 @@ print(f"Metadata saved to {metadata_path}")
 ```python
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 
+
 # Initialize visualizer
 visualizer = InteractivePlotlyVisualizer()
 
@@ -481,7 +490,9 @@ print(f"Metadata is valid: {is_valid}")
 
 ```python
 from crackseg.evaluation.visualization.templates import BaseVisualizationTemplate
+
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
+
 import plotly.graph_objects as go
 
 class CustomTrainingTemplate(BaseVisualizationTemplate):
@@ -580,6 +591,7 @@ from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 from pathlib import Path
 import logging
 
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -636,6 +648,7 @@ fig.show()
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 import numpy as np
 from pathlib import Path
+
 
 # Initialize visualizer optimized for large datasets
 visualizer = InteractivePlotlyVisualizer(
@@ -694,6 +707,7 @@ fig.show()
 import gc
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 import numpy as np
+
 
 def create_memory_efficient_visualizations():
     """Create visualizations with proper memory management."""

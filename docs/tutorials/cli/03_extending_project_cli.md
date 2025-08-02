@@ -49,7 +49,9 @@ import torch
 import torch.nn as nn
 
 from crackseg.training.losses.base_loss import SegmentationLoss
+
 from crackseg.training.losses.loss_registry_setup import loss_registry
+
 
 
 @loss_registry.register(
@@ -124,7 +126,7 @@ beta: 1.0  # Smoothing parameter
 EOF
 ```
 
-- `_target_`: This is the **full Python path** to your new class (note: uses `src.` prefix).
+- `_target_`: This is the **full Python path** to your new class (note: uses `crackseg.` prefix).
 - `beta: 1.0`: You can expose parameters to be configured via Hydra.
 
 ## Step 6: Test Your Component
@@ -136,6 +138,7 @@ Before using it in training, let's test that your component works correctly:
 python -c "
 import torch
 from crackseg.training.losses.smooth_l1_loss import SmoothL1Loss
+
 
 # Create test data
 pred = torch.randn(2, 1, 64, 64)
@@ -240,6 +243,7 @@ import torch
 import torch.optim
 from crackseg.training.optimizers.registry import register_optimizer
 
+
 @register_optimizer("custom_adam")
 class CustomAdam(torch.optim.Adam):
     def __init__(self, params, lr=0.001, betas=(0.9, 0.999), eps=1e-8, weight_decay=0):
@@ -299,6 +303,7 @@ python -c "
 import torch
 from crackseg.training.optimizers.custom_adam import CustomAdam
 
+
 # Create test parameters
 params = [torch.randn(10, 10, requires_grad=True)]
 
@@ -344,6 +349,7 @@ cat > src/crackseg/model/architectures/simple_unet.py << 'EOF'
 import torch
 import torch.nn as nn
 from crackseg.model.architectures.registry import register_model
+
 
 @register_model("simple_unet")
 class SimpleUNet(nn.Module):
@@ -412,6 +418,7 @@ EOF
 python -c "
 import torch
 from crackseg.model.architectures.simple_unet import SimpleUNet
+
 
 # Create test input
 x = torch.randn(1, 3, 256, 256)
@@ -485,18 +492,21 @@ Check that all your components are properly registered:
 # Verify loss functions
 python -c "
 from crackseg.training.losses.loss_registry_setup import loss_registry
+
 print('Registered losses:', loss_registry.list_components())
 "
 
 # Verify optimizers
 python -c "
 from crackseg.training.optimizers.registry import list_optimizers
+
 print('Registered optimizers:', list_optimizers())
 "
 
 # Verify models
 python -c "
 from crackseg.model.architectures.registry import list_models
+
 print('Registered models:', list_models())
 "
 ```
@@ -552,14 +562,17 @@ python -m pytest tests/unit/training/test_losses.py -v
 python -c "
 import crackseg.training.losses
 from crackseg.training.losses.loss_registry_setup import loss_registry
+
 print('Available losses:', loss_registry.list_components())
 
 import crackseg.training.optimizers
 from crackseg.training.optimizers.registry import list_optimizers
+
 print('Available optimizers:', list_optimizers())
 
 import crackseg.model.architectures
 from crackseg.model.architectures.registry import list_models
+
 print('Available models:', list_models())
 "
 ```
@@ -577,7 +590,9 @@ without modifying existing code.
 cat > src/crackseg/training/losses/my_loss.py << 'EOF'
 import torch.nn as nn
 from crackseg.training.losses.loss_registry_setup import loss_registry
+
 from crackseg.training.losses.base_loss import SegmentationLoss
+
 
 @loss_registry.register(name="my_loss", tags=["segmentation"])
 class MyLoss(SegmentationLoss):
@@ -609,7 +624,7 @@ python run.py --config-name basic_verification \
 ## Summary of Corrections Made
 
 1. **Registry System**: Updated to use the current `loss_registry_setup.py` instead of obsolete registry
-2. **Configuration Paths**: Changed from `src.` to `crackseg.` prefix in `_target_` paths for
+2. **Configuration Paths**: Changed from `crackseg.` to `crackseg.` prefix in `_target_` paths for
   proper module resolution
 3. **Directory Structure**: Updated to use `configs/experiments/tutorial_03/` instead of
   non-existent `generated_configs/`

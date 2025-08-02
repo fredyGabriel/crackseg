@@ -31,6 +31,7 @@ focusing on metadata collection and artifact relationships.
 from pathlib import Path
 from crackseg.utils.experiment.tracker import ExperimentTracker
 
+
 # Initialize tracker
 tracker = ExperimentTracker(
     experiment_dir=Path("outputs/experiments/my_experiment"),

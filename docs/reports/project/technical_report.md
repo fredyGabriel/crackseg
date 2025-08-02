@@ -184,7 +184,7 @@ conda activate crackseg && streamlit run gui/app.py
 **Evaluación:**
 
 ```bash
-python -m src.evaluation.evaluate --checkpoint_path ... --config_path ...
+python -m crackseg.evaluation.evaluate --checkpoint_path ... --config_path ...
 ```
 
 ### 7.4. Consideraciones de Rendimiento (Inferencia)
@@ -226,4 +226,4 @@ práctica.
 
 - Diagrama de arquitectura técnica (ver `docs/guides/architecture/TECHNICAL_ARCHITECTURE.md`)
 - Ejemplo de configuración YAML (`configs/model/architectures/unet_swin.yaml`)
-- Especificación de checkpoints (`docs/guides/specifications/checkpoint_format_specification.md`)
+- Especificación de checkpoints (`docheckpoint_format_specification.md`)

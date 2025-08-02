@@ -1,0 +1,678 @@
+# Deployment Orchestration and Rollback API Guide
+
+This guide documents the complete API for deployment orchestration and rollback mechanisms
+implemented in subtask 5.5.
+
+## Overview
+
+The deployment orchestration system provides comprehensive deployment strategies with automatic and
+manual rollback capabilities. It ensures zero-downtime deployments, automatic failure recovery, and
+complete audit trails.
+
+## Core Components
+
+### DeploymentOrchestrator
+
+The main orchestrator class that manages all deployment strategies and rollback mechanisms.
+
+```python
+from crackseg.utils.deployment import DeploymentOrchestrator
+
+
+# Initialize orchestrator
+orchestrator = DeploymentOrchestrator()
+```
+
+#### Key Methods
+
+##### `deploy_with_strategy()`
+
+Deploy using a specific strategy with automatic rollback capabilities.
+
+```python
+def deploy_with_strategy(
+    self,
+    config: DeploymentConfig,
+    strategy: DeploymentStrategy,
+    deployment_func: Callable[..., DeploymentResult],
+    **kwargs,
+) -> DeploymentResult:
+```
+
+**Parameters:**
+
+- `config`: Deployment configuration
+- `strategy`: Deployment strategy (BLUE_GREEN, CANARY, ROLLING, RECREATE)
+- `deployment_func`: Function to perform actual deployment
+- `**kwargs`: Strategy-specific parameters
+
+**Returns:**
+
+- `DeploymentResult`: Result with success status and metadata
+
+**Example:**
+
+```python
+result = orchestrator.deploy_with_strategy(
+    config,
+    DeploymentStrategy.BLUE_GREEN,
+    my_deployment_function,
+    health_check_timeout=300
+)
+```
+
+##### `manual_rollback()`
+
+Manually rollback a deployment to the previous version.
+
+```python
+def manual_rollback(self, deployment_id: str) -> bool:
+```
+
+**Parameters:**
+
+- `deployment_id`: ID of deployment to rollback
+
+**Returns:**
+
+- `bool`: True if rollback was successful
+
+**Example:**
+
+```python
+success = orchestrator.manual_rollback("deployment-123")
+if success:
+    print("Rollback completed successfully")
+```
+
+##### `add_alert_handler()`
+
+Add alert handler for deployment monitoring.
+
+```python
+def add_alert_handler(self, handler: AlertHandler) -> None:
+```
+
+**Parameters:**
+
+- `handler`: Alert handler implementation
+
+**Example:**
+
+```python
+from crackseg.utils.deployment import LoggingAlertHandler
+
+
+orchestrator.add_alert_handler(LoggingAlertHandler())
+```
+
+##### `add_performance_monitor()`
+
+Add performance monitor for deployment.
+
+```python
+def add_performance_monitor(self, deployment_id: str, monitor: PerformanceMonitor) -> None:
+```
+
+**Parameters:**
+
+- `deployment_id`: Deployment ID to monitor
+- `monitor`: Performance monitor implementation
+
+**Example:**
+
+```python
+from crackseg.utils.deployment import PerformanceMonitor
+
+
+monitor = PerformanceMonitor("http://localhost:8501")
+orchestrator.add_performance_monitor("deployment-123", monitor)
+```
+
+##### `get_performance_metrics()`
+
+Get performance metrics for deployment.
+
+```python
+def get_performance_metrics(self, deployment_id: str) -> dict[str, Any]:
+```
+
+**Parameters:**
+
+- `deployment_id`: Deployment ID
+
+**Returns:**
+
+- `dict[str, Any]`: Performance metrics dictionary
+
+**Example:**
+
+```python
+metrics = orchestrator.get_performance_metrics("deployment-123")
+print(f"Response time: {metrics['current']['response_time_ms']}ms")
+```
+
+##### `stop_performance_monitoring()`
+
+Stop performance monitoring for deployment.
+
+```python
+def stop_performance_monitoring(self, deployment_id: str) -> None:
+```
+
+**Parameters:**
+
+- `deployment_id`: Deployment ID to stop monitoring
+
+**Example:**
+
+```python
+orchestrator.stop_performance_monitoring("deployment-123")
+```
+
+## Performance Monitoring
+
+### PerformanceMonitor
+
+Monitor deployment performance metrics in real-time.
+
+```python
+from crackseg.utils.deployment import PerformanceMonitor
+
+
+# Initialize monitor
+monitor = PerformanceMonitor("http://localhost:8501")
+
+# Start monitoring
+monitor.start_monitoring("deployment-123")
+
+# Get metrics
+metrics = monitor.get_metrics()
+
+# Stop monitoring
+monitor.stop_monitoring()
+```
+
+#### Key Features
+
+- **Real-time Metrics Collection**: Collects response time, throughput, error rate, memory usage,
+  and CPU usage
+- **Trend Analysis**: Calculates performance trends (improving, degrading, stable)
+- **Background Monitoring**: Runs monitoring in background threads
+- **Configurable Intervals**: Adjustable collection intervals
+
+#### Metrics Structure
+
+```python
+{
+    "current": {
+        "response_time_ms": 150.0,
+        "throughput_rps": 10.5,
+        "error_rate": 0.02,
+        "memory_usage_mb": 512.0,
+        "cpu_usage_percent": 25.0,
+    },
+    "average": {
+        "response_time_ms": 145.2,
+        "throughput_rps": 10.8,
+        "error_rate": 0.015,
+        "memory_usage_mb": 508.5,
+        "cpu_usage_percent": 24.2,
+    },
+    "trends": {
+        "response_time_trend": "stable",
+        "throughput_trend": "improving",
+        "error_rate_trend": "stable",
+    }
+}
+```
+
+## Alert System
+
+### AlertHandler
+
+Base class for alert handlers.
+
+```python
+from crackseg.utils.deployment import AlertHandler
+
+
+class CustomAlertHandler(AlertHandler):
+    def send_alert(self, alert_type: str, metadata: DeploymentMetadata, **kwargs) -> None:
+        # Custom alert implementation
+        pass
+```
+
+### LoggingAlertHandler
+
+Alert handler that logs alerts to the application log.
+
+```python
+from crackseg.utils.deployment import LoggingAlertHandler
+
+
+handler = LoggingAlertHandler()
+orchestrator.add_alert_handler(handler)
+```
+
+### EmailAlertHandler
+
+Alert handler that sends email alerts.
+
+```python
+from crackseg.utils.deployment import EmailAlertHandler
+
+
+handler = EmailAlertHandler(
+    smtp_server="smtp.gmail.com",
+    smtp_port=587,
+    username="alerts@company.com",
+    password="password"
+)
+orchestrator.add_alert_handler(handler)
+```
+
+### SlackAlertHandler
+
+Alert handler that sends Slack alerts.
+
+```python
+from crackseg.utils.deployment import SlackAlertHandler
+
+
+handler = SlackAlertHandler("https://hooks.slack.com/services/YOUR/WEBHOOK/URL")
+orchestrator.add_alert_handler(handler)
+```
+
+#### Alert Types
+
+- **deployment_success**: Sent when deployment completes successfully
+- **deployment_failure**: Sent when deployment fails
+- **rollback_triggered**: Sent when automatic rollback is triggered
+
+## Deployment Strategies
+
+### Blue-Green Deployment
+
+Deploy new version alongside old version, then switch traffic.
+
+**Characteristics:**
+
+- Zero downtime
+- Instant rollback capability
+- Resource duplication
+- Traffic switching
+
+**Use Cases:**
+
+- Production environments
+- Critical applications
+- High availability requirements
+
+**Example:**
+
+```python
+result = orchestrator.deploy_with_strategy(
+    config,
+    DeploymentStrategy.BLUE_GREEN,
+    deployment_function,
+    health_check_timeout=300
+)
+```
+
+### Canary Deployment
+
+Deploy to a small subset of users first.
+
+**Characteristics:**
+
+- Gradual rollout
+- Risk mitigation
+- Performance monitoring
+- Gradual feature rollouts
+
+**Use Cases:**
+
+- New feature releases
+- Performance testing
+- User acceptance testing
+
+**Example:**
+
+```python
+result = orchestrator.deploy_with_strategy(
+    config,
+    DeploymentStrategy.CANARY,
+    deployment_function,
+    canary_percentage=10,
+    monitoring_duration=300
+)
+```
+
+### Rolling Deployment
+
+Update replicas one by one while maintaining service.
+
+**Characteristics:**
+
+- Continuous availability
+- Controlled updates
+- Easy rollback
+- Replica management
+
+**Use Cases:**
+
+- Kubernetes environments
+- Microservices
+- Continuous updates
+
+**Example:**
+
+```python
+result = orchestrator.deploy_with_strategy(
+    config,
+    DeploymentStrategy.ROLLING,
+    deployment_function,
+    max_unavailable=1,
+    max_surge=1
+)
+```
+
+### Recreate Deployment
+
+Terminate old deployment, create new deployment.
+
+**Characteristics:**
+
+- Simple process
+- Clean state
+- Brief downtime
+- Development-friendly
+
+**Use Cases:**
+
+- Development environments
+- Testing scenarios
+- Simple applications
+
+**Example:**
+
+```python
+result = orchestrator.deploy_with_strategy(
+    config,
+    DeploymentStrategy.RECREATE,
+    deployment_function
+)
+```
+
+## Rollback Mechanisms
+
+### Automatic Rollback
+
+Automatic rollback occurs when:
+
+- Deployment fails during execution
+- Health checks fail after deployment
+- Performance metrics are below thresholds
+
+**Configuration:**
+
+```python
+config = DeploymentConfig(
+    # ... other config
+    rollback_config={
+        "automatic": True,
+        "max_attempts": 3,
+        "health_check_required": True,
+    }
+)
+```
+
+**Process:**
+
+1. Deployment failure detected
+2. Previous deployment identified
+3. Traffic switched back to previous deployment
+4. Health check performed on previous deployment
+5. Rollback status updated
+
+### Manual Rollback
+
+Manual rollback can be triggered for:
+
+- Performance issues
+- Security concerns
+- Business decisions
+- User complaints
+
+**Process:**
+
+1. Manual rollback initiated
+2. Current deployment identified
+3. Previous deployment located
+4. Traffic switched to previous deployment
+5. Health check performed
+
+**Example:**
+
+```python
+success = orchestrator.manual_rollback("deployment-123")
+if success:
+    print("Rollback completed successfully")
+else:
+    print("Rollback failed")
+```
+
+## Advanced Features
+
+### Resource Management
+
+The system supports resource-aware deployment with constraints:
+
+```python
+config = DeploymentConfig(
+    # ... other config
+    resource_limits={
+        "cpu": "4",
+        "memory": "8Gi",
+        "gpu": "1",
+        "max_response_time_ms": 200,
+        "max_memory_usage_mb": 1024,
+    }
+)
+```
+
+### Health Check Integration
+
+Comprehensive health checking with configurable endpoints:
+
+```python
+config = DeploymentConfig(
+    # ... other config
+    health_check_config={
+        "endpoint": "/healthz",
+        "timeout": 30,
+        "max_retries": 3,
+        "interval": 5,
+    }
+)
+```
+
+### Deployment History
+
+Track complete deployment history with metadata:
+
+```python
+history = orchestrator.get_deployment_history()
+for deployment in history:
+    print(f"ID: {deployment['deployment_id']}")
+    print(f"Status: {deployment['state']}")
+    print(f"Duration: {deployment['duration']:.1f}s")
+```
+
+## Integration Examples
+
+### Complete Deployment with Monitoring
+
+```python
+from crackseg.utils.deployment import (
+    DeploymentOrchestrator,
+    DeploymentConfig,
+    DeploymentStrategy,
+    LoggingAlertHandler,
+    PerformanceMonitor,
+)
+
+# Initialize orchestrator
+orchestrator = DeploymentOrchestrator()
+
+# Add alert handlers
+orchestrator.add_alert_handler(LoggingAlertHandler())
+
+# Create deployment config
+config = DeploymentConfig(
+    artifact_id="crackseg-model-v2.1",
+    target_environment="production",
+    deployment_type="container",
+    enable_quantization=True,
+    target_format="onnx",
+)
+
+# Deploy with monitoring
+result = orchestrator.deploy_with_strategy(
+    config,
+    DeploymentStrategy.BLUE_GREEN,
+    my_deployment_function,
+    health_check_timeout=300
+)
+
+if result.success:
+    # Get performance metrics
+    metrics = orchestrator.get_performance_metrics(result.deployment_id)
+    print(f"Current response time: {metrics['current']['response_time_ms']}ms")
+
+    # Stop monitoring when done
+    orchestrator.stop_performance_monitoring(result.deployment_id)
+```
+
+### Multi-Channel Alerting
+
+```python
+from crackseg.utils.deployment import (
+    LoggingAlertHandler,
+    EmailAlertHandler,
+    SlackAlertHandler,
+)
+
+# Add multiple alert handlers
+orchestrator.add_alert_handler(LoggingAlertHandler())
+orchestrator.add_alert_handler(EmailAlertHandler(
+    smtp_server="smtp.gmail.com",
+    smtp_port=587,
+    username="alerts@company.com",
+    password="password"
+))
+orchestrator.add_alert_handler(SlackAlertHandler(
+    "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+))
+```
+
+## Best Practices
+
+### Performance Monitoring
+
+1. **Start monitoring early**: Begin monitoring as soon as deployment starts
+2. **Set appropriate thresholds**: Configure realistic performance thresholds
+3. **Monitor trends**: Pay attention to performance trends, not just current values
+4. **Stop monitoring**: Always stop monitoring when deployment is complete
+
+### Alert Configuration
+
+1. **Use multiple channels**: Combine logging, email, and Slack alerts
+2. **Configure appropriate recipients**: Ensure alerts reach the right people
+3. **Test alert system**: Verify alert delivery in non-production environments
+4. **Avoid alert fatigue**: Use appropriate alert levels and frequencies
+
+### Rollback Strategy
+
+1. **Test rollback procedures**: Regularly test rollback mechanisms
+2. **Monitor rollback health**: Ensure previous deployment is healthy before rollback
+3. **Document rollback procedures**: Maintain clear rollback documentation
+4. **Train operators**: Ensure team members understand rollback procedures
+
+### Resource Management
+
+1. **Set realistic limits**: Configure resource limits based on actual usage
+2. **Monitor resource usage**: Track CPU, memory, and GPU usage
+3. **Plan for scaling**: Design for horizontal and vertical scaling
+4. **Optimize resource allocation**: Use appropriate resource allocation strategies
+
+## Troubleshooting
+
+### Common Issues
+
+#### Performance Monitoring Not Starting
+
+**Symptoms:**
+
+- No performance metrics available
+- Monitoring thread not running
+
+**Solutions:**
+
+- Check deployment URL accessibility
+- Verify network connectivity
+- Check thread permissions
+
+#### Alerts Not Sending
+
+**Symptoms:**
+
+- No alert messages received
+- Alert handlers not responding
+
+**Solutions:**
+
+- Verify alert handler configuration
+- Check network connectivity for external services
+- Review alert handler logs
+
+#### Rollback Failures
+
+**Symptoms:**
+
+- Rollback not completing
+- Previous deployment not healthy
+
+**Solutions:**
+
+- Check previous deployment health
+- Verify traffic switching mechanism
+- Review rollback logs
+
+### Debugging
+
+Enable debug logging for detailed troubleshooting:
+
+```python
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+```
+
+### Performance Tuning
+
+Adjust monitoring intervals for optimal performance:
+
+```python
+# Custom monitoring intervals
+monitor.collection_interval = 60  # Collect metrics every 60 seconds
+monitor.max_samples = 200  # Keep last 200 samples
+```
+
+## References
+
+- **Deployment Configuration**: [deployment_config.md](deployment_config.md)
+- **Health Check API**: [health_check_api.md](health_check_api.md)
+- **Performance Monitoring**: [performance_monitoring.md](performance_monitoring.md)
+- **Alert System**: [alert_system.md](alert_system.md)

@@ -887,7 +887,7 @@ try:
     check_deployment_readiness(report_data)
     print("✅ Deployment readiness check passed")
 except ValueError as e:
-    print(f"❌ Deployment readiness check failed: {e}")
+    print(f" Deployment readiness check failed: {e}")
     exit(1)
 ```
 

@@ -79,39 +79,39 @@ task-master set-status --id=1 --status=in-progress --file="C:/Users/fgrv/Dev/Cur
 
 #### **Entregables:**
 
-- [ ] Estructura de directorios `artifacts/` completa
-- [ ] ArtifactManager básico implementado
+- [x] Estructura de directorios `artifacts/` completa
+- [x] ArtifactManager básico implementado
 - [ ] Integración con ExperimentManager existente
 - [ ] Tests de integración básicos
 
 #### **Tareas Detalladas:**
 
 1. **Crear estructura de directorios** `artifacts/`
-   - [ ] `artifacts/models/` - Modelos entrenados
-   - [ ] `artifacts/logs/` - Logs de entrenamiento
-   - [ ] `artifacts/metrics/` - Métricas y resultados
-   - [ ] `artifacts/visualizations/` - Visualizaciones
-   - [ ] `artifacts/predictions/` - Resultados de inferencia
-   - [ ] `artifacts/reports/` - Informes experimentales
-   - [ ] `artifacts/configs/` - Configuraciones finales
+   - [x] `artifacts/models/` - Modelos entrenados
+   - [x] `artifacts/logs/` - Logs de entrenamiento
+   - [x] `artifacts/metrics/` - Métricas y resultados
+   - [x] `artifacts/visualizations/` - Visualizaciones
+   - [x] `artifacts/predictions/` - Resultados de inferencia
+   - [x] `artifacts/reports/` - Informes experimentales
+   - [x] `artifacconfigs/` - Configuraciones finales
 
 2. **Implementar ArtifactManager básico**
-   - [ ] Clase `ArtifactManager` con métodos principales
-   - [ ] Integración con sistema de checkpoints existente
-   - [ ] Métodos para guardar diferentes tipos de artefactos
-   - [ ] Validación de integridad de artefactos
+   - [x] Clase `ArtifactManager` con métodos principales
+   - [x] Integración con sistema de checkpoints existente
+   - [x] Métodos para guardar diferentes tipos de artefactos
+   - [x] Validación de integridad de artefactos
 
 3. **Integración con sistema existente**
-   - [ ] Modificar `ExperimentManager` para usar `ArtifactManager`
-   - [ ] Actualizar `Trainer` para generar artefactos automáticamente
-   - [ ] Integrar con sistema de logging existente
+   - [x] Modificar `ExperimentManager` para usar `ArtifactManager`
+   - [x] Actualizar `Trainer` para generar artefactos automáticamente
+   - [x] Integrar con sistema de logging existente
 
 #### **Criterios de Aceptación:**
 
-- [ ] Todos los directorios creados y organizados
-- [ ] ArtifactManager pasa tests unitarios (cobertura >90%)
-- [ ] Integración funcional con pipeline de entrenamiento
-- [ ] Documentación básica completada
+- [x] Todos los directorios creados y organizados
+- [x] ArtifactManager pasa tests unitarios (cobertura >90%)
+- [x] Integración funcional con pipeline de entrenamiento
+- [x] Documentación básica completada
 
 ---
 
@@ -123,36 +123,36 @@ task-master set-status --id=1 --status=in-progress --file="C:/Users/fgrv/Dev/Cur
 
 #### **Entregables:**
 
-- [ ] TrainingVisualizer avanzado
-- [ ] PredictionVisualizer mejorado
-- [ ] Visualizaciones interactivas con Plotly
-- [ ] Templates de visualización configurables
+- [x] TrainingVisualizer avanzado
+- [x] PredictionVisualizer mejorado
+- [x] Visualizaciones interactivas con Plotly
+- [x] Templates de visualización configurables
 
 #### **Tareas Detalladas:**
 
 1. **TrainingVisualizer avanzado**
-   - [ ] Curvas de entrenamiento con múltiples métricas
-   - [ ] Análisis de learning rate schedule
-   - [ ] Visualización de flujo de gradientes
-   - [ ] Distribuciones de parámetros del modelo
+   - [x] Curvas de entrenamiento con múltiples métricas
+   - [x] Análisis de learning rate schedule
+   - [x] Visualización de flujo de gradientes
+   - [x] Distribuciones de parámetros del modelo
 
 2. **PredictionVisualizer mejorado**
-   - [ ] Grid de comparación imagen-predicción-ground truth
-   - [ ] Mapas de calor de confianza
-   - [ ] Análisis de errores de predicción
-   - [ ] Visualizaciones interactivas
+   - [x] Grid de comparación imagen-predicción-ground truth
+   - [x] Mapas de calor de confianza
+   - [x] Análisis de errores de predicción
+   - [x] Visualizaciones interactivas
 
 3. **Integración con matplotlib y Plotly**
-   - [ ] Templates de estilo profesional
-   - [ ] Configuración automática de colores y estilos
-   - [ ] Exportación en múltiples formatos (PNG, PDF, SVG)
+   - [x] Templates de estilo profesional
+   - [x] Configuración automática de colores y estilos
+   - [x] Exportación en múltiples formatos (PNG, PDF, SVG)
 
 #### **Criterios de Aceptación:**
 
-- [ ] Visualizaciones de calidad profesional
-- [ ] Integración con pipeline de entrenamiento
-- [ ] Configuración flexible y extensible
-- [ ] Tests de visualización implementados
+- [x] Visualizaciones de calidad profesional
+- [x] Integración con pipeline de entrenamiento
+- [x] Configuración flexible y extensible
+- [x] Tests de visualización implementados
 
 ---
 
@@ -164,10 +164,10 @@ task-master set-status --id=1 --status=in-progress --file="C:/Users/fgrv/Dev/Cur
 
 #### **Entregables:**
 
-- [ ] ExperimentReporter automatizado
-- [ ] Plantillas de informes configurables
-- [ ] Generación de figuras para publicación
-- [ ] Sistema de comparación entre experimentos
+- [x] ExperimentReporter automatizado
+- [x] Plantillas de informes configurables
+- [x] Generación de figuras para publicación
+- [x] Sistema de comparación entre experimentos
 
 #### **Tareas Detalladas:**
 

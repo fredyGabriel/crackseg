@@ -50,6 +50,7 @@ brew install graphviz
 ```bash
 python -c "
 from crackseg.model.common.visualization import render_unet_architecture_diagram
+
 print('✅ Architecture visualization ready (matplotlib backend)')
 "
 ```
@@ -139,6 +140,7 @@ print(f'CUDA Available: {torch.cuda.is_available()}')
 
 try:
     from crackseg.model.common.visualization import render_unet_architecture_diagram
+
     print('✅ Architecture visualization ready')
 except ImportError as e:
     print(f'⚠️ Project modules: {e}')

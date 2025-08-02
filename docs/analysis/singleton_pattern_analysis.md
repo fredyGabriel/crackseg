@@ -146,26 +146,26 @@ class Registry[T]:
 
 | Aspecto | Implementación Actual | Singleton con `__new__` | Singleton con Decorador | Singleton con Metaclass |
 |---------|----------------------|-------------------------|-------------------------|-------------------------|
-| **Thread-safety** | ❌ No | ✅ Sí | ✅ Sí | ✅ Sí |
-| **Lazy initialization** | ❌ No | ✅ Sí | ✅ Sí | ✅ Sí |
-| **Imports circulares** | ❌ Problemas | ✅ Maneja correctamente | ✅ Maneja correctamente | ✅ Maneja correctamente |
-| **Compatibilidad** | ❌ Roto | ✅ Alta | ⚠️ Media | ⚠️ Media |
-| **Simplicidad** | ❌ Confuso | ✅ Simple | ✅ Simple | ⚠️ Complejo |
-| **Performance** | ❌ Múltiples instancias | ✅ Óptimo | ✅ Óptimo | ✅ Óptimo |
+| **Thread-safety** |  No | ✅ Sí | ✅ Sí | ✅ Sí |
+| **Lazy initialization** |  No | ✅ Sí | ✅ Sí | ✅ Sí |
+| **Imports circulares** |  Problemas | ✅ Maneja correctamente | ✅ Maneja correctamente | ✅ Maneja correctamente |
+| **Compatibilidad** |  Roto | ✅ Alta | ⚠️ Media | ⚠️ Media |
+| **Simplicidad** |  Confuso | ✅ Simple | ✅ Simple | ⚠️ Complejo |
+| **Performance** |  Múltiples instancias | ✅ Óptimo | ✅ Óptimo | ✅ Óptimo |
 
 ## 🚨 **Problemas Específicos de la Implementación Actual**
 
 ### **1. Ejecución Inmediata**
 
 ```python
-# ❌ Se ejecuta al importar el módulo
+#  Se ejecuta al importar el módulo
 encoder_registry = get_encoder_registry()
 ```
 
 ### **2. No Thread-Safe**
 
 ```python
-# ❌ Condición de carrera posible
+#  Condición de carrera posible
 if _encoder_registry is None:
     _encoder_registry = Registry(nn.Module, "Encoder")
 ```
@@ -173,16 +173,16 @@ if _encoder_registry is None:
 ### **3. Imports Circulares**
 
 ```python
-# ❌ registry_setup.py importa registry_support.py
-# ❌ registry_support.py importa registry_setup.py
-# ❌ Ambos ejecutan código al importar
+#  registry_setup.py importa registry_support.py
+#  registry_support.py importa registry_setup.py
+#  Ambos ejecutan código al importar
 ```
 
 ### **4. Múltiples Instancias**
 
 ```python
-# ❌ Cada import crea nuevas instancias
-# ❌ No hay garantía de singleton real
+#  Cada import crea nuevas instancias
+#  No hay garantía de singleton real
 ```
 
 ## ✅ **Solución Propuesta**

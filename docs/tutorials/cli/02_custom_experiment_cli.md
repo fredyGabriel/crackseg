@@ -102,7 +102,7 @@ defaults:
 
 training:
   loss:
-    _target_: src.training.losses.focal.FocalLoss
+    _target_: crackseg.training.losses.focal.FocalLoss
     alpha: 0.25
     gamma: 2.0
   learning_rate: 0.0001
@@ -324,12 +324,12 @@ EOF
 
 # Create model configurations
 cat > configs/experiments/tutorial_02/models/unet_resnet50.yaml << 'EOF'
-_target_: src.model.core.unet.BaseUNet
+_target_: crackseg.model.core.unet.BaseUNet
 encoder:
-  _target_: src.model.encoder.resnet.ResNetEncoder
+  _target_: crackseg.model.encoder.resnet.ResNetEncoder
   backbone: resnet50
 decoder:
-  _target_: src.model.decoder.cnn_decoder.CNNDecoder
+  _target_: crackseg.model.decoder.cnn_decoder.CNNDecoder
   in_channels: 2048
   skip_channels_list: [1024, 512, 256, 64]
   out_channels: 1
@@ -398,7 +398,7 @@ foreach ($exp in $experiments) {
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ $exp completed successfully" -ForegroundColor Green
     } else {
-        Write-Host "❌ $exp failed" -ForegroundColor Red
+        Write-Host " $exp failed" -ForegroundColor Red
     }
 
     Write-Host "---"
@@ -501,7 +501,7 @@ docs/reports/tutorial_02_analysis/
 └── experiment_comparison.csv    # Tabular comparison data
 ```
 
-For more details, see [scripts/experiments/README.md](../../scripts/experiments/README.md).
+For more details, see [scripts/experiments/README.md](scripts/experiments/README.md).
 
 ## What's Next?
 

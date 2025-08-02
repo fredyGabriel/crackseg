@@ -66,7 +66,7 @@ This will prompt you for project details and set up a new project with the neces
    - Files should use `.js` or `.mjs` extensions.
    - To use a CommonJS module, either:
      - Rename it with `.cjs` extension
-     - Use `await import()` for dynamic imports
+     - Use `# # await import()` for dynamic imports
    - If you need CommonJS throughout your project, remove `"type": "module"` from package.json, but
    Task Master scripts expect ESM.
 

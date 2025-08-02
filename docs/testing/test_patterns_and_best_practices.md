@@ -55,7 +55,7 @@ def create_mock_dataloaders() -> dict[str, DataLoader[Any]]:
         "val": DataLoader(mock_dataset, batch_size=32),
     }
 
-# ❌ Avoid legacy typing
+#  Avoid legacy typing
 from typing import Dict, List
 def create_mock_dataloaders() -> Dict[str, DataLoader]:
     pass
@@ -478,12 +478,12 @@ def test_model_forward_pass_with_attention(self) -> None:
 
 ## Common Anti-Patterns to Avoid
 
-### ❌ Avoid These Patterns
+###  Avoid These Patterns
 
 1. **Testing Implementation Details**
 
     ```python
-    # ❌ Bad - testing internal implementation
+    #  Bad - testing internal implementation
     def test_model_uses_specific_activation(self) -> None:
         model = UNetModel()
         assert isinstance(model._encoder._layers[0], nn.ReLU)
@@ -492,7 +492,7 @@ def test_model_forward_pass_with_attention(self) -> None:
 2. **Overly Complex Test Setup**
 
     ```python
-    # ❌ Bad - complex setup that's hard to understand
+    #  Bad - complex setup that's hard to understand
     def test_complex_scenario(self) -> None:
         # 50 lines of setup code
         # Unclear what's being tested
@@ -501,7 +501,7 @@ def test_model_forward_pass_with_attention(self) -> None:
 3. **Non-Deterministic Tests**
 
     ```python
-    # ❌ Bad - random behavior that can cause flaky tests
+    #  Bad - random behavior that can cause flaky tests
     def test_random_behavior(self) -> None:
         result = some_function_with_randomness()
         assert result > 0  # May fail randomly
@@ -510,7 +510,7 @@ def test_model_forward_pass_with_attention(self) -> None:
 4. **Testing Multiple Behaviors**
 
     ```python
-    # ❌ Bad - testing multiple things in one test
+    #  Bad - testing multiple things in one test
     def test_model_everything(self) -> None:
         # Tests instantiation, forward pass, training, saving, loading...
     ```

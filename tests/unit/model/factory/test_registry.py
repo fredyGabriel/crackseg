@@ -453,7 +453,7 @@ class TestRegistryProperties:
     def test_registry_base_class_property(self) -> None:
         """Test registry base class property."""
         test_registry = Registry(nn.Module, "TestRegistry")
-        assert test_registry.base_class == nn.Module
+        assert test_registry.base_class is nn.Module
 
     def test_registry_repr(self) -> None:
         """Test registry string representation."""

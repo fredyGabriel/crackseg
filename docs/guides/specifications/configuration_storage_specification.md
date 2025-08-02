@@ -109,6 +109,7 @@ config_metadata:
 from crackseg.utils.config.standardized_storage import StandardizedConfigStorage
 from omegaconf import OmegaConf
 
+
 # Initialize storage manager
 storage = StandardizedConfigStorage("outputs/configurations")
 
@@ -144,6 +145,7 @@ if not comparison["are_identical"]:
 ```python
 from crackseg.utils.config.standardized_storage import validate_configuration_completeness
 
+
 # Validate configuration against schema
 validation_result = validate_configuration_completeness(config)
 
@@ -157,6 +159,7 @@ if not validation_result["is_valid"]:
 
 ```python
 from crackseg.utils.config.standardized_storage import migrate_legacy_configuration
+
 
 # Migrate old configuration format
 legacy_config = {
@@ -192,6 +195,7 @@ outputs/configurations/
 ```python
 
 from crackseg.utils.config.standardized_storage import StandardizedConfigStorage
+
 
 # Use with existing experiment manager
 experiment_manager = ExperimentManager("outputs", "my_experiment")

@@ -488,6 +488,7 @@ The system is designed for easy extension through component plugins:
 ```python
 from crackseg.reporting import ExperimentReporter, ReportConfig
 
+
 # Initialize reporter
 config = ReportConfig(
     output_formats=[OutputFormat.MARKDOWN, OutputFormat.HTML],

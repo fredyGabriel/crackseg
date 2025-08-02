@@ -330,7 +330,7 @@ dataloader:
 
 # Model configuration
 model:
-  _target_: src.model.core.unet.BaseUNet
+  _target_: crackseg.model.core.unet.BaseUNet
   # ... model parameters
 
 # Training configuration
@@ -380,7 +380,7 @@ dir src\crackseg\outputs\experiments\
 
 1. **Entry Point**: Changed from `src/main.py` to `run.py` for proper execution
 2. **Configuration**: Fixed `base.yaml` to work correctly by resolving all dependency issues
-3. **Module References**: Corrected all `src.model` references to `crackseg.model` throughout the codebase
+3. **Module References**: Corrected all `crackseg.model` references to `crackseg.model` throughout the codebase
 4. **Optimizer Setup**: Fixed trainer to pass `model.parameters()` instead of the model object
 5. **Configuration Structure**: Separated data and dataloader configurations to prevent parameter conflicts
 6. **Output Paths**: Updated all output paths to use the correct experiment directory structure

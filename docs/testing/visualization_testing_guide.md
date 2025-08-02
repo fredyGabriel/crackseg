@@ -48,6 +48,7 @@ import numpy as np
 from pathlib import Path
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 
+
 class TestInteractivePlotlyVisualizer:
     """Test InteractivePlotlyVisualizer functionality."""
 

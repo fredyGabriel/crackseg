@@ -71,7 +71,7 @@ config = BenchmarkConfig(
     iterations=100
 )
 
-result = await suite.run_benchmark("load", config)
+result = # # await suite.run_benchmark("load", config)
 print(f"Success rate: {result.success_rate:.1f}%")
 ```
 
@@ -130,6 +130,7 @@ The system automatically monitors resources during test execution:
 
 ```python
 from crackseg.utils.monitoring.resource_monitor import ResourceMonitor
+
 
 # Start monitoring
 monitor = ResourceMonitor(interval=1.0)
@@ -315,6 +316,7 @@ python scripts/performance_maintenance.py --full-maintenance --generate-report
    # Analyze resource usage patterns
    python -c "
    from crackseg.utils.monitoring.resource_monitor import ResourceMonitor
+
    monitor = ResourceMonitor()
    report = monitor.generate_usage_report()
    print(report)
@@ -453,6 +455,7 @@ python scripts/performance_maintenance.py --validate-cleanup
 # Check monitoring dependencies
 python -c "
 from crackseg.utils.monitoring.resource_monitor import ResourceMonitor
+
 monitor = ResourceMonitor()
 print('Resource monitoring OK')
 "

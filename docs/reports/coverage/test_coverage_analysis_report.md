@@ -33,7 +33,7 @@ recomendaciones específicas para mejorar la cobertura.
 | Total Statements | 3,847 | - | - |
 | Covered Statements | 885 | - | - |
 | Missing Statements | 2,962 | - | - |
-| Coverage Percentage | 23% | 80% | ❌ Critical |
+| Coverage Percentage | 23% | 80% |  Critical |
 
 ### 2. Module-Level Coverage
 
@@ -62,17 +62,17 @@ recomendaciones específicas para mejorar la cobertura.
 
 | Module | Coverage | Statements | Missing | Status |
 |--------|----------|------------|---------|--------|
-| `src/data/distributed.py` | 36% | 14 | 9 | ❌ Poor |
-| `src/model/bottleneck/cnn_bottleneck.py` | 36% | 28 | 18 | ❌ Poor |
-| `src/model/architectures/cnn_convlstm_unet.py` | 34% | 128 | 85 | ❌ Poor |
-| `src/model/components/cbam.py` | 33% | 49 | 33 | ❌ Poor |
-| `src/data/memory.py` | 30% | 121 | 85 | ❌ Poor |
-| `src/data/dataloader.py` | 27% | 95 | 69 | ❌ Poor |
-| `src/data/splitting.py` | 26% | 86 | 64 | ❌ Poor |
-| `src/model/components/aspp.py` | 24% | 50 | 38 | ❌ Poor |
-| `src/model/architectures/swinv2_cnn_aspp_unet.py` | 23% | 53 | 41 | ❌ Poor |
-| `src/evaluation/loading.py` | 21% | 29 | 23 | ❌ Poor |
-| `src/evaluation/results.py` | 20% | 20 | 14 | ❌ Poor |
+| `src/data/distributed.py` | 36% | 14 | 9 |  Poor |
+| `src/model/bottleneck/cnn_bottleneck.py` | 36% | 28 | 18 |  Poor |
+| `src/model/architectures/cnn_convlstm_unet.py` | 34% | 128 | 85 |  Poor |
+| `src/model/components/cbam.py` | 33% | 49 | 33 |  Poor |
+| `src/data/memory.py` | 30% | 121 | 85 |  Poor |
+| `src/data/dataloader.py` | 27% | 95 | 69 |  Poor |
+| `src/data/splitting.py` | 26% | 86 | 64 |  Poor |
+| `src/model/components/aspp.py` | 24% | 50 | 38 |  Poor |
+| `src/model/architectures/swinv2_cnn_aspp_unet.py` | 23% | 53 | 41 |  Poor |
+| `src/evaluation/loading.py` | 21% | 29 | 23 |  Poor |
+| `src/evaluation/results.py` | 20% | 20 | 14 |  Poor |
 
 #### Critical Coverage Modules (<20%)
 

@@ -26,7 +26,7 @@ class ModelLoader:
             raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
 
     def load_checkpoint(self) -> dict[str, Any]:
-        """Load checkpoint with PyTorch 2.6+ compatibility."""
+        """Load checkpoint with PyTorch 2.7+ compatibility."""
         try:
             # Try with weights_only=False for full checkpoint
             checkpoint = torch.load(

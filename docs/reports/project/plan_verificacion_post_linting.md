@@ -12,7 +12,7 @@ tras los recientes cambios de linting, formateo y refactorización.
 - [x] Herramientas: `pytest`, `pytest-cov`
 - [x] Revisar reportes en `outputs/prd_project_refinement/test_suite_evaluation/reports/`
 - **Criterios de éxito:**
-  - [x] ❌ **91 tests fallando, 35 errores** - Requiere corrección inmediata
+  - [x]  **91 tests fallando, 35 errores** - Requiere corrección inmediata
   - [x] ✅ **Cobertura del 61%** - Aceptable para el estado actual
   - [x] ✅ No aparecen nuevos warnings críticos de tipo
 
@@ -167,7 +167,7 @@ son coherentes.
   - [x] `outputs/prd_project_refinement/test_suite_evaluation/manual_intervention_required.txt` -
     ✅ Existe (8.4KB, 74 líneas)
   - [x] `outputs/prd_project_refinement/test_suite_evaluation/manual_test_config.json` -
-    ❌ No encontrado (puede haberse renombrado)
+     No encontrado (puede haberse renombrado)
 - **Criterios de éxito:**
   - [x] Los archivos existen y se pueden abrir.
   - [x] Los datos reflejan el estado actual del código.

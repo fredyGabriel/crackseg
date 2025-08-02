@@ -426,7 +426,8 @@ def _get_transform_specs(
     if isinstance(config_list, dict | DictConfig):
         # Check if it has 'augmentations' key (nested structure)
         if "augmentations" in config_list:
-            return _get_transform_specs(config_list["augmentations"])
+            augmentations = config_list["augmentations"]
+            return _get_transform_specs(augmentations)
         else:
             specs_from_mapping: list[dict[str, Any] | DictConfig] = []
             for name_key, params_val in config_list.items():

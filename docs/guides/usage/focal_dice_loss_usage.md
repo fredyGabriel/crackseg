@@ -28,6 +28,7 @@ The `FocalDiceLoss` internally uses the `CombinedLoss` framework to combine:
 ```python
 from crackseg.training.losses import FocalDiceLoss
 
+
 # Use default configuration (optimized for crack segmentation)
 loss_fn = FocalDiceLoss()
 
@@ -41,6 +42,7 @@ loss = loss_fn(predictions, targets)
 
 ```python
 from crackseg.training.losses.focal_dice_loss import FocalDiceLoss, FocalDiceLossConfig
+
 
 # Custom configuration for specific dataset characteristics
 config = FocalDiceLossConfig(
@@ -217,7 +219,7 @@ for alpha in alpha_values:
 
 | Loss Function | Class Imbalance | Thin Structures | Training Stability | Implementation |
 |---------------|----------------|-----------------|-------------------|----------------|
-| BCE Loss | ❌ Poor | ❌ Poor | ✅ Good | ✅ Simple |
+| BCE Loss |  Poor |  Poor | ✅ Good | ✅ Simple |
 | Dice Loss | ✅ Good | ✅ Good | ⚠️ Moderate | ✅ Simple |
 | Focal Loss | ✅ Excellent | ⚠️ Moderate | ⚠️ Moderate | ✅ Simple |
 | BCE + Dice | ✅ Good | ✅ Good | ✅ Good | ✅ Simple |
@@ -238,7 +240,8 @@ for alpha in alpha_values:
    - Use gradient clipping
 
 3. **Poor Convergence**
-   - Adjust `focal_alpha` based on class balance
+   - Adjust `focal_alpha` based on class balance:
+    pass
    - Tune `focal_gamma` for difficulty level
    - Check data quality and annotation
 

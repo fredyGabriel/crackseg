@@ -8,7 +8,7 @@
 
 | Metric | Value | Status |
 |--------|-------|--------|
-| Overall Coverage | 23.2% | ❌ |
+| Overall Coverage | 23.2% |  |
 | Total Statements | 8,045 | - |
 | Covered Statements | 1,867 | - |
 | Missing Statements | 6,178 | - |
@@ -18,8 +18,8 @@
 
 - ✅ Excellent 90 100: 32 modules
 - ⚠️ Fair 60 79: 9 modules
-- ❌ Poor 40 59: 7 modules
-- ❌ Critical 0 39: 83 modules
+-  Poor 40 59: 7 modules
+-  Critical 0 39: 83 modules
 
 ## Critical Coverage Gaps
 

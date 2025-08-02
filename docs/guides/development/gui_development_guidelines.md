@@ -85,7 +85,7 @@ def page_home() -> None:
     # ... implementation
 ```
 
-**❌ Incorrect Example:**
+** Incorrect Example:**
 
 ```python
 def page_home(state: SessionState) -> None:  # Don't pass state as parameter
@@ -446,25 +446,25 @@ def safe_file_operation(filepath: str) -> bool:
         return False
 ```
 
-### ❌ Anti-Patterns to Avoid
+###  Anti-Patterns to Avoid
 
 ```python
 # Don't use global state
-global_config = {}  # ❌ Avoid global variables
+global_config = {}  #  Avoid global variables
 
 # Don't ignore exceptions
 def bad_file_operation(filepath: str):
     try:
         return process_file(filepath)
-    except:  # ❌ Bare except clause
-        pass  # ❌ Silent failure
+    except:  #  Bare except clause
+        pass  #  Silent failure
 
 # Don't pass session state around
-def bad_page_function(state):  # ❌ Don't pass state as parameter
+def bad_page_function(state):  #  Don't pass state as parameter
     pass
 
 # Don't use hardcoded strings for keys
-st.session_state["hardcoded_key"] = value  # ❌ Use constants instead
+st.session_state["hardcoded_key"] = value  #  Use constants instead
 ```
 
 ## Performance Optimization

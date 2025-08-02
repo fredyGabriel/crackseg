@@ -9,8 +9,8 @@
 Initial approach created Spanish-language rule files, violating project standards. Corrected approach:
 
 1. **Deleted Spanish files I created**:
-   - ❌ `consolidated-workspace-rules.mdc` (deleted)
-   - ❌ `minimal-always-applied.mdc` (deleted)
+   -  `consolidated-workspace-rules.mdc` (deleted)
+   -  `minimal-always-applied.mdc` (deleted)
 
 2. **Created proper English minimal replacement**:
    - ✅ `always-applied-minimal.mdc` (25 lines, English)

@@ -205,7 +205,8 @@ python scripts/analyze_predictions.py \
 ### SimplePredictionAnalyzer Class
 
 ```python
-from src.crackseg.evaluation.simple_prediction_analyzer import SimplePredictionAnalyzer
+from crackseg.evaluation.simple_prediction_analyzer import SimplePredictionAnalyzer
+
 
 # Initialize with automatic mask inference
 analyzer = SimplePredictionAnalyzer(

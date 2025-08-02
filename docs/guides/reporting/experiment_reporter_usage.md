@@ -8,6 +8,7 @@
 from pathlib import Path
 from crackseg.reporting import ExperimentReporter, ReportConfig, OutputFormat, TemplateType
 
+
 # Initialize reporter with basic configuration
 config = ReportConfig(
     output_formats=[OutputFormat.MARKDOWN, OutputFormat.HTML],
@@ -54,6 +55,7 @@ print(f"📁 Files: {list(metadata.file_paths.keys())}")
 ```python
 from crackseg.reporting import OutputFormat
 
+
 # Markdown and HTML for web viewing
 config = ReportConfig(
     output_formats=[OutputFormat.MARKDOWN, OutputFormat.HTML]
@@ -74,6 +76,7 @@ config = ReportConfig(
 
 ```python
 from crackseg.reporting import TemplateType
+
 
 # Executive summary for stakeholders
 config = ReportConfig(
@@ -203,7 +206,7 @@ for exp_dir in experiment_dirs:
         metadata = reporter.generate_single_experiment_report(exp_dir)
         print(f"✅ Generated report for {exp_dir.name}")
     else:
-        print(f"❌ Skipped invalid experiment: {exp_dir.name}")
+        print(f" Skipped invalid experiment: {exp_dir.name}")
 ```
 
 ### Error Handling
@@ -216,7 +219,7 @@ try:
         print(f"✅ Report generated successfully")
         print(f"📁 Files: {metadata.file_paths}")
     else:
-        print(f"❌ Report generation failed: {metadata.error_message}")
+        print(f" Report generation failed: {metadata.error_message}")
 
 except Exception as e:
     print(f"💥 Unexpected error: {e}")
@@ -343,7 +346,7 @@ def render_report_generator():
             st.success("✅ Report generated successfully!")
             st.json(metadata.file_paths)
         else:
-            st.error(f"❌ Report generation failed: {metadata.error_message}")
+            st.error(f" Report generation failed: {metadata.error_message}")
 ```
 
 ## Best Practices
@@ -395,7 +398,7 @@ def safe_generate_report(experiment_dir: Path):
     """Safely generate report with validation."""
 
     if not reporter.validate_experiment_directory(experiment_dir):
-        print(f"❌ Invalid experiment directory: {experiment_dir}")
+        print(f" Invalid experiment directory: {experiment_dir}")
         return None
 
     try:

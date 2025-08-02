@@ -4,12 +4,13 @@ This guide explains how to register custom loss functions with the project's reg
 to instantiate them, typically via a loss factory.
 
 The project uses a generic, type-safe, and thread-safe `Registry` system (defined in
-`src.model.factory.registry.py`). A specific instance of this registry is configured for loss
-functions in `src.training.losses.loss_registry_setup.py`.
+`crackseg.model.factory.registry.py`). A specific instance of this registry is configured for loss
+functions in `crackseg.training.losses.loss_registry_setup.py`.
 
 ## Key Principles for Loss Functions
 
-- **Must be `torch.nn.Module` classes**: To be registered, your loss function must be a class that
+- **Must be `torch.nn.Module` classes**: To be registered, your loss function must be a class that:
+    pass
 inherits from `torch.nn.Module`.
 - **Registry Instance**: Import the dedicated loss registry instance:
 `from crackseg.training.losses.loss_registry_setup import loss_registry`.
@@ -47,6 +48,7 @@ import torch.nn.functional as F
 
 # Import the specific loss_registry instance
 from crackseg.training.losses.loss_registry_setup import loss_registry
+
 
 @loss_registry.register(name="weighted_mse_loss", tags=["regression"])
 class WeightedMSELoss(nn.Module):
@@ -178,7 +180,7 @@ defaults:
   - base_loss
 
 loss:
-  _target_: src.training.losses.combined_loss.CombinedLoss
+  _target_: crackseg.training.losses.combined_loss.CombinedLoss
   losses:
     dice:
       _target_: DiceLoss  # Registered name
@@ -221,7 +223,7 @@ class CombinedDiceBCE(nn.Module):
 
         return self.dice_weight * dice + self.bce_weight * bce
 
-# ❌ Incorrect: No type hints, no validation, no documentation
+#  Incorrect: No type hints, no validation, no documentation
 @loss_registry.register()
 class BadLoss(nn.Module):
     def __init__(self, param):
@@ -239,6 +241,7 @@ You can inspect available losses programmatically:
 ```python
 from crackseg.training.losses.loss_registry_setup import loss_registry
 from typing import List, Dict
+
 
 # List all registered losses
 available_losses: List[str] = loss_registry.list()

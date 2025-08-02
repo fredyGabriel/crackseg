@@ -184,7 +184,7 @@ basedpyright .
 1. **Check the troubleshooting sections** in each tutorial
 2. **Review the [CLEAN_INSTALLATION.md](../guides/workflows/CLEAN_INSTALLATION.md)** guide
 3. **Examine the [project documentation](../index.md)**
-4. **Check the [configuration examples](../configs/)** directory
+4. **Check the [configuration examples](configs/)** directory
 
 ## Next Steps
 

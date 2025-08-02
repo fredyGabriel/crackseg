@@ -177,7 +177,7 @@ def verify_current_environment() -> bool:
             print(f"✅ {package}: {getattr(imported, '__version__', 'unknown')}")
         except ImportError:
             missing_packages.append(package)
-            print(f"❌ {package}: Not found")
+            print(f" {package}: Not found")
 
     if missing_packages:
         print(f"\n🚨 Missing packages: {', '.join(missing_packages)}")
@@ -212,7 +212,7 @@ if [ ! -z "$MODIFIED_TESTS" ]; then
         echo "Testing: $test_file"
         pytest "$test_file" -v
         if [ $? -ne 0 ]; then
-            echo "❌ Test failed: $test_file"
+            echo " Test failed: $test_file"
             exit 1
         fi
     done
@@ -227,21 +227,21 @@ if [ ! -z "$MODIFIED_FILES" ]; then
     # Format check
     black --check $MODIFIED_FILES
     if [ $? -ne 0 ]; then
-        echo "❌ Black formatting failed. Run: black $MODIFIED_FILES"
+        echo " Black formatting failed. Run: black $MODIFIED_FILES"
         exit 1
     fi
 
     # Linting
     ruff check $MODIFIED_FILES
     if [ $? -ne 0 ]; then
-        echo "❌ Ruff linting failed. Run: ruff check $MODIFIED_FILES --fix"
+        echo " Ruff linting failed. Run: ruff check $MODIFIED_FILES --fix"
         exit 1
     fi
 
     # Type checking
     basedpyright $MODIFIED_FILES
     if [ $? -ne 0 ]; then
-        echo "❌ Type checking failed"
+        echo " Type checking failed"
         exit 1
     fi
 fi
@@ -311,7 +311,7 @@ if __name__ == "__main__":
     invalid_mocks = [(f, p, v) for f, p, v in all_violations if not v]
 
     if invalid_mocks:
-        print("❌ Invalid mock paths detected:")
+        print(" Invalid mock paths detected:")
         for file, path, _ in invalid_mocks:
             print(f"  {file}: {path}")
         print("\n💡 Check if paths need updating for recent dependency changes")
@@ -341,7 +341,7 @@ def check_coverage_regression(current_coverage: float, baseline_file: str = "cov
         baseline_coverage = baseline_data.get('coverage', 0.0)
 
         if current_coverage < baseline_coverage - 1.0:  # Allow 1% tolerance
-            print(f"❌ Coverage regression detected: {current_coverage:.1f}% < {baseline_coverage:.1f}%")
+            print(f" Coverage regression detected: {current_coverage:.1f}% < {baseline_coverage:.1f}%")
             return False
 
     # Update baseline if coverage improved

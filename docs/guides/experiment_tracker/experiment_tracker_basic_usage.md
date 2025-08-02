@@ -18,6 +18,7 @@ from pathlib import Path
 from omegaconf import DictConfig, OmegaConf
 from crackseg.utils.experiment.tracker import ExperimentTracker
 
+
 # Create configuration
 config_dict = {
     "training": {

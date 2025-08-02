@@ -275,7 +275,7 @@ After training, the model is evaluated on the test set.
 ### Running Evaluation
 
 ```bash
-python -m src.evaluation.evaluate --checkpoint_path ... --config_path ...
+python -m crackseg.evaluation.evaluate --checkpoint_path ... --config_path ...
 ```
 
 ### Evaluation Outputs

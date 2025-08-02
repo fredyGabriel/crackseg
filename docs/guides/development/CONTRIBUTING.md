@@ -227,7 +227,7 @@ import subprocess
 tools = ['black .', 'ruff . --fix', 'basedpyright .']
 for tool in tools:
     result = subprocess.run(tool.split(), capture_output=True, text=True)
-    print(f'{tool}: {'✅ PASS' if result.returncode == 0 else '❌ FAIL'}')
+    print(f'{tool}: {'✅ PASS' if result.returncode == 0 else ' FAIL'}')
 "
 ```
 

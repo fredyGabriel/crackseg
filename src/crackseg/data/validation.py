@@ -526,9 +526,8 @@ def _convert_albumentations_format_to_standard(
     if isinstance(transform_config, dict | DictConfig):
         # Check if it has 'augmentations' key (nested structure)
         if "augmentations" in transform_config:
-            return _convert_albumentations_format_to_standard(
-                transform_config["augmentations"]
-            )
+            augmentations = transform_config["augmentations"]
+            return _convert_albumentations_format_to_standard(augmentations)
         else:
             # Convert dict format to list format
             converted_list = []

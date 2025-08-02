@@ -184,6 +184,7 @@ import numpy as np
 from PIL import Image
 from crackseg.data.dataset import CrackSegmentationDataset, create_crackseg_dataset
 
+
 class TestCrackSegmentationDataset:
     """Unit tests for CrackSegmentationDataset"""
 
@@ -497,6 +498,7 @@ from pathlib import Path
 import torch
 from crackseg.evaluation.__main__ import main as evaluation_main
 
+
 class TestEvaluationMain:
     """Integration tests for evaluation main pipeline"""
 
@@ -786,6 +788,7 @@ import torch
 from unittest.mock import patch, MagicMock
 from crackseg.module.component import ComponentClass
 
+
 class TestComponentClass:
     """Comprehensive tests for ComponentClass"""
 
@@ -815,7 +818,7 @@ class TestComponentClass:
 
 ```python
 # Effective mocking patterns
-@patch('src.data.dataset.Image.open')
+@patch('crackseg.data.dataset.Image.open')
 def test_dataset_with_mock_images(self, mock_image_open):
     """Test dataset with mocked image loading"""
     mock_image = MagicMock()

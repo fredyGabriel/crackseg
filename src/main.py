@@ -741,4 +741,24 @@ loop implementation - configs/: Configuration files and examples
 
 
 if __name__ == "__main__":
-    main()
+    # Hydra will automatically provide the cfg parameter when called from
+    # command line
+    # For direct execution, we need to handle this differently
+    import sys
+
+    if len(sys.argv) > 1:
+        # If arguments are provided, let Hydra handle them
+        main()
+    else:
+        # For direct execution without arguments, we need to provide a default
+        # config
+        from pathlib import Path
+
+        from hydra import compose, initialize_config_dir
+
+        config_dir = Path(__file__).parent.parent / "configs"
+        with initialize_config_dir(
+            config_dir=str(config_dir), version_base=None
+        ):
+            cfg = compose(config_name="base")
+            main(cfg)

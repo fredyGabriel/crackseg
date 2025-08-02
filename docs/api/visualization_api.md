@@ -691,6 +691,7 @@ def merge_metadata(
 ```python
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 
+
 # Initialize visualizer
 visualizer = InteractivePlotlyVisualizer(
     export_formats=["html", "png", "pdf"]
@@ -716,6 +717,7 @@ fig = visualizer.create_interactive_training_curves(
 
 ```python
 from crackseg.evaluation.visualization import AdvancedPredictionVisualizer
+
 
 # Initialize visualizer
 visualizer = AdvancedPredictionVisualizer()
@@ -743,6 +745,7 @@ fig = visualizer.create_comparison_grid(
 ```python
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
 
+
 # Initialize visualizer with real-time capabilities
 visualizer = InteractivePlotlyVisualizer(
     export_formats=["html", "png", "json"]
@@ -759,7 +762,9 @@ fig = visualizer.create_real_time_training_dashboard(
 
 ```python
 from crackseg.evaluation.visualization import InteractivePlotlyVisualizer
+
 from crackseg.evaluation.visualization.templates import TrainingVisualizationTemplate
+
 
 # Create custom template
 template = TrainingVisualizationTemplate({

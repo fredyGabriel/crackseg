@@ -175,7 +175,7 @@ def test_registry_creation():
     """Test registry creation and basic properties."""
     registry = Registry(EncoderBase, "TestRegistry")
     assert registry.name == "TestRegistry"
-    assert registry.base_class == EncoderBase
+    assert registry.base_class is EncoderBase
     assert len(registry) == 0
     assert list(registry.list_components()) == []
     assert str(registry) == "TestRegistry Registry with 0 components"

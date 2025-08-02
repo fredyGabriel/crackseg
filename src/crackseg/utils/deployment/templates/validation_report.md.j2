@@ -1,0 +1,196 @@
+# Validation Report: {{ report.artifact_id }}
+
+**Generated:** {{ report.validation_timestamp }}
+**Target Environment:** {{ report.target_environment }}
+**Target Format:** {{ report.target_format }}
+**Validation Duration:** {{ "%.2f"|format(report.validation_duration) }} seconds
+
+---
+
+## 🎯 Executive Summary
+
+**Deployment Status:** {% if report.deployment_ready %}✅ **READY FOR DEPLOYMENT**{% else %}❌ **NOT READY FOR DEPLOYMENT**{% endif %}
+
+**Risk Level:**
+{% if report.risk_level == "critical" %}🔴 **CRITICAL**{% elif report.risk_level == "high" %}🟠 **HIGH**{% elif report.risk_level == "medium" %}🟡 **MEDIUM**{% else %}🟢 **LOW**{% endif %}
+
+**Estimated Deployment Time:** {{ report.estimated_deployment_time }} minutes
+
+---
+
+## 📊 Performance Metrics
+
+| Metric | Value | Status |
+|--------|-------|--------|
+| **Inference Time** | {{ "%.2f"|format(report.inference_time_ms) }} ms | {% if report.inference_time_ms <= 500 %}✅{% elif report.inference_time_ms <= 1000 %}⚠️{% else %}❌{% endif %} |
+| **Memory Usage** | {{ "%.1f"|format(report.memory_usage_mb) }} MB | {% if report.memory_usage_mb <= 1024 %}✅{% elif report.memory_usage_mb <= 2048 %}⚠️{% else %}❌{% endif %} |
+| **Throughput** | {{ "%.2f"|format(report.throughput_rps) }} RPS | {% if report.throughput_rps >= 10 %}✅{% elif report.throughput_rps >= 5 %}⚠️{% else %}❌{% endif %} |
+| **Performance Score** | {{ "%.2f"|format(report.performance_score) }}/1.0 | {% if report.performance_score >= 0.8 %}✅{% elif report.performance_score >= 0.6 %}⚠️{% else %}❌{% endif %} |
+
+---
+
+## 🛡️ Security Analysis
+
+| Metric | Value | Status |
+|--------|-------|--------|
+| **Security Score** | {{ "%.1f"|format(report.security_score) }}/10.0 | {% if report.security_score >= 9.0 %}✅{% elif report.security_score >= 8.0 %}⚠️{% else %}❌{% endif %} |
+| **Vulnerabilities Found** | {{ report.vulnerabilities_found }} | {% if report.vulnerabilities_found == 0 %}✅{% else %}❌{% endif %} |
+| **Security Scan** | {% if report.security_scan_passed %}✅ PASSED{% else %}❌ FAILED{% endif %} | {% if report.security_scan_passed %}✅{% else %}❌{% endif %} |
+
+---
+
+## 🔧 Compatibility Matrix
+
+| Component | Status | Details |
+|-----------|--------|---------|
+| **Python Compatibility** | {% if report.python_compatible %}✅ Compatible{% else %}❌ Incompatible{% endif %} | Python version validation |
+| **Dependencies** | {% if report.dependencies_compatible %}✅ Compatible{% else %}❌ Incompatible{% endif %} | Required packages available |
+| **Environment** | {% if report.environment_compatible %}✅ Compatible{% else %}❌ Incompatible{% endif %} | Target environment supported |
+| **Overall Score** | {{ "%.1f"|format(report.compatibility_score * 100) }}% | {% if report.compatibility_score >= 0.9 %}✅{% elif report.compatibility_score >= 0.7 %}⚠️{% else %}❌{% endif %} |
+
+---
+
+## 🧪 Functional Testing
+
+| Test Category | Status | Coverage |
+|---------------|--------|----------|
+| **Functional Tests** | {% if report.functional_tests_passed %}✅ PASSED{% else %}❌ FAILED{% endif %} | {{ "%.1f"|format(report.test_coverage_percentage) }}% |
+| **Critical Tests** | {% if report.critical_tests_passed %}✅ PASSED{% else %}❌ FAILED{% endif %} | Critical functionality |
+| **Model Loading** | ✅ PASSED | Model can be loaded successfully |
+| **Inference Testing** | ✅ PASSED | Inference pipeline works |
+
+---
+
+## 💻 Resource Utilization
+
+| Resource | Usage | Status |
+|----------|-------|--------|
+| **CPU Usage** | {{ "%.1f"|format(report.cpu_usage_percent) }}% | {% if report.cpu_usage_percent <= 80 %}✅{% else %}⚠️{% endif %} |
+| **GPU Usage** | {{ "%.1f"|format(report.gpu_usage_percent) }}% | {% if report.gpu_usage_percent <= 90 %}✅{% else %}⚠️{% endif %} |
+| **Memory Usage** | {{ "%.1f"|format(report.memory_usage_mb) }} MB | {% if report.memory_usage_mb <= 2048 %}✅{% else %}⚠️{% endif %} |
+| **Disk Usage** | {{ "%.1f"|format(report.disk_usage_mb) }} MB | {% if report.disk_usage_mb <= 1024 %}✅{% else %}⚠️{% endif %} |
+| **Network Bandwidth** | {{ "%.1f"|format(report.network_bandwidth_mbps) }} Mbps | {% if report.network_bandwidth_mbps <= 100 %}✅{% else %}⚠️{% endif %} |
+
+---
+
+## 📈 Performance Charts
+
+The following charts have been generated to visualize the validation results:
+
+- **Performance Radar Chart**: Shows overall validation scores across different dimensions
+- **Resource Utilization Chart**: Displays CPU, GPU, memory, and disk usage
+- **Security Score Visualization**: Security score gauge and vulnerability count
+- **Compatibility Heatmap**: Visual representation of compatibility matrix
+
+*Charts are saved in the `charts/` directory alongside this report.*
+
+---
+
+## 🚨 Critical Issues
+
+{% if report.critical_issues %}
+{% for issue in report.critical_issues %}
+- ❌ **{{ issue }}**
+{% endfor %}
+{% else %}
+- ✅ **No critical issues found**
+{% endif %}
+
+---
+
+## ⚠️ Warnings
+
+{% if report.warnings %}
+{% for warning in report.warnings %}
+- ⚠️ **{{ warning }}**
+{% endfor %}
+{% else %}
+- ✅ **No warnings**
+{% endif %}
+
+---
+
+## 💡 Recommendations
+
+{% if report.recommendations %}
+{% for recommendation in report.recommendations %}
+- 💡 **{{ recommendation }}**
+{% endfor %}
+{% else %}
+- ✅ **No specific recommendations - deployment ready**
+{% endif %}
+
+---
+
+## 📋 Next Steps
+
+{% if report.deployment_ready %}
+### ✅ Deployment Ready
+1. **Review recommendations** above for potential optimizations
+2. **Monitor resource usage** during initial deployment
+3. **Set up monitoring** for performance and security metrics
+4. **Schedule follow-up validation** after deployment
+
+{% else %}
+### ❌ Deployment Blocked
+1. **Address critical issues** before proceeding
+2. **Fix security vulnerabilities** if any found
+3. **Resolve functional test failures**
+4. **Re-run validation** after fixes are applied
+{% endif %}
+
+---
+
+## 🔍 Detailed Results
+
+### Performance Breakdown
+- **Inference Time**: {{ "%.2f"|format(report.inference_time_ms) }} ms
+- **Memory Usage**: {{ "%.1f"|format(report.memory_usage_mb) }} MB
+- **Throughput**: {{ "%.2f"|format(report.throughput_rps) }} requests/second
+- **Performance Score**: {{ "%.2f"|format(report.performance_score) }}/1.0
+
+### Security Details
+- **Security Score**: {{ "%.1f"|format(report.security_score) }}/10.0
+- **Vulnerabilities**: {{ report.vulnerabilities_found }} found
+- **Scan Status**: {% if report.security_scan_passed %}PASSED{% else %}FAILED{% endif %}
+
+### Compatibility Details
+- **Python**: {% if report.python_compatible %}✅{% else %}❌{% endif %}
+- **Dependencies**: {% if report.dependencies_compatible %}✅{% else %}❌{% endif %}
+- **Environment**: {% if report.environment_compatible %}✅{% else %}❌{% endif %}
+- **Overall Score**: {{ "%.1f"|format(report.compatibility_score * 100) }}%
+
+### Functional Testing
+- **Tests Passed**: {% if report.functional_tests_passed %}✅{% else %}❌{% endif %}
+- **Coverage**: {{ "%.1f"|format(report.test_coverage_percentage) }}%
+- **Critical Tests**: {% if report.critical_tests_passed %}✅{% else %}❌{% endif %}
+
+---
+
+## 📊 Risk Assessment
+
+**Risk Level:** {{ report.risk_level.upper() }}
+
+**Risk Factors:**
+- **Performance Risk**: {% if report.performance_score < 0.7 %}HIGH{% elif report.performance_score < 0.8 %}MEDIUM{% else %}LOW{% endif %}
+- **Security Risk**: {% if report.security_score < 8.0 %}HIGH{% elif report.security_score < 9.0 %}MEDIUM{% else %}LOW{% endif %}
+- **Compatibility Risk**: {% if report.compatibility_score < 0.8 %}HIGH{% elif report.compatibility_score < 0.9 %}MEDIUM{% else %}LOW{% endif %}
+- **Functional Risk**: {% if not report.functional_tests_passed %}HIGH{% else %}LOW{% endif %}
+
+---
+
+## 🎯 Deployment Readiness Checklist
+
+- [ ] {% if report.deployment_ready %}✅{% else %}❌{% endif %} **Overall validation passed**
+- [ ] {% if report.functional_tests_passed %}✅{% else %}❌{% endif %} **Functional tests passed**
+- [ ] {% if report.security_scan_passed %}✅{% else %}❌{% endif %} **Security scan passed**
+- [ ] {% if report.performance_score >= 0.7 %}✅{% else %}❌{% endif %} **Performance acceptable**
+- [ ] {% if report.compatibility_score >= 0.8 %}✅{% else %}❌{% endif %} **Compatibility verified**
+- [ ] {% if report.risk_level in ["low", "medium"] %}✅{% else %}❌{% endif %} **Risk level acceptable**
+
+**Total Score:** {{ "%.0f"|format((report.deployment_ready|int + report.functional_tests_passed|int + report.security_scan_passed|int + (report.performance_score >= 0.7)|int + (report.compatibility_score >= 0.8)|int + (report.risk_level in ["low", "medium"])|int) / 6 * 100) }}% ({{ (report.deployment_ready|int + report.functional_tests_passed|int + report.security_scan_passed|int + (report.performance_score >= 0.7)|int + (report.compatibility_score >= 0.8)|int + (report.risk_level in ["low", "medium"])|int) }}/6)
+
+---
+
+*Report generated by CrackSeg Validation System*
+*Validation completed in {{ "%.2f"|format(report.validation_duration) }} seconds*

@@ -113,7 +113,8 @@ This module defines all neural network components.
 
 This module contains the logic for training and validating the model.
 
-- `trainer.py` (Assumed location, based on standard practices): A central class or
+- `trainer.py` (Assumed location, based on standard practices): A central class or:
+    pass
     script that orchestrates the training loop (epochs, steps, backpropagation).
 - **`losses/`**: A registry of loss functions (e.g., DiceLoss, FocalLoss, BCE). The
     configuration specifies which loss to use.
