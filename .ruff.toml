@@ -1,0 +1,35 @@
+# Ruff configuration file
+# https://docs.astral.sh/ruff/configuration/
+
+# Line length configuration
+line-length = 79
+
+# Target Python version
+target-version = "py312"
+
+# Exclude specific files from linting
+exclude = [
+    "src/crackseg/utils/deployment/packaging/helm.py",
+    "src/crackseg/utils/deployment/packaging/docker_compose.py",
+]
+
+[lint]
+# Enable specific rules
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+
+# Ignore specific rules
+ignore = [
+    "E501",  # Line too long (handled by exclude for template files)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []

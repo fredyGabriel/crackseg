@@ -235,6 +235,33 @@
             "reportUntypedBaseClass": "none",
             "reportUntypedNamedTuple": "none",
             "reportPrivateImportUsage": "none"
+        },
+        {
+            "root": "src/crackseg/utils/deployment/packaging",
+            "extraPaths": [
+                ".",
+                "src"
+            ],
+            "reportMissingImports": "warning",
+            "reportUnknownMemberType": "none",
+            "reportUnknownVariableType": "none",
+            "reportUnknownArgumentType": "none",
+            "reportAttributeAccessIssue": "none",
+            "reportCallIssue": "none",
+            "reportGeneralTypeIssues": "none",
+            "reportUnusedVariable": "warning",
+            "reportUnusedImport": "warning",
+            "reportMissingParameterType": "none",
+            "reportUnknownParameterType": "none",
+            "reportArgumentType": "none",
+            "reportReturnType": "none",
+            "reportMissingTypeStubs": false,
+            "reportPrivateUsage": "none",
+            "reportUntypedFunctionDecorator": "none",
+            "reportUntypedClassDecorator": "none",
+            "reportUntypedBaseClass": "none",
+            "reportUntypedNamedTuple": "none",
+            "reportPrivateImportUsage": "none"
         }
     ]
 }
