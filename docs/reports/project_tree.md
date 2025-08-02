@@ -739,55 +739,89 @@
     │   └── test-runner.config
     ├── docs/
     │   ├── analysis/
-    │   │   └── singleton_pattern_analysis.md
+    │   │   ├── singleton_pattern_analysis.md
+    │   │   └── singleton_pattern_analysis.md.snippet_backup
     │   ├── api/
     │   │   ├── gui_components.md
     │   │   ├── gui_pages.md
     │   │   ├── gui_services.md
     │   │   ├── utilities.md
-    │   │   └── visualization_api.md
+    │   │   ├── visualization_api.md
+    │   │   └── visualization_api.md.snippet_backup
     │   ├── designs/
     │   │   ├── logo.png
-    │   │   └── loss_registry_design.md
+    │   │   ├── loss_registry_design.md
+    │   │   ├── loss_registry_design.md.reference_backup
+    │   │   └── loss_registry_design.md.snippet_backup
     │   ├── guides/
     │   │   ├── architecture/
     │   │   │   ├── architectural_decisions.md
     │   │   │   ├── README.md
-    │   │   │   └── TECHNICAL_ARCHITECTURE.md
+    │   │   │   ├── TECHNICAL_ARCHITECTURE.md
+    │   │   │   └── TECHNICAL_ARCHITECTURE.md.snippet_backup
     │   │   ├── cicd/
     │   │   │   ├── ci_cd_integration_guide.md
     │   │   │   ├── ci_cd_testing_integration.md
     │   │   │   └── README.md
     │   │   ├── deployment/
-    │   │   │   └── DEPLOYMENT_PIPELINE_ARCHITECTURE.md
+    │   │   │   ├── DEPLOYMENT_PIPELINE_ARCHITECTURE.md
+    │   │   │   ├── DEPLOYMENT_PIPELINE_ARCHITECTURE.md.snippet_backup
+    │   │   │   ├── deployment_system_configuration_guide.md
+    │   │   │   ├── deployment_system_configuration_guide.md.backup
+    │   │   │   ├── deployment_system_configuration_guide.md.snippet_backup
+    │   │   │   ├── deployment_system_troubleshooting_guide.md
+    │   │   │   ├── deployment_system_troubleshooting_guide.md.backup
+    │   │   │   ├── deployment_system_troubleshooting_guide.md.snippet_backup
+    │   │   │   ├── deployment_system_user_guide.md
+    │   │   │   ├── deployment_system_user_guide.md.backup
+    │   │   │   └── deployment_system_user_guide.md.snippet_backup
     │   │   ├── development/
     │   │   │   ├── CONTRIBUTING.md
+    │   │   │   ├── CONTRIBUTING.md.snippet_backup
     │   │   │   ├── gui_development_guidelines.md
+    │   │   │   ├── gui_development_guidelines.md.snippet_backup
     │   │   │   ├── README.md
-    │   │   │   └── SYSTEM_DEPENDENCIES.md
+    │   │   │   ├── SYSTEM_DEPENDENCIES.md
+    │   │   │   └── SYSTEM_DEPENDENCIES.md.snippet_backup
     │   │   ├── experiment_tracker/
     │   │   │   ├── experiment_tracker_basic_usage.md
+    │   │   │   ├── experiment_tracker_basic_usage.md.snippet_backup
     │   │   │   ├── experiment_tracker_integration.md
-    │   │   │   └── experiment_tracker_usage.md
+    │   │   │   ├── experiment_tracker_integration.md.snippet_backup
+    │   │   │   ├── experiment_tracker_usage.md
+    │   │   │   └── experiment_tracker_usage.md.snippet_backup
     │   │   ├── experiments/
     │   │   │   └── README_swinv2_hybrid.md
     │   │   ├── monitoring/
     │   │   │   ├── continuous_coverage_monitoring_guide.md
+    │   │   │   ├── continuous_coverage_monitoring_guide.md.snippet_backup
     │   │   │   └── README.md
     │   │   ├── quality/
     │   │   │   ├── comprehensive_integration_test_reporting_guide.md
+    │   │   │   ├── comprehensive_integration_test_reporting_guide.md.snippet_backup
     │   │   │   ├── gui_testing_best_practices.md
+    │   │   │   ├── gui_testing_best_practices.md.consistency_backup
+    │   │   │   ├── gui_testing_best_practices.md.snippet_backup
     │   │   │   ├── gui_testing_implementation_checklist.md
+    │   │   │   ├── gui_testing_implementation_checklist.md.consistency_backup
     │   │   │   ├── quality_gates_guide.md
     │   │   │   ├── README.md
-    │   │   │   └── test_maintenance_procedures.md
+    │   │   │   ├── test_maintenance_procedures.md
+    │   │   │   └── test_maintenance_procedures.md.snippet_backup
     │   │   ├── reporting/
     │   │   │   ├── experiment_reporter_architecture.md
-    │   │   │   └── experiment_reporter_usage.md
+    │   │   │   ├── experiment_reporter_architecture.md.snippet_backup
+    │   │   │   ├── experiment_reporter_usage.md
+    │   │   │   └── experiment_reporter_usage.md.snippet_backup
     │   │   ├── specifications/
     │   │   │   ├── checkpoint_format_specification.md
+    │   │   │   ├── checkpoint_format_specification.md.snippet_backup
     │   │   │   ├── configuration_storage_specification.md
+    │   │   │   ├── configuration_storage_specification.md.snippet_backup
     │   │   │   ├── performance_benchmarking_system.md
+    │   │   │   ├── performance_benchmarking_system.md.consistency_backup
+    │   │   │   ├── performance_benchmarking_system.md.qa_backup
+    │   │   │   ├── performance_benchmarking_system.md.snippet_backup
     │   │   │   ├── README.md
     │   │   │   └── traceability_data_model_specification.md
     │   │   ├── troubleshooting/
@@ -795,36 +829,60 @@
     │   │   │   └── TROUBLESHOOTING.md
     │   │   ├── usage/
     │   │   │   ├── focal_dice_loss_usage.md
+    │   │   │   ├── focal_dice_loss_usage.md.snippet_backup
     │   │   │   ├── loss_registry_usage.md
+    │   │   │   ├── loss_registry_usage.md.reference_backup
+    │   │   │   ├── loss_registry_usage.md.snippet_backup
     │   │   │   ├── README.md
     │   │   │   └── USAGE.md
     │   │   ├── visualization/
     │   │   │   ├── visualization_customization_guide.md
-    │   │   │   └── visualization_usage_examples.md
+    │   │   │   ├── visualization_customization_guide.md.snippet_backup
+    │   │   │   ├── visualization_usage_examples.md
+    │   │   │   └── visualization_usage_examples.md.snippet_backup
     │   │   ├── workflows/
     │   │   │   ├── CLEAN_INSTALLATION.md
     │   │   │   ├── README.md
-    │   │   │   └── WORKFLOW_TRAINING.md
+    │   │   │   ├── WORKFLOW_TRAINING.md
+    │   │   │   └── WORKFLOW_TRAINING.md.edge_backup
     │   │   ├── deployment_orchestration_api.md
+    │   │   ├── deployment_orchestration_api.md.snippet_backup
     │   │   ├── experiment_tracker_usage.md
+    │   │   ├── experiment_tracker_usage.md.snippet_backup
+    │   │   ├── health_monitoring_guide.md
+    │   │   ├── health_monitoring_guide.md.backup
+    │   │   ├── health_monitoring_guide.md.edge_backup
+    │   │   ├── health_monitoring_guide.md.snippet_backup
+    │   │   ├── multi_target_deployment_guide.md
+    │   │   ├── multi_target_deployment_guide.md.backup
+    │   │   ├── multi_target_deployment_guide.md.edge_backup
+    │   │   ├── multi_target_deployment_guide.md.snippet_backup
     │   │   ├── prediction_analysis_guide.md
+    │   │   ├── prediction_analysis_guide.md.backup
+    │   │   ├── prediction_analysis_guide.md.snippet_backup
     │   │   └── README.md
     │   ├── plans/
-    │   │   └── artifact_system_development_plan.md
+    │   │   ├── artifact_system_development_plan.md
+    │   │   ├── artifact_system_development_plan.md.qa_backup
+    │   │   └── refactoring_plan_large_files.md
     │   ├── reports/
     │   │   ├── analysis/
     │   │   │   ├── basedpyright_analysis_report.md
     │   │   │   ├── consolidation-implementation-summary.md
     │   │   │   ├── duplication-mapping.md
     │   │   │   ├── final-rule-cleanup-summary.md
+    │   │   │   ├── final-rule-cleanup-summary.md.snippet_backup
     │   │   │   ├── pytorch_cuda_compatibility_issue.md
+    │   │   │   ├── pytorch_cuda_compatibility_issue.md.snippet_backup
     │   │   │   ├── rule-consolidation-report.md
     │   │   │   ├── rule-system-analysis.md
     │   │   │   └── tensorboard_component_refactoring_summary.md
     │   │   ├── coverage/
     │   │   │   ├── coverage_gaps_analysis.md
     │   │   │   ├── coverage_validation_report.md
+    │   │   │   ├── coverage_validation_report.md.snippet_backup
     │   │   │   ├── test_coverage_analysis_report.md
+    │   │   │   ├── test_coverage_analysis_report.md.snippet_backup
     │   │   │   └── test_coverage_comparison_report.md
     │   │   ├── experiment_plots/
     │   │   │   ├── experiment_comparison_20250724_081112.csv
@@ -843,11 +901,21 @@
     │   │   │   └── model_structure_diff.json
     │   │   ├── project/
     │   │   │   ├── crackseg_paper.md
+    │   │   │   ├── crackseg_paper.md.consistency_backup
+    │   │   │   ├── crackseg_paper.md.qa_backup
     │   │   │   ├── crackseg_paper_es.md
+    │   │   │   ├── crackseg_paper_es.md.consistency_backup
+    │   │   │   ├── crackseg_paper_es.md.qa_backup
     │   │   │   ├── documentation_checklist.md
+    │   │   │   ├── documentation_checklist.md.consistency_backup
+    │   │   │   ├── documentation_checklist.md.qa_backup
+    │   │   │   ├── documentation_checklist.md.snippet_backup
     │   │   │   ├── plan_verificacion_post_linting.md
+    │   │   │   ├── plan_verificacion_post_linting.md.snippet_backup
     │   │   │   ├── project_tree.md
-    │   │   │   └── technical_report.md
+    │   │   │   ├── technical_report.md
+    │   │   │   ├── technical_report.md.consistency_backup
+    │   │   │   └── technical_report.md.edge_backup
     │   │   ├── scripts/
     │   │   │   ├── example_prd.txt
     │   │   │   ├── hydra_examples.txt
@@ -855,36 +923,75 @@
     │   │   ├── tasks/
     │   │   ├── testing/
     │   │   │   ├── automated_test_execution_report.md
+    │   │   │   ├── automated_test_execution_report.md.snippet_backup
     │   │   │   ├── gui_corrections_inventory.md
     │   │   │   ├── gui_test_coverage_analysis.md
+    │   │   │   ├── gui_test_coverage_analysis.md.snippet_backup
     │   │   │   ├── next_testing_priorities.md
     │   │   │   ├── test_coverage_improvement_plan.md
+    │   │   │   ├── test_coverage_improvement_plan.md.reference_backup
+    │   │   │   ├── test_coverage_improvement_plan.md.snippet_backup
     │   │   │   ├── test_fixes_validation_report.md
     │   │   │   └── test_inventory.txt
     │   │   ├── tutorial_02_plots/
     │   │   │   ├── experiment_comparison.csv
     │   │   │   ├── performance_radar.png
     │   │   │   └── training_curves.png
+    │   │   ├── automated_replacement_script_report.md
+    │   │   ├── bulk_replacement_execution_report.md
+    │   │   ├── bulk_replacement_execution_report.md.snippet_backup
+    │   │   ├── code_snippet_update_report.md
+    │   │   ├── code_snippet_update_report.md.consistency_backup
+    │   │   ├── code_snippet_update_report.md.qa_backup
+    │   │   ├── consistency_verification_report.md
+    │   │   ├── consistency_verification_report.md.qa_backup
+    │   │   ├── deployment_system_documentation_summary.md
+    │   │   ├── documentation_catalog.json
+    │   │   ├── documentation_catalog_summary.md
+    │   │   ├── edge_case_review_report.md
+    │   │   ├── edge_case_review_report.md.reference_backup
+    │   │   ├── final_documentation_migration_report.md
+    │   │   ├── import_scan_report.md
+    │   │   ├── import_scan_report.md.edge_backup
     │   │   ├── project_tree.md
-    │   │   └── README.md
+    │   │   ├── qa_review_final_report.md
+    │   │   ├── README.md
+    │   │   ├── references_update_report.md
+    │   │   ├── references_update_report.md.qa_backup
+    │   │   ├── sample_testing_report.md
+    │   │   └── sample_testing_report.md.snippet_backup
     │   ├── stylesheets/
     │   │   └── extra.css
     │   ├── testing/
     │   │   ├── artifact_testing_plan.md
+    │   │   ├── artifact_testing_plan.md.qa_backup
     │   │   ├── test_patterns_and_best_practices.md
-    │   │   └── visualization_testing_guide.md
+    │   │   ├── test_patterns_and_best_practices.md.snippet_backup
+    │   │   ├── visualization_testing_guide.md
+    │   │   └── visualization_testing_guide.md.snippet_backup
     │   ├── tools/
-    │   │   └── task-master-guide.md
+    │   │   ├── task-master-guide.md
+    │   │   ├── task-master-guide.md.consistency_backup
+    │   │   └── task-master-guide.md.qa_backup
     │   ├── tutorials/
     │   │   ├── cli/
     │   │   │   ├── 01_basic_training_cli.md
+    │   │   │   ├── 01_basic_training_cli.md.reference_backup
     │   │   │   ├── 02_custom_experiment_cli.md
-    │   │   │   └── 03_extending_project_cli.md
+    │   │   │   ├── 02_custom_experiment_cli.md.consistency_backup
+    │   │   │   ├── 02_custom_experiment_cli.md.reference_backup
+    │   │   │   ├── 02_custom_experiment_cli.md.snippet_backup
+    │   │   │   ├── 03_extending_project_cli.md
+    │   │   │   ├── 03_extending_project_cli.md.reference_backup
+    │   │   │   └── 03_extending_project_cli.md.snippet_backup
     │   │   ├── gui/
     │   │   │   ├── 01_basic_training.md
     │   │   │   ├── 02_custom_experiment.md
-    │   │   │   └── 03_extending_project.md
-    │   │   └── README.md
+    │   │   │   ├── 03_extending_project.md
+    │   │   │   ├── 03_extending_project.md.reference_backup
+    │   │   │   └── 03_extending_project.md.snippet_backup
+    │   │   ├── README.md
+    │   │   └── README.md.qa_backup
     │   └── index.md
     ├── gui/
     │   ├── __pycache__/
@@ -1086,15 +1193,31 @@
     │   │   │   └── override_parser.py
     │   │   ├── process/
     │   │   │   ├── __pycache__/
+    │   │   │   ├── cleanup/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── abort_system.py
+    │   │   │   │   └── process_cleanup.py
+    │   │   │   ├── core/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── core.py
+    │   │   │   │   ├── error_handling.py
+    │   │   │   │   ├── manager_backup_original.py
+    │   │   │   │   ├── process_manager.py
+    │   │   │   │   └── states.py
+    │   │   │   ├── logging/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── log_integration.py
+    │   │   │   │   └── log_streamer.py
+    │   │   │   ├── monitoring/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── monitoring.py
+    │   │   │   │   └── process_monitor.py
+    │   │   │   ├── overrides/
+    │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── override_handler.py
+    │   │   │   │   └── override_parser.py
     │   │   │   ├── __init__.py
-    │   │   │   ├── abort_system.py
-    │   │   │   ├── core.py
-    │   │   │   ├── error_handling.py
-    │   │   │   ├── log_integration.py
-    │   │   │   ├── manager_backup.py
-    │   │   │   ├── monitoring.py
-    │   │   │   ├── override_parser.py
-    │   │   │   └── states.py
+    │   │   │   └── manager_backup.py
     │   │   ├── reports/
     │   │   │   └── models.py
     │   │   ├── results/
@@ -2276,7 +2399,9 @@
     │   │   ├── advanced_training_viz_demo.py
     │   │   ├── deployment_orchestration_example.py
     │   │   ├── factory_registry_integration.py
+    │   │   ├── health_monitoring_demo.py
     │   │   ├── interactive_plotly_demo.py
+    │   │   ├── multi_target_deployment_demo.py
     │   │   ├── prediction_analysis_demo.py
     │   │   ├── production_readiness_validation_example.py
     │   │   ├── template_system_demo.py
@@ -2333,6 +2458,7 @@
     │   │   ├── model_imports_cycles.py
     │   │   └── model_imports_validation.py
     │   ├── utils/
+    │   │   ├── __pycache__/
     │   │   ├── test_suite_refinement/
     │   │   │   ├── add_reproducibility_score.py
     │   │   │   ├── categorize_tests_status.py
@@ -2345,17 +2471,31 @@
     │   │   │   ├── tag_test_priority.py
     │   │   │   └── update_test_inventory_status.py
     │   │   ├── audit_rules_checklist.py
+    │   │   ├── catalog_documentation.py
     │   │   ├── check_updates.py
     │   │   ├── clean_workspace.py
     │   │   ├── example_override.py
+    │   │   ├── final_cleanup.py
+    │   │   ├── fix_code_snippets.py
+    │   │   ├── fix_consistency_issues.py
+    │   │   ├── fix_edge_cases.py
+    │   │   ├── fix_qa_issues.py
     │   │   ├── generate_project_tree.py
     │   │   ├── inventory_training_imports.py
     │   │   ├── model_summary.py
     │   │   ├── organize_reports.py
     │   │   ├── organize_reports_plan.md
+    │   │   ├── qa_documentation_changes.py
     │   │   ├── reorganize_legacy_folders_plan.md
+    │   │   ├── replace_imports.py
+    │   │   ├── test_multiple_imports.py
+    │   │   ├── test_replace_imports.py
+    │   │   ├── test_sample_file.py
     │   │   ├── unet_diagram.py
+    │   │   ├── update_references.py
     │   │   ├── validate-rule-references.py
+    │   │   ├── verify_code_snippets.py
+    │   │   ├── verify_consistency.py
     │   │   └── verify_setup.py
     │   ├── __init__.py
     │   ├── artifact_selection_example.py
@@ -2381,11 +2521,14 @@
     │   │   ├── data/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
+    │   │   │   ├── base_dataset.py
     │   │   │   ├── collate.py
     │   │   │   ├── dataloader.py
     │   │   │   ├── dataloader.py.backup
     │   │   │   ├── dataset.py
     │   │   │   ├── dataset.py.backup
+    │   │   │   ├── dataset_factory.py
+    │   │   │   ├── dataset_utils.py
     │   │   │   ├── distributed.py
     │   │   │   ├── factory.py
     │   │   │   ├── memory.py
@@ -2881,13 +3024,17 @@
     │   │   │   │   ├── templates/
     │   │   │   │   │   └── validation_report.md.j2
     │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── alert_handlers.py
     │   │   │   │   ├── artifact_optimizer.py
     │   │   │   │   ├── artifact_selector.py
     │   │   │   │   ├── config.py
     │   │   │   │   ├── deployment_manager.py
     │   │   │   │   ├── environment_configurator.py
+    │   │   │   │   ├── health_monitoring.py
     │   │   │   │   ├── monitoring_system.py
+    │   │   │   │   ├── multi_target.py
     │   │   │   │   ├── orchestration.py
+    │   │   │   │   ├── performance_monitor.py
     │   │   │   │   ├── production_readiness_validator.py
     │   │   │   │   ├── validation_pipeline.py
     │   │   │   │   └── validation_reporter.py
@@ -2979,6 +3126,13 @@
     │   │   ├── evaluate.py
     │   │   └── README.md
     │   ├── crackseg.egg-info/
+    │   ├── training_pipeline/
+    │   │   ├── __init__.py
+    │   │   ├── checkpoint_manager.py
+    │   │   ├── data_loading.py
+    │   │   ├── environment_setup.py
+    │   │   ├── model_creation.py
+    │   │   └── training_setup.py
     │   └── main.py
     ├── tests/
     │   ├── __pycache__/
@@ -3430,6 +3584,8 @@
     │   │   │   ├── test_memory.py
     │   │   │   └── test_sampler.py
     │   │   ├── deployment/
+    │   │   │   ├── test_health_monitoring.py
+    │   │   │   ├── test_multi_target.py
     │   │   │   ├── test_orchestration.py
     │   │   │   └── test_production_readiness_validator.py
     │   │   ├── docker/

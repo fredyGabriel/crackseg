@@ -1,463 +1,426 @@
-"""Deployment manager for CrackSeg.
+"""Deployment management for orchestration.
 
-This module provides the main deployment orchestration capabilities,
-integrating artifact selection, environment configuration, optimization,
-packaging, and deployment orchestration.
+This module provides deployment management capabilities including
+deployment strategies, rollback mechanisms, and deployment tracking.
 """
 
 import logging
-from pathlib import Path
-from typing import Any
+import time
+from collections.abc import Callable
 
-from ..traceability import TraceabilityStorage
-from .artifact_optimizer import ArtifactOptimizer
-from .artifact_selector import ArtifactSelector, SelectionCriteria
 from .config import DeploymentConfig, DeploymentResult
-from .environment_configurator import EnvironmentConfigurator
-from .monitoring_system import DeploymentMonitoringSystem
-from .orchestration import DeploymentOrchestrator, DeploymentStrategy
-from .packaging_system import PackagingSystem
-from .validation_pipeline import ValidationPipeline
+from .health_monitoring import (
+    DefaultHealthChecker,
+    DeploymentHealthMonitor,
+    HealthChecker,
+)
+from .orchestration import (
+    DeploymentMetadata,
+    DeploymentState,
+    DeploymentStrategy,
+)
 
 
 class DeploymentManager:
-    """Main deployment manager for CrackSeg.
+    """Manages deployment operations and strategies.
 
-    Orchestrates the entire deployment pipeline including artifact selection,
-    environment configuration, optimization, packaging, and deployment.
+    Provides deployment strategy implementations including blue-green,
+    canary, rolling, and recreate deployments with rollback capabilities.
     """
 
-    def __init__(
-        self, storage: TraceabilityStorage, output_dir: Path | None = None
-    ) -> None:
+    def __init__(self, health_checker: HealthChecker | None = None) -> None:
         """Initialize deployment manager.
 
         Args:
-            storage: Traceability storage for artifact management
-            output_dir: Output directory for deployment artifacts
+            health_checker: Health checker implementation
         """
-        self.storage = storage
-        self.output_dir = output_dir or Path("deployments")
+        self.health_checker = health_checker or DefaultHealthChecker()
+        self.health_monitor = DeploymentHealthMonitor(
+            health_checker=self.health_checker
+        )
         self.logger = logging.getLogger(__name__)
 
-        # Initialize components
-        self.artifact_selector = ArtifactSelector(storage.query_interface)
-        self.environment_configurator = EnvironmentConfigurator()
-        self.artifact_optimizer = ArtifactOptimizer()
-        self.packaging_system = PackagingSystem()
-        self.validation_pipeline = ValidationPipeline()
-        self.monitoring_system = DeploymentMonitoringSystem()
-        self.orchestrator = DeploymentOrchestrator()
-
-        self.logger.info("DeploymentManager initialized")
-
-    def deploy_artifact(
-        self,
-        artifact_id: str,
-        target_environment: str = "production",
-        deployment_type: str = "container",
-        enable_quantization: bool = True,
-        target_format: str = "onnx",
-        strategy: DeploymentStrategy = DeploymentStrategy.BLUE_GREEN,
-        **kwargs,
-    ) -> DeploymentResult:
-        """Deploy artifact through complete pipeline with orchestration.
-
-        Args:
-            artifact_id: ID of artifact to deploy
-            target_environment: Target deployment environment
-            deployment_type: Type of deployment
-            enable_quantization: Enable model quantization
-            target_format: Target model format
-            strategy: Deployment strategy to use
-            **kwargs: Additional deployment options
-
-        Returns:
-            Deployment result
-        """
-        self.logger.info(
-            f"Starting {strategy.value} deployment of artifact {artifact_id} "
-            f"to {target_environment}"
-        )
-
-        try:
-            # 1. Create deployment configuration
-            config = DeploymentConfig(
-                artifact_id=artifact_id,
-                target_environment=target_environment,
-                deployment_type=deployment_type,
-                enable_quantization=enable_quantization,
-                target_format=target_format,
-                **kwargs,
-            )
-
-            # 2. Select appropriate artifact
-            selection_result = self._select_artifact(config)
-            if not selection_result.success:
-                return DeploymentResult(
-                    success=False,
-                    deployment_id=f"failed-{artifact_id}",
-                    artifact_id=artifact_id,
-                    target_environment=target_environment,
-                    error_message=selection_result.error_message,
-                )
-
-            # 3. Configure environment
-            env_config = self.environment_configurator.configure_environment(
-                config
-            )
-
-            # 4. Optimize artifact
-            optimization_result = self.artifact_optimizer.optimize_artifact(
-                selection_result.artifact, config
-            )
-
-            # 5. Package artifact
-            packaging_result = self.packaging_system.package_artifact(
-                optimization_result, config
-            )
-
-            # 6. Validate deployment
-            validation_result = self.validation_pipeline.validate_deployment(
-                packaging_result, config
-            )
-
-            if not validation_result.success:
-                return DeploymentResult(
-                    success=False,
-                    deployment_id=f"validation-failed-{artifact_id}",
-                    artifact_id=artifact_id,
-                    target_environment=target_environment,
-                    error_message=validation_result.error_message,
-                )
-
-            # 7. Deploy with orchestration strategy
-            deployment_result = self.orchestrator.deploy_with_strategy(
-                config,
-                strategy,
-                self._execute_deployment,
-                env_config=env_config,
-                packaging_result=packaging_result,
-            )
-
-            # 8. Start monitoring
-            if deployment_result.success:
-                self.monitoring_system.start_monitoring(
-                    deployment_result.deployment_id,
-                    deployment_result.deployment_url,
-                    config,
-                )
-
-            return deployment_result
-
-        except Exception as e:
-            self.logger.error(f"Deployment failed: {e}")
-            return DeploymentResult(
-                success=False,
-                deployment_id=f"error-{artifact_id}",
-                artifact_id=artifact_id,
-                target_environment=target_environment,
-                error_message=str(e),
-            )
-
-    def _execute_deployment(
+    def deploy_with_strategy(
         self,
         config: DeploymentConfig,
-        env_config: Any,
-        packaging_result: Any,
+        strategy: DeploymentStrategy,
+        deployment_func: Callable[..., DeploymentResult],
+        metadata: DeploymentMetadata,
         **kwargs,
     ) -> DeploymentResult:
-        """Execute actual deployment to target environment.
+        """Deploy using specified strategy.
 
         Args:
             config: Deployment configuration
-            env_config: Environment configuration
-            packaging_result: Packaging result
+            strategy: Deployment strategy to use
+            deployment_func: Function to execute deployment
+            metadata: Deployment metadata
             **kwargs: Additional deployment parameters
 
         Returns:
             Deployment result
         """
-        deployment_id = f"{config.artifact_id}-{config.target_environment}"
+        self.logger.info(
+            f"Starting {strategy.value} deployment for {metadata.deployment_id}"
+        )
 
         try:
-            if config.deployment_type == "container":
-                result = self._deploy_container(
-                    config, env_config, packaging_result
+            if strategy == DeploymentStrategy.BLUE_GREEN:
+                return self._blue_green_deploy(
+                    config, deployment_func, metadata, **kwargs
                 )
-            elif config.deployment_type == "kubernetes":
-                result = self._deploy_kubernetes(
-                    config, env_config, packaging_result
+            elif strategy == DeploymentStrategy.CANARY:
+                return self._canary_deploy(
+                    config, deployment_func, metadata, **kwargs
                 )
-            elif config.deployment_type == "serverless":
-                result = self._deploy_serverless(
-                    config, env_config, packaging_result
+            elif strategy == DeploymentStrategy.ROLLING:
+                return self._rolling_deploy(
+                    config, deployment_func, metadata, **kwargs
                 )
-            elif config.deployment_type == "edge":
-                result = self._deploy_edge(
-                    config, env_config, packaging_result
+            elif strategy == DeploymentStrategy.RECREATE:
+                return self._recreate_deploy(
+                    config, deployment_func, metadata, **kwargs
                 )
             else:
                 raise ValueError(
-                    f"Unsupported deployment type: {config.deployment_type}"
+                    f"Unsupported deployment strategy: {strategy}"
                 )
 
-            return DeploymentResult(
-                success=True,
-                deployment_id=deployment_id,
-                artifact_id=config.artifact_id,
-                target_environment=config.target_environment,
-                deployment_url=result.get("deployment_url"),
-                health_check_url=result.get("health_check_url"),
-                monitoring_dashboard_url=result.get(
-                    "monitoring_dashboard_url"
-                ),
-            )
-
         except Exception as e:
-            self.logger.error(f"Deployment execution failed: {e}")
-            return DeploymentResult(
-                success=False,
-                deployment_id=deployment_id,
-                artifact_id=config.artifact_id,
-                target_environment=config.target_environment,
-                error_message=str(e),
-            )
+            self.logger.error(f"Deployment failed: {e}")
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            raise
 
-    def deploy_with_rollback(
+    def _blue_green_deploy(
         self,
-        artifact_id: str,
-        target_environment: str = "production",
-        strategy: DeploymentStrategy = DeploymentStrategy.BLUE_GREEN,
+        config: DeploymentConfig,
+        deployment_func: Callable[..., DeploymentResult],
+        metadata: DeploymentMetadata,
         **kwargs,
     ) -> DeploymentResult:
-        """Deploy with automatic rollback on failure.
-
-        Args:
-            artifact_id: ID of artifact to deploy
-            target_environment: Target deployment environment
-            strategy: Deployment strategy to use
-            **kwargs: Additional deployment options
-
-        Returns:
-            Deployment result with rollback information
-        """
-        return self.deploy_artifact(
-            artifact_id=artifact_id,
-            target_environment=target_environment,
-            strategy=strategy,
-            **kwargs,
-        )
-
-    def manual_rollback(self, deployment_id: str) -> bool:
-        """Manually rollback a deployment.
-
-        Args:
-            deployment_id: ID of deployment to rollback
-
-        Returns:
-            True if rollback was successful
-        """
-        return self.orchestrator.manual_rollback(deployment_id)
-
-    def get_deployment_status(self, deployment_id: str) -> dict[str, Any]:
-        """Get deployment status and metadata.
-
-        Args:
-            deployment_id: Deployment ID
-
-        Returns:
-            Deployment status information
-        """
-        return self.orchestrator.get_deployment_status(deployment_id)
-
-    def get_deployment_history(
-        self, artifact_id: str | None = None
-    ) -> list[dict[str, Any]]:
-        """Get deployment history.
-
-        Args:
-            artifact_id: Filter by artifact ID (optional)
-
-        Returns:
-            List of deployment statuses
-        """
-        return self.orchestrator.get_deployment_history(artifact_id)
-
-    def _select_artifact(self, config: DeploymentConfig) -> Any:
-        """Select appropriate artifact for deployment.
+        """Execute blue-green deployment.
 
         Args:
             config: Deployment configuration
-
-        Returns:
-            Artifact selection result
-        """
-        criteria = config.selection_criteria or self._create_default_criteria(
-            config
-        )
-        return self.artifact_selector.select_artifact(criteria)
-
-    def _create_default_criteria(
-        self, config: DeploymentConfig
-    ) -> SelectionCriteria:
-        """Create default selection criteria for deployment.
-
-        Args:
-            config: Deployment configuration
-
-        Returns:
-            Selection criteria
-        """
-        return SelectionCriteria(
-            min_accuracy=0.8,
-            max_inference_time_ms=1000.0,
-            max_memory_usage_mb=2048.0,
-            max_model_size_mb=100.0,
-            preferred_format=config.target_format,
-            target_environment=config.target_environment,
-            deployment_type=config.deployment_type,
-        )
-
-    def _deploy_container(
-        self, config: DeploymentConfig, env_config: Any, packaging_result: Any
-    ) -> dict[str, Any]:
-        """Deploy to container environment.
-
-        Args:
-            config: Deployment configuration
-            env_config: Environment configuration
-            packaging_result: Packaging result
+            deployment_func: Function to execute deployment
+            metadata: Deployment metadata
+            **kwargs: Additional deployment parameters
 
         Returns:
             Deployment result
         """
-        self.logger.info("Deploying to container environment")
+        self.logger.info("Starting blue-green deployment")
 
-        # Extract container information from packaging result
-        container_image = packaging_result.container_image_name
-        dockerfile_path = packaging_result.dockerfile_path
+        # Deploy to new environment
+        metadata.state = DeploymentState.IN_PROGRESS
+        result = deployment_func(config, **kwargs)
 
-        # Simulate container deployment
-        deployment_url = "http://localhost:8501"
-        health_check_url = f"{deployment_url}/healthz"
+        if not result.success:
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            return result
 
-        return {
-            "deployment_url": deployment_url,
-            "health_check_url": health_check_url,
-            "container_image": container_image,
-            "dockerfile_path": dockerfile_path,
-        }
+        # Validate deployment URL
+        if not result.deployment_url:
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            result.success = False
+            result.error = "Deployment URL not provided"
+            return result
 
-    def _deploy_kubernetes(
-        self, config: DeploymentConfig, env_config: Any, packaging_result: Any
-    ) -> dict[str, Any]:
-        """Deploy to Kubernetes environment.
+        # Health check new deployment
+        metadata.state = DeploymentState.HEALTH_CHECKING
+        if not self._health_check_deployment(result.deployment_url):
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            result.success = False
+            result.error = "Health check failed"
+            return result
+
+        # Switch traffic
+        self._switch_traffic(config.environment, result.deployment_url)
+
+        # Decommission old deployment
+        if metadata.previous_deployment_id:
+            self._decommission_deployment(metadata.previous_deployment_id)
+
+        metadata.state = DeploymentState.SUCCESS
+        metadata.end_time = time.time()
+        result.success = True
+
+        return result
+
+    def _canary_deploy(
+        self,
+        config: DeploymentConfig,
+        deployment_func: Callable[..., DeploymentResult],
+        metadata: DeploymentMetadata,
+        **kwargs,
+    ) -> DeploymentResult:
+        """Execute canary deployment.
 
         Args:
             config: Deployment configuration
-            env_config: Environment configuration
-            packaging_result: Packaging result
+            deployment_func: Function to execute deployment
+            metadata: Deployment metadata
+            **kwargs: Additional deployment parameters
 
         Returns:
             Deployment result
         """
-        self.logger.info("Deploying to Kubernetes environment")
+        self.logger.info("Starting canary deployment")
 
-        # Extract Kubernetes manifests from packaging result
-        kubernetes_manifests = packaging_result.kubernetes_manifests
-        helm_chart_path = packaging_result.helm_chart_path
+        # Deploy with initial traffic split
+        metadata.state = DeploymentState.IN_PROGRESS
+        result = deployment_func(config, **kwargs)
 
-        # Simulate Kubernetes deployment
-        deployment_url = (
-            f"http://crackseg-{config.target_environment}.example.com"
-        )
-        health_check_url = f"{deployment_url}/healthz"
+        if not result.success:
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            return result
 
-        return {
-            "deployment_url": deployment_url,
-            "health_check_url": health_check_url,
-            "kubernetes_manifests": kubernetes_manifests,
-            "helm_chart_path": helm_chart_path,
-        }
+        # Validate deployment URL
+        if not result.deployment_url:
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            result.success = False
+            result.error = "Deployment URL not provided"
+            return result
 
-    def _deploy_serverless(
-        self, config: DeploymentConfig, env_config: Any, packaging_result: Any
-    ) -> dict[str, Any]:
-        """Deploy to serverless environment.
+        # Health check
+        metadata.state = DeploymentState.HEALTH_CHECKING
+        if not self._health_check_deployment(result.deployment_url):
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            result.success = False
+            result.error = "Health check failed"
+            return result
+
+        # Gradually increase traffic
+        traffic_percentages = [10, 25, 50, 75, 100]
+        for percentage in traffic_percentages:
+            self._update_traffic_split(result.deployment_url, percentage)
+            time.sleep(60)  # Wait 1 minute between traffic increases
+
+            # Monitor performance
+            if not self._monitor_canary_performance(result, **kwargs):
+                # Rollback if performance degrades
+                self._update_traffic_split(result.deployment_url, 0)
+                metadata.state = DeploymentState.FAILED
+                metadata.end_time = time.time()
+                result.success = False
+                result.error = "Performance degradation detected"
+                return result
+
+        metadata.state = DeploymentState.SUCCESS
+        metadata.end_time = time.time()
+        result.success = True
+
+        return result
+
+    def _rolling_deploy(
+        self,
+        config: DeploymentConfig,
+        deployment_func: Callable[..., DeploymentResult],
+        metadata: DeploymentMetadata,
+        **kwargs,
+    ) -> DeploymentResult:
+        """Execute rolling deployment.
 
         Args:
             config: Deployment configuration
-            env_config: Environment configuration
-            packaging_result: Packaging result
+            deployment_func: Function to execute deployment
+            metadata: Deployment metadata
+            **kwargs: Additional deployment parameters
 
         Returns:
             Deployment result
         """
-        self.logger.info("Deploying to serverless environment")
+        self.logger.info("Starting rolling deployment")
 
-        # Simulate serverless deployment
-        deployment_url = f"https://crackseg-{config.target_environment}.lambda.amazonaws.com"
-        health_check_url = f"{deployment_url}/healthz"
+        # Get current replica count
+        current_replicas = self._get_current_replicas(config.environment)
 
-        return {
-            "deployment_url": deployment_url,
-            "health_check_url": health_check_url,
-            "function_name": f"crackseg-{config.target_environment}",
-        }
+        # Deploy new replicas one by one
+        metadata.state = DeploymentState.IN_PROGRESS
+        for i in range(current_replicas):
+            # Deploy new replica
+            result = deployment_func(config, replica_index=i, **kwargs)
 
-    def _deploy_edge(
-        self, config: DeploymentConfig, env_config: Any, packaging_result: Any
-    ) -> dict[str, Any]:
-        """Deploy to edge environment.
+            if not result.success:
+                metadata.state = DeploymentState.FAILED
+                metadata.end_time = time.time()
+                return result
+
+            # Validate deployment URL
+            if not result.deployment_url:
+                metadata.state = DeploymentState.FAILED
+                metadata.end_time = time.time()
+                result.success = False
+                result.error = "Deployment URL not provided"
+                return result
+
+            # Health check new replica
+            metadata.state = DeploymentState.HEALTH_CHECKING
+            if not self._health_check_deployment(result.deployment_url):
+                metadata.state = DeploymentState.FAILED
+                metadata.end_time = time.time()
+                result.success = False
+                result.error = "Health check failed"
+                return result
+
+            # Remove old replica
+            self._remove_old_replica(config.environment, i)
+
+            time.sleep(30)  # Wait between replica updates
+
+        metadata.state = DeploymentState.SUCCESS
+        metadata.end_time = time.time()
+        result.success = True
+
+        return result
+
+    def _recreate_deploy(
+        self,
+        config: DeploymentConfig,
+        deployment_func: Callable[..., DeploymentResult],
+        metadata: DeploymentMetadata,
+        **kwargs,
+    ) -> DeploymentResult:
+        """Execute recreate deployment.
 
         Args:
             config: Deployment configuration
-            env_config: Environment configuration
-            packaging_result: Packaging result
+            deployment_func: Function to execute deployment
+            metadata: Deployment metadata
+            **kwargs: Additional deployment parameters
 
         Returns:
             Deployment result
         """
-        self.logger.info("Deploying to edge environment")
+        self.logger.info("Starting recreate deployment")
 
-        # Simulate edge deployment
-        deployment_url = (
-            f"http://edge-crackseg-{config.target_environment}.local"
-        )
-        health_check_url = f"{deployment_url}/healthz"
+        # Remove current deployment
+        self._remove_current_deployment(config.environment)
 
-        return {
-            "deployment_url": deployment_url,
-            "health_check_url": health_check_url,
-            "edge_device_id": f"edge-{config.target_environment}",
-        }
+        # Deploy new version
+        metadata.state = DeploymentState.IN_PROGRESS
+        result = deployment_func(config, **kwargs)
 
-    def get_artifact_recommendations(
-        self, target_environment: str, deployment_type: str
-    ) -> dict[str, Any]:
-        """Get artifact recommendations for deployment.
+        if not result.success:
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            return result
+
+        # Validate deployment URL
+        if not result.deployment_url:
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            result.success = False
+            result.error = "Deployment URL not provided"
+            return result
+
+        # Health check
+        metadata.state = DeploymentState.HEALTH_CHECKING
+        if not self._health_check_deployment(result.deployment_url):
+            metadata.state = DeploymentState.FAILED
+            metadata.end_time = time.time()
+            result.success = False
+            result.error = "Health check failed"
+            return result
+
+        metadata.state = DeploymentState.SUCCESS
+        metadata.end_time = time.time()
+        result.success = True
+
+        return result
+
+    def _health_check_deployment(self, deployment_url: str) -> bool:
+        """Check deployment health.
 
         Args:
-            target_environment: Target environment
-            deployment_type: Deployment type
+            deployment_url: URL of deployment to check
 
         Returns:
-            Artifact recommendations
+            True if healthy, False otherwise
         """
-        return self.artifact_selector.get_recommendations(
-            target_environment, deployment_type
-        )
+        try:
+            # Simulate health check
+            time.sleep(5)  # Simulate health check delay
+            return True
+        except Exception as e:
+            self.logger.warning(f"Health check failed: {e}")
+            return False
 
-    def get_environment_summary(self, env_config: Any) -> dict[str, Any]:
-        """Get environment configuration summary.
+    def _switch_traffic(self, environment: str, target: str) -> None:
+        """Switch traffic to target deployment.
 
         Args:
-            env_config: Environment configuration
+            environment: Environment name
+            target: Target deployment URL
+        """
+        self.logger.info(f"Switching traffic to {target}")
+
+    def _decommission_deployment(self, deployment_id: str) -> None:
+        """Decommission deployment.
+
+        Args:
+            deployment_id: Deployment ID to decommission
+        """
+        self.logger.info(f"Decommissioning deployment {deployment_id}")
+
+    def _monitor_canary_performance(
+        self, result: DeploymentResult, **kwargs
+    ) -> bool:
+        """Monitor canary deployment performance.
+
+        Args:
+            result: Deployment result
+            **kwargs: Additional parameters
 
         Returns:
-            Environment summary
+            True if performance is acceptable, False otherwise
         """
-        return self.environment_configurator.get_environment_summary(
-            env_config
-        )
+        # Simulate performance monitoring
+        time.sleep(10)  # Simulate monitoring delay
+        return True
+
+    def _update_traffic_split(
+        self, deployment_url: str, percentage: int
+    ) -> None:
+        """Update traffic split for canary deployment.
+
+        Args:
+            deployment_url: Deployment URL
+            percentage: Traffic percentage (0-100)
+        """
+        self.logger.info(f"Updating traffic split to {percentage}%")
+
+    def _get_current_replicas(self, environment: str) -> int:
+        """Get current replica count.
+
+        Args:
+            environment: Environment name
+
+        Returns:
+            Number of current replicas
+        """
+        return 3  # Simulate 3 replicas
+
+    def _remove_old_replica(self, environment: str, index: int) -> None:
+        """Remove old replica.
+
+        Args:
+            environment: Environment name
+            index: Replica index
+        """
+        self.logger.info(f"Removing old replica {index}")
+
+    def _remove_current_deployment(self, environment: str) -> None:
+        """Remove current deployment.
+
+        Args:
+            environment: Environment name
+        """
+        self.logger.info(f"Removing current deployment in {environment}")
