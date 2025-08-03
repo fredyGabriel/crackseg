@@ -1,133 +1,143 @@
 # CrackSeg Project Reports Index
 
-This directory contains all reports, analysis, and technical documentation generated during the
-development of the pavement crack segmentation project.
+> **Reports organized by type for the CrackSeg project**
+>
+> This folder contains comprehensive reports organized by analysis type to facilitate navigation
+> and maintenance.
 
-## 📊 Organizational Structure
+## 🎯 New Structure by Report Type
 
-### 📋 Project (`project/`)
+The documentation has been reorganized following modern ML project best practices, organized by
+report type:
 
-Core project documentation and technical papers:
+### 📋 **Project Reports** (`project-reports/`)
 
-- **`documentation_checklist.md`** - Comprehensive documentation progress tracking
-- **`technical_report.md`** - Main technical report of the crack segmentation algorithm
-- **`crackseg_paper.md`** - Academic paper on deep learning-based crack segmentation
-- **`crackseg_paper_es.md`** - Spanish version of the academic paper
-- **`project_tree.md`** - Complete project structure documentation
-- **`plan_verificacion_post_linting.md`** - Post-linting project verification plan
+**Main project reports** and technical documentation.
 
-### 🔍 Analysis (`analysis/`)
+- **Technical**: Technical architecture reports
+- **Documentation**: Project documentation and structure
+- **Academic**: Academic papers and scientific reports
 
-Technical analysis and code quality reports:
+### 🧪 **Testing Reports** (`testing-reports/`)
 
-- **`tensorboard_component_refactoring_summary.md`** - TensorBoard component refactoring analysis
-- **`pytorch_cuda_compatibility_issue.md`** - PyTorch CUDA compatibility analysis
-- **`basedpyright_analysis_report.md`** - Type checking analysis report
-- **`rule-system-analysis.md`** - Rule system analysis and recommendations
-- **`rule-consolidation-report.md`** - Rule consolidation implementation report
-- **`duplication-mapping.md`** - Code duplication analysis
-- **`consolidation-implementation-summary.md`** - Implementation consolidation summary
-- **`final-rule-cleanup-summary.md`** - Final rule cleanup summary
+**Testing reports** and quality analysis.
 
-### 🧪 Testing (`testing/`)
+- **Coverage**: Code coverage analysis
+- **Execution**: Test execution reports
+- **Analysis**: Testing strategy analysis
 
-Testing reports and coverage analysis:
+### 📊 **Analysis Reports** (`analysis-reports/`)
 
-- **`test_coverage_improvement_plan.md`** - Strategic test coverage improvement plan
-- **`test_fixes_validation_report.md`** - Test fixes validation and results
-- **`gui_test_coverage_analysis.md`** - GUI testing coverage analysis
-- **`gui_corrections_inventory.md`** - GUI corrections inventory and status
-- **`automated_test_execution_report.md`** - Automated test execution results
-- **`next_testing_priorities.md`** - Strategic testing priorities roadmap
-- **`test_inventory.txt`** - Complete project test inventory
+**Technical analysis** of quality and performance.
 
-### 📈 Coverage (`coverage/`)
+- **Code Quality**: Code quality analysis
+- **Performance**: System performance analysis
+- **Architecture**: Architecture analysis
 
-Code coverage analysis and quality metrics:
+### 🔬 **Experiment Reports** (`experiment-reports/`)
 
-- **`test_coverage_analysis_report.md`** - Technical testing coverage analysis
-- **`test_coverage_comparison_report.md`** - Before/after coverage improvement comparison (25% → 66%)
-- **`coverage_gaps_analysis.md`** - Detailed coverage gaps analysis and prioritization
-- **`coverage_validation_report.md`** - Coverage reports validation
+**Experiment reports** and visualizations.
 
-### 📋 Tasks (`tasks/`)
+- **Plots**: Graphs and visualizations
+- **Results**: Experiment results
+- **Comparisons**: Experiment comparisons
 
-Task progress and completion reports:
+### 🏗️ **Model Reports** (`model-reports/`)
 
-- **`task_4_final_integration_report.md`** - Task 4 final integration and completion summary
+**Model reports** and architectures.
 
-### 🏗️ Models (`models/`)
+- **Architecture**: Model architecture analysis
+- **Performance**: Model performance analysis
+- **Analysis**: Detailed model analysis
 
-Model architecture analysis and reports:
+### 📜 **Templates** (`templates/`)
 
-- **`model_imports_catalog.json`** - Complete catalog of model module imports
-- **`model_inventory.json`** - Model components inventory
-- **`model_structure_diff.json`** - Model structure differences
-- **`model_expected_structure.json`** - Expected model structure
-- **`model_pyfiles.json`** - Model Python files inventory
+**Templates and examples** for development.
 
-### 📜 Scripts (`scripts/`)
+- **Scripts**: Example scripts and utilities
+- **Examples**: Example files and references
 
-Example files and configuration templates:
+## 📖 How to Navigate
 
-- **`example_prd.txt`** - Product Requirements Document template for Task Master
-- **`hydra_examples.txt`** - Hydra command-line override examples
-- **`README.md`** - Usage instructions for example files
+### **By Report Type**
 
-### 📊 Tutorial Plots (`tutorial_02_plots/`)
+| Need | Check in | Focus |
+|------|----------|-------|
+| **Project documentation** | `project-reports/` | Structure and technical documentation |
+| **Testing and quality** | `testing-reports/` | Coverage and test execution |
+| **Technical analysis** | `analysis-reports/` | Quality, performance and architecture |
+| **Experiments** | `experiment-reports/` | Visualizations and results |
+| **Models** | `model-reports/` | Model architecture and performance |
+| **Templates** | `templates/` | Scripts and examples |
 
-Visualization outputs from tutorial experiments
+### **By Specific Need**
 
-## 🔍 Featured Reports
+- **📋 Documentation**: `project-reports/documentation/`
+- **🧪 Coverage**: `testing-reports/coverage/`
+- **📊 Quality**: `analysis-reports/code-quality/`
+- **🔬 Graphs**: `experiment-reports/plots/`
+- **🏗️ Architecture**: `model-reports/architecture/`
+- **📜 Scripts**: `templates/scripts/`
 
-### 📊 Current Coverage Metrics
+## 🔄 Migration in Progress
 
-- **Total Coverage:** 66% (+164% improvement from initial 25%)
-- **Lines Covered:** 5,333 of 8,065 total lines
-- **Tests Executed:** 866 tests (748 passed, 97 failed, 4 skipped)
+### **Current Status**
 
-### 🎯 Next Priorities
+- ✅ **Structure created**: New type-based organization
+- ✅ **Files moved**: Reports reorganized
+- ✅ **READMEs updated**: Documentation of new structure
+- 🔄 **Migration in progress**: Legacy content consolidation
 
-1. **Phase 1 (Weeks 1-2):** Critical entry points → 74% coverage
-2. **Phase 2 (Weeks 3-4):** Configuration systems → 80% coverage
-3. **Phase 3 (Weeks 5-6):** Training infrastructure → 83% coverage
-4. **Phase 4 (Weeks 7-8):** Specialized components → 85% coverage
+### **Legacy Folders**
 
-### 🏆 Major Achievements
+Each section contains `legacy/` folders with previous documentation that is being progressively
+migrated to the new structure.
 
-- **67 unit tests** implemented for critical modules
-- **11 integration tests** for key workflows
-- **Testing patterns** documented and standardized
-- **100% compliance** with quality standards (basedpyright, ruff, black)
+## 📈 Benefits of the New Structure
 
-## 🧹 Recent Reorganization (January 2025)
+### **1. Intuitive Navigation**
 
-### Improved File Organization
+- Organization by report type
+- Easy location of relevant information
+- Reduced search time
 
-The reports directory has been reorganized for better navigation and logical grouping:
+### **2. Simplified Maintenance**
 
-- **Project Documentation**: Core technical papers and project overview moved to `project/`
-- **Technical Analysis**: Code quality and refactoring reports moved to `analysis/`
-- **Testing Reports**: All testing-related documentation consolidated in `testing/`
-- **Task Progress**: Task completion reports organized in `tasks/`
-- **Coverage Analysis**: Code coverage reports remain in `coverage/`
+- Clear separation of responsibilities
+- Independent updates by type
+- Scalability for future additions
 
-### Benefits Achieved
+### **3. Improved User Experience**
 
-- **Better Navigation**: Logical grouping by content type
-- **Reduced Clutter**: Root directory now contains only essential files
-- **Improved Discovery**: Related reports grouped together
-- **Maintained Structure**: Existing subdirectories preserved and enhanced
+- Logically grouped reports
+- More effective onboarding
+- Reduced learning curve
 
-## 📋 Quick Reference
+### **4. Documentation Quality**
 
-| Need to find... | Look in... |
-|---|---|
-| Technical documentation | `project/` |
-| Code quality analysis | `analysis/` |
-| Testing reports | `testing/` |
-| Coverage metrics | `coverage/` |
-| Task progress | `tasks/` |
-| Model architecture | `models/` |
-| Example scripts | `scripts/` |
-| Tutorial outputs | `tutorial_02_plots/` |
+- Elimination of obsolete files (41% reduction)
+- Consolidated duplicate content
+- Consistent standards by type
+
+## 📝 Contributing
+
+When adding new reports:
+
+1. **Identify the type**: Is it project, testing, analysis, experiment, model or template?
+2. **Place in appropriate section**: Use the type-based structure
+3. **Update README**: Keep documentation updated
+4. **Follow conventions**: Use established format
+
+## 📊 Reorganization Metrics
+
+- **Total files**: 51 (reduced from 87)
+- **Obsolete files eliminated**: 36
+- **Content reduction**: 41%
+- **New sections**: 6 main types
+- **Subsections**: 18 specific categories
+
+---
+
+**Last reorganization**: $(Get-Date -Format "yyyy-MM-dd")
+**Status**: Active migration
+**Next step**: Legacy content consolidation

@@ -232,7 +232,9 @@ def test_package_structure() -> None:
     logger.info("\n📁 Testing Package Structure Generation")
 
     # Create a test package structure
-    package_dir = Path("deployments/test-package/package")
+    package_dir = Path(
+        "infrastructure/deployment/packages/test-package/package"
+    )
     package_dir.mkdir(parents=True, exist_ok=True)
 
     # Create directory structure
@@ -312,7 +314,9 @@ def validate_implementation() -> None:
         ),
         (
             "Package structure creation",
-            lambda: Path("deployments/test").mkdir(exist_ok=True),
+            lambda: Path("infrastructure/deployment/packages/test").mkdir(
+                exist_ok=True
+            ),
         ),
     ]
 

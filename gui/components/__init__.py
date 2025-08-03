@@ -1,37 +1,95 @@
 """
-Components package for the CrackSeg GUI application. This package
-contains reusable UI components including logo, sidebar, file browser,
-configuration editor, and routing functionality.
+GUI Components for CrackSeg Application
+
+This package contains all GUI components organized in a modular structure:
+
+- core/: Core UI components (loading, progress, navigation)
+- data/: Data-related components (file browser, upload, gallery)
+- ml/: ML-specific components (device, config, tensorboard)
+- ui/: UI utilities (theme, dialogs, error handling)
+- deprecated/: Obsolete components (for removal)
+
+All components follow ML project best practices with type safety,
+error handling, and performance optimization.
 """
 
-from gui.components.config_editor_component import (
-    ConfigEditorComponent,
+# Core components
+from .core import (
+    LoadingSpinner,
+    OptimizedLoadingSpinner,
+    OptimizedProgressBar,
+    OptimizedStepBasedProgress,
+    PageRouter,
+    ProgressBar,
+    SidebarComponent,
+    StepBasedProgress,
 )
-from gui.components.file_browser_component import (
+
+# Data components
+from .data import (
     FileBrowserComponent,
-    render_file_browser,
-)
-from gui.components.file_upload_component import (
     FileUploadComponent,
-    render_detailed_upload,
-    render_upload_widget,
+    MetricsViewer,
+    ResultsDisplay,
+    ResultsGalleryComponent,
 )
-from gui.components.logo_component import LogoComponent
-from gui.components.page_router import PageRouter
-from gui.components.sidebar_component import render_sidebar
-from gui.components.tensorboard_component import TensorBoardComponent
-from gui.components.theme_component import ThemeComponent
+
+# ML components
+from .ml import (
+    ConfigEditorComponent,
+    DeviceCardRenderer,
+    DeviceDetector,
+    DeviceInfo,
+    DeviceSelectorRenderer,
+    OptimizedDeviceSelector,
+    TensorBoardComponent,
+)
+
+# UI utilities
+from .ui import (
+    AutoSaveManager,
+    ConfirmationDialog,
+    ConfirmationRenderer,
+    ConfirmationUtils,
+    ErrorConsole,
+    HeaderComponent,
+    LogoComponent,
+    LogViewer,
+    ThemeComponent,
+)
 
 __all__ = [
-    "ConfigEditorComponent",
+    # Core
+    "LoadingSpinner",
+    "OptimizedLoadingSpinner",
+    "ProgressBar",
+    "StepBasedProgress",
+    "OptimizedProgressBar",
+    "OptimizedStepBasedProgress",
+    "PageRouter",
+    "SidebarComponent",
+    # Data
     "FileBrowserComponent",
     "FileUploadComponent",
-    "LogoComponent",
-    "PageRouter",
-    "render_detailed_upload",
-    "render_file_browser",
-    "render_sidebar",
-    "render_upload_widget",
+    "ResultsGalleryComponent",
+    "ResultsDisplay",
+    "MetricsViewer",
+    # ML
+    "OptimizedDeviceSelector",
+    "DeviceSelectorRenderer",
+    "DeviceCardRenderer",
+    "DeviceDetector",
+    "DeviceInfo",
+    "ConfigEditorComponent",
     "TensorBoardComponent",
+    # UI
     "ThemeComponent",
+    "LogoComponent",
+    "HeaderComponent",
+    "ConfirmationDialog",
+    "ConfirmationRenderer",
+    "ConfirmationUtils",
+    "ErrorConsole",
+    "AutoSaveManager",
+    "LogViewer",
 ]

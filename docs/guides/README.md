@@ -1,96 +1,140 @@
 # CrackSeg Documentation Guides
 
-This directory contains comprehensive documentation guides organized by category for easy navigation
-and maintenance.
+> **Documentation organized by functional domain for the CrackSeg project**
+>
+> This folder contains comprehensive documentation organized by target audience and functional domain
+> to facilitate navigation and maintenance.
 
-## 📁 Directory Structure
+## 🎯 New Structure by Domain
 
-The guides are organized into the following categories:
+The documentation has been reorganized following modern ML project best practices, organized by
+target audience:
 
-### 🎯 [Usage Guides](./usage/)
+### 📁 **User Guides** (`user-guides/`)
 
-Guides for using specific components and features of the CrackSeg project.
+**For end users** who need to use system functionalities.
 
-- **focal_dice_loss_usage.md** - FocalDiceLoss function guide
-- **loss_registry_usage.md** - Loss registry system guide
-- **USAGE.md** - General usage guide
+- **Getting Started**: First steps and onboarding
+- **Usage**: Guides for specific component usage
+- **Troubleshooting**: Common problem solutions
 
-### 🔄 [Workflow Guides](./workflows/)
+### 💻 **Developer Guides** (`developer-guides/`)
 
-Guides for different workflows and processes.
+**For developers** who contribute to code and architecture.
 
-- **WORKFLOW_TRAINING.md** - Training workflow guide
-- **CLEAN_INSTALLATION.md** - Clean installation guide
+- **Development**: Contribution guides and standards
+- **Quality**: Testing and quality maintenance
+- **Architecture**: Design decisions and structure
 
-### ✅ [Quality & Testing Guides](./quality/)
+### 🚀 **Operational Guides** (`operational-guides/`)
 
-Guides for maintaining code quality and testing strategies.
+**For operations teams** who manage deployment and monitoring.
 
-- **quality_gates_guide.md** - Code quality gates system
-- **test_maintenance_procedures.md** - Test maintenance procedures
-- **gui_testing_implementation_checklist.md** - GUI testing checklist
-- **gui_testing_best_practices.md** - GUI testing best practices
-- **comprehensive_integration_test_reporting_guide.md** - Integration test reporting
+- **Deployment**: Configuration and deployment management
+- **Monitoring**: Observability and metrics
+- **CI/CD**: Pipelines and automation
+- **Workflows**: Operational workflows
 
-### 🚀 [CI/CD Guides](./cicd/)
+### 📋 **Technical Specifications** (`technical-specs/`)
 
-Guides for Continuous Integration and Deployment.
+**For technical teams** who implement specifications.
 
-- **ci_cd_testing_integration.md** - CI/CD testing integration
-- **ci_cd_integration_guide.md** - CI/CD integration guide
+- **Specifications**: Data formats and configurations
+- **Experiments**: Experiments and benchmarks
 
-### 💻 [Development Guides](./development/)
+### 📊 **Reporting & Visualization** (`reporting-visualization/`)
 
-Guides for development practices and system setup.
+**For analysis teams** who generate reports and visualizations.
 
-- **gui_development_guidelines.md** - GUI development guidelines
-- **CONTRIBUTING.md** - Contribution guide
-- **SYSTEM_DEPENDENCIES.md** - System dependencies
+- **Reporting**: Experiment report generation
+- **Visualization**: Chart and dashboard creation
 
-### 📋 [Technical Specifications](./specifications/)
+## 📖 How to Navigate
 
-Detailed technical specifications for project components.
+### **By User Role**
 
-- **checkpoint_format_specification.md** - Checkpoint format specification
-- **configuration_storage_specification.md** - Configuration storage specification
-- **performance_benchmarking_system.md** - Performance benchmarking system
+| Role | Start in | Focus |
+|------|----------|-------|
+| **End User** | `user-guides/` | System usage, troubleshooting |
+| **Developer** | `developer-guides/` | Contribution, testing, architecture |
+| **DevOps/Operations** | `operational-guides/` | Deployment, monitoring, CI/CD |
+| **Researcher** | `technical-specs/` | Specifications, experiments |
+| **Analyst** | `reporting-visualization/` | Reports, visualization |
 
-### 🏗️ [Architecture Guides](./architecture/)
+### **By Specific Need**
 
-Guides for technical architecture and design decisions.
+- **🚀 New to project**: `user-guides/getting-started/`
+- **🐛 Problems**: `user-guides/troubleshooting/`
+- **💻 Contribute code**: `developer-guides/development/`
+- **🧪 Testing**: `developer-guides/quality/`
+- **🏗️ Architecture**: `developer-guides/architecture/`
+- **🚀 Deployment**: `operational-guides/deployment/`
+- **📊 Monitoring**: `operational-guides/monitoring/`
+- **⚙️ CI/CD**: `operational-guides/cicd/`
+- **📋 Specifications**: `technical-specs/specifications/`
+- **🔬 Experiments**: `technical-specs/experiments/`
+- **📈 Reports**: `reporting-visualization/reporting/`
+- **📊 Visualization**: `reporting-visualization/visualization/`
 
-- **architectural_decisions.md** - Architectural decisions
-- **TECHNICAL_ARCHITECTURE.md** - Technical architecture overview
+## 🔄 Migration in Progress
 
-### 📊 [Monitoring Guides](./monitoring/)
+### **Current Status**
 
-Guides for monitoring and observability.
+- ✅ **Structure created**: New domain-based organization
+- ✅ **Files moved**: Documentation reorganized
+- ✅ **READMEs updated**: Documentation of new structure
+- 🔄 **Migration in progress**: Legacy content consolidation
 
-- **continuous_coverage_monitoring_guide.md** - Coverage monitoring guide
+### **Legacy Folders**
 
-### 🔧 [Troubleshooting Guides](./troubleshooting/)
+Each section contains `legacy/` folders with previous documentation that is being progressively
+migrated to the new structure.
 
-Guides for troubleshooting common issues.
+## 📈 Benefits of the New Structure
 
-- **TROUBLESHOOTING.md** - Troubleshooting guide
+### **1. Intuitive Navigation**
 
-## 📖 How to Use
+- Organization by target audience
+- Easy location of relevant information
+- Reduced search time
 
-1. **For New Users**: Start with [Usage Guides](./usage/) and [Workflow Guides](./workflows/)
-2. **For Developers**: Focus on [Development Guides](./development/) and [Quality & Testing Guides](./quality/)
-3. **For System Setup**: Check [Technical Specifications](./specifications/) and [Architecture Guides](./architecture/)
-4. **For Issues**: Consult [Troubleshooting Guides](./troubleshooting/)
+### **2. Simplified Maintenance**
 
-## 🔄 Recent Changes
+- Clear separation of responsibilities
+- Independent updates by domain
+- Scalability for future additions
 
-This directory was reorganized to improve navigation and maintainability. Each subdirectory contains
-a README.md file explaining its purpose and contents.
+### **3. Improved User Experience**
+
+- Role-oriented documentation
+- More effective onboarding
+- Reduced learning curve
+
+### **4. Documentation Quality**
+
+- Elimination of obsolete files (46% reduction)
+- Consolidated duplicate content
+- Consistent standards by domain
 
 ## 📝 Contributing
 
-When adding new guides:
+When adding new documentation:
 
-1. Place them in the appropriate subdirectory
-2. Update the relevant README.md file
-3. Follow the existing naming conventions
-4. Ensure all links are updated accordingly
+1. **Identify the domain**: Is it for users, developers, operations, etc.?
+2. **Place in appropriate section**: Use the domain structure
+3. **Update README**: Keep documentation updated
+4. **Follow conventions**: Use established format
+
+## 📊 Reorganization Metrics
+
+- **Total files**: 50 (reduced from 93)
+- **Backup files eliminated**: 43
+- **Content reduction**: 46%
+- **New sections**: 5 main domains
+- **Subsections**: 15 specific categories
+
+---
+
+**Last reorganization**: $(Get-Date -Format "yyyy-MM-dd")
+**Status**: Active migration
+**Next step**: Legacy content consolidation

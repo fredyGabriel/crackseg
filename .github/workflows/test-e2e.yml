@@ -79,7 +79,7 @@ jobs:
       - name: Generate Docker Cache Key
         id: cache-key
         run: |
-          CACHE_KEY="docker-${{ runner.os }}-$(sha256sum tests/docker/docker-compose.test.yml tests/docker/Dockerfile.* | sha256sum | cut -d' ' -f1)"
+          CACHE_KEY="docker-${{ runner.os }}-$(sha256sum infrastructure/testing/docker/docker-compose.test.yml infrastructure/testing/docker/Dockerfile.* | sha256sum | cut -d' ' -f1)"
           echo "key=$CACHE_KEY" >> $GITHUB_OUTPUT
 
       - name: Setup Docker Buildx
@@ -90,18 +90,18 @@ jobs:
       - name: Validate Docker Infrastructure
         id: validation
         run: |
-          cd tests/docker
+          cd infrastructure/testing
 
           echo "🔍 Validating Docker infrastructure..."
 
           # Validate compose file
-          if ! docker-compose -f docker-compose.test.yml config > /dev/null 2>&1; then
+          if ! docker-compose -f docker/docker-compose.test.yml config > /dev/null 2>&1; then
             echo "❌ Docker Compose configuration invalid"
             exit 1
           fi
 
           # Validate Dockerfiles
-          for dockerfile in Dockerfile.*; do
+          for dockerfile in docker/Dockerfile.*; do
             if [ -f "$dockerfile" ]; then
               echo "Validating $dockerfile..."
               if ! docker buildx build --dry-run -f "$dockerfile" ../../ > /dev/null 2>&1; then
@@ -159,8 +159,8 @@ jobs:
       - name: Build ${{ matrix.image.name }} Image
         uses: docker/build-push-action@v5
         with:
-          context: tests/docker/${{ matrix.image.context }}
-          file: tests/docker/${{ matrix.image.dockerfile }}
+          context: infrastructure/testing/${{ matrix.image.context }}
+          file: infrastructure/testing/${{ matrix.image.dockerfile }}
           push: false
           load: true
           tags: crackseg-${{ matrix.image.name }}:ci

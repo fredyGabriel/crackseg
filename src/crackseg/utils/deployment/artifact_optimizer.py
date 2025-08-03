@@ -778,7 +778,9 @@ class ArtifactOptimizer:
         strategy: OptimizationStrategy,
     ) -> Path:
         """Save optimized model with metadata."""
-        output_dir = Path(f"deployments/{artifact.artifact_id}")
+        output_dir = Path(
+            f"infrastructure/deployment/packages/{artifact.artifact_id}"
+        )
         output_dir.mkdir(parents=True, exist_ok=True)
 
         if strategy.target_format == "onnx":

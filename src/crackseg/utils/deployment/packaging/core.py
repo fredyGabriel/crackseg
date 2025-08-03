@@ -179,7 +179,9 @@ class PackagingSystem:
             Path to created package directory
         """
         artifact_id = optimization_result.get("artifact_id", "unknown")
-        package_dir = Path(f"deployments/{artifact_id}/package")
+        package_dir = Path(
+            f"infrastructure/deployment/packages/{artifact_id}/package"
+        )
         package_dir.mkdir(parents=True, exist_ok=True)
 
         # Create standard directory structure

@@ -1,51 +1,89 @@
 """
-Utilities package for the CrackSeg GUI application. This package
-contains configuration, session state management, and other utility
-modules.
+GUI Utils for CrackSeg Application
+
+This package contains all GUI utilities organized in a modular structure:
+
+- core/: Core utilities (session, config, validation)
+- ui/: UI utilities (theme, styling, dialogs)
+- ml/: ML utilities (training, tensorboard, architecture)
+- data/: Data utilities (parsing, export, reports)
+- process/: Process utilities (manager, streaming, threading)
+- deprecated/: Obsolete utilities (for removal)
+
+All utilities follow ML project best practices with type safety,
+error handling, and performance optimization.
 """
 
-from gui.utils.config_io import (
-    ConfigCache,
-    ConfigError,
-    ValidationError,
-    YAMLValidator,
-    create_config_from_template,
-    format_validation_report,
-    get_config_metadata,
-    get_validation_suggestions,
-    load_and_validate_config,
-    load_config_file,
-    scan_config_directories,
-    validate_config_structure,
-    validate_config_types,
-    validate_config_values,
-    validate_with_hydra,
-    validate_yaml_advanced,
-    validate_yaml_syntax,
+# Core utilities
+from .core import (
+    AutoSaveManager,
+    ConfigIO,
+    ErrorMessageFactory,
+    ErrorState,
+    GUIConfig,
+    SessionState,
+    SessionStateManager,
+    SessionSyncManager,
 )
-from gui.utils.gui_config import PAGE_CONFIG
-from gui.utils.session_state import SessionState, SessionStateManager
+
+# Data utilities
+from .data import (
+    DataStats,
+    ExportManager,
+    LogParser,
+)
+
+# ML utilities
+from .ml import (
+    ArchitectureViewer,
+    TensorBoardManager,
+    TrainingStateManager,
+)
+
+# Process utilities
+from .process import (
+    ProcessManager,
+    StreamProcessor,
+    ThreadingManager,
+)
+
+# UI utilities
+from .ui import (
+    ColorScheme,
+    CSSGenerator,
+    PerformanceOptimizer,
+    SaveDialog,
+    ThemeConfig,
+    ThemeManager,
+)
 
 __all__ = [
-    "PAGE_CONFIG",
+    # Core
     "SessionState",
     "SessionStateManager",
-    # config_io exports
-    "ConfigCache",
-    "ConfigError",
-    "ValidationError",
-    "YAMLValidator",
-    "load_config_file",
-    "load_and_validate_config",
-    "scan_config_directories",
-    "validate_yaml_syntax",
-    "validate_yaml_advanced",
-    "validate_config_structure",
-    "validate_config_types",
-    "validate_config_values",
-    "validate_with_hydra",
-    "get_config_metadata",
-    "get_validation_suggestions",
-    "format_validation_report",
-    "create_config_from_template",
+    "AutoSaveManager",
+    "SessionSyncManager",
+    "GUIConfig",
+    "ConfigIO",
+    "ErrorState",
+    "ErrorMessageFactory",
+    # UI
+    "ThemeManager",
+    "ThemeConfig",
+    "ColorScheme",
+    "PerformanceOptimizer",
+    "CSSGenerator",
+    "SaveDialog",
+    # ML
+    "TrainingStateManager",
+    "TensorBoardManager",
+    "ArchitectureViewer",
+    # Data
+    "LogParser",
+    "ExportManager",
+    "DataStats",
+    # Process
+    "ProcessManager",
+    "StreamProcessor",
+    "ThreadingManager",
 ]

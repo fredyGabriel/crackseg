@@ -541,7 +541,9 @@ class EnvironmentConfigurator:
         Returns:
             Path to generated requirements.txt
         """
-        output_dir = Path(f"deployments/{env_config.environment_name}")
+        output_dir = Path(
+            f"infrastructure/deployment/packages/{env_config.environment_name}"
+        )
         output_dir.mkdir(parents=True, exist_ok=True)
 
         requirements_path = output_dir / "requirements.txt"
@@ -560,7 +562,9 @@ class EnvironmentConfigurator:
         Returns:
             Path to generated Dockerfile
         """
-        output_dir = Path(f"deployments/{env_config.environment_name}")
+        output_dir = Path(
+            f"infrastructure/deployment/packages/{env_config.environment_name}"
+        )
         output_dir.mkdir(parents=True, exist_ok=True)
 
         dockerfile_path = output_dir / "Dockerfile"
@@ -619,7 +623,9 @@ class EnvironmentConfigurator:
         Returns:
             Path to generated Kubernetes config
         """
-        output_dir = Path(f"deployments/{env_config.environment_name}")
+        output_dir = Path(
+            f"infrastructure/deployment/packages/{env_config.environment_name}"
+        )
         output_dir.mkdir(parents=True, exist_ok=True)
 
         k8s_path = output_dir / "k8s-deployment.yaml"
@@ -675,7 +681,9 @@ class EnvironmentConfigurator:
         Returns:
             Path to generated serverless config
         """
-        output_dir = Path(f"deployments/{env_config.environment_name}")
+        output_dir = Path(
+            f"infrastructure/deployment/packages/{env_config.environment_name}"
+        )
         output_dir.mkdir(parents=True, exist_ok=True)
 
         serverless_path = output_dir / "serverless.yml"

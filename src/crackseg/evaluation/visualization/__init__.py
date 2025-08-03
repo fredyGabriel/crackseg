@@ -4,14 +4,56 @@ This module provides various visualization capabilities for training
 curves, prediction results, and model analysis.
 """
 
+# Core visualization components
 from .advanced_prediction_viz import AdvancedPredictionVisualizer
-from .advanced_training_viz import AdvancedTrainingVisualizer
-from .experiment_viz import ExperimentVisualizer
+
+# Specialized modules
+from .analysis import ParameterAnalyzer, PredictionAnalyzer
+from .experiment import ExperimentPlotter, ExperimentVisualizer
 from .interactive_plotly import InteractivePlotlyVisualizer
 
+# Legacy imports for backward compatibility
+from .legacy import (
+    LegacyExperimentVisualizer,
+    LegacyLearningRateAnalyzer,
+    LegacyParameterAnalyzer,
+    LegacyPredictionVisualizer,
+)
+from .prediction import (
+    PredictionConfidenceVisualizer,
+    PredictionGridVisualizer,
+    PredictionOverlayVisualizer,
+)
+from .training import (
+    AdvancedTrainingVisualizer,
+    ParameterAnalysisVisualizer,
+    TrainingCurvesVisualizer,
+    TrainingReportGenerator,
+)
+
 __all__ = [
+    # Core components
     "AdvancedPredictionVisualizer",
-    "AdvancedTrainingVisualizer",
+    # Analysis modules
+    "ParameterAnalyzer",
+    "PredictionAnalyzer",
+    # Experiment modules
     "ExperimentVisualizer",
+    "ExperimentPlotter",
+    # Interactive modules
     "InteractivePlotlyVisualizer",
+    # Prediction modules
+    "PredictionGridVisualizer",
+    "PredictionConfidenceVisualizer",
+    "PredictionOverlayVisualizer",
+    # Training modules
+    "AdvancedTrainingVisualizer",
+    "TrainingCurvesVisualizer",
+    "ParameterAnalysisVisualizer",
+    "TrainingReportGenerator",
+    # Legacy modules (for backward compatibility)
+    "LegacyExperimentVisualizer",
+    "LegacyParameterAnalyzer",
+    "LegacyPredictionVisualizer",
+    "LegacyLearningRateAnalyzer",
 ]

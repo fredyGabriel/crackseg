@@ -5,25 +5,41 @@ organization is designed to facilitate easy navigation and maintenance according
 
 ## Structure
 
-- **experiments/**
-  - Experimentation scripts, model tests, benchmarks, and prototypes.
-  - Example: `test_swin_encoder.py`, `benchmark_aspp.py`
+- **deployment/**: Production deployment and packaging scripts
+  - `examples/`: Deployment strategy examples and demonstrations
+  - `README.md`: Deployment documentation and usage guide
 
-- **utils/**
-  - Utilities and tools for the workspace or project management.
+- **prediction/**: Inference and prediction scripts
+  - `predict_image.py`: Simple image prediction with visualization
+  - `README.md`: Prediction documentation and usage guide
+
+- **maintenance/**: Performance and debugging maintenance tools
+  - `performance/`: Performance monitoring and optimization
+  - `debugging/`: Debugging and diagnostic tools
+
+- **utils/**: Utilities and tools for the workspace or project management
   - Example: `clean_workspace.py`, `model_summary.py`
 
-- **reports/**
-  - Generated reports, analysis files, example PRDs, and auxiliary documentation.
-  - Example: `task-complexity-report.json`, `prd.txt`, `example_prd.txt`
-
-- **examples/**
-  - Integration examples, API usage, and demonstration scripts.
+- **examples/**: Integration examples, API usage, and demonstration scripts
   - Example: `factory_registry_integration.py`
 
-- **archive/**
-  - Archived files no longer actively used but kept for historical reference.
-  - Contains completed plans and temporary documentation.
+- **experiments/**: Experimentation scripts, model tests, benchmarks, and prototypes
+  - Example: `test_swin_encoder.py`, `benchmark_aspp.py`
+
+- **reports/**: Generated reports, analysis files, example PRDs, and auxiliary documentation
+  - Example: `task-complexity-report.json`, `prd.txt`, `example_prd.txt`
+
+- **performance/**: Performance monitoring and optimization tools
+  - Example: `maintenance_manager.py`, `baseline_updater.py`
+
+- **monitoring/**: Continuous monitoring tools
+  - Example: `continuous_coverage.py`
+
+- **debug/**: Debugging and diagnostic tools
+  - Example: `artifact_diagnostics.py`, `artifact_fixer.py`
+
+- **archive/**: Archived files no longer actively used but kept for historical reference
+  - Contains completed plans and temporary documentation
 
 ## Key Utilities
 
@@ -67,6 +83,8 @@ python scripts/utils/check_updates.py
 main modules.
 - Use `clean_workspace.py --audit` regularly to monitor code quality.
 - When adding a new script, place it in the appropriate subfolder and update this README if necessary.
+- Follow the established directory structure for new scripts.
+- Keep scripts focused on a single purpose and under 300 lines when possible.
 
 ---
 

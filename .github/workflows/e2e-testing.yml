@@ -7,7 +7,7 @@ on:
       - 'src/**'
       - 'scripts/gui/**'
       - 'tests/e2e/**'
-      - 'tests/docker/**'
+      - 'infrastructure/testing/**'
       - '.github/workflows/**'
   pull_request:
     branches: [ main, develop ]
@@ -15,7 +15,7 @@ on:
       - 'src/**'
       - 'scripts/gui/**'
       - 'tests/e2e/**'
-      - 'tests/docker/**'
+      - 'infrastructure/testing/**'
   workflow_dispatch:
     inputs:
       browsers:
@@ -46,8 +46,8 @@ jobs:
 
       - name: Validate Docker Infrastructure
         run: |
-          cd tests/docker
-          docker-compose -f docker-compose.test.yml config > /dev/null
+          cd infrastructure/testing
+          docker-compose -f docker/docker-compose.test.yml config > /dev/null
           echo "✅ Infrastructure validation successful"
 
   build-images:
@@ -64,13 +64,13 @@ jobs:
 
       - name: Build Streamlit Image
         run: |
-          cd tests/docker
-          docker build -f Dockerfile.streamlit -t crackseg-streamlit:ci ../../
+          cd infrastructure/testing
+          docker build -f docker/Dockerfile.streamlit -t crackseg-streamlit:ci ../../
 
       - name: Build Test Runner Image
         run: |
-          cd tests/docker
-          docker build -f Dockerfile.test-runner -t crackseg-test-runner:ci ../../
+          cd infrastructure/testing
+          docker build -f docker/Dockerfile.test-runner -t crackseg-test-runner:ci ../../
 
   e2e-tests:
     name: E2E Tests (${{ matrix.browser }})
@@ -87,15 +87,15 @@ jobs:
 
       - name: Setup Test Environment
         run: |
-          cd tests/docker
-          cp env.test.template .env.test
+          cd infrastructure/testing
+          cp config/env.test.template .env.test
           echo "BROWSER=${{ matrix.browser }}" >> .env.test
           echo "CI=true" >> .env.test
           mkdir -p ../../test-results ../../test-artifacts
 
       - name: Start Docker Infrastructure
         run: |
-          cd tests/docker
+          cd infrastructure/testing
           ./scripts/docker-stack-manager.sh start --browser ${{ matrix.browser }} --ci-mode
           ./scripts/docker-stack-manager.sh wait-ready --timeout 300
 
