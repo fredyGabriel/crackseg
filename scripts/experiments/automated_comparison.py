@@ -67,7 +67,7 @@ class AutomatedExperimentComparer:
         self, experiment_names: list[str]
     ) -> list[Path]:
         """Find experiment directories by names."""
-        experiments_dir = self.project_root / "outputs" / "experiments"
+        experiments_dir = self.project_root / "artifacts" / "experiments"
         if not experiments_dir.exists():
             self.logger.warning(
                 f"Experiments directory not found: {experiments_dir}"
@@ -108,7 +108,7 @@ class AutomatedExperimentComparer:
 
     def auto_find_experiments(self, max_experiments: int = 5) -> list[Path]:
         """Automatically find recent experiments."""
-        experiments_dir = self.project_root / "outputs" / "experiments"
+        experiments_dir = self.project_root / "artifacts" / "experiments"
         if not experiments_dir.exists():
             self.logger.warning(
                 f"Experiments directory not found: {experiments_dir}"

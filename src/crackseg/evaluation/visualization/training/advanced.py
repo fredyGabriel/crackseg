@@ -19,10 +19,10 @@ from plotly.graph_objects import Figure as PlotlyFigure
 
 from crackseg.utils.artifact_manager import ArtifactManager
 
-from .learning_rate_analysis import LearningRateAnalyzer
-from .parameter_analysis import ParameterAnalyzer
+from ..legacy.learning_rate_analysis import LearningRateAnalyzer
+from ..legacy.parameter_analysis import ParameterAnalyzer
+from ..legacy.training_curves import TrainingCurvesVisualizer
 from .templates import TrainingVisualizationTemplate
-from .training_curves import TrainingCurvesVisualizer
 
 logger = logging.getLogger(__name__)
 

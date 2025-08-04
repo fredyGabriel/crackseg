@@ -20,9 +20,9 @@ from crackseg.utils.config.schema import (
 
 def test_data_config_instantiation():
     """Test DataConfig instantiation with required fields."""
-    cfg = DataConfig(train_dir="/tmp/train", val_dir="/tmp/val")
-    assert cfg.train_dir == "/tmp/train"
-    assert cfg.val_dir == "/tmp/val"
+    cfg = DataConfig(data_root="/tmp/unified", root_dir="/tmp/unified")
+    assert cfg.data_root == "/tmp/unified"
+    assert cfg.root_dir == "/tmp/unified"
     assert cfg.batch_size == 32
 
 
@@ -67,7 +67,7 @@ def test_logging_config_defaults():
 
 def test_config_schema_instantiation():
     """Test ConfigSchema instantiation with all required nested configs."""
-    data = DataConfig(train_dir="/tmp/train", val_dir="/tmp/val")
+    data = DataConfig(data_root="/tmp/unified", root_dir="/tmp/unified")
     model = ModelConfig(
         type="unet", in_channels=3, out_channels=1, features=[16, 32, 64]
     )
@@ -87,7 +87,7 @@ def test_config_schema_instantiation():
     cfg = ConfigSchema(
         data=data, model=model, training=training, logging=logging
     )
-    assert cfg.data.train_dir == "/tmp/train"
+    assert cfg.data.data_root == "/tmp/unified"
     assert cfg.model.type == "unet"
     assert cfg.training.epochs == 5
     assert cfg.logging.experiment_name == "exp1"

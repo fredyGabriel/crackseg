@@ -12,7 +12,7 @@ Main exports:
     - LoaderFactory: Class for dataloader factory operations
 """
 
-from .dataset_factory import create_dataset
+from .dataset_factory import create_crackseg_dataset as create_dataset
 from .loader_factory import create_dataloaders_from_config
 from .pipeline_factory import DataPipelineFactory
 

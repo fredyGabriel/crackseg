@@ -47,9 +47,8 @@ training:
   epochs: 100
   optimizer: "adam"
 data:
-  train_path: "data/train"
-  val_path: "data/val"
-  test_path: "data/test"
+  data_root: "data/unified"
+  root_dir: "data/unified"
   image_size: [512, 512]
 experiment:
   name: "crack_segmentation_experiment"
@@ -77,9 +76,8 @@ experiment:
                 "optimizer": "adam",
             },
             "data": {
-                "train_path": "data/train",
-                "val_path": "data/val",
-                "test_path": "data/test",
+                "data_root": "data/unified",
+                "root_dir": "data/unified",
                 "image_size": [512, 512],
             },
             "experiment": {
@@ -169,8 +167,8 @@ model:
 training:
   optimizer_config: ${model.config.optimizer_config}
 data:
-  train_path: "data/train"
-  val_path: "data/val"
+  data_root: "data/unified"
+  root_dir: "data/unified"
 experiment:
   name: "nested_config_test"
 """
@@ -191,8 +189,8 @@ training:
   batch_size: 16
   learning_rate: 0.001
 data:
-  train_path: "data/train"
-  val_path: "data/val"
+  data_root: "data/unified"
+  root_dir: "data/unified"
 experiment:
   name: "unused_references_test"
 """

@@ -330,9 +330,17 @@ def _has_nested_field(config: DictConfig, field_path: str) -> bool:
         keys = field_path.split(".")
         current = config
         for key in keys:
-            if not hasattr(current, key) or current[key] is None:
-                return False
-            current = current[key]
+            # For DictConfig objects, use get() method which returns None if key doesn't exist
+            if hasattr(current, "get"):
+                value = current.get(key)
+                if value is None:
+                    return False
+                current = value
+            else:
+                # Fallback for regular objects
+                if not hasattr(current, key) or getattr(current, key) is None:
+                    return False
+                current = getattr(current, key)
         return True
     except (AttributeError, KeyError, TypeError):
         return False

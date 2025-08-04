@@ -1,56 +1,59 @@
-# configs/training/trainer.yaml - CONFIGURED FOR BASIC VERIFICATION
+# Training configuration for the trainer
+# This file contains settings for the training process
 
-defaults:
-  # - lr_scheduler: step_lr  # Change to cosine or reduce_on_plateau as needed
-  - _self_
+# Training parameters
+epochs: 100
+learning_rate: 0.001
+batch_size: 8
+num_workers: 4
+gradient_accumulation_steps: 1
 
-# Default configuration for the Trainer class
+# Device configuration
+device: "auto"  # auto, cpu, cuda
+require_cuda: false
 
-_target_: crackseg.training.trainer.Trainer  # Target Trainer class for instantiation
-
-# Basic Training Parameters
-# epochs: 10
-# Note: batch_size is typically defined in the dataloader config
-# but can be referenced here if needed.
-
-# Device settings
-device: "auto"  # Options: "auto", "cpu", "cuda", "cuda:0", etc.
-
-# Optimizer settings (Example - define actual optimizer in separate config)
+# Optimizer configuration
 optimizer:
-  _target_: torch.optim.Adam  # Optimizer class
-  lr: 0.001                  # Learning rate
+  _target_: torch.optim.Adam
+  lr: 0.001
+  weight_decay: 0.0001
+  betas: [0.9, 0.999]
 
-# Learning Rate Scheduler settings (Optional - define in separate config)
-lr_scheduler: ${lr_scheduler}  # Reference to scheduler config
+# Scheduler configuration
+scheduler:
+  type: "step"
+  step_size: 30
+  gamma: 0.1
 
-# Mixed Precision Training (AMP) - DISABLED for verification stability
-use_amp: false  # Enable/disable Automatic Mixed Precision
+# Loss configuration
+loss:
+  type: "bce_dice"
+  bce_weight: 0.5
+  dice_weight: 0.5
+  smooth: 1.0
 
-# Gradient Accumulation
-gradient_accumulation_steps: 1  # Number of steps to accumulate gradients (1 = disabled)
+# Checkpoint configuration
+checkpoint_dir: "artifacts/experiments"  # Directory to save checkpoints
+save_freq: 5  # Save every N epochs
+save_best: true
+monitor_metric: "val_dice"
+monitor_mode: "max"
 
-# Checkpoint settings
-checkpoint_dir: "artifacts/checkpoints"  # Directory to save checkpoints
-save_freq: 0  # How often to save intermediate checkpoints (epochs), 0 = disable
-
-# Save best model configuration
-save_best:
-  enabled: true
-  monitor_metric: "val_loss"  # Metric to monitor (must match key in validation results)
-  monitor_mode: "min"         # 'min' for minimizing (e.g. loss), 'max' for maximizing (e.g. accuracy)
-  best_filename: "model_best.pth.tar"
-
-# Early Stopping settings - PROFESSIONAL SOLUTION IMPLEMENTED
+# Early stopping configuration
 early_stopping:
-  enabled: true            # Re-enabled with proper parameter filtering
-  _target_: crackseg.utils.training.early_stopping.EarlyStopping  # EarlyStopping class
-  patience: 5              # Number of epochs with no improvement to wait
-  mode: "min"              # 'min' for loss, 'max' for accuracy/metric
-  min_delta: 0.01          # Minimum change to qualify as improvement
-  verbose: true            # Print early stopping messages
+  enabled: True
+  patience: 10
+  min_delta: 0.001
+  should_stop: True
 
-# Verbosity / Progress reporting
-verbose: true
-progress_bar: true
-log_interval_batches: 10  # Log training batch loss every N batches (REDUCED for more feedback)
+# Logging configuration
+logging:
+  log_freq: 10  # Log every N batches
+  tensorboard: true
+  wandb: false
+
+# Validation configuration
+validation:
+  freq: 1  # Validate every N epochs
+  save_predictions: true
+  save_visualizations: true

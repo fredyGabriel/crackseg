@@ -16,12 +16,12 @@ log_to_file: true
 # Experiment configuration for verification
 experiment:
   name: "basic_verification"
-  output_dir: "outputs"
+  output_dir: "artifacts/experiments"
 
 # Hydra configuration for verification runs
 hydra:
   run:
-    dir: artifacts/outputs/verification/${now:%Y%m%d-%H%M%S}-basic_test
+    dir: artifacts/experiments/${now:%Y%m%d-%H%M%S}-basic_verification
   job:
     chdir: false
 

@@ -23,9 +23,9 @@ class ValidationReporter:
 
         Args:
             output_dir: Directory to save reports.
-            Defaults to outputs/validation_reports/
+            Defaults to artifacts/validation_reports/
         """
-        self.output_dir = output_dir or Path("outputs/validation_reports")
+        self.output_dir = output_dir or Path("artifacts/validation_reports")
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Initialize components

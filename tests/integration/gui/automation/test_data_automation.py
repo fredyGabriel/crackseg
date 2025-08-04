@@ -313,12 +313,12 @@ class TestDataAutomator:
         data_dir = self.base_path / "mock_data" / scenario_name
         data_dir.mkdir(parents=True, exist_ok=True)
 
-        # Create minimal mock data structure
-        train_dir = data_dir / "train"
-        train_dir.mkdir(exist_ok=True)
+        # Create unified mock data structure
+        images_dir = data_dir / "images"
+        images_dir.mkdir(exist_ok=True)
 
-        val_dir = data_dir / "val"
-        val_dir.mkdir(exist_ok=True)
+        masks_dir = data_dir / "masks"
+        masks_dir.mkdir(exist_ok=True)
 
         # Create mock metadata files
         metadata = {
@@ -327,6 +327,7 @@ class TestDataAutomator:
             "data_type": "mock_automation_data",
             "image_count": 10,
             "image_size": [512, 512],
+            "structure": "unified",
         }
 
         metadata_path = data_dir / "metadata.json"
@@ -334,8 +335,9 @@ class TestDataAutomator:
             json.dump(metadata, f, indent=2)
 
         return {
-            "train_dir": train_dir,
-            "val_dir": val_dir,
+            "data_root": data_dir,
+            "images_dir": images_dir,
+            "masks_dir": masks_dir,
             "metadata": metadata_path,
         }
 

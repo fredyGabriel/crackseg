@@ -79,7 +79,7 @@ class ContinuousCoverageAutomation:
             if ci_mode:
                 output_dir = Path("test-results/coverage_monitoring")
             else:
-                output_dir = Path("outputs/coverage_monitoring")
+                output_dir = Path("artifacts/coverage_monitoring")
 
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)

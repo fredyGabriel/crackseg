@@ -16,7 +16,7 @@ Key features:
 Examples:
     >>> driver = start_streamlit_app("scripts/gui/app.py", port=8501)
     >>> wait_for_streamlit_ready(driver)
-    >>> upload_file(driver, "data/test/images/test_image.jpg")
+    >>> upload_file(driver, "data/unified/images/test_image.jpg")
     >>> navigate_to_page(driver, "Training")
 """
 
@@ -348,7 +348,7 @@ def upload_file(
         True if upload successful, False otherwise
 
     Example:
-        >>> upload_file(driver, "data/test/images/test.jpg", "Upload Image")
+        >>> upload_file(driver, "data/unified/images/test.jpg", "Upload Image")
     """
     file_path = Path(file_path)
     if not file_path.exists():

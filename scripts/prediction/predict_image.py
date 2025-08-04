@@ -90,10 +90,8 @@ def predict_and_visualize(
 ):
     """Make prediction and create visualization."""
     # Configuration
-    checkpoint_path = "outputs/checkpoints/model_best.pth.tar"
-    config_path = (
-        "outputs/configurations/default_experiment/config_epoch_0100.yaml"
-    )
+    checkpoint_path = "artifacts/experiments/checkpoints/model_best.pth.tar"
+    config_path = "artifacts/experiments/configurations/default_experiment/config_epoch_0100.yaml"
 
     print("Loading model...")
     model = load_model(checkpoint_path, config_path)

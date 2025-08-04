@@ -5,7 +5,7 @@ from .core.image_processor import ImageProcessor
 from .core.model_loader import ModelLoader
 from .metrics.batch_processor import BatchProcessor
 from .metrics.calculator import MetricsCalculator
-from .visualization.prediction_viz import PredictionVisualizer
+from .visualization.legacy.prediction_viz import PredictionVisualizer
 
 __all__ = [
     # Core components

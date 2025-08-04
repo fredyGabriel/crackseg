@@ -114,9 +114,15 @@ class F1ScoreConfig(BaseMetricConfig):
 class DataConfig:
     """Data configuration schema."""
 
-    train_dir: str = MISSING
-    val_dir: str = MISSING
+    # Unified data configuration (preferred)
+    data_root: str = MISSING
+    root_dir: str = MISSING  # Alias for data_root (required by validation)
+
+    # Legacy configuration (optional, for backward compatibility)
+    train_dir: str | None = None
+    val_dir: str | None = None
     test_dir: str | None = None
+
     batch_size: int = 32
     num_workers: int = 4
     pin_memory: bool = True

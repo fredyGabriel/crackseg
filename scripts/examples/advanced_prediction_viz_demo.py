@@ -1,296 +1,288 @@
-"""Advanced prediction visualization demo.
+#!/usr/bin/env python3
+"""
+Advanced Prediction Visualization Demo
 
-This script demonstrates the capabilities of the AdvancedPredictionVisualizer
-including comparison grids, confidence maps, error analysis, and
-segmentation overlays with configurable templates.
+This script demonstrates advanced prediction visualization techniques
+including confidence maps, error analysis, and interactive plots.
 """
 
-import logging
-from pathlib import Path
+import argparse
+import random
 
+# Ensure the project root is in the path
+import sys
+from pathlib import Path
+from typing import list, tuple
+
+import matplotlib.pyplot as plt
 import numpy as np
 
-from crackseg.evaluation.visualization import AdvancedPredictionVisualizer
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from crackseg.utils.visualization import (
+    create_comparison_grid,
+    create_confidence_map,
+    create_custom_styled_grid,
+    create_error_analysis,
+    create_segmentation_overlay,
+    create_tabular_comparison,
+)
 
 
-def create_sample_prediction_data() -> list[dict]:
-    """Create sample prediction data for demonstration.
+def generate_sample_predictions(
+    num_samples: int = 5,
+) -> list[tuple[np.ndarray, np.ndarray, np.ndarray]]:
+    """Generate sample prediction data for demonstration."""
+    samples = []
 
-    Returns:
-        List of sample prediction results.
-    """
-    # Create sample images and masks
-    sample_data = []
+    for _ in range(num_samples):
+        # Generate random image (256x256x3)
+        image = np.random.rand(256, 256, 3)
 
-    for i in range(6):
-        # Create synthetic image (simulating pavement)
-        image = np.random.randint(100, 200, (256, 256, 3), dtype=np.uint8)
+        # Generate ground truth mask
+        gt_mask = np.zeros((256, 256), dtype=np.uint8)
 
-        # Create synthetic ground truth mask (crack pattern)
-        gt_mask = np.zeros((256, 256), dtype=bool)
-        # Add some crack-like patterns
-        gt_mask[100:120, 50:200] = True  # Horizontal crack
-        gt_mask[150:170, 100:150] = True  # Another crack
-        gt_mask[80:100, 80:120] = True  # Small crack
+        # Add some random "cracks" (thin lines)
+        for _ in range(random.randint(3, 8)):
+            start_x = random.randint(0, 255)
+            start_y = random.randint(0, 255)
+            length = random.randint(20, 80)
+            angle = random.uniform(0, 2 * np.pi)
 
-        # Create prediction mask (with some errors)
+            for j in range(length):
+                x = int(start_x + j * np.cos(angle))
+                y = int(start_y + j * np.sin(angle))
+                if 0 <= x < 256 and 0 <= y < 256:
+                    gt_mask[y, x] = 1
+
+        # Generate prediction mask with some noise
         pred_mask = gt_mask.copy()
         # Add some false positives
-        pred_mask[200:220, 50:100] = True
-        # Remove some true positives (false negatives)
-        pred_mask[80:100, 80:120] = False
+        noise_points = random.randint(10, 30)
+        for _ in range(noise_points):
+            x, y = random.randint(0, 255), random.randint(0, 255)
+            pred_mask[y, x] = 1
 
-        # Create probability mask
-        prob_mask = np.random.random((256, 256))
-        prob_mask[gt_mask] = np.random.uniform(0.7, 1.0, gt_mask.sum())
-        prob_mask[pred_mask] = np.random.uniform(0.6, 1.0, pred_mask.sum())
+        # Add some false negatives
+        missing_points = random.randint(5, 15)
+        for _ in range(missing_points):
+            x, y = random.randint(0, 255), random.randint(0, 255)
+            if gt_mask[y, x] == 1:
+                pred_mask[y, x] = 0
 
-        # Calculate metrics
-        tp = (pred_mask & gt_mask).sum()
-        fp = (pred_mask & ~gt_mask).sum()
-        fn = (~pred_mask & gt_mask).sum()
-        # tn = (~pred_mask & ~gt_mask).sum()  # Not used in metrics calculation
+        # Generate confidence map
+        confidence = np.random.rand(256, 256) * 0.3 + 0.7  # 0.7-1.0 range
+        confidence[gt_mask == 1] = (
+            np.random.rand(int(np.sum(gt_mask))) * 0.4 + 0.6
+        )  # 0.6-1.0 for GT
 
-        iou = tp / (tp + fp + fn) if (tp + fp + fn) > 0 else 0
-        dice = 2 * tp / (2 * tp + fp + fn) if (2 * tp + fp + fn) > 0 else 0
-        precision = tp / (tp + fp) if (tp + fp) > 0 else 0
-        recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-        f1 = (
-            2 * precision * recall / (precision + recall)
-            if (precision + recall) > 0
-            else 0
-        )
+        samples.append((image, pred_mask, confidence))
 
-        # Save sample image
-        image_path = f"outputs/demo_prediction/sample_image_{i}.jpg"
-        Path(image_path).parent.mkdir(parents=True, exist_ok=True)
-
-        # Convert to BGR for OpenCV
-        image_bgr = image[:, :, ::-1]
-        import cv2
-
-        cv2.imwrite(image_path, image_bgr)
-
-        sample_data.append(
-            {
-                "image_path": image_path,
-                "prediction_mask": pred_mask,
-                "ground_truth_mask": gt_mask,
-                "probability_mask": prob_mask,
-                "iou": iou,
-                "dice": dice,
-                "precision": precision,
-                "recall": recall,
-                "f1": f1,
-            }
-        )
-
-    return sample_data
+    return samples
 
 
-def demonstrate_comparison_grid(
-    visualizer: AdvancedPredictionVisualizer,
-) -> None:
-    """Demonstrate comparison grid functionality.
+def create_demo_predictions():
+    """Create and save demo prediction visualizations."""
+    print("🎨 Creating Advanced Prediction Visualizations")
+    print("=" * 50)
 
-    Args:
-        visualizer: Advanced prediction visualizer instance.
-    """
-    logger.info("Creating comparison grid...")
+    # Generate sample data
+    samples = generate_sample_predictions(5)
 
-    sample_data = create_sample_prediction_data()
+    # Create output directory
+    output_dir = Path("artifacts/global/visualizations/demo_prediction")
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Create comparison grid
-    _ = visualizer.create_comparison_grid(
-        results=sample_data,
-        save_path="outputs/demo_prediction/comparison_grid.png",
-        max_images=6,
-        show_metrics=True,
-        grid_layout=(2, 3),
+    # 1. Comparison Grid
+    print("📊 Creating comparison grid...")
+    images = [sample[0] for sample in samples]
+    masks = [sample[1] for sample in samples]
+
+    save_path = output_dir / "comparison_grid.png"
+    create_comparison_grid(
+        images=images,
+        masks=masks,
+        save_path=str(save_path),
+        title="Demo Prediction Comparison",
     )
+    print(f"✅ Saved: {save_path}")
 
-    logger.info("✅ Comparison grid created successfully")
+    # 2. Confidence Map
+    print("🎯 Creating confidence map...")
+    image = samples[0][0]
+    confidence = samples[0][2]
 
-
-def demonstrate_confidence_map(
-    visualizer: AdvancedPredictionVisualizer,
-) -> None:
-    """Demonstrate confidence map functionality.
-
-    Args:
-        visualizer: Advanced prediction visualizer instance.
-    """
-    logger.info("Creating confidence map...")
-
-    sample_data = create_sample_prediction_data()
-
-    # Create confidence map for first sample
-    _ = visualizer.create_confidence_map(
-        result=sample_data[0],
-        save_path="outputs/demo_prediction/confidence_map.png",
-        show_original=True,
-        show_contours=True,
+    save_path = output_dir / "confidence_map.png"
+    create_confidence_map(
+        image=image,
+        confidence=confidence,
+        save_path=str(save_path),
+        title="Prediction Confidence Map",
     )
+    print(f"✅ Saved: {save_path}")
 
-    logger.info("✅ Confidence map created successfully")
+    # 3. Error Analysis
+    print("🔍 Creating error analysis...")
+    image = samples[1][0]
+    gt_mask = np.zeros_like(samples[1][1])  # Create dummy GT
+    pred_mask = samples[1][1]
 
+    # Add some ground truth for error analysis
+    gt_mask[50:100, 50:150] = 1  # Some GT regions
 
-def demonstrate_error_analysis(
-    visualizer: AdvancedPredictionVisualizer,
-) -> None:
-    """Demonstrate error analysis functionality.
-
-    Args:
-        visualizer: Advanced prediction visualizer instance.
-    """
-    logger.info("Creating error analysis...")
-
-    sample_data = create_sample_prediction_data()
-
-    # Create error analysis for first sample
-    _ = visualizer.create_error_analysis(
-        result=sample_data[0],
-        save_path="outputs/demo_prediction/error_analysis.png",
+    save_path = output_dir / "error_analysis.png"
+    create_error_analysis(
+        image=image,
+        ground_truth=gt_mask,
+        prediction=pred_mask,
+        save_path=str(save_path),
+        title="Error Analysis",
     )
+    print(f"✅ Saved: {save_path}")
 
-    logger.info("✅ Error analysis created successfully")
+    # 4. Segmentation Overlay
+    print("🎨 Creating segmentation overlay...")
+    image = samples[2][0]
+    mask = samples[2][1]
 
-
-def demonstrate_segmentation_overlay(
-    visualizer: AdvancedPredictionVisualizer,
-) -> None:
-    """Demonstrate segmentation overlay functionality.
-
-    Args:
-        visualizer: Advanced prediction visualizer instance.
-    """
-    logger.info("Creating segmentation overlay...")
-
-    sample_data = create_sample_prediction_data()
-
-    # Create segmentation overlay for first sample
-    _ = visualizer.create_segmentation_overlay(
-        result=sample_data[0],
-        save_path="outputs/demo_prediction/segmentation_overlay.png",
-        show_confidence=True,
+    save_path = output_dir / "segmentation_overlay.png"
+    create_segmentation_overlay(
+        image=image,
+        mask=mask,
+        save_path=str(save_path),
+        title="Segmentation Overlay",
     )
+    print(f"✅ Saved: {save_path}")
 
-    logger.info("✅ Segmentation overlay created successfully")
-
-
-def demonstrate_tabular_comparison(
-    visualizer: AdvancedPredictionVisualizer,
-) -> None:
-    """Demonstrate tabular comparison functionality.
-
-    Args:
-        visualizer: Advanced prediction visualizer instance.
-    """
-    logger.info("Creating tabular comparison...")
-
-    sample_data = create_sample_prediction_data()
-
-    # Create tabular comparison
-    _ = visualizer.create_tabular_comparison(
-        results=sample_data,
-        save_path="outputs/demo_prediction/tabular_comparison.png",
-    )
-
-    logger.info("✅ Tabular comparison created successfully")
-
-
-def demonstrate_template_customization(
-    visualizer: AdvancedPredictionVisualizer,
-) -> None:
-    """Demonstrate template customization functionality.
-
-    Args:
-        visualizer: Advanced prediction visualizer instance.
-    """
-    logger.info("Demonstrating template customization...")
-
-    # Customize template configuration
-    custom_config = {
-        "figure_size": [14, 10],
-        "dpi": 300,
-        "color_palette": "viridis",
-        "grid_alpha": 0.3,
-        "line_width": 2.0,
-        "font_size": 12,
-        "title_font_size": 18,
-        "legend_font_size": 14,
-        "comparison_grid": {
-            "grid_layout": [2, 2],
-            "image_size": [300, 300],
-            "show_titles": True,
-            "show_metrics": True,
-            "border_width": 3,
-            "border_color": "darkblue",
+    # 5. Tabular Comparison
+    print("📋 Creating tabular comparison...")
+    metrics_data = {
+        "Sample 1": {
+            "IoU": 0.85,
+            "Dice": 0.92,
+            "Precision": 0.88,
+            "Recall": 0.91,
         },
-        "confidence_map": {
-            "colormap": "plasma",
-            "show_colorbar": True,
-            "colorbar_position": "right",
-            "threshold_contours": True,
-            "contour_levels": 15,
-            "show_uncertainty": True,
+        "Sample 2": {
+            "IoU": 0.78,
+            "Dice": 0.87,
+            "Precision": 0.82,
+            "Recall": 0.89,
+        },
+        "Sample 3": {
+            "IoU": 0.92,
+            "Dice": 0.96,
+            "Precision": 0.94,
+            "Recall": 0.93,
+        },
+        "Sample 4": {
+            "IoU": 0.81,
+            "Dice": 0.89,
+            "Precision": 0.85,
+            "Recall": 0.87,
+        },
+        "Sample 5": {
+            "IoU": 0.88,
+            "Dice": 0.93,
+            "Precision": 0.90,
+            "Recall": 0.92,
         },
     }
 
-    # Update template configuration
-    visualizer.update_template_config(custom_config)
-
-    sample_data = create_sample_prediction_data()
-
-    # Create comparison grid with custom styling
-    _ = visualizer.create_comparison_grid(
-        results=sample_data[:4],
-        save_path="outputs/demo_prediction/custom_styled_grid.png",
-        max_images=4,
-        grid_layout=(2, 2),
+    save_path = output_dir / "tabular_comparison.png"
+    create_tabular_comparison(
+        metrics_data=metrics_data,
+        save_path=str(save_path),
+        title="Performance Metrics Comparison",
     )
+    print(f"✅ Saved: {save_path}")
 
-    logger.info("✅ Custom styled comparison grid created successfully")
+    # 6. Custom Styled Grid
+    print("🎨 Creating custom styled grid...")
+    images = [sample[0] for sample in samples[:3]]
+    masks = [sample[1] for sample in samples[:3]]
+
+    save_path = output_dir / "custom_styled_grid.png"
+    create_custom_styled_grid(
+        images=images,
+        masks=masks,
+        save_path=str(save_path),
+        title="Custom Styled Prediction Grid",
+        style="dark_background",
+    )
+    print(f"✅ Saved: {save_path}")
+
+    print(f"\n🎉 All visualizations saved to: {output_dir}")
+    print("=" * 50)
 
 
-def main() -> None:
-    """Main demonstration function."""
-    logger.info("🚀 Starting Advanced Prediction Visualizer Demo")
+def create_interactive_demo():
+    """Create interactive visualization demo."""
+    print("\n🔄 Creating Interactive Demo")
+    print("=" * 30)
 
-    # Initialize visualizer with default template
-    visualizer = AdvancedPredictionVisualizer()
+    # Generate sample data
+    samples = generate_sample_predictions(3)
 
-    # Create output directory
-    output_dir = Path("outputs/demo_prediction")
+    # Create interactive plot
+    fig, axes = plt.subplots(2, 3, figsize=(15, 10))
+    fig.suptitle("Interactive Prediction Demo", fontsize=16)
+
+    for i, (image, _mask, _confidence) in enumerate(samples):
+        row = i // 3
+        col = i % 3
+
+        # Original image
+        axes[row, col].imshow(image)
+        axes[row, col].set_title(f"Sample {i + 1}")
+        axes[row, col].axis("off")
+
+        # Add click handler
+        def on_click(event, sample_idx=i, row_idx=row, col_idx=col):
+            if event.inaxes == axes[row_idx, col_idx]:
+                print(f"Clicked on Sample {sample_idx + 1}")
+                # Could add more interactive features here
+
+        axes[row, col].figure.canvas.mpl_connect(
+            "button_press_event", on_click
+        )
+
+    # Add colorbar
+    im = axes[0, 0].imshow(np.random.rand(10, 10), alpha=0)
+    cbar = plt.colorbar(im, ax=axes, fraction=0.046, pad=0.04)
+    cbar.remove()  # Remove the dummy colorbar
+
+    plt.tight_layout()
+
+    # Save interactive version
+    output_dir = Path("artifacts/global/visualizations/demo_prediction")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    try:
-        # Demonstrate all functionalities
-        demonstrate_comparison_grid(visualizer)
-        demonstrate_confidence_map(visualizer)
-        demonstrate_error_analysis(visualizer)
-        demonstrate_segmentation_overlay(visualizer)
-        demonstrate_tabular_comparison(visualizer)
-        demonstrate_template_customization(visualizer)
+    save_path = output_dir / "interactive_demo.png"
+    plt.savefig(save_path, dpi=150, bbox_inches="tight")
+    print(f"✅ Interactive demo saved: {save_path}")
 
-        logger.info("🎉 All demonstrations completed successfully!")
-        logger.info(f"📁 Output files saved to: {output_dir.absolute()}")
+    plt.show()
 
-        # List generated files
-        generated_files = list(output_dir.glob("*.png"))
-        logger.info(
-            f"📊 Generated {len(generated_files)} visualization files:"
-        )
-        for file in generated_files:
-            logger.info(f"   - {file.name}")
 
-    except Exception as e:
-        logger.error(f"❌ Error during demonstration: {e}")
-        raise
+def main():
+    """Main function."""
+    parser = argparse.ArgumentParser(
+        description="Advanced prediction visualization demo"
+    )
+    parser.add_argument(
+        "--interactive", action="store_true", help="Create interactive demo"
+    )
+    parser.add_argument(
+        "--samples", type=int, default=5, help="Number of sample predictions"
+    )
+
+    args = parser.parse_args()
+
+    if args.interactive:
+        create_interactive_demo()
+    else:
+        create_demo_predictions()
 
 
 if __name__ == "__main__":

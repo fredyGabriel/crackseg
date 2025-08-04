@@ -89,8 +89,22 @@ def handle_checkpointing_and_resume(
     best_metric_value = None
 
     # Check if we should resume from checkpoint
-    checkpoint_path = cfg.training.checkpoints.get(
-        "resume_from_checkpoint", None
+    # Handle experiment namespace configuration access
+    training_cfg = None
+    if "experiments" in cfg:
+        # Look in experiments namespace for training config
+        for exp_name in cfg.experiments:
+            exp_config = cfg.experiments[exp_name]
+            if hasattr(exp_config, "training"):
+                training_cfg = exp_config.training
+                break
+
+    # Fall back to direct access
+    if training_cfg is None and hasattr(cfg, "training"):
+        training_cfg = cfg.training
+
+    checkpoint_path = (
+        getattr(training_cfg, "checkpoint_dir", None) if training_cfg else None
     )
     if checkpoint_path:
         log.info("Resuming from checkpoint: %s", checkpoint_path)

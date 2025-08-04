@@ -89,6 +89,8 @@ def main(cfg: DictConfig) -> None:
             metrics_dict=components["metrics"],
         )
 
+        # Pass the full configuration directly to the Trainer
+        # The Trainer will auto-detect the experiment configuration from the YAML
         trainer = Trainer(
             components=training_components,
             cfg=cfg,
@@ -143,14 +145,25 @@ def _validate_environment() -> None:
 
 def _validate_config(config: DictConfig) -> None:
     """Validate configuration using standard project patterns."""
-    # Check required sections
-    required_sections = ["model", "training", "data"]
+    # Check required sections - use the nested configuration structure
+    required_sections = ["model", "experiments"]
     for section in required_sections:
         if not hasattr(config, section):
             raise ValueError(f"{section} configuration missing")
 
+    # Check that the specific experiment configuration exists
+    if not hasattr(config.experiments, "swinv2_hybrid"):
+        raise ValueError("swinv2_hybrid experiment configuration missing")
+
+    # Check that training and data are available in the experiment config
+    experiment_config = config.experiments.swinv2_hybrid
+    if not hasattr(experiment_config, "training"):
+        raise ValueError("training configuration missing in experiment")
+    if not hasattr(experiment_config, "data"):
+        raise ValueError("data configuration missing in experiment")
+
     # Validate batch size for memory constraints
-    batch_size = config.training.get("batch_size", 4)
+    batch_size = experiment_config.training.get("batch_size", 4)
     if batch_size > 8:
         logging.warning(
             f"Large batch size ({batch_size}) may cause memory issues"
@@ -162,19 +175,22 @@ def _validate_config(config: DictConfig) -> None:
 def _validate_components(config: DictConfig) -> None:
     """Validate components using standard project factories."""
     try:
+        # Get the experiment configuration
+        experiment_config = config.experiments.swinv2_hybrid
+
         # Test model creation
         from crackseg.model.factory.config import create_model_from_config
 
-        model = create_model_from_config(config.model)
+        model = create_model_from_config(experiment_config.model)
         logging.info(f"[OK] Model created: {type(model).__name__}")
 
         # Test data loaders creation
         from crackseg.data.factory import create_dataloaders_from_config
 
         _ = create_dataloaders_from_config(
-            data_config=config.data,
-            transform_config=config.data.get("transform", {}),
-            dataloader_config=config.data.get("dataloader", {}),
+            data_config=experiment_config.data,
+            transform_config=experiment_config.data.get("transform", {}),
+            dataloader_config=experiment_config.data.get("dataloader", {}),
         )
         logging.info("[OK] Data loaders created successfully")
 
@@ -201,7 +217,7 @@ def _validate_components(config: DictConfig) -> None:
         )
 
         # Use the specific SwinV2 configuration
-        swinv2_config = config.experiments.swinv2_hybrid.training.loss.config
+        swinv2_config = experiment_config.training.loss.config
         config_dict = dict(swinv2_config)
         config_dict.pop("_target_", None)
         loss_fn = basic_registry.instantiate("focal_dice_loss", **config_dict)
@@ -211,9 +227,10 @@ def _validate_components(config: DictConfig) -> None:
         import torch.optim
 
         optimizer_class = getattr(
-            torch.optim, config.training.optimizer._target_.split(".")[-1]
+            torch.optim,
+            experiment_config.training.optimizer._target_.split(".")[-1],
         )
-        optimizer_params = dict(config.training.optimizer)
+        optimizer_params = dict(experiment_config.training.optimizer)
         optimizer_params.pop("_target_", None)
         optimizer = optimizer_class(model.parameters(), **optimizer_params)
         logging.info(f"[OK] Optimizer created: {type(optimizer).__name__}")
@@ -233,9 +250,12 @@ def _print_experiment_summary(config: DictConfig) -> None:
     logger.info("SwinV2 Hybrid Architecture Experiment")
     logger.info("=" * 80)
 
+    # Get the experiment configuration
+    experiment_config = config.experiments.swinv2_hybrid
+
     # Model architecture
     logger.info("Model Architecture:")
-    model_config = config.model
+    model_config = experiment_config.model
     logger.info(f"  - Type: {model_config.get('type', 'Unknown')}")
     if hasattr(model_config, "encoder"):
         logger.info(
@@ -244,7 +264,7 @@ def _print_experiment_summary(config: DictConfig) -> None:
 
     # Training configuration
     logger.info("Training Configuration:")
-    training_config = config.training
+    training_config = experiment_config.training
     logger.info(f"  - Epochs: {training_config.get('epochs', 'Unknown')}")
     logger.info(
         f"  - Batch Size: {training_config.get('batch_size', 'Unknown')}"
@@ -255,7 +275,7 @@ def _print_experiment_summary(config: DictConfig) -> None:
 
     # Data configuration
     logger.info("Data Configuration:")
-    data_config = config.data
+    data_config = experiment_config.data
     logger.info(f"  - Data Root: {data_config.get('data_root', 'Unknown')}")
     logger.info(f"  - Image Size: {data_config.get('image_size', 'Unknown')}")
 
@@ -264,18 +284,21 @@ def _print_experiment_summary(config: DictConfig) -> None:
 
 def _create_training_components(config: DictConfig) -> dict:
     """Create training components using standard project factories."""
+    # Get the experiment configuration
+    experiment_config = config.experiments.swinv2_hybrid
+
     # Create model
     from crackseg.model.factory.config import create_model_from_config
 
-    model = create_model_from_config(config.model)
+    model = create_model_from_config(experiment_config.model)
 
     # Create data loaders
     from crackseg.data.factory import create_dataloaders_from_config
 
     dataloaders_dict = create_dataloaders_from_config(
-        data_config=config.data,
-        transform_config=config.data.get("transform", {}),
-        dataloader_config=config.data.get("dataloader", {}),
+        data_config=experiment_config.data,
+        transform_config=experiment_config.data.get("transform", {}),
+        dataloader_config=experiment_config.data.get("dataloader", {}),
     )
 
     # Create loss function using basic registry
@@ -299,7 +322,7 @@ def _create_training_components(config: DictConfig) -> dict:
     basic_registry.register_factory("focal_dice_loss", create_focal_dice_loss)
 
     # Use the specific SwinV2 configuration
-    swinv2_config = config.experiments.swinv2_hybrid.training.loss.config
+    swinv2_config = experiment_config.training.loss.config
     config_dict = dict(swinv2_config)
     config_dict.pop("_target_", None)
     loss_fn = basic_registry.instantiate("focal_dice_loss", **config_dict)
@@ -308,21 +331,24 @@ def _create_training_components(config: DictConfig) -> dict:
     import torch.optim
 
     optimizer_class = getattr(
-        torch.optim, config.training.optimizer._target_.split(".")[-1]
+        torch.optim,
+        experiment_config.training.optimizer._target_.split(".")[-1],
     )
-    optimizer_params = dict(config.training.optimizer)
+    optimizer_params = dict(experiment_config.training.optimizer)
     optimizer_params.pop("_target_", None)
     optimizer = optimizer_class(model.parameters(), **optimizer_params)
 
     # Create scheduler
     from crackseg.training.factory import create_lr_scheduler
 
-    scheduler = create_lr_scheduler(optimizer, config.training.scheduler)
+    scheduler = create_lr_scheduler(
+        optimizer, experiment_config.training.scheduler
+    )
 
     # Create metrics using the correct function
     from crackseg.utils.factory.factory import get_metrics_from_cfg
 
-    metrics = get_metrics_from_cfg(config.evaluation.metrics)
+    metrics = get_metrics_from_cfg(experiment_config.evaluation.metrics)
 
     return {
         "model": model,

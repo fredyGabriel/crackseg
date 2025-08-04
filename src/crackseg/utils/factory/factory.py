@@ -8,14 +8,31 @@ import torch
 from omegaconf import DictConfig, ListConfig
 from torch import nn
 
-# Import specific losses for type checking if needed, or rely on name
-from crackseg.training.losses import BCEDiceLoss, CombinedLoss, FocalDiceLoss
+# Import specific losses using lazy loading to avoid circular dependencies
+# from crackseg.training.losses import BCEDiceLoss, CombinedLoss, FocalDiceLoss
 from crackseg.utils.core.exceptions import ConfigError
 from crackseg.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 T = TypeVar("T")
+
+
+def _get_loss_class(class_name: str):
+    """Lazy import of loss classes to avoid circular dependencies.
+
+    Args:
+        class_name: Name of the loss class to import
+
+    Returns:
+        The loss class
+
+    Raises:
+        AttributeError: If the class doesn't exist in the losses module
+    """
+    import crackseg.training.losses as losses_module
+
+    return getattr(losses_module, class_name)
 
 
 def import_class(class_path: str) -> type:
@@ -82,6 +99,33 @@ def get_optimizer(
                 optimizer_class(model_params, **optimizer_params),
             )
 
+        elif hasattr(optimizer_cfg, "__getitem__") and "type" in optimizer_cfg:
+            # Handle 'type' format as alias for '_target_'
+            optimizer_type = str(optimizer_cfg["type"]).lower()
+
+            # Map optimizer types to classes
+            optimizer_mapping = {
+                "adam": torch.optim.Adam,
+                "sgd": torch.optim.SGD,
+                "adamw": torch.optim.AdamW,
+                "rmsprop": torch.optim.RMSprop,
+            }
+
+            if optimizer_type not in optimizer_mapping:
+                raise ConfigError(
+                    f"Unsupported optimizer type: {optimizer_type}",
+                    details="Supported types: adam, sgd, adamw, rmsprop",
+                )
+
+            optimizer_class = optimizer_mapping[optimizer_type]
+            optimizer_params = {
+                str(k): v for k, v in optimizer_cfg.items() if k != "type"
+            }
+            return cast(
+                torch.optim.Optimizer,
+                optimizer_class(model_params, **optimizer_params),
+            )
+
         else:
             raise ConfigError(
                 f"Unsupported optimizer config type: {type(optimizer_cfg)}",
@@ -96,6 +140,33 @@ with type",
 def get_loss_fn(loss_cfg: DictConfig) -> TypingCallable[..., object]:
     """Create a loss function from config."""
     try:
+        # Handle 'type' format as alias for '_target_'
+        if hasattr(loss_cfg, "__getitem__") and "type" in loss_cfg:
+            loss_type = str(loss_cfg["type"]).lower()
+
+            # Map loss types to classes
+            loss_mapping = {
+                "bce_dice": "crackseg.training.losses.BCEDiceLoss",
+                "focal_dice": "crackseg.training.losses.focal_dice_loss.FocalDiceLoss",
+                "dice": "crackseg.training.losses.DiceLoss",
+                "bce": "torch.nn.BCEWithLogitsLoss",
+                "cross_entropy": "torch.nn.CrossEntropyLoss",
+            }
+
+            if loss_type not in loss_mapping:
+                raise ConfigError(
+                    f"Unsupported loss type: {loss_type}",
+                    details="Supported types: bce_dice, focal_dice, dice, bce, cross_entropy",
+                )
+
+            # Create a new config with _target_ instead of type
+            loss_cfg_with_target = DictConfig(loss_cfg)
+            loss_cfg_with_target["_target_"] = loss_mapping[loss_type]
+            del loss_cfg_with_target["type"]
+
+            # Continue with the standard processing
+            loss_cfg = loss_cfg_with_target
+
         target_path = loss_cfg.get("_target_")
         if not target_path:
             raise ConfigError("Loss configuration missing '_target_' key.")
@@ -103,7 +174,7 @@ def get_loss_fn(loss_cfg: DictConfig) -> TypingCallable[..., object]:
         loss_class = import_class(target_path)
 
         # --- Special Handling ---
-        if loss_class is CombinedLoss:
+        if loss_class is _get_loss_class("CombinedLoss"):
             inner_loss_configs = loss_cfg.losses
             weights = loss_cfg.get("weights")
             if (
@@ -134,15 +205,58 @@ def get_loss_fn(loss_cfg: DictConfig) -> TypingCallable[..., object]:
             combined_params = {}
             if weights is not None:
                 combined_params["weights"] = weights
+            CombinedLoss = _get_loss_class("CombinedLoss")
             return CombinedLoss(losses_config=losses_config, **combined_params)
 
-        elif loss_class is BCEDiceLoss:
-            params = {
-                str(k): v for k, v in loss_cfg.items() if k != "_target_"
-            }
-            return cast(TypingCallable[..., object], BCEDiceLoss(**params))
+        elif loss_class is _get_loss_class("BCEDiceLoss"):
+            # BCEDiceLoss expects a config parameter with BCEDiceLossConfig
+            if "config" in loss_cfg:
+                # If config is provided, use it directly
+                config_params = {}
+                # Access values directly without resolving interpolations
+                config_obj = loss_cfg.config
+                for key in config_obj.keys():
+                    if key != "_target_":
+                        try:
+                            value = config_obj[key]
+                            # Handle interpolation values by providing defaults
+                            if (
+                                isinstance(value, str)
+                                and value.startswith("${")
+                                and value.endswith("}")
+                            ):
+                                # Extract the key and provide default value
+                                key_name = value[2:-1]  # Remove ${ and }
+                                if "thresholds.loss_weight" in key_name:
+                                    config_params[str(key)] = (
+                                        0.5  # Default value
+                                    )
+                                elif "thresholds" in key_name:
+                                    config_params[str(key)] = (
+                                        0.5  # Default value
+                                    )
+                                else:
+                                    config_params[str(key)] = (
+                                        value  # Keep as string if unknown
+                                    )
+                            else:
+                                config_params[str(key)] = value
+                        except Exception:
+                            # If we can't access the value due to interpolation, use default
+                            config_params[str(key)] = 0.5
 
-        elif loss_class is FocalDiceLoss:
+                BCEDiceLossConfig = _get_loss_class("BCEDiceLossConfig")
+                BCEDiceLoss = _get_loss_class("BCEDiceLoss")
+                config = BCEDiceLossConfig(**config_params)
+                return cast(
+                    TypingCallable[..., object], BCEDiceLoss(config=config)
+                )
+            else:
+                # If no config provided, use default parameters
+                BCEDiceLoss = _get_loss_class("BCEDiceLoss")
+                return cast(TypingCallable[..., object], BCEDiceLoss())
+
+        elif loss_class is _get_loss_class("FocalDiceLoss"):
             # FocalDiceLoss expects a config parameter with FocalDiceLossConfig
             if "config" in loss_cfg:
                 # If config is provided, use it directly
@@ -151,16 +265,15 @@ def get_loss_fn(loss_cfg: DictConfig) -> TypingCallable[..., object]:
                     for k, v in loss_cfg.config.items()
                     if k != "_target_"
                 }
-                from crackseg.training.losses.focal_dice_loss import (
-                    FocalDiceLossConfig,
-                )
-
+                FocalDiceLossConfig = _get_loss_class("FocalDiceLossConfig")
+                FocalDiceLoss = _get_loss_class("FocalDiceLoss")
                 config = FocalDiceLossConfig(**config_params)
                 return cast(
                     TypingCallable[..., object], FocalDiceLoss(config=config)
                 )
             else:
                 # If no config provided, use default parameters
+                FocalDiceLoss = _get_loss_class("FocalDiceLoss")
                 return cast(TypingCallable[..., object], FocalDiceLoss())
 
         # --- Default Handling ---

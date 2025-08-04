@@ -253,7 +253,7 @@ def copy_test_data_files(
         List of copied file paths
 
     Example:
-        >>> copied = copy_test_data_files("data/test", "temp/test", ["*.jpg"])
+        >>> copied = copy_test_data_files("data/unified", "temp/test", ["*.jpg"])
         >>> all(path.suffix == ".jpg" for path in copied)
         True
     """

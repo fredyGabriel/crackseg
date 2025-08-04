@@ -1,9 +1,0 @@
-{
-  "id": "20250722-235914-default",
-  "name": "default",
-  "timestamp": "20250722-235914",
-  "created_at": "2025-07-22T23:59:14.851168",
-  "status": "completed",
-  "config": "{'project_name': 'crack-segmentation', 'output_dir': 'artifacts/outputs/', 'data_dir': 'data/', 'seed': 42, 'data': {'data_root': 'data/', 'train_split': 0.7, 'val_split': 0.15, 'test_split': 0.15, 'image_size': [256, 256], 'batch_size': 4, 'num_workers': 2, 'seed': 42, 'in_memory_cache': False}, 'model': {'_target_': 'src.model.core.unet.BaseUNet', 'encoder': {'_target_': 'src.model.encoder.CNNEncoder', 'in_channels': 3, 'init_features': 16, 'depth': 3}, 'bottleneck': {'_target_': 'src.model.bottleneck.cnn_bottleneck.BottleneckBlock', 'in_channels': 64, 'out_channels': 128}, 'decoder': {'_target_': 'src.model.decoder.cnn_decoder.CNNDecoder', 'in_channels': 128, 'skip_channels_list': [64, 32, 16], 'out_channels': 1, 'depth': 3}, 'final_activation': None}, 'training': {'epochs': 2, 'learning_rate': 0.001, 'weight_decay': 0.0001, 'device': 'auto', 'optimizer': {'_target_': 'torch.optim.Adam', 'lr': 0.001, 'weight_decay': 0.0001}, 'scheduler': {'_target_': 'torch.optim.lr_scheduler.StepLR', 'step_size': 10, 'gamma': 0.5}}, 'loss': {'_target_': 'src.training.losses.bce_dice.BCEDiceLoss', 'bce_weight': 0.5, 'dice_weight': 0.5, 'smooth': 1.0}, 'evaluation': {'metrics': ['iou', 'dice', 'precision', 'recall', 'f1']}}",
-  "updated_at": "2025-07-22T23:59:14.953622"
-}

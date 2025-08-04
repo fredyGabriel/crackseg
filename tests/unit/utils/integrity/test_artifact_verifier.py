@@ -65,9 +65,8 @@ training:
   learning_rate: 0.001
   epochs: 100
 data:
-  train_path: "data/train"
-  val_path: "data/val"
-  test_path: "data/test"
+  data_root: "data/unified"
+  root_dir: "data/unified"
 """
         with open(artifact_path, "w") as f:
             f.write(yaml_content)

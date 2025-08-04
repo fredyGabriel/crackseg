@@ -26,11 +26,19 @@ Features a modular, reproducible, and extensible codebase designed for both rese
 - **⚡ PyTorch Ecosystem**: Upgraded to PyTorch 2.7 with CUDA 12.9 (performance improvements)
 - **📦 Environment**: Conda-first strategy with 60% faster setup times
 
+### Enhanced Artifacts Management
+
+- **🗂️ Organized Structure**: Comprehensive artifacts directory with experiments, shared resources,
+  and production models
+- **📊 Better Organization**: Clear separation between experiments, global reports, and production assets
+- **🔄 Version Control**: Integrated versioning system for model and experiment tracking
+
 ### Performance & Optimization
 
 - **RTX 3070 Ti Specific**: VRAM-optimized configurations for 8GB constraints
 - **Environment Stability**: Resolved Windows compilation issues with streamlined dependencies
 - **Faster Development**: Enhanced type checking with basedpyright and improved linting
+- **Organized Outputs**: All experiment outputs now properly organized in artifacts/ structure
 
 For complete migration notes, see [CHANGELOG.md](CHANGELOG.md#migration-notes).
 
@@ -143,7 +151,7 @@ Refer to the [tutorials in `docs/tutorials/`](docs/tutorials/) for a detailed wa
 ```bash
 # Evaluate using the evaluation module
 python -m src.evaluation \
-    model.checkpoint_path=outputs/experiments/{timestamp}-{config}/checkpoints/best_model.pth
+    model.checkpoint_path=artifacts/experiments/{timestamp}-{config}/checkpoints/best_model.pth
 
 # Or use the wrapper script
 python src/evaluate.py
@@ -155,13 +163,27 @@ For detailed workflow and advanced configuration options, see [**Training Workfl
 
 For a comprehensive view of the project organization, see [**Project Structure Guide**](.cursor/rules/project-structure.mdc).
 
+### Artifacts Organization
+
+The project uses a comprehensive artifacts management system:
+
+```bash
+artifacts/
+├── experiments/          # Individual experiment outputs (timestamped)
+├── shared/              # Shared resources and utilities
+├── global/              # Global reports, visualizations, and analysis
+├── production/          # Production-ready models and configurations
+├── archive/             # Archived experiments and historical data
+└── versioning/          # Version control and model registry
+```
+
 ### Core Directories
 
 - **`src/`** — Core application code (models, data, training, evaluation)
 - **`configs/`** — Hydra YAML configurations (modular and composable)
 - **`tests/`** — Comprehensive test suite (66% coverage, 866 tests)
 - **`docs/`** — Documentation, guides, and organized reports
-- **`outputs/`** — Training results, logs, checkpoints (git ignored)
+- **`artifacts/`** — Comprehensive experiment outputs, models, and analysis (git ignored)
 - **`scripts/`** — Utility scripts and experimental code
 - **`.taskmaster/`** — Task Master project management files
 
@@ -172,6 +194,7 @@ For a comprehensive view of the project organization, see [**Project Structure G
 - **Training System**: `src/training/` (losses, optimizers, schedulers)
 - **Evaluation Suite**: `src/evaluation/` (metrics, visualization, reporting)
 - **Configuration**: `configs/` (model, training, data configurations)
+- **Artifacts Management**: `artifacts/` (experiments, shared resources, production models)
 
 > **Note:** Scripts in `scripts/` are for experimentation and utilities only. Do not import them in
 > core modules. Clean up temporary files like `__pycache__` regularly.
@@ -309,7 +332,7 @@ For detailed code quality guidelines, see [**Coding Standards**](.cursor/rules/c
 Training outputs are organized by timestamp and configuration:
 
 ```bash
-outputs/experiments/
+artifacts/experiments/
 └── {timestamp}-{config_name}/
     ├── checkpoints/    # Model checkpoints (.pth files)
     ├── logs/          # TensorBoard training logs
@@ -536,9 +559,11 @@ MIT License. See [`LICENSE`](LICENSE) for details.
 - ⚡ **Leverage modern dependencies**: TIMM for models, Albumentations for transforms
 - ⚙️ **Leverage Hydra configs** for all parameter management
 - 🧪 **Always activate conda environment**: `conda activate crackseg &&` before any commands
-- 📊 **Monitor experiments** using TensorBoard and organized outputs
+- 📊 **Monitor experiments** using TensorBoard and organized outputs in `artifacts/`
 - 📚 **Check [`docs/reports/`](docs/reports/)** for latest project analysis
 - 🔧 **Use Task Master** for structured development workflow
 - 🎯 **Follow Python 3.12+ type annotations** for better code reliability
 - 📈 **Maintain test coverage** when adding new features
 - 💡 **Architecture visualization**: Use `render_unet_architecture_diagram()` with matplotlib backend
+- 🗂️ **Organized outputs**: All experiment results are saved in `artifacts/experiments/` with clear
+  structure

@@ -29,7 +29,7 @@ class TestPlotlyVisualizationIntegration:
 
         self.sample_prediction_data = [
             {
-                "image_path": "data/test/images/5.jpg",
+                "image_path": "data/unified/images/5.jpg",
                 "original_image": np.random.randint(
                     0, 255, (256, 256, 3), dtype=np.uint8
                 ),
@@ -44,7 +44,7 @@ class TestPlotlyVisualizationIntegration:
                 "dice": 0.85,
             },
             {
-                "image_path": "data/test/images/6.jpg",
+                "image_path": "data/unified/images/6.jpg",
                 "original_image": np.random.randint(
                     0, 255, (256, 256, 3), dtype=np.uint8
                 ),

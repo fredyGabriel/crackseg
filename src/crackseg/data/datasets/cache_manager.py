@@ -70,18 +70,70 @@ class CacheManager:
             if in_memory_cache and cache is not None:
                 cached_image, cached_mask = cache[current_idx]
                 if cached_image is not None and cached_mask is not None:
-                    image_source = cached_image
-                    mask_source = cached_mask
+                    # Check if cached items are already tensors
+                    if isinstance(cached_image, torch.Tensor) and isinstance(
+                        cached_mask, torch.Tensor
+                    ):
+                        # Use cached tensors directly
+                        image_tensor = cached_image
+                        mask_tensor = cached_mask
+
+                        # Ensure proper tensor shapes
+                        image_tensor = self._ensure_image_shape(image_tensor)
+                        mask_tensor = self._ensure_mask_shape(mask_tensor)
+
+                        # Ensure binary mask values
+                        mask_tensor = (mask_tensor > 0.5).float()
+
+                        return {
+                            "image": image_tensor,
+                            "mask": mask_tensor,
+                        }
+                    elif hasattr(cached_image, "convert") and hasattr(
+                        cached_mask, "convert"
+                    ):
+                        # Cache contains PIL images, convert to arrays and apply transforms
+                        image_array = np.array(cached_image)
+                        mask_array = np.array(cached_mask)
+
+                        # Apply transforms
+                        transformed = self._apply_transforms(
+                            image=image_array,
+                            mask=mask_array,
+                            transforms=transforms,
+                        )
+
+                        # Convert to tensors and ensure proper format
+                        image_tensor = self._convert_to_tensor(
+                            transformed["image"]
+                        )
+                        mask_tensor = self._convert_to_tensor(
+                            transformed["mask"]
+                        )
+
+                        # Ensure proper tensor shapes
+                        image_tensor = self._ensure_image_shape(image_tensor)
+                        mask_tensor = self._ensure_mask_shape(mask_tensor)
+
+                        # Ensure binary mask values
+                        mask_tensor = (mask_tensor > 0.5).float()
+
+                        return {
+                            "image": image_tensor,
+                            "mask": mask_tensor,
+                        }
+                    else:
+                        # Cache contains file paths, load from disk
+                        image_source = cached_image
+                        mask_source = cached_mask
                 else:
-                    # Cache miss or invalid entry, try disk loading
-                    image_path, mask_path = samples[current_idx]
-                    image_source = image_path
-                    mask_source = mask_path
+                    # Cache miss, load from disk
+                    image_source = samples[current_idx][0]
+                    mask_source = samples[current_idx][1]
             else:
-                # No cache, load from disk
-                image_path, mask_path = samples[current_idx]
-                image_source = image_path
-                mask_source = mask_path
+                # Cache disabled, load directly from disk
+                image_source = samples[current_idx][0]
+                mask_source = samples[current_idx][1]
 
             try:
                 # Load image and mask

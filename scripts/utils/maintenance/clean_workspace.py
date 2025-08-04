@@ -6,11 +6,11 @@ workspace.
 - Removes all __pycache__ and .pytest_cache directories recursively
 - Removes all .pyc files recursively
 - Removes old log files (crackseg.log)
-- Removes outputs/ folders that are not 'experiments', 'shared', or 'README.md'
-- Removes outputs/experiment_registry.json if found
-- Removes outputs/checkpoints, outputs/metrics, outputs/visualizations if they
+- Removes artifacts/ folders that are not 'experiments', 'shared', 'global', 'production', 'archive', 'versioning', or 'README.md'
+- Removes artifacts/experiment_registry.json if found
+- Removes artifacts/checkpoints, artifacts/metrics, artifacts/visualizations if they
   exist outside experiments/
-- Removes date-named folders in outputs/ (e.g., 2025-05-03/)
+- Removes date-named folders in artifacts/ (e.g., 2025-05-03/)
 
 Usage:
     python scripts/clean_workspace.py
@@ -27,7 +27,17 @@ ROOT = Path(__file__).resolve().parent.parent
 CLEAN_DIRS = ["__pycache__", ".pytest_cache"]
 CLEAN_FILES = ["*.pyc"]
 LOG_FILES = ["crackseg.log"]
-OUTPUTS_KEEP = {"experiments", "shared", "README.md"}
+ARTIFACTS_KEEP = {
+    "experiments",
+    "shared",
+    "global",
+    "production",
+    "archive",
+    "versioning",
+    "README.md",
+    "REFACTORING_REPORT.md",
+    "UNIFICATION_REPORT.md",
+}
 DATE_FOLDER_PARTS = 3
 
 
@@ -57,28 +67,28 @@ def clean_logs(base: Path):
             log_path.unlink()
 
 
-def clean_outputs(outputs: Path):
-    """Clean outputs/ directory, keeping only allowed folders/files."""
-    for item in outputs.iterdir():
-        if item.name not in OUTPUTS_KEEP:
-            print(f"Removing from outputs/: {item}")
+def clean_artifacts(artifacts: Path):
+    """Clean artifacts/ directory, keeping only allowed folders/files."""
+    for item in artifacts.iterdir():
+        if item.name not in ARTIFACTS_KEEP:
+            print(f"Removing from artifacts/: {item}")
             if item.is_dir():
                 shutil.rmtree(item, ignore_errors=True)
             else:
                 item.unlink()
     # Remove experiment_registry.json if present
-    reg = outputs / "experiment_registry.json"
+    reg = artifacts / "experiment_registry.json"
     if reg.exists():
         print(f"Removing registry: {reg}")
         reg.unlink()
     # Remove common stray folders
     for stray in ["checkpoints", "metrics", "visualizations"]:
-        stray_path = outputs / stray
+        stray_path = artifacts / stray
         if stray_path.exists():
             print(f"Removing stray folder: {stray_path}")
             shutil.rmtree(stray_path, ignore_errors=True)
     # Remove date-named folders (e.g., 2025-05-03)
-    for item in outputs.iterdir():
+    for item in artifacts.iterdir():
         parts = item.name.split("-")
         if (
             item.is_dir()
@@ -94,7 +104,7 @@ if __name__ == "__main__":
     clean_cache_dirs(ROOT)
     clean_pyc_files(ROOT)
     clean_logs(ROOT)
-    outputs_dir = ROOT / "outputs"
-    if outputs_dir.exists():
-        clean_outputs(outputs_dir)
+    artifacts_dir = ROOT / "artifacts"
+    if artifacts_dir.exists():
+        clean_artifacts(artifacts_dir)
     print("Cleanup complete.")

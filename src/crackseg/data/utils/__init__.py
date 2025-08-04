@@ -12,7 +12,7 @@ from .distributed import (
     is_distributed_available_and_initialized,
     sync_distributed,
 )
-from .sampler import create_weighted_sampler
+from .sampler import SamplerFactoryArgs, sampler_factory
 from .splitting import create_split_datasets
 from .types import SourceType
 
@@ -24,7 +24,8 @@ __all__ = [
     "get_world_size",
     "is_distributed_available_and_initialized",
     "sync_distributed",
-    "create_weighted_sampler",
+    "sampler_factory",
+    "SamplerFactoryArgs",
     "create_split_datasets",
     "SourceType",
 ]

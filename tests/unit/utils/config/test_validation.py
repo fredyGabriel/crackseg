@@ -19,12 +19,15 @@ def make_valid_config(tmp_path: Path) -> DictConfig:
     data_dir = tmp_path / "data"
     data_dir.mkdir()
     log_dir = tmp_path / "logs"
+    # Create unified structure
+    (data_dir / "images").mkdir()
+    (data_dir / "masks").mkdir()
+
     config = OmegaConf.create(
         {
             "data": {
-                "train_dir": str(data_dir),
-                "val_dir": str(data_dir),
-                "test_dir": str(data_dir),
+                "data_root": str(data_dir),
+                "root_dir": str(data_dir),
             },
             "logging": {"log_dir": str(log_dir)},
             "training": {
@@ -55,7 +58,7 @@ def test_validate_paths_valid(tmp_path: Path) -> None:
 def test_validate_paths_invalid(tmp_path: Path) -> None:
     """Test validate_paths raises error for missing data dir."""
     cfg = make_valid_config(tmp_path)
-    cfg.data.train_dir = str(tmp_path / "nonexistent")
+    cfg.data.data_root = str(tmp_path / "nonexistent")
     with pytest.raises(ValidationError):
         validate_paths(cfg)
 

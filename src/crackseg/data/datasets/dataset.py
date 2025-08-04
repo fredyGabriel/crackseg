@@ -27,8 +27,8 @@ Examples:
 
     # Define sample pairs
     samples = [
-        ("data/train/images/crack_001.jpg", "data/train/masks/crack_001.png"),
-        ("data/train/images/crack_002.jpg", "data/train/masks/crack_002.png"),
+        ("data/unified/images/crack_001.jpg", "data/unified/masks/crack_001.png"),
+        ("data/unified/images/crack_002.jpg", "data/unified/masks/crack_002.png"),
     ]
 
     # Create dataset
@@ -86,9 +86,9 @@ See Also:
 """
 
 # Import the main components from specialized modules
+from ..factory.dataset_factory import create_crackseg_dataset
 from .base_dataset import CrackSegmentationDataset
-from .dataset_factory import create_crackseg_dataset
-from .dataset_utils import CacheItemType, SourceType
+from .types import CacheItemType, SourceType
 
 # Re-export the main classes and functions for backward compatibility
 __all__ = [

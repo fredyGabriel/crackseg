@@ -85,16 +85,56 @@ def setup_training_components(
     """
     log.info("Setting up training components...")
 
-    # Get metrics from configuration
-    metrics_dict = get_metrics_from_cfg(cfg)
+    # Handle experiment namespace configuration access
+    training_cfg = None
+    evaluation_cfg = None
+
+    if "experiments" in cfg:
+        # Look in experiments namespace for configs
+        for exp_name in cfg.experiments:
+            exp_config = cfg.experiments[exp_name]
+            if hasattr(exp_config, "training"):
+                training_cfg = exp_config.training
+            if hasattr(exp_config, "evaluation"):
+                evaluation_cfg = exp_config.evaluation
+            if training_cfg and evaluation_cfg:
+                break
+
+    # Fall back to direct access
+    if training_cfg is None and hasattr(cfg, "training"):
+        training_cfg = cfg.training
+    if evaluation_cfg is None and hasattr(cfg, "evaluation"):
+        evaluation_cfg = cfg.evaluation
+
+    # Get metrics from evaluation configuration, with fallback to default metrics
+    if evaluation_cfg and hasattr(evaluation_cfg, "metrics"):
+        metrics_dict = get_metrics_from_cfg(evaluation_cfg.metrics)
+    else:
+        # Default metrics if not specified
+        default_metrics = ["iou", "dice", "precision", "recall", "f1"]
+        metrics_dict = get_metrics_from_cfg(default_metrics)
     log.info("Configured metrics: %s", list(metrics_dict.keys()))
 
-    # Get optimizer from configuration
-    optimizer = get_optimizer(cfg, model)  # type: ignore
+    # Get optimizer from training configuration, with fallback to default
+    if training_cfg and hasattr(training_cfg, "optimizer"):
+        optimizer = get_optimizer(model.parameters(), training_cfg.optimizer)
+    else:
+        # Default optimizer if not specified
+        default_optimizer_cfg = {"_target_": "torch.optim.Adam", "lr": 0.001}
+        optimizer = get_optimizer(model.parameters(), default_optimizer_cfg)
     log.info("Configured optimizer: %s", type(optimizer).__name__)
 
-    # Get loss function from configuration
-    loss_fn = get_loss_fn(cfg)
+    # Get loss function from training configuration, with fallback to default
+    if training_cfg and hasattr(training_cfg, "loss"):
+        loss_fn = get_loss_fn(training_cfg.loss)
+    else:
+        # Default loss function if not specified
+        from omegaconf import OmegaConf
+
+        default_loss_cfg = OmegaConf.create(
+            {"_target_": "crackseg.training.losses.BCEDiceLoss"}
+        )
+        loss_fn = get_loss_fn(default_loss_cfg)
     log.info("Configured loss function: %s", type(loss_fn).__name__)
 
     return metrics_dict, optimizer, loss_fn

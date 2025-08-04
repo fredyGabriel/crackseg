@@ -84,7 +84,7 @@ def generate_random_filename(
     return f"{prefix}_{random_part}.{extension}"
 
 
-def generate_test_image_path(base_dir: str = "data/test") -> Path:
+def generate_test_image_path(base_dir: str = "data/unified") -> Path:
     """Generate path to a test image file.
 
     Args:
@@ -156,9 +156,8 @@ def get_sample_config_data() -> dict[str, Any]:
             "optimizer": "adam",
         },
         "data": {
-            "train_dir": "data/train",
-            "val_dir": "data/val",
-            "test_dir": "data/test",
+            "data_root": "data/unified",
+            "root_dir": "data/unified",
             "image_size": 512,
         },
         "evaluation": {

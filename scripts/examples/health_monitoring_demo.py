@@ -180,7 +180,7 @@ async def demo_standalone_health_monitor() -> None:
     print("🛑 Stopped standalone health monitoring")
 
     # Export monitoring data
-    export_path = Path("outputs/monitoring_data.json")
+    export_path = Path("artifacts/monitoring_data.json")
     export_path.parent.mkdir(parents=True, exist_ok=True)
     health_monitor.export_monitoring_data(export_path)
     print(f"💾 Exported monitoring data to {export_path}")

@@ -67,9 +67,8 @@ training:
   epochs: 100
   optimizer: "adam"
 data:
-  train_path: "data/train"
-  val_path: "data/val"
-  test_path: "data/test"
+  data_root: "data/unified"
+  root_dir: "data/unified"
   image_size: [512, 512]
 experiment:
   name: "crack_segmentation_experiment"

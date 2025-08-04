@@ -20,19 +20,45 @@ def validate_paths(config: DictConfig) -> None:
     Raises:
         ValidationError: If a required path does not exist
     """
-    # Data directories
-    data_paths = {
-        "train_dir": config.data.train_dir,
-        "val_dir": config.data.val_dir,
-    }
-    if config.data.test_dir:
-        data_paths["test_dir"] = config.data.test_dir
-
-    for name, path in data_paths.items():
-        if not Path(path).exists():
+    # Data directories validation
+    # Check if using unified configuration
+    if hasattr(config.data, "data_root") and config.data.data_root:
+        # Unified mode: validate that data_root exists
+        data_root_path = Path(config.data.data_root)
+        if not data_root_path.exists():
             raise ValidationError(
-                f"Directory does not exist: {path}", field=name
+                f"Data root directory does not exist: {config.data.data_root}",
+                field="data_root",
             )
+
+        # Check for unified structure
+        images_dir = data_root_path / "images"
+        masks_dir = data_root_path / "masks"
+        if not images_dir.exists():
+            raise ValidationError(
+                f"Images directory does not exist: {images_dir}",
+                field="images_dir",
+            )
+        if not masks_dir.exists():
+            raise ValidationError(
+                f"Masks directory does not exist: {masks_dir}",
+                field="masks_dir",
+            )
+    else:
+        # Legacy mode: validate individual directories (for backward compatibility)
+        data_paths = {}
+        if config.data.train_dir:
+            data_paths["train_dir"] = config.data.train_dir
+        if config.data.val_dir:
+            data_paths["val_dir"] = config.data.val_dir
+        if config.data.test_dir:
+            data_paths["test_dir"] = config.data.test_dir
+
+        for name, path in data_paths.items():
+            if not Path(path).exists():
+                raise ValidationError(
+                    f"Directory does not exist: {path}", field=name
+                )
 
     # Log directory
     log_dir = Path(config.logging.log_dir)

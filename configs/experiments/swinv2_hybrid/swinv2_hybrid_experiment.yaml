@@ -12,8 +12,37 @@
 
 # Inherit from base configuration and apply specific overrides
 defaults:
-  - /base  # Standard project configuration (absolute path)
-  - _self_ # This file's overrides
+  - /base  # Include base configuration first
+  - /model: default
+  - /data: default
+  - /data/transform: augmentations
+  - /data/dataloader: default
+  - /evaluation: default
+  - _self_ # This file's overrides (highest priority)
+
+# General project settings (from base)
+project_name: "crack-segmentation"
+output_dir: artifacts/
+data_dir: data/
+random_seed: 42
+seed: 42
+debug: false
+
+# Experiment configuration
+experiment:
+  name: "swinv2_hybrid_experiment"
+  output_dir: "artifacts/experiments/${now:%Y%m%d-%H%M%S}-swinv2_hybrid_experiment"
+  timestamp: true
+
+# Experiment-specific hydra configuration
+hydra:
+  # Configure output directory generation
+  runtime:
+    output_dir: ${experiment.output_dir}
+  # Configure experiment ID for proper tracking
+  job:
+    name: ${experiment.name}
+    chdir: false
 
 # Model architecture overrides for SwinV2 hybrid
 model:
@@ -46,6 +75,47 @@ model:
 
 # Training configuration overrides for SwinV2 hybrid
 training:
+  # Training parameters that override trainer.yaml
+  epochs: 3  # Reduced for verification testing
+  learning_rate: 0.0001
+  batch_size: 4  # Optimized for RTX 3070 Ti (8GB VRAM)
+  num_workers: 4
+  gradient_accumulation_steps: 1
+  use_amp: true
+
+  # Device configuration
+  device: "auto"
+  require_cuda: false
+
+  # Checkpoint configuration
+  checkpoint_dir: "artifacts/experiments"
+  save_freq: 5
+  save_best: true
+  monitor_metric: "val_loss"
+  monitor_mode: "min"
+
+  # Early stopping configuration
+  early_stopping_patience: 15
+  early_stopping:
+    _target_: crackseg.utils.training.early_stopping.EarlyStopping
+    enabled: True
+    patience: 10
+    min_delta: 0.001
+    mode: "min"
+    monitor_metric: "val_loss"
+    verbose: True
+
+  # Logging configuration
+  logging:
+    log_freq: 10
+    tensorboard: true
+    wandb: false
+
+  # Validation configuration
+  validation:
+    freq: 1
+    save_predictions: true
+    save_visualizations: true
   loss:
     _target_: crackseg.training.losses.focal_dice_loss.FocalDiceLoss
     config:
@@ -59,13 +129,8 @@ training:
       dice_sigmoid: true
       dice_eps: 1e-6
       total_loss_weight: 1.0
-  learning_rate: 0.0001
-  batch_size: 4  # Optimized for RTX 3070 Ti (8GB VRAM)
-  gradient_accumulation_steps: 4
-  use_amp: true
-  early_stopping_patience: 15
   optimizer:
-    _target_: torch.optim.AdamW
+    _target_: torch.optim.Adam
     lr: 0.0001
     weight_decay: 0.01
     betas: [0.9, 0.999]
@@ -77,6 +142,14 @@ training:
 
 # Data configuration overrides for SwinV2 hybrid
 data:
+  data_root: data/unified/
+  root_dir: data/unified/
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  seed: 42
+  in_memory_cache: False  # Deshabilitado temporalmente
+  use_unified_splitting: True
   image_size: [256, 256]
   dataloader:
     batch_size: 4
@@ -85,15 +158,3 @@ data:
     persistent_workers: true
     prefetch_factor: 2
     drop_last: true
-
-# Experiment metadata
-experiment:
-  name: "swinv2_hybrid_focal_dice"
-  description: "SwinV2 + ASPP + CNN hybrid architecture with Focal Dice Loss"
-  tags:
-    - "hybrid_architecture"
-    - "swinv2"
-    - "aspp"
-    - "focal_dice_loss"
-    - "crack_segmentation"
-    - "rtx3070ti_optimized"

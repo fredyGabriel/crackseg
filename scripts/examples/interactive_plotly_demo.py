@@ -155,7 +155,7 @@ def demonstrate_interactive_training_curves(
     _ = visualizer.create_interactive_training_curves(
         metrics_data=metrics_data,
         epochs=epochs,
-        save_path=Path("outputs/demo_interactive/training_curves"),
+        save_path=Path("artifacts/demo_interactive/training_curves"),
     )
 
     logger.info("✅ Interactive training curves created successfully")
@@ -175,7 +175,7 @@ def demonstrate_interactive_prediction_grid(
         results=prediction_data,
         max_images=6,
         show_metrics=True,
-        save_path=Path("outputs/demo_interactive/prediction_grid"),
+        save_path=Path("artifacts/demo_interactive/prediction_grid"),
     )
 
     logger.info("✅ Interactive prediction grid created successfully")
@@ -192,7 +192,7 @@ def demonstrate_3d_confidence_map(
     # Create 3D confidence map for first sample
     _ = visualizer.create_3d_confidence_map(
         result=prediction_data[0],
-        save_path=Path("outputs/demo_interactive/3d_confidence_map"),
+        save_path=Path("artifacts/demo_interactive/3d_confidence_map"),
     )
 
     logger.info("✅ 3D confidence map created successfully")
@@ -209,7 +209,7 @@ def demonstrate_dynamic_error_analysis(
     # Create dynamic error analysis for first sample
     _ = visualizer.create_dynamic_error_analysis(
         result=prediction_data[0],
-        save_path=Path("outputs/demo_interactive/error_analysis"),
+        save_path=Path("artifacts/demo_interactive/error_analysis"),
     )
 
     logger.info("✅ Dynamic error analysis created successfully")
@@ -226,7 +226,7 @@ def demonstrate_real_time_dashboard(
     # Create real-time training dashboard
     _ = visualizer.create_real_time_training_dashboard(
         training_data=training_data,
-        save_path=Path("outputs/demo_interactive/real_time_dashboard"),
+        save_path=Path("artifacts/demo_interactive/real_time_dashboard"),
     )
 
 
@@ -285,7 +285,7 @@ def demonstrate_template_integration() -> None:
     _ = training_visualizer.create_interactive_training_curves(
         metrics_data=metrics_data,
         epochs=epochs,
-        save_path=Path("outputs/demo_interactive/multi_format_training"),
+        save_path=Path("artifacts/demo_interactive/multi_format_training"),
     )
 
     # Test multi-format export with prediction data
@@ -295,7 +295,7 @@ def demonstrate_template_integration() -> None:
         results=prediction_data,
         max_images=4,
         show_metrics=True,
-        save_path=Path("outputs/demo_interactive/multi_format_prediction"),
+        save_path=Path("artifacts/demo_interactive/multi_format_prediction"),
     )
 
     logger.info("✅ Template integration with multi-format export completed")
@@ -306,7 +306,7 @@ def main() -> None:
     logger.info("🚀 Starting Interactive Plotly Visualization Demo")
 
     # Create output directory
-    output_dir = Path("outputs/demo_interactive")
+    output_dir = Path("artifacts/demo_interactive")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Initialize visualizer with default settings

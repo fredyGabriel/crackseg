@@ -10,8 +10,8 @@ from typing import Any
 import torch
 from torch.utils.data import DataLoader, Dataset, Sampler
 
-from ..collate import mixed_collate_fn
-from ..sampler import SamplerFactoryArgs, sampler_factory
+from ..utils.collate import mixed_collate_fn
+from ..utils.sampler import SamplerFactoryArgs, sampler_factory
 from .config import DataLoaderConfig
 from .memory import calculate_adaptive_batch_size
 from .validation import validate_dataloader_params
@@ -197,16 +197,17 @@ def _create_sampler_from_config(
 
     # Create sampler factory arguments
     factory_args = SamplerFactoryArgs(
-        dataset=dataset_param,
         shuffle=shuffle_param,
         rank=rank_param,
-        world_size=world_size_param,
+        num_replicas=world_size_param,
         **sampler_args,
     )
 
     try:
         # Create sampler using factory
-        sampler_instance = sampler_factory(sampler_kind, factory_args)
+        sampler_instance = sampler_factory(
+            sampler_kind, dataset_param, factory_args
+        )
 
         # Update shuffle status based on sampler
         if sampler_instance is not None:

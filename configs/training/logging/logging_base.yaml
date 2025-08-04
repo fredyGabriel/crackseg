@@ -11,7 +11,7 @@ type: tensorboard
 
 # Base directory for logger outputs (relative to Hydra's run directory)
 # Specific loggers might create subdirectories within this.
-log_dir: "${hydra.run.dir}/logs/${logging.type}/" # Example: outputs/.../logs/tensorboard/
+log_dir: "${hydra.run.dir}/logs/${logging.type}/" # Example: artifacts/experiments/.../logs/tensorboard/
 
 # Frequency of logging (to be interpreted by the Trainer)
 log_interval_batches: 50 # Log every N batches (0 to disable batch logging)
@@ -43,7 +43,7 @@ wandb:
   log_model: False
   prefix: ""
   # The log_dir should be relative to the hydra run directory
-  log_dir: "${hydra.run.dir}/logs/${logging.type}/" # Example: outputs/.../logs/tensorboard/
+  log_dir: "${hydra.run.dir}/logs/${logging.type}/" # Example: artifacts/experiments/.../logs/tensorboard/
 
 # --- MLflow Specific Settings (only used if type is mlflow) ---
 mlflow:

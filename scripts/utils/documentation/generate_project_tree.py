@@ -35,6 +35,44 @@ def never_ignore(_: Path) -> bool:
     return False
 
 
+def should_truncate_directory(path: Path, project_root: Path) -> bool:
+    """
+    Determine if a directory should be truncated (not show its contents).
+
+    Args:
+        path: Path to check
+        project_root: Project root for relative path calculation
+
+    Returns:
+        True if the directory contents should be hidden
+    """
+    if not path.is_dir():
+        return False
+
+    # Get relative path from project root
+    try:
+        rel_path = path.relative_to(project_root)
+    except ValueError:
+        return False
+
+    # Convert to string for easier pattern matching
+    path_str = rel_path.as_posix()
+
+    # Patterns for directories that should be truncated
+    truncate_patterns = [
+        "data/unified/images",
+        "data/unified/masks",
+        "data/train/images",
+        "data/train/masks",
+        "data/val/images",
+        "data/val/masks",
+        "data/test/images",
+        "data/test/masks",
+    ]
+
+    return path_str in truncate_patterns
+
+
 def load_gitignore_matcher(project_root: Path) -> Callable[[Path], bool]:
     """
     Load a matcher function that returns True if a path should be ignored.
@@ -85,13 +123,25 @@ def build_tree(
 
     lines: list[str] = []
     connector = "└── " if is_last else "├── "
-    lines.append(
-        f"{prefix}{connector}{root.name}/"
-        if root.is_dir()
-        else f"{prefix}{connector}{root.name}"
+
+    # Check if this directory should be truncated
+    should_truncate = project_root is not None and should_truncate_directory(
+        root, project_root
     )
 
-    if root.is_dir():
+    if should_truncate:
+        # Show directory with truncation indicator
+        lines.append(f"{prefix}{connector}{root.name}/ (truncated)")
+    else:
+        # Normal display
+        lines.append(
+            f"{prefix}{connector}{root.name}/"
+            if root.is_dir()
+            else f"{prefix}{connector}{root.name}"
+        )
+
+    # Only recurse if not truncated and is a directory
+    if root.is_dir() and not should_truncate:
         entries = sorted(
             [e for e in root.iterdir() if not e.name.startswith(".")],
             key=lambda x: (not x.is_dir(), x.name.lower()),
@@ -137,7 +187,8 @@ def parse_args() -> bool:
 
 def main() -> None:
     """Main entry point for the script."""
-    project_root = Path(__file__).parent.parent.parent.resolve()
+    # Calculate project root correctly (3 levels up from script location)
+    project_root = Path(__file__).parent.parent.parent.parent.resolve()
     output_path = project_root / "docs" / "reports" / "project_tree.md"
     cursor_output_path = (
         project_root / ".cursor" / "rules" / "project_tree.mdc"

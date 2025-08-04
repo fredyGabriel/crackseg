@@ -5,7 +5,7 @@
 
 # General project settings
 project_name: "crack-segmentation"
-output_dir: artifacts/outputs/
+output_dir: artifacts/
 data_dir: data/
 seed: 42
 
@@ -118,6 +118,6 @@ evaluation:
 # Hydra configuration
 hydra:
   run:
-    dir: artifacts/outputs/simple_test/${now:%Y%m%d-%H%M%S}
+    dir: artifacts/experiments/${now:%Y%m%d-%H%M%S}-simple_test
   job:
     chdir: false

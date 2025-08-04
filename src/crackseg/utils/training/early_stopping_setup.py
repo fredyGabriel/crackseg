@@ -3,9 +3,6 @@
 from collections.abc import Mapping
 from typing import Any, Protocol
 
-from hydra import errors as hydra_errors  # Import Hydra errors
-from hydra.utils import instantiate
-
 
 # Protocolo mínimo para logger
 class LoggerProtocol(Protocol):
@@ -50,42 +47,26 @@ def setup_early_stopping(
             if not es_monitor.startswith("val_"):
                 es_monitor = f"val_{es_monitor}"
 
-            # Filter parameters to match EarlyStopping constructor signature
-            # EarlyStopping expects: patience, min_delta, mode, verbose
-            allowed_params = {
-                "patience",
-                "min_delta",
-                "mode",
-                "verbose",
-                "_target_",
-            }
+            # Create EarlyStopping instance directly instead of using instantiate
+            from crackseg.utils.training.early_stopping import EarlyStopping
 
-            # Create filtered configuration for EarlyStopping instantiation
-            filtered_config = {
-                k: v
-                for k, v in early_stopping_cfg.items()
-                if k in allowed_params
-            }
+            patience = early_stopping_cfg.get("patience", 10)
+            min_delta = early_stopping_cfg.get("min_delta", 0.001)
+            mode = early_stopping_cfg.get("mode", monitor_mode)
+            verbose = early_stopping_cfg.get("verbose", verbose)
 
-            # Override with function parameters if not in config
-            if "mode" not in filtered_config:
-                filtered_config["mode"] = monitor_mode
-            if "verbose" not in filtered_config:
-                filtered_config["verbose"] = verbose
-
-            # Instantiate EarlyStopping with filtered parameters
-            early_stopper = instantiate(
-                filtered_config,
-                _recursive_=False,
+            early_stopper = EarlyStopping(
+                patience=patience,
+                min_delta=min_delta,
+                mode=mode,
+                verbose=verbose,
             )
 
             # Store the monitor metric information separately for the trainer
             # to use (EarlyStopping doesn't need to know the metric name,
             # just the values)
             early_stopper.monitor_metric = es_monitor
-            early_stopper.monitor_mode = filtered_config.get(
-                "mode", monitor_mode
-            )
+            early_stopper.monitor_mode = mode
             early_stopper.enabled = (
                 True  # Mark as enabled since we successfully created it
             )
@@ -96,7 +77,6 @@ def setup_early_stopping(
                 f"Early stopping enabled. Monitoring: {es_monitor}",
             )
         except (
-            hydra_errors.InstantiationException,
             TypeError,
             ValueError,
             AttributeError,

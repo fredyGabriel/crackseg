@@ -33,7 +33,7 @@ def parse_args():
         type=str,
         default=None,
         help="Directory to save evaluation results \
-(default: ./outputs/evaluation/TIMESTAMP)",
+(default: ./artifacts/evaluation/TIMESTAMP)",
     )
     parser.add_argument(
         "--batch_size",
@@ -70,7 +70,7 @@ def setup_output_directory(base_dir: str | None = None) -> str:
     Create output directory for evaluation results.
 
     Args:
-        base_dir: Base directory path (if None, uses ./outputs/evaluation/)
+        base_dir: Base directory path (if None, uses ./artifacts/evaluation/)
 
     Returns:
         Path to the created directory
@@ -78,7 +78,7 @@ def setup_output_directory(base_dir: str | None = None) -> str:
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     if base_dir is None:
-        base_dir = os.path.join("outputs", "evaluation")
+        base_dir = os.path.join("artifacts", "evaluation")
 
     output_dir = os.path.join(base_dir, timestamp)
 

@@ -27,15 +27,15 @@ def demo_automatic_mask_inference():
     logger.info("=" * 60)
 
     # Configuration
-    checkpoint_path = "outputs/checkpoints/model_best.pth.tar"
-    config_path = "outputs/configurations/default_experiment/config.yaml"
-    mask_dir = "data/train/masks"
+    checkpoint_path = "artifacts/checkpoints/model_best.pth.tar"
+    config_path = "artifacts/configurations/default_experiment/config.yaml"
+    mask_dir = "data/unified/masks"
 
     # Test images
     test_images = [
-        "data/train/images/98.jpg",
-        "data/train/images/99.jpg",
-        "data/train/images/100.jpg",
+        "data/unified/images/98.jpg",
+        "data/unified/images/99.jpg",
+        "data/unified/images/100.jpg",
     ]
 
     # Initialize analyzer with mask directory for auto-inference
@@ -83,7 +83,9 @@ def demo_automatic_mask_inference():
                 logger.info("Prediction completed (no ground truth found)")
 
             # Create visualization
-            output_path = f"outputs/predictions/{image_path.stem}_analysis.png"
+            output_path = (
+                f"artifacts/predictions/{image_path.stem}_analysis.png"
+            )
             Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
             visualizer = PredictionVisualizer(analyzer.config)
@@ -101,11 +103,11 @@ def demo_prediction_only():
     logger.info("=" * 60)
 
     # Configuration
-    checkpoint_path = "outputs/checkpoints/model_best.pth.tar"
-    config_path = "outputs/configurations/default_experiment/config.yaml"
+    checkpoint_path = "artifacts/checkpoints/model_best.pth.tar"
+    config_path = "artifacts/configurations/default_experiment/config.yaml"
 
     # Test image (no corresponding mask)
-    image_path = "data/train/images/98.jpg"
+    image_path = "data/unified/images/98.jpg"
 
     # Initialize analyzer without mask directory
     analyzer = PredictionAnalyzer(
@@ -128,7 +130,7 @@ def demo_prediction_only():
         logger.info(f"  Threshold used: {result['threshold']}")
 
         # Create visualization
-        output_path = "outputs/predictions/prediction_only_analysis.png"
+        output_path = "artifacts/predictions/prediction_only_analysis.png"
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
         visualizer = PredictionVisualizer(analyzer.config)
@@ -146,10 +148,10 @@ def demo_batch_processing():
     logger.info("=" * 60)
 
     # Configuration
-    checkpoint_path = "outputs/checkpoints/model_best.pth.tar"
-    config_path = "outputs/configurations/default_experiment/config.yaml"
-    image_dir = "data/train/images"
-    mask_dir = "data/train/masks"
+    checkpoint_path = "artifacts/checkpoints/model_best.pth.tar"
+    config_path = "artifacts/configurations/default_experiment/config.yaml"
+    image_dir = "data/unified/images"
+    mask_dir = "data/unified/masks"
 
     # Initialize analyzer
     analyzer = PredictionAnalyzer(
@@ -171,7 +173,7 @@ def demo_batch_processing():
         summary = batch_processor.process_batch(
             image_dir=image_dir,
             mask_dir=mask_dir,
-            output_dir="outputs/batch_analysis",
+            output_dir="artifacts/batch_analysis",
             save_visualizations=True,
         )
 
@@ -191,9 +193,9 @@ def demo_visualization_features():
     logger.info("=" * 60)
 
     # Configuration
-    checkpoint_path = "outputs/checkpoints/model_best.pth.tar"
-    config_path = "outputs/configurations/default_experiment/config.yaml"
-    mask_dir = "data/train/masks"
+    checkpoint_path = "artifacts/checkpoints/model_best.pth.tar"
+    config_path = "artifacts/configurations/default_experiment/config.yaml"
+    mask_dir = "data/unified/masks"
 
     # Initialize analyzer and visualizer
     analyzer = PredictionAnalyzer(
@@ -205,9 +207,9 @@ def demo_visualization_features():
 
     # Test images for comparison
     test_images = [
-        "data/train/images/98.jpg",
-        "data/train/images/99.jpg",
-        "data/train/images/100.jpg",
+        "data/unified/images/98.jpg",
+        "data/unified/images/99.jpg",
+        "data/unified/images/100.jpg",
     ]
 
     # Analyze multiple images
@@ -229,7 +231,7 @@ def demo_visualization_features():
 
     if results:
         # Create comparison grid
-        output_path = "outputs/predictions/comparison_grid.png"
+        output_path = "artifacts/predictions/comparison_grid.png"
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
         visualizer.create_comparison_grid(
@@ -252,7 +254,7 @@ def main():
 
     logger.info("\n" + "=" * 60)
     logger.info("All demos completed successfully!")
-    logger.info("Check outputs/predictions/ for generated visualizations")
+    logger.info("Check artifacts/predictions/ for generated visualizations")
     logger.info("=" * 60)
 
 

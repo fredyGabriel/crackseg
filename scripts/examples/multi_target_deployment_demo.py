@@ -265,7 +265,7 @@ async def demo_configuration_export() -> None:
     manager = MultiTargetDeploymentManager()
 
     # Export configurations
-    export_path = Path("outputs/environment_configs.json")
+    export_path = Path("artifacts/environment_configs.json")
     manager.export_environment_configs(export_path)
 
     print(f"📁 Exported environment configurations to: {export_path}")

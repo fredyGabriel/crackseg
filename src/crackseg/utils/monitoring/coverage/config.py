@@ -56,7 +56,7 @@ class CoverageMonitorConfig:
     """Configuration for the coverage monitor."""
 
     target_threshold: float = 80.0
-    output_dir: str = "outputs/coverage_monitoring"
+    output_dir: str = "artifacts/coverage_monitoring"
     db_path: str | None = None
     alert_config: AlertConfig | None = None
 

@@ -93,7 +93,7 @@ class ExperimentVisualizer:
         return pd.DataFrame(rows)
 
     def find_experiment_directories(
-        self, base_path: str = "src/crackseg/outputs/experiments"
+        self, base_path: str = "artifacts/experiments"
     ) -> list[Path]:
         """Find all experiment directories.
 

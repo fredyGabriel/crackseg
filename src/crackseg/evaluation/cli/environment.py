@@ -68,7 +68,7 @@ def setup_output_directory(output_dir: str | None) -> str:
         str: Output directory path.
     """
     if output_dir is None:
-        output_dir = "outputs/evaluation"
+        output_dir = "artifacts/evaluation"
 
     os.makedirs(output_dir, exist_ok=True)
     return output_dir

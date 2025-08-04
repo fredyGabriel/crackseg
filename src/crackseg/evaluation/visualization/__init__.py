@@ -20,9 +20,9 @@ from .legacy import (
     LegacyPredictionVisualizer,
 )
 from .prediction import (
-    PredictionConfidenceVisualizer,
+    ConfidenceMapVisualizer,
     PredictionGridVisualizer,
-    PredictionOverlayVisualizer,
+    SegmentationOverlayVisualizer,
 )
 from .training import (
     AdvancedTrainingVisualizer,
@@ -30,6 +30,10 @@ from .training import (
     TrainingCurvesVisualizer,
     TrainingReportGenerator,
 )
+
+# Backward compatibility aliases
+PredictionConfidenceVisualizer = ConfidenceMapVisualizer
+PredictionOverlayVisualizer = SegmentationOverlayVisualizer
 
 __all__ = [
     # Core components
@@ -44,6 +48,9 @@ __all__ = [
     "InteractivePlotlyVisualizer",
     # Prediction modules
     "PredictionGridVisualizer",
+    "ConfidenceMapVisualizer",
+    "SegmentationOverlayVisualizer",
+    # Backward compatibility aliases
     "PredictionConfidenceVisualizer",
     "PredictionOverlayVisualizer",
     # Training modules

@@ -9,7 +9,7 @@ from typing import Any
 from omegaconf import DictConfig
 from torch.utils.data import Dataset
 
-from crackseg.data.dataset import CrackSegmentationDataset
+from crackseg.data.datasets.base_dataset import CrackSegmentationDataset
 from crackseg.data.utils.splitting import (
     DatasetCreationConfig,
     create_split_datasets,
@@ -38,6 +38,11 @@ def _create_or_load_split_datasets(
         data_root=data_config.data_root,
         transform_cfg=transform_config,
         dataset_cls=dataset_class,
+        seed=data_config.get("seed", None),
+        cache_flag=data_config.get("in_memory_cache", False),
+        max_train_samples=data_config.get("max_train_samples", None),
+        max_val_samples=data_config.get("max_val_samples", None),
+        max_test_samples=data_config.get("max_test_samples", None),
     )
 
     split_datasets = create_split_datasets(config)

@@ -32,7 +32,7 @@ class CoverageMonitor:
     def __init__(
         self,
         target_threshold: float = 80.0,
-        output_dir: Path = Path("outputs/coverage_monitoring"),
+        output_dir: Path = Path("artifacts/coverage_monitoring"),
         alert_config: AlertConfig | None = None,
         db_path: Path | None = None,
     ) -> None:

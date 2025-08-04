@@ -42,8 +42,8 @@ def initialize_experiment(
             project_root = os.path.dirname(
                 os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             )
-            base_dir = os.path.join(project_root, "outputs")
-            log.info(f"Using standard outputs directory as base: {base_dir}")
+            base_dir = os.path.join(project_root, "artifacts")
+            log.info(f"Using standard artifacts directory as base: {base_dir}")
 
         # Make sure the base_dir exists
         os.makedirs(base_dir, exist_ok=True)

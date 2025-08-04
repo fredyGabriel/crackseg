@@ -28,7 +28,7 @@ def save_config(config: Any, path: str) -> None:
 def create_experiment_dir(project_root: str) -> str:
     """Create experiment directory."""
     timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
-    exp_dir = os.path.join(project_root, "outputs", "e2e_test", timestamp)
+    exp_dir = os.path.join(project_root, "artifacts", "e2e_test", timestamp)
     os.makedirs(exp_dir, exist_ok=True)
 
     # Create subdirectories

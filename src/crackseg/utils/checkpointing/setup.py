@@ -73,12 +73,12 @@ def setup_checkpointing(
                 "Error accessing experiment_manager.get_path "
                 f"({type(e).__name__}: {e}). "
                 "Using config checkpoint_dir: "
-                f"{cfg.get('checkpoint_dir', 'outputs/checkpoints')}",
+                f"{cfg.get('checkpoint_dir', 'artifacts/checkpoints')}",
             )
-            checkpoint_dir = cfg.get("checkpoint_dir", "outputs/checkpoints")
+            checkpoint_dir = cfg.get("checkpoint_dir", "artifacts/checkpoints")
     else:
         # If no experiment_manager, use checkpoint_dir specified in cfg
-        checkpoint_dir = cfg.get("checkpoint_dir", "outputs/checkpoints")
+        checkpoint_dir = cfg.get("checkpoint_dir", "artifacts/checkpoints")
         safe_log(
             internal_logger,
             "info",
@@ -87,7 +87,7 @@ def setup_checkpointing(
 
     # Ensure the value is always a valid string for os.makedirs
     if not isinstance(checkpoint_dir, str) or "<MagicMock" in checkpoint_dir:
-        checkpoint_dir = "outputs/checkpoints"
+        checkpoint_dir = "artifacts/checkpoints"
         safe_log(
             internal_logger,
             "warning",

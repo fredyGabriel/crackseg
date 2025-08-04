@@ -25,7 +25,7 @@ class ExperimentManager:
 
     def __init__(  # noqa: PLR0913
         self,
-        base_dir: str | Path = "outputs",
+        base_dir: str | Path = "artifacts",
         experiment_name: str = "default",
         config: DictConfig | None = None,
         create_dirs: bool = True,
@@ -318,7 +318,7 @@ class ExperimentManager:
 
     @classmethod
     def get_experiment(
-        cls, experiment_id: str, base_dir: str | Path = "outputs"
+        cls, experiment_id: str, base_dir: str | Path = "artifacts"
     ) -> Optional["ExperimentManager"]:
         """
         Get an experiment by ID.

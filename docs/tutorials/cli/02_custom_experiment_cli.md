@@ -188,7 +188,7 @@ After all experiments complete, compare the results:
 
 ```bash
 conda activate crackseg
-dir artifacts/outputs/
+dir artifacts/experiments/
 ```
 
 ### Compare Final Metrics
@@ -196,16 +196,16 @@ dir artifacts/outputs/
 ```bash
 conda activate crackseg
 echo "=== High LR Experiment ==="
-cat artifacts/outputs/high_lr_experiment/metrics/final_metrics.json
+cat artifacts/experiments/high_lr_experiment/metrics/final_metrics.json
 
 echo "=== Low LR Experiment ==="
-cat artifacts/outputs/low_lr_experiment/metrics/final_metrics.json
+cat artifacts/experiments/low_lr_experiment/metrics/final_metrics.json
 
 echo "=== Focal Loss Experiment ==="
-cat artifacts/outputs/focal_loss_experiment/metrics/final_metrics.json
+cat artifacts/experiments/focal_loss_experiment/metrics/final_metrics.json
 
 echo "=== Swin-UNet Experiment ==="
-cat artifacts/outputs/swin_unet_experiment/metrics/final_metrics.json
+cat artifacts/experiments/swin_unet_experiment/metrics/final_metrics.json
 ```
 
 ### Compare Results Using Built-in Tools
@@ -241,7 +241,7 @@ For more control, use the generic experiment visualizer:
 conda activate crackseg
 python scripts/experiments/experiment_visualizer.py \
   --experiments high_lr_experiment,low_lr_experiment,focal_loss_experiment,swin_unet_experiment \
-  --output-dir docs/reports/tutorial_02_analysis \
+  --output-dir artifacts/global/reports/tutorial_02_analysis \
   --title "Tutorial 02: Custom Experiments Analysis"
 ```
 
@@ -398,7 +398,7 @@ foreach ($exp in $experiments) {
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ $exp completed successfully" -ForegroundColor Green
     } else {
-        Write-Host " $exp failed" -ForegroundColor Red
+        Write-Host "❌ $exp failed" -ForegroundColor Red
     }
 
     Write-Host "---"
@@ -414,13 +414,13 @@ Write-Host "All experiments completed!"
 ```bash
 conda activate crackseg
 # List all experiment outputs
-dir artifacts/outputs/
+dir artifacts/experiments/
 
 # Remove specific experiment
-Remove-Item -Recurse -Force artifacts/outputs/high_lr_experiment
+Remove-Item -Recurse -Force artifacts/experiments/high_lr_experiment
 
 # Remove all experiments (be careful!)
-# Remove-Item -Recurse -Force artifacts/outputs/*
+# Remove-Item -Recurse -Force artifacts/experiments/*
 ```
 
 ### Archive Successful Experiments
@@ -428,10 +428,10 @@ Remove-Item -Recurse -Force artifacts/outputs/high_lr_experiment
 ```bash
 conda activate crackseg
 # Create archive directory
-mkdir experiment_archives
+mkdir artifacts/archive
 
 # Archive successful experiment (PowerShell)
-Compress-Archive -Path artifacts/outputs/high_lr_experiment/ -DestinationPath experiment_archives/high_lr_experiment_$(Get-Date -Format 'yyyyMMdd').zip
+Compress-Archive -Path artifacts/experiments/high_lr_experiment/ -DestinationPath artifacts/archive/high_lr_experiment_$(Get-Date -Format 'yyyyMMdd').zip
 ```
 
 ## Troubleshooting
@@ -440,7 +440,7 @@ Compress-Archive -Path artifacts/outputs/high_lr_experiment/ -DestinationPath ex
 
 1. Configuration Not Found
 
-    - Ensure the `generated_configs/` directory exists
+    - Ensure the `configs/experiments/tutorial_02/` directory exists
     - Check file permissions and YAML syntax
     - Use `basic_verification` as base instead of `base`
 
@@ -451,7 +451,7 @@ Compress-Archive -Path artifacts/outputs/high_lr_experiment/ -DestinationPath ex
 
 3. Experiment Fails to Start
 
-    - Check YAML syntax: `python -c "import yaml; yaml.safe_load(open('generated_configs/my_exp.yaml'))"`
+    - Check YAML syntax: `python -c "import yaml; yaml.safe_load(open('configs/experiments/tutorial_02/my_exp.yaml'))"`
     - Verify all referenced components exist
     - Use `run.py` instead of `src/main.py`
 
@@ -495,7 +495,7 @@ The project provides several tools for analyzing experiment results:
 Analysis tools create the following output structure:
 
 ```bash
-docs/reports/tutorial_02_analysis/
+artifacts/global/reports/tutorial_02_analysis/
 ├── training_curves.png          # Training curves comparison
 ├── performance_radar.png        # Performance radar chart
 └── experiment_comparison.csv    # Tabular comparison data

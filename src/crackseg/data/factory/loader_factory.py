@@ -75,7 +75,7 @@ from typing import Any
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader, Dataset
 
-from crackseg.data.dataset import CrackSegmentationDataset
+from crackseg.data.datasets.base_dataset import CrackSegmentationDataset
 from crackseg.data.loaders import create_dataloader
 from crackseg.data.validation import validate_data_config
 

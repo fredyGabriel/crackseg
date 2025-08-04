@@ -51,7 +51,7 @@ from typing import Any
 
 from omegaconf import DictConfig
 
-from crackseg.data.dataset import CrackSegmentationDataset
+from crackseg.data.datasets.base_dataset import CrackSegmentationDataset
 from crackseg.data.factory.loader_factory import create_dataloaders_from_config
 
 

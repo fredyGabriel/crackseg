@@ -22,14 +22,14 @@ log_to_file: true         # Save logs to file in addition to console
 # Experiment configuration
 experiment:
   name: "basic_verification"  # Name of the experiment - CHANGED for testing
-  output_dir: "outputs"       # Directory for all experiment outputs
+  output_dir: "artifacts/experiments"       # Directory for all experiment outputs
 
 # Configure Hydra to use the same directory structure as ExperimentManager
 hydra:
   run:
-    dir: artifacts/outputs/experiments/${now:%Y%m%d-%H%M%S}-${hydra.job.name}  # Output dir for single runs
+    dir: artifacts/experiments/${now:%Y%m%d-%H%M%S}-${hydra.job.name}  # Output dir for single runs
   sweep:
-    dir: artifacts/outputs/multirun/${now:%Y%m%d-%H%M%S}                      # Output dir for sweeps
+    dir: artifacts/experiments/multirun/${now:%Y%m%d-%H%M%S}                      # Output dir for sweeps
     subdir: ${hydra.job.num}                                        # Subdir for each sweep job
   job:
     chdir: false            # Do not change working directory

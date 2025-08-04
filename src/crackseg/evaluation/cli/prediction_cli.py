@@ -110,29 +110,29 @@ def main() -> None:
 Examples:
   # Analyze single image with automatic mask inference
   python -m crackseg.evaluation.cli \\
-      --checkpoint outputs/checkpoints/model_best.pth.tar \\
-      --image data/test/images/98.jpg \\
-      --mask-dir data/test/masks \\
+      --checkpoint artifacts/checkpoints/model_best.pth.tar \\
+          --image data/unified/images/98.jpg \\
+    --mask-dir data/unified/masks \\
       --output results/analysis.png
 
   # Analyze single image with manual mask
   python -m crackseg.evaluation.cli \\
-      --checkpoint outputs/checkpoints/model_best.pth.tar \\
-      --image data/test/images/98.jpg \\
-      --mask data/test/masks/98.png \\
+      --checkpoint artifacts/checkpoints/model_best.pth.tar \\
+          --image data/unified/images/98.jpg \\
+    --mask data/unified/masks/98.png \\
       --output results/analysis.png
 
   # Batch analysis
   python -m crackseg.evaluation.cli \\
-      --checkpoint outputs/checkpoints/model_best.pth.tar \\
-      --image-dir data/test/images \\
-      --mask-dir data/test/masks \\
+      --checkpoint artifacts/checkpoints/model_best.pth.tar \\
+          --image-dir data/unified/images \\
+    --mask-dir data/unified/masks \\
       --output-dir results/batch_analysis
 
   # Prediction only (no ground truth)
   python -m crackseg.evaluation.cli \\
-      --checkpoint outputs/checkpoints/model_best.pth.tar \\
-      --image data/test/images/98.jpg \\
+      --checkpoint artifacts/checkpoints/model_best.pth.tar \\
+      --image data/unified/images/98.jpg \\
       --no-auto-mask \\
       --output results/prediction.png
         """,

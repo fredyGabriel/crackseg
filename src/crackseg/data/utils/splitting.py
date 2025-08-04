@@ -10,7 +10,7 @@ from typing import cast
 
 from omegaconf import DictConfig
 
-from .dataset import CrackSegmentationDataset
+from ..datasets.base_dataset import CrackSegmentationDataset
 
 
 def split_indices(
@@ -211,6 +211,25 @@ def create_split_datasets(
         "test": config.max_test_samples,
     }
 
+    # Check if we should use unified splitting (automatic splitting)
+    data_root_path = Path(config.data_root)
+    train_dir = data_root_path / "train"
+    val_dir = data_root_path / "val"
+    test_dir = data_root_path / "test"
+
+    # If unified splitting is enabled and no split directories exist, do automatic splitting
+    if not (train_dir.exists() or val_dir.exists() or test_dir.exists()):
+        print(
+            f"Using automatic splitting for unified dataset at {config.data_root}"
+        )
+        # Extrae los ratios de la configuración si existen
+        split_ratios = {
+            "train": getattr(config, "train_split", 0.7),
+            "val": getattr(config, "val_split", 0.15),
+            "test": getattr(config, "test_split", 0.15),
+        }
+        return create_unified_split_datasets(config, split_ratios)
+
     # Iterate through expected split names
     for split_name in ["train", "val", "test"]:
         # Construct path to the specific split directory
@@ -271,5 +290,104 @@ def create_split_datasets(
             "Check data paths and structure.",
             stacklevel=2,
         )
+
+    return datasets
+
+
+def create_unified_split_datasets(
+    config: DatasetCreationConfig,
+    split_ratios: dict[str, float] | None = None,
+) -> dict[str, CrackSegmentationDataset]:
+    """Creates split datasets (train, val, test) from unified directory with automatic splitting.
+
+    This function automatically splits a unified dataset (with images/ and masks/ folders)
+    into train/val/test sets based on the configuration ratios.
+
+    Args:
+        config (DatasetCreationConfig): Configuration object containing all
+                                        necessary parameters.
+
+    Returns:
+        Dict[str, CrackSegmentationDataset]: Dictionary mapping split name
+        ('train', 'val', 'test') to the instantiated Dataset object.
+
+    Raises:
+        FileNotFoundError: If data_root/images or data_root/masks directories are missing.
+        RuntimeError: If no samples are found in data_root.
+        ValueError: If dataset_cls is None or split ratios are invalid.
+    """
+    # Validate required configuration
+    if config.dataset_cls is None:
+        raise ValueError("dataset_cls must be provided")
+
+    # Get all samples from unified directory
+    all_samples = get_all_samples(config.data_root)
+
+    if not all_samples:
+        raise RuntimeError(f"No samples found in {config.data_root}")
+
+    print(f"Found {len(all_samples)} total samples in unified dataset")
+
+    # Use provided split ratios or defaults
+    if split_ratios is None:
+        split_ratios = {
+            "train": 0.7,
+            "val": 0.15,
+            "test": 0.15,
+        }
+
+    # Split the samples using split_indices
+    split_indices_dict = split_indices(
+        num_samples=len(all_samples),
+        ratios=split_ratios,
+        seed=config.seed,
+        shuffle=True,
+    )
+
+    # Create datasets for each split
+    datasets: dict[str, CrackSegmentationDataset] = {}
+    max_samples_map = {
+        "train": config.max_train_samples,
+        "val": config.max_val_samples,
+        "test": config.max_test_samples,
+    }
+
+    for split_name in ["train", "val", "test"]:
+        # Get indices for this split
+        split_indices_list = split_indices_dict[split_name]
+
+        # Get samples for this split
+        split_samples = [all_samples[i] for i in split_indices_list]
+
+        print(f"Split '{split_name}': {len(split_samples)} samples")
+
+        # Get transform config for this specific split
+        if split_name not in config.transform_cfg:
+            raise ValueError(
+                f"Transform config missing for split: {split_name}"
+            )
+        split_transform_config = config.transform_cfg[split_name]
+
+        try:
+            # Get the appropriate max_samples limit for this split
+            max_samples = max_samples_map.get(split_name)
+
+            # Instantiate the provided dataset class for this split
+            datasets[split_name] = config.dataset_cls(
+                mode=split_name,
+                samples_list=split_samples,
+                seed=config.seed,
+                in_memory_cache=config.cache_flag,
+                config_transform=split_transform_config,
+                max_samples=max_samples,
+            )
+            print(
+                f"Created dataset for '{split_name}' "
+                f"with {len(cast(Sized, datasets[split_name]))} samples."
+            )
+        except Exception as e:
+            raise RuntimeError(
+                f"Failed to instantiate dataset for split '{split_name}': {e}"
+            ) from e
 
     return datasets

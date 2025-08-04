@@ -114,7 +114,7 @@ During training, you'll see output like:
 [2024-01-15 10:30:15] INFO - Starting training...
 [2024-01-15 10:30:16] INFO - Epoch 1/100 - Loss: 0.2345 - IoU: 0.1234
 [2024-01-15 10:30:45] INFO - Validation - Loss: 0.2123 - IoU: 0.1456
-[2024-01-15 10:31:15] INFO - Saved checkpoint to outputs/basic_verification/checkpoints/epoch_1.pt
+[2024-01-15 10:31:15] INFO - Saved checkpoint to artifacts/experiments/checkpoints/epoch_1.pt
 ```
 
 ## Step 4: Monitor Training in Real-Time
@@ -126,7 +126,7 @@ To monitor training progress in real-time:
 ```bash
 conda activate crackseg
 # In a separate terminal window
-tail -f artifacts/outputs/basic_verification/training.log
+tail -f artifacts/experiments/training.log
 ```
 
 ### Check Training Status
@@ -146,7 +146,7 @@ Once training completes, examine the results:
 
 ```bash
 conda activate crackseg
-dir src\crackseg\outputs\experiments\
+dir artifacts/experiments/
 ```
 
 You should see a timestamped experiment directory (e.g., `20250723-003829-default/`) containing:
@@ -161,7 +161,7 @@ You should see a timestamped experiment directory (e.g., `20250723-003829-defaul
 
 ```bash
 conda activate crackseg
-Get-Content src\crackseg\outputs\experiments\20250723-003829-default\metrics\complete_summary.json | ConvertFrom-Json | ConvertTo-Json -Depth 3
+Get-Content artifacts/experiments/20250723-003829-default/metrics/complete_summary.json | ConvertFrom-Json | ConvertTo-Json -Depth 3
 ```
 
 **Note**: Replace the timestamp in the path with your actual experiment timestamp.
@@ -170,7 +170,7 @@ Get-Content src\crackseg\outputs\experiments\20250723-003829-default\metrics\com
 
 ```bash
 conda activate crackseg
-Get-Content src\crackseg\outputs\experiments\20250723-003829-default\logs\training.log | Select-Object -Last 20
+Get-Content artifacts/experiments/20250723-003829-default/logs/training.log | Select-Object -Last 20
 ```
 
 **Note**: Replace the timestamp in the path with your actual experiment timestamp.
@@ -189,7 +189,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # Load training history
-with open('src/crackseg/outputs/experiments/20250723-003829-default/metrics/complete_summary.json', 'r') as f:
+with open('artifacts/experiments/20250723-003829-default/metrics/complete_summary.json', 'r') as f:
     history = json.load(f)
 
 # Plot loss
@@ -212,7 +212,7 @@ plt.ylabel('IoU')
 plt.legend()
 
 plt.tight_layout()
-plt.savefig('src/crackseg/outputs/experiments/20250723-003829-default/training_curves.png')
+plt.savefig('artifacts/experiments/20250723-003829-default/training_curves.png')
 print('✅ Training curves saved to training_curves.png')
 "
 ```
@@ -242,7 +242,7 @@ python run.py --config-name base training.learning_rate=0.001 data.dataloader.ba
 
 ```bash
 conda activate crackseg
-python run.py --config-name basic_verification hydra.run.dir=outputs/my_custom_run
+python run.py --config-name basic_verification hydra.run.dir=artifacts/experiments/my_custom_run
 ```
 
 ### Enable Debug Mode
@@ -369,18 +369,19 @@ python run.py --config-name base training.learning_rate=0.001
 
 # Monitor logs
 conda activate crackseg
-Get-Content src\crackseg\outputs\experiments\[TIMESTAMP]-default\logs\training.log -Wait
+Get-Content artifacts/experiments/[TIMESTAMP]-default/logs/training.log -Wait
 
 # Check results
 conda activate crackseg
-dir src\crackseg\outputs\experiments\
+dir artifacts/experiments/
 ```
 
 ## Summary of Corrections Made
 
 1. **Entry Point**: Changed from `src/main.py` to `run.py` for proper execution
 2. **Configuration**: Fixed `base.yaml` to work correctly by resolving all dependency issues
-3. **Module References**: Corrected all `crackseg.model` references to `crackseg.model` throughout the codebase
+3. **Module References**: Corrected all `crackseg.model` references to `crackseg.model` throughout
+  the codebase
 4. **Optimizer Setup**: Fixed trainer to pass `model.parameters()` instead of the model object
 5. **Configuration Structure**: Separated data and dataloader configurations to prevent parameter conflicts
 6. **Output Paths**: Updated all output paths to use the correct experiment directory structure

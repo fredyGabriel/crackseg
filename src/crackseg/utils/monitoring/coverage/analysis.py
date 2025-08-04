@@ -61,7 +61,7 @@ class CoverageAnalyzer:
             cmd.extend(
                 [
                     "--cov-report=html:htmlcov",
-                    "--html=outputs/coverage_monitoring/reports/test_report.html",
+                    "--html=artifacts/coverage_monitoring/reports/test_report.html",
                     "--self-contained-html",
                 ]
             )

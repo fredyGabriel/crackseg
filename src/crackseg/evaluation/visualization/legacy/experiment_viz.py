@@ -303,7 +303,7 @@ class ExperimentVisualizer:
         print("\n" + "=" * 60)
 
     def find_experiment_directories(
-        self, base_path: str = "src/crackseg/outputs/experiments"
+        self, base_path: str = "artifacts/experiments"
     ) -> list[Path]:
         """
         Find all experiment directories in the base path.

@@ -77,7 +77,7 @@ def demonstrate_base_template() -> None:
     styled_fig = template.apply_template(fig)
 
     # Save demonstration
-    output_dir = Path("outputs") / "template_demo"
+    output_dir = Path("artifacts") / "template_demo"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     styled_fig.savefig(
@@ -165,7 +165,7 @@ def demonstrate_training_template() -> None:
     styled_fig = template.apply_template(fig)
 
     # Save demonstration
-    output_dir = Path("outputs") / "template_demo"
+    output_dir = Path("artifacts") / "template_demo"
     styled_fig.savefig(
         output_dir / "training_template_demo.png", dpi=300, bbox_inches="tight"
     )
@@ -234,7 +234,7 @@ def demonstrate_prediction_template() -> None:
     styled_fig = template.apply_template(fig)
 
     # Save demonstration
-    output_dir = Path("outputs") / "template_demo"
+    output_dir = Path("artifacts") / "template_demo"
     styled_fig.savefig(
         output_dir / "prediction_template_demo.png",
         dpi=300,
@@ -308,7 +308,7 @@ def demonstrate_template_customization() -> None:
     styled_fig = template.apply_template(fig)
 
     # Save demonstration
-    output_dir = Path("outputs") / "template_demo"
+    output_dir = Path("artifacts") / "template_demo"
     styled_fig.savefig(
         output_dir / "customized_template_demo.png",
         dpi=300,
@@ -327,7 +327,7 @@ def main() -> None:
     logger.info("🚀 Starting Template System Demonstration")
 
     # Create output directory
-    output_dir = Path("outputs") / "template_demo"
+    output_dir = Path("artifacts") / "template_demo"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     try:

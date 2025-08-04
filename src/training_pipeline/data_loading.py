@@ -9,7 +9,7 @@ import os
 from typing import Any
 
 import hydra
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 from torch.utils.data import DataLoader
 
 from crackseg.data.factory import create_dataloaders_from_config
@@ -71,10 +71,27 @@ def load_data(cfg: DictConfig) -> tuple[DataLoader[Any], DataLoader[Any]]:
     """
     log.info("Loading data...")
     try:
-        data_cfg = cfg.data
+        # Handle experiment namespace configuration access
+        data_cfg = None
+
+        # Look for experiment-namespaced data configuration
+        if "experiments" in cfg:
+            # Look in experiments namespace for data config
+            for exp_name in cfg.experiments:
+                exp_config = cfg.experiments[exp_name]
+                if hasattr(exp_config, "data"):
+                    data_cfg = exp_config.data
+                    break
+
+        # Fall back to direct access
+        if data_cfg is None and hasattr(cfg, "data"):
+            data_cfg = cfg.data
+
+        if data_cfg is None:
+            raise AttributeError("No data configuration found in config")
         transform_cfg = None
-        if hasattr(cfg.data, "transform"):
-            transform_cfg = cfg.data.transform
+        if hasattr(data_cfg, "transform"):
+            transform_cfg = data_cfg.transform
         elif "data/transform" in cfg:
             transform_cfg = cfg["data/transform"]
         else:
@@ -82,15 +99,31 @@ def load_data(cfg: DictConfig) -> tuple[DataLoader[Any], DataLoader[Any]]:
                 "Transform config not found in Hydra config. "
                 "Using empty config."
             )
+            from omegaconf import OmegaConf
+
             transform_cfg = OmegaConf.create({})
 
+        # Convert data_cfg to mutable dict for path resolution
+        from omegaconf import OmegaConf
+
+        data_cfg_dict = OmegaConf.to_container(data_cfg, resolve=True)
+        if not isinstance(data_cfg_dict, dict):
+            raise ValueError(
+                f"Expected dict from data config, got {type(data_cfg_dict)}"
+            )
+
         orig_cwd = hydra.utils.get_original_cwd()
-        data_root = os.path.join(orig_cwd, data_cfg.get("data_root", "data/"))
-        data_cfg["data_root"] = data_root
+        data_root = os.path.join(
+            orig_cwd, data_cfg_dict.get("data_root", "data/")
+        )
+        data_cfg_dict["data_root"] = data_root
+
+        # Convert back to DictConfig for consistency
+        data_cfg = OmegaConf.create(data_cfg_dict)
 
         dataloader_cfg = None
-        if hasattr(cfg.data, "dataloader"):
-            dataloader_cfg = cfg.data.dataloader
+        if hasattr(data_cfg, "dataloader"):
+            dataloader_cfg = data_cfg.dataloader
         elif "data/dataloader" in cfg:
             dataloader_cfg = cfg["data/dataloader"]
         else:
@@ -123,17 +156,26 @@ def load_data(cfg: DictConfig) -> tuple[DataLoader[Any], DataLoader[Any]]:
                 )
                 dataloader_cfg = OmegaConf.create({})
 
+        # Ensure data_cfg is DictConfig for factory function
+        if not isinstance(data_cfg, DictConfig):
+            raise ValueError(
+                f"Expected DictConfig for data_config, got {type(data_cfg)}"
+            )
+
         # Create dataloaders using factory function
-        train_loader, val_loader = create_dataloaders_from_config(
+        dataloader_dict = create_dataloaders_from_config(
             data_config=data_cfg,
             transform_config=transform_cfg,
             dataloader_config=dataloader_cfg,
         )
+        # Extract DataLoader objects from the dictionary
+        train_loader = dataloader_dict["train"]["dataloader"]  # type: ignore
+        val_loader = dataloader_dict["val"]["dataloader"]  # type: ignore
 
         log.info(
             "Data loaded successfully. Train batches: %s, Val batches: %s",
-            len(train_loader),
-            len(val_loader),
+            len(train_loader),  # type: ignore
+            len(val_loader),  # type: ignore
         )
 
         return train_loader, val_loader

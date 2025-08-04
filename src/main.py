@@ -40,7 +40,7 @@ from crackseg.training.trainer import Trainer, TrainingComponents
 from crackseg.utils.experiment import initialize_experiment
 
 # Import specialized modules from training_pipeline package
-from .training_pipeline import (
+from training_pipeline import (
     create_model,
     handle_checkpointing_and_resume,
     load_data,

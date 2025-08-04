@@ -15,7 +15,7 @@ from crackseg.data.validation import (
     validate_transform_config,
 )
 
-from .base_dataset import CrackSegmentationDataset
+from ..datasets.base_dataset import CrackSegmentationDataset
 
 
 def create_crackseg_dataset(  # noqa: PLR0913

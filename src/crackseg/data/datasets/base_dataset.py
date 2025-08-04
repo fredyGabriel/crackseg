@@ -262,12 +262,83 @@ class CrackSegmentationDataset(Dataset[Any]):
             RuntimeError: If no valid samples can be loaded after trying
                 all available samples in the dataset.
         """
-        return self._cache_manager.get_sample(
-            idx=idx,
-            samples=self.samples,
-            cache=self._cache,
-            in_memory_cache=self.in_memory_cache,
-            transforms=self.transforms,
-            image_loader=self._image_loader,
-            mask_loader=self._mask_loader,
-        )
+        if self.in_memory_cache:
+            return self._cache_manager.get_sample(
+                idx=idx,
+                samples=self.samples,
+                cache=self._cache,
+                in_memory_cache=self.in_memory_cache,
+                transforms=self.transforms,
+                image_loader=self._image_loader,
+                mask_loader=self._mask_loader,
+            )
+        else:
+            # Load directly from disk without cache manager
+            return self._load_sample_direct(idx)
+
+    def _load_sample_direct(self, idx: int) -> dict[str, torch.Tensor]:
+        """Load a sample directly from disk without cache manager.
+
+        Args:
+            idx: Sample index
+
+        Returns:
+            Dictionary with 'image' and 'mask' tensors
+        """
+        image_path, mask_path = self.samples[idx]
+
+        # Load image and mask
+        image = self._image_loader.load(image_path)
+        mask = self._mask_loader.load(mask_path)
+
+        # Handle EXIF orientation
+        image = PIL.ImageOps.exif_transpose(image)
+
+        # Convert to arrays
+        image_array = np.array(image)
+        mask_array = np.array(mask)
+
+        # Apply transforms
+        transformed = self.transforms(image=image_array, mask=mask_array)
+
+        # Convert to tensors
+        image_data = transformed["image"]
+        mask_data = transformed["mask"]
+
+        # Handle both numpy arrays and tensors
+        if isinstance(image_data, np.ndarray):
+            image_tensor = torch.from_numpy(image_data).float()
+        else:
+            image_tensor = image_data.float()
+
+        if isinstance(mask_data, np.ndarray):
+            mask_tensor = torch.from_numpy(mask_data).float()
+        else:
+            mask_tensor = mask_data.float()
+
+        # Ensure proper tensor shapes
+        if image_tensor.dim() == 2:
+            image_tensor = image_tensor.unsqueeze(0)
+        elif image_tensor.dim() == 3 and image_tensor.shape[0] == 3:
+            # Already in (C, H, W) format
+            pass
+        else:
+            image_tensor = image_tensor.permute(
+                2, 0, 1
+            )  # (H, W, C) -> (C, H, W)
+
+        if mask_tensor.dim() == 2:
+            mask_tensor = mask_tensor.unsqueeze(0)
+        elif mask_tensor.dim() == 3 and mask_tensor.shape[0] == 1:
+            # Already in (1, H, W) format
+            pass
+        else:
+            mask_tensor = mask_tensor.unsqueeze(0)  # (H, W) -> (1, H, W)
+
+        # Ensure binary mask values
+        mask_tensor = (mask_tensor > 0.5).float()
+
+        return {
+            "image": image_tensor,
+            "mask": mask_tensor,
+        }
