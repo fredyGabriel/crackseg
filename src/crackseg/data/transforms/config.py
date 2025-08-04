@@ -103,7 +103,7 @@ def _get_transform_specs(
         raise TypeError(f"Unsupported config type: {type(config_list)}")
 
 
-def _create_transform_from_spec(spec: Any) -> A.BaseTransform:
+def _create_transform_from_spec(spec: Any) -> A.BasicTransform:
     """Create Albumentations transform from specification.
 
     Args:

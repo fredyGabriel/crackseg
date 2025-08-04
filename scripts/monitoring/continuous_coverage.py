@@ -27,7 +27,7 @@ from typing import Any
 # Add src to path for import s
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from crackseg.utils.monitoring.coverage_monitor import (
+from crackseg.utils.monitoring.coverage import (
     AlertConfig,
     CoverageMetrics,
     CoverageMonitor,

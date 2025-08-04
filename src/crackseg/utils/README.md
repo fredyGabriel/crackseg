@@ -17,7 +17,8 @@ src/utils/
 ├── training/               # Training-specific utilities
 ├── visualization/          # Visualization and plotting utilities
 ├── component_cache.py      # Component caching system
-├── exceptions.py           # Custom exception classes
+├── artifact_manager.py     # Artifact management interface
+├── REFACTORING_PLAN.md    # Plan for refactoring large files
 └── __init__.py            # Module initialization and exports
 ```
 
@@ -49,6 +50,7 @@ src/utils/
   - Random seed control for reproducibility
   - Path management and validation
   - System resource monitoring
+  - Custom exception classes
 
 ### Experiment Management (`experiment/`)
 
@@ -102,18 +104,40 @@ src/utils/
 Provides caching mechanisms for expensive component operations:
 
 ```python
-# TODO: Function not yet implemented - # TODO: Function not implemented - from crackseg.utils.component_cache import ComponentCache
+from crackseg.utils.component_cache import (
+    cache_component,
+    clear_component_cache,
+    generate_cache_key,
+    get_cached_component,
+    get_cache_info,
+)
 
-cache = ComponentCache()
-cached_result = cache.get_or_compute(key, expensive_function, *args)
+# Cache a component
+cache_key = generate_cache_key("resnet_encoder", config)
+cached_component = get_cached_component(cache_key)
+if cached_component is None:
+    cached_component = create_encoder(config)
+    cache_component(cache_key, cached_component)
 ```
 
-### Custom Exceptions (`exceptions.py`)
+### Artifact Manager (`artifact_manager.py`)
+
+Provides comprehensive artifact management functionality:
+
+```python
+from crackseg.utils.artifact_manager import ArtifactManager, ArtifactMetadata
+
+# Create artifact manager
+artifact_manager = ArtifactManager()
+metadata = ArtifactMetadata(name="model_v1", version="1.0.0")
+```
+
+### Custom Exceptions (`core/`)
 
 Defines project-specific exception classes:
 
 ```python
-from crackseg.utils.core.exceptions import ConfigError, ModelError
+from crackseg.utils.core import ConfigError, ModelError
 
 raise ConfigError("Invalid model configuration")
 ```
@@ -123,17 +147,9 @@ raise ConfigError("Invalid model configuration")
 ### Device Management
 
 ```python
-from crackseg.utils.core.device import get_device, set_device
+from crackseg.utils.core import get_device, set_random_seeds
 
 device = get_device()  # Auto-detect best available device
-set_device('cuda:0')   # Force specific device
-```
-
-### Seed Control
-
-```python
-from crackseg.utils.core.seeds import set_random_seeds
-
 set_random_seeds(42)  # Set deterministic seed for reproducibility
 ```
 
@@ -162,7 +178,7 @@ logger.info("Training started")
 ### Early Stopping
 
 ```python
-from crackseg.utils.training.early_stopping import EarlyStopping
+from crackseg.utils.training import EarlyStopping
 
 early_stopping = EarlyStopping(patience=10, min_delta=0.001)
 if early_stopping(val_loss):
@@ -217,9 +233,24 @@ The utils module has minimal external dependencies:
 - **Memory Management**: Clean up resources in long-running utilities
 - **Profiling**: Monitor performance of frequently used utilities
 
+## Refactoring Status
+
+### ✅ Completed Actions
+
+- Removed obsolete files: `dataclasses.py`, `torchvision_compat.py`, `exceptions.py`
+- Updated `__init__.py` with cleaner organization
+- Created refactoring plan for large files
+
+### 🚧 Pending Actions
+
+- Refactor files > 400 lines (see `REFACTORING_PLAN.md`)
+- Move deployment modules to infrastructure/
+- Consolidate monitoring and integrity modules
+
 ## Related Documentation
 
 - **Configuration Guide**: `docs/guides/configuration_storage_specification.md`
 - **Training Workflow**: `docs/guides/WORKFLOW_TRAINING.md`
 - **Project Structure**: `.cursor/rules/project-structure.mdc`
-- **Code Standards**: `.cursor/rules/coding-preferences.mdc`
+- **Code Standards**: `.cursor/rules/coding-standards.mdc`
+- **Refactoring Plan**: `REFACTORING_PLAN.md`

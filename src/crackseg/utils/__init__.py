@@ -6,23 +6,31 @@ handling.
 """
 
 # --- Core Utilities ---
-# --- Checkpointing ---
 # --- Artifact Management ---
 from .artifact_manager import (
     ArtifactManager,
     ArtifactMetadata,
 )
+
+# --- Checkpointing ---
 from .checkpointing import (
-    CheckpointConfig,
-    CheckpointContext,
+    CheckpointLoadConfig,
     CheckpointSaveConfig,
     CheckpointSpec,
-    handle_epoch_checkpointing,
+    generate_checkpoint_metadata,
     load_checkpoint,
     load_checkpoint_dict,
     save_checkpoint,
-    setup_checkpointing,
     verify_checkpoint_integrity,
+)
+
+# --- Component Cache ---
+from .component_cache import (
+    cache_component,
+    clear_component_cache,
+    generate_cache_key,
+    get_cache_info,
+    get_cached_component,
 )
 
 # --- Configuration Subpackage ---
@@ -58,10 +66,6 @@ from .experiment import (
 
 # --- Factory and Component Creation ---
 from .factory import (
-    cache_component,
-    clear_component_cache,
-    generate_cache_key,
-    get_cached_component,
     get_loss_fn,
     get_metrics_from_cfg,
     get_optimizer,
@@ -82,6 +86,15 @@ from .logging import (
     # Logger setup functions
     setup_internal_logger,
     setup_project_logger,
+)
+
+# --- Monitoring ---
+from .monitoring import (
+    AlertingSystem,
+    BaseCallback,
+    CoverageMonitor,
+    MonitoringManager,
+    ResourceMonitor,
 )
 
 # --- Training Utilities ---
@@ -112,11 +125,9 @@ __all__ = [
     "load_checkpoint_dict",
     "verify_checkpoint_integrity",
     "CheckpointSaveConfig",
+    "CheckpointLoadConfig",
     "CheckpointSpec",
-    "CheckpointConfig",
-    "CheckpointContext",
-    "handle_epoch_checkpointing",
-    "setup_checkpointing",
+    "generate_checkpoint_metadata",
     # Training utilities
     "EarlyStopping",
     "setup_early_stopping",
@@ -133,6 +144,7 @@ __all__ = [
     "clear_component_cache",
     "generate_cache_key",
     "get_cached_component",
+    "get_cache_info",
     # Experiment management
     "initialize_experiment",
     "ExperimentManager",
@@ -169,4 +181,10 @@ __all__ = [
     "TrainingError",
     "ResourceError",
     "ValidationError",
+    # Monitoring
+    "ResourceMonitor",
+    "AlertingSystem",
+    "BaseCallback",
+    "CoverageMonitor",
+    "MonitoringManager",
 ]

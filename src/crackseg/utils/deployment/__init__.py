@@ -1,56 +1,147 @@
-"""Deployment system for CrackSeg.
+"""Deployment utilities for CrackSeg.
 
-This package provides comprehensive deployment capabilities including
-artifact selection, environment configuration, optimization, packaging,
-validation, monitoring, and orchestration with rollback mechanisms.
+This package provides deployment-related utilities organized into specialized
+modules for better maintainability and professional structure.
 """
 
-from .artifact_optimizer import ArtifactOptimizer
-from .artifact_selector import ArtifactSelector, SelectionCriteria
-from .config import DeploymentConfig, DeploymentResult
-from .deployment_manager import DeploymentManager
-from .environment_configurator import EnvironmentConfigurator
-from .monitoring_system import DeploymentMonitoringSystem
-from .orchestration import (
-    DefaultHealthChecker,
+# Core deployment components
+# Artifact management
+from .artifacts import (
+    ArtifactOptimizer,
+    ArtifactSelector,
+    OptimizationMetricsCollector,
+    OptimizationResult,
+    OptimizationStrategy,
+    OptimizationStrategyFactory,
+    OptimizationValidator,
+)
+
+# Configuration management
+from .config import (
+    AlertHandler,
+    ConfigurationResult,
+    DeploymentConfig,
+    DeploymentResult,
+    EnvironmentConfig,
+    EnvironmentConfigurator,
+    ResourceRequirements,
+)
+from .core import (
+    DeploymentManager,
     DeploymentMetadata,
     DeploymentOrchestrator,
     DeploymentState,
     DeploymentStrategy,
-    HealthChecker,
 )
-from .packaging_system import PackagingSystem
-from .production_readiness_validator import (
-    ProductionReadinessCriteria,
-    ProductionReadinessResult,
+from .core import (
+    DeploymentResult as DeploymentResultType,
+)
+
+# Monitoring system (consolidated)
+from .monitoring import (
+    AlertThresholds,
+    DashboardConfig,
+    DeploymentMonitoringSystem,
+    HealthCheckConfig,
+    HealthChecker,
+    MetricsCollector,
+    MetricsConfig,
+    MonitoringResult,
+    PerformanceMonitor,
+    ResourceMetrics,
+    ResourceMonitor,
+)
+
+# Packaging system
+from .packaging import (
+    DependencyManager,
+    DockerComposeGenerator,
+    FileGenerator,
+    HelmChartGenerator,
+    KubernetesManifestGenerator,
+    PackagingSystem,
+)
+from .packaging import (
+    MetricsCalculator as PackagingMetricsCollector,
+)
+
+# Utility components
+from .utils import (
+    MultiTargetDeploymentManager,
     ProductionReadinessValidator,
 )
-from .validation_pipeline import ValidationPipeline
+
+# Validation system (unified pipeline + reporting)
+from .validation import (
+    CompatibilityChecker,
+    FunctionalTestRunner,
+    PerformanceBenchmarker,
+    RiskAnalyzer,
+    SecurityScanner,
+    ValidationPipeline,
+    ValidationReportData,
+    ValidationReporter,
+    ValidationResult,
+    ValidationThresholds,
+)
 
 __all__ = [
-    # Core components
-    "DeploymentManager",
+    # Core deployment types
     "DeploymentConfig",
     "DeploymentResult",
-    # Artifact management
-    "ArtifactSelector",
-    "SelectionCriteria",
-    "ArtifactOptimizer",
-    # Environment and packaging
-    "EnvironmentConfigurator",
-    "PackagingSystem",
-    # Validation and monitoring
-    "ValidationPipeline",
-    "DeploymentMonitoringSystem",
-    # Production readiness validation
-    "ProductionReadinessValidator",
-    "ProductionReadinessCriteria",
-    "ProductionReadinessResult",
-    # Orchestration and rollback
+    "DeploymentManager",
     "DeploymentOrchestrator",
-    "DeploymentStrategy",
-    "DeploymentState",
     "DeploymentMetadata",
+    "DeploymentResultType",
+    "DeploymentState",
+    "DeploymentStrategy",
+    # Configuration
+    "EnvironmentConfigurator",
+    "EnvironmentConfig",
+    "ResourceRequirements",
+    "ConfigurationResult",
+    "AlertHandler",
+    # Artifacts
+    "ArtifactOptimizer",
+    "OptimizationStrategy",
+    "OptimizationResult",
+    "OptimizationStrategyFactory",
+    "OptimizationValidator",
+    "OptimizationMetricsCollector",
+    "ArtifactSelector",
+    # Validation
+    "ValidationPipeline",
+    "ValidationResult",
+    "ValidationThresholds",
+    "FunctionalTestRunner",
+    "PerformanceBenchmarker",
+    "SecurityScanner",
+    "CompatibilityChecker",
+    "ValidationReporter",
+    "ValidationReportData",
+    "RiskAnalyzer",
+    # Monitoring
+    "DeploymentMonitoringSystem",
+    "MonitoringResult",
     "HealthChecker",
-    "DefaultHealthChecker",
+    "MetricsCollector",
+    "PerformanceMonitor",
+    "ResourceMonitor",
+    "HealthCheckConfig",
+    "MetricsConfig",
+    "DashboardConfig",
+    "AlertThresholds",
+    "ResourceMetrics",
+    # Utilities
+    "MultiTargetDeploymentManager",
+    "ProductionReadinessValidator",
+    # Packaging
+    "PackagingSystem",
+    "DockerComposeGenerator",
+    "KubernetesManifestGenerator",
+    "HelmChartGenerator",
+    "SecurityScanner",
+    "DependencyManager",
+    "FileGenerator",
+    "PackagingMetricsCollector",
 ]

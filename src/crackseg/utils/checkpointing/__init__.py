@@ -1,45 +1,49 @@
-"""Checkpointing utilities for the Crack Segmentation project.
+"""Checkpoint management utilities for CrackSeg project.
 
-This module provides comprehensive checkpoint management including saving,
-loading, validation, and helper functions for training loops.
+This module provides comprehensive checkpoint management capabilities including
+saving, loading, validation, and legacy format support.
 """
 
-from .core import (
+from .config import (
+    CheckpointLoadConfig,
     CheckpointSaveConfig,
     CheckpointSpec,
-    adapt_legacy_checkpoint,
-    create_standardized_filename,
     generate_checkpoint_metadata,
-    load_checkpoint,
-    load_checkpoint_dict,
-    save_checkpoint,
+)
+from .legacy import (
+    adapt_legacy_checkpoint,
+    detect_legacy_format,
+    get_legacy_checkpoint_info,
+    load_and_adapt_legacy_checkpoint,
+)
+from .load import load_checkpoint, load_checkpoint_dict
+from .save import create_standardized_filename, save_checkpoint
+from .validation import (
+    get_checkpoint_metadata,
     validate_checkpoint_completeness,
+    validate_checkpoint_format,
     verify_checkpoint_integrity,
 )
-from .helpers import (
-    CheckpointConfig,
-    CheckpointContext,
-    handle_epoch_checkpointing,
-)
-from .setup import setup_checkpointing
 
 __all__ = [
-    # Core checkpointing
-    "CheckpointSaveConfig",
+    # Configuration
     "CheckpointSpec",
+    "CheckpointSaveConfig",
+    "CheckpointLoadConfig",
+    "generate_checkpoint_metadata",
+    # Core functionality
     "save_checkpoint",
     "load_checkpoint",
     "load_checkpoint_dict",
-    "verify_checkpoint_integrity",
-    # Additional core functions
-    "adapt_legacy_checkpoint",
     "create_standardized_filename",
-    "generate_checkpoint_metadata",
+    # Validation
+    "verify_checkpoint_integrity",
     "validate_checkpoint_completeness",
-    # Helper functions
-    "CheckpointConfig",
-    "CheckpointContext",
-    "handle_epoch_checkpointing",
-    # Setup
-    "setup_checkpointing",
+    "validate_checkpoint_format",
+    "get_checkpoint_metadata",
+    # Legacy support
+    "adapt_legacy_checkpoint",
+    "load_and_adapt_legacy_checkpoint",
+    "detect_legacy_format",
+    "get_legacy_checkpoint_info",
 ]

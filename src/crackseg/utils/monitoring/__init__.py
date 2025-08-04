@@ -8,14 +8,31 @@ system resource usage, and GPU statistics.
 Includes resource monitoring and alerting system (Subtask 16.4).
 """
 
-from .alert_types import Alert, AlertCallback, AlertSeverity, AlertType
-from .alerting_system import AlertingSystem
-from .callbacks import BaseCallback, CallbackHandler, TimerCallback
+# Import from new modular structure
+from .alerts import (
+    Alert,
+    AlertCallback,
+    AlertingSystem,
+    AlertSeverity,
+    AlertType,
+    ThresholdChecker,
+)
+from .callbacks import (
+    BaseCallback,
+    CallbackHandler,
+    GPUStatsCallback,
+    SystemStatsCallback,
+    TimerCallback,
+)
+from .coverage import CoverageMonitor
 from .exceptions import MonitoringError
-from .gpu_callbacks import GPUStatsCallback
 from .manager import MonitoringManager
-from .resource_monitor import ResourceMonitor
-from .resource_snapshot import ResourceDict, ResourceSnapshot
+from .resources import (
+    ResourceDict,
+    ResourceMonitor,
+    ResourceSnapshot,
+    ThresholdConfig,
+)
 from .retention import (
     CompositeRetentionPolicy,
     CountBasedRetentionPolicy,
@@ -23,34 +40,35 @@ from .retention import (
     RetentionPolicy,
     TimeBasedRetentionPolicy,
 )
-from .system_callbacks import SystemStatsCallback
-from .threshold_checker import ThresholdChecker
-from .threshold_config import ThresholdConfig
 
 __all__ = [
-    # Original monitoring framework
+    # Core monitoring framework
+    "MonitoringManager",
+    "MonitoringError",
+    # Callback system
     "BaseCallback",
     "CallbackHandler",
     "TimerCallback",
-    "MonitoringManager",
     "SystemStatsCallback",
     "GPUStatsCallback",
-    "MonitoringError",
-    "RetentionPolicy",
-    "TimeBasedRetentionPolicy",
-    "CountBasedRetentionPolicy",
-    "CompositeRetentionPolicy",
-    "RetentionManager",
-    # Resource monitoring (Subtask 16.4)
+    # Resource monitoring
     "ResourceMonitor",
     "ResourceSnapshot",
     "ResourceDict",
-    # Alerting system (Subtask 16.4)
+    "ThresholdConfig",
+    # Alerting system
     "AlertingSystem",
     "Alert",
     "AlertType",
     "AlertSeverity",
     "AlertCallback",
     "ThresholdChecker",
-    "ThresholdConfig",
+    # Retention policies
+    "RetentionPolicy",
+    "TimeBasedRetentionPolicy",
+    "CountBasedRetentionPolicy",
+    "CompositeRetentionPolicy",
+    "RetentionManager",
+    # Coverage monitoring
+    "CoverageMonitor",
 ]
