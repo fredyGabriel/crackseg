@@ -11,11 +11,42 @@ epochs: 2                      # Number of training epochs - FAST for verificati
 learning_rate: 0.001           # Initial learning rate
 # optimizer: adam              # Options: adam, sgd, etc. (Need factory/config for this too)
 weight_decay: 0.0001           # Weight decay (L2 regularization)
-scheduler: step_lr             # Learning rate scheduler (step_lr, cosine, etc.)
 step_size: 10                  # Step size for step_lr scheduler
 gamma: ${thresholds.gamma}     # Decay factor for step_lr scheduler
 
 device: "auto"                 # Device to use for training (auto = GPU if available, else CPU)
+use_amp: false                  # Mixed precision training (default off)
+batch_size: 8                   # Default batch size
+gradient_accumulation_steps: 1  # Default gradient accumulation
+
+# Optimizer configuration
+optimizer:
+  lr: 0.001
+  weight_decay: 0.0001
+  betas: [0.9, 0.999]
+  eps: 1e-8
+
+# Scheduler configuration
+scheduler:
+  T_0: 10
+  T_mult: 1
+  eta_min: 1e-6
+
+# Gradient clipping
+grad_clip: 1.0
+
+# Early stopping
+early_stopping:
+  patience: 10
+  min_delta: 0.001
+  mode: "min"
+  monitor_metric: "val_loss"
+
+# Checkpointing
+save_freq: 5
+save_best: true
+monitor_metric: "val_loss"
+monitor_mode: "min"
 
 # Loss configuration is now handled by the 'loss' default group above
 # loss:

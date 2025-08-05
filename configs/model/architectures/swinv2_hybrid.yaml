@@ -4,7 +4,8 @@
 # Combines transformer-based encoding (SwinV2), multi-scale context via ASPP,
 # and CNN decoding for powerful segmentation.
 
-_target_: src.model.architectures.swinv2_cnn_aspp_unet.SwinV2CnnAsppUNet  # Main hybrid model class
+_target_: crackseg.model.architectures.swinv2_cnn_aspp_unet.SwinV2CnnAsppUNet  # Main hybrid model class
+type: "SwinV2CnnAsppUNet"  # Model type identifier for logging
 
 # --- Top-Level Model Parameters ---
 num_classes: 1         # Number of output segmentation classes (e.g., 1 for binary)
@@ -43,4 +44,4 @@ decoder_cfg:
   upsample_mode: 'bilinear'# Upsampling mode ('bilinear', 'nearest')
   kernel_size: 3         # Convolution kernel size in decoder blocks
   padding: 1             # Convolution padding in decoder blocks
-  use_cbam: false        # Whether to enable CBAM attention in decoder blocks 
+  use_cbam: false        # Whether to enable CBAM attention in decoder blocks

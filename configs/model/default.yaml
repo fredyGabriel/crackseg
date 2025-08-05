@@ -3,6 +3,7 @@
 # Base UNet configuration schema for segmentation model - SIMPLIFIED FOR VERIFICATION
 
 _target_: crackseg.model.core.unet.BaseUNet   # Main UNet class to instantiate
+type: "BaseUNet"  # Model type identifier for logging
 
 # --- Component Configurations ---
 # Each section defines the configuration for a model component

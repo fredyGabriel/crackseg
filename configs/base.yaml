@@ -21,6 +21,7 @@ data_dir: data/               # Default directory for datasets
 # in the model initialization, data shuffling, or augmentations is consistent
 # across runs.
 random_seed: 42
+seed: 42  # Alias for compatibility
 
 # Experiment configuration
 experiment:
@@ -37,6 +38,19 @@ device: "auto"            # Auto-select device (GPU if available, CPU otherwise)
 
 # Pre-declare model node to allow command-line overrides
 model: {}
+
+# Memory optimization settings (default values)
+memory:
+  gradient_checkpointing: false
+  empty_cache_freq: 100
+  monitor_memory: false
+
+# Hardware-specific optimizations (default values)
+hardware:
+  cudnn_benchmark: true
+  cudnn_deterministic: false
+  mixed_precision: false
+  memory_efficient_attention: false
 
 timestamp_parsing:
   min_parts: 2
