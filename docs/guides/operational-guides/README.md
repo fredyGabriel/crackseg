@@ -31,40 +31,60 @@ operational-guides/
 
 ## 🔧 Available Guides
 
-### **Deployment**
+### **Experiments** ✅ **UPDATED**
+
+- **Successful Experiments Guide**: `successful_experiments_guide.md`
+  - SwinV2 360x360 (Crack500) - Fully verified
+  - SwinV2 320x320 (PY-CrackDB) - Recently completed
+  - Hydra configuration resolution
+  - Bidirectional cropping algorithm
+  - Quality gates and troubleshooting
+
+### **Deployment** ⚠️ **NEEDS UPDATE**
 
 - Deployment configuration
 - System user guides
 - Deployment troubleshooting
 - Pipeline architecture
 
-### **Monitoring**
+### **Monitoring** ✅ **UPDATED**
 
-- Continuous coverage monitoring
-- System observability
-- Metrics and alerts
-- Health checks
+- **Monitoring Guide**: `monitoring/monitoring_guide.md`
+  - Training monitoring with TensorBoard
+  - System health monitoring
+  - Performance tracking and alerts
+  - Automated monitoring setup
 
-### **CI/CD**
+### **CI/CD** ⚠️ **NEEDS UPDATE**
 
 - Testing integration
 - Integration guides
 - Automated pipelines
 - Environment configuration
 
-### **Workflows**
+### **Workflows** ✅ **UPDATED**
 
-- Training workflow
-- Clean installation
-- Operational procedures
-- Process automation
+- **Training Workflow Guide**: `workflows/training_workflow_guide.md`
+  - Complete training workflow from setup to execution
+  - Quality gates and verification procedures
+  - Troubleshooting and optimization
+  - Advanced workflow customization
+
+### **Deployment** ✅ **UPDATED**
+
+- **Deployment Guide**: `deployment/deployment_guide.md`
+  - Development environment setup
+  - Configuration deployment
+  - Production considerations
+  - Monitoring and troubleshooting
 
 ## 📖 How to Use
 
-1. **Deployment**: Start with `deployment/`
-2. **Monitoring**: Check `monitoring/` for observability
-3. **CI/CD**: Go to `cicd/` for pipelines
-4. **Workflows**: Check `workflows/` for processes
+1. **Experiments**: Start with `successful_experiments_guide.md` ✅ **READY**
+2. **Deployment**: Start with `deployment/deployment_guide.md` ✅ **READY**
+3. **Workflows**: Check `workflows/training_workflow_guide.md` ✅ **READY**
+4. **Monitoring**: Check `monitoring/monitoring_guide.md` ✅ **READY**
+5. **CI/CD**: Go to `cicd/` for pipelines ⚠️ **NEEDS UPDATE**
 
 ## 🔄 Migration
 

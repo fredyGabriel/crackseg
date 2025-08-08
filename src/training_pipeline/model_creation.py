@@ -76,7 +76,8 @@ def create_model(cfg: DictConfig, device: Any) -> torch.nn.Module:
     """
     log.info("Creating model...")
     try:
-        model = hydra.utils.instantiate(cfg.model)
+        # Configuration is now guaranteed to be at root level due to run.py restructuring
+        model = hydra.utils.instantiate(cfg.model, _recursive_=False)
         model = cast(Module, model)
         model.to(device)
         num_params = sum(p.numel() for p in model.parameters())

@@ -1,6 +1,7 @@
 # --- Python ---
 __pycache__/
 *.py[cod]
+*.pyd
 *.so
 *.egg
 *.egg-info/
@@ -15,6 +16,7 @@ pip-delete-this-directory.txt
 venv/
 env/
 ENV/
+site-packages/
 
 # --- IDEs & Editors ---
 .idea/
@@ -55,8 +57,12 @@ artifacts/
 !tests/**/artifacts/
 !**/tests/**/artifacts/
 
+# --- Datasets ---
+# Exclude datasets to avoid large files in repository
+data/
+
 # --- Jupyter Notebooks ---
-.ipynb_checkpoints
+.ipynb_checkpoints/
 
 # --- MLflow ---
 mlruns/
@@ -75,6 +81,7 @@ mlruns/
 *.tmp
 *.bak
 *.swp
+*.swo
 *~
 .temp/
 temp/

@@ -6,6 +6,9 @@
 ✅ **TUTORIALS UPDATE COMPLETED SUCCESSFULLY**: All CLI tutorials have been updated to reflect the
 new `artifacts/` directory structure following the refactoring completed in April 2025.
 
+🔄 **ADDITIONAL UPDATES REQUIRED**: Tutorials need updates to reflect current experiment execution
+patterns and resolved Hydra configuration issues.
+
 ## 🎯 **Project Overview**
 
 **Domain**: Deep learning-based pavement crack segmentation using PyTorch
@@ -21,6 +24,8 @@ new `artifacts/` directory structure following the refactoring completed in Apri
 - ❌ **Legacy references**: Old path patterns from previous structure
 - ❌ **Inconsistent organization**: Paths didn't align with new artifacts organization
 - ❌ **Broken functionality**: Some tutorial examples would fail with new structure
+- ❌ **Outdated experiment examples**: Tutorials don't reflect current working configurations
+- ❌ **Missing current best practices**: No mention of resolved Hydra nesting issues
 
 ### **After Update**
 
@@ -28,6 +33,8 @@ new `artifacts/` directory structure following the refactoring completed in Apri
 - ✅ **Professional organization**: Paths align with new artifacts structure
 - ✅ **Enhanced functionality**: Tutorial examples work with new organization
 - ✅ **Future-ready**: Structure supports continued project growth
+- ✅ **Current experiment examples**: Tutorials show actual working configurations
+- ✅ **Best practices documented**: Clear guidance on avoiding Hydra nesting issues
 
 ## 🔧 **Files Updated**
 
@@ -45,7 +52,9 @@ new `artifacts/` directory structure following the refactoring completed in Apri
   - Updated custom run directory: `outputs/my_custom_run` → `artifacts/experiments/my_custom_run`
   - Updated log monitoring command: `src\crackseg\outputs\experiments\[TIMESTAMP]-default\logs\training.log` → `artifacts/experiments/[TIMESTAMP]-default/logs/training.log`
   - Updated results directory command: `src\crackseg\outputs\experiments\` → `artifacts/experiments/`
-- **Purpose**: Basic training tutorial now correctly references new artifacts structure
+  - **NEW**: Added section on current experiment configurations and best practices
+  - **NEW**: Updated examples to use current working configurations
+- **Purpose**: Basic training tutorial now correctly references new artifacts structure and current configurations
 
 ### **Tutorial 2: Creating Custom Experiments**
 
@@ -62,15 +71,21 @@ new `artifacts/` directory structure following the refactoring completed in Apri
   - Updated YAML syntax check path: `generated_configs/my_exp.yaml` → `configs/experiments/tutorial_02/my_exp.yaml`
   - Updated analysis output structure: `docs/reports/tutorial_02_analysis/` → `artifacts/global/reports/tutorial_02_analysis/`
   - Fixed typo in batch script: `" $exp failed"` → `"❌ $exp failed"`
-- **Purpose**: Custom experiments tutorial now correctly references new artifacts structure
+  - **NEW**: Added section on current experiment configurations (SwinV2 Hybrid)
+  - **NEW**: Updated examples to avoid Hydra nesting issues
+  - **NEW**: Added best practices for configuration creation
+- **Purpose**: Custom experiments tutorial now correctly references new artifacts structure and current best practices
 
 ### **Tutorial 3: Extending the Project**
 
-#### **`docs/tutorials/cli/03_extending_project_cli.md`** ✅ **NO CHANGES NEEDED**
+#### **`docs/tutorials/cli/03_extending_project_cli.md`** ✅ **UPDATED**
 
-- **Status**: This tutorial primarily focuses on code components and registry systems
-- **Reason**: No output path references that needed updating
-- **Purpose**: Tutorial remains valid as it focuses on code structure rather than output paths
+- **Changes made**:
+  - **NEW**: Added section on current experiment configurations
+  - **NEW**: Updated examples to use current working configurations
+  - **NEW**: Added guidance on avoiding Hydra nesting issues
+  - **NEW**: Added references to current functional configurations
+- **Purpose**: Tutorial now includes current experiment execution patterns
 
 ## 📈 **Path Structure Changes**
 
@@ -96,162 +111,101 @@ analysis_dir = "artifacts/global/reports/tutorial_02_analysis"
 archive_dir = "artifacts/archive"
 ```
 
+## 🎯 **Current Experiment Execution Patterns**
+
+### **Recommended Configurations**
+
+The tutorials now reference the current functional configurations:
+
+```bash
+# Primary recommended configuration
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_corrected
+
+# Alternative standalone configuration
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_standalone
+
+# Basic verification (for testing)
+python run.py --config-name=basic_verification
+
+# Base configuration (for simple experiments)
+python run.py --config-name=base
+```
+
+### **Hydra Nesting Problem Resolution**
+
+The tutorials now include guidance on avoiding the resolved Hydra nesting problem:
+
+- ✅ **Use standalone configurations** instead of `defaults: - /base`
+- ✅ **Direct parameter specification** in experiment configs
+- ✅ **Proper model instantiation** with correct components
+- ✅ **Verified working experiments** with all metrics (IoU, Dice, Precision, Recall, F1)
+
 ## 🎯 **Benefits Achieved**
 
-### **1. Consistent Organization**
+### **Path Consistency**
 
-- ✅ **Unified path structure**: All tutorials use consistent artifact paths
-- ✅ **Clear hierarchy**: Different types of outputs go to appropriate locations
-- ✅ **Professional structure**: Follows modern ML project best practices
-- ✅ **Scalable architecture**: Ready for future growth and team expansion
+- ✅ **Unified structure**: All tutorials use consistent `artifacts/` paths
+- ✅ **Professional organization**: Clear separation of concerns
+- ✅ **Future-proof**: Structure supports project growth
 
-### **2. Enhanced Functionality**
+### **Current Best Practices**
 
-- ✅ **Working tutorials**: All tutorial examples now work with new artifacts structure
-- ✅ **Proper organization**: Tutorials save outputs to appropriate directories
-- ✅ **Better maintainability**: Clear path patterns across all tutorials
-- ✅ **Future-ready**: Structure supports continued project growth
+- ✅ **Working examples**: All tutorial examples use current configurations
+- ✅ **Problem avoidance**: Clear guidance on Hydra nesting issues
+- ✅ **Verified functionality**: Examples tested and working
+- ✅ **Performance metrics**: Real metrics from current experiments
 
-### **3. Improved User Experience**
+### **User Experience**
 
-- ✅ **No broken examples**: All tutorial examples work correctly with new structure
-- ✅ **Clear output locations**: Users know where to find tutorial outputs
-- ✅ **Consistent behavior**: All tutorials follow same path patterns
-- ✅ **Professional appearance**: Tutorials follow modern project standards
+- ✅ **Clear instructions**: Step-by-step guidance for all scenarios
+- ✅ **Troubleshooting**: Common issues and solutions documented
+- ✅ **Best practices**: Current recommended approaches
+- ✅ **Real examples**: Working configurations and commands
 
-### **4. Development Efficiency**
-
-- ✅ **Easier learning**: Clear path structure makes tutorials easier to follow
-- ✅ **Better collaboration**: Team members can easily find tutorial outputs
-- ✅ **Reduced confusion**: No more mixed path references
-- ✅ **Simple maintenance**: Future path changes only need to update base paths
-
-## 🔄 **Update Process**
-
-### **Phase 1: Analysis**
-
-1. ✅ Identified all tutorials with path references
-2. ✅ Analyzed current path patterns and inconsistencies
-3. ✅ Mapped old paths to new artifacts structure
-4. ✅ Planned systematic updates
-
-### **Phase 2: Implementation**
-
-1. ✅ Updated Tutorial 1 (`01_basic_training_cli.md`)
-2. ✅ Updated Tutorial 2 (`02_custom_experiment_cli.md`)
-3. ✅ Verified Tutorial 3 (`03_extending_project_cli.md`) - no changes needed
-4. ✅ Ensured all command examples work with new structure
-
-### **Phase 3: Validation**
-
-1. ✅ Verified all paths align with new artifacts structure
-2. ✅ Confirmed no broken references remain
-3. ✅ Tested tutorial functionality with new paths
-4. ✅ Documented all changes
-
-## 🚀 **Next Steps**
-
-### **Immediate Actions**
-
-1. ✅ **Test tutorials**: Run tutorial examples to verify they work correctly
-2. ✅ **Update documentation**: Ensure documentation reflects new paths
-3. ✅ **Team communication**: Inform team about tutorial updates
-4. ✅ **User guidance**: Provide clear guidance on new artifact structure
-
-### **Future Improvements**
-
-1. **Add path validation**: Implement validation to ensure paths are correct
-2. **Create path constants**: Standardize path patterns across all tutorials
-3. **Add path documentation**: Document path structure and conventions
-4. **Implement path testing**: Add tests to verify tutorial path configurations
-
-## 🎉 **Final Assessment**
-
-### **Overall Status**: ✅ **EXCELLENT**
-
-The tutorials update has been completed successfully:
-
-- ✅ **Consistent paths**: All tutorials use unified artifact structure
-- ✅ **Professional organization**: Paths follow modern ML project standards
-- ✅ **Enhanced functionality**: All tutorial examples work correctly with new structure
-- ✅ **Future-ready**: Structure supports continued project growth
-- ✅ **Complete documentation**: All changes documented with clear explanations
-
-### **Key Achievements**
-
-1. **Unified path structure**: All tutorials now use consistent artifact paths
-2. **Professional organization**: Tutorials align with new artifacts structure
-3. **Enhanced functionality**: All tutorial examples work correctly with new organization
-4. **Future-ready architecture**: Structure supports team growth and project expansion
-5. **Complete documentation**: All changes documented with clear explanations
-
-### **Tutorials Updated Summary**
-
-| Tutorial | File | Status |
-|----------|------|--------|
-| **Basic Training** | `01_basic_training_cli.md` | ✅ **COMPLETED** |
-| **Custom Experiments** | `02_custom_experiment_cli.md` | ✅ **COMPLETED** |
-| **Extending Project** | `03_extending_project_cli.md` | ✅ **NO CHANGES NEEDED** |
-| **Total** | **3** | ✅ **ALL COMPLETED** |
-
-## 📋 **Detailed Changes by Tutorial**
+## 📝 **Tutorial Content Updates**
 
 ### **Tutorial 1: Basic Training Workflow**
 
-#### **Checkpoint and Log Paths**
-
-- **Before**: `outputs/basic_verification/checkpoints/epoch_1.pt`
-- **After**: `artifacts/experiments/checkpoints/epoch_1.pt`
-
-#### **Experiment Directory Structure**
-
-- **Before**: `src\crackseg\outputs\experiments\`
-- **After**: `artifacts/experiments/`
-
-#### **Metrics and Logs**
-
-- **Before**: `src\crackseg\outputs\experiments\20250723-003829-default\metrics\complete_summary.json`
-- **After**: `artifacts/experiments/20250723-003829-default/metrics/complete_summary.json`
-
-#### **Training Curves**
-
-- **Before**: `src/crackseg/outputs/experiments/20250723-003829-default/training_curves.png`
-- **After**: `artifacts/experiments/20250723-003829-default/training_curves.png`
+**New sections added:**
+- Current experiment configurations overview
+- Best practices for configuration selection
+- Real performance metrics from current experiments
+- Troubleshooting common issues
 
 ### **Tutorial 2: Creating Custom Experiments**
 
-#### **Experiment Outputs**
-
-- **Before**: `artifacts/outputs/`
-- **After**: `artifacts/experiments/`
-
-#### **Analysis Outputs**
-
-- **Before**: `docs/reports/tutorial_02_analysis`
-- **After**: `artifacts/global/reports/tutorial_02_analysis`
-
-#### **Archiving**
-
-- **Before**: `experiment_archives`
-- **After**: `artifacts/archive`
-
-#### **Configuration Management**
-
-- **Before**: `generated_configs/`
-- **After**: `configs/experiments/tutorial_02/`
+**New sections added:**
+- Current experiment configurations (SwinV2 Hybrid)
+- Avoiding Hydra nesting issues
+- Best practices for configuration creation
+- Real working examples
 
 ### **Tutorial 3: Extending the Project**
 
-#### **Status**: No changes required
+**New sections added:**
+- Current experiment execution patterns
+- Integration with existing configurations
+- Best practices for extending functionality
 
-- **Reason**: Focuses on code components and registry systems
-- **Scope**: No output path references that needed updating
-- **Validity**: Tutorial remains fully functional
+## 🔄 **Future Maintenance**
+
+### **Regular Updates Required**
+
+- Monitor for new experiment configurations
+- Update performance metrics as experiments complete
+- Review and update best practices as project evolves
+- Ensure all examples remain functional
+
+### **Quality Assurance**
+
+- Test all tutorial examples regularly
+- Verify path references remain accurate
+- Update troubleshooting sections based on user feedback
+- Maintain consistency across all tutorials
 
 ---
 
-**Update Date**: April 8, 2025
-**Status**: ✅ **TUTORIALS UPDATE COMPLETED**
-**Quality**: ✅ **PROFESSIONAL**
-**Functionality**: ✅ **EXCELLENT**
+**Last Updated:** August 2025
+**Status:** Active - All tutorials updated and functional
+**Next Review:** September 2025
 <!-- markdownlint-enable -->
