@@ -10,25 +10,14 @@
     │   │   ├── config.yaml.backup
     │   │   └── experiment_quick_test.yaml.backup
     │   ├── data/
-    │   │   ├── dataloader/
-    │   │   │   └── default.yaml
-    │   │   ├── transform/
-    │   │   │   └── augmentations.yaml
-    │   │   ├── default.yaml
-    │   │   └── README.md
     │   ├── evaluation/
     │   │   └── default.yaml
     │   ├── experiments/
     │   │   ├── swinv2_hybrid/
-    │   │   │   └── swinv2_hybrid_experiment.yaml
-    │   │   ├── tutorial_02/
-    │   │   │   ├── focal_loss_experiment.yaml
-    │   │   │   ├── high_lr_experiment.yaml
-    │   │   │   ├── low_lr_experiment.yaml
-    │   │   │   ├── README.md
-    │   │   │   └── swin_unet_experiment.yaml
-    │   │   └── tutorial_03/
-    │   │       └── smooth_l1_experiment.yaml
+    │   │   │   ├── swinv2_320x320_py_crackdb.yaml
+    │   │   │   ├── swinv2_360x360_corrected.yaml
+    │   │   │   └── swinv2_360x360_standalone.yaml
+    │   │   └── README.md
     │   ├── linting/
     │   │   └── config.yaml
     │   ├── model/
@@ -92,24 +81,19 @@
     │   ├── README.md
     │   └── simple_test.yaml
     ├── data/
-    │   ├── unified/
-    │   │   ├── images/ (truncated)
-    │   │   └── masks/ (truncated)
-    │   └── README.md
     ├── docs/
     │   ├── analysis/
-    │   │   ├── singleton_pattern_analysis.md
-    │   │   └── singleton_pattern_analysis.md.snippet_backup
     │   ├── api/
     │   │   ├── gui_components.md
     │   │   ├── gui_pages.md
     │   │   ├── gui_services.md
     │   │   ├── utilities.md
-    │   │   ├── visualization_api.md
-    │   │   └── visualization_api.md.snippet_backup
+    │   │   └── visualization_api.md
     │   ├── designs/
     │   │   ├── logo.png
     │   │   └── loss_registry_design.md
+    │   ├── experiments/
+    │   │   └── py_crackdb_swinv2_experiment.md
     │   ├── guides/
     │   │   ├── developer-guides/
     │   │   │   ├── architecture/
@@ -139,21 +123,25 @@
     │   │   │   │       ├── ci_cd_testing_integration.md
     │   │   │   │       └── README.md
     │   │   │   ├── deployment/
-    │   │   │   │   └── legacy/
-    │   │   │   │       ├── DEPLOYMENT_PIPELINE_ARCHITECTURE.md
-    │   │   │   │       ├── deployment_system_configuration_guide.md
-    │   │   │   │       ├── deployment_system_troubleshooting_guide.md
-    │   │   │   │       └── deployment_system_user_guide.md
+    │   │   │   │   ├── legacy/
+    │   │   │   │   │   ├── DEPLOYMENT_PIPELINE_ARCHITECTURE.md
+    │   │   │   │   │   ├── deployment_system_configuration_guide.md
+    │   │   │   │   │   ├── deployment_system_troubleshooting_guide.md
+    │   │   │   │   │   └── deployment_system_user_guide.md
+    │   │   │   │   └── deployment_guide.md
     │   │   │   ├── monitoring/
-    │   │   │   │   └── legacy/
-    │   │   │   │       ├── continuous_coverage_monitoring_guide.md
-    │   │   │   │       └── README.md
+    │   │   │   │   ├── legacy/
+    │   │   │   │   │   ├── continuous_coverage_monitoring_guide.md
+    │   │   │   │   │   └── README.md
+    │   │   │   │   └── monitoring_guide.md
     │   │   │   ├── workflows/
-    │   │   │   │   └── legacy/
-    │   │   │   │       ├── CLEAN_INSTALLATION.md
-    │   │   │   │       ├── README.md
-    │   │   │   │       └── WORKFLOW_TRAINING.md
-    │   │   │   └── README.md
+    │   │   │   │   ├── legacy/
+    │   │   │   │   │   ├── CLEAN_INSTALLATION.md
+    │   │   │   │   │   ├── README.md
+    │   │   │   │   │   └── WORKFLOW_TRAINING.md
+    │   │   │   │   └── training_workflow_guide.md
+    │   │   │   ├── README.md
+    │   │   │   └── successful_experiments_guide.md
     │   │   ├── reporting-visualization/
     │   │   │   ├── reporting/
     │   │   │   │   └── legacy/
@@ -195,11 +183,13 @@
     │   │   │   │   ├── multi_target_deployment_guide.md
     │   │   │   │   └── prediction_analysis_guide.md
     │   │   │   └── README.md
+    │   │   ├── experiment_data_saving_guide.md
     │   │   ├── generalized_experiment_organization.md
     │   │   ├── README.md
     │   │   ├── REORGANIZATION_COMPLETION_REPORT.md
     │   │   └── trainer_refactoring.md
     │   ├── plans/
+    │   │   ├── articulo_cientifico_swinv2_cnn_aspp_unet.md
     │   │   ├── artifact_system_development_plan.md
     │   │   └── refactoring_plan_large_files.md
     │   ├── reports/
@@ -285,6 +275,7 @@
     │   │   │   │       └── test_coverage_comparison_report.md
     │   │   │   ├── execution/
     │   │   │   └── README.md
+    │   │   ├── file_inventory.md
     │   │   ├── project_tree.md
     │   │   ├── README.md
     │   │   └── REORGANIZATION_COMPLETION_REPORT.md
@@ -301,6 +292,7 @@
     │   │   │   ├── 01_basic_training_cli.md
     │   │   │   ├── 02_custom_experiment_cli.md
     │   │   │   ├── 03_extending_project_cli.md
+    │   │   │   ├── CURRENT_EXPERIMENT_EXECUTION_GUIDE.md
     │   │   │   └── TUTORIALS_UPDATE_REPORT.md
     │   │   ├── gui/
     │   │   │   ├── 01_basic_training.md
@@ -361,21 +353,6 @@
     │   │   │   │   └── standard.py
     │   │   │   └── __init__.py
     │   │   ├── data/
-    │   │   │   ├── file_browser/
-    │   │   │   │   └── main.py
-    │   │   │   ├── gallery/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── actions.py
-    │   │   │   │   ├── display.py
-    │   │   │   │   ├── event_handlers.py
-    │   │   │   │   ├── main.py
-    │   │   │   │   ├── metrics.py
-    │   │   │   │   ├── renderer.py
-    │   │   │   │   └── state_manager.py
-    │   │   │   ├── upload/
-    │   │   │   │   └── main.py
-    │   │   │   └── __init__.py
     │   │   ├── deprecated/
     │   │   │   └── file_browser_obsolete.py
     │   │   ├── ml/
@@ -449,20 +426,6 @@
     │   │   │   ├── navigation/
     │   │   │   └── __init__.py
     │   │   ├── data/
-    │   │   │   ├── analysis/
-    │   │   │   ├── results/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── comparison_section.py
-    │   │   │   │   ├── config_section.py
-    │   │   │   │   ├── gallery_section.py
-    │   │   │   │   ├── legacy.py
-    │   │   │   │   ├── main.py
-    │   │   │   │   ├── metrics_section.py
-    │   │   │   │   ├── setup_section.py
-    │   │   │   │   ├── tensorboard_section.py
-    │   │   │   │   └── utils.py
-    │   │   │   └── __init__.py
     │   │   ├── deprecated/
     │   │   ├── ml/
     │   │   │   ├── architecture/
@@ -540,31 +503,6 @@
     │   │   │   │   └── error_state.py
     │   │   │   └── __init__.py
     │   │   ├── data/
-    │   │   │   ├── export/
-    │   │   │   │   └── manager.py
-    │   │   │   ├── parsing/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── exceptions.py
-    │   │   │   │   ├── logs.py
-    │   │   │   │   └── override_parser.py
-    │   │   │   ├── reports/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── advanced_validation.py
-    │   │   │   │   ├── cache.py
-    │   │   │   │   ├── core.py
-    │   │   │   │   ├── demo.py
-    │   │   │   │   ├── demo_advanced_validation.py
-    │   │   │   │   ├── demo_reactive.py
-    │   │   │   │   ├── demo_streamlit_integration.py
-    │   │   │   │   ├── events.py
-    │   │   │   │   ├── models.py
-    │   │   │   │   ├── results_validator.py
-    │   │   │   │   ├── scanner.py
-    │   │   │   │   ├── stats.py
-    │   │   │   │   └── validation.py
-    │   │   │   └── __init__.py
     │   │   ├── deprecated/
     │   │   │   ├── demo_tensorboard_obsolete.py
     │   │   │   ├── override_examples_obsolete.py
@@ -784,6 +722,31 @@
     │   ├── archive/
     │   │   ├── limpieza_scripts_summary.md
     │   │   └── README.md
+    │   ├── data_processing/
+    │   │   ├── format_conversion/
+    │   │   │   ├── convert_crackseg_dataset.py
+    │   │   │   ├── README_segmentation_to_detection.md
+    │   │   │   └── segmentation_to_detection.py
+    │   │   ├── image_processing/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── crop_crack_images.py
+    │   │   │   ├── crop_crack_images_configurable.py
+    │   │   │   ├── crop_py_crackdb_images.py
+    │   │   │   ├── process_cfd_dataset.py
+    │   │   │   ├── process_py_crackdb_example.py
+    │   │   │   ├── README_crop_crack_images.md
+    │   │   │   ├── README_crop_crack_images_configurable.md
+    │   │   │   ├── README_py_crackdb_cropping.md
+    │   │   │   └── test_py_crackdb_cropping.py
+    │   │   ├── mask_verification/
+    │   │   │   ├── demo_verification.py
+    │   │   │   ├── example_verification.py
+    │   │   │   ├── README_verification.md
+    │   │   │   ├── run_verification.py
+    │   │   │   ├── segmentation_mask_verifier.py
+    │   │   │   └── VERIFICATION_SYSTEM_SUMMARY.md
+    │   │   ├── CORRECTION_SUMMARY.md
+    │   │   └── README.md
     │   ├── debug/
     │   │   ├── __init__.py
     │   │   ├── artifact_diagnostics.py
@@ -808,6 +771,7 @@
     │   │   ├── advanced_prediction_viz_demo.py
     │   │   ├── advanced_training_viz_demo.py
     │   │   ├── deployment_orchestration_example.py
+    │   │   ├── experiment_saver_example.py
     │   │   ├── factory_registry_integration.py
     │   │   ├── health_monitoring_demo.py
     │   │   ├── interactive_plotly_demo.py
@@ -819,6 +783,20 @@
     │   │   ├── validation_pipeline_demo.py
     │   │   └── validation_reporting_demo.py
     │   ├── experiments/
+    │   │   ├── analysis/
+    │   │   │   └── swinv2_hybrid/
+    │   │   │       └── analysis/
+    │   │   │           ├── __init__.py
+    │   │   │           └── analyze_experiment.py
+    │   │   ├── benchmarking/
+    │   │   │   ├── automated_comparison.py
+    │   │   │   └── benchmark_aspp.py
+    │   │   ├── debugging/
+    │   │   │   └── debug_swin_params.py
+    │   │   ├── demos/
+    │   │   │   ├── example_generalized_experiment.py
+    │   │   │   ├── hybrid_registry_demo.py
+    │   │   │   └── registry_demo.py
     │   │   ├── e2e/
     │   │   │   ├── modules/
     │   │   │   │   ├── __init__.py
@@ -833,27 +811,18 @@
     │   │   │   ├── __init__.py
     │   │   │   ├── README.md
     │   │   │   └── test_pipeline_e2e.py
-    │   │   ├── swinv2_hybrid/
-    │   │   │   ├── __init__.py
-    │   │   │   ├── README.md
-    │   │   │   ├── run_swinv2_hybrid_experiment.py
-    │   │   │   ├── swinv2_hybrid_analysis.py
-    │   │   │   └── test_swinv2_hybrid_setup.py
-    │   │   ├── tutorial_02/
-    │   │   │   ├── tutorial_02_batch.ps1
-    │   │   │   ├── tutorial_02_compare.py
-    │   │   │   └── tutorial_02_visualize.py
-    │   │   ├── automated_comparison.py
-    │   │   ├── benchmark_aspp.py
-    │   │   ├── debug_swin_params.py
-    │   │   ├── example_generalized_experiment.py
-    │   │   ├── hybrid_registry_demo.py
+    │   │   ├── tutorials/
+    │   │   │   └── tutorial_02/
+    │   │   │       ├── tutorial_02_batch.ps1
+    │   │   │       ├── tutorial_02_compare.py
+    │   │   │       └── tutorial_02_visualize.py
     │   │   ├── README.md
-    │   │   └── registry_demo.py
+    │   │   └── REORGANIZATION_SUMMARY.md
     │   ├── maintenance/
     │   │   ├── debugging/
     │   │   ├── performance/
-    │   │   └── __init__.py
+    │   │   ├── __init__.py
+    │   │   └── cleanup_hydra_folders.py
     │   ├── monitoring/
     │   │   └── continuous_coverage.py
     │   ├── performance/
@@ -912,6 +881,10 @@
     │   │   │   ├── run_coverage_report.py
     │   │   │   ├── tag_test_priority.py
     │   │   │   └── update_test_inventory_status.py
+    │   │   ├── generate_missing_plots.py
+    │   │   ├── generate_py_crackdb_plots.py
+    │   │   ├── generate_sensitivity_specificity_plot.py
+    │   │   ├── generate_user_manual.py
     │   │   ├── README.md
     │   │   └── REORGANIZATION_SUMMARY.md
     │   ├── __init__.py
@@ -921,60 +894,8 @@
     │   ├── __pycache__/
     │   ├── crackseg/
     │   │   ├── __pycache__/
+    │   │   ├── artifacts/
     │   │   ├── data/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── datasets/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── base_dataset.py
-    │   │   │   │   ├── cache_manager.py
-    │   │   │   │   ├── dataset.py
-    │   │   │   │   ├── loaders.py
-    │   │   │   │   └── types.py
-    │   │   │   ├── factory/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── config_processor.py
-    │   │   │   │   ├── dataset_creator.py
-    │   │   │   │   ├── dataset_factory.py
-    │   │   │   │   ├── loader_factory.py
-    │   │   │   │   └── pipeline_factory.py
-    │   │   │   ├── loaders/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── config.py
-    │   │   │   │   ├── factory.py
-    │   │   │   │   ├── memory.py
-    │   │   │   │   ├── validation.py
-    │   │   │   │   └── workers.py
-    │   │   │   ├── memory/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   └── memory.py
-    │   │   │   ├── transforms/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── config.py
-    │   │   │   │   └── pipelines.py
-    │   │   │   ├── utils/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── collate.py
-    │   │   │   │   ├── distributed.py
-    │   │   │   │   ├── sampler.py
-    │   │   │   │   ├── splitting.py
-    │   │   │   │   └── types.py
-    │   │   │   ├── validation/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── config_validator.py
-    │   │   │   │   ├── data_validator.py
-    │   │   │   │   ├── format_converter.py
-    │   │   │   │   ├── parameter_validators.py
-    │   │   │   │   └── transform_validator.py
-    │   │   │   ├── __init__.py
-    │   │   │   ├── COMPLETE_REORGANIZATION_REPORT.md
-    │   │   │   └── README.md
     │   │   ├── evaluation/
     │   │   │   ├── __pycache__/
     │   │   │   ├── cli/
@@ -1438,6 +1359,7 @@
     │   │   │   ├── __init__.py
     │   │   │   ├── artifact_manager.py
     │   │   │   ├── component_cache.py
+    │   │   │   ├── experiment_saver.py
     │   │   │   ├── README.md
     │   │   │   └── UTILS_COMPREHENSIVE_REORGANIZATION_SUMMARY.md
     │   │   ├── __init__.py
@@ -1505,20 +1427,6 @@
     │   │   │   ├── test_parallel_framework_validation.py
     │   │   │   └── threshold_validator.py
     │   │   ├── data/
-    │   │   │   ├── factories/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── base.py
-    │   │   │   │   ├── config_factory.py
-    │   │   │   │   ├── coordinator.py
-    │   │   │   │   ├── image_factory.py
-    │   │   │   │   └── model_factory.py
-    │   │   │   ├── provisioning/
-    │   │   │   │   ├── __init__.py
-    │   │   │   │   ├── core.py
-    │   │   │   │   ├── database.py
-    │   │   │   │   └── suites.py
-    │   │   │   ├── __init__.py
-    │   │   │   └── isolation.py
     │   │   ├── drivers/
     │   │   │   ├── __pycache__/
     │   │   │   ├── __init__.py
@@ -1686,9 +1594,6 @@
     │   │   │   ├── __pycache__/
     │   │   │   └── test_hydra_config.py
     │   │   ├── data/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── test_data_loading_pipeline.py
-    │   │   │   └── test_data_pipeline.py
     │   │   ├── end_to_end/
     │   │   ├── evaluation/
     │   │   │   ├── __pycache__/
@@ -1870,14 +1775,6 @@
     │   ├── unit/
     │   │   ├── __pycache__/
     │   │   ├── data/
-    │   │   │   ├── __pycache__/
-    │   │   │   ├── test_data_loader.py
-    │   │   │   ├── test_dataloader.py
-    │   │   │   ├── test_dataset_pipeline.py
-    │   │   │   ├── test_distributed.py
-    │   │   │   ├── test_factory.py
-    │   │   │   ├── test_memory.py
-    │   │   │   └── test_sampler.py
     │   │   ├── deployment/
     │   │   │   ├── __pycache__/
     │   │   │   ├── test_health_monitoring.py
@@ -2046,8 +1943,6 @@
     │   │   │   │   ├── test_standardized_storage.py
     │   │   │   │   └── test_validation.py
     │   │   │   ├── data/
-    │   │   │   │   ├── __pycache__/
-    │   │   │   │   └── __init__.py
     │   │   │   ├── experiment/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
@@ -2119,6 +2014,7 @@
     │   ├── conftest.py
     │   ├── README.md
     │   └── requirements-testing.txt
+    ├── analisis_metricas_cfd.json
     ├── CHANGELOG.md
     ├── codecov.yml
     ├── environment.yml
@@ -2127,5 +2023,6 @@
     ├── pyrightconfig.json
     ├── README.md
     ├── requirements.txt
-    └── run.py
+    ├── run.py
+    └── TODOs.md
 ```

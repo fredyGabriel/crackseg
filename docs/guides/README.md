@@ -34,6 +34,7 @@ target audience:
 - **Monitoring**: Observability and metrics
 - **CI/CD**: Pipelines and automation
 - **Workflows**: Operational workflows
+- **Experiments**: Successful experiment execution and verification
 
 ### 📋 **Technical Specifications** (`technical-specs/`)
 
@@ -71,6 +72,7 @@ target audience:
 - **🚀 Deployment**: `operational-guides/deployment/`
 - **📊 Monitoring**: `operational-guides/monitoring/`
 - **⚙️ CI/CD**: `operational-guides/cicd/`
+- **🧪 Experiments**: `operational-guides/successful_experiments_guide.md`
 - **📋 Specifications**: `technical-specs/specifications/`
 - **🔬 Experiments**: `technical-specs/experiments/`
 - **📈 Reports**: `reporting-visualization/reporting/`

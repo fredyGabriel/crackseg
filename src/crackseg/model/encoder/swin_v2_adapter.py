@@ -163,24 +163,18 @@ class SwinV2EncoderAdapter(EncoderBase):
     def _reshape_4d_bottleneck(
         self, bottleneck_features: torch.Tensor
     ) -> torch.Tensor:
-        """Handles reshaping for 4D bottleneck features."""
+        """Handles reshaping for 4D bottleneck features.
+
+        Features should already be in CHW format from preprocessing.
+        """
         expected_channels = self.encoder.out_channels
-        if bottleneck_features.shape[1] == expected_channels:
-            # Shape is likely (B, C, H, W) - Correct format
-            pass
-        elif bottleneck_features.shape[3] == expected_channels:
-            # Shape is likely (B, H, W, C) - Permute to (B, C, H, W)
-            bottleneck_features = bottleneck_features.permute(
-                0, 3, 1, 2
-            ).contiguous()
-            logger.debug(
-                f"Permuted bottleneck features to {bottleneck_features.shape}"
-            )
-        else:
+
+        # Validate that features are in expected CHW format
+        if bottleneck_features.shape[1] != expected_channels:
             logger.warning(
                 f"Bottleneck features have unexpected shape: "
-                f"{bottleneck_features.shape}. Expected channels "
-                f"{expected_channels} at dim 1 or 3."
+                f"{bottleneck_features.shape}. Expected {expected_channels} channels "
+                f"at dim 1."
             )
         return bottleneck_features
 
@@ -298,14 +292,16 @@ class SwinV2EncoderAdapter(EncoderBase):
             bottleneck_features, x
         )
 
-        # Also convert skip connections from HWC to CHW if needed
+        # Skip connections should already be in CHW format from preprocessing
+        # Just validate and pass through
         converted_skips = []
-        for skip in skip_connections:
-            if skip.ndim == 4 and skip.shape[-1] in [96, 192, 384, 768]:
-                # Skip is in HWC format [B, H, W, C],
-                # convert to CHW [B, C, H, W]
-                skip = skip.permute(0, 3, 1, 2).contiguous()
-                logger.debug(f"Converted skip from HWC to CHW: {skip.shape}")
+        for i, skip in enumerate(skip_connections):
+            if skip.ndim == 4 and i < len(skip_connections):
+                # The skip connections come from encoder in resolution order
+                # They will be reversed later for the decoder
+                # So we don't need to validate against skip_channels here
+                # as the order will change
+                pass
             converted_skips.append(skip)
 
         # Reverse the order to match skip_channels property

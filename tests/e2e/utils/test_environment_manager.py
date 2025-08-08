@@ -15,7 +15,6 @@ from pathlib import Path
 from typing import Any
 
 import psutil
-
 from docker.env_manager import EnvironmentConfig, EnvironmentManager
 
 from ..config.browser_config_manager import BrowserConfigManager, BrowserMatrix

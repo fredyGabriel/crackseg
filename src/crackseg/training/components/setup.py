@@ -83,11 +83,17 @@ class TrainerSetup:
         trainer_instance.save_best_enabled = save_best_config.get(
             "enabled", False
         )
+        # First try to get from experiment config, then from save_best_config, then defaults
         trainer_instance.monitor_metric = str(
-            save_best_config.get("monitor_metric", "val_loss")
+            trainer_instance.cfg.get(
+                "monitor_metric",
+                save_best_config.get("monitor_metric", "val_loss"),
+            )
         )
         trainer_instance.monitor_mode = str(
-            save_best_config.get("monitor_mode", "min")
+            trainer_instance.cfg.get(
+                "monitor_mode", save_best_config.get("monitor_mode", "min")
+            )
         )
         trainer_instance.best_filename = str(
             save_best_config.get("best_filename", "model_best.pth.tar")

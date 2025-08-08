@@ -135,6 +135,7 @@ import logging
 from typing import Any, cast
 
 import torch
+from omegaconf import DictConfig
 from torch import nn
 
 # Base class
@@ -145,7 +146,7 @@ from crackseg.model.base.abstract import (
     UNetBase,
 )
 from crackseg.model.components.aspp import ASPPModule
-from crackseg.model.decoder.cnn_decoder import CNNDecoder
+from crackseg.model.decoder.cnn_decoder import CNNDecoder, CNNDecoderConfig
 
 # Components
 from crackseg.model.encoder.swin_v2_adapter import SwinV2EncoderAdapter
@@ -382,7 +383,7 @@ class SwinV2CnnAsppUNet(UNetBase):
             - Component compatibility validated during UNetBase initialization
         """
         # 1. Handle Encoder (config or instance)
-        if isinstance(encoder_cfg, dict):
+        if isinstance(encoder_cfg, dict | DictConfig):
             # Configuration provided - instantiate encoder
             if "in_channels" not in encoder_cfg:
                 encoder_cfg["in_channels"] = 3
@@ -437,7 +438,7 @@ class SwinV2CnnAsppUNet(UNetBase):
             )
 
         # 2. Handle Bottleneck (config or instance)
-        if isinstance(bottleneck_cfg, dict):
+        if isinstance(bottleneck_cfg, dict | DictConfig):
             # Configuration provided - instantiate bottleneck
             # Infer in_channels from encoder output
             bottleneck_in_channels = encoder.out_channels
@@ -453,7 +454,7 @@ class SwinV2CnnAsppUNet(UNetBase):
             bottleneck = bottleneck_cfg
 
         # 3. Handle Decoder (config or instance)
-        if isinstance(decoder_cfg, dict):
+        if isinstance(decoder_cfg, dict | DictConfig):
             # Configuration provided - instantiate decoder
             # Infer in_channels from bottleneck output
             # Infer skip_channels_list from encoder output (high-res to low-res
@@ -473,19 +474,27 @@ class SwinV2CnnAsppUNet(UNetBase):
             # FIX: Derive decoder depth from the number of skip connections
             decoder_depth = len(decoder_skip_channels)
 
-            # Remove 'depth' from decoder_cfg if present, as it's now derived
-            if "depth" in decoder_cfg:
-                logger.debug(
-                    "Ignoring 'depth' in decoder_cfg, deriving from encoder "
-                    "skips."
-                )
-                # Create a copy to avoid modifying the original config object
-                # if passed by reference
-                decoder_cfg_copy = {
-                    k: v for k, v in decoder_cfg.items() if k != "depth"
-                }
-            else:
-                decoder_cfg_copy = decoder_cfg
+            # Create CNNDecoderConfig object with CBAM settings
+            config_params = {}
+            if "use_cbam" in decoder_cfg:
+                config_params["use_cbam"] = decoder_cfg["use_cbam"]
+            if "cbam_reduction" in decoder_cfg:
+                config_params["cbam_reduction"] = decoder_cfg["cbam_reduction"]
+            if "upsample_mode" in decoder_cfg:
+                config_params["upsample_mode"] = decoder_cfg["upsample_mode"]
+            if "kernel_size" in decoder_cfg:
+                config_params["kernel_size"] = decoder_cfg["kernel_size"]
+            if "padding" in decoder_cfg:
+                config_params["padding"] = decoder_cfg["padding"]
+            if "upsample_scale_factor" in decoder_cfg:
+                config_params["upsample_scale_factor"] = decoder_cfg[
+                    "upsample_scale_factor"
+                ]
+
+            # Create config object if any config parameters are present
+            decoder_config = (
+                CNNDecoderConfig(**config_params) if config_params else None
+            )
 
             # CNNDecoder inherits from DecoderBase, cast for type checker
             logger.info(
@@ -501,7 +510,7 @@ class SwinV2CnnAsppUNet(UNetBase):
                     # *** Pass target size ***
                     target_size=(target_img_size, target_img_size),
                     depth=decoder_depth,  # *** Pass the derived depth ***
-                    **decoder_cfg_copy,  # Pass other config params
+                    config=decoder_config,  # Pass config object instead of kwargs
                 ),
             )
         else:

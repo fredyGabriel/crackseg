@@ -315,6 +315,7 @@ class SwinTransformerEncoder(EncoderBase):
 
         # Forward pass through the model
         features = self.swin(x)
+
         # Ensure features is a list of tensors
         if not isinstance(features, list):
             features = [features]

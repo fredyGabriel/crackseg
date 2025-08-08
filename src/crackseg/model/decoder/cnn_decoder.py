@@ -511,6 +511,7 @@ class DecoderBlock(DecoderBase):
         if x.shape[2] != skip.shape[2] or x.shape[3] != skip.shape[3]:
             h_factor: float = skip.shape[2] / x.shape[2]
             w_factor: float = skip.shape[3] / x.shape[3]
+
             if not (h_factor.is_integer() and w_factor.is_integer()):
                 raise ValueError(
                     f"Spatial upsampling factor must be integer. "

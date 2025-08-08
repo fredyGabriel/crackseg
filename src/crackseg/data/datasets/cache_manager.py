@@ -203,16 +203,21 @@ class CacheManager:
         """
         return transforms(image=image, mask=mask)
 
-    def _convert_to_tensor(self, array: np.ndarray) -> torch.Tensor:
-        """Convert numpy array to PyTorch tensor.
+    def _convert_to_tensor(
+        self, array: np.ndarray | torch.Tensor
+    ) -> torch.Tensor:
+        """Convert numpy array or PyTorch tensor to PyTorch tensor.
 
         Args:
-            array: Input numpy array
+            array: Input numpy array or PyTorch tensor
 
         Returns:
             PyTorch tensor with float32 dtype
         """
-        return torch.from_numpy(array).float()
+        if isinstance(array, torch.Tensor):
+            return array.float()
+        else:
+            return torch.from_numpy(array).float()
 
     def _ensure_image_shape(self, tensor: torch.Tensor) -> torch.Tensor:
         """Ensure image tensor has proper shape (C, H, W).

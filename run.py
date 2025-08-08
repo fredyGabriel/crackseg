@@ -43,6 +43,8 @@ import logging
 import sys
 from pathlib import Path
 
+from hydra import main as hydra_main
+
 # Configure basic logging with detailed format for development
 logging.basicConfig(
     level=logging.INFO,
@@ -64,7 +66,8 @@ if src_dir not in sys.path:
     logger.info(f"Added to PYTHONPATH: {src_dir}")
 
 
-def run_main() -> None:
+@hydra_main(version_base=None, config_path="configs", config_name="base")
+def run_main(cfg) -> None:
     """
     Execute the main training function from src/main.py with error
     handling. This function serves as a robust wrapper around the main
@@ -92,27 +95,58 @@ def run_main() -> None:
         from src.main import main
 
         logger.info("Starting main() execution with Hydra configuration...")
-        # Hydra will automatically provide the cfg parameter when called from
-        # command line
-        # For direct execution, we need to handle this differently
-        import sys
 
-        if len(sys.argv) > 1:
-            # If arguments are provided, let Hydra handle them
-            main()
+        # Handle nested configuration structure - SOLUTION DEFINITIVA
+        # This resolves the root cause of the configuration nesting issue
+        if hasattr(cfg, "experiments") and hasattr(
+            cfg.experiments, "swinv2_hybrid"
+        ):
+            # Configuration is nested under experiments/swinv2_hybrid/
+            # Move nested configuration to root level for compatibility
+            logger.info(
+                "Detected nested configuration, restructuring to root level..."
+            )
+
+            # Extract nested configuration and move to root level
+            nested_config = cfg.experiments.swinv2_hybrid
+
+            # Create new configuration with root-level structure
+            from omegaconf import OmegaConf
+
+            root_config = OmegaConf.create(
+                {
+                    "model": nested_config.model,
+                    "data": nested_config.data,
+                    "training": nested_config.training,
+                    "evaluation": nested_config.evaluation,
+                    "experiment": nested_config.experiment,
+                    "save_config": nested_config.save_config,
+                    # Preserve other root-level settings from base config
+                    "project_name": cfg.get(
+                        "project_name", "crack-segmentation"
+                    ),
+                    "output_dir": cfg.get("output_dir", "artifacts/"),
+                    "data_dir": cfg.get("data_dir", "data/"),
+                    "random_seed": cfg.get("random_seed", 42),
+                    "seed": cfg.get("seed", 42),
+                    "log_level": cfg.get("log_level", "INFO"),
+                    "log_to_file": cfg.get("log_to_file", True),
+                    "require_cuda": cfg.get("require_cuda", False),
+                    "device": cfg.get("device", "auto"),
+                    "memory": cfg.get("memory", {}),
+                    "hardware": cfg.get("hardware", {}),
+                    "timestamp_parsing": cfg.get("timestamp_parsing", {}),
+                    "thresholds": cfg.get("thresholds", {}),
+                    "visualization": cfg.get("visualization", {}),
+                    "hydra": cfg.get("hydra", {}),
+                }
+            )
+
+            logger.info("Configuration restructured successfully")
+            main(root_config)
         else:
-            # For direct execution without arguments, we need to provide a
-            # default config
-            from pathlib import Path
-
-            from hydra import compose, initialize_config_dir
-
-            config_dir = Path(__file__).parent / "configs"
-            with initialize_config_dir(
-                config_dir=str(config_dir), version_base=None
-            ):
-                cfg = compose(config_name="base")
-                main(cfg)
+            # Configuration is already at root level
+            main(cfg)
         logger.info("Training pipeline completed successfully!")
 
     except ImportError as e:

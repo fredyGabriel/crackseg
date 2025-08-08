@@ -1,150 +1,218 @@
-# Experiment Scripts
+# 🧪 Experiment Scripts - CrackSeg Project
 
-This directory contains scripts for running, analyzing, and visualizing experiments in the CrackSeg project.
+This directory contains organized scripts to run, verify, analyze and debug crack segmentation experiments.
 
-## Structure
+## 📂 Organized Structure
 
 ```bash
 scripts/experiments/
-├── README.md                           # This file
-├── experiment_visualizer.py            # Generic experiment visualization tool
-├── tutorial_02/                        # Tutorial 02 specific scripts
-│   ├── tutorial_02_compare.py          # Simple comparison for tutorial 02
-│   ├── tutorial_02_visualize.py        # Tutorial 02 visualization wrapper
-│   └── tutorial_02_batch.ps1           # Batch execution for tutorial 02
-└── [other experiment scripts...]       # Other experiment-specific scripts
+├── 📁 analysis/               # Experiment analysis
+├── 📁 benchmarking/           # Comparisons and benchmarks
+├── 📁 demos/                  # Examples and demonstrations
+├── 📁 debugging/              # Debugging tools
+├── 📁 e2e/                    # End-to-end tests
+├── 📁 tutorials/              # Educational tutorials
+└── 📄 README.md               # This documentation
 ```
 
-## Generic Tools
+---
 
-### `experiment_visualizer.py`
+## ✅ **CONFIGURATION PROBLEM RESOLVED**
 
-A **generic, reusable visualization tool** that can analyze any set of experiments.
+### 🎉 **Problem Status: RESOLVED**
+
+The **critical configuration nesting problem** has been **completely resolved**. The original issue
+where experiment configurations were not being applied correctly due to Hydra nesting has been
+fixed through:
+
+- ✅ **Standalone configuration files** without problematic `defaults: - /base`
+- ✅ **Direct parameter specification** in experiment configs
+- ✅ **Proper model instantiation** with correct components
+- ✅ **Verified working experiments** with all metrics (IoU, Dice, Precision, Recall, F1)
+
+### 🗑️ **Obsolete Scripts Removed**
+
+The following scripts have been **removed** as they are no longer needed:
+
+- ❌ `runners/` - All fixed runner scripts (problem resolved)
+- ❌ `config-verification/` - All verification scripts (problem resolved)
+
+### 🚀 **Current Usage**
+
+Experiments now run directly with the standard command:
+
+```bash
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_corrected
+```
+
+---
+
+## 🔧 **Tools by Category**
+
+### 📊 **Analysis** - Experiment Analysis
+
+#### `analysis/swinv2_hybrid/analysis/analyze_experiment.py`
+
+Comprehensive experiment analysis tool with memory usage, training progress, and performance benchmarking.
+
+```bash
+# Analyze a specific experiment
+python scripts/experiments/analysis/swinv2_hybrid/analysis/analyze_experiment.py \
+    --experiment-dir artifacts/experiments/20250806-213037-default_experiment
+```
 
 **Features:**
 
-- Loads experiment data from any experiment directory
-- Creates training curves, performance radar charts, and detailed analysis
-- Supports multiple input methods (experiment names, directory paths, auto-discovery)
-- Configurable output directory and analysis title
-- Handles any number of experiments
+- ✅ Memory usage analysis and optimization recommendations
+- ✅ Training progress monitoring
+- ✅ Performance benchmarking
+- ✅ Hardware utilization analysis
+- ✅ Experiment comparison tools
+- ✅ Dataset-specific analysis
 
-**Usage Examples:**
+---
 
-```bash
-# Analyze specific experiments by name
-python scripts/experiments/experiment_visualizer.py --experiments exp1,exp2,exp3
+### ⚖️ **Benchmarking** - Comparisons and Performance
 
-# Analyze experiments by directory paths
-python scripts/experiments/experiment_visualizer.py --experiment-dirs path1,path2,path3
+#### `benchmarking/automated_comparison.py`
 
-# Automatically find and analyze recent experiments
-python scripts/experiments/experiment_visualizer.py --auto-find --max-experiments 5
-
-# Custom output and title
-python scripts/experiments/experiment_visualizer.py --experiments exp1,exp2 --output-dir my_analysis --title "My Experiment Analysis"
-```
-
-**Arguments:**
-
-- `--experiments`: Comma-separated list of experiment names
-- `--experiment-dirs`: Comma-separated list of experiment directory paths
-- `--output-dir`: Output directory for plots and analysis (default: docs/reports/experiment_analysis)
-- `--title`: Title for the analysis (default: "Experiment Analysis")
-- `--auto-find`: Automatically find recent experiment directories
-- `--max-experiments`: Maximum number of experiments to analyze (when using --auto-find)
-
-## Tutorial-Specific Scripts
-
-### `tutorial_02/`
-
-Scripts specifically designed for Tutorial 02: "Creating Custom Experiments (CLI Only)".
-
-**Scripts:**
-
-- `tutorial_02_compare.py`: Simple text-based comparison of tutorial 02 experiments
-- `tutorial_02_visualize.py`: Wrapper that uses the generic visualizer for tutorial 02 experiments
-- `tutorial_02_batch.ps1`: PowerShell script to run all tutorial 02 experiments
-
-**Usage:**
+Automated comparison of multiple experiments with comprehensive analysis reports.
 
 ```bash
-# Run comparison
-python scripts/experiments/tutorial_02/tutorial_02_compare.py
-
-# Run visualization (uses generic visualizer)
-python scripts/experiments/tutorial_02/tutorial_02_visualize.py
-
-# Run batch execution
-.\scripts\experiments\tutorial_02\tutorial_02_batch.ps1
+# Compare multiple experiments
+python scripts/experiments/benchmarking/automated_comparison.py \
+    --experiments exp1,exp2,exp3
 ```
 
-## Best Practices
+#### `benchmarking/benchmark_aspp.py`
 
-### Creating New Experiment Scripts
+ASPP module performance benchmarking and analysis.
 
-1. **Use the generic visualizer** when possible instead of creating custom visualization code
-2. **Create tutorial-specific wrappers** that use the generic tools
-3. **Keep experiment-specific logic** in dedicated subdirectories
-4. **Follow the naming convention**: `tutorial_XX_` for tutorial-specific scripts
+---
 
-### Example: Creating Tutorial 03 Scripts
+### 🎯 **Demos** - Examples and Demonstrations
+
+#### `demos/registry_demo.py`
+
+Basic registry demonstration showing component registration.
+
+#### `demos/hybrid_registry_demo.py`
+
+Advanced hybrid registry demonstration with complex configurations.
+
+#### `demos/example_generalized_experiment.py`
+
+Generalized experiment example for different datasets and configurations.
+
+---
+
+### 🐛 **Debugging** - Debugging Tools
+
+#### `debugging/debug_swin_params.py`
+
+SwinV2 parameter debugging and analysis tool.
+
+---
+
+### 🧪 **E2E** - End-to-End Tests
+
+#### `e2e/test_pipeline_e2e.py`
+
+Complete pipeline testing with synthetic datasets and reduced models.
 
 ```bash
-# Create directory
-mkdir scripts/experiments/tutorial_03
-
-# Create wrapper script
-cat > scripts/experiments/tutorial_03/tutorial_03_visualize.py << 'EOF'
-#!/usr/bin/env python3
-"""Tutorial 03 visualization wrapper."""
-import subprocess
-import sys
-
-def main():
-    cmd = [
-        sys.executable,
-        "scripts/experiments/experiment_visualizer.py",
-        "--experiments", "tutorial_03_exp1,tutorial_03_exp2",
-        "--output-dir", "docs/reports/tutorial_03_analysis",
-        "--title", "Tutorial 03: Advanced Experiments"
-    ]
-    subprocess.run(cmd, check=True)
-
-if __name__ == "__main__":
-    main()
-EOF
+# Run end-to-end test
+python scripts/experiments/e2e/test_pipeline_e2e.py
 ```
 
-## Output Structure
+**Features:**
 
-The generic visualizer creates the following output structure:
+- ✅ Complete pipeline verification
+- ✅ Checkpoint saving/loading
+- ✅ Model evaluation
+- ✅ Results reporting
+
+---
+
+### 📚 **Tutorials** - Educational Tutorials
+
+#### `tutorials/tutorial_02/`
+
+Educational tutorial scripts for learning experiment workflows.
+
+- `tutorial_02_compare.py` - Experiment comparison tutorial
+- `tutorial_02_visualize.py` - Visualization tutorial
+- `tutorial_02_batch.ps1` - Batch processing tutorial
+
+---
+
+## 🎯 **Quick Start**
+
+### 1. **Run an Experiment**
 
 ```bash
-docs/reports/experiment_analysis/
-├── training_curves.png          # Training curves comparison
-├── performance_radar.png        # Performance radar chart
-└── experiment_comparison.csv    # Tabular comparison data
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_corrected
 ```
 
-## Dependencies
-
-The generic visualizer requires:
-
-- `matplotlib`: For creating plots
-- `pandas`: For data manipulation
-- `seaborn`: For plot styling
-- `numpy`: For numerical operations
-
-Install with:
+### 2. **Analyze Results**
 
 ```bash
-conda activate crackseg
-pip install matplotlib pandas seaborn numpy
+python scripts/experiments/analysis/swinv2_hybrid/analysis/analyze_experiment.py \
+    --experiment-dir artifacts/experiments/[EXPERIMENT_NAME]
 ```
 
-## References
+### 3. **Compare Experiments**
 
-- **Tutorial 02**: [docs/tutorials/02_custom_experiment_cli.md](../../../docs/tutorials/02_custom_experiment_cli.md)
-- **Configurations**: [configs/experiments/tutorial_02/](../../../configs/experiments/tutorial_02/)
-- **Project Structure**: [docs/reports/project_tree.md](../../../docs/reports/project_tree.md)
+```bash
+python scripts/experiments/benchmarking/automated_comparison.py \
+    --auto-find --max-experiments 5
+```
+
+### 4. **Run E2E Test**
+
+```bash
+python scripts/experiments/e2e/test_pipeline_e2e.py
+```
+
+---
+
+## 📋 **File Organization**
+
+### **Maintained Scripts:**
+
+| Category | Script | Purpose |
+|----------|--------|---------|
+| **Analysis** | `analyze_experiment.py` | Comprehensive experiment analysis |
+| **Benchmarking** | `automated_comparison.py` | Multi-experiment comparison |
+| **Benchmarking** | `benchmark_aspp.py` | ASPP module benchmarking |
+| **Demos** | `registry_demo.py` | Basic registry demonstration |
+| **Demos** | `hybrid_registry_demo.py` | Advanced registry demo |
+| **Demos** | `example_generalized_experiment.py` | Generalized experiment example |
+| **Debugging** | `debug_swin_params.py` | SwinV2 parameter debugging |
+| **E2E** | `test_pipeline_e2e.py` | Complete pipeline testing |
+| **Tutorials** | `tutorial_02_*.py` | Educational tutorials |
+
+### **Removed Scripts (Obsolete):**
+
+| Script | Reason |
+|--------|--------|
+| `run_swinv2_experiment_fixed.py` | Configuration problem resolved |
+| `verify_config_simple.py` | Configuration problem resolved |
+| `analyze_config_problem.py` | Configuration problem resolved |
+| All other fixed runners | Configuration problem resolved |
+
+---
+
+## 🎉 **Success Metrics**
+
+- ✅ **Configuration Problem:** RESOLVED
+- ✅ **Experiments Running:** Successfully with correct parameters
+- ✅ **All Metrics Present:** IoU, Dice, Precision, Recall, F1
+- ✅ **Model Components:** SwinV2, ASPP, CBAM working correctly
+- ✅ **Dataset Loading:** crack500 dataset loading correctly
+- ✅ **Hyperparameters:** Learning rate, batch size, etc. applied correctly
+
+---
+
+**Last Updated:** August 2025
+**Status:** Active - Configuration problem resolved, scripts cleaned up

@@ -6,7 +6,7 @@
 defaults:
   - training: default
   - model: default
-  - data: default
+  - data: default  # Restore data config but experiments can override it
   - data/transform: augmentations
   - data/dataloader: default
   - evaluation: default
@@ -25,7 +25,7 @@ seed: 42  # Alias for compatibility
 
 # Experiment configuration
 experiment:
-  name: "main_experiment"
+  # name: "experiment"  # Removed to avoid conflicts with specific experiment names
   output_dir: "artifacts/experiments"
 
 # Logging configuration
@@ -68,11 +68,10 @@ visualization:
   num_cols_no_targets: 2
 
 # Hydra configuration
+# Modified to prevent duplicate folder creation - Project uses its own ExperimentManager
 hydra:
-  run:
-    dir: artifacts/experiments/${now:%Y%m%d-%H%M%S}-${experiment.name}
-  sweep:
-    dir: artifacts/experiments/multirun/${now:%Y%m%d-%H%M%S}
-    subdir: ${hydra.job.num}
+  output_subdir: null  # Disable .hydra subdirectory creation
   job:
-    chdir: false
+    chdir: false       # Don't change working directory
+  run:
+    dir: .            # Use current directory (project handles output dirs)

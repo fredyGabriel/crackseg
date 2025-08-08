@@ -32,7 +32,6 @@ import logging
 import sys
 from pathlib import Path
 
-import hydra
 from hydra import compose, initialize_config_dir
 from omegaconf import DictConfig
 
@@ -52,7 +51,6 @@ from training_pipeline import (
 log = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="../configs", config_name="base")
 def main(cfg: DictConfig) -> None:
     """
     Main training pipeline entry point for crack segmentation. This

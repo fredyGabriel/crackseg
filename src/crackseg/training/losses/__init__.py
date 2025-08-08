@@ -2,11 +2,11 @@
 # and ensures all defined loss modules are imported and thus registered.
 
 from .base_loss import SegmentationLoss
-from .bce_dice_loss import BCEDiceLoss
+from .bce_dice_loss import BCEDiceLoss, BCEDiceLossConfig
 from .bce_loss import BCELoss
 from .combined_loss import CombinedLoss
 from .dice_loss import DiceLoss
-from .focal_dice_loss import FocalDiceLoss
+from .focal_dice_loss import FocalDiceLoss, FocalDiceLossConfig
 from .focal_loss import FocalLoss
 
 __all__ = [
@@ -16,7 +16,9 @@ __all__ = [
     "FocalLoss",
     "CombinedLoss",
     "BCEDiceLoss",
+    "BCEDiceLossConfig",
     "FocalDiceLoss",
+    "FocalDiceLossConfig",
     "SmoothL1Loss",
 ]
 

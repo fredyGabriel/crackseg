@@ -89,6 +89,32 @@ python run.py --config-name base
 that handles PYTHONPATH configuration and provides better error handling. We now use `base.yaml`
 which has been corrected and works properly.
 
+### **Current Recommended Configurations**
+
+For production experiments, use the current functional configurations:
+
+```bash
+# Primary recommended configuration (SwinV2 Hybrid)
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_corrected
+
+# Alternative standalone configuration
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_standalone
+
+# Basic verification (for testing)
+python run.py --config-name=basic_verification
+
+# Base configuration (for simple experiments)
+python run.py --config-name=base
+```
+
+**Performance Metrics** (from recent experiments):
+
+- **IoU**: 0.556 ✅ Good
+- **Dice**: 0.697 ✅ Good
+- **Precision**: 0.591 ✅ Good
+- **Recall**: 0.936 ✅ Excellent
+- **F1**: 0.697 ✅ Good
+
 ### What Happens During Training
 
 The training process will:

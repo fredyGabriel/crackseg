@@ -7,7 +7,7 @@ basic training to advanced customization.
 
 The tutorials are organized into two tracks:
 
-### 🖥️ **GUI Track** (Recommended for Beginners)
+### 🖥️ **GUI Track** (Available)
 
 Use the interactive web interface for a visual, user-friendly experience.
 
@@ -21,9 +21,9 @@ Use command-line tools for automation, scripting, and server environments.
 
 | Tutorial | Description | Prerequisites | Status |
 |----------|-------------|---------------|--------|
-| [01_basic_training.md](gui/01_basic_training.md) | Basic training workflow using the GUI | Project installation | ⚠️ Needs verification |
-| [02_custom_experiment.md](gui/02_custom_experiment.md) | Creating custom experiments with GUI editor | Tutorial 1 | ⚠️ Needs verification |
-| [03_extending_project.md](gui/03_extending_project.md) | Adding custom components (loss functions, models) | Tutorial 2 | ⚠️ Needs verification |
+| [01_basic_training.md](gui/01_basic_training.md) | Basic training workflow using the GUI | Project installation | ✅ Available |
+| [02_custom_experiment.md](gui/02_custom_experiment.md) | Creating custom experiments with GUI editor | Tutorial 1 | ✅ Available |
+| [03_extending_project.md](gui/03_extending_project.md) | Adding custom components (loss functions, models) | Tutorial 2 | ✅ Available |
 
 ### 💻 CLI Track
 
@@ -53,8 +53,8 @@ conda activate crackseg
 pip install -e . --no-deps
 python -c "import crackseg; print('✅ Success')"
 
-# 2. Start GUI
-streamlit run gui/app.py
+# 2. Start GUI (if available)
+# streamlit run gui/app.py
 
 # 3. Follow Tutorial 1: Basic Training
 ```
@@ -98,6 +98,18 @@ gui/01_basic_training.md → cli/02_custom_experiment_cli.md → cli/03_extendin
 ### Tutorial 1: Basic Training
 
 - ✅ Install and verify the project
+- ✅ Run experiments with Hydra configuration
+- ✅ Monitor training progress and metrics
+- ✅ Execute successful experiments (like PY-CrackDB 320x320)
+
+### Recent Success: PY-CrackDB Experiment
+
+The project has successfully executed experiments including:
+
+- ✅ **SwinV2 360x360** - Crack500 dataset (proven working)
+- ✅ **SwinV2 320x320** - PY-CrackDB dataset (recently completed)
+- ✅ **Hydra configuration** - Resolved nesting issues
+- ✅ **Bidirectional cropping** - Intelligent image processing
 - ✅ Run your first training experiment
 - ✅ Monitor training progress
 - ✅ View and analyze results

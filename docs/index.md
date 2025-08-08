@@ -9,6 +9,7 @@ Our documentation is organized into logical categories for easy navigation:
 
 ### 🎯 Getting Started
 
+- **[Manual de Usuario](user-manual/manual_usuario.pdf)**: Manual completo en español (PDF)
 - **[Installation Guide](guides/workflows/CLEAN_INSTALLATION.md)**: Get up and running with the GUI
 - **[General Usage Guide](guides/usage/USAGE.md)**: Learn how to use the gallery, scanner, and
   export features
