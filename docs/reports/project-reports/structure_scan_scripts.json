@@ -1,0 +1,114 @@
+[
+  {
+    "path": "scripts/data_processing/format_conversion",
+    "py_files": 2
+  },
+  {
+    "path": "scripts/data_processing/image_processing",
+    "py_files": 6
+  },
+  {
+    "path": "scripts/data_processing/mask_verification",
+    "py_files": 4
+  },
+  {
+    "path": "scripts/debug",
+    "py_files": 8
+  },
+  {
+    "path": "scripts/deployment",
+    "py_files": 1
+  },
+  {
+    "path": "scripts/deployment/examples",
+    "py_files": 4
+  },
+  {
+    "path": "scripts/examples",
+    "py_files": 15
+  },
+  {
+    "path": "scripts/experiments/analysis/swinv2_hybrid/analysis",
+    "py_files": 2
+  },
+  {
+    "path": "scripts/experiments/benchmarking",
+    "py_files": 2
+  },
+  {
+    "path": "scripts/experiments/debugging",
+    "py_files": 1
+  },
+  {
+    "path": "scripts/experiments/demos",
+    "py_files": 3
+  },
+  {
+    "path": "scripts/experiments/e2e",
+    "py_files": 2
+  },
+  {
+    "path": "scripts/experiments/e2e/modules",
+    "py_files": 9
+  },
+  {
+    "path": "scripts/experiments/tutorials/tutorial_02",
+    "py_files": 2
+  },
+  {
+    "path": "scripts/maintenance",
+    "py_files": 2
+  },
+  {
+    "path": "scripts/monitoring",
+    "py_files": 1
+  },
+  {
+    "path": "scripts/performance",
+    "py_files": 7
+  },
+  {
+    "path": "scripts/prediction",
+    "py_files": 2
+  },
+  {
+    "path": "scripts/reports",
+    "py_files": 6
+  },
+  {
+    "path": "scripts/utils",
+    "py_files": 4
+  },
+  {
+    "path": "scripts/utils/analysis",
+    "py_files": 5
+  },
+  {
+    "path": "scripts/utils/automation",
+    "py_files": 8
+  },
+  {
+    "path": "scripts/utils/documentation",
+    "py_files": 5
+  },
+  {
+    "path": "scripts/utils/maintenance",
+    "py_files": 8
+  },
+  {
+    "path": "scripts/utils/model_tools",
+    "py_files": 4
+  },
+  {
+    "path": "scripts/utils/quality",
+    "py_files": 5
+  },
+  {
+    "path": "scripts/utils/quality/guardrails",
+    "py_files": 9
+  },
+  {
+    "path": "scripts/utils/test_suite_refinement",
+    "py_files": 10
+  }
+]

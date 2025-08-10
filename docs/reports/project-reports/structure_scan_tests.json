@@ -1,0 +1,342 @@
+[
+  {
+    "path": "tests",
+    "py_files": 1
+  },
+  {
+    "path": "tests/e2e",
+    "py_files": 9
+  },
+  {
+    "path": "tests/e2e/capture",
+    "py_files": 5
+  },
+  {
+    "path": "tests/e2e/cleanup",
+    "py_files": 9
+  },
+  {
+    "path": "tests/e2e/config",
+    "py_files": 13
+  },
+  {
+    "path": "tests/e2e/config/viewport_config",
+    "py_files": 2
+  },
+  {
+    "path": "tests/e2e/config/viewport_config/devices",
+    "py_files": 4
+  },
+  {
+    "path": "tests/e2e/config/viewport_config/matrix",
+    "py_files": 3
+  },
+  {
+    "path": "tests/e2e/data",
+    "py_files": 2
+  },
+  {
+    "path": "tests/e2e/data/factories",
+    "py_files": 6
+  },
+  {
+    "path": "tests/e2e/data/provisioning",
+    "py_files": 4
+  },
+  {
+    "path": "tests/e2e/drivers",
+    "py_files": 5
+  },
+  {
+    "path": "tests/e2e/helpers",
+    "py_files": 5
+  },
+  {
+    "path": "tests/e2e/maintenance",
+    "py_files": 5
+  },
+  {
+    "path": "tests/e2e/mixins",
+    "py_files": 6
+  },
+  {
+    "path": "tests/e2e/pages",
+    "py_files": 8
+  },
+  {
+    "path": "tests/e2e/performance",
+    "py_files": 9
+  },
+  {
+    "path": "tests/e2e/performance/reporting",
+    "py_files": 20
+  },
+  {
+    "path": "tests/e2e/reporting",
+    "py_files": 6
+  },
+  {
+    "path": "tests/e2e/reporting/analysis",
+    "py_files": 3
+  },
+  {
+    "path": "tests/e2e/session",
+    "py_files": 6
+  },
+  {
+    "path": "tests/e2e/tests",
+    "py_files": 13
+  },
+  {
+    "path": "tests/e2e/utils",
+    "py_files": 12
+  },
+  {
+    "path": "tests/e2e/utils/responsive",
+    "py_files": 5
+  },
+  {
+    "path": "tests/e2e/waits",
+    "py_files": 3
+  },
+  {
+    "path": "tests/examples",
+    "py_files": 2
+  },
+  {
+    "path": "tests/gui",
+    "py_files": 8
+  },
+  {
+    "path": "tests/integration",
+    "py_files": 1
+  },
+  {
+    "path": "tests/integration/config",
+    "py_files": 1
+  },
+  {
+    "path": "tests/integration/data",
+    "py_files": 2
+  },
+  {
+    "path": "tests/integration/evaluation",
+    "py_files": 1
+  },
+  {
+    "path": "tests/integration/gui",
+    "py_files": 22
+  },
+  {
+    "path": "tests/integration/gui/automation",
+    "py_files": 14
+  },
+  {
+    "path": "tests/integration/gui/automation/reporting",
+    "py_files": 16
+  },
+  {
+    "path": "tests/integration/gui/automation/reporting/analysis",
+    "py_files": 5
+  },
+  {
+    "path": "tests/integration/gui/automation/reporting/data_collectors",
+    "py_files": 4
+  },
+  {
+    "path": "tests/integration/gui/concurrent_tests",
+    "py_files": 4
+  },
+  {
+    "path": "tests/integration/gui/workflow_components",
+    "py_files": 8
+  },
+  {
+    "path": "tests/integration/gui/workflow_components/concurrent",
+    "py_files": 7
+  },
+  {
+    "path": "tests/integration/model",
+    "py_files": 12
+  },
+  {
+    "path": "tests/integration/model/factory",
+    "py_files": 1
+  },
+  {
+    "path": "tests/integration/monitoring",
+    "py_files": 2
+  },
+  {
+    "path": "tests/integration/reporting",
+    "py_files": 4
+  },
+  {
+    "path": "tests/integration/reporting/analysis",
+    "py_files": 2
+  },
+  {
+    "path": "tests/integration/training",
+    "py_files": 9
+  },
+  {
+    "path": "tests/integration/utils",
+    "py_files": 8
+  },
+  {
+    "path": "tests/integration/visualization",
+    "py_files": 3
+  },
+  {
+    "path": "tests/tools/analysis",
+    "py_files": 7
+  },
+  {
+    "path": "tests/tools/benchmark",
+    "py_files": 1
+  },
+  {
+    "path": "tests/tools/coverage",
+    "py_files": 1
+  },
+  {
+    "path": "tests/tools/execution",
+    "py_files": 1
+  },
+  {
+    "path": "tests/tools/quality",
+    "py_files": 1
+  },
+  {
+    "path": "tests/tools/testing",
+    "py_files": 1
+  },
+  {
+    "path": "tests/tools/utilities",
+    "py_files": 1
+  },
+  {
+    "path": "tests/tutorials",
+    "py_files": 1
+  },
+  {
+    "path": "tests/unit",
+    "py_files": 5
+  },
+  {
+    "path": "tests/unit/data",
+    "py_files": 7
+  },
+  {
+    "path": "tests/unit/deployment",
+    "py_files": 4
+  },
+  {
+    "path": "tests/unit/docker",
+    "py_files": 2
+  },
+  {
+    "path": "tests/unit/evaluation",
+    "py_files": 8
+  },
+  {
+    "path": "tests/unit/gui",
+    "py_files": 10
+  },
+  {
+    "path": "tests/unit/gui/components",
+    "py_files": 9
+  },
+  {
+    "path": "tests/unit/gui/pages",
+    "py_files": 5
+  },
+  {
+    "path": "tests/unit/gui/utils",
+    "py_files": 4
+  },
+  {
+    "path": "tests/unit/gui/utils/config",
+    "py_files": 4
+  },
+  {
+    "path": "tests/unit/gui/utils/config/validation",
+    "py_files": 2
+  },
+  {
+    "path": "tests/unit/model",
+    "py_files": 24
+  },
+  {
+    "path": "tests/unit/model/config",
+    "py_files": 1
+  },
+  {
+    "path": "tests/unit/model/decoder",
+    "py_files": 6
+  },
+  {
+    "path": "tests/unit/model/factory",
+    "py_files": 1
+  },
+  {
+    "path": "tests/unit/reporting",
+    "py_files": 4
+  },
+  {
+    "path": "tests/unit/training",
+    "py_files": 7
+  },
+  {
+    "path": "tests/unit/training/losses",
+    "py_files": 14
+  },
+  {
+    "path": "tests/unit/utils/artifacts",
+    "py_files": 4
+  },
+  {
+    "path": "tests/unit/utils/config",
+    "py_files": 6
+  },
+  {
+    "path": "tests/unit/utils/data",
+    "py_files": 1
+  },
+  {
+    "path": "tests/unit/utils/experiment",
+    "py_files": 5
+  },
+  {
+    "path": "tests/unit/utils/integrity",
+    "py_files": 6
+  },
+  {
+    "path": "tests/unit/utils/logging",
+    "py_files": 1
+  },
+  {
+    "path": "tests/unit/utils/monitoring",
+    "py_files": 4
+  },
+  {
+    "path": "tests/unit/utils/monitoring_logging",
+    "py_files": 3
+  },
+  {
+    "path": "tests/unit/utils/traceability",
+    "py_files": 7
+  },
+  {
+    "path": "tests/unit/utils/training",
+    "py_files": 2
+  },
+  {
+    "path": "tests/utils",
+    "py_files": 5
+  },
+  {
+    "path": "tests/utils/unified_testing",
+    "py_files": 6
+  }
+]

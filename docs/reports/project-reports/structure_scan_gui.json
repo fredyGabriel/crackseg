@@ -1,0 +1,274 @@
+[
+  {
+    "path": "gui",
+    "py_files": 3
+  },
+  {
+    "path": "gui/assets",
+    "py_files": 2
+  },
+  {
+    "path": "gui/components",
+    "py_files": 1
+  },
+  {
+    "path": "gui/components/core",
+    "py_files": 1
+  },
+  {
+    "path": "gui/components/core/loading",
+    "py_files": 2
+  },
+  {
+    "path": "gui/components/core/navigation",
+    "py_files": 2
+  },
+  {
+    "path": "gui/components/core/progress",
+    "py_files": 2
+  },
+  {
+    "path": "gui/components/data",
+    "py_files": 1
+  },
+  {
+    "path": "gui/components/data/file_browser",
+    "py_files": 1
+  },
+  {
+    "path": "gui/components/data/gallery",
+    "py_files": 8
+  },
+  {
+    "path": "gui/components/data/upload",
+    "py_files": 1
+  },
+  {
+    "path": "gui/components/deprecated",
+    "py_files": 1
+  },
+  {
+    "path": "gui/components/ml",
+    "py_files": 1
+  },
+  {
+    "path": "gui/components/ml/config",
+    "py_files": 5
+  },
+  {
+    "path": "gui/components/ml/device",
+    "py_files": 4
+  },
+  {
+    "path": "gui/components/ml/tensorboard",
+    "py_files": 3
+  },
+  {
+    "path": "gui/components/ml/tensorboard/recovery",
+    "py_files": 2
+  },
+  {
+    "path": "gui/components/ml/tensorboard/rendering",
+    "py_files": 7
+  },
+  {
+    "path": "gui/components/ml/tensorboard/rendering/diagnostics",
+    "py_files": 3
+  },
+  {
+    "path": "gui/components/ml/tensorboard/rendering/status_cards",
+    "py_files": 6
+  },
+  {
+    "path": "gui/components/ml/tensorboard/state",
+    "py_files": 3
+  },
+  {
+    "path": "gui/components/ml/tensorboard/utils",
+    "py_files": 3
+  },
+  {
+    "path": "gui/components/ui",
+    "py_files": 1
+  },
+  {
+    "path": "gui/components/ui/dialogs",
+    "py_files": 3
+  },
+  {
+    "path": "gui/components/ui/error",
+    "py_files": 3
+  },
+  {
+    "path": "gui/components/ui/theme",
+    "py_files": 3
+  },
+  {
+    "path": "gui/pages",
+    "py_files": 1
+  },
+  {
+    "path": "gui/pages/core",
+    "py_files": 1
+  },
+  {
+    "path": "gui/pages/core/home",
+    "py_files": 1
+  },
+  {
+    "path": "gui/pages/data",
+    "py_files": 1
+  },
+  {
+    "path": "gui/pages/data/results",
+    "py_files": 10
+  },
+  {
+    "path": "gui/pages/ml",
+    "py_files": 1
+  },
+  {
+    "path": "gui/pages/ml/architecture",
+    "py_files": 7
+  },
+  {
+    "path": "gui/pages/ml/config",
+    "py_files": 2
+  },
+  {
+    "path": "gui/pages/ml/training",
+    "py_files": 2
+  },
+  {
+    "path": "gui/services",
+    "py_files": 4
+  },
+  {
+    "path": "gui/utils",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/config",
+    "py_files": 10
+  },
+  {
+    "path": "gui/utils/config/error_reporting",
+    "py_files": 5
+  },
+  {
+    "path": "gui/utils/config/schema",
+    "py_files": 5
+  },
+  {
+    "path": "gui/utils/config/validation",
+    "py_files": 3
+  },
+  {
+    "path": "gui/utils/core",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/core/config",
+    "py_files": 2
+  },
+  {
+    "path": "gui/utils/core/session",
+    "py_files": 3
+  },
+  {
+    "path": "gui/utils/core/validation",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/data",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/data/export",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/data/parsing",
+    "py_files": 4
+  },
+  {
+    "path": "gui/utils/data/reports",
+    "py_files": 14
+  },
+  {
+    "path": "gui/utils/deprecated",
+    "py_files": 3
+  },
+  {
+    "path": "gui/utils/ml",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/ml/architecture",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/ml/tensorboard",
+    "py_files": 7
+  },
+  {
+    "path": "gui/utils/ml/training",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/process",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/process/manager",
+    "py_files": 11
+  },
+  {
+    "path": "gui/utils/process/manager/cleanup",
+    "py_files": 3
+  },
+  {
+    "path": "gui/utils/process/manager/core",
+    "py_files": 6
+  },
+  {
+    "path": "gui/utils/process/manager/logging",
+    "py_files": 3
+  },
+  {
+    "path": "gui/utils/process/manager/monitoring",
+    "py_files": 3
+  },
+  {
+    "path": "gui/utils/process/manager/overrides",
+    "py_files": 3
+  },
+  {
+    "path": "gui/utils/process/streaming",
+    "py_files": 3
+  },
+  {
+    "path": "gui/utils/process/streaming/sources",
+    "py_files": 3
+  },
+  {
+    "path": "gui/utils/process/threading",
+    "py_files": 8
+  },
+  {
+    "path": "gui/utils/ui",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/ui/dialogs",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/ui/styling",
+    "py_files": 1
+  },
+  {
+    "path": "gui/utils/ui/theme",
+    "py_files": 2
+  }
+]

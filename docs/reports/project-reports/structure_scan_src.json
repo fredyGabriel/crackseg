@@ -1,0 +1,418 @@
+[
+  {
+    "path": "src",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/data",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/data/datasets",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/data/factory",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/data/loaders",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/data/memory",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/data/transforms",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/data/utils",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/data/validation",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/evaluation",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/evaluation/cli",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/evaluation/core",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/evaluation/ensemble",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/evaluation/metrics",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/evaluation/utils",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/evaluation/visualization",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/evaluation/visualization/analysis",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/evaluation/visualization/experiment",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/evaluation/visualization/interactive_plotly",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/evaluation/visualization/legacy",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/evaluation/visualization/prediction",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/evaluation/visualization/templates",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/evaluation/visualization/training",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/evaluation/visualization/utils",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/model",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/model/architectures",
+    "py_files": 7
+  },
+  {
+    "path": "src/crackseg/model/base",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/model/bottleneck",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/model/common",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/model/common/visualization",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/model/common/visualization/matplotlib",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/model/components",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/model/components/utils",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/model/config",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/model/config/instantiation",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/model/config/schemas",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/model/core",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/model/decoder",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/model/decoder/common",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/model/encoder",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/model/encoder/swin",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/model/factory",
+    "py_files": 13
+  },
+  {
+    "path": "src/crackseg/reporting",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/reporting/comparison",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/reporting/comparison/analysis",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/reporting/comparison/core",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/reporting/comparison/utils",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/reporting/figures",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/reporting/performance",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/reporting/recommendations",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/reporting/recommendations/analyzers",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/reporting/recommendations/identifiers",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/reporting/templates",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/reporting/templates/utils",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/reporting/utils",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/training",
+    "py_files": 11
+  },
+  {
+    "path": "src/crackseg/training/components",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/training/components/utils",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/training/losses",
+    "py_files": 11
+  },
+  {
+    "path": "src/crackseg/training/losses/combinators",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/training/losses/factory",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/training/losses/factory/utils",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/training/losses/interfaces",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/training/losses/registry",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/training/losses/registry/utils",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/training/optimizers",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/utils",
+    "py_files": 9
+  },
+  {
+    "path": "src/crackseg/utils/artifact_manager",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/utils/checkpointing",
+    "py_files": 8
+  },
+  {
+    "path": "src/crackseg/utils/config",
+    "py_files": 8
+  },
+  {
+    "path": "src/crackseg/utils/core",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/utils/deployment",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/utils/deployment/artifacts",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/utils/deployment/artifacts/optimizer",
+    "py_files": 7
+  },
+  {
+    "path": "src/crackseg/utils/deployment/artifacts/utils",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/utils/deployment/config",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/utils/deployment/config/environment",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/utils/deployment/core",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/utils/deployment/monitoring",
+    "py_files": 7
+  },
+  {
+    "path": "src/crackseg/utils/deployment/packaging",
+    "py_files": 14
+  },
+  {
+    "path": "src/crackseg/utils/deployment/utils",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/utils/deployment/validation",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/utils/deployment/validation/pipeline",
+    "py_files": 8
+  },
+  {
+    "path": "src/crackseg/utils/deployment/validation/reporting",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/utils/experiment",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/utils/experiment/tracker",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/utils/factory",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/utils/integrity",
+    "py_files": 8
+  },
+  {
+    "path": "src/crackseg/utils/logging",
+    "py_files": 6
+  },
+  {
+    "path": "src/crackseg/utils/monitoring",
+    "py_files": 3
+  },
+  {
+    "path": "src/crackseg/utils/monitoring/alerts",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/utils/monitoring/callbacks",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/utils/monitoring/coverage",
+    "py_files": 7
+  },
+  {
+    "path": "src/crackseg/utils/monitoring/resources",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/utils/monitoring/retention",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/utils/reporting",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/utils/storage",
+    "py_files": 1
+  },
+  {
+    "path": "src/crackseg/utils/traceability",
+    "py_files": 13
+  },
+  {
+    "path": "src/crackseg/utils/traceability/utils",
+    "py_files": 4
+  },
+  {
+    "path": "src/crackseg/utils/training",
+    "py_files": 5
+  },
+  {
+    "path": "src/crackseg/utils/visualization",
+    "py_files": 2
+  },
+  {
+    "path": "src/crackseg/utils/visualization/utils",
+    "py_files": 2
+  },
+  {
+    "path": "src/training_pipeline",
+    "py_files": 6
+  }
+]

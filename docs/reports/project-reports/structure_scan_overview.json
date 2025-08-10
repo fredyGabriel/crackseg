@@ -1,0 +1,27 @@
+[
+  {
+    "root": "src",
+    "directories_with_py": 104,
+    "total_py_files": 461
+  },
+  {
+    "root": "gui",
+    "directories_with_py": 68,
+    "total_py_files": 215
+  },
+  {
+    "root": "scripts",
+    "directories_with_py": 28,
+    "total_py_files": 137
+  },
+  {
+    "root": "configs",
+    "directories_with_py": 2,
+    "total_py_files": 2
+  },
+  {
+    "root": "tests",
+    "directories_with_py": 85,
+    "total_py_files": 481
+  }
+]
