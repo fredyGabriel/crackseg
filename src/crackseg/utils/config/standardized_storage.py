@@ -11,7 +11,9 @@ from crackseg.utils.logging import get_logger
 
 from .standardized_storage_utils import (
     compare_configurations,
+    create_configuration_backup,
     enrich_configuration_with_environment,
+    migrate_legacy_configuration,
     validate_configuration_completeness,
 )
 
@@ -185,6 +187,17 @@ class StandardizedConfigStorage:
         config2 = self.load_configuration(experiment_id2, config_name)
 
         return compare_configurations(config1, config2, ignore_fields)
+
+    # Convenience wrappers to keep public API stable after extraction
+    def backup_configuration(
+        self, config: DictConfig, backup_dir: Path | str, experiment_id: str
+    ) -> Path:
+        return create_configuration_backup(config, backup_dir, experiment_id)
+
+    def migrate_legacy(
+        self, legacy_config: dict[str, Any] | DictConfig
+    ) -> DictConfig:
+        return migrate_legacy_configuration(legacy_config)
 
     def list_experiments(self) -> list[str]:
         """List all available experiment IDs."""

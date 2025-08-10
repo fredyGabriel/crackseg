@@ -257,7 +257,12 @@ def migrate_legacy_configuration(
         config_dict = OmegaConf.to_container(legacy_config, resolve=True)
         migrated_config = OmegaConf.create(config_dict)
 
-    enriched = enrich_configuration_with_environment(migrated_config)
+    # Ensure DictConfig type for downstream consumers
+    if not isinstance(migrated_config, DictConfig):
+        raise ValueError("Expected DictConfig after migration")
+    enriched = enrich_configuration_with_environment(
+        cast(DictConfig, migrated_config)
+    )
     # Minimal migration metadata; callers can extend
     enriched.migration_metadata = {
         "migrated_at": datetime.now().isoformat(),
