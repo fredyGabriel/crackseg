@@ -10,6 +10,19 @@ from matplotlib.axes import Axes
 from matplotlib.patches import Rectangle
 
 
+def create_empty_plot(
+    title: str, figsize: tuple[int, int] = (8, 6)
+) -> tuple[plt.Figure, Any]:
+    """Create an empty matplotlib figure with a centered message.
+
+    Returns the (Figure, Axes) tuple.
+    """
+    fig, ax = plt.subplots(figsize=figsize)
+    ax.text(0.5, 0.5, title, ha="center", va="center", fontsize=14)
+    ax.axis("off")
+    return fig, ax
+
+
 def compute_grid_layout(
     n_items: int, grid_layout: tuple[int, int] | None
 ) -> tuple[int, int]:
