@@ -7,7 +7,6 @@ to preview changes or in fix mode to apply changes.
 
 import argparse
 import logging
-import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -21,6 +20,11 @@ from simple_mapping_registry import (  # noqa: E402
     create_default_registry,
 )
 
+from scripts.utils.quality.guardrails.link_checker_utils import (  # noqa: E402
+    extract_links_from_html_with_lines,
+    extract_links_from_markdown_with_lines,
+)
+
 
 def setup_logging(verbose: bool = False) -> None:
     """Setup logging configuration."""
@@ -32,53 +36,13 @@ def setup_logging(verbose: bool = False) -> None:
 
 
 def extract_links_from_markdown(content: str) -> list[tuple[str, str, int]]:
-    """Extract links from markdown content with line numbers.
-
-    Args:
-        content: Markdown content to parse
-
-    Returns:
-        List of (link_text, link_url, line_number) tuples
-    """
-    links = []
-    lines = content.split("\n")
-
-    for line_num, line in enumerate(lines, 1):
-        # Pattern for markdown links: [text](url)
-        link_pattern = r"\[([^\]]+)\]\(([^)]+)\)"
-        matches = re.finditer(link_pattern, line)
-
-        for match in matches:
-            link_text = match.group(1)
-            link_url = match.group(2)
-            links.append((link_text, link_url, line_num))
-
-    return links
+    """Backwards-compatible wrapper (use utils implementation)."""
+    return extract_links_from_markdown_with_lines(content)
 
 
 def extract_links_from_html(content: str) -> list[tuple[str, str, int]]:
-    """Extract links from HTML content with line numbers.
-
-    Args:
-        content: HTML content to parse
-
-    Returns:
-        List of (link_text, link_url, line_number) tuples
-    """
-    links = []
-    lines = content.split("\n")
-
-    for line_num, line in enumerate(lines, 1):
-        # Pattern for HTML links: <a href="url">text</a>
-        link_pattern = r'<a[^>]+href=["\']([^"\']+)["\'][^>]*>([^<]+)</a>'
-        matches = re.finditer(link_pattern, line)
-
-        for match in matches:
-            link_url = match.group(1)
-            link_text = match.group(2)
-            links.append((link_text, link_url, line_num))
-
-    return links
+    """Backwards-compatible wrapper (use utils implementation)."""
+    return extract_links_from_html_with_lines(content)
 
 
 def is_internal_link(url: str) -> bool:
