@@ -5,25 +5,42 @@ across documentation, tickets, analysis reports, and code components. It support
 automated updates during refactors and migrations.
 """
 
-import json
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
 from .core import CrackSegError
+from .mapping_registry_helpers import (
+    apply_artifact_mapping as _apply_artifact_mapping,
+)
+from .mapping_registry_helpers import (
+    apply_config_mapping as _apply_config_mapping,
+)
+from .mapping_registry_helpers import (
+    apply_docs_mapping as _apply_docs_mapping,
+)
+from .mapping_registry_helpers import (
+    apply_import_mapping as _apply_import_mapping,
+)
+from .mapping_registry_persistence import (
+    initialize_default_mappings as _init_default_mappings,
+)
+from .mapping_registry_persistence import (
+    load_registry_from_file as _load_registry_from_file,
+)
+from .mapping_registry_persistence import (
+    save_registry_to_file as _save_registry_to_file,
+)
+from .mapping_registry_types import PathMapping as _PathMappingType
+from .mapping_registry_utils import (
+    apply_simple_replacements,
+)
 
 
 @dataclass
-class PathMapping:
-    """Represents a mapping between old and new paths."""
-
-    old_path: str
-    new_path: str
-    mapping_type: str  # 'import', 'config', 'docs', 'artifact', 'checkpoint'
-    description: str
-    deprecated: bool = False
-    metadata: dict[str, Any] = field(default_factory=dict)
+class PathMapping(_PathMappingType):  # re-export for backward compatibility
+    ...
 
 
 @dataclass
@@ -131,91 +148,36 @@ class MappingRegistry:
             if mapping.deprecated:
                 continue
 
-            # Apply different replacement strategies based on type
             if mapping_type == "import":
-                result = self._apply_import_mapping(result, mapping)
+                result = _apply_import_mapping(
+                    result, mapping.old_path, mapping.new_path
+                )
             elif mapping_type == "config":
-                result = self._apply_config_mapping(result, mapping)
+                result = _apply_config_mapping(
+                    result, mapping.old_path, mapping.new_path
+                )
             elif mapping_type == "docs":
-                result = self._apply_docs_mapping(result, mapping)
+                result = _apply_docs_mapping(
+                    result, mapping.old_path, mapping.new_path
+                )
             elif mapping_type == "artifact":
-                result = self._apply_artifact_mapping(result, mapping)
+                result = _apply_artifact_mapping(
+                    result, mapping.old_path, mapping.new_path
+                )
             else:
-                # Generic replacement
-                result = result.replace(mapping.old_path, mapping.new_path)
+                result = apply_simple_replacements(
+                    result, mapping.old_path, mapping.new_path
+                )
 
         return result
 
-    def _apply_import_mapping(self, content: str, mapping: PathMapping) -> str:
-        """Apply import-specific mapping rules."""
-        # Handle Python import statements
-        import_patterns = [
-            f"from {mapping.old_path}",
-            f"import {mapping.old_path}",
-            f"from {mapping.old_path}.",
-            f"import {mapping.old_path}.",
-        ]
+    # Delegating mappers implemented below as module-level helpers for reuse
 
-        result = content
-        for pattern in import_patterns:
-            new_pattern = pattern.replace(mapping.old_path, mapping.new_path)
-            result = result.replace(pattern, new_pattern)
+    # See helpers below
 
-        return result
+    # See helpers below
 
-    def _apply_config_mapping(self, content: str, mapping: PathMapping) -> str:
-        """Apply configuration-specific mapping rules."""
-        # Handle Hydra config paths
-        config_patterns = [
-            f"{mapping.old_path}:",
-            f"  {mapping.old_path}:",
-            f"    {mapping.old_path}:",
-            f"defaults:\n  - {mapping.old_path}",
-            f"defaults:\n    - {mapping.old_path}",
-        ]
-
-        result = content
-        for pattern in config_patterns:
-            new_pattern = pattern.replace(mapping.old_path, mapping.new_path)
-            result = result.replace(pattern, new_pattern)
-
-        return result
-
-    def _apply_docs_mapping(self, content: str, mapping: PathMapping) -> str:
-        """Apply documentation-specific mapping rules."""
-        # Handle markdown links and references
-        docs_patterns = [
-            f"({mapping.old_path})",
-            f"[{mapping.old_path}]",
-            f"`{mapping.old_path}`",
-            f"```{mapping.old_path}```",
-        ]
-
-        result = content
-        for pattern in docs_patterns:
-            new_pattern = pattern.replace(mapping.old_path, mapping.new_path)
-            result = result.replace(pattern, new_pattern)
-
-        return result
-
-    def _apply_artifact_mapping(
-        self, content: str, mapping: PathMapping
-    ) -> str:
-        """Apply artifact-specific mapping rules."""
-        # Handle file paths and directories
-        artifact_patterns = [
-            f'"{mapping.old_path}"',
-            f"'{mapping.old_path}'",
-            f"Path('{mapping.old_path}')",
-            f"pathlib.Path('{mapping.old_path}')",
-        ]
-
-        result = content
-        for pattern in artifact_patterns:
-            new_pattern = pattern.replace(mapping.old_path, mapping.new_path)
-            result = result.replace(pattern, new_pattern)
-
-        return result
+    # See helpers below
 
     def save_registry(self, file_path: Path | None = None) -> None:
         """Save the registry to a JSON file.
@@ -229,28 +191,19 @@ class MappingRegistry:
             print("No registry file path specified")
             return
 
-        # Ensure directory exists
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Convert mappings to serializable format
-        registry_data = {
-            "version": "1.0",
-            "mappings": [
-                {
-                    "old_path": m.old_path,
-                    "new_path": m.new_path,
-                    "mapping_type": m.mapping_type,
-                    "description": m.description,
-                    "deprecated": m.deprecated,
-                    "metadata": m.metadata,
-                }
-                for m in self.mappings
-            ],
-        }
-
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(registry_data, f, indent=2, ensure_ascii=False)
-
+        # Cast to base PathMapping type for persistence
+        base_mappings = [
+            _PathMappingType(
+                old_path=m.old_path,
+                new_path=m.new_path,
+                mapping_type=m.mapping_type,
+                description=m.description,
+                deprecated=m.deprecated,
+                metadata=m.metadata,
+            )
+            for m in self.mappings
+        ]
+        _save_registry_to_file(file_path, base_mappings)
         self.logger.info(f"Registry saved to {file_path}")
 
     def load_registry(self, file_path: Path | None = None) -> None:
@@ -270,28 +223,11 @@ class MappingRegistry:
             return
 
         try:
-            with open(file_path, encoding="utf-8") as f:
-                registry_data = json.load(f)
-
-            # Clear existing mappings
-            self.mappings.clear()
-
-            # Load mappings
-            for mapping_data in registry_data.get("mappings", []):
-                mapping = PathMapping(
-                    old_path=mapping_data["old_path"],
-                    new_path=mapping_data["new_path"],
-                    mapping_type=mapping_data["mapping_type"],
-                    description=mapping_data["description"],
-                    deprecated=mapping_data.get("deprecated", False),
-                    metadata=mapping_data.get("metadata", {}),
-                )
-                self.mappings.append(mapping)
-
+            # Clear existing and load
+            self.mappings = _load_registry_from_file(file_path)
             self.logger.info(
                 f"Registry loaded from {file_path} with {len(self.mappings)} mappings"
             )
-
         except Exception as e:
             raise CrackSegError(
                 f"Failed to load registry from {file_path}: {e}"
@@ -379,43 +315,9 @@ def _initialize_default_mappings(registry: MappingRegistry) -> None:
     Args:
         registry: The registry to initialize
     """
-    # Import mappings
-    registry.add_mapping(
-        "from src.crackseg",
-        "from crackseg",
-        "import",
-        "Standardize import paths to use package name",
-    )
-
-    registry.add_mapping(
-        "from src.training_pipeline",
-        "from crackseg.training",
-        "import",
-        "Consolidate training pipeline imports",
-    )
-
-    # Config mappings
-    registry.add_mapping(
-        "model.encoder",
-        "model.architectures",
-        "config",
-        "Reorganize model configuration structure",
-    )
-
-    registry.add_mapping(
-        "outputs/",
-        "artifacts/",
-        "artifact",
-        "Standardize artifact output directory",
-    )
-
-    # Documentation mappings
-    registry.add_mapping(
-        "docs/guides/",
-        "docs/user-guides/",
-        "docs",
-        "Reorganize documentation structure",
-    )
-
-    # Save the default registry
+    for old_path, new_path, mtype, desc in _init_default_mappings():
+        registry.add_mapping(old_path, new_path, mtype, desc)
     registry.save_registry()
+
+
+# Module-level helpers moved to mapping_registry_helpers

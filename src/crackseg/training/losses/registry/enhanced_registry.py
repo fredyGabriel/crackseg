@@ -1,31 +1,31 @@
-"""
-Enhanced loss registry with advanced instantiation features.
+"""Enhanced loss registry with advanced instantiation features.
 
 This module extends the basic registry with caching, parameter validation,
 type checking, and improved error handling for production use.
 """
 
-import inspect
 import logging
 from collections.abc import Callable
 from typing import Any
 
 from ..interfaces.loss_interface import ILossComponent
 from .clean_registry import CleanLossRegistry, LossNotFoundError, RegistryError
+from .errors import ParameterValidationError, TypeValidationError
+from .utils.dynamic import (
+    build_factory_from_class as _build_factory_from_class,
+)
+from .utils.dynamic import (
+    iter_loss_classes_from_module as _iter_loss_classes_from_module,
+)
+from .utils.names import get_similar_names as _get_similar_names_helper
+from .utils.validation import (
+    check_constraint as _check_constraint_helper,
+)
+from .utils.validation import (
+    extract_parameter_schema as _extract_parameter_schema_helper,
+)
 
 logger = logging.getLogger(__name__)
-
-
-class ParameterValidationError(RegistryError):
-    """Raised when loss parameters fail validation."""
-
-    pass
-
-
-class TypeValidationError(RegistryError):
-    """Raised when instantiated loss doesn't match expected type."""
-
-    pass
 
 
 class EnhancedLossRegistry(CleanLossRegistry):
@@ -97,7 +97,7 @@ class EnhancedLossRegistry(CleanLossRegistry):
             self._parameter_schemas[name] = parameter_schema
         else:
             # Auto-generate schema from function signature
-            self._parameter_schemas[name] = self._extract_parameter_schema(
+            self._parameter_schemas[name] = _extract_parameter_schema_helper(
                 factory_func
             )
 
@@ -210,7 +210,7 @@ class EnhancedLossRegistry(CleanLossRegistry):
         for param_name, param_value in params.items():
             if param_name in constraints:
                 constraint = constraints[param_name]
-                if not self._check_constraint(param_value, constraint):
+                if not _check_constraint_helper(param_value, constraint):
                     raise ParameterValidationError(
                         f"Parameter '{param_name}' for loss '{name}' violates "
                         f"constraint: {constraint}"
@@ -231,37 +231,7 @@ class EnhancedLossRegistry(CleanLossRegistry):
     def _extract_parameter_schema(
         self, factory_func: Callable[..., Any]
     ) -> dict[str, Any]:
-        """Extract parameter schema from function signature."""
-        try:
-            sig = inspect.signature(factory_func)
-            schema: dict[str, Any] = {
-                "required": set(),
-                "types": {},
-                "defaults": {},
-            }
-
-            for param_name, param in sig.parameters.items():
-                # Skip self and *args, **kwargs
-                if param_name in ("self", "args", "kwargs"):
-                    continue
-
-                # Check if required (no default value)
-                if param.default == inspect.Parameter.empty:
-                    schema["required"].add(param_name)
-                else:
-                    schema["defaults"][param_name] = param.default
-
-                # Extract type annotation if available
-                if param.annotation != inspect.Parameter.empty:
-                    schema["types"][param_name] = param.annotation
-
-            return schema
-
-        except Exception as e:
-            logger.warning(
-                f"Failed to extract schema from {factory_func}: {e}"
-            )
-            return {}
+        return _extract_parameter_schema_helper(factory_func)
 
     def _create_cache_key(
         self, name: str, params: dict[str, Any]
@@ -290,55 +260,14 @@ class EnhancedLossRegistry(CleanLossRegistry):
     ) -> list[str]:
         """Get similar loss names for suggestions."""
         available = self.list_available()
+        return _get_similar_names_helper(available, name, max_suggestions)
 
-        # Simple similarity based on common prefixes/suffixes
-        similar: list[str] = []
-        name_lower = name.lower()
-
-        for available_name in available:
-            available_lower = available_name.lower()
-
-            # Check for common substrings
-            if (
-                name_lower in available_lower
-                or available_lower in name_lower
-                or self._levenshtein_distance(name_lower, available_lower) <= 2
-            ):
-                similar.append(available_name)
-
-        return similar[:max_suggestions]
-
-    def _levenshtein_distance(self, s1: str, s2: str) -> int:
-        """Calculate Levenshtein distance between two strings."""
-        if len(s1) < len(s2):
-            return self._levenshtein_distance(s2, s1)
-
-        if len(s2) == 0:
-            return len(s1)
-
-        previous_row = list(range(len(s2) + 1))
-        for i, c1 in enumerate(s1):
-            current_row = [i + 1]
-            for j, c2 in enumerate(s2):
-                insertions = previous_row[j + 1] + 1
-                deletions = current_row[j] + 1
-                substitutions = previous_row[j] + (c1 != c2)
-                current_row.append(min(insertions, deletions, substitutions))
-            previous_row = current_row
-
-        return previous_row[-1]
+    # Levenshtein distance implementation moved to utils.names
 
     def _check_constraint(
         self, value: Any, constraint: dict[str, Any]
     ) -> bool:
-        """Check if value satisfies constraint."""
-        if "min" in constraint and value < constraint["min"]:
-            return False
-        if "max" in constraint and value > constraint["max"]:
-            return False
-        if "choices" in constraint and value not in constraint["choices"]:
-            return False
-        return True
+        return _check_constraint_helper(value, constraint)
 
     def clear_cache(self) -> None:
         """Clear the instance cache."""
@@ -375,8 +304,7 @@ class EnhancedLossRegistry(CleanLossRegistry):
         loss_classes: list[str] | None = None,
         name_prefix: str = "",
     ) -> None:
-        """
-        Dynamically register losses from a module.
+        """Dynamically register losses from a module.
 
         Args:
             module_path: Python module path to import
@@ -384,43 +312,20 @@ class EnhancedLossRegistry(CleanLossRegistry):
             name_prefix: Prefix to add to registered names
         """
         try:
-            import importlib
-
-            module = importlib.import_module(module_path)
-
-            # Get all classes if not specified
-            if loss_classes is None:
-                loss_classes = [
-                    name
-                    for name in dir(module)
-                    if (
-                        isinstance(getattr(module, name), type)
-                        and name.endswith("Loss")
-                    )
-                ]
-
-            for class_name in loss_classes:
-                if hasattr(module, class_name):
-                    loss_class = getattr(module, class_name)
-                    registered_name = f"{name_prefix}{class_name.lower()}"
-
-                    def factory(
-                        loss_class: type = loss_class, **params: Any
-                    ) -> ILossComponent:
-                        return loss_class(**params)
-
-                    self.register_factory(
-                        registered_name,
-                        factory,
-                        module_path=module_path,
-                        class_name=class_name,
-                    )
-
-                    logger.info(
-                        f"Dynamically registered '{registered_name}' from "
-                        f"{module_path}"
-                    )
-
+            for class_name, loss_class in _iter_loss_classes_from_module(
+                module_path, loss_classes
+            ):
+                registered_name = f"{name_prefix}{class_name.lower()}"
+                factory = _build_factory_from_class(loss_class)
+                self.register_factory(
+                    registered_name,
+                    factory,
+                    module_path=module_path,
+                    class_name=class_name,
+                )
+                logger.info(
+                    f"Dynamically registered '{registered_name}' from {module_path}"
+                )
         except Exception as e:
             logger.error(f"Failed to register losses from {module_path}: {e}")
             raise RegistryError(f"Dynamic registration failed: {e}") from e

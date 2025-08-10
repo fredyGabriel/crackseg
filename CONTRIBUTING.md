@@ -1,5 +1,7 @@
 # Contributing Guide
 
+<!-- markdownlint-disable MD013 -->
+
 Thank you for contributing to CrackSeg. This guide summarizes the workflow and required quality gates.
 
 ## Workflow

@@ -1,23 +1,20 @@
-"""Core deployment components.
+from __future__ import annotations
 
-This package contains the main deployment orchestration and management
-components including deployment manager, orchestrator, and core types.
-"""
-
-from .manager import DeploymentManager
+from .manager import DeploymentManager, DeploymentMetadata, DeploymentResult
 from .orchestrator import DeploymentOrchestrator
-from .types import (
-    DeploymentMetadata,
-    DeploymentResult,
-    DeploymentState,
-    DeploymentStrategy,
-)
+from .strategies import blue_green, canary, recreate, rolling
+from .types import DeploymentConfig, DeploymentState, DeploymentStrategy
 
 __all__ = [
-    "DeploymentManager",
-    "DeploymentOrchestrator",
+    "DeploymentConfig",
+    "DeploymentStrategy",
+    "DeploymentState",
     "DeploymentMetadata",
     "DeploymentResult",
-    "DeploymentState",
-    "DeploymentStrategy",
+    "DeploymentManager",
+    "DeploymentOrchestrator",
+    "blue_green",
+    "canary",
+    "rolling",
+    "recreate",
 ]

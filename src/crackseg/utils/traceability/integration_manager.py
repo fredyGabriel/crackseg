@@ -6,12 +6,32 @@ and access control capabilities for comprehensive artifact traceability.
 """
 
 import logging
-from datetime import datetime
 from typing import Any
 
 from .access_control import AccessControl
+from .integration_ops import (
+    append_bulk_result,
+)
+from .integration_ops import (
+    audit_trace_with_access_control as _audit_trace_with_access_control,
+)
+from .integration_ops import (
+    build_bulk_results_header as _build_bulk_results_header,
+)
+from .integration_ops import (
+    get_metadata_statistics_with_access as _get_metadata_statistics_with_access,
+)
+from .integration_ops import (
+    search_with_access_control as _search_with_access_control,
+)
+from .integration_ops import (
+    validate_compliance_with_access as _validate_compliance_with_access,
+)
+
+# keep compatibility imports local where used; avoid redundant globals
 from .metadata_manager import MetadataManager
 from .storage import TraceabilityStorage
+from .utils.integration import build_access_log_entry, build_success_response
 
 logger = logging.getLogger(__name__)
 
@@ -87,24 +107,23 @@ class TraceabilityIntegrationManager:
             # Log access control event
             access_log = self.access_control.get_access_log(user_id)
             access_log.append(
-                {
-                    "timestamp": datetime.now().isoformat(),
-                    "user_id": user_id,
-                    "entity_type": "artifact",
-                    "entity_id": artifact_id,
-                    "action": f"enrich_metadata_{permission}",
-                    "result": "granted",
-                }
+                build_access_log_entry(
+                    user_id,
+                    "artifact",
+                    artifact_id,
+                    f"enrich_metadata_{permission}",
+                    "granted",
+                )
             )
 
-            return {
-                "success": True,
-                "artifact_id": artifact_id,
-                "enriched_artifact": enriched_artifact,
-                "access_granted": True,
-                "metadata_added": list(metadata.keys()),
-                "timestamp": datetime.now().isoformat(),
-            }
+            return build_success_response(
+                {
+                    "artifact_id": artifact_id,
+                    "enriched_artifact": enriched_artifact,
+                    "access_granted": True,
+                    "metadata_added": list(metadata.keys()),
+                }
+            )
 
         except Exception as e:
             logger.error(f"Failed to enrich artifact {artifact_id}: {e}")
@@ -128,42 +147,14 @@ class TraceabilityIntegrationManager:
         Returns:
             Dictionary with search results and access control info
         """
-        # Get all matching entities
-        matching_entities = self.metadata_manager.search_by_metadata(
-            metadata_key, metadata_value, entity_type
+        return _search_with_access_control(
+            self.access_control,
+            self.metadata_manager,
+            metadata_key,
+            metadata_value,
+            user_id,
+            entity_type,
         )
-
-        # Filter by access control
-        accessible_entities = []
-
-        for entity in matching_entities:
-            entity_id = entity.get(f"{entity_type}_id", "")
-
-            if entity_type == "artifact":
-                has_access = self.access_control.check_artifact_access(
-                    entity_id, user_id, "read"
-                )
-            elif entity_type == "experiment":
-                has_access = self.access_control.check_experiment_access(
-                    entity_id, user_id, "read"
-                )
-            else:
-                has_access = True  # Default for other entity types
-
-            if has_access:
-                accessible_entities.append(entity)
-
-        return {
-            "success": True,
-            "user_id": user_id,
-            "metadata_key": metadata_key,
-            "metadata_value": metadata_value,
-            "entity_type": entity_type,
-            "total_matches": len(matching_entities),
-            "accessible_matches": len(accessible_entities),
-            "accessible_entities": accessible_entities,
-            "timestamp": datetime.now().isoformat(),
-        }
 
     def get_metadata_statistics_with_access(
         self, user_id: str
@@ -176,42 +167,9 @@ class TraceabilityIntegrationManager:
         Returns:
             Dictionary with metadata statistics and access control info
         """
-        # Get user permissions
-        user_permissions = self.access_control.get_user_permissions(user_id)
-
-        # Get metadata statistics
-        metadata_stats = self.metadata_manager.get_metadata_statistics()
-
-        # Filter statistics based on access
-        accessible_stats = {
-            "user_id": user_id,
-            "total_accessible_artifacts": user_permissions[
-                "accessible_artifacts"
-            ],
-            "total_accessible_experiments": user_permissions[
-                "accessible_experiments"
-            ],
-            "owned_artifacts": user_permissions["owned_artifacts"],
-            "owned_experiments": user_permissions["owned_experiments"],
-            "metadata_keys_accessible": metadata_stats.get(
-                "artifact_metadata_keys", []
-            ),
-            "can_create_artifacts": user_permissions["can_create_artifacts"],
-            "can_create_experiments": user_permissions[
-                "can_create_experiments"
-            ],
-            "can_access_public_data": user_permissions[
-                "can_access_public_data"
-            ],
-        }
-
-        return {
-            "success": True,
-            "user_permissions": user_permissions,
-            "metadata_statistics": metadata_stats,
-            "accessible_statistics": accessible_stats,
-            "timestamp": datetime.now().isoformat(),
-        }
+        return _get_metadata_statistics_with_access(
+            self.access_control, self.metadata_manager, user_id
+        )
 
     def validate_compliance_with_access(
         self, entity_type: str, entity_id: str, user_id: str
@@ -226,48 +184,13 @@ class TraceabilityIntegrationManager:
         Returns:
             Dictionary with compliance validation and access control info
         """
-        # Check access control first
-        has_access = False
-        if entity_type == "artifact":
-            has_access = self.access_control.check_artifact_access(
-                entity_id, user_id, "read"
-            )
-        elif entity_type == "experiment":
-            has_access = self.access_control.check_experiment_access(
-                entity_id, user_id, "read"
-            )
-
-        if not has_access:
-            return {
-                "success": False,
-                "error": f"Access denied: User {user_id} cannot read "
-                f"{entity_type} {entity_id}",
-                "user_id": user_id,
-                "entity_type": entity_type,
-                "entity_id": entity_id,
-                "timestamp": datetime.now().isoformat(),
-            }
-
-        # Perform compliance validation
-        compliance_result = self.access_control.enforce_compliance_policy(
-            entity_type, entity_id
+        return _validate_compliance_with_access(
+            self.access_control,
+            self.metadata_manager,
+            entity_type,
+            entity_id,
+            user_id,
         )
-
-        # Get metadata completeness
-        completeness_result = (
-            self.metadata_manager.validate_metadata_completeness()
-        )
-
-        return {
-            "success": True,
-            "user_id": user_id,
-            "entity_type": entity_type,
-            "entity_id": entity_id,
-            "access_granted": has_access,
-            "compliance_result": compliance_result,
-            "completeness_result": completeness_result,
-            "timestamp": datetime.now().isoformat(),
-        }
 
     def audit_trace_with_access_control(
         self, user_id: str, entity_type: str | None = None
@@ -281,29 +204,9 @@ class TraceabilityIntegrationManager:
         Returns:
             Dictionary with audit trail and access control info
         """
-        # Get access log
-        access_log = self.access_control.get_access_log(user_id)
-
-        # Filter by entity type if specified
-        if entity_type:
-            access_log = [
-                entry
-                for entry in access_log
-                if entry.get("entity_type") == entity_type
-            ]
-
-        # Get user permissions
-        user_permissions = self.access_control.get_user_permissions(user_id)
-
-        return {
-            "success": True,
-            "user_id": user_id,
-            "entity_type_filter": entity_type,
-            "access_log_entries": len(access_log),
-            "access_log": access_log,
-            "user_permissions": user_permissions,
-            "timestamp": datetime.now().isoformat(),
-        }
+        return _audit_trace_with_access_control(
+            self.access_control, user_id, entity_type
+        )
 
     def bulk_metadata_operation_with_access(
         self,
@@ -325,19 +228,12 @@ class TraceabilityIntegrationManager:
         Returns:
             Dictionary with bulk operation results
         """
-        results = {
-            "success": True,
-            "operation": operation,
-            "user_id": user_id,
-            "entity_type": entity_type,
-            "total_entities": len(entity_ids),
-            "processed_entities": 0,
-            "successful_operations": 0,
-            "failed_operations": 0,
-            "access_denied": 0,
-            "results": [],
-            "timestamp": datetime.now().isoformat(),
-        }
+        results = _build_bulk_results_header(
+            operation=operation,
+            user_id=user_id,
+            entity_type=entity_type,
+            total=len(entity_ids),
+        )
 
         for entity_id in entity_ids:
             try:
@@ -353,15 +249,7 @@ class TraceabilityIntegrationManager:
                     )
 
                 if not has_access:
-                    results["access_denied"] += 1
-                    results["results"].append(
-                        {
-                            "entity_id": entity_id,
-                            "status": "access_denied",
-                            "error": f"User {user_id} cannot access "
-                            f"{entity_type} {entity_id}",
-                        }
-                    )
+                    append_bulk_result(results, entity_id, "access_denied")
                     continue
 
                 # Perform operation
@@ -380,33 +268,18 @@ class TraceabilityIntegrationManager:
                         "error": f"Unknown operation: {operation}"
                     }
 
-                results["processed_entities"] += 1
-                if operation_result.get("success", False):
-                    results["successful_operations"] += 1
-                else:
-                    results["failed_operations"] += 1
-
-                results["results"].append(
-                    {
-                        "entity_id": entity_id,
-                        "status": (
-                            "success"
-                            if operation_result.get("success", False)
-                            else "failed"
-                        ),
-                        "result": operation_result,
-                    }
+                status = (
+                    "success"
+                    if operation_result.get("success", False)
+                    else "failed"
+                )
+                append_bulk_result(
+                    results, entity_id, status, operation_result
                 )
 
             except Exception as e:
-                results["processed_entities"] += 1
-                results["failed_operations"] += 1
-                results["results"].append(
-                    {
-                        "entity_id": entity_id,
-                        "status": "error",
-                        "error": str(e),
-                    }
+                append_bulk_result(
+                    results, entity_id, "error", {"error": str(e)}
                 )
 
         return results

@@ -9,6 +9,19 @@ factory instantiation.
 import logging
 from typing import Any, cast
 
+from .utils.config_utils import (
+    extract_and_validate_weights as _extract_weights_helper,
+)
+from .utils.config_utils import (
+    is_combinator_node as _is_combinator_node_helper,
+)
+from .utils.config_utils import (
+    is_leaf_node as _is_leaf_node_helper,
+)
+from .utils.config_utils import (
+    normalize_weights as _normalize_weights_helper,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -182,9 +195,7 @@ class ConfigParser:
             children.append(child_node)
 
         # Extract and validate weights
-        weights = self._extract_and_validate_weights(
-            config, cast(list[ParsedNode], children), path
-        )
+        weights = _extract_weights_helper(config, len(children))
 
         # Create metadata
         metadata = {
@@ -229,83 +240,16 @@ class ConfigParser:
             metadata=metadata,
         )
 
-    def _extract_and_validate_weights(
-        self, config: dict[str, Any], children: list[ParsedNode], path: str
-    ) -> list[float] | None:
-        """
-        Extract and validate weights for weighted combinators.
-
-        Args:
-            config: Combinator configuration
-            children: List of child nodes
-            path: Current path in configuration
-
-        Returns:
-            Normalized weights list or None if no weights specified
-        """
-        combinator_type = config.get("type")
-        weights = config.get("weights")
-
-        # Only process weights for sum combinators
-        if combinator_type != "sum":
-            return None
-
-        # If no weights specified, use equal weights
-        if weights is None:
-            num_components = len(children)
-            equal_weight = 1.0 / num_components
-            weights = [equal_weight] * num_components
-            logger.debug(f"Using equal weights at {path}: {weights}")
-            return weights
-
-        # Validate weights
-        if not isinstance(weights, list):
-            error_msg = f"Weights must be a list at {path}"
-            self._parsing_errors.append(error_msg)
-            return None
-
-        if len(cast(list[float], weights)) != len(children):
-            error_msg = (
-                f"Number of weights ({len(cast(list[float], weights))}) must "
-                f"match number of components ({len(children)}) at {path}"
-            )
-            self._parsing_errors.append(error_msg)
-            return None
-
-        # Check for positive weights
-        if any(w <= 0 for w in weights):
-            error_msg = f"All weights must be positive at {path}"
-            self._parsing_errors.append(error_msg)
-            return None
-
-        # Normalize weights
-        normalized_weights = self._normalize_weights(weights)
-        logger.debug(f"Normalized weights at {path}: {normalized_weights}")
-        return normalized_weights
-
     def _normalize_weights(self, weights: list[float]) -> list[float]:
-        """
-        Normalize weights to sum to 1.0.
-
-        Args:
-            weights: List of weights to normalize
-
-        Returns:
-            Normalized weights list
-        """
-        total = sum(weights)
-        if total == 0:
-            raise ConfigParsingError("Cannot normalize weights: sum is zero")
-
-        return [w / total for w in weights]
+        return _normalize_weights_helper(weights)
 
     def _is_combinator_node(self, config: dict[str, Any]) -> bool:
         """Check if configuration represents a combinator node."""
-        return "type" in config and config["type"] in {"sum", "product"}
+        return _is_combinator_node_helper(config)
 
     def _is_leaf_node(self, config: dict[str, Any]) -> bool:
         """Check if configuration represents a leaf loss node."""
-        return "name" in config
+        return _is_leaf_node_helper(config)
 
     def _count_total_nodes(self, node: ParsedNode) -> int:
         """Count total nodes in the parsed tree."""

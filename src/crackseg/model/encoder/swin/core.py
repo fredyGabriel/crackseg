@@ -19,113 +19,20 @@ logger = logging.getLogger(__name__)
 
 
 class SwinTransformerEncoder(EncoderBase):
-    """Swin Transformer V2 Encoder for U-Net style segmentation networks.
+    """Swin Transformer V2 Encoder for U-Net style segmentation.
 
-    This encoder implements the Swin Transformer V2 architecture adapted for
-    semantic segmentation tasks. It provides hierarchical multi-scale feature
-    extraction suitable for decoder networks with skip connections, following
-    the U-Net paradigm.
+    Summary:
+        - Hierarchical multi-scale feature extraction with shifted windows
+        - V2 improvements: post-norm, scaled cosine attention, continuous RPB
+        - Flexible input handling (resize/pad/none) and transfer-learning utils
 
-    Architecture Details:
-        The Swin Transformer uses a hierarchical design with shifted windows
-        that enables efficient computation while maintaining cross-window
-        connections. Key improvements in V2 include:
+    Usage:
+        - Produces a bottleneck tensor and ordered skip connections
+        - Exposes `out_channels`, `skip_channels`, and `feature_info`
+        - Integrates with timm, Hydra configs, and U-Net decoders
 
-        - Post-normalization for improved training stability
-        - Scaled cosine attention for better high-resolution performance
-        - Log-spaced continuous relative position bias
-        - More flexible parameter configurations
-
-    Feature Extraction:
-        The encoder extracts features at multiple scales through patch merging
-        operations. Each stage reduces spatial resolution by 2x while typically
-        doubling channel dimensions:
-
-        - Input: H x W x 3
-        - Stage 0: H/4 x W/4 x C (after patch embedding)
-        - Stage 1: H/8 x W/8 x 2C (after first patch merging)
-        - Stage 2: H/16 x W/16 x 4C
-        - Stage 3: H/32 x W/32 x 8C
-
-    Input Handling:
-        Supports flexible input size handling strategies:
-        - Resize: Automatically resizes input to match model expectations
-        - Pad: Pads input with zeros to match expected dimensions
-        - None: Passes input unchanged (may cause errors with size mismatch)
-
-    Training Features:
-        - Layer freezing for transfer learning scenarios
-        - Gradual unfreezing with epoch-based schedules
-        - Differential learning rates for fine-tuning
-        - Comprehensive parameter grouping for optimizers
-
-    Error Recovery:
-        Includes robust fallback mechanisms:
-        - Automatic fallback to ResNet if Swin model fails to load
-        - Multiple strategies for channel dimension detection
-        - Comprehensive error logging for debugging
-
-    Attributes:
-        swin: The underlying timm Swin Transformer model instance
-        out_indices: Indices of stages to extract features from
-        img_size: Expected input image size
-        patch_size: Size of image patches for initial embedding
-        handle_input_size: Strategy for input size handling
-        freeze_layers: Current layer freezing configuration
-        finetune_lr_scale: Learning rate scaling factors by layer
-        reduction_factors: Downsampling factors for each stage
-
-    Examples:
-        >>> # Basic encoder setup
-        >>> config = SwinTransformerEncoderConfig(
-        ...     model_name="swinv2_tiny_window16_256",
-        ...     pretrained=True,
-        ...     img_size=256
-        ... )
-        >>> encoder = SwinTransformerEncoder(in_channels=3, config=config)
-
-        >>> # Forward pass
-        >>> x = torch.randn(2, 3, 256, 256)
-        >>> features, skip_features = encoder(x)
-        >>> print(f"Output features shape: {features.shape}")
-        >>> print(f"Skip features shapes: {[s.shape for s in skip_features]}")
-
-        >>> # Access channel information for decoder
-        >>> out_channels = encoder.out_channels
-        >>> skip_channels = encoder.skip_channels
-        >>> print(f"Output channels: {out_channels}")
-        >>> print(f"Skip channels: {skip_channels}")
-
-        >>> # Layer freezing for transfer learning
-        >>> encoder._apply_layer_freezing()
-        >>>
-        >>> # Gradual unfreezing during training
-        >>> unfreeze_schedule = {
-        ...     5: ["layers.3"],
-        ...     10: ["layers.2", "layers.3"],
-        ...     15: ["layers.1", "layers.2", "layers.3"]
-        ... }
-        >>> encoder.gradual_unfreeze(current_epoch=10,
-        ...                         unfreeze_schedule=unfreeze_schedule)
-
-    Integration:
-        Designed to work seamlessly with:
-        - U-Net decoders expecting multi-scale features
-        - PyTorch Lightning training workflows
-        - Hydra configuration management
-        - timm model ecosystem
-
-    Performance Considerations:
-        - Memory usage scales with input size and model variant
-        - Tiny variants suitable for resource-constrained environments
-        - Base/Large variants for maximum performance
-        - Gradient checkpointing can reduce memory at cost of speed
-
-    Notes:
-        - Requires timm library for model instantiation
-        - Pretrained weights highly recommended for best performance
-        - Input size should match model configuration for optimal results
-        - Channel dimensions are automatically detected from model
+    See documentation: docs/api/swin_encoder.md for full details, examples,
+    and performance considerations.
     """
 
     def __init__(

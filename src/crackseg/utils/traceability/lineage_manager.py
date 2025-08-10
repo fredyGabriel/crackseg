@@ -10,12 +10,18 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from .enums import ArtifactType
 from .models import (
     ArtifactEntity,
     LineageEntity,
 )
 from .storage import TraceabilityStorage
+from .utils.analysis import (
+    analyze_impact,
+    build_lineage_tree,
+    find_lineage_path,
+    validate_integrity,
+)
+from .utils.validation import validate_relationship
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +70,7 @@ class LineageManager:
             raise ValueError("Source or target artifact not found")
 
         # Validate relationship
-        self._validate_relationship(
+        validate_relationship(
             source_artifact, target_artifact, relationship_type
         )
 
@@ -178,34 +184,7 @@ class LineageManager:
             List of lineage entities forming the path
         """
         lineage_data = self.storage._load_lineage()
-        visited = set()
-        path = []
-
-        def _find_path(current_id: str, target_id: str, depth: int) -> bool:
-            if depth > max_depth or current_id in visited:
-                return False
-
-            visited.add(current_id)
-
-            for lineage in lineage_data:
-                if lineage.get("source_artifact_id") == current_id:
-                    if lineage.get("target_artifact_id") == target_id:
-                        path.append(LineageEntity.model_validate(lineage))
-                        return True
-
-                    if _find_path(
-                        lineage.get("target_artifact_id", ""),
-                        target_id,
-                        depth + 1,
-                    ):
-                        path.append(LineageEntity.model_validate(lineage))
-                        return True
-
-            return False
-
-        if _find_path(source_id, target_id, 0):
-            return list(reversed(path))
-        return []
+        return find_lineage_path(lineage_data, source_id, target_id, max_depth)
 
     def get_lineage_tree(
         self, artifact_id: str, max_depth: int = 5
@@ -220,62 +199,7 @@ class LineageManager:
             Tree structure with lineage information
         """
         lineage_data = self.storage._load_lineage()
-        tree = {
-            "artifact_id": artifact_id,
-            "children": [],
-            "parents": [],
-            "depth": 0,
-        }
-
-        def _build_tree(
-            current_id: str, depth: int, direction: str
-        ) -> list[dict[str, Any]]:
-            if depth > max_depth:
-                return []
-
-            nodes = []
-            for lineage in lineage_data:
-                if (
-                    direction == "children"
-                    and lineage.get("source_artifact_id") == current_id
-                ):
-                    nodes.append(
-                        {
-                            "lineage": LineageEntity.model_validate(lineage),
-                            "artifact_id": lineage.get("target_artifact_id"),
-                            "children": _build_tree(
-                                lineage.get("target_artifact_id", ""),
-                                depth + 1,
-                                "children",
-                            ),
-                            "parents": [],
-                            "depth": depth + 1,
-                        }
-                    )
-                elif (
-                    direction == "parents"
-                    and lineage.get("target_artifact_id") == current_id
-                ):
-                    nodes.append(
-                        {
-                            "lineage": LineageEntity.model_validate(lineage),
-                            "artifact_id": lineage.get("source_artifact_id"),
-                            "children": [],
-                            "parents": _build_tree(
-                                lineage.get("source_artifact_id", ""),
-                                depth + 1,
-                                "parents",
-                            ),
-                            "depth": depth + 1,
-                        }
-                    )
-
-            return nodes
-
-        tree["children"] = _build_tree(artifact_id, 0, "children")
-        tree["parents"] = _build_tree(artifact_id, 0, "parents")
-
-        return tree
+        return build_lineage_tree(lineage_data, artifact_id, max_depth)
 
     def analyze_lineage_impact(
         self, artifact_id: str, max_depth: int = 5
@@ -291,51 +215,7 @@ class LineageManager:
         """
         tree = self.get_lineage_tree(artifact_id, max_depth)
         lineage_data = self.storage._load_lineage()
-
-        # Count relationships
-        total_relationships = len(lineage_data)
-        direct_relationships = sum(
-            1
-            for lineage in lineage_data
-            if lineage.get("source_artifact_id") == artifact_id
-            or lineage.get("target_artifact_id") == artifact_id
-        )
-
-        # Analyze relationship types
-        relationship_types = {}
-        for lineage in lineage_data:
-            if (
-                lineage.get("source_artifact_id") == artifact_id
-                or lineage.get("target_artifact_id") == artifact_id
-            ):
-                rel_type = lineage.get("relationship_type", "unknown")
-                relationship_types[rel_type] = (
-                    relationship_types.get(rel_type, 0) + 1
-                )
-
-        # Calculate confidence statistics
-        confidences = [
-            lineage.get("confidence", 1.0)
-            for lineage in lineage_data
-            if (
-                lineage.get("source_artifact_id") == artifact_id
-                or lineage.get("target_artifact_id") == artifact_id
-            )
-        ]
-
-        avg_confidence = (
-            sum(confidences) / len(confidences) if confidences else 0.0
-        )
-
-        return {
-            "artifact_id": artifact_id,
-            "total_relationships": total_relationships,
-            "direct_relationships": direct_relationships,
-            "relationship_types": relationship_types,
-            "average_confidence": avg_confidence,
-            "tree_depth": max_depth,
-            "tree_size": len(tree["children"]) + len(tree["parents"]),
-        }
+        return analyze_impact(tree, lineage_data, artifact_id, max_depth)
 
     def validate_lineage_integrity(self) -> dict[str, Any]:
         """Validate integrity of all lineage relationships.
@@ -345,76 +225,7 @@ class LineageManager:
         """
         lineage_data = self.storage._load_lineage()
         artifacts_data = self.storage._load_artifacts()
-
-        issues = []
-        valid_count = 0
-
-        # Create lookup sets for quick validation
-        artifact_ids = {a.get("artifact_id") for a in artifacts_data}
-
-        for lineage in lineage_data:
-            source_id = lineage.get("source_artifact_id")
-            target_id = lineage.get("target_artifact_id")
-
-            # Check if artifacts exist
-            if source_id not in artifact_ids:
-                issues.append(
-                    {
-                        "type": "missing_source_artifact",
-                        "lineage_id": lineage.get("lineage_id"),
-                        "artifact_id": source_id,
-                    }
-                )
-
-            if target_id not in artifact_ids:
-                issues.append(
-                    {
-                        "type": "missing_target_artifact",
-                        "lineage_id": lineage.get("lineage_id"),
-                        "artifact_id": target_id,
-                    }
-                )
-
-            # Check for self-references
-            if source_id == target_id:
-                issues.append(
-                    {
-                        "type": "self_reference",
-                        "lineage_id": lineage.get("lineage_id"),
-                        "artifact_id": source_id,
-                    }
-                )
-
-            # Check for duplicate relationships
-            duplicate_count = sum(
-                1
-                for other in lineage_data
-                if (
-                    other.get("source_artifact_id") == source_id
-                    and other.get("target_artifact_id") == target_id
-                )
-            )
-            if duplicate_count > 1:
-                issues.append(
-                    {
-                        "type": "duplicate_relationship",
-                        "source_id": source_id,
-                        "target_id": target_id,
-                        "count": duplicate_count,
-                    }
-                )
-
-            if not issues:  # No issues found for this lineage
-                valid_count += 1
-
-        return {
-            "total_lineage": len(lineage_data),
-            "valid_lineage": valid_count,
-            "issues": issues,
-            "integrity_score": (
-                valid_count / len(lineage_data) if lineage_data else 1.0
-            ),
-        }
+        return validate_integrity(lineage_data, artifacts_data)
 
     def _get_artifact(self, artifact_id: str) -> ArtifactEntity | None:
         """Get artifact by ID.
@@ -430,43 +241,6 @@ class LineageManager:
             if artifact.get("artifact_id") == artifact_id:
                 return ArtifactEntity.model_validate(artifact)
         return None
-
-    def _validate_relationship(
-        self,
-        source: ArtifactEntity,
-        target: ArtifactEntity,
-        relationship_type: str,
-    ) -> None:
-        """Validate lineage relationship.
-
-        Args:
-            source: Source artifact
-            target: Target artifact
-            relationship_type: Type of relationship
-
-        Raises:
-            ValueError: If relationship is invalid
-        """
-        # Validate relationship types
-        valid_types = {
-            "derived_from",
-            "influenced_by",
-            "depends_on",
-            "evolves_to",
-            "replaces",
-            "complements",
-        }
-
-        if relationship_type not in valid_types:
-            raise ValueError(f"Invalid relationship type: {relationship_type}")
-
-        # Validate artifact type compatibility
-        if relationship_type == "derived_from":
-            if (
-                source.artifact_type == ArtifactType.MODEL
-                and target.artifact_type == ArtifactType.DATASET
-            ):
-                raise ValueError("Model cannot be derived from dataset")
 
     def _would_create_cycle(self, source_id: str, target_id: str) -> bool:
         """Check if adding lineage would create a cycle.

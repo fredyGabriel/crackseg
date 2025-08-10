@@ -8,7 +8,6 @@ This visualizer integrates with the ArtifactManager system for proper
 artifact tracking and storage.
 """
 
-import json
 import logging
 import tempfile
 from pathlib import Path
@@ -141,49 +140,10 @@ class AdvancedTrainingVisualizer:
     def load_training_data(
         self, experiment_dir: Path, include_gradients: bool = False
     ) -> dict[str, Any]:
-        """Load training data from experiment directory.
+        """Load training data from experiment directory."""
+        from ..utils.training_data import load_training_data as _loader
 
-        Args:
-            experiment_dir: Path to experiment directory
-            include_gradients: Whether to include gradient data
-
-        Returns:
-            Dictionary containing training data
-        """
-        training_data = {}
-
-        # Load metrics data
-        metrics_file = experiment_dir / "metrics" / "metrics.jsonl"
-        if metrics_file.exists():
-            metrics_data = []
-            with open(metrics_file) as f:
-                for line in f:
-                    metrics_data.append(json.loads(line.strip()))
-            training_data["metrics"] = metrics_data
-
-        # Load summary data
-        summary_file = experiment_dir / "metrics" / "complete_summary.json"
-        if summary_file.exists():
-            with open(summary_file) as f:
-                training_data["summary"] = json.load(f)
-
-        # Load configuration
-        config_file = experiment_dir / "config.yaml"
-        if config_file.exists():
-            with open(config_file) as f:
-                training_data["config"] = json.load(f)
-
-        # Load gradient data if requested
-        if include_gradients:
-            gradient_file = experiment_dir / "metrics" / "gradients.jsonl"
-            if gradient_file.exists():
-                gradient_data = []
-                with open(gradient_file) as f:
-                    for line in f:
-                        gradient_data.append(json.loads(line.strip()))
-                training_data["gradients"] = gradient_data
-
-        return training_data
+        return _loader(experiment_dir, include_gradients)
 
     def create_training_curves(
         self,
@@ -293,21 +253,9 @@ class AdvancedTrainingVisualizer:
         epochs = list(range(len(gradients)))
 
         # Plot gradient norms over epochs
-        gradient_norms = []
-        for epoch_grads in gradients:
-            if isinstance(epoch_grads, dict):
-                # Handle case where epoch_grads is a single gradient dict
-                epoch_norm = sum(
-                    float(val)
-                    for val in epoch_grads.values()
-                    if isinstance(val, int | float)
-                    and val != epoch_grads.get("epoch", 0)
-                )
-                gradient_norms.append(epoch_norm)
-            else:
-                # Handle case where epoch_grads is a list of gradient dicts
-                epoch_norm = sum(grad.get("norm", 0.0) for grad in epoch_grads)
-                gradient_norms.append(epoch_norm)
+        from ..utils.gradients import compute_gradient_norms
+
+        gradient_norms = compute_gradient_norms(gradients)
 
         # Clear the empty plot and create actual visualization
         ax.clear()

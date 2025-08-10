@@ -1,21 +1,44 @@
-"""Shared types for deployment module.
-
-This module contains shared types and enums used across the deployment
-module to avoid circular imports.
-"""
+from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any
 
+"""Compatibility types for deployment APIs.
+
+Bridges historical imports from `crackseg.utils.deployment.config.deployment`
+and the core manager types, so tests and examples can use either.
+"""
+
+
+# Canonical definitions used across the codebase
+@dataclass
+class DeploymentConfig:
+    artifact_id: str
+    target_environment: str = "production"
+    deployment_type: str = "container"
+
 
 class DeploymentStrategy(Enum):
-    """Deployment strategies for different environments."""
-
     BLUE_GREEN = "blue-green"
     CANARY = "canary"
     ROLLING = "rolling"
     RECREATE = "recreate"
+
+
+# Backwards-compat aliases expected by some scripts/tests
+ConfigType = DeploymentConfig
+StrategyType = DeploymentStrategy
+
+__all__ = [
+    "DeploymentConfig",
+    "DeploymentStrategy",
+    "ConfigType",
+    "StrategyType",
+]
+
+
+# (kept for historical context; primary enum declared above)
 
 
 class DeploymentState(Enum):
