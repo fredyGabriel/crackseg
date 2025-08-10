@@ -6,7 +6,6 @@ academic/industry publication styles.
 """
 
 import logging
-from dataclasses import dataclass
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -16,13 +15,12 @@ import pandas as pd
 # DictConfig is used in type hints but not directly imported
 from crackseg.reporting.config import ExperimentData, ReportConfig
 
-from .base import BaseFigureGenerator, PublicationStyle
+from .base import BaseFigureGenerator
+from .base import PublicationStyle as _BasePublicationStyle
 
 logger = logging.getLogger(__name__)
 
-
-@dataclass
-class PublicationStyle(PublicationStyle): ...
+PublicationStyle = _BasePublicationStyle
 
 
 class TrainingCurvesFigureGenerator(BaseFigureGenerator):
