@@ -1,0 +1,835 @@
+[
+  {
+    "hash": "b085a70e9d348cad71306c3e6e6c4d279f07f250ce0a4e1ceae0eddc34756c52",
+    "count": 7,
+    "preview": "def setup_logging(verbose: bool = False) -> None:\n    \"\"\"Setup logging configuration.\"\"\"\n    level = logging.DEBUG if verbose else logging.INFO\n    logging.basicConfig(\n        level=level,\n        format=\"%(asctime)s - %(name)s - %(levelname)s - %(message)s\",\n    )",
+    "occurrences": [
+      {
+        "path": "src/crackseg/evaluation/cli/prediction_cli.py",
+        "kind": "function",
+        "name": "setup_logging",
+        "lineno": 13,
+        "end_lineno": 19
+      },
+      {
+        "path": "scripts/utils/automation/auto_link_fixer.py",
+        "kind": "function",
+        "name": "setup_logging",
+        "lineno": 25,
+        "end_lineno": 31
+      },
+      {
+        "path": "scripts/utils/automation/hydra_config_migrator.py",
+        "kind": "function",
+        "name": "setup_logging",
+        "lineno": 24,
+        "end_lineno": 30
+      },
+      {
+        "path": "scripts/utils/automation/post_phase_regenerator.py",
+        "kind": "function",
+        "name": "setup_logging",
+        "lineno": 33,
+        "end_lineno": 39
+      },
+      {
+        "path": "scripts/utils/quality/guardrails/ci_consistency_checker.py",
+        "kind": "function",
+        "name": "setup_logging",
+        "lineno": 37,
+        "end_lineno": 43
+      },
+      {
+        "path": "scripts/utils/quality/guardrails/import_policy_checker.py",
+        "kind": "function",
+        "name": "setup_logging",
+        "lineno": 26,
+        "end_lineno": 32
+      },
+      {
+        "path": "scripts/utils/quality/guardrails/link_checker.py",
+        "kind": "function",
+        "name": "setup_logging",
+        "lineno": 23,
+        "end_lineno": 29
+      }
+    ]
+  },
+  {
+    "hash": "ce840fe9fc5fd47c11ab22bccfd7e73b368538b8224f56de6caf5879eacf3d6c",
+    "count": 4,
+    "preview": "    def feature_info(self) -> list[dict[str, Any]]:\n        \"\"\"Information about output features for each stage.\n\n        Returns:\n            List of dictionaries, each containing:\n                - 'channels': Number of output channels\n                - 'reduction': Spatial reduction factor from input\n                - 'stage': Stage index\n        \"\"\"\n        return self.get_feature_info()",
+    "occurrences": [
+      {
+        "path": "src/crackseg/model/architectures/cnn_convlstm_unet.py",
+        "kind": "function",
+        "name": "feature_info",
+        "lineno": 222,
+        "end_lineno": 231
+      },
+      {
+        "path": "src/crackseg/model/encoder/cnn_encoder.py",
+        "kind": "function",
+        "name": "feature_info",
+        "lineno": 126,
+        "end_lineno": 135
+      },
+      {
+        "path": "src/crackseg/model/encoder/cnn_encoder.py",
+        "kind": "function",
+        "name": "feature_info",
+        "lineno": 261,
+        "end_lineno": 270
+      },
+      {
+        "path": "src/crackseg/model/encoder/swin/core.py",
+        "kind": "function",
+        "name": "feature_info",
+        "lineno": 310,
+        "end_lineno": 319
+      }
+    ]
+  },
+  {
+    "hash": "aa2c3008950be0d23369dd04e29a0fc51e9fa7b17be050c7acee258a89249e7d",
+    "count": 3,
+    "preview": "    def _get_target_size(self) -> tuple[int, int]:\n        \"\"\"Get target image size from config.\"\"\"\n        target_size = self.config.data.image_size\n        if isinstance(target_size, list):\n            return tuple(target_size)\n        return target_size",
+    "occurrences": [
+      {
+        "path": "src/crackseg/evaluation/core/image_processor.py",
+        "kind": "function",
+        "name": "_get_target_size",
+        "lineno": 27,
+        "end_lineno": 32
+      },
+      {
+        "path": "src/crackseg/evaluation/visualization/analysis/prediction.py",
+        "kind": "function",
+        "name": "_get_target_size",
+        "lineno": 31,
+        "end_lineno": 36
+      },
+      {
+        "path": "src/crackseg/evaluation/visualization/legacy/prediction_viz.py",
+        "kind": "function",
+        "name": "_get_target_size",
+        "lineno": 28,
+        "end_lineno": 33
+      }
+    ]
+  },
+  {
+    "hash": "991e656560bce4b5bbee42904a9aaa8019a8481e517d3788982330c7fcc3a154",
+    "count": 3,
+    "preview": "    def _create_empty_plot(self, title: str) -> Figure:\n        \"\"\"Create an empty plot with a message.\n\n        Args:\n            title: Title for the empty plot\n\n        Returns:\n            Matplotlib Figure\n        \"\"\"\n        fig, ax = plt.subplots(figsize=(8, 6))",
+    "occurrences": [
+      {
+        "path": "src/crackseg/evaluation/visualization/legacy/learning_rate_analysis.py",
+        "kind": "function",
+        "name": "_create_empty_plot",
+        "lineno": 167,
+        "end_lineno": 190
+      },
+      {
+        "path": "src/crackseg/evaluation/visualization/legacy/parameter_analysis.py",
+        "kind": "function",
+        "name": "_create_empty_plot",
+        "lineno": 250,
+        "end_lineno": 273
+      },
+      {
+        "path": "src/crackseg/evaluation/visualization/legacy/training_curves.py",
+        "kind": "function",
+        "name": "_create_empty_plot",
+        "lineno": 201,
+        "end_lineno": 224
+      }
+    ]
+  },
+  {
+    "hash": "0c9522eef8b8d7a89ec95fd8e73b9f0af2965f3fef40fca60b69f9e553fa5677",
+    "count": 3,
+    "preview": "    def _calculate_checksum(self, file_path: Path) -> str:\n        \"\"\"Calculate SHA256 checksum of file.\"\"\"\n        sha256_hash = hashlib.sha256()\n        try:\n            with open(file_path, \"rb\") as f:\n                for chunk in iter(lambda: f.read(4096), b\"\"):\n                    sha256_hash.update(chunk)\n            return sha256_hash.hexdigest()\n        except Exception as e:\n            logger.error(f\"Failed to calculate checksum for {file_path}: {e}\")",
+    "occurrences": [
+      {
+        "path": "src/crackseg/utils/artifact_manager/storage.py",
+        "kind": "function",
+        "name": "_calculate_checksum",
+        "lineno": 36,
+        "end_lineno": 46
+      },
+      {
+        "path": "src/crackseg/utils/artifact_manager/validation.py",
+        "kind": "function",
+        "name": "_calculate_checksum",
+        "lineno": 20,
+        "end_lineno": 30
+      },
+      {
+        "path": "src/crackseg/utils/artifact_manager/versioning.py",
+        "kind": "function",
+        "name": "_calculate_checksum",
+        "lineno": 147,
+        "end_lineno": 157
+      }
+    ]
+  },
+  {
+    "hash": "691f041b6c13f85b5a2513cdced6d269e2c40b00d2d9c8af380b33bcc9cfe99f",
+    "count": 3,
+    "preview": "def validate_checkpoint_completeness(\n    checkpoint_data: dict[str, Any], spec: CheckpointSpec | None = None\n) -> tuple[bool, list[str]]:\n    \"\"\"Validate that checkpoint contains all required fields.\n\n    Args:\n        checkpoint_data: Checkpoint dictionary to validate\n        spec: Specification defining required fields\n\n    Returns:",
+    "occurrences": [
+      {
+        "path": "src/crackseg/utils/checkpointing/load.py",
+        "kind": "function",
+        "name": "validate_checkpoint_completeness",
+        "lineno": 197,
+        "end_lineno": 217
+      },
+      {
+        "path": "src/crackseg/utils/checkpointing/save.py",
+        "kind": "function",
+        "name": "validate_checkpoint_completeness",
+        "lineno": 276,
+        "end_lineno": 296
+      },
+      {
+        "path": "src/crackseg/utils/checkpointing/validation.py",
+        "kind": "function",
+        "name": "validate_checkpoint_completeness",
+        "lineno": 95,
+        "end_lineno": 115
+      }
+    ]
+  },
+  {
+    "hash": "63fcd870d550eb104b0f47f2b59d9a1cfea5caab961186fbb9ea2fba146d577f",
+    "count": 3,
+    "preview": "class TrainingProcessError(Exception):\n    \"\"\"Custom exception for training process errors.\n\n    Raised when training subprocess management fails due to:\n    - Process already running when starting new training\n    - Invalid command construction\n    - Working directory doesn't exist\n    - Process termination failures\n    - Override validation errors\n",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/manager/core/manager_backup_original.py",
+        "kind": "class",
+        "name": "TrainingProcessError",
+        "lineno": 30,
+        "end_lineno": 45
+      },
+      {
+        "path": "gui/utils/process/manager/core/process_manager.py",
+        "kind": "class",
+        "name": "TrainingProcessError",
+        "lineno": 28,
+        "end_lineno": 43
+      },
+      {
+        "path": "gui/utils/process/manager/core/states.py",
+        "kind": "class",
+        "name": "TrainingProcessError",
+        "lineno": 13,
+        "end_lineno": 28
+      }
+    ]
+  },
+  {
+    "hash": "2ed761f68fa8d3b26d5d9783301756fd28070357bb47bf94c29d5e04b564891d",
+    "count": 3,
+    "preview": "def find_matching_files(\n    image_dir: Path, mask_dir: Path\n) -> list[tuple[Path, Path]]:\n    \"\"\"\n    Finds corresponding image-mask file pairs.\n\n    Args:\n        image_dir: Images directory\n        mask_dir: Masks directory\n",
+    "occurrences": [
+      {
+        "path": "scripts/data_processing/image_processing/crop_crack_images.py",
+        "kind": "function",
+        "name": "find_matching_files",
+        "lineno": 151,
+        "end_lineno": 181
+      },
+      {
+        "path": "scripts/data_processing/image_processing/crop_crack_images_configurable.py",
+        "kind": "function",
+        "name": "find_matching_files",
+        "lineno": 177,
+        "end_lineno": 207
+      },
+      {
+        "path": "scripts/data_processing/image_processing/crop_py_crackdb_images.py",
+        "kind": "function",
+        "name": "find_matching_files",
+        "lineno": 260,
+        "end_lineno": 290
+      }
+    ]
+  },
+  {
+    "hash": "21c769516872d4f8ba7c4d75b2c6be2c433ba00fdbd173a055e3cd6feb9f0307",
+    "count": 3,
+    "preview": "def load_gitignore_matcher(project_root: Path):\n    if pathspec is None:\n        return lambda _p: False\n    gi = project_root / \".gitignore\"\n    if not gi.exists():\n        return lambda _p: False\n    spec = pathspec.PathSpec.from_lines(\n        \"gitwildmatch\", gi.read_text(encoding=\"utf-8\").splitlines()\n    )\n",
+    "occurrences": [
+      {
+        "path": "scripts/utils/quality/scan_artifacts_and_binaries.py",
+        "kind": "function",
+        "name": "load_gitignore_matcher",
+        "lineno": 99,
+        "end_lineno": 116
+      },
+      {
+        "path": "scripts/utils/quality/scan_duplicates_unused.py",
+        "kind": "function",
+        "name": "load_gitignore_matcher",
+        "lineno": 62,
+        "end_lineno": 79
+      },
+      {
+        "path": "scripts/utils/quality/scan_language_compliance.py",
+        "kind": "function",
+        "name": "load_gitignore_matcher",
+        "lineno": 92,
+        "end_lineno": 109
+      }
+    ]
+  },
+  {
+    "hash": "3ba8ccac1569f82f2d2ce1bfaa35e6c72e41451a69ede3fdcee832112e230a25",
+    "count": 2,
+    "preview": "    def __init__(self, style_config: dict[str, Any]) -> None:\n        \"\"\"Initialize the parameter analyzer.\n\n        Args:\n            style_config: Configuration for plot styling\n        \"\"\"\n        self.style_config = style_config",
+    "occurrences": [
+      {
+        "path": "src/crackseg/evaluation/visualization/analysis/parameter.py",
+        "kind": "function",
+        "name": "__init__",
+        "lineno": 22,
+        "end_lineno": 28
+      },
+      {
+        "path": "src/crackseg/evaluation/visualization/legacy/parameter_analysis.py",
+        "kind": "function",
+        "name": "__init__",
+        "lineno": 23,
+        "end_lineno": 29
+      }
+    ]
+  },
+  {
+    "hash": "3f6c07d341b4c7050d9a6b66b251b3979f4838baa4bdc6d75a9031d8d04e4078",
+    "count": 2,
+    "preview": "    def visualize_parameter_distributions(\n        self, model_path: Path, save_path: Path | None = None\n    ) -> Figure | PlotlyFigure:\n        \"\"\"Visualize parameter distributions from model checkpoint.\n\n        Args:\n            model_path: Path to model checkpoint\n            save_path: Path to save the visualization\n\n        Returns:",
+    "occurrences": [
+      {
+        "path": "src/crackseg/evaluation/visualization/analysis/parameter.py",
+        "kind": "function",
+        "name": "visualize_parameter_distributions",
+        "lineno": 30,
+        "end_lineno": 60
+      },
+      {
+        "path": "src/crackseg/evaluation/visualization/legacy/parameter_analysis.py",
+        "kind": "function",
+        "name": "visualize_parameter_distributions",
+        "lineno": 31,
+        "end_lineno": 61
+      }
+    ]
+  },
+  {
+    "hash": "bb3c3bc72a4400e60856b2c3ef3a13277bdfa9181a35b9cce09d2b06a0067350",
+    "count": 2,
+    "preview": "    def _extract_parameter_statistics(\n        self, model_state: dict[str, torch.Tensor]\n    ) -> dict[str, dict[str, float]]:\n        \"\"\"Extract statistical information from model parameters.\n\n        Args:\n            model_state: Model state dictionary\n\n        Returns:\n            Dictionary mapping parameter names to statistics",
+    "occurrences": [
+      {
+        "path": "src/crackseg/evaluation/visualization/analysis/parameter.py",
+        "kind": "function",
+        "name": "_extract_parameter_statistics",
+        "lineno": 62,
+        "end_lineno": 88
+      },
+      {
+        "path": "src/crackseg/evaluation/visualization/legacy/parameter_analysis.py",
+        "kind": "function",
+        "name": "_extract_parameter_statistics",
+        "lineno": 63,
+        "end_lineno": 89
+      }
+    ]
+  },
+  {
+    "hash": "3fb4f159f4db80764cd2a17d59d1bf420e0927c21d7fdde304bc2c5e2dc502c8",
+    "count": 2,
+    "preview": "    def _get_default_style(self) -> dict[str, Any]:\n        \"\"\"Get default styling configuration.\"\"\"\n        return {\n            \"figure_size\": (12, 8),\n            \"dpi\": 300,\n            \"color_palette\": \"viridis\",\n            \"grid_alpha\": 0.3,\n            \"line_width\": 2,\n            \"font_size\": 12,\n            \"title_font_size\": 14,",
+    "occurrences": [
+      {
+        "path": "src/crackseg/evaluation/visualization/training/advanced.py",
+        "kind": "function",
+        "name": "_get_default_style",
+        "lineno": 61,
+        "end_lineno": 72
+      },
+      {
+        "path": "src/crackseg/evaluation/visualization/training/core.py",
+        "kind": "function",
+        "name": "_get_default_style",
+        "lineno": 56,
+        "end_lineno": 67
+      }
+    ]
+  },
+  {
+    "hash": "a40f2aa9e347222a68fa0107526d69f4a3881e5ca1b8be1afe5baa572676daa6",
+    "count": 2,
+    "preview": "    def connect_artifact_manager(\n        self, artifact_manager: ArtifactManager\n    ) -> None:\n        \"\"\"Connect with ArtifactManager for visualization storage.\n\n        Args:\n            artifact_manager: ArtifactManager instance to use for saving\n        \"\"\"\n        self.artifact_manager = artifact_manager\n        logger.info(",
+    "occurrences": [
+      {
+        "path": "src/crackseg/evaluation/visualization/training/advanced.py",
+        "kind": "function",
+        "name": "connect_artifact_manager",
+        "lineno": 74,
+        "end_lineno": 85
+      },
+      {
+        "path": "src/crackseg/evaluation/visualization/training/core.py",
+        "kind": "function",
+        "name": "connect_artifact_manager",
+        "lineno": 69,
+        "end_lineno": 80
+      }
+    ]
+  },
+  {
+    "hash": "571583907d0106aace0b8d4c09d451a7ce559887521bd1177f0a34ae43323479",
+    "count": 2,
+    "preview": "class PathMapping:\n    \"\"\"Represents a mapping between old and new paths.\"\"\"\n\n    old_path: str\n    new_path: str\n    mapping_type: str  # 'import', 'config', 'docs', 'artifact', 'checkpoint'\n    description: str\n    deprecated: bool = False\n    metadata: dict[str, Any] = field(default_factory=dict)",
+    "occurrences": [
+      {
+        "path": "src/crackseg/utils/mapping_registry_types.py",
+        "kind": "class",
+        "name": "PathMapping",
+        "lineno": 10,
+        "end_lineno": 18
+      },
+      {
+        "path": "scripts/utils/automation/simple_mapping_registry.py",
+        "kind": "class",
+        "name": "PathMapping",
+        "lineno": 15,
+        "end_lineno": 23
+      }
+    ]
+  },
+  {
+    "hash": "1355289e27b336416aa4e60f4d2fd3880635886864c15913d4de207500896902",
+    "count": 2,
+    "preview": "def _has_nested_field(config: DictConfig, field_path: str) -> bool:\n    \"\"\"Check if a nested field exists in configuration.\"\"\"\n    try:\n        keys = field_path.split(\".\")\n        current = config\n        for key in keys:\n            # For DictConfig objects, use get() method which returns None if key doesn't exist\n            if hasattr(current, \"get\"):\n                value = current.get(key)\n                if value is None:",
+    "occurrences": [
+      {
+        "path": "src/crackseg/utils/config/standardized_storage.py",
+        "kind": "function",
+        "name": "_has_nested_field",
+        "lineno": 255,
+        "end_lineno": 274
+      },
+      {
+        "path": "src/crackseg/utils/config/standardized_storage_utils.py",
+        "kind": "function",
+        "name": "_has_nested_field",
+        "lineno": 102,
+        "end_lineno": 119
+      }
+    ]
+  },
+  {
+    "hash": "9ef8f7debc8b6eba224b3f159ccd9e8441d31231bf176b5af43c183acca1ba32",
+    "count": 2,
+    "preview": "        def report_progress(stage: str, message: str, percent: float) -> None:\n            if callback:\n                elapsed = time.time() - start_time\n                progress = AbortProgress(\n                    stage=stage,\n                    message=message,\n                    progress_percent=percent,\n                    elapsed_time=elapsed,\n                    estimated_remaining=(\n                        max(0, timeout - elapsed) if percent < 100 else 0",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/manager/cleanup/abort_system.py",
+        "kind": "function",
+        "name": "report_progress",
+        "lineno": 92,
+        "end_lineno": 104
+      },
+      {
+        "path": "gui/utils/process/manager/core/manager_backup_original.py",
+        "kind": "function",
+        "name": "report_progress",
+        "lineno": 300,
+        "end_lineno": 312
+      }
+    ]
+  },
+  {
+    "hash": "43bceb0826d10702ff9e2fbf0c88805514970af8c2c84180811c70580f78ad5a",
+    "count": 2,
+    "preview": "    def _build_command(\n        self,\n        config_path: Path,\n        config_name: str,\n        overrides: list[str] | None = None,\n    ) -> list[str]:\n        \"\"\"Build the training command safely.\n\n        Args:\n            config_path: Path to configuration directory",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/manager/core/core.py",
+        "kind": "function",
+        "name": "_build_command",
+        "lineno": 308,
+        "end_lineno": 346
+      },
+      {
+        "path": "gui/utils/process/manager/core/manager_backup_original.py",
+        "kind": "function",
+        "name": "_build_command",
+        "lineno": 504,
+        "end_lineno": 542
+      }
+    ]
+  },
+  {
+    "hash": "58f1b2870bf4a2e84a66fd053ea9a65facc93d137a7a8b715797baeab4e8ca0e",
+    "count": 2,
+    "preview": "    def _terminate_gracefully(self, timeout: float) -> None:\n        \"\"\"Attempt graceful process termination.\n\n        Args:\n            timeout: Maximum time to wait for termination\n        \"\"\"\n        if self._process is None:\n            return\n\n        try:",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/manager/core/core.py",
+        "kind": "function",
+        "name": "_terminate_gracefully",
+        "lineno": 379,
+        "end_lineno": 401
+      },
+      {
+        "path": "gui/utils/process/manager/core/manager_backup_original.py",
+        "kind": "function",
+        "name": "_terminate_gracefully",
+        "lineno": 612,
+        "end_lineno": 634
+      }
+    ]
+  },
+  {
+    "hash": "e66eb3b4612355f7ee1ca41b75fe1a5d99b91e8ab667ed86ad77a70a828f32c2",
+    "count": 2,
+    "preview": "    def _force_kill(self) -> None:\n        \"\"\"Force kill the process and its children.\"\"\"\n        if self._process is None:\n            return\n\n        try:\n            if os.name == \"nt\":\n                # Windows: Terminate process tree\n                self._process.terminate()\n            else:",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/manager/core/core.py",
+        "kind": "function",
+        "name": "_force_kill",
+        "lineno": 403,
+        "end_lineno": 421
+      },
+      {
+        "path": "gui/utils/process/manager/core/manager_backup_original.py",
+        "kind": "function",
+        "name": "_force_kill",
+        "lineno": 636,
+        "end_lineno": 654
+      }
+    ]
+  },
+  {
+    "hash": "18ad6a814b8adc7993fc8cbaf85872a11cce9435aa434de0de8e9c373e9bb760",
+    "count": 2,
+    "preview": "    def _cleanup(self) -> None:\n        \"\"\"Clean up resources after process completion.\"\"\"\n        if self._process:\n            try:\n                # Ensure pipes are closed\n                if self._process.stdout:\n                    self._process.stdout.close()\n                if self._process.stderr:\n                    self._process.stderr.close()\n                if self._process.stdin:",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/manager/core/core.py",
+        "kind": "function",
+        "name": "_cleanup",
+        "lineno": 423,
+        "end_lineno": 437
+      },
+      {
+        "path": "gui/utils/process/manager/core/manager_backup_original.py",
+        "kind": "function",
+        "name": "_cleanup",
+        "lineno": 656,
+        "end_lineno": 670
+      }
+    ]
+  },
+  {
+    "hash": "e09ebde26cc6065076975b794e688f8bd386d8532bbbacf26cb5ec2e1d8b27e9",
+    "count": 2,
+    "preview": "    def process_info(self) -> ProcessInfo:\n        \"\"\"Get current process information (thread-safe).\"\"\"\n        with self._lock:\n            return ProcessInfo(\n                pid=self._process_info.pid,\n                command=self._process_info.command.copy(),\n                start_time=self._process_info.start_time,\n                state=self._process_info.state,\n                return_code=self._process_info.return_code,\n                error_message=self._process_info.error_message,",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/manager/core/manager_backup_original.py",
+        "kind": "function",
+        "name": "process_info",
+        "lineno": 87,
+        "end_lineno": 98
+      },
+      {
+        "path": "gui/utils/process/manager/core/process_manager.py",
+        "kind": "function",
+        "name": "process_info",
+        "lineno": 83,
+        "end_lineno": 94
+      }
+    ]
+  },
+  {
+    "hash": "29c723ffbe38675dde25aaff05bf9021c708ccacc9283e3ad058ff416e083fd8",
+    "count": 2,
+    "preview": "    def _find_hydra_output_dir(self, working_dir: Path) -> Path | None:\n        \"\"\"Find the most recent Hydra output directory.\n\n        Args:\n            working_dir: Working directory where training is executed\n\n        Returns:\n            Path to Hydra output directory or None if not found\n        \"\"\"\n        try:",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/manager/core/manager_backup_original.py",
+        "kind": "function",
+        "name": "_find_hydra_output_dir",
+        "lineno": 731,
+        "end_lineno": 762
+      },
+      {
+        "path": "gui/utils/process/manager/logging/log_integration.py",
+        "kind": "function",
+        "name": "_find_hydra_output_dir",
+        "lineno": 116,
+        "end_lineno": 147
+      }
+    ]
+  },
+  {
+    "hash": "d554099c9248474abc3fb2047fbacf8c5a02ea6245349b592c71f5391ff736de",
+    "count": 2,
+    "preview": "    def __init__(\n        self,\n        coordinator: ThreadCoordinator | None = None,\n        default_timeout: float = 300.0,\n    ) -> None:\n        \"\"\"Initialize the UI responsive wrapper.\n\n        Args:\n            coordinator: Thread coordinator to use (creates new if None)\n            default_timeout: Default timeout for operations",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/threading/ui_responsive_backup.py",
+        "kind": "function",
+        "name": "__init__",
+        "lineno": 191,
+        "end_lineno": 208
+      },
+      {
+        "path": "gui/utils/process/threading/ui_wrapper.py",
+        "kind": "function",
+        "name": "__init__",
+        "lineno": 52,
+        "end_lineno": 69
+      }
+    ]
+  },
+  {
+    "hash": "e5f6ff9138d2a070751074f8a44257de36f885b6660d0357cdc137af0f3e9b8a",
+    "count": 2,
+    "preview": "    def cancel_operation(\n        self, task_name: str, reason: str = \"User cancellation\"\n    ) -> bool:\n        \"\"\"Cancel an active operation.\n\n        Args:\n            task_name: Name of task to cancel\n            reason: Reason for cancellation\n\n        Returns:",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/threading/ui_responsive_backup.py",
+        "kind": "function",
+        "name": "cancel_operation",
+        "lineno": 404,
+        "end_lineno": 423
+      },
+      {
+        "path": "gui/utils/process/threading/ui_wrapper.py",
+        "kind": "function",
+        "name": "cancel_operation",
+        "lineno": 261,
+        "end_lineno": 280
+      }
+    ]
+  },
+  {
+    "hash": "322c6fcfee923441eacd2ca14a83892a981704de9f6edc84f59b867f8798d57f",
+    "count": 2,
+    "preview": "    def cancel_all_operations(self, reason: str = \"Shutdown requested\") -> int:\n        \"\"\"Cancel all active operations.\n\n        Args:\n            reason: Reason for cancellation\n\n        Returns:\n            Number of operations cancelled\n        \"\"\"\n        with self._lock:",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/threading/ui_responsive_backup.py",
+        "kind": "function",
+        "name": "cancel_all_operations",
+        "lineno": 425,
+        "end_lineno": 443
+      },
+      {
+        "path": "gui/utils/process/threading/ui_wrapper.py",
+        "kind": "function",
+        "name": "cancel_all_operations",
+        "lineno": 282,
+        "end_lineno": 300
+      }
+    ]
+  },
+  {
+    "hash": "4669930dad702a4b69b6fa9fc750832bf3d0a90da670f2f45e8b4f0456544694",
+    "count": 2,
+    "preview": "    def wait_for_all_operations(self, timeout: float | None = None) -> bool:\n        \"\"\"Wait for all active operations to complete.\n\n        Args:\n            timeout: Maximum time to wait\n\n        Returns:\n            True if all operations completed, False if timeout\n        \"\"\"\n        with self._lock:",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/threading/ui_responsive_backup.py",
+        "kind": "function",
+        "name": "wait_for_all_operations",
+        "lineno": 450,
+        "end_lineno": 469
+      },
+      {
+        "path": "gui/utils/process/threading/ui_wrapper.py",
+        "kind": "function",
+        "name": "wait_for_all_operations",
+        "lineno": 307,
+        "end_lineno": 326
+      }
+    ]
+  },
+  {
+    "hash": "7d9a2d97826427750ee69968e63fd575e760439f8f1f5631443d7412e29a5173",
+    "count": 2,
+    "preview": "    def shutdown(self, timeout: float = 30.0) -> None:\n        \"\"\"Shutdown the wrapper and clean up resources.\n\n        Args:\n            timeout: Maximum time to wait for operations to complete\n        \"\"\"\n        # Cancel all operations\n        self.cancel_all_operations(\"Wrapper shutdown\")\n\n        # Wait for operations to complete",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/threading/ui_responsive_backup.py",
+        "kind": "function",
+        "name": "shutdown",
+        "lineno": 471,
+        "end_lineno": 485
+      },
+      {
+        "path": "gui/utils/process/threading/ui_wrapper.py",
+        "kind": "function",
+        "name": "shutdown",
+        "lineno": 328,
+        "end_lineno": 342
+      }
+    ]
+  },
+  {
+    "hash": "d8c6939a7726e2a45d36a1b1ca5a5f91a9c7c520df5d399c8b08832c76a7dd91",
+    "count": 2,
+    "preview": "        def progress_reporter(\n            current: float,\n            total: float,\n            message: str,\n            stage: str = \"Processing\",\n        ) -> None:\n            \"\"\"Internal progress reporting function.\"\"\"\n            if cancellation_token.is_cancelled:\n                return\n",
+    "occurrences": [
+      {
+        "path": "gui/utils/process/threading/ui_responsive_backup.py",
+        "kind": "function",
+        "name": "progress_reporter",
+        "lineno": 252,
+        "end_lineno": 272
+      },
+      {
+        "path": "gui/utils/process/threading/ui_wrapper.py",
+        "kind": "function",
+        "name": "progress_reporter",
+        "lineno": 113,
+        "end_lineno": 133
+      }
+    ]
+  },
+  {
+    "hash": "13e6a818f294287d39246dd8a8157e20269f7c6293705042e9319cb992b6d70d",
+    "count": 2,
+    "preview": "def setup_logging(log_level: str = \"INFO\") -> None:\n    \"\"\"Configure logging for the script.\"\"\"\n    logging.basicConfig(\n        level=getattr(logging, log_level.upper()),\n        format=\"%(asctime)s - %(levelname)s - %(message)s\",\n        handlers=[\n            logging.FileHandler(\"crop_crack_images.log\"),\n            logging.StreamHandler(),\n        ],\n    )",
+    "occurrences": [
+      {
+        "path": "scripts/data_processing/image_processing/crop_crack_images.py",
+        "kind": "function",
+        "name": "setup_logging",
+        "lineno": 22,
+        "end_lineno": 31
+      },
+      {
+        "path": "scripts/data_processing/image_processing/crop_crack_images_configurable.py",
+        "kind": "function",
+        "name": "setup_logging",
+        "lineno": 25,
+        "end_lineno": 34
+      }
+    ]
+  },
+  {
+    "hash": "1b6e2fc0cc774272efc7f774da0ff0095888cf423e1312a46ef97b09ed4f933d",
+    "count": 2,
+    "preview": "def analyze_crack_density(mask: np.ndarray) -> str:\n    \"\"\"\n    Analyzes crack density in each half of the image.\n\n    Args:\n        mask: Binarized mask (0 = background, 255 = crack)\n\n    Returns:\n        \"left\" if the left half has more cracks\n        \"right\" if the right half has more cracks",
+    "occurrences": [
+      {
+        "path": "scripts/data_processing/image_processing/crop_crack_images.py",
+        "kind": "function",
+        "name": "analyze_crack_density",
+        "lineno": 34,
+        "end_lineno": 79
+      },
+      {
+        "path": "scripts/data_processing/image_processing/crop_crack_images_configurable.py",
+        "kind": "function",
+        "name": "analyze_crack_density",
+        "lineno": 52,
+        "end_lineno": 97
+      }
+    ]
+  },
+  {
+    "hash": "638b2501e964daa7d4aaf48a3c5f0217a889c471c2d3e300da279d8364da5a97",
+    "count": 2,
+    "preview": "def create_mock_config() -> DeploymentConfig:\n    \"\"\"Create a mock deployment configuration.\"\"\"\n    return DeploymentConfig(\n        artifact_id=\"crackseg-model-v2.1\",\n        target_environment=\"docker\",\n        target_format=\"pytorch\",\n        run_functional_tests=True,\n        run_performance_tests=True,\n        run_security_scan=True,\n    )",
+    "occurrences": [
+      {
+        "path": "scripts/examples/validation_pipeline_demo.py",
+        "kind": "function",
+        "name": "create_mock_config",
+        "lineno": 29,
+        "end_lineno": 38
+      },
+      {
+        "path": "scripts/examples/validation_reporting_demo.py",
+        "kind": "function",
+        "name": "create_mock_config",
+        "lineno": 30,
+        "end_lineno": 39
+      }
+    ]
+  },
+  {
+    "hash": "5499947b0f5c2ed9d7cbcb82b720ceab2b91fc88992b9fcec758d18dc72e590e",
+    "count": 2,
+    "preview": "def generate_sensitivity_specificity_evolution():\n    \"\"\"Genera gr\u00e1fica de evoluci\u00f3n de sensibilidad y especificidad.\"\"\"\n    epochs = np.arange(1, 31)\n\n    # Simulaci\u00f3n de sensibilidad (similar al recall)\n    sensitivity = (\n        0.35\n        + 0.52 * (1 - np.exp(-epochs / 5))\n        + 0.03 * np.random.normal(0, 1, len(epochs))\n    )",
+    "occurrences": [
+      {
+        "path": "scripts/utils/generate_py_crackdb_plots.py",
+        "kind": "function",
+        "name": "generate_sensitivity_specificity_evolution",
+        "lineno": 285,
+        "end_lineno": 364
+      },
+      {
+        "path": "scripts/utils/generate_sensitivity_specificity_plot.py",
+        "kind": "function",
+        "name": "generate_sensitivity_specificity_evolution",
+        "lineno": 21,
+        "end_lineno": 100
+      }
+    ]
+  },
+  {
+    "hash": "5e13dcde7d1895148a57c0ccdada57fb1f5851f111ede34741e34d4643435457",
+    "count": 2,
+    "preview": "def is_internal_link(url: str) -> bool:\n    \"\"\"Check if a URL is an internal link.\n\n    Args:\n        url: URL to check\n\n    Returns:\n        True if internal, False if external\n    \"\"\"\n    # Check if it's a relative path",
+    "occurrences": [
+      {
+        "path": "scripts/utils/automation/auto_link_fixer.py",
+        "kind": "function",
+        "name": "is_internal_link",
+        "lineno": 84,
+        "end_lineno": 101
+      },
+      {
+        "path": "scripts/utils/quality/guardrails/link_checker.py",
+        "kind": "function",
+        "name": "is_internal_link",
+        "lineno": 90,
+        "end_lineno": 107
+      }
+    ]
+  },
+  {
+    "hash": "eb4088a1adac9cbc11aee0e727a90770c111510991e5c5ab6bfe0f62a083f3a5",
+    "count": 2,
+    "preview": "def resolve_internal_link(base_path: Path, link: str) -> Path:\n    \"\"\"Resolve an internal link to a file path.\n\n    Args:\n        base_path: Base path for resolution\n        link: Link to resolve\n\n    Returns:\n        Resolved file path\n    \"\"\"",
+    "occurrences": [
+      {
+        "path": "scripts/utils/automation/auto_link_fixer.py",
+        "kind": "function",
+        "name": "resolve_internal_link",
+        "lineno": 104,
+        "end_lineno": 125
+      },
+      {
+        "path": "scripts/utils/quality/guardrails/link_checker.py",
+        "kind": "function",
+        "name": "resolve_internal_link",
+        "lineno": 110,
+        "end_lineno": 131
+      }
+    ]
+  }
+]
