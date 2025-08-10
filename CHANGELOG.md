@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Refactoring Cleanup
+
+- Reduce oversized source files (>400 LOC) via modularization and helper extraction while preserving public APIs
+- Introduce compatibility shims to maintain legacy import paths (e.g., model base classes, deployment core types, reporting figures)
+- Centralize constants, strategies, and utilities for deployment and visualization modules
+- Keep file-size guardrails green; line-limit guardrail passes across refactor scope
+
+### Testing
+
+- Defer comprehensive test updates to a dedicated PR; this PR only adds compatibility shims to keep existing imports and APIs stable
+
 ### Documentation
 
 - Add legacy deprecation notices in developer-guides (development/quality/architecture) and link to
