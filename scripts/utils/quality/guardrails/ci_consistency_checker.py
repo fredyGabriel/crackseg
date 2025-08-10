@@ -22,25 +22,14 @@ sys.path.insert(
     0, str(project_root / "scripts" / "utils" / "quality" / "guardrails")
 )
 
-from import_policy_checker import (  # noqa: E402
-    check_directory_imports,
-)
-from link_checker import (  # noqa: E402
-    check_directory_links,
-)
+from import_policy_checker import check_directory_imports  # noqa: E402
+from link_checker import check_directory_links  # noqa: E402
 from simple_mapping_registry import (  # noqa: E402
     SimpleMappingRegistry,
     create_default_registry,
 )
 
-
-def setup_logging(verbose: bool = False) -> None:
-    """Setup logging configuration."""
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
+from scripts.utils.common.logging_utils import setup_logging  # noqa: E402
 
 
 def check_stale_reports(

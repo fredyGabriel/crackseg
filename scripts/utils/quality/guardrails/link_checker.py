@@ -10,6 +10,8 @@ import re
 import sys
 from pathlib import Path
 
+from scripts.utils.common.logging_utils import setup_logging
+
 # Add project root to path for imports
 project_root = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(project_root / "scripts" / "utils" / "automation"))
@@ -18,15 +20,6 @@ from simple_mapping_registry import (  # noqa: E402
     SimpleMappingRegistry,
     create_default_registry,
 )
-
-
-def setup_logging(verbose: bool = False) -> None:
-    """Setup logging configuration."""
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
 
 
 def _strip_code_blocks_markdown(content: str) -> str:
