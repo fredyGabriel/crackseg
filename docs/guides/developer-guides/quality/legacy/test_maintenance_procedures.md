@@ -1,5 +1,9 @@
 # Test Maintenance Procedures and Regression Prevention
 
+> Legacy notice: this document is legacy and will be consolidated. See
+> `docs/guides/developer-guides/quality/` and the bucket README for the canonical version and
+> current navigation.
+
 **Document Version**: 1.1
 **Last Updated**: July 2025
 **Scope**: GUI Test Infrastructure Management

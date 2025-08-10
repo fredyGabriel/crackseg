@@ -4,9 +4,9 @@ import torch
 from omegaconf import OmegaConf
 
 from crackseg.model.factory import create_unet
-from crackseg.utils.checkpointing import load_checkpoint_dict
 from crackseg.utils.exceptions import EvaluationError, ModelError
 from crackseg.utils.logging import get_logger
+from crackseg.utils.storage import load_checkpoint_dict
 
 log = get_logger("evaluation.loading")
 

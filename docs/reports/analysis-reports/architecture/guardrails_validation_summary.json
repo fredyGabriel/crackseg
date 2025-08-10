@@ -1,0 +1,105 @@
+{
+  "overall_status": "fail",
+  "line_limit": {
+    "counts": {
+      "critical": 25,
+      "warning": 45,
+      "ok": 345
+    },
+    "top": [
+      [
+        "src\\crackseg\\utils\\config\\standardized_storage.py",
+        581
+      ],
+      [
+        "src\\crackseg\\utils\\deployment\\packaging\\core.py",
+        540
+      ],
+      [
+        "src\\crackseg\\utils\\integrity\\config_verifier.py",
+        519
+      ],
+      [
+        "src\\crackseg\\evaluation\\visualization\\advanced_prediction_viz.py",
+        515
+      ],
+      [
+        "src\\crackseg\\utils\\deployment\\utils\\multi_target.py",
+        515
+      ],
+      [
+        "src\\crackseg\\reporting\\figures\\publication_figure_generator.py",
+        504
+      ],
+      [
+        "src\\crackseg\\reporting\\templates\\html_templates.py",
+        503
+      ],
+      [
+        "src\\crackseg\\model\\config\\schemas.py",
+        498
+      ],
+      [
+        "src\\crackseg\\utils\\deployment\\artifacts\\selector.py",
+        489
+      ],
+      [
+        "src\\crackseg\\utils\\deployment\\core\\manager.py",
+        486
+      ]
+    ]
+  },
+  "oversized": {
+    "counts": {
+      "critical": 25,
+      "warning": 45,
+      "ok": 345
+    },
+    "top": [
+      [
+        "crackseg.utils.config.standardized_storage",
+        581
+      ],
+      [
+        "crackseg.utils.deployment.packaging.core",
+        540
+      ],
+      [
+        "crackseg.utils.integrity.config_verifier",
+        519
+      ],
+      [
+        "crackseg.evaluation.visualization.advanced_prediction_viz",
+        515
+      ],
+      [
+        "crackseg.utils.deployment.utils.multi_target",
+        515
+      ],
+      [
+        "crackseg.reporting.figures.publication_figure_generator",
+        504
+      ],
+      [
+        "crackseg.reporting.templates.html_templates",
+        503
+      ],
+      [
+        "crackseg.model.config.schemas",
+        498
+      ],
+      [
+        "crackseg.utils.deployment.artifacts.selector",
+        489
+      ],
+      [
+        "crackseg.utils.deployment.core.manager",
+        486
+      ]
+    ]
+  },
+  "link_checker": {
+    "errors": 0,
+    "warnings": 0
+  }
+}

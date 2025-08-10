@@ -10,12 +10,12 @@ import torch
 from omegaconf import DictConfig, OmegaConf
 
 from crackseg.training.batch_processing import train_step
-from crackseg.utils.checkpointing.helpers import (
+from crackseg.utils.logging.training import safe_log
+from crackseg.utils.storage import (
     CheckpointConfig,
     CheckpointContext,
     handle_epoch_checkpointing,
 )
-from crackseg.utils.logging.training import safe_log
 from crackseg.utils.training.amp_utils import (
     amp_autocast,
     optimizer_step_with_accumulation,

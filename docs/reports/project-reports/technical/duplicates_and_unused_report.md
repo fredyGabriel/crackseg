@@ -1,30 +1,28 @@
 <!-- markdownlint-disable-file -->
-# Duplicates and unused modules report — 2025-08-07 23:58:15 UTC
+# Duplicates and unused modules report — 2025-08-10 04:41:38 UTC
 
 Heuristic scan; please review before deletion/refactor.
 
 ## Summary
 
-Duplicate groups: 4
-Unused modules under src/: 89
+Duplicate groups: 3
+Unused modules under src/: 93
 
 ## Potential duplicate groups (size+hash)
 
 - Group 1:
+  - `docs/reports/analysis-reports/architecture/deps_report.txt`
+  - `docs/reports/analysis-reports/architecture/dup_unused_report.txt`
+  - `docs/reports/analysis-reports/architecture/language_compliance_report.txt`
   - `gui/__init__.py`
   - `gui/services/__init__.py`
   - `infrastructure/deployment/packages/test-crackseg-model/package/app/streamlit_app.py`
-  - `tests/unit/__init__.py`
-  - `tests/unit/gui/__init__.py`
 - Group 2:
   - `docs/designs/logo.png`
   - `gui/assets/images/logos/primary-logo.png`
 - Group 3:
   - `docs/reports/experiment-reports/plots/legacy/training_curves_20250724_081112.png`
   - `docs/reports/experiment-reports/plots/legacy/training_curves_20250724_081136.png`
-- Group 4:
-  - `scripts/__init__.py`
-  - `tests/__init__.py`
 
 ## Unused Python modules under src/
 
@@ -32,11 +30,6 @@ Path | Module
 :-- | :--
 `src/crackseg/evaluation/metrics/batch_processor.py` | `crackseg.evaluation.metrics.batch_processor`
 `src/crackseg/evaluation/metrics/calculator.py` | `crackseg.evaluation.metrics.calculator`
-`src/crackseg/evaluation/utils/core.py` | `crackseg.evaluation.utils.core`
-`src/crackseg/evaluation/utils/data.py` | `crackseg.evaluation.utils.data`
-`src/crackseg/evaluation/utils/loading.py` | `crackseg.evaluation.utils.loading`
-`src/crackseg/evaluation/utils/results.py` | `crackseg.evaluation.utils.results`
-`src/crackseg/evaluation/utils/setup.py` | `crackseg.evaluation.utils.setup`
 `src/crackseg/evaluation/visualization/analysis/parameter.py` | `crackseg.evaluation.visualization.analysis.parameter`
 `src/crackseg/evaluation/visualization/analysis/prediction.py` | `crackseg.evaluation.visualization.analysis.prediction`
 `src/crackseg/evaluation/visualization/experiment/core.py` | `crackseg.evaluation.visualization.experiment.core`
@@ -60,6 +53,15 @@ Path | Module
 `src/crackseg/model/common/visualization/matplotlib/components.py` | `crackseg.model.common.visualization.matplotlib.components`
 `src/crackseg/model/common/visualization/matplotlib/connections.py` | `crackseg.model.common.visualization.matplotlib.connections`
 `src/crackseg/model/common/visualization/matplotlib/utils.py` | `crackseg.model.common.visualization.matplotlib.utils`
+`src/crackseg/reporting/comparison/analysis/anomalies.py` | `crackseg.reporting.comparison.analysis.anomalies`
+`src/crackseg/reporting/comparison/analysis/ranking.py` | `crackseg.reporting.comparison.analysis.ranking`
+`src/crackseg/reporting/comparison/analysis/statistical.py` | `crackseg.reporting.comparison.analysis.statistical`
+`src/crackseg/reporting/comparison/analysis/trends.py` | `crackseg.reporting.comparison.analysis.trends`
+`src/crackseg/reporting/comparison/core/engine.py` | `crackseg.reporting.comparison.core.engine`
+`src/crackseg/reporting/comparison/utils/artifact_integration.py` | `crackseg.reporting.comparison.utils.artifact_integration`
+`src/crackseg/reporting/comparison/utils/metrics.py` | `crackseg.reporting.comparison.utils.metrics`
+`src/crackseg/reporting/comparison/utils/recommendations.py` | `crackseg.reporting.comparison.utils.recommendations`
+`src/crackseg/reporting/comparison/utils/table_utils.py` | `crackseg.reporting.comparison.utils.table_utils`
 `src/crackseg/reporting/performance/analyzer.py` | `crackseg.reporting.performance.analyzer`
 `src/crackseg/reporting/performance/anomaly_detector.py` | `crackseg.reporting.performance.anomaly_detector`
 `src/crackseg/reporting/performance/metric_evaluator.py` | `crackseg.reporting.performance.metric_evaluator`
@@ -108,17 +110,17 @@ Path | Module
 `src/crackseg/utils/deployment/validation/pipeline/performance.py` | `crackseg.utils.deployment.validation.pipeline.performance`
 `src/crackseg/utils/deployment/validation/pipeline/reporting.py` | `crackseg.utils.deployment.validation.pipeline.reporting`
 `src/crackseg/utils/deployment/validation/pipeline/security.py` | `crackseg.utils.deployment.validation.pipeline.security`
-`src/crackseg/utils/deployment/validation/reporting/config.py` | `crackseg.utils.deployment.validation.reporting.config`
-`src/crackseg/utils/deployment/validation/reporting/core.py` | `crackseg.utils.deployment.validation.reporting.core`
-`src/crackseg/utils/deployment/validation/reporting/formatters.py` | `crackseg.utils.deployment.validation.reporting.formatters`
-`src/crackseg/utils/deployment/validation/reporting/risk_analyzer.py` | `crackseg.utils.deployment.validation.reporting.risk_analyzer`
-`src/crackseg/utils/deployment/validation/reporting/visualizations.py` | `crackseg.utils.deployment.validation.reporting.visualizations`
 `src/crackseg/utils/monitoring/alerts/checker.py` | `crackseg.utils.monitoring.alerts.checker`
 `src/crackseg/utils/monitoring/alerts/system.py` | `crackseg.utils.monitoring.alerts.system`
 `src/crackseg/utils/monitoring/alerts/types.py` | `crackseg.utils.monitoring.alerts.types`
 `src/crackseg/utils/monitoring/resources/config.py` | `crackseg.utils.monitoring.resources.config`
 `src/crackseg/utils/monitoring/resources/monitor.py` | `crackseg.utils.monitoring.resources.monitor`
 `src/crackseg/utils/monitoring/resources/snapshot.py` | `crackseg.utils.monitoring.resources.snapshot`
+`src/training_pipeline/checkpoint_manager.py` | `training_pipeline.checkpoint_manager`
+`src/training_pipeline/data_loading.py` | `training_pipeline.data_loading`
+`src/training_pipeline/environment_setup.py` | `training_pipeline.environment_setup`
+`src/training_pipeline/model_creation.py` | `training_pipeline.model_creation`
+`src/training_pipeline/training_setup.py` | `training_pipeline.training_setup`
 
 ## Recommended next steps
 

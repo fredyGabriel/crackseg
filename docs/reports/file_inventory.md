@@ -1,15 +1,15 @@
 <!-- markdownlint-disable-file -->
-# Scan Report — 2025-08-07 22:12:28 UTC
+# Scan Report — 2025-08-10 04:41:34 UTC
 
 ## Extension distribution (selected dirs)
 
 Extension | Count | Total Size
 :-- | --: | --:
-`.py` | 1114 | 7.91 MB
+`.py` | 1167 | 8.10 MB
 `.png` | 9 | 2.80 MB
-`.md` | 205 | 1.63 MB
+`.md` | 227 | 1.82 MB
 `.sh` | 19 | 281.63 KB
-`.json` | 14 | 130.21 KB
+`.json` | 16 | 137.45 KB
 `.backup` | 10 | 76.51 KB
 `.yaml` | 53 | 71.94 KB
 `.yml` | 3 | 26.34 KB
@@ -37,17 +37,15 @@ Size | Path | Flag
 196.97 KB | `docs/reports/experiment-reports/plots/legacy/tutorial_02_plots/training_curves.png` | 
 180.65 KB | `docs/reports/experiment-reports/plots/legacy/training_curves_20250724_081112.png` | 
 180.65 KB | `docs/reports/experiment-reports/plots/legacy/training_curves_20250724_081136.png` | 
-102.27 KB | `docs/reports/project_tree.md` | 
+107.29 KB | `docs/reports/project_tree.md` | 
+104.95 KB | `docs/reports/project-reports/technical/artifacts_and_binaries_audit.md` | 
 60.53 KB | `docs/reports/model-reports/analysis/legacy/model_imports_catalog.json` | 
-38.08 KB | `src/crackseg/model/decoder/cnn_decoder.py` | 
 34.08 KB | `gui/utils/process/manager/core/manager_backup_original.py` | 
-33.35 KB | `src/crackseg/model/core/unet.py` | 
 32.02 KB | `scripts/experiments/analysis/swinv2_hybrid/analysis/analyze_experiment.py` | 
 31.23 KB | `docs/testing/visualization_testing_guide.md` | 
 30.13 KB | `infrastructure/testing/scripts/e2e-test-orchestrator.sh` | 
 29.05 KB | `tests/unit/docker/test_health_check_system.py` | 
 28.51 KB | `docs/reports/testing-reports/analysis/legacy/test_coverage_improvement_plan.md` | 
-28.50 KB | `src/crackseg/model/architectures/swinv2_cnn_aspp_unet.py` | 
 28.28 KB | `tests/integration/training/test_artifacts_performance_regression.py` | 
 27.62 KB | `tests/integration/utils/test_orchestration.py` | 
 27.45 KB | `tests/unit/training/test_trainer.py` | 
@@ -55,8 +53,8 @@ Size | Path | Flag
 27.08 KB | `infrastructure/shared/scripts/docker-stack-manager.sh` | 
 26.32 KB | `infrastructure/testing/scripts/artifact-manager.sh` | 
 25.48 KB | `gui/utils/config/schema/core_validator.py` | 
+25.07 KB | `docs/guides/developer-guides/quality/legacy/comprehensive_integration_test_reporting_guide.md` | 
 24.91 KB | `gui/utils/process/manager/core/error_handling.py` | 
-24.88 KB | `docs/guides/developer-guides/quality/legacy/comprehensive_integration_test_reporting_guide.md` | 
 24.86 KB | `tests/e2e/performance/regression_alerting_system.py` | 
 24.81 KB | `tests/unit/model/config/test_instantiation.py` | 
 24.49 KB | `tests/integration/model/test_cnn_convlstm_unet.py` | 
@@ -73,13 +71,15 @@ Size | Path | Flag
 22.99 KB | `infrastructure/shared/scripts/setup-local-dev.sh` | 
 22.88 KB | `docs/guides/reporting-visualization/visualization/legacy/visualization_customization_guide.md` | 
 22.83 KB | `gui/utils/ml/tensorboard/process_manager.py` | 
-22.49 KB | `src/crackseg/reporting/comparison/engine.py` | 
 22.37 KB | `docs/guides/reporting-visualization/visualization/legacy/visualization_usage_examples.md` | 
 22.30 KB | `tests/e2e/tests/test_error_scenarios.py` | 
 22.17 KB | `tests/e2e/cleanup/ci_integration.py` | 
 22.13 KB | `tests/unit/gui/test_tensorboard_coverage.py` | 
 22.10 KB | `tests/unit/deployment/test_orchestration.py` | 
 22.05 KB | `tests/gui/test_confirmation_dialog.py` | 
+21.98 KB | `tests/e2e/utils/browser_validation.py` | 
+21.82 KB | `tests/e2e/config/execution_strategies.py` | 
+21.55 KB | `docs/guides/developer-guides/quality/legacy/test_maintenance_procedures.md` | 
 
 <!-- markdownlint-enable MD013 -->
 ## Potential duplicates — by size+hash, selected dirs
@@ -95,11 +95,6 @@ Size | Path | Flag
   - `gui/__init__.py`
   - `gui/services/__init__.py`
   - `infrastructure/deployment/packages/test-crackseg-model/package/app/streamlit_app.py`
-  - `tests/unit/__init__.py`
-  - `tests/unit/gui/__init__.py`
-- Group 4:
-  - `scripts/__init__.py`
-  - `tests/__init__.py`
 
 <!-- markdownlint-enable MD013 -->
 ## Vendored/third-party candidates

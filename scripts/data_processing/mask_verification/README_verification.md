@@ -5,7 +5,8 @@ proceso de revisión cruzada y superposición visual, tal como se requiere en el
 
 ## Descripción
 
-El sistema cumple con el requisito: *"The accuracy of segmentation masks is verified through a cross-review process and by visually superimposing the masks onto the original images to confirm alignment"*
+El sistema cumple con el requisito: "The accuracy of segmentation masks is verified through a
+cross-review process and by visually superimposing the masks onto the original images to confirm alignment"
 
 ### Características Principales
 

@@ -1,5 +1,9 @@
 # Comprehensive Integration Test Reporting System
 
+> Legacy notice: this document is legacy and will be consolidated. See
+> `docs/guides/developer-guides/quality/` and the bucket README for the canonical version and
+> current navigation.
+
 ## Overview
 
 The Comprehensive Integration Test Reporting System provides stakeholder-specific reporting with

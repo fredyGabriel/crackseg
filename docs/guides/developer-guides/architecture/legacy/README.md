@@ -1,5 +1,8 @@
 # Architecture Guides
 
+> Legacy notice: historical documentation. See `docs/guides/developer-guides/architecture/` for the
+> current architecture and `architectural_decisions.md` (ADR) for current decisions.
+
 This directory contains guides for the technical architecture and design decisions of the CrackSeg project.
 
 ## Contents

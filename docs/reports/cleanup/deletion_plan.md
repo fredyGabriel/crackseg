@@ -11,9 +11,9 @@ Sources
 
 ## Summary of proposed actions
 
-- Duplicates: consolidate 4 groups; keep one canonical path, remove others
-- Unused modules: validate 89 flagged modules; delete or integrate as justified
-- Artifacts: ensure .gitignore covers all; no >50 MB files detected
+- Duplicates: deduplicate assets (logos, legacy plots) and redundant init files
+- Unused modules: validate high-probability unused under `evaluation/visualization/legacy/`, `reporting/`, and deployment helpers
+- Artifacts: ensure `.gitignore` coverage; no >50 MB files detected
 - Language: translate/merge legacy Spanish docs; archive strictly Spanish variants
 
 ## Detailed proposals
@@ -35,12 +35,10 @@ Decision model: keep canonical, remove duplicates; update references; add CI che
   - Risk: low; Rollback: keep both if provenance matters
 
 - Group 3
-  - `gui/__init__.py`
-  - `gui/services/__init__.py`
-  - `infrastructure/deployment/packages/test-crackseg-model/package/app/streamlit_app.py`
   - `tests/unit/__init__.py`
   - `tests/unit/gui/__init__.py`
-  - Action: for multiple `__init__.py` that are empty/duplicative, remove those not forming packages actually imported; ensure imports still resolve
+  - Review only (defer deletion): `gui/__init__.py`, `gui/services/__init__.py`
+  - Action: remove unnecessary test `__init__.py` after verifying test discovery; defer GUI package files to separate ticket
   - Risk: medium (import paths); Rollback: restore removed `__init__.py`
 
 - Group 4
@@ -58,6 +56,11 @@ Decision model: confirm unused via grep/tests; delete or integrate. Prioritize l
   - `src/crackseg/reporting/*` and `src/crackseg/utils/deployment/*` subsets
   - Actions: create per-module tickets; run quick import/usage checks; remove if truly dead; otherwise move to `docs/legacy-snippets/` or mark deprecated
   - Risk: medium (hidden imports in configs/tests); Rollback: revert deletion; add deprecation period
+
+### C. Backup and generated files
+
+- Remove `src/crackseg/training/trainer.py.backup` (not referenced by imports/tests)
+- Risk: low; Rollback: restore if needed
 
 ### C. Artifacts and binaries
 
@@ -92,9 +95,10 @@ Decision model: confirm unused via grep/tests; delete or integrate. Prioritize l
 
 1. Dedupe logos (Group 1)
 2. Dedupe legacy plots (Group 2)
-3. Prune unnecessary `__init__.py` (Groups 3–4)
-4. Validate and remove top-20 unused modules (batch 1)
-5. Translate/consolidate top-10 Spanish docs
-6. Add CI checks: duplicate guard and link checker
+3. Prune unnecessary test `__init__.py` (Group 3)
+4. Remove `trainer.py.backup`
+5. Validate y remover top-20 unused modules (batch 1)
+6. Translate/consolidate top-10 Spanish docs
+7. Add CI checks: duplicate guard and link checker (done for links)
 
 

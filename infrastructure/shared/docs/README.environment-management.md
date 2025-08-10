@@ -503,5 +503,5 @@ docker-compose -f docker-compose.test.yml up streamlit-app
 
 - [Docker Compose Environment Variables](https://docs.docker.com/compose/environment-variables/)
 - [Twelve-Factor App Config](https://12factor.net/config)
-- [CrackSeg Development Workflow](../docs/guides/WORKFLOW_TRAINING.md)
-- [Docker Testing Infrastructure](docker-compose.README.md)
+- CrackSeg Development Workflow: see `docs/guides/operational-guides/workflows/legacy/WORKFLOW_TRAINING.md`
+- Docker Testing Infrastructure: see `infrastructure/testing/docs/docker-compose.README.md`

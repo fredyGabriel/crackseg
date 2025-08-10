@@ -2,7 +2,8 @@
 
 ## ✅ Requisito Cumplido
 
-**Requisito Original**: *"The accuracy of segmentation masks is verified through a cross-review process and by visually superimposing the masks onto the original images to confirm alignment"*
+**Requisito Original**: "The accuracy of segmentation masks is verified through a cross-review
+process and by visually superimposing the masks onto the original images to confirm alignment"
 
 **Solución Implementada**: Sistema completo de verificación que cumple exactamente con este requisito.
 
@@ -35,7 +36,7 @@
 
 ### Verificación Exitosa
 
-```
+```txt
 🔍 Verifying single image: 125
 ✅ Verification completed successfully!
 
@@ -202,7 +203,8 @@ outputs/verification_results/
 
 El sistema implementado **cumple completamente** con el requisito especificado:
 
-> *"The accuracy of segmentation masks is verified through a cross-review process and by visually superimposing the masks onto the original images to confirm alignment"*
+> *"The accuracy of segmentation masks is verified through a cross-review process and by visually*
+> *superimposing the masks onto the original images to confirm alignment"*
 
 ### Evidencia de Cumplimiento
 

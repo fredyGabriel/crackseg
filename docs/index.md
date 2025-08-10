@@ -9,46 +9,45 @@ Our documentation is organized into logical categories for easy navigation:
 
 ### 🎯 Getting Started
 
-- **[Manual de Usuario](user-manual/manual_usuario.pdf)**: Manual completo en español (PDF)
-- **[Installation Guide](guides/workflows/CLEAN_INSTALLATION.md)**: Get up and running with the GUI
-- **[General Usage Guide](guides/usage/USAGE.md)**: Learn how to use the gallery, scanner, and
-  export features
-- **[Training Workflow](guides/workflows/WORKFLOW_TRAINING.md)**: Complete guide for training workflows
+- **Manual de Usuario**: (coming soon)
+- **Installation Guide**: see `docs/guides/operational-guides/workflows/legacy/CLEAN_INSTALLATION.md`
+- **General Usage Guide**: see `docs/guides/user-guides/usage/legacy/USAGE.md`
+- **Training Workflow**: see `docs/guides/operational-guides/workflows/legacy/WORKFLOW_TRAINING.md`
 
 ### 🛠️ Development & Quality
 
-- **[Development Guidelines](guides/development/)**: Development practices and system setup
-- **[Quality & Testing](guides/quality/)**: Code quality standards and testing strategies
-- **[API Reference](api/gui_components.md)**: Explore the internal API for advanced development
+- **Development Guidelines**: see `docs/guides/developer-guides/`
+- **Quality & Testing**: see `docs/guides/testing/`
+- **API Reference**: see `docs/api/gui_components.md`
 
 ### 📋 Technical Resources
 
-- **[Technical Specifications](guides/specifications/)**: Detailed specifications for project components
-- **[Architecture Guides](guides/architecture/)**: Technical architecture and design decisions
-- **[CI/CD Integration](guides/cicd/)**: Continuous Integration and Deployment guides
+- **Technical Specifications**: see `docs/guides/technical-specs/`
+- **Architecture Guides**: see `docs/guides/designs/`
+- **CI/CD Integration**: see `docs/guides/operational-guides/cicd/`
 
 ### 📊 Monitoring & Troubleshooting
 
-- **[Monitoring Guides](guides/monitoring/)**: Project health and coverage monitoring
-- **[Troubleshooting](guides/troubleshooting/)**: Solutions for common issues
+- **Monitoring Guides**: see `docs/guides/operational-guides/monitoring/`
+- **Troubleshooting**: see `docs/guides/user-guides/troubleshooting/`
 
 ## 🚀 Quick Navigation
 
 ### For New Users
 
-Start with [Installation Guide](guides/workflows/CLEAN_INSTALLATION.md) and [General Usage Guide](guides/usage/USAGE.md)
+Start with Installation Guide (legacy) and General Usage Guide (legacy) at the paths above.
 
 ### For Developers
 
-Focus on [Development Guidelines](guides/development/) and [Quality & Testing](guides/quality/)
+Focus on Development Guidelines (see `docs/guides/developer-guides/`) and Quality & Testing (see `docs/guides/testing/`)
 
 ### For System Setup
 
-Check [Technical Specifications](guides/specifications/) and [Architecture Guides](guides/architecture/)
+Check Technical Specifications (see `docs/guides/technical-specs/`) and Architecture Guides (see `docs/guides/designs/`)
 
 ### For Issues
 
-Consult [Troubleshooting Guides](guides/troubleshooting/)
+Consult Troubleshooting Guides (see `docs/guides/user-guides/troubleshooting/`)
 
 ## 📁 Complete Documentation Index
 

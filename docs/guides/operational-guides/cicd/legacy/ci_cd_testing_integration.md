@@ -644,4 +644,4 @@ providing comprehensive reporting and monitoring capabilities.
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 - [pytest-cov Documentation](https://pytest-cov.readthedocs.io/)
 - [Codecov Documentation](https://docs.codecov.io/)
-- [GUI Testing Best Practices](gui_testing_best_practices.md)
+- GUI Testing Best Practices: see `docs/guides/developer-guides/quality/legacy/gui_testing_best_practices.md`

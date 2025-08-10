@@ -29,10 +29,10 @@ technical-specs/
 
 ### **Specifications**
 
-- **checkpoint_format_specification.md** - Checkpoint format
-- **configuration_storage_specification.md** - Configuration storage
-- **performance_benchmarking_system.md** - Benchmarking system
-- **traceability_data_model_specification.md** - Traceability data model
+- **checkpoint_format_specification.md** (legacy) - `specifications/legacy/checkpoint_format_specification.md`
+- **configuration_storage_specification.md** (legacy) - `specifications/legacy/configuration_storage_specification.md`
+- **performance_benchmarking_system.md** (legacy) - `specifications/legacy/performance_benchmarking_system.md`
+- **traceability_data_model_specification.md** (legacy) - `specifications/legacy/traceability_data_model_specification.md`
 
 ### **Experiments**
 
@@ -51,6 +51,11 @@ technical-specs/
 
 The `legacy/` folders contain previous documentation that is being progressively migrated to the
 new structure. This documentation will be consolidated and updated progressively.
+
+### Legacy pointers
+
+- `specifications/legacy/`
+- `experiments/legacy/`
 
 ---
 

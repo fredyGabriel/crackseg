@@ -106,7 +106,7 @@ organizational information, refer to the project's development standards.
 - **Metrics**: `configs/training/metric/`
 - **LR Schedulers**: `configs/training/lr_scheduler/`
 
-For loss function details, see [Loss Registry Guide](loss_registry_usage.md).
+For loss function details, see `docs/guides/user-guides/usage/legacy/loss_registry_usage.md`.
 
 ## GUI Workflow
 
@@ -311,7 +311,7 @@ This training workflow is part of a larger professional development process.
 ### 📚 Essential Documentation
 
 - **Task Management**: Refer to the project's Task Master guide.
-- **Loss Registry**: See [Loss Registry Guide](loss_registry_usage.md).
+- **Loss Registry**: See `docs/guides/user-guides/usage/legacy/loss_registry_usage.md`.
 - **Configuration Storage**: Review the specifications for configuration management.
 - **Tutorials**: Follow the verified CLI tutorials in `docs/tutorials/cli/`.
 

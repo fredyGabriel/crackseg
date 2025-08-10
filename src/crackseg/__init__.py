@@ -1,10 +1,8 @@
-from . import model
+"""CrackSeg project package.
 
-__all__ = ["model"]
-
-"""
-CrackSeg project source package. This package contains all the source
-code for the CrackSeg project.
+Lightweight package initializer to avoid importing heavy submodules on
+package import. Subpackages like `crackseg.model` should be imported
+explicitly by consumers when needed.
 """
 
-# This file makes src a Python package
+__all__: list[str] = []

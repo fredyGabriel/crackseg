@@ -12,7 +12,7 @@ run training, and analyze results effectively.
 
 Before using the GUI, ensure you have:
 
-1. **Environment Setup**: Follow the [CLEAN_INSTALLATION.md](CLEAN_INSTALLATION.md) guide
+1. **Environment Setup**: Follow `docs/guides/operational-guides/workflows/legacy/CLEAN_INSTALLATION.md`
 2. **Package Installation**: `pip install -e . --no-deps` (for conda environments)
 3. **Verification**: `python -c "import crackseg; print('✅ Success')"`
 4. **Streamlit**: `pip install streamlit` (if not already installed)

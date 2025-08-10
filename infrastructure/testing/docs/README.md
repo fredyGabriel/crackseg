@@ -179,19 +179,19 @@ docker/
 
 ### **Guías Principales**
 
-- [Arquitectura Técnica](docs/README-ARCHITECTURE.md): Especificación completa del sistema
-- [Guía de Uso](docs/README-USAGE.md): Instrucciones paso a paso
-- [Solución de Problemas](docs/README-TROUBLESHOOTING.md): Problemas comunes y soluciones
-- [Testing con Docker](docs/README-DOCKER-TESTING.md): Guía completa de testing
+- Arquitectura Técnica: ver `infrastructure/testing/docs/README-ARCHITECTURE.md`
+- Guía de Uso: ver `infrastructure/testing/docs/README-USAGE.md`
+- Solución de Problemas: ver `infrastructure/testing/docs/README-TROUBLESHOOTING.md`
+- Testing con Docker: ver `infrastructure/testing/docs/README-DOCKER-TESTING.md`
 
 ### **Guías Especializadas**
 
-- [Desarrollo Local](docs/README-LOCAL-DEV.md): Configuración para desarrollo
-- [Gestión de Entornos](docs/README.environment-management.md): Administración de entornos
-- [Configuración de Redes](docs/README.network-setup.md): Arquitectura de redes
-- [Testing Multi-Navegador](docs/README.cross-browser-testing.md): Testing en diferentes navegadores
-- [Gestión de Artefactos](docs/README.artifact-management.md): Administración de resultados
-- [Guía de Selenium Grid](docs/selenium-grid-guide.md): Configuración de Selenium Grid
+- Desarrollo Local: ver `infrastructure/testing/docs/README-LOCAL-DEV.md`
+- Gestión de Entornos: ver `infrastructure/testing/docs/README.environment-management.md`
+- Configuración de Redes: ver `infrastructure/testing/docs/README.network-setup.md`
+- Testing Multi-Navegador: ver `infrastructure/testing/docs/README.cross-browser-testing.md`
+- Gestión de Artefactos: ver `infrastructure/testing/docs/README.artifact-management.md`
+- Guía de Selenium Grid: ver `infrastructure/testing/docs/selenium-grid-guide.md`
 
 ## Plan de Reorganización
 

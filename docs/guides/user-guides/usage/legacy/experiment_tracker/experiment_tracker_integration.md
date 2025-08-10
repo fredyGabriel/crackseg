@@ -166,7 +166,7 @@ tracker.update_description("New description")
 
 ## References
 
-- **ExperimentManager**: [manager.py](src/crackseg/utils/experiment/manager.py)
-- **ArtifactManager**: [artifact_manager.py](src/crackseg/utils/artifact_manager/core.py)
-- **Unit Tests**: [test_experiment_tracker.py](tests/unit/utils/test_experiment_tracker.py)
-- **Project Standards**: [coding-standards.mdc](.cursor/rules/coding-standards.mdc)
+- ExperimentManager: see `src/crackseg/utils/experiment/manager.py`
+- ArtifactManager: see `src/crackseg/utils/artifact_manager/core.py`
+- Unit Tests: see `tests/unit/utils/`
+- Project Standards: see `.cursor/rules/coding-standards.mdc`

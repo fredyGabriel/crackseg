@@ -9,11 +9,6 @@ from pathlib import Path
 from typing import Any
 
 from crackseg.training.factory import create_lr_scheduler, create_optimizer
-from crackseg.utils.checkpointing.setup import setup_checkpointing
-from crackseg.utils.config.standardized_storage import (
-    StandardizedConfigStorage,
-    validate_configuration_completeness,
-)
 from crackseg.utils.core.device import get_device
 from crackseg.utils.experiment.manager import ExperimentManager
 from crackseg.utils.logging.base import get_logger
@@ -23,6 +18,11 @@ from crackseg.utils.monitoring import (
     BaseCallback,
     CallbackHandler,
     MonitoringManager,
+)
+from crackseg.utils.storage import (
+    StandardizedConfigStorage,
+    setup_checkpointing,
+    validate_configuration_completeness,
 )
 from crackseg.utils.training.amp_utils import GradScaler
 from crackseg.utils.training.early_stopping import EarlyStopping
@@ -351,7 +351,7 @@ class TrainerSetup:
     def load_checkpoint_state(self, trainer_instance: Any) -> None:
         """Loads the checkpoint state if a path is provided."""
         if trainer_instance.checkpoint_load_path:
-            from crackseg.utils.checkpointing import load_checkpoint
+            from crackseg.utils.storage import load_checkpoint
 
             checkpoint_data = load_checkpoint(
                 checkpoint_path=trainer_instance.checkpoint_load_path,

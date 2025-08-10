@@ -64,7 +64,7 @@ operational-guides/
 
 ### **Workflows** ✅ **UPDATED**
 
-- **Training Workflow Guide**: `workflows/training_workflow_guide.md`
+- **Training Workflow Guide**: `workflows/legacy/WORKFLOW_TRAINING.md`
   - Complete training workflow from setup to execution
   - Quality gates and verification procedures
   - Troubleshooting and optimization
@@ -72,7 +72,7 @@ operational-guides/
 
 ### **Deployment** ✅ **UPDATED**
 
-- **Deployment Guide**: `deployment/deployment_guide.md`
+- **Clean Installation (Legacy)**: `workflows/legacy/CLEAN_INSTALLATION.md`
   - Development environment setup
   - Configuration deployment
   - Production considerations
@@ -90,6 +90,13 @@ operational-guides/
 
 The `legacy/` folders contain previous documentation that is being progressively migrated to the
 new structure. This documentation will be consolidated and updated progressively.
+
+### Legacy pointers
+
+- `deployment/legacy/`
+- `monitoring/legacy/`
+- `cicd/legacy/`
+- `workflows/legacy/`
 
 ---
 

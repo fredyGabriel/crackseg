@@ -1,5 +1,9 @@
 # GUI Development Guidelines
 
+> Legacy notice: this document belongs to the legacy section and will be consolidated. Refer to the
+> canonical bucket `docs/guides/developer-guides/` and the development bucket README for up-to-date
+> navigation.
+
 ## Overview
 
 This document provides comprehensive development guidelines for the CrackSeg GUI application built
@@ -85,7 +89,7 @@ def page_home() -> None:
     # ... implementation
 ```
 
-** Incorrect Example:**
+**Incorrect Example:**
 
 ```python
 def page_home(state: SessionState) -> None:  # Don't pass state as parameter
@@ -446,7 +450,7 @@ def safe_file_operation(filepath: str) -> bool:
         return False
 ```
 
-###  Anti-Patterns to Avoid
+### Anti-Patterns to Avoid
 
 ```python
 # Don't use global state
@@ -566,4 +570,5 @@ Following these guidelines ensures:
 - **Reliability** through comprehensive testing
 
 For questions or clarifications about these guidelines, refer to the
-[Quality Gates Guide](quality_gates_guide.md) or consult the project's coding standards documentation.
+Quality Gates Guide at `docs/guides/developer-guides/quality/legacy/quality_gates_guide.md` or
+consult the project's coding standards documentation.

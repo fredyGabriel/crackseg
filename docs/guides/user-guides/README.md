@@ -58,6 +58,11 @@ user-guides/
 The `legacy/` folders contain previous documentation that is being progressively migrated to the
 new structure. This documentation will be consolidated and updated progressively.
 
+### Legacy pointers
+
+- `usage/legacy/`
+- `troubleshooting/legacy/`
+
 ---
 
 **Last update**: $(Get-Date -Format "yyyy-MM-dd")

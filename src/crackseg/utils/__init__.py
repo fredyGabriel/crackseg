@@ -5,8 +5,10 @@ configuration management, logging, device handling, seeding, and error
 handling.
 """
 
+import importlib
+from typing import Any
+
 # --- Core Utilities ---
-# --- Artifact Management ---
 from .artifact_manager import (
     ArtifactManager,
     ArtifactMetadata,
@@ -31,17 +33,6 @@ from .component_cache import (
     generate_cache_key,
     get_cache_info,
     get_cached_component,
-)
-
-# --- Configuration Subpackage ---
-from .config import (
-    ConfigSchema,
-    apply_overrides,
-    get_env_var,
-    load_env,
-    override_config,
-    save_config,
-    validate_config,
 )
 from .core import (
     ConfigError,
@@ -86,6 +77,13 @@ from .logging import (
     # Logger setup functions
     setup_internal_logger,
     setup_project_logger,
+)
+
+# --- Mapping Registry ---
+from .mapping_registry import (
+    MappingRegistry,
+    PathMapping,
+    get_registry,
 )
 
 # --- Monitoring ---
@@ -152,13 +150,8 @@ __all__ = [
     "ArtifactManager",
     "ArtifactMetadata",
     # Configuration
-    "ConfigSchema",
-    "validate_config",
-    "override_config",
-    "apply_overrides",
-    "save_config",
-    "load_env",
-    "get_env_var",
+    # Note: configuration symbols are provided lazily via __getattr__ to
+    # avoid importing Hydra when not needed at import time.
     # Logging
     "BaseLogger",
     "ExperimentLogger",
@@ -187,4 +180,23 @@ __all__ = [
     "BaseCallback",
     "CoverageMonitor",
     "MonitoringManager",
+    # Mapping Registry
+    "get_registry",
+    "MappingRegistry",
+    "PathMapping",
 ]
+
+
+def __getattr__(name: str) -> Any:  # pragma: no cover - simple dispatch
+    if name in {
+        "ConfigSchema",
+        "apply_overrides",
+        "get_env_var",
+        "load_env",
+        "override_config",
+        "save_config",
+        "validate_config",
+    }:
+        module = importlib.import_module("crackseg.utils.config")
+        return getattr(module, name)
+    raise AttributeError(name)

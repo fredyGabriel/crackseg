@@ -91,7 +91,10 @@
     │   │   └── visualization_api.md
     │   ├── designs/
     │   │   ├── logo.png
-    │   │   └── loss_registry_design.md
+    │   │   ├── loss_registry_design.md
+    │   │   ├── migration_plan_and_milestones.md
+    │   │   ├── risk_and_rollback_strategy.md
+    │   │   └── target_structure_v1.md
     │   ├── experiments/
     │   │   └── py_crackdb_swinv2_experiment.md
     │   ├── guides/
@@ -185,6 +188,7 @@
     │   │   │   └── README.md
     │   │   ├── experiment_data_saving_guide.md
     │   │   ├── generalized_experiment_organization.md
+    │   │   ├── public_api_and_layering_rules.md
     │   │   ├── README.md
     │   │   ├── REORGANIZATION_COMPLETION_REPORT.md
     │   │   └── trainer_refactoring.md
@@ -195,6 +199,18 @@
     │   ├── reports/
     │   │   ├── analysis-reports/
     │   │   │   ├── architecture/
+    │   │   │   │   ├── ci_guardrails.md
+    │   │   │   │   ├── cross_plan_consistency.md
+    │   │   │   │   ├── dependency_graph.md
+    │   │   │   │   ├── engine_refactor_plan.md
+    │   │   │   │   ├── hydra_registry_alignment.md
+    │   │   │   │   ├── hydra_smoke_report.md
+    │   │   │   │   ├── import_mapping.json
+    │   │   │   │   ├── line_limit_guardrail.md
+    │   │   │   │   ├── oversized_modules_report.md
+    │   │   │   │   ├── oversized_prioritization_matrix.md
+    │   │   │   │   ├── oversized_refactor_plan.md
+    │   │   │   │   └── oversized_refactor_tickets.md
     │   │   │   ├── code-quality/
     │   │   │   │   └── legacy/
     │   │   │   │       ├── basedpyright_analysis_report.md
@@ -207,6 +223,8 @@
     │   │   │   │       └── tensorboard_component_refactoring_summary.md
     │   │   │   ├── performance/
     │   │   │   └── README.md
+    │   │   ├── cleanup/
+    │   │   │   └── deletion_plan.md
     │   │   ├── experiment-reports/
     │   │   │   ├── comparisons/
     │   │   │   ├── plots/
@@ -245,9 +263,12 @@
     │   │   │   │   │   └── technical_report.md
     │   │   │   │   ├── documentation_catalog.json
     │   │   │   │   ├── documentation_catalog_summary.md
+    │   │   │   │   ├── language_compliance_report.md
     │   │   │   │   └── README.md
     │   │   │   ├── technical/
-    │   │   │   │   └── deployment_system_documentation_summary.md
+    │   │   │   │   ├── artifacts_and_binaries_audit.md
+    │   │   │   │   ├── deployment_system_documentation_summary.md
+    │   │   │   │   └── duplicates_and_unused_report.md
     │   │   │   └── README.md
     │   │   ├── templates/
     │   │   │   ├── examples/
@@ -848,11 +869,25 @@
     │   ├── utils/
     │   │   ├── analysis/
     │   │   │   ├── __init__.py
+    │   │   │   ├── generate_dependency_graph.py
     │   │   │   ├── inventory_training_imports.py
-    │   │   │   └── README.md
+    │   │   │   ├── README.md
+    │   │   │   ├── scan_oversized_modules.py
+    │   │   │   └── validate_hydra_registry_alignment.py
+    │   │   ├── automation/
+    │   │   │   ├── __pycache__/
+    │   │   │   ├── apply_mappings.py
+    │   │   │   ├── auto_link_fixer.py
+    │   │   │   ├── hydra_config_migrator.py
+    │   │   │   ├── post_phase_regenerator.py
+    │   │   │   ├── regeneration_phases.py
+    │   │   │   ├── report_generator.py
+    │   │   │   ├── simple_mapping_registry.py
+    │   │   │   └── test_mapping_registry.py
     │   │   ├── documentation/
     │   │   │   ├── __init__.py
     │   │   │   ├── catalog_documentation.py
+    │   │   │   ├── generate_file_inventory.py
     │   │   │   ├── generate_project_tree.py
     │   │   │   ├── organize_reports.py
     │   │   │   └── README.md
@@ -861,7 +896,9 @@
     │   │   │   ├── audit_rules_checklist.py
     │   │   │   ├── check_updates.py
     │   │   │   ├── clean_workspace.py
+    │   │   │   ├── mapping_registry.py
     │   │   │   ├── README.md
+    │   │   │   ├── regenerate_analysis_reports.py
     │   │   │   ├── validate-rule-references.py
     │   │   │   └── verify_setup.py
     │   │   ├── model_tools/
@@ -870,6 +907,22 @@
     │   │   │   ├── model_summary.py
     │   │   │   ├── README.md
     │   │   │   └── unet_diagram.py
+    │   │   ├── quality/
+    │   │   │   ├── guardrails/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── ci_consistency_checker.py
+    │   │   │   │   ├── hydra_smoke.py
+    │   │   │   │   ├── import_policy_checker.py
+    │   │   │   │   ├── layering_rules_check.py
+    │   │   │   │   ├── line_limit_check.py
+    │   │   │   │   ├── link_checker.py
+    │   │   │   │   ├── run_all_guardrails.py
+    │   │   │   │   └── stale_reports_check.py
+    │   │   │   ├── analyze_critical_files.py
+    │   │   │   ├── list_oversized_files.py
+    │   │   │   ├── scan_artifacts_and_binaries.py
+    │   │   │   ├── scan_duplicates_unused.py
+    │   │   │   └── scan_language_compliance.py
     │   │   ├── test_suite_refinement/
     │   │   │   ├── add_reproducibility_score.py
     │   │   │   ├── categorize_tests_status.py
@@ -887,7 +940,6 @@
     │   │   ├── generate_user_manual.py
     │   │   ├── README.md
     │   │   └── REORGANIZATION_SUMMARY.md
-    │   ├── __init__.py
     │   ├── README.md
     │   └── SCRIPTS_UPDATE_REPORT.md
     ├── src/
@@ -991,6 +1043,7 @@
     │   │   │   │   ├── registry.py
     │   │   │   │   ├── simple_unet.py
     │   │   │   │   ├── swinv2_cnn_aspp_unet.py
+    │   │   │   │   ├── swinv2_cnn_aspp_unet_core.py
     │   │   │   │   └── unet.py
     │   │   │   ├── base/
     │   │   │   │   ├── __pycache__/
@@ -1024,23 +1077,31 @@
     │   │   │   │   └── registry_support.py
     │   │   │   ├── config/
     │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── instantiation/
+    │   │   │   │   │   ├── __pycache__/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   ├── activation_handler.py
+    │   │   │   │   │   ├── components.py
+    │   │   │   │   │   └── hybrid.py
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── core.py
     │   │   │   │   ├── factory.py
-    │   │   │   │   ├── instantiation.py
     │   │   │   │   ├── schemas.py
     │   │   │   │   └── validation.py
     │   │   │   ├── core/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
-    │   │   │   │   └── unet.py
+    │   │   │   │   ├── unet.py
+    │   │   │   │   └── unet_core.py
     │   │   │   ├── decoder/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── common/
     │   │   │   │   │   ├── __pycache__/
     │   │   │   │   │   └── channel_utils.py
     │   │   │   │   ├── __init__.py
-    │   │   │   │   └── cnn_decoder.py
+    │   │   │   │   ├── blocks.py
+    │   │   │   │   ├── cnn_decoder.py
+    │   │   │   │   └── decoder_head.py
     │   │   │   ├── encoder/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── swin/
@@ -1059,19 +1120,38 @@
     │   │   │   ├── factory/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
+    │   │   │   │   ├── architecture_factory.py
+    │   │   │   │   ├── component_factory.py
     │   │   │   │   ├── config.py
     │   │   │   │   ├── config_schema.py
     │   │   │   │   ├── factory.py
     │   │   │   │   ├── factory_utils.py
     │   │   │   │   ├── hybrid_registry.py
+    │   │   │   │   ├── instantiate.py
+    │   │   │   │   ├── normalize.py
     │   │   │   │   ├── registry.py
-    │   │   │   │   └── registry_setup.py
+    │   │   │   │   ├── registry_setup.py
+    │   │   │   │   └── validation.py
     │   │   │   ├── __init__.py
     │   │   │   └── README.md
     │   │   ├── reporting/
     │   │   │   ├── __pycache__/
     │   │   │   ├── comparison/
     │   │   │   │   ├── __pycache__/
+    │   │   │   │   ├── analysis/
+    │   │   │   │   │   ├── __pycache__/
+    │   │   │   │   │   ├── anomalies.py
+    │   │   │   │   │   ├── ranking.py
+    │   │   │   │   │   ├── statistical.py
+    │   │   │   │   │   └── trends.py
+    │   │   │   │   ├── core/
+    │   │   │   │   │   ├── __init__.py
+    │   │   │   │   │   └── engine.py
+    │   │   │   │   ├── utils/
+    │   │   │   │   │   ├── artifact_integration.py
+    │   │   │   │   │   ├── metrics.py
+    │   │   │   │   │   ├── recommendations.py
+    │   │   │   │   │   └── table_utils.py
     │   │   │   │   ├── __init__.py
     │   │   │   │   └── engine.py
     │   │   │   ├── figures/
@@ -1167,12 +1247,17 @@
     │   │   │   │   └── registry.py
     │   │   │   ├── __init__.py
     │   │   │   ├── batch_processing.py
+    │   │   │   ├── checkpoint_manager.py
     │   │   │   ├── config_validation.py
+    │   │   │   ├── data_loading.py
+    │   │   │   ├── environment_setup.py
     │   │   │   ├── factory.py
     │   │   │   ├── metrics.py
+    │   │   │   ├── model_creation.py
     │   │   │   ├── README.md
     │   │   │   ├── trainer.py
-    │   │   │   └── trainer.py.backup
+    │   │   │   ├── trainer.py.backup
+    │   │   │   └── training_setup.py
     │   │   ├── utils/
     │   │   │   ├── __pycache__/
     │   │   │   ├── artifact_manager/
@@ -1331,6 +1416,11 @@
     │   │   │   │   ├── __init__.py
     │   │   │   │   ├── exceptions.py
     │   │   │   │   └── manager.py
+    │   │   │   ├── reporting/
+    │   │   │   │   └── __init__.py
+    │   │   │   ├── storage/
+    │   │   │   │   ├── __pycache__/
+    │   │   │   │   └── __init__.py
     │   │   │   ├── traceability/
     │   │   │   │   ├── __pycache__/
     │   │   │   │   ├── __init__.py
@@ -1360,6 +1450,7 @@
     │   │   │   ├── artifact_manager.py
     │   │   │   ├── component_cache.py
     │   │   │   ├── experiment_saver.py
+    │   │   │   ├── mapping_registry.py
     │   │   │   ├── README.md
     │   │   │   └── UTILS_COMPREHENSIVE_REORGANIZATION_SUMMARY.md
     │   │   ├── __init__.py
@@ -1835,7 +1926,6 @@
     │   │   │   │   ├── test_gui_config.py
     │   │   │   │   ├── test_performance_optimizer.py
     │   │   │   │   └── test_session_state.py
-    │   │   │   ├── __init__.py
     │   │   │   ├── test_critical_coverage_paths.py
     │   │   │   ├── test_edge_cases.py
     │   │   │   ├── test_enhanced_abort.py
@@ -1984,7 +2074,6 @@
     │   │   │       ├── __pycache__/
     │   │   │       ├── __init__.py
     │   │   │       └── test_early_stopping.py
-    │   │   ├── __init__.py
     │   │   ├── test_main_data.py
     │   │   ├── test_main_environment.py
     │   │   ├── test_main_integration.py
@@ -2010,13 +2099,13 @@
     │   │   ├── pytest_performance_plugin.py
     │   │   ├── test_benchmark.py
     │   │   └── visual_regression_benchmarks.py
-    │   ├── __init__.py
     │   ├── conftest.py
     │   ├── README.md
     │   └── requirements-testing.txt
     ├── analisis_metricas_cfd.json
     ├── CHANGELOG.md
     ├── codecov.yml
+    ├── CONTRIBUTING.md
     ├── environment.yml
     ├── mkdocs.yml
     ├── pyproject.toml

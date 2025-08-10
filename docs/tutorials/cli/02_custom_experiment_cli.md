@@ -577,7 +577,7 @@ artifacts/global/reports/tutorial_02_analysis/
 └── experiment_comparison.csv    # Tabular comparison data
 ```
 
-For more details, see [scripts/experiments/README.md](scripts/experiments/README.md).
+For more details, see `scripts/experiments/README.md`.
 
 ## What's Next?
 

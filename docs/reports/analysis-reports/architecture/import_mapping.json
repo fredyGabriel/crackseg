@@ -1,0 +1,134 @@
+[
+    {
+        "old": "crackseg.model.decoder.cnn_decoder.DecoderBlockConfig",
+        "new": "crackseg.model.decoder.blocks.DecoderBlockConfig"
+    },
+    {
+        "old": "crackseg.model.decoder.cnn_decoder.DecoderBlock",
+        "new": "crackseg.model.decoder.blocks.DecoderBlock"
+    },
+    {
+        "old": "crackseg.model.decoder.cnn_decoder.DecoderBlockAlias",
+        "new": "crackseg.model.decoder.blocks.DecoderBlockAlias"
+    },
+    {
+        "old": "crackseg.model.decoder.cnn_decoder.CNNDecoderConfig",
+        "new": "crackseg.model.decoder.decoder_head.CNNDecoderConfig"
+    },
+    {
+        "old": "crackseg.model.decoder.cnn_decoder.CNNDecoder",
+        "new": "crackseg.model.decoder.decoder_head.CNNDecoder"
+    },
+    {
+        "old": "crackseg.model.decoder.cnn_decoder.migrate_decoder_state_dict",
+        "new": "crackseg.model.decoder.decoder_head.migrate_decoder_state_dict"
+    },
+    {
+        "old": "training_pipeline.environment_setup.setup_environment",
+        "new": "crackseg.training.environment_setup.setup_environment"
+    },
+    {
+        "old": "training_pipeline.data_loading.load_data",
+        "new": "crackseg.training.data_loading.load_data"
+    },
+    {
+        "old": "training_pipeline.model_creation.create_model",
+        "new": "crackseg.training.model_creation.create_model"
+    },
+    {
+        "old": "training_pipeline.training_setup.setup_training_components",
+        "new": "crackseg.training.training_setup.setup_training_components"
+    },
+    {
+        "old": "training_pipeline.checkpoint_manager.handle_checkpointing_and_resume",
+        "new": "crackseg.training.checkpoint_manager.handle_checkpointing_and_resume"
+    },
+    {
+        "old": "crackseg.model.core.unet.BaseUNet",
+        "new": "crackseg.model.core.unet_core.BaseUNet"
+    },
+    {
+        "old": "crackseg.model.architectures.swinv2_cnn_aspp_unet.SwinV2CnnAsppUNet",
+        "new": "crackseg.model.architectures.swinv2_cnn_aspp_unet_core.SwinV2CnnAsppUNet"
+    },
+    {
+        "old": "crackseg.model.factory.config.validate_component_config",
+        "new": "crackseg.model.factory.validation.validate_component_config"
+    },
+    {
+        "old": "crackseg.model.factory.config.validate_architecture_config",
+        "new": "crackseg.model.factory.validation.validate_architecture_config"
+    },
+    {
+        "old": "crackseg.model.factory.config.normalize_config",
+        "new": "crackseg.model.factory.normalize.normalize_config"
+    },
+    {
+        "old": "crackseg.model.factory.config.parse_architecture_config",
+        "new": "crackseg.model.factory.instantiate.parse_architecture_config"
+    },
+    {
+        "old": "crackseg.model.factory.config.instantiate_encoder",
+        "new": "crackseg.model.factory.instantiate.instantiate_encoder"
+    },
+    {
+        "old": "crackseg.model.factory.config.instantiate_bottleneck",
+        "new": "crackseg.model.factory.instantiate.instantiate_bottleneck"
+    },
+    {
+        "old": "crackseg.model.factory.config.instantiate_decoder",
+        "new": "crackseg.model.factory.instantiate.instantiate_decoder"
+    },
+    {
+        "old": "crackseg.model.factory.config.instantiate_hybrid_model",
+        "new": "crackseg.model.factory.instantiate.instantiate_hybrid_model"
+    },
+    {
+        "old": "crackseg.model.factory.config.create_model_from_config",
+        "new": "crackseg.model.factory.instantiate.create_model_from_config"
+    },
+    {
+        "old": "crackseg.model.factory.factory.create_unet",
+        "new": "crackseg.model.factory.factory.create_unet"
+    },
+    {
+        "old": "crackseg.model.factory.factory.instantiate_unet_components",
+        "new": "crackseg.model.factory.component_factory.instantiate_unet_components"
+    },
+    {
+        "old": "crackseg.model.factory.factory.get_unet_class",
+        "new": "crackseg.model.factory.architecture_factory.get_unet_class"
+    },
+    {
+        "old": "crackseg.model.factory.factory.add_final_activation",
+        "new": "crackseg.model.factory.architecture_factory.add_final_activation"
+    },
+    {
+        "old": "crackseg.model.factory.factory.create_unet_from_config",
+        "new": "crackseg.model.factory.architecture_factory.create_unet_from_config"
+    },
+    {
+        "old": "crackseg.model.factory.factory.apply_cbam_to_model",
+        "new": "crackseg.model.factory.component_factory.apply_cbam_to_model"
+    },
+    {
+        "old": "crackseg.model.factory.factory.create_cbam_module",
+        "new": "crackseg.model.factory.component_factory.create_cbam_module"
+    },
+    {
+        "old": "crackseg.model.factory.factory.insert_cbam_if_enabled",
+        "new": "crackseg.model.factory.component_factory.insert_cbam_if_enabled"
+    },
+    {
+        "old": "crackseg.evaluation.utils.results.save_evaluation_results",
+        "new": "crackseg.utils.reporting.save_evaluation_results"
+    },
+    {
+        "old": "crackseg.utils.experiment_saver.ExperimentDataSaver",
+        "new": "crackseg.utils.reporting.ExperimentDataSaver"
+    },
+    {
+        "old": "crackseg.utils.deployment.validation.reporting.core.ValidationReporter",
+        "new": "crackseg.utils.reporting.ValidationReporter"
+    }
+]

@@ -1,5 +1,15 @@
 """Decoder components for the CrackSeg project."""
 
-from .cnn_decoder import CNNDecoder, DecoderBlock
+from .blocks import (
+    DecoderBlock,
+    DecoderBlockAlias,
+    DecoderBlockConfig,
+)
+from .decoder_head import CNNDecoder  # Stable import path for decoder head
 
-__all__ = ["CNNDecoder", "DecoderBlock"]
+__all__ = [
+    "CNNDecoder",
+    "DecoderBlockConfig",
+    "DecoderBlock",
+    "DecoderBlockAlias",
+]

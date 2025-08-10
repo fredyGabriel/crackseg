@@ -1,5 +1,8 @@
 # Quality and Testing Guides
 
+> Legacy notice: this section is legacy. See `docs/guides/developer-guides/quality/` for the
+> canonical guides. Make sure to follow the Quality Gates in `README.md` and `CONTRIBUTING.md`.
+
 This directory contains guides for maintaining code quality and implementing comprehensive testing strategies.
 
 ## Contents

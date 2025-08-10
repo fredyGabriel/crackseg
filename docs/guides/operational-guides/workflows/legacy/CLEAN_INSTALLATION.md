@@ -18,7 +18,7 @@ Before starting, ensure you have the following system dependencies installed:
 - **CUDA Toolkit**: For GPU acceleration (if using NVIDIA GPU)
 - **Graphviz**: For visualization capabilities
 
-For detailed installation instructions for these prerequisites, see [SYSTEM_DEPENDENCIES.md](SYSTEM_DEPENDENCIES.md).
+For detailed installation instructions for these prerequisites, see `docs/guides/developer-guides/architecture/legacy/architectural_decisions.md#adr-001`.
 
 ## Step-by-Step Installation
 

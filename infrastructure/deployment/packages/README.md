@@ -265,10 +265,11 @@ curl http://localhost:8501/ready
 
 ## Related Documentation
 
-- [Deployment Pipeline Architecture](docs/guides/deployment/DEPLOYMENT_PIPELINE_ARCHITECTURE.md)
-- [CI/CD Integration Guide](docs/guides/cicd/ci_cd_integration_guide.md)
-- [Model Serving Guide](docs/guides/deployment/MODEL_SERVING_GUIDE.md)
-- [Production Deployment Guide](docs/guides/deployment/PRODUCTION_DEPLOYMENT_GUIDE.md)
+- Deployment Pipeline Architecture: see
+  `infrastructure/deployment/packages/test-package/package/docs/` (architecture docs)
+- CI/CD Integration Guide: see `docs/guides/operational-guides/cicd/legacy/ci_cd_testing_integration.md`
+- Model Serving Guide: see package docs under `infrastructure/deployment/packages/**/package/docs/`
+- Production Deployment Guide: see package docs under `infrastructure/deployment/packages/**/package/docs/`
 
 ## Contributing
 

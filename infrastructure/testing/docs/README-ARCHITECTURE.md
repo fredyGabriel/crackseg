@@ -592,11 +592,11 @@ docker-compose logs --timestamps --since="1h" streamlit-app
 
 ### Related Documentation
 
-- **Usage Guide**: [README-USAGE.md](README-USAGE.md)
-- **Local Development**: [README-LOCAL-DEV.md](README-LOCAL-DEV.md)
-- **Troubleshooting**: [README-TROUBLESHOOTING.md](README-TROUBLESHOOTING.md)
-- **Network Setup**: [README.network-setup.md](README.network-setup.md)
-- **Cross-Browser Testing**: [README.cross-browser-testing.md](README.cross-browser-testing.md)
+- Usage Guide: see `infrastructure/testing/docs/README-USAGE.md`
+- Local Development: see `infrastructure/testing/docs/README-LOCAL-DEV.md`
+- Troubleshooting: see `infrastructure/testing/docs/README-TROUBLESHOOTING.md`
+- Network Setup: see `infrastructure/testing/docs/README.network-setup.md`
+- Cross-Browser Testing: see `infrastructure/testing/docs/README.cross-browser-testing.md`
 
 ### Technical Specifications
 

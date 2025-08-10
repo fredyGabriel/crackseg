@@ -1,3 +1,6 @@
+> Language compliance: this document is in Spanish (legacy). Preserved for archival/translation.
+> Not canonical.
+
 # Plan de Desarrollo: Artículo Científico SwinV2CnnAsppUNet
 
 **Proyecto**: CrackSeg - Segmentación de Grietas en Pavimento

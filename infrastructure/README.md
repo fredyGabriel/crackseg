@@ -98,7 +98,7 @@ Recursos compartidos entre todos los componentes:
 
 - [Guía Principal](testing/docs/README.md)
 - [Arquitectura](testing/docs/README-ARCHITECTURE.md)
-- [Uso](testing/docs/README-USAGE.md)
+- Uso: see `infrastructure/testing/docs/README-USAGE.md`
 - [Solución de Problemas](testing/docs/README-TROUBLESHOOTING.md)
 
 ### **Shared**

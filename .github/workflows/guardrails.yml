@@ -1,0 +1,138 @@
+name: Guardrails
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'configs/**'
+      - 'docs/**'
+      - 'infrastructure/**'
+      - 'environment.yml'
+      - '.github/workflows/guardrails.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'configs/**'
+      - 'docs/**'
+      - 'infrastructure/**'
+
+jobs:
+  guardrails-core:
+    name: Run Guardrails Suite
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Conda Environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+
+      - name: Run guardrails suite
+        run: |
+          python scripts/utils/quality/guardrails/run_all_guardrails.py
+
+  link-check:
+    name: Link Checker
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Conda Environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+      - name: Run link checker (docs + infrastructure)
+        run: |
+          python scripts/utils/quality/guardrails/link_checker.py --directories docs infrastructure | tee link_check_report.txt
+      - name: Upload link checker report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: link-check-report-${{ github.run_id }}
+          path: link_check_report.txt
+
+  oversized-files:
+    name: Oversized Files Monitor
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Conda Environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+      - name: Scan oversized modules and generate report
+        run: |
+          python scripts/utils/analysis/scan_oversized_modules.py
+      - name: Upload oversized modules report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: oversized-modules-report-${{ github.run_id }}
+          path: docs/reports/analysis-reports/architecture/oversized_modules_report.md
+
+  cleanup-reports:
+    name: Cleanup Reports Aggregation
+    runs-on: ubuntu-latest
+    needs: [guardrails-core, link-check, oversized-files]
+    defaults:
+      run:
+        shell: bash -el {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Conda Environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: crackseg
+          environment-file: environment.yml
+          auto-activate-base: false
+      - name: Aggregate cleanup and guardrails reports
+        run: |
+          # Generate machine and human summaries
+          python scripts/utils/quality/guardrails/guardrails_summary.py
+          # Compose a single PR-readable summary
+          echo "# Cleanup Reports" > cleanup_reports_summary.md
+          echo "\n## Guardrails Validation Summary" >> cleanup_reports_summary.md
+          if [ -f docs/reports/analysis-reports/architecture/guardrails_validation_summary.md ]; then
+            tail -n +1 docs/reports/analysis-reports/architecture/guardrails_validation_summary.md >> cleanup_reports_summary.md
+          fi
+          echo "\n## Line Limit Guardrail (raw)" >> cleanup_reports_summary.md
+          [ -f docs/reports/analysis-reports/architecture/line_limit_guardrail.md ] && tail -n +1 docs/reports/analysis-reports/architecture/line_limit_guardrail.md >> cleanup_reports_summary.md || true
+          echo "\n## Oversized Modules Report (raw)" >> cleanup_reports_summary.md
+          [ -f docs/reports/analysis-reports/architecture/oversized_modules_report.md ] && tail -n +1 docs/reports/analysis-reports/architecture/oversized_modules_report.md >> cleanup_reports_summary.md || true
+      - name: Upload Cleanup Reports Summary
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cleanup-reports-${{ github.run_id }}
+          path: |
+            cleanup_reports_summary.md
+            docs/reports/analysis-reports/architecture/guardrails_validation_summary.json
+            docs/reports/analysis-reports/architecture/guardrails_validation_summary.md
+            docs/reports/analysis-reports/architecture/line_limit_guardrail.md
+            docs/reports/analysis-reports/architecture/oversized_modules_report.md
+
+

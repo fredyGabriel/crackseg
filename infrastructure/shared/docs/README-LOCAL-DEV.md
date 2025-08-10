@@ -223,7 +223,7 @@ export STREAMLIT_MEMORY=512m
 
 1. Check logs: `./scripts/docker-stack-manager.sh logs`
 2. Run diagnostics: `./scripts/system-monitor.sh diagnose`
-3. Review [README-TROUBLESHOOTING.md](README-TROUBLESHOOTING.md)
+3. Review Troubleshooting: see `infrastructure/testing/docs/README-TROUBLESHOOTING.md`
 
 ## Service URLs
 

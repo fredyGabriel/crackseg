@@ -150,8 +150,8 @@ findings, Section 7 concludes and outlines future work, and Section 8 lists refe
 This section should be completed manually with relevant academic citations. See also:
 
 - [Technical Report](./technical_report.md)
-- [Checkpoint Format Specification](checkpoint_format_specification.md)
-- [Configuration Storage Specification](configuration_storage_specification.md)
+- Checkpoint Format Specification: see `docs/guides/technical-specs/specifications/legacy/checkpoint_format_specification.md`
+- Configuration Storage Specification: see `docs/guides/technical-specs/specifications/legacy/configuration_storage_specification.md`
 - [Hydra Documentation](https://hydra.cc/)
 - [Albumentations](https://albumentations.ai/)
 - [PyTorch](https://pytorch.org/)
