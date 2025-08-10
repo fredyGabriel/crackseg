@@ -20,6 +20,7 @@ from simple_mapping_registry import (  # noqa: E402
     create_default_registry,
 )
 
+from scripts.utils.common.io_utils import read_text, write_text  # noqa: E402
 from scripts.utils.quality.guardrails.link_checker_utils import (  # noqa: E402
     extract_links_from_html_with_lines,
     extract_links_from_markdown_with_lines,
@@ -104,8 +105,7 @@ def find_fixable_links(
     fixable_links = []
 
     try:
-        with open(file_path, encoding="utf-8") as f:
-            content = f.read()
+        content = read_text(file_path)
 
         # Extract links based on file type
         if file_path.suffix.lower() == ".md":
@@ -196,8 +196,7 @@ def fix_links_in_file(
         return {"fixed": 0, "errors": 0}
 
     try:
-        with open(file_path, encoding="utf-8") as f:
-            content = f.read()
+        content = read_text(file_path)
 
         lines = content.split("\n")
         fixed_count = 0
@@ -261,8 +260,7 @@ def fix_links_in_file(
         # Write the fixed content
         if not dry_run and fixed_count > 0:
             new_content = "\n".join(lines)
-            with open(file_path, "w", encoding="utf-8") as f:
-                f.write(new_content)
+            write_text(file_path, new_content)
 
         return {"fixed": fixed_count, "errors": error_count}
 

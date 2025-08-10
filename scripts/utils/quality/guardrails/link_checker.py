@@ -9,6 +9,7 @@ import logging
 import sys
 from pathlib import Path
 
+from scripts.utils.common.io_utils import read_text
 from scripts.utils.common.logging_utils import setup_logging
 from scripts.utils.quality.guardrails.link_checker_utils import (
     extract_links_from_html_with_lines,
@@ -82,8 +83,7 @@ def check_file_links(
     issues = []
 
     try:
-        with open(file_path, encoding="utf-8") as f:
-            content = f.read()
+        content = read_text(file_path)
 
         # Extract links based on file type
         if file_path.suffix.lower() == ".md":
