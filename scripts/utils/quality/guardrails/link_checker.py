@@ -6,11 +6,20 @@ cross-referencing with the mapping registry to validate internal links.
 
 import argparse
 import logging
-import re
 import sys
 from pathlib import Path
 
 from scripts.utils.common.logging_utils import setup_logging
+from scripts.utils.quality.guardrails.link_checker_utils import (
+    extract_links_from_html_with_lines,
+    extract_links_from_markdown_with_lines,
+)
+from scripts.utils.quality.guardrails.link_checker_utils import (
+    is_internal_link as _is_internal_link,
+)
+from scripts.utils.quality.guardrails.link_checker_utils import (
+    resolve_internal_link as _resolve_internal_link,
+)
 
 # Add project root to path for imports
 project_root = Path(__file__).resolve().parents[4]
@@ -38,90 +47,24 @@ def _strip_code_blocks_markdown(content: str) -> str:
 
 
 def extract_links_from_markdown(content: str) -> list[tuple[str, str]]:
-    """Extract links from markdown content.
-
-    Args:
-        content: Markdown content to parse
-
-    Returns:
-        List of (link_text, link_url) tuples
-    """
-    # Strip code blocks first to reduce false positives
+    """Extract links from markdown content (text,url)."""
     sanitized = _strip_code_blocks_markdown(content)
-
-    # Pattern for markdown links: [text](url)
-    link_pattern = r"\[([^\]]+)\]\(([^)]+)\)"
-    links = re.findall(link_pattern, sanitized)
-
-    # Pattern for reference links: [text][ref] and [ref]: url
-    ref_pattern = r"\[([^\]]+)\]:\s*([^\s]+)"
-    ref_links = re.findall(ref_pattern, sanitized)
-
-    return links + ref_links
+    triples = extract_links_from_markdown_with_lines(sanitized)
+    return [(t, u) for (t, u, _l) in triples]
 
 
 def extract_links_from_html(content: str) -> list[tuple[str, str]]:
-    """Extract links from HTML content.
-
-    Args:
-        content: HTML content to parse
-
-    Returns:
-        List of (link_text, link_url) tuples
-    """
-    # Pattern for HTML links: <a href="url">text</a>
-    link_pattern = r'<a[^>]+href=["\']([^"\']+)["\'][^>]*>([^<]+)</a>'
-    links = re.findall(link_pattern, content)
-
-    # Also find href attributes without text
-    href_pattern = r'href=["\']([^"\']+)["\']'
-    href_links = [(url, url) for url in re.findall(href_pattern, content)]
-
-    return links + href_links
+    """Extract links from HTML content (text,url)."""
+    triples = extract_links_from_html_with_lines(content)
+    return [(t, u) for (t, u, _l) in triples]
 
 
 def is_internal_link(url: str) -> bool:
-    """Check if a URL is an internal link.
-
-    Args:
-        url: URL to check
-
-    Returns:
-        True if internal, False if external
-    """
-    # Check if it's a relative path
-    if url.startswith("./") or url.startswith("../") or url.startswith("/"):
-        return True
-
-    # Check if it's a file path without protocol
-    if not url.startswith(("http://", "https://", "ftp://", "mailto:")):
-        return True
-
-    return False
+    return _is_internal_link(url)
 
 
 def resolve_internal_link(base_path: Path, link: str) -> Path:
-    """Resolve an internal link to a file path.
-
-    Args:
-        base_path: Base path for resolution
-        link: Link to resolve
-
-    Returns:
-        Resolved file path
-    """
-    if link.startswith("/"):
-        # Absolute path from project root
-        return project_root / link[1:]
-    elif link.startswith("./"):
-        # Relative to current file
-        return base_path.parent / link[2:]
-    elif link.startswith("../"):
-        # Relative to parent directory
-        return base_path.parent / link
-    else:
-        # Relative to current file
-        return base_path.parent / link
+    return _resolve_internal_link(base_path, link, project_root)
 
 
 def check_file_links(
