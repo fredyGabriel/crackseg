@@ -14,6 +14,7 @@ project_root = Path(__file__).resolve().parents[4]
 sys.path.insert(0, str(project_root / "src"))
 
 from crackseg.utils.mapping_registry import get_registry  # noqa: E402
+from scripts.utils.common.io_utils import read_text  # noqa: E402
 
 
 def setup_logging() -> None:
@@ -40,8 +41,7 @@ def check_file_for_stale_references(
     issues = []
 
     try:
-        with open(file_path, encoding="utf-8") as f:
-            content = f.read()
+        content = read_text(file_path)
 
         for mapping_type in mapping_types:
             mappings = registry.get_mappings_by_type(mapping_type)
