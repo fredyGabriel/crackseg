@@ -1,61 +1,5 @@
 [
   {
-    "hash": "b085a70e9d348cad71306c3e6e6c4d279f07f250ce0a4e1ceae0eddc34756c52",
-    "count": 7,
-    "preview": "def setup_logging(verbose: bool = False) -> None:\n    \"\"\"Setup logging configuration.\"\"\"\n    level = logging.DEBUG if verbose else logging.INFO\n    logging.basicConfig(\n        level=level,\n        format=\"%(asctime)s - %(name)s - %(levelname)s - %(message)s\",\n    )",
-    "occurrences": [
-      {
-        "path": "src/crackseg/evaluation/cli/prediction_cli.py",
-        "kind": "function",
-        "name": "setup_logging",
-        "lineno": 13,
-        "end_lineno": 19
-      },
-      {
-        "path": "scripts/utils/automation/auto_link_fixer.py",
-        "kind": "function",
-        "name": "setup_logging",
-        "lineno": 25,
-        "end_lineno": 31
-      },
-      {
-        "path": "scripts/utils/automation/hydra_config_migrator.py",
-        "kind": "function",
-        "name": "setup_logging",
-        "lineno": 24,
-        "end_lineno": 30
-      },
-      {
-        "path": "scripts/utils/automation/post_phase_regenerator.py",
-        "kind": "function",
-        "name": "setup_logging",
-        "lineno": 33,
-        "end_lineno": 39
-      },
-      {
-        "path": "scripts/utils/quality/guardrails/ci_consistency_checker.py",
-        "kind": "function",
-        "name": "setup_logging",
-        "lineno": 37,
-        "end_lineno": 43
-      },
-      {
-        "path": "scripts/utils/quality/guardrails/import_policy_checker.py",
-        "kind": "function",
-        "name": "setup_logging",
-        "lineno": 26,
-        "end_lineno": 32
-      },
-      {
-        "path": "scripts/utils/quality/guardrails/link_checker.py",
-        "kind": "function",
-        "name": "setup_logging",
-        "lineno": 23,
-        "end_lineno": 29
-      }
-    ]
-  },
-  {
     "hash": "ce840fe9fc5fd47c11ab22bccfd7e73b368538b8224f56de6caf5879eacf3d6c",
     "count": 4,
     "preview": "    def feature_info(self) -> list[dict[str, Any]]:\n        \"\"\"Information about output features for each stage.\n\n        Returns:\n            List of dictionaries, each containing:\n                - 'channels': Number of output channels\n                - 'reduction': Spatial reduction factor from input\n                - 'stage': Stage index\n        \"\"\"\n        return self.get_feature_info()",
@@ -91,58 +35,30 @@
     ]
   },
   {
-    "hash": "aa2c3008950be0d23369dd04e29a0fc51e9fa7b17be050c7acee258a89249e7d",
+    "hash": "6888d215e6c1ea1d273396947a6f4b9bf829d0dd2627ad2a7b7e42f7ed270230",
     "count": 3,
-    "preview": "    def _get_target_size(self) -> tuple[int, int]:\n        \"\"\"Get target image size from config.\"\"\"\n        target_size = self.config.data.image_size\n        if isinstance(target_size, list):\n            return tuple(target_size)\n        return target_size",
-    "occurrences": [
-      {
-        "path": "src/crackseg/evaluation/core/image_processor.py",
-        "kind": "function",
-        "name": "_get_target_size",
-        "lineno": 27,
-        "end_lineno": 32
-      },
-      {
-        "path": "src/crackseg/evaluation/visualization/analysis/prediction.py",
-        "kind": "function",
-        "name": "_get_target_size",
-        "lineno": 31,
-        "end_lineno": 36
-      },
-      {
-        "path": "src/crackseg/evaluation/visualization/legacy/prediction_viz.py",
-        "kind": "function",
-        "name": "_get_target_size",
-        "lineno": 28,
-        "end_lineno": 33
-      }
-    ]
-  },
-  {
-    "hash": "991e656560bce4b5bbee42904a9aaa8019a8481e517d3788982330c7fcc3a154",
-    "count": 3,
-    "preview": "    def _create_empty_plot(self, title: str) -> Figure:\n        \"\"\"Create an empty plot with a message.\n\n        Args:\n            title: Title for the empty plot\n\n        Returns:\n            Matplotlib Figure\n        \"\"\"\n        fig, ax = plt.subplots(figsize=(8, 6))",
+    "preview": "    def _create_empty_plot(self, title: str) -> Figure:\n        from crackseg.evaluation.visualization.utils.plot_utils import (\n            create_empty_plot,\n        )\n\n        fig, _ = create_empty_plot(\n            f\"No data available for {title}\", figsize=(8, 6)\n        )\n        return fig",
     "occurrences": [
       {
         "path": "src/crackseg/evaluation/visualization/legacy/learning_rate_analysis.py",
         "kind": "function",
         "name": "_create_empty_plot",
         "lineno": 167,
-        "end_lineno": 190
+        "end_lineno": 175
       },
       {
         "path": "src/crackseg/evaluation/visualization/legacy/parameter_analysis.py",
         "kind": "function",
         "name": "_create_empty_plot",
         "lineno": 250,
-        "end_lineno": 273
+        "end_lineno": 258
       },
       {
         "path": "src/crackseg/evaluation/visualization/legacy/training_curves.py",
         "kind": "function",
         "name": "_create_empty_plot",
         "lineno": 201,
-        "end_lineno": 224
+        "end_lineno": 209
       }
     ]
   },
@@ -787,48 +703,6 @@
         "name": "generate_sensitivity_specificity_evolution",
         "lineno": 21,
         "end_lineno": 100
-      }
-    ]
-  },
-  {
-    "hash": "5e13dcde7d1895148a57c0ccdada57fb1f5851f111ede34741e34d4643435457",
-    "count": 2,
-    "preview": "def is_internal_link(url: str) -> bool:\n    \"\"\"Check if a URL is an internal link.\n\n    Args:\n        url: URL to check\n\n    Returns:\n        True if internal, False if external\n    \"\"\"\n    # Check if it's a relative path",
-    "occurrences": [
-      {
-        "path": "scripts/utils/automation/auto_link_fixer.py",
-        "kind": "function",
-        "name": "is_internal_link",
-        "lineno": 84,
-        "end_lineno": 101
-      },
-      {
-        "path": "scripts/utils/quality/guardrails/link_checker.py",
-        "kind": "function",
-        "name": "is_internal_link",
-        "lineno": 90,
-        "end_lineno": 107
-      }
-    ]
-  },
-  {
-    "hash": "eb4088a1adac9cbc11aee0e727a90770c111510991e5c5ab6bfe0f62a083f3a5",
-    "count": 2,
-    "preview": "def resolve_internal_link(base_path: Path, link: str) -> Path:\n    \"\"\"Resolve an internal link to a file path.\n\n    Args:\n        base_path: Base path for resolution\n        link: Link to resolve\n\n    Returns:\n        Resolved file path\n    \"\"\"",
-    "occurrences": [
-      {
-        "path": "scripts/utils/automation/auto_link_fixer.py",
-        "kind": "function",
-        "name": "resolve_internal_link",
-        "lineno": 104,
-        "end_lineno": 125
-      },
-      {
-        "path": "scripts/utils/quality/guardrails/link_checker.py",
-        "kind": "function",
-        "name": "resolve_internal_link",
-        "lineno": 110,
-        "end_lineno": 131
       }
     ]
   }

@@ -3,12 +3,14 @@ from __future__ import annotations
 import ast
 import hashlib
 import io
-import json
 import os
 import tokenize
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any, TypedDict
+
+from scripts.utils.common.io_utils import read_text, write_json, write_text
 
 
 @dataclass
@@ -18,6 +20,13 @@ class Occurrence:
     name: str
     lineno: int
     end_lineno: int
+
+
+class DuplicateGroup(TypedDict):
+    hash: str
+    count: int
+    preview: str
+    occurrences: list[dict[str, Any]]
 
 
 def iter_python_files(roots: Iterable[Path]) -> Iterable[Path]:
@@ -30,8 +39,9 @@ def iter_python_files(roots: Iterable[Path]) -> Iterable[Path]:
                     yield Path(base) / f
 
 
-def read_text(path: Path) -> str:
-    return path.read_text(encoding="utf-8", errors="ignore")
+def read_text_compat(path: Path) -> str:
+    # Back-compat wrapper to use shared IO utils
+    return read_text(path)
 
 
 def normalize_code(code: str) -> str:
@@ -72,7 +82,7 @@ def scan_file(path: Path) -> list[tuple[str, Occurrence, str]]:
 
     The hash is computed from a token-normalized snippet of each function/class.
     """
-    src = read_text(path)
+    src = read_text_compat(path)
     try:
         tree = ast.parse(src)
     except SyntaxError:
@@ -127,26 +137,23 @@ def main() -> None:
             if h not in hash_to_preview:
                 hash_to_preview[h] = preview
 
-    duplicates: list[dict[str, object]] = []
+    duplicates: list[DuplicateGroup] = []
     for h, occs in hash_to_occurrences.items():
         if len(occs) < 2:
             continue
-        duplicates.append(
-            {
-                "hash": h,
-                "count": len(occs),
-                "preview": hash_to_preview.get(h, ""),
-                "occurrences": [occ.__dict__ for occ in occs],
-            }
-        )
+        group: DuplicateGroup = {
+            "hash": h,
+            "count": len(occs),
+            "preview": hash_to_preview.get(h, ""),
+            "occurrences": [occ.__dict__ for occ in occs],
+        }
+        duplicates.append(group)
 
-    duplicates.sort(key=lambda d: int(d["count"]), reverse=True)
+    duplicates.sort(key=lambda d: d["count"], reverse=True)
 
     out_dir = Path("docs/reports/project-reports")
     out_dir.mkdir(parents=True, exist_ok=True)
-    (out_dir / "duplicate_scan_report.json").write_text(
-        json.dumps(duplicates, indent=2), encoding="utf-8"
-    )
+    write_json(out_dir / "duplicate_scan_report.json", duplicates, indent=2)
 
     # Markdown summary
     lines: list[str] = ["# Duplicate Scan Report\n", "\n"]
@@ -162,9 +169,7 @@ def main() -> None:
             )
         lines.append("\n")
 
-    (out_dir / "duplicate_scan_report.md").write_text(
-        "".join(lines), encoding="utf-8"
-    )
+    write_text(out_dir / "duplicate_scan_report.md", "".join(lines))
 
     print("OK")
 

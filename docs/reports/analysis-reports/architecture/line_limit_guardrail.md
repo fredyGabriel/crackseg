@@ -33,9 +33,9 @@ File | Lines
 `src\crackseg\utils\traceability\metadata_manager.py` | 368
 `src\crackseg\utils\monitoring\alerts\checker.py` | 365
 `src\crackseg\training\losses\factory\config_parser.py` | 364
-`src\crackseg\reporting\figures\publication_figure_generator.py` | 363
 `src\crackseg\utils\deployment\packaging\security.py` | 361
 `src\crackseg\model\architectures\cnn_convlstm_unet.py` | 359
+`src\crackseg\reporting\figures\publication_figure_generator.py` | 358
 `src\crackseg\utils\deployment\packaging\containerization.py` | 357
 `src\crackseg\utils\integrity\artifact_verifier.py` | 356
 `src\crackseg\model\common\visualization\graphviz_renderer.py` | 355

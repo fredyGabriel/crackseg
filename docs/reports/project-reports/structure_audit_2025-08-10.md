@@ -30,7 +30,8 @@ Detailed per-root listings are available as:
 - `src/` contains the majority of implementation modules, organized under `crackseg/` with
   consistent subpackage structure; aligns with rules.
 - `scripts/` shows a high count (137). Many are utilities/reports; keep under `scripts/` but
-  consider consolidating report generators under `scripts/reports/` (already in place) and ensure names follow `<action>_<target>.py`.
+  consider consolidating report generators under `scripts/reports/` (already in place) and ensure
+  names follow `<action>_<target>.py`.
 - `gui/` code volume is significant; ensure components mirror `pages/`, `components/`, `services/`,
   and `utils/` boundaries. No immediate relocations detected from high-level scan.
 - `configs/` minimal `.py` presence (2) is expected (package initializers or small helpers). YAML
@@ -46,7 +47,8 @@ Detailed per-root listings are available as:
 
 ## Next Steps (follow-up tasks)
 
-1. In the deferred tests PR: mirror updated `src/` paths under `tests/` and add smoke tests for visualization and deployment strategies.
+1. In the deferred tests PR: mirror updated `src/` paths under `tests/` and add smoke tests for
+  visualization and deployment strategies.
 2. Consider generating `project_tree.md` refresh to reflect recent modularization.
 3. Track oversized growth in `gui/` and `scripts/` with periodic scans (reuse `scripts/reports/generate_structure_scan.py`).
 

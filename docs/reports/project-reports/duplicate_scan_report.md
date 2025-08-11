@@ -1,26 +1,6 @@
 # Duplicate Scan Report
 
-Total duplicate groups: 35
-
-## Group (count=7)
-
-```python
-def setup_logging(verbose: bool = False) -> None:
-    """Setup logging configuration."""
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
-```
-
-- function setup_logging @ src/crackseg/evaluation/cli/prediction_cli.py:13-19
-- function setup_logging @ scripts/utils/automation/auto_link_fixer.py:25-31
-- function setup_logging @ scripts/utils/automation/hydra_config_migrator.py:24-30
-- function setup_logging @ scripts/utils/automation/post_phase_regenerator.py:33-39
-- function setup_logging @ scripts/utils/quality/guardrails/ci_consistency_checker.py:37-43
-- function setup_logging @ scripts/utils/quality/guardrails/import_policy_checker.py:26-32
-- function setup_logging @ scripts/utils/quality/guardrails/link_checker.py:23-29
+Total duplicate groups: 31
 
 ## Group (count=4)
 
@@ -45,36 +25,20 @@ def setup_logging(verbose: bool = False) -> None:
 ## Group (count=3)
 
 ```python
-    def _get_target_size(self) -> tuple[int, int]:
-        """Get target image size from config."""
-        target_size = self.config.data.image_size
-        if isinstance(target_size, list):
-            return tuple(target_size)
-        return target_size
-```
-
-- function _get_target_size @ src/crackseg/evaluation/core/image_processor.py:27-32
-- function _get_target_size @ src/crackseg/evaluation/visualization/analysis/prediction.py:31-36
-- function _get_target_size @ src/crackseg/evaluation/visualization/legacy/prediction_viz.py:28-33
-
-## Group (count=3)
-
-```python
     def _create_empty_plot(self, title: str) -> Figure:
-        """Create an empty plot with a message.
+        from crackseg.evaluation.visualization.utils.plot_utils import (
+            create_empty_plot,
+        )
 
-        Args:
-            title: Title for the empty plot
-
-        Returns:
-            Matplotlib Figure
-        """
-        fig, ax = plt.subplots(figsize=(8, 6))
+        fig, _ = create_empty_plot(
+            f"No data available for {title}", figsize=(8, 6)
+        )
+        return fig
 ```
 
-- function _create_empty_plot @ src/crackseg/evaluation/visualization/legacy/learning_rate_analysis.py:167-190
-- function _create_empty_plot @ src/crackseg/evaluation/visualization/legacy/parameter_analysis.py:250-273
-- function _create_empty_plot @ src/crackseg/evaluation/visualization/legacy/training_curves.py:201-224
+- function _create_empty_plot @ src/crackseg/evaluation/visualization/legacy/learning_rate_analysis.py:167-175
+- function _create_empty_plot @ src/crackseg/evaluation/visualization/legacy/parameter_analysis.py:250-258
+- function _create_empty_plot @ src/crackseg/evaluation/visualization/legacy/training_curves.py:201-209
 
 ## Group (count=3)
 
@@ -365,3 +329,38 @@ def _has_nested_field(config: DictConfig, field_path: str) -> bool:
 - function _force_kill @ gui/utils/process/manager/core/core.py:403-421
 - function _force_kill @ gui/utils/process/manager/core/manager_backup_original.py:636-654
 
+## Group (count=2)
+
+```python
+    def _cleanup(self) -> None:
+        """Clean up resources after process completion."""
+        if self._process:
+            try:
+                # Ensure pipes are closed
+                if self._process.stdout:
+                    self._process.stdout.close()
+                if self._process.stderr:
+                    self._process.stderr.close()
+                if self._process.stdin:
+```
+
+- function _cleanup @ gui/utils/process/manager/core/core.py:423-437
+- function _cleanup @ gui/utils/process/manager/core/manager_backup_original.py:656-670
+
+## Group (count=2)
+
+```python
+    def process_info(self) -> ProcessInfo:
+        """Get current process information (thread-safe)."""
+        with self._lock:
+            return ProcessInfo(
+                pid=self._process_info.pid,
+                command=self._process_info.command.copy(),
+                start_time=self._process_info.start_time,
+                state=self._process_info.state,
+                return_code=self._process_info.return_code,
+                error_message=self._process_info.error_message,
+```
+
+- function process_info @ gui/utils/process/manager/core/manager_backup_original.py:87-98
+- function process_info @ gui/utils/process/manager/core/process_manager.py:83-94

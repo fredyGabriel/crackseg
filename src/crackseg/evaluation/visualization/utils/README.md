@@ -7,5 +7,6 @@ Utilities for advanced prediction visualization:
 - `gradients.py`: gradient norm computations
 
 Principles:
+
 - Thin wrappers in high-level visualizers; heavy ops live here
 - Keep interfaces stable for downstream usage

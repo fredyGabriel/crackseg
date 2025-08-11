@@ -33,9 +33,9 @@ def build_tree(root: Path, max_depth: int = 6) -> list[str]:
 
 def write_project_tree_md(out_file: Path, max_depth: int = 6) -> None:
     out_file.parent.mkdir(parents=True, exist_ok=True)
-    lines = ["# Project Tree\n", "\n", "``" "text\n"]
+    lines = ["# Project Tree\n", "\n", "``text\n"]
     lines.extend(build_tree(Path.cwd(), max_depth=max_depth))
-    lines.append("\n" "``" "\n")
+    lines.append("\n``\n")
     out_file.write_text("\n".join(lines), encoding="utf-8")
 
 

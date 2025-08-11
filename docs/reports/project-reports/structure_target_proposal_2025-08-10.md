@@ -1,6 +1,7 @@
 # Target Structure & Classification Proposal - 2025-08-10
 
-This proposal defines adjustments to maintain consistency with project structure rules and recent refactors. It focuses on classification and documentation, not moving code immediately.
+This proposal defines adjustments to maintain consistency with project structure rules and recent
+refactors. It focuses on classification and documentation, not moving code immediately.
 
 ## Principles
 

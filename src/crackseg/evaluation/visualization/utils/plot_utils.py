@@ -7,12 +7,13 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
+from matplotlib.figure import Figure
 from matplotlib.patches import Rectangle
 
 
 def create_empty_plot(
     title: str, figsize: tuple[int, int] = (8, 6)
-) -> tuple[plt.Figure, Any]:
+) -> tuple[Figure, Axes]:
     """Create an empty matplotlib figure with a centered message.
 
     Returns the (Figure, Axes) tuple.

@@ -25,6 +25,12 @@ from scripts.utils.quality.guardrails.link_checker_utils import (  # noqa: E402
     extract_links_from_html_with_lines,
     extract_links_from_markdown_with_lines,
 )
+from scripts.utils.quality.guardrails.link_checker_utils import (
+    is_internal_link as _is_internal_link,
+)
+from scripts.utils.quality.guardrails.link_checker_utils import (
+    resolve_internal_link as _resolve_internal_link,
+)
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -47,47 +53,11 @@ def extract_links_from_html(content: str) -> list[tuple[str, str, int]]:
 
 
 def is_internal_link(url: str) -> bool:
-    """Check if a URL is an internal link.
-
-    Args:
-        url: URL to check
-
-    Returns:
-        True if internal, False if external
-    """
-    # Check if it's a relative path
-    if url.startswith("./") or url.startswith("../") or url.startswith("/"):
-        return True
-
-    # Check if it's a file path without protocol
-    if not url.startswith(("http://", "https://", "ftp://", "mailto:")):
-        return True
-
-    return False
+    return _is_internal_link(url)
 
 
 def resolve_internal_link(base_path: Path, link: str) -> Path:
-    """Resolve an internal link to a file path.
-
-    Args:
-        base_path: Base path for resolution
-        link: Link to resolve
-
-    Returns:
-        Resolved file path
-    """
-    if link.startswith("/"):
-        # Absolute path from project root
-        return project_root / link[1:]
-    elif link.startswith("./"):
-        # Relative to current file
-        return base_path.parent / link[2:]
-    elif link.startswith("../"):
-        # Relative to parent directory
-        return base_path.parent / link
-    else:
-        # Relative to current file
-        return base_path.parent / link
+    return _resolve_internal_link(base_path, link, project_root)
 
 
 def find_fixable_links(
