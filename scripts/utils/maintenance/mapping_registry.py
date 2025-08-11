@@ -6,9 +6,10 @@ Used to update docs, configs, and code references and to provide temporary re-ex
 
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from pathlib import Path
+
+from scripts.utils.common.io_utils import read_text, write_text  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 MAP_PATH = (
@@ -29,15 +30,20 @@ class Mapping:
 
 def load_mapping() -> list[Mapping]:
     if MAP_PATH.exists():
-        data = json.loads(MAP_PATH.read_text(encoding="utf-8"))
+        import json
+
+        data = json.loads(read_text(MAP_PATH))
         return [Mapping(**item) for item in data]
     return []
 
 
 def save_mapping(mappings: list[Mapping]) -> None:
+    import json
+
     MAP_PATH.parent.mkdir(parents=True, exist_ok=True)
-    MAP_PATH.write_text(
-        json.dumps([m.__dict__ for m in mappings], indent=2), encoding="utf-8"
+    write_text(
+        MAP_PATH,
+        json.dumps([m.__dict__ for m in mappings], indent=2),
     )
 
 

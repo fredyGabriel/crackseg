@@ -20,6 +20,7 @@ from simple_mapping_registry import (  # noqa: E402
     create_default_registry,
 )
 
+from scripts.utils.common.io_utils import read_text, write_text  # noqa: E402
 from scripts.utils.common.logging_utils import setup_logging  # noqa: E402
 
 
@@ -208,8 +209,7 @@ class HydraConfigMigrator:
             Dictionary with migration results
         """
         try:
-            with open(config_path, encoding="utf-8") as f:
-                content = f.read()
+            content = read_text(config_path)
 
             # Find all config references
             references = self.find_config_references(content)
@@ -286,8 +286,7 @@ class HydraConfigMigrator:
             # Write the migrated content
             if not dry_run and migrated_count > 0:
                 new_content = "\n".join(lines)
-                with open(config_path, "w", encoding="utf-8") as f:
-                    f.write(new_content)
+                write_text(config_path, new_content)
 
             return {
                 "migrated": migrated_count,
@@ -338,8 +337,7 @@ class HydraConfigMigrator:
 
         for config_file in config_files:
             try:
-                with open(config_file, encoding="utf-8") as f:
-                    content = f.read()
+                content = read_text(config_file)
 
                 file_issues = self.validate_config_references(
                     config_file, content

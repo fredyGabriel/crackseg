@@ -17,7 +17,7 @@ from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
 
-from scripts.utils.common.io_utils import write_text  # noqa: E402
+from scripts.utils.common.io_utils import read_text, write_text  # noqa: E402
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -77,7 +77,7 @@ def build_graph() -> tuple[dict[str, set[str]], dict[str, set[str]]]:
             continue
         nodes.add(me)
         try:
-            text = p.read_text(encoding="utf-8", errors="ignore")
+            text = read_text(p)
         except OSError:
             continue
         for dep in parse_imports(text):

@@ -177,8 +177,9 @@ def main() -> int:
     # Save report to file if requested
     if args.output_file:
         try:
-            with open(args.output_file, "w", encoding="utf-8") as f:
-                f.write(report)
+            from scripts.utils.common.io_utils import write_text  # noqa: E402
+
+            write_text(args.output_file, report)
             logger.info(f"Report saved to {args.output_file}")
         except Exception as e:
             logger.error(f"Failed to save report to {args.output_file}: {e}")

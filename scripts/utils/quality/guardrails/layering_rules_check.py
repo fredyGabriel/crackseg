@@ -14,6 +14,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from scripts.utils.common.io_utils import read_text  # noqa: E402
+
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 SRC_ROOT = PROJECT_ROOT / "src" / "crackseg"
 
@@ -64,7 +66,7 @@ ALLOWED_BYPASS_FILES = {
 
 def file_text(p: Path) -> str:
     try:
-        return p.read_text(encoding="utf-8")
+        return read_text(p)
     except Exception:
         return ""
 

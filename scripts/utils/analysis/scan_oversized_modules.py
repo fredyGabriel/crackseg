@@ -11,7 +11,10 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-from scripts.utils.common.io_utils import write_text  # noqa: E402
+from scripts.utils.common.io_utils import (
+    read_text,  # noqa: E402
+    write_text,  # noqa: E402
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = PROJECT_ROOT / "src"
@@ -63,8 +66,8 @@ def dotted_package(p: Path) -> str:
 
 def count_lines(p: Path) -> int:
     try:
-        return sum(1 for _ in p.open("r", encoding="utf-8", errors="ignore"))
-    except OSError:
+        return len(read_text(p).splitlines())
+    except Exception:
         return 0
 
 

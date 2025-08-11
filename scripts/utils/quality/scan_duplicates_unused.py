@@ -65,8 +65,10 @@ def load_gitignore_matcher(project_root: Path):
     gi = project_root / ".gitignore"
     if not gi.exists():
         return lambda _p: False
+    from scripts.utils.common.io_utils import read_text  # noqa: E402
+
     spec = pathspec.PathSpec.from_lines(
-        "gitwildmatch", gi.read_text(encoding="utf-8").splitlines()
+        "gitwildmatch", read_text(gi).splitlines()
     )
 
     def is_ignored(p: Path) -> bool:
@@ -159,7 +161,9 @@ def collect_import_usage(py_files: list[Path]) -> set[str]:
     used: set[str] = set()
     for p in py_files:
         try:
-            text = p.read_text(encoding="utf-8", errors="ignore")
+            from scripts.utils.common.io_utils import read_text  # noqa: E402
+
+            text = read_text(p)
         except OSError:
             continue
         for m in IMPORT_RE.finditer(text):
@@ -255,8 +259,10 @@ def main() -> None:
     dups = detect_duplicate_groups(files)
     unused = find_unused_modules(files)
 
+    from scripts.utils.common.io_utils import write_text  # noqa: E402
+
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(build_report(dups, unused), encoding="utf-8")
+    write_text(REPORT_PATH, build_report(dups, unused))
 
 
 if __name__ == "__main__":

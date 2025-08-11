@@ -16,7 +16,10 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-from scripts.utils.common.io_utils import write_text  # noqa: E402
+from scripts.utils.common.io_utils import (
+    read_text,  # noqa: E402
+    write_text,  # noqa: E402
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 CONFIGS_ROOT = PROJECT_ROOT / "configs" / "model"
@@ -56,10 +59,8 @@ def read_text_files(paths: Iterable[Path]) -> list[tuple[Path, str]]:
     contents: list[tuple[Path, str]] = []
     for p in paths:
         try:
-            contents.append(
-                (p, p.read_text(encoding="utf-8", errors="ignore"))
-            )
-        except OSError:
+            contents.append((p, read_text(p)))
+        except Exception:
             continue
     return contents
 

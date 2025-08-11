@@ -20,7 +20,11 @@ import os
 from pathlib import Path
 from typing import TypedDict
 
-from scripts.utils.common.io_utils import write_json, write_text  # noqa: E402
+from scripts.utils.common.io_utils import (  # noqa: E402
+    read_text,
+    write_json,
+    write_text,
+)
 
 
 class DirReport(TypedDict):
@@ -87,7 +91,7 @@ if __name__ == "__main__":
     if src_json.exists():
         write_text(
             out_dir / "structure_scan_summary.json",
-            src_json.read_text(encoding="utf-8"),
+            read_text(src_json),
         )
 
     print("OK")

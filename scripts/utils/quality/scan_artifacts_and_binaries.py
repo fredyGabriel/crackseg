@@ -102,8 +102,10 @@ def load_gitignore_matcher(project_root: Path):
     gi = project_root / ".gitignore"
     if not gi.exists():
         return lambda _p: False
+    from scripts.utils.common.io_utils import read_text  # noqa: E402
+
     spec = pathspec.PathSpec.from_lines(
-        "gitwildmatch", gi.read_text(encoding="utf-8").splitlines()
+        "gitwildmatch", read_text(gi).splitlines()
     )
 
     def is_ignored(p: Path) -> bool:
@@ -264,9 +266,9 @@ def main() -> None:
             )
 
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(
-        build_report(artifacts, large_files), encoding="utf-8"
-    )
+    from scripts.utils.common.io_utils import write_text  # noqa: E402
+
+    write_text(REPORT_PATH, build_report(artifacts, large_files))
 
 
 if __name__ == "__main__":
