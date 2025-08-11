@@ -3,10 +3,11 @@ Model import s cycle detection. This script analyzes import
 dependencies to detect circular import s in the model directory.
 """
 
-import json
 import os
 from collections import defaultdict
 from typing import Any
+
+from scripts.utils.common.io_utils import read_json, write_json  # noqa: E402
 
 # Type definitions
 type ImportEntry = dict[str, Any]
@@ -24,8 +25,7 @@ CYCLES_PATH = os.path.join(
 )
 
 # Construir grafo de dependencias
-with open(CATALOG_PATH, encoding="utf-8") as f:
-    catalog: ImportCatalog = json.load(f)
+catalog: ImportCatalog = read_json(CATALOG_PATH)
 
 graph: DependencyGraph = defaultdict(set)
 modules: set[ModuleName] = set()
@@ -88,8 +88,7 @@ def find_cycles(graph: DependencyGraph) -> CycleList:
 
 cycles = find_cycles(graph_norm)
 
-with open(CYCLES_PATH, "w", encoding="utf-8") as f:
-    json.dump(cycles, f, indent=2, ensure_ascii=False)
+write_json(CYCLES_PATH, cycles, indent=2, ensure_ascii=False)
 
 if cycles:
     print(

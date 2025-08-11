@@ -4,10 +4,11 @@ the model catalog and identifies invalid import patterns that should
 be updated.
 """
 
-import json
 import os
 import re
 from typing import Any
+
+from scripts.utils.common.io_utils import read_json, write_json  # noqa: E402
 
 # Type definitions
 type ImportEntry = dict[str, Any]
@@ -22,8 +23,7 @@ outfile = os.path.join(
     os.path.dirname(__file__), "model_import s_invalid.json"
 )
 
-with open(catalog_path, encoding="utf-8") as f:
-    catalog: ImportCatalog = json.load(f)
+catalog: ImportCatalog = read_json(catalog_path)
 
 invalid: InvalidImports = []
 
@@ -82,7 +82,6 @@ for entry in catalog:
                 )
                 break
 
-with open(outfile, "w", encoding="utf-8") as f:
-    json.dump(invalid, f, indent=2, ensure_ascii=False)
+write_json(outfile, invalid, indent=2, ensure_ascii=False)
 
 print(f"Invalid import s report written to {outfile}")
