@@ -26,6 +26,8 @@ from datetime import UTC, datetime
 from hashlib import sha1
 from pathlib import Path
 
+from scripts.utils.common.io_utils import write_text  # noqa: E402
+
 try:
     import pathspec  # type: ignore
 except Exception:  # pragma: no cover
@@ -274,8 +276,7 @@ def append_report(
     lines.append("")
 
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    with report_path.open("w", encoding="utf-8") as f:
-        f.write("\n".join(lines))
+    write_text(report_path, "\n".join(lines))
 
 
 def main() -> None:

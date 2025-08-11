@@ -11,6 +11,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+from scripts.utils.common.io_utils import write_text  # noqa: E402
+
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = PROJECT_ROOT / "src"
 REPORT_PATH = (
@@ -109,7 +111,7 @@ def render_report(stats: list[ModuleStat]) -> str:
 def main() -> None:
     stats = collect_stats()
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(render_report(stats), encoding="utf-8")
+    write_text(REPORT_PATH, render_report(stats))
 
 
 if __name__ == "__main__":

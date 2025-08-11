@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
+from scripts.utils.common.io_utils import write_text  # noqa: E402
+
 
 def build_tree(root: Path, max_depth: int = 6) -> list[str]:
     lines: list[str] = []
@@ -36,7 +38,7 @@ def write_project_tree_md(out_file: Path, max_depth: int = 6) -> None:
     lines = ["# Project Tree\n", "\n", "``text\n"]
     lines.extend(build_tree(Path.cwd(), max_depth=max_depth))
     lines.append("\n``\n")
-    out_file.write_text("\n".join(lines), encoding="utf-8")
+    write_text(out_file, "\n".join(lines))
 
 
 if __name__ == "__main__":

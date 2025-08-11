@@ -16,6 +16,8 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+from scripts.utils.common.io_utils import write_text  # noqa: E402
+
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 CONFIGS_ROOT = PROJECT_ROOT / "configs" / "model"
 SRC_ROOT = PROJECT_ROOT / "src" / "crackseg" / "model"
@@ -152,7 +154,7 @@ def render_report(groups: dict[str, AlignmentSet]) -> str:
 def main() -> None:
     groups = build_alignment()
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(render_report(groups), encoding="utf-8")
+    write_text(REPORT_PATH, render_report(groups))
 
 
 if __name__ == "__main__":

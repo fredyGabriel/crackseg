@@ -8,7 +8,6 @@ Outputs:
 
 from __future__ import annotations
 
-import json
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -19,13 +18,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[4]
 # Allow importing from scripts/ as a package root
 sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
 
-from utils.analysis import (  # type: ignore  # noqa: E402
+from utils.analysis import (  # noqa: E402
     scan_oversized_modules as som,
 )
-from utils.quality.guardrails import (  # type: ignore  # noqa: E402
+from utils.quality.guardrails import (  # noqa: E402
     line_limit_check as llc,
 )
-from utils.quality.guardrails import (  # type: ignore  # noqa: E402
+from utils.quality.guardrails import (  # noqa: E402
     link_checker as lkc,
 )
 
@@ -145,8 +144,13 @@ def main() -> int:
         "link_checker": link_counts,
     }
 
-    JSON_PATH.write_text(json.dumps(summary, indent=2), encoding="utf-8")
-    MD_PATH.write_text(render_md(summary), encoding="utf-8")
+    from scripts.utils.common.io_utils import (  # noqa: E402
+        write_json,
+        write_text,
+    )
+
+    write_json(JSON_PATH, summary, indent=2)
+    write_text(MD_PATH, render_md(summary))
     print(f"Wrote summary to: {JSON_PATH}\n{MD_PATH}")
 
     return 0

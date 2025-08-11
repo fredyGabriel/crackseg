@@ -5,7 +5,6 @@ This script identifies and categorizes all documentation files in the project
 for targeted processing of 'from src.' import statements.
 """
 
-import json
 import logging
 from pathlib import Path
 
@@ -191,8 +190,9 @@ class DocumentationCatalog:
             },
         }
 
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(catalog_data, f, indent=2, ensure_ascii=False)
+        from scripts.utils.common.io_utils import write_json  # noqa: E402
+
+        write_json(output_path, catalog_data, indent=2, ensure_ascii=False)
 
         logger.info(f"Catalog exported to {output_path}")
 

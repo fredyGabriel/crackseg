@@ -13,6 +13,8 @@ import sys
 import time
 from pathlib import Path
 
+from scripts.utils.common.io_utils import write_text  # noqa: E402
+
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 RUNNER = PROJECT_ROOT / "run.py"
 REPORT = (
@@ -41,7 +43,8 @@ def run_smoke() -> int:
     elapsed = time.time() - start
 
     REPORT.parent.mkdir(parents=True, exist_ok=True)
-    REPORT.write_text(
+    write_text(
+        REPORT,
         "\n".join(
             [
                 "<!-- markdownlint-disable-file -->",
@@ -65,7 +68,6 @@ def run_smoke() -> int:
                 "```",
             ]
         ),
-        encoding="utf-8",
     )
     return int(proc.returncode != 0)
 

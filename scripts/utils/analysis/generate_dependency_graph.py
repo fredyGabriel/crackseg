@@ -17,6 +17,8 @@ from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
 
+from scripts.utils.common.io_utils import write_text  # noqa: E402
+
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 SRC_ROOT = PROJECT_ROOT / "src"
 REPORT_PATH = (
@@ -196,7 +198,7 @@ def build_report(
 def main() -> None:
     graph, reverse = build_graph()
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(build_report(graph, reverse), encoding="utf-8")
+    write_text(REPORT_PATH, build_report(graph, reverse))
 
 
 if __name__ == "__main__":

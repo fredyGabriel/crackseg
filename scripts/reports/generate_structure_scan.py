@@ -16,10 +16,11 @@ For backward compatibility, also writes structure_scan_summary.json for src/.
 
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 from typing import TypedDict
+
+from scripts.utils.common.io_utils import write_json, write_text  # noqa: E402
 
 
 class DirReport(TypedDict):
@@ -68,10 +69,7 @@ if __name__ == "__main__":
         if not path.exists():
             continue
         report = generate_structure_summary(path)
-        with (out_dir / f"structure_scan_{name}.json").open(
-            "w", encoding="utf-8"
-        ) as f:
-            json.dump(report, f, indent=2)
+        write_json(out_dir / f"structure_scan_{name}.json", report, indent=2)
 
         total_py_files: int = sum(item["py_files"] for item in report)
         overview.append(
@@ -82,16 +80,14 @@ if __name__ == "__main__":
             )
         )
 
-    with (out_dir / "structure_scan_overview.json").open(
-        "w", encoding="utf-8"
-    ) as f:
-        json.dump(overview, f, indent=2)
+    write_json(out_dir / "structure_scan_overview.json", overview, indent=2)
 
     # Back-compat summary for src
     src_json = out_dir / "structure_scan_src.json"
     if src_json.exists():
-        (out_dir / "structure_scan_summary.json").write_text(
-            src_json.read_text(encoding="utf-8"), encoding="utf-8"
+        write_text(
+            out_dir / "structure_scan_summary.json",
+            src_json.read_text(encoding="utf-8"),
         )
 
     print("OK")

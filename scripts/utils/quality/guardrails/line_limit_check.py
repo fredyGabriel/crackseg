@@ -11,6 +11,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from scripts.utils.common.io_utils import write_text  # noqa: E402
+
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 SRC_ROOT = PROJECT_ROOT / "src"
 REPORT_PATH = (
@@ -104,7 +106,7 @@ def render_report(stats: list[FileStat]) -> str:
 def main() -> int:
     stats = collect_stats()
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(render_report(stats), encoding="utf-8")
+    write_text(REPORT_PATH, render_report(stats))
     has_crit = any(s.severity == "critical" for s in stats)
     if has_crit:
         print(
