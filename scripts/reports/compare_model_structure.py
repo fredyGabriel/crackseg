@@ -4,8 +4,9 @@ directory structure against the expected structure and reports
 differences.
 """
 
-import json
 from typing import Any
+
+from scripts.utils.common.io_utils import read_json, write_json  # noqa: E402
 
 # Type definitions
 type InventoryEntry = dict[str, Any]
@@ -17,14 +18,12 @@ type MisplacedList = list[FileLocation]
 type StructureReport = dict[str, list[FileLocation] | MisplacedList]
 
 # Cargar inventario real
-with open("scripts/reports/model_inventory.json", encoding="utf-8") as f:
-    inventory: Inventory = json.load(f)
+inventory: Inventory = read_json("scripts/reports/model_inventory.json")
 
 # Cargar estructura esperada
-with open(
-    "scripts/reports/model_expected_structure.json", encoding="utf-8"
-) as f:
-    expected: ExpectedStructure = json.load(f)
+expected: ExpectedStructure = read_json(
+    "scripts/reports/model_expected_structure.json"
+)
 
 # Construir sets para comparación
 actual_files: FileSet = set()
@@ -68,10 +67,12 @@ report: StructureReport = {
     "misplaced_files": misplaced,
 }
 
-with open(
-    "scripts/reports/model_structure_diff.json", "w", encoding="utf-8"
-) as f:
-    json.dump(report, f, indent=2, ensure_ascii=False)
+write_json(
+    "scripts/reports/model_structure_diff.json",
+    report,
+    indent=2,
+    ensure_ascii=False,
+)
 
 print(
     "Comparison complete. Report written to "
