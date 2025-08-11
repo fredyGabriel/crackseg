@@ -14,6 +14,7 @@ project_root = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(project_root / "src"))
 
 from crackseg.utils.mapping_registry import get_registry  # noqa: E402
+from scripts.utils.common.io_utils import read_text, write_text  # noqa: E402
 
 
 def setup_logging(verbose: bool = False) -> None:
@@ -80,8 +81,7 @@ def apply_mappings_to_file(
     """
     try:
         # Read file content
-        with open(file_path, encoding="utf-8") as f:
-            original_content = f.read()
+        original_content = read_text(file_path)
 
         # Apply mappings
         modified_content = original_content
@@ -94,8 +94,7 @@ def apply_mappings_to_file(
         if modified_content != original_content:
             if not dry_run:
                 # Write modified content back to file
-                with open(file_path, "w", encoding="utf-8") as f:
-                    f.write(modified_content)
+                write_text(file_path, modified_content)
                 logging.info(f"Updated: {file_path}")
             else:
                 logging.info(f"Would update: {file_path}")

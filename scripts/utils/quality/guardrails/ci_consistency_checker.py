@@ -29,6 +29,7 @@ from simple_mapping_registry import (  # noqa: E402
     create_default_registry,
 )
 
+from scripts.utils.common.io_utils import read_text  # noqa: E402
 from scripts.utils.common.logging_utils import setup_logging  # noqa: E402
 
 
@@ -67,8 +68,7 @@ def check_stale_reports(
                 ".txt",
             }:
                 try:
-                    with open(file_path, encoding="utf-8") as f:
-                        content = f.read()
+                    content = read_text(file_path)
 
                     # Check for old path references
                     for mapping in registry.mappings:
