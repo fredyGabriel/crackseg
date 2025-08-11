@@ -11,12 +11,15 @@ This is the main entry point for CI systems to ensure project consistency.
 
 import argparse
 import logging
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
 
 # Add project root to path for imports
 project_root = Path(__file__).resolve().parents[4]
+# Add project root so "scripts" is importable
+sys.path.insert(0, str(project_root))  # noqa: E402
 sys.path.insert(0, str(project_root / "scripts" / "utils" / "automation"))
 sys.path.insert(
     0, str(project_root / "scripts" / "utils" / "quality" / "guardrails")
@@ -127,6 +130,7 @@ def generate_consistency_report(
     import_results: dict[str, Any],
     stale_results: dict[str, Any],
     registry_results: dict[str, Any],
+    duplicate_results: dict[str, Any],
 ) -> str:
     """Generate a comprehensive consistency report.
 
@@ -175,6 +179,19 @@ def generate_consistency_report(
     )
     report_lines.append("")
 
+    # Duplicate code results
+    report_lines.append("🧬 DUPLICATE CODE:")
+    report_lines.append(
+        f"  - Current groups: {duplicate_results.get('current', 0)}"
+    )
+    report_lines.append(
+        f"  - Baseline groups: {duplicate_results.get('baseline', 0)}"
+    )
+    report_lines.append(
+        f"  - New vs. baseline: {duplicate_results.get('new', 0)}"
+    )
+    report_lines.append("")
+
     # Registry validation results
     report_lines.append("🗂️  MAPPING REGISTRY:")
     report_lines.append(
@@ -200,6 +217,7 @@ def generate_consistency_report(
         )
         + len(import_results.get("violations", []))
         + registry_results["validation_error_count"]
+        + (1 if duplicate_results.get("new", 0) > 0 else 0)
     )
 
     total_warnings = (
@@ -223,6 +241,50 @@ def generate_consistency_report(
         report_lines.append("  - ❌ Critical issues found!")
 
     return "\n".join(report_lines)
+
+
+def _compute_duplicate_results() -> dict[str, Any]:
+    """Run duplicate guardrail in check mode and summarize counts."""
+    project_root = Path(__file__).resolve().parents[4]
+    guardrail = (
+        project_root
+        / "scripts"
+        / "utils"
+        / "quality"
+        / "guardrails"
+        / "duplicate_guardrail.py"
+    )
+    reports_dir = project_root / "docs" / "reports" / "project-reports"
+    current_json = reports_dir / "duplicate_scan_report.json"
+    baseline_json = reports_dir / "duplicate_scan_baseline.json"
+
+    # Run guardrail (no baseline update) allowing 0 new groups
+    try:
+        subprocess.run(
+            [sys.executable, str(guardrail), "--max-delta", "0"],
+            check=False,
+        )
+    except Exception:
+        pass
+
+    from scripts.utils.common.io_utils import read_json  # noqa: E402
+
+    def _hashes(p: Path) -> set[str]:
+        try:
+            data = read_json(p)
+            return {
+                str(item.get("hash", "")) for item in data if "hash" in item
+            }
+        except Exception:
+            return set()
+
+    current = _hashes(current_json)
+    baseline = _hashes(baseline_json)
+    return {
+        "current": len(current),
+        "baseline": len(baseline),
+        "new": len(current - baseline),
+    }
 
 
 def main() -> int:
@@ -256,6 +318,11 @@ def main() -> int:
         help="Skip stale report checking",
     )
     parser.add_argument(
+        "--skip-duplicates",
+        action="store_true",
+        help="Skip duplicate code guardrail",
+    )
+    parser.add_argument(
         "--verbose",
         action="store_true",
         help="Enable verbose logging",
@@ -283,6 +350,7 @@ def main() -> int:
     import_results = {"violations": []}
     stale_results = {"stale_count": 0, "stale_issues": []}
     registry_results = {"validation_error_count": 0, "statistics": {}}
+    duplicate_results = {"current": 0, "baseline": 0, "new": 0}
 
     # Run link checker
     if not args.skip_links:
@@ -315,9 +383,18 @@ def main() -> int:
     logger.info("🗂️  Running registry validation...")
     registry_results = check_mapping_registry_consistency(registry)
 
+    # Run duplicate guardrail
+    if not args.skip_duplicates:
+        logger.info("🧬 Running duplicate code guardrail...")
+        duplicate_results = _compute_duplicate_results()
+
     # Generate and print report
     report = generate_consistency_report(
-        link_results, import_results, stale_results, registry_results
+        link_results,
+        import_results,
+        stale_results,
+        registry_results,
+        duplicate_results,
     )
     print(report)
 
@@ -333,6 +410,7 @@ def main() -> int:
         len(errors)
         + len(import_results["violations"])
         + registry_results["validation_error_count"]
+        + (1 if duplicate_results.get("new", 0) > 0 else 0)
     )
 
     total_warnings = len(warnings) + stale_results["stale_count"]

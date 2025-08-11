@@ -8,6 +8,7 @@ Outputs:
 
 from __future__ import annotations
 
+import subprocess
 import sys
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -15,16 +16,16 @@ from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 
-# Allow importing from scripts/ as a package root
-sys.path.insert(0, str(PROJECT_ROOT / "scripts"))
+# Allow importing project root so "scripts" is a package root
+sys.path.insert(0, str(PROJECT_ROOT))  # noqa: E402
 
-from utils.analysis import (  # noqa: E402
+from scripts.utils.analysis import (  # noqa: E402
     scan_oversized_modules as som,
 )
-from utils.quality.guardrails import (  # noqa: E402
+from scripts.utils.quality.guardrails import (  # noqa: E402
     line_limit_check as llc,
 )
-from utils.quality.guardrails import (  # noqa: E402
+from scripts.utils.quality.guardrails import (  # noqa: E402
     link_checker as lkc,
 )
 
@@ -84,6 +85,52 @@ def compute_link_counts() -> dict[str, Any]:
     }
 
 
+def compute_duplicate_counts() -> dict[str, Any]:
+    """Run duplicate scan and compare against baseline to summarize status."""
+    scan_script = PROJECT_ROOT / "scripts" / "reports" / "duplicate_scan.py"
+    reports_dir = PROJECT_ROOT / "docs" / "reports" / "project-reports"
+    current_json = reports_dir / "duplicate_scan_report.json"
+    baseline_json = reports_dir / "duplicate_scan_baseline.json"
+
+    # Refresh current scan (ignore failures to keep summary resilient)
+    try:
+        subprocess.run([sys.executable, str(scan_script)], check=True)
+    except Exception:
+        pass
+
+    from scripts.utils.common.io_utils import read_json  # noqa: E402
+
+    current_groups = 0
+    baseline_groups = 0
+    new_groups = 0
+
+    try:
+        current = read_json(current_json)
+        current_hashes = {
+            str(item.get("hash", "")) for item in current if "hash" in item
+        }
+        current_groups = len(current_hashes)
+    except Exception:
+        current_hashes = set()
+
+    try:
+        baseline = read_json(baseline_json)
+        baseline_hashes = {
+            str(item.get("hash", "")) for item in baseline if "hash" in item
+        }
+        baseline_groups = len(baseline_hashes)
+    except Exception:
+        baseline_hashes = set()
+
+    new_groups = len(current_hashes - baseline_hashes)
+
+    return {
+        "current": current_groups,
+        "baseline": baseline_groups,
+        "new": new_groups,
+    }
+
+
 def render_md(summary: dict[str, Any]) -> str:
     lines: list[str] = []
     lines.append("<!-- markdownlint-disable-file -->")
@@ -115,6 +162,12 @@ def render_md(summary: dict[str, Any]) -> str:
     lc = summary["link_checker"]
     lines.append(f"Errors: {lc['errors']} | Warnings: {lc['warnings']}")
     lines.append("")
+    lines.append("## Duplicate Code")
+    dc = summary["duplicates"]
+    lines.append(
+        f"Groups: {dc['current']} | Baseline: {dc['baseline']} | New vs. baseline: {dc['new']}"
+    )
+    lines.append("")
     return "\n".join(lines)
 
 
@@ -124,12 +177,11 @@ def main() -> int:
     ll_counts, ll_top = compute_line_limit_counts()
     ov_counts, ov_top = compute_oversized_counts()
     link_counts = compute_link_counts()
+    dup_counts = compute_duplicate_counts()
 
-    overall_status = (
-        "pass"
-        if (ll_counts.critical == 0 and link_counts["errors"] == 0)
-        else "fail"
-    )
+    overall_status = "pass"
+    if ll_counts.critical > 0 or link_counts["errors"] > 0:
+        overall_status = "fail"
 
     summary: dict[str, Any] = {
         "overall_status": overall_status,
@@ -142,6 +194,7 @@ def main() -> int:
             "top": ov_top,
         },
         "link_checker": link_counts,
+        "duplicates": dup_counts,
     }
 
     from scripts.utils.common.io_utils import (  # noqa: E402

@@ -11,12 +11,15 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-from scripts.utils.common.io_utils import (
-    read_text,  # noqa: E402
-    write_text,  # noqa: E402
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
+sys.path.insert(0, str(PROJECT_ROOT))  # noqa: E402
+
+from scripts.utils.common.io_utils import (  # noqa: E402
+    read_text,
+    write_text,
 )
 
-PROJECT_ROOT = Path(__file__).resolve().parents[4]
+PROJECT_ROOT = PROJECT_ROOT
 SRC_ROOT = PROJECT_ROOT / "src"
 REPORT_PATH = (
     PROJECT_ROOT

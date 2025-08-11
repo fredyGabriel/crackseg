@@ -1,105 +1,110 @@
 {
-  "overall_status": "fail",
+  "overall_status": "pass",
   "line_limit": {
     "counts": {
-      "critical": 25,
-      "warning": 45,
-      "ok": 345
+      "critical": 0,
+      "warning": 59,
+      "ok": 403
     },
     "top": [
       [
-        "src\\crackseg\\utils\\config\\standardized_storage.py",
-        581
+        "src\\crackseg\\model\\factory\\hybrid_registry.py",
+        400
       ],
       [
-        "src\\crackseg\\utils\\deployment\\packaging\\core.py",
-        540
+        "src\\crackseg\\utils\\artifact_manager\\versioning.py",
+        399
       ],
       [
-        "src\\crackseg\\utils\\integrity\\config_verifier.py",
-        519
+        "src\\crackseg\\utils\\visualization\\utils\\display.py",
+        399
       ],
       [
-        "src\\crackseg\\evaluation\\visualization\\advanced_prediction_viz.py",
-        515
+        "src\\crackseg\\training\\losses\\combinators\\base_combinator.py",
+        398
       ],
       [
-        "src\\crackseg\\utils\\deployment\\utils\\multi_target.py",
-        515
+        "src\\crackseg\\utils\\monitoring\\resources\\monitor.py",
+        397
       ],
       [
-        "src\\crackseg\\reporting\\figures\\publication_figure_generator.py",
-        504
+        "src\\crackseg\\evaluation\\core\\model_loader.py",
+        396
       ],
       [
-        "src\\crackseg\\reporting\\templates\\html_templates.py",
-        503
+        "src\\crackseg\\reporting\\core.py",
+        394
       ],
       [
-        "src\\crackseg\\model\\config\\schemas.py",
-        498
+        "src\\crackseg\\data\\utils\\splitting.py",
+        393
       ],
       [
-        "src\\crackseg\\utils\\deployment\\artifacts\\selector.py",
-        489
+        "src\\crackseg\\utils\\traceability\\entities.py",
+        390
       ],
       [
-        "src\\crackseg\\utils\\deployment\\core\\manager.py",
-        486
+        "src\\crackseg\\reporting\\templates\\latex_templates.py",
+        387
       ]
     ]
   },
   "oversized": {
     "counts": {
-      "critical": 25,
-      "warning": 45,
-      "ok": 345
+      "critical": 0,
+      "warning": 59,
+      "ok": 403
     },
     "top": [
       [
-        "crackseg.utils.config.standardized_storage",
-        581
+        "crackseg.model.factory.hybrid_registry",
+        400
       ],
       [
-        "crackseg.utils.deployment.packaging.core",
-        540
+        "crackseg.utils.artifact_manager.versioning",
+        399
       ],
       [
-        "crackseg.utils.integrity.config_verifier",
-        519
+        "crackseg.utils.visualization.utils.display",
+        399
       ],
       [
-        "crackseg.evaluation.visualization.advanced_prediction_viz",
-        515
+        "crackseg.training.losses.combinators.base_combinator",
+        398
       ],
       [
-        "crackseg.utils.deployment.utils.multi_target",
-        515
+        "crackseg.utils.monitoring.resources.monitor",
+        397
       ],
       [
-        "crackseg.reporting.figures.publication_figure_generator",
-        504
+        "crackseg.evaluation.core.model_loader",
+        396
       ],
       [
-        "crackseg.reporting.templates.html_templates",
-        503
+        "crackseg.reporting.core",
+        394
       ],
       [
-        "crackseg.model.config.schemas",
-        498
+        "crackseg.data.utils.splitting",
+        393
       ],
       [
-        "crackseg.utils.deployment.artifacts.selector",
-        489
+        "crackseg.utils.traceability.entities",
+        390
       ],
       [
-        "crackseg.utils.deployment.core.manager",
-        486
+        "crackseg.reporting.templates.latex_templates",
+        387
       ]
     ]
   },
   "link_checker": {
     "errors": 0,
     "warnings": 0
+  },
+  "duplicates": {
+    "current": 31,
+    "baseline": 31,
+    "new": 0
   }
 }

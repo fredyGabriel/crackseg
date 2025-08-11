@@ -125,15 +125,15 @@ def load_gitignore_matcher(project_root: Path):
     gi = project_root / ".gitignore"
     if not gi.exists():
         return lambda _p: False
-    spec = pathspec.PathSpec.from_lines(
-        "gitwildmatch", gi.read_text(encoding="utf-8").splitlines()
-    )
+    from scripts.utils.common.io_utils import read_text  # noqa: E402
 
+    spec = pathspec.PathSpec.from_lines(
+        "gitwildmatch", read_text(gi).splitlines()
 ```
 
-- function load_gitignore_matcher @ scripts/utils/quality/scan_artifacts_and_binaries.py:99-116
-- function load_gitignore_matcher @ scripts/utils/quality/scan_duplicates_unused.py:62-79
-- function load_gitignore_matcher @ scripts/utils/quality/scan_language_compliance.py:92-109
+- function load_gitignore_matcher @ scripts/utils/quality/scan_artifacts_and_binaries.py:99-118
+- function load_gitignore_matcher @ scripts/utils/quality/scan_duplicates_unused.py:62-81
+- function load_gitignore_matcher @ scripts/utils/quality/scan_language_compliance.py:92-111
 
 ## Group (count=2)
 
@@ -237,7 +237,7 @@ class PathMapping:
 ```
 
 - class PathMapping @ src/crackseg/utils/mapping_registry_types.py:10-18
-- class PathMapping @ scripts/utils/automation/simple_mapping_registry.py:15-23
+- class PathMapping @ scripts/utils/automation/simple_mapping_registry.py:14-22
 
 ## Group (count=2)
 
@@ -364,3 +364,4 @@ def _has_nested_field(config: DictConfig, field_path: str) -> bool:
 
 - function process_info @ gui/utils/process/manager/core/manager_backup_original.py:87-98
 - function process_info @ gui/utils/process/manager/core/process_manager.py:83-94
+

@@ -1,37 +1,40 @@
 <!-- markdownlint-disable-file -->
 # Guardrails Validation Summary
 
-Overall status: **FAIL**
+Overall status: **PASS**
 
 ## Line Limit
-Critical: 25 | Warnings: 45 | OK: 345
+Critical: 0 | Warnings: 59 | OK: 403
 
 Top offenders:
-- `src\crackseg\utils\config\standardized_storage.py` — 581 lines
-- `src\crackseg\utils\deployment\packaging\core.py` — 540 lines
-- `src\crackseg\utils\integrity\config_verifier.py` — 519 lines
-- `src\crackseg\evaluation\visualization\advanced_prediction_viz.py` — 515 lines
-- `src\crackseg\utils\deployment\utils\multi_target.py` — 515 lines
-- `src\crackseg\reporting\figures\publication_figure_generator.py` — 504 lines
-- `src\crackseg\reporting\templates\html_templates.py` — 503 lines
-- `src\crackseg\model\config\schemas.py` — 498 lines
-- `src\crackseg\utils\deployment\artifacts\selector.py` — 489 lines
-- `src\crackseg\utils\deployment\core\manager.py` — 486 lines
+- `src\crackseg\model\factory\hybrid_registry.py` — 400 lines
+- `src\crackseg\utils\artifact_manager\versioning.py` — 399 lines
+- `src\crackseg\utils\visualization\utils\display.py` — 399 lines
+- `src\crackseg\training\losses\combinators\base_combinator.py` — 398 lines
+- `src\crackseg\utils\monitoring\resources\monitor.py` — 397 lines
+- `src\crackseg\evaluation\core\model_loader.py` — 396 lines
+- `src\crackseg\reporting\core.py` — 394 lines
+- `src\crackseg\data\utils\splitting.py` — 393 lines
+- `src\crackseg\utils\traceability\entities.py` — 390 lines
+- `src\crackseg\reporting\templates\latex_templates.py` — 387 lines
 
 ## Oversized Modules
-Critical: 25 | Warnings: 45 | OK: 345
+Critical: 0 | Warnings: 59 | OK: 403
 
 Top offenders:
-- `crackseg.utils.config.standardized_storage` — 581 lines
-- `crackseg.utils.deployment.packaging.core` — 540 lines
-- `crackseg.utils.integrity.config_verifier` — 519 lines
-- `crackseg.evaluation.visualization.advanced_prediction_viz` — 515 lines
-- `crackseg.utils.deployment.utils.multi_target` — 515 lines
-- `crackseg.reporting.figures.publication_figure_generator` — 504 lines
-- `crackseg.reporting.templates.html_templates` — 503 lines
-- `crackseg.model.config.schemas` — 498 lines
-- `crackseg.utils.deployment.artifacts.selector` — 489 lines
-- `crackseg.utils.deployment.core.manager` — 486 lines
+- `crackseg.model.factory.hybrid_registry` — 400 lines
+- `crackseg.utils.artifact_manager.versioning` — 399 lines
+- `crackseg.utils.visualization.utils.display` — 399 lines
+- `crackseg.training.losses.combinators.base_combinator` — 398 lines
+- `crackseg.utils.monitoring.resources.monitor` — 397 lines
+- `crackseg.evaluation.core.model_loader` — 396 lines
+- `crackseg.reporting.core` — 394 lines
+- `crackseg.data.utils.splitting` — 393 lines
+- `crackseg.utils.traceability.entities` — 390 lines
+- `crackseg.reporting.templates.latex_templates` — 387 lines
 
 ## Link Checker
 Errors: 0 | Warnings: 0
+
+## Duplicate Code
+Groups: 31 | Baseline: 31 | New vs. baseline: 0

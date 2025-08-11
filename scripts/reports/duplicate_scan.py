@@ -4,13 +4,21 @@ import ast
 import hashlib
 import io
 import os
+import sys
 import tokenize
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, TypedDict
 
-from scripts.utils.common.io_utils import read_text, write_json, write_text
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))  # noqa: E402
+
+from scripts.utils.common.io_utils import (  # noqa: E402
+    read_text,
+    write_json,
+    write_text,
+)
 
 
 @dataclass
