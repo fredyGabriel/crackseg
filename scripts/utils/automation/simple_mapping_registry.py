@@ -4,7 +4,6 @@ This is a standalone version of the mapping registry that doesn't depend
 on the project's logging system to avoid circular imports.
 """
 
-import json
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -204,8 +203,9 @@ class SimpleMappingRegistry:
             ],
         }
 
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(registry_data, f, indent=2, ensure_ascii=False)
+        from scripts.utils.common.io_utils import write_json
+
+        write_json(file_path, registry_data, indent=2, ensure_ascii=False)
 
         print(f"Registry saved to {file_path}")
 
@@ -223,8 +223,9 @@ class SimpleMappingRegistry:
             return
 
         try:
-            with open(file_path, encoding="utf-8") as f:
-                registry_data = json.load(f)
+            from scripts.utils.common.io_utils import read_json
+
+            registry_data = read_json(file_path)
 
             # Clear existing mappings
             self.mappings.clear()
