@@ -1,3 +1,6 @@
+> Language compliance: this document is in Spanish (legacy). Preserved for archival/translation.
+> Not canonical.
+
 # Plan de Desarrollo del Sistema de Artefactos - CrackSeg
 
 ## **Estado del Proyecto: EN DESARROLLO**

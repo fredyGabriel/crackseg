@@ -156,8 +156,8 @@ lista las referencias.
 Esta sección debe ser completada manualmente con las citas académicas pertinentes. Véase también:
 
 - [Informe Técnico](./technical_report.md)
-- [Especificación de Formato de Checkpoints](checkpoint_format_specification.md)
-- [Especificación de Almacenamiento de Configuración](configuration_storage_specification.md)
+- Especificación de Formato de Checkpoints: ver `docs/guides/technical-specs/specifications/legacy/checkpoint_format_specification.md`
+- Especificación de Almacenamiento de Configuración: ver `docs/guides/technical-specs/specifications/legacy/configuration_storage_specification.md`
 - [Documentación de Hydra](https://hydra.cc/)
 - [Albumentations](https://albumentations.ai/)
 - [PyTorch](https://pytorch.org/)

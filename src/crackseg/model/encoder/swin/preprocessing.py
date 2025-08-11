@@ -130,7 +130,26 @@ class SwinPreprocessor:
             processed_feature_item: torch.Tensor = (
                 feature_item  # Start with original
             )
-            # Apply post-processing if needed
+
+            # First, ensure features are in CHW format
+            # Detect if features are in HWC format (last dim is channels)
+            # Common channel counts are 96, 192, 384, 768 for Swin models
+            # Also check if the second dimension is NOT a valid channel count
+            # (which would indicate it's already in CHW format)
+            valid_channels = [96, 192, 384, 768]
+            is_hwc = (
+                processed_feature_item.ndim == 4
+                and processed_feature_item.shape[-1] in valid_channels
+                and processed_feature_item.shape[1] not in valid_channels
+            )
+
+            if is_hwc:
+                # Convert from HWC [B, H, W, C] to CHW [B, C, H, W]
+                processed_feature_item = processed_feature_item.permute(
+                    0, 3, 1, 2
+                ).contiguous()
+
+            # Apply resize if needed (now features are guaranteed to be in CHW format)
             if "resized" in metadata and metadata["resized"]:
                 # Resize back to original spatial dimensions adjusted for the
                 # reduction factor
@@ -138,11 +157,13 @@ class SwinPreprocessor:
                 feature_h = max(1, original_h // patch_size)
                 feature_w = max(1, original_w // patch_size)
 
-                # Only resize if dimensions are different
+                # Features are now in CHW format [B, C, H, W]
                 current_h, current_w = (
                     processed_feature_item.shape[2],
                     processed_feature_item.shape[3],
                 )
+
+                # Only resize if dimensions are different
                 if (current_h, current_w) != (feature_h, feature_w):
                     processed_feature_item = F.interpolate(
                         processed_feature_item,

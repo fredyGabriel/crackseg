@@ -6,167 +6,21 @@ academic/industry publication styles.
 """
 
 import logging
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Protocol
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
-from matplotlib.figure import Figure
 
 # DictConfig is used in type hints but not directly imported
 from crackseg.reporting.config import ExperimentData, ReportConfig
 
+from .base import BaseFigureGenerator
+from .base import PublicationStyle as _BasePublicationStyle
+
 logger = logging.getLogger(__name__)
 
-
-@dataclass
-class PublicationStyle:
-    """Configuration for publication-ready figure styling."""
-
-    # Figure dimensions
-    figure_width: float = 6.0  # inches (standard journal width)
-    figure_height: float = 4.0  # inches
-    dpi: int = 300  # High resolution for publications
-
-    # Typography
-    font_family: str = "serif"  # Times New Roman for academic papers
-    font_size: int = 10
-    title_font_size: int = 12
-    legend_font_size: int = 9
-
-    # Colors and styling
-    color_palette: str = "viridis"
-    line_width: float = 1.5
-    marker_size: float = 6.0
-    grid_alpha: float = 0.3
-
-    # Export settings
-    supported_formats: list[str] | None = None
-    transparent_background: bool = True
-    tight_layout: bool = True
-
-    def __post_init__(self) -> None:
-        """Initialize default supported formats."""
-        if self.supported_formats is None:
-            self.supported_formats = ["png", "svg", "pdf"]
-
-
-class FigureDataProvider(Protocol):
-    """Protocol for data providers that supply figure data."""
-
-    def get_training_metrics(
-        self, experiment_data: ExperimentData
-    ) -> pd.DataFrame:
-        """Get training metrics data."""
-        ...
-
-    def get_performance_metrics(
-        self, experiment_data: ExperimentData
-    ) -> dict[str, float]:
-        """Get performance metrics data."""
-        ...
-
-    def get_comparison_data(
-        self, experiments_data: list[ExperimentData]
-    ) -> pd.DataFrame:
-        """Get comparison data across experiments."""
-        ...
-
-
-class BaseFigureGenerator(ABC):
-    """Base class for publication-ready figure generators."""
-
-    def __init__(self, style: PublicationStyle | None = None) -> None:
-        """Initialize figure generator with publication style."""
-        self.style = style or PublicationStyle()
-        self._setup_matplotlib_style()
-
-    def _setup_matplotlib_style(self) -> None:
-        """Setup matplotlib with publication-ready styling."""
-        plt.style.use("seaborn-v0_8-paper")
-
-        # Configure matplotlib for publication quality
-        plt.rcParams.update(
-            {
-                "figure.dpi": self.style.dpi,
-                "font.family": self.style.font_family,
-                "font.size": self.style.font_size,
-                "axes.titlesize": self.style.title_font_size,
-                "axes.labelsize": self.style.font_size,
-                "xtick.labelsize": self.style.font_size - 1,
-                "ytick.labelsize": self.style.font_size - 1,
-                "legend.fontsize": self.style.legend_font_size,
-                "lines.linewidth": self.style.line_width,
-                "lines.markersize": self.style.marker_size,
-                "grid.alpha": self.style.grid_alpha,
-                "savefig.dpi": self.style.dpi,
-                "savefig.bbox": (
-                    "tight" if self.style.tight_layout else "standard"
-                ),
-                "savefig.transparent": self.style.transparent_background,
-            }
-        )
-
-        # Set color palette
-        sns.set_palette(self.style.color_palette)
-
-    @abstractmethod
-    def generate_figure(
-        self,
-        data: Any,
-        config: ReportConfig,
-        save_path: Path | None = None,
-    ) -> dict[str, Path]:
-        """Generate publication-ready figure."""
-        pass
-
-    def save_figure(
-        self,
-        fig: Figure,
-        base_path: Path,
-        formats: list[str] | None = None,
-    ) -> dict[str, Path]:
-        """Save figure in multiple publication formats."""
-        formats = formats or self.style.supported_formats
-        saved_paths = {}
-
-        if formats is None:
-            return saved_paths
-
-        for fmt in formats:
-            if (
-                self.style.supported_formats is None
-                or fmt not in self.style.supported_formats
-            ):
-                logger.warning(f"Unsupported format: {fmt}")
-                continue
-
-            save_path = base_path.with_suffix(f".{fmt}")
-
-            try:
-                if fmt == "png":
-                    fig.savefig(
-                        save_path, dpi=self.style.dpi, bbox_inches="tight"
-                    )
-                elif fmt == "svg":
-                    fig.savefig(save_path, format="svg", bbox_inches="tight")
-                elif fmt == "pdf":
-                    fig.savefig(save_path, format="pdf", bbox_inches="tight")
-                else:
-                    logger.warning(f"Unknown format: {fmt}")
-                    continue
-
-                saved_paths[fmt] = save_path
-                logger.info(f"Saved {fmt} figure: {save_path}")
-
-            except Exception as e:
-                logger.error(f"Failed to save {fmt} figure: {e}")
-
-        return saved_paths
+PublicationStyle = _BasePublicationStyle
 
 
 class TrainingCurvesFigureGenerator(BaseFigureGenerator):

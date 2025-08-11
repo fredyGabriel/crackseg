@@ -1,5 +1,9 @@
 # Contribution Guide
 
+> Deprecated: This is a legacy document kept for historical reference.
+> For the up-to-date contribution process, see the root file
+> [CONTRIBUTING.md](../../../../../CONTRIBUTING.md).
+
 Thank you for your interest in contributing to the CrackSeg project. This document provides
 specific guidelines to contribute effectively, complementing our professional development standards.
 
@@ -22,7 +26,7 @@ cd crackseg
 
 # Create conda environment
 conda env create -f environment.yml
-conda activate torch
+conda activate crackseg
 
 # Configure environment variables
 cp .env.example .env
@@ -203,8 +207,9 @@ All contributions must pass:
 
 ### 📚 Essential Documentation
 
-- **Configuration**: [WORKFLOW_TRAINING.md](WORKFLOW_TRAINING.md) - Training workflow
-- **Loss Registry**: [loss_registry_usage.md](loss_registry_usage.md) - Loss system
+- **Configuration**: see `docs/guides/operational-guides/workflows/legacy/WORKFLOW_TRAINING.md` -
+  Training workflow
+- **Loss Registry**: see `docs/guides/user-guides/usage/legacy/loss_registry_usage.md` - Loss system
 - **Project Structure**: Refer to our project structure guidelines for file organization.
 
 ### 🛠️ Development Tools

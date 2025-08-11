@@ -214,7 +214,7 @@ if torch.cuda.is_available():
 - **[PyTorch Installation](https://pytorch.org/get-started/locally/)**: Official PyTorch setup guide
 - **[Conda Documentation](https://docs.conda.io/en/latest/)**: Environment management guide
 - **[CUDA Toolkit](https://developer.nvidia.com/cuda-downloads)**: GPU acceleration setup
-- **[Project ADR-001](architectural_decisions.md#adr-001)**: Graphviz migration details
+- Project ADR-001: see `docs/guides/developer-guides/architecture/legacy/architectural_decisions.md#adr-001`
 
 ---
 

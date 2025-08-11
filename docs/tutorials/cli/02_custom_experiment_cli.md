@@ -39,26 +39,102 @@ mkdir configs/experiments/tutorial_02
 ## Step 3: Create Your First Custom Configuration
 
 Let's create a custom configuration that modifies the learning rate. **IMPORTANT**: Use
-`basic_verification` as the base instead of `base` to avoid Hydra dependency issues:
+standalone configurations to avoid Hydra nesting issues:
 
 ```bash
 conda activate crackseg
 cat > configs/experiments/tutorial_02/high_lr_experiment.yaml << 'EOF'
 # Custom experiment with higher learning rate
-defaults:
-  - basic_verification
-  - _self_
+# IMPORTANT: Standalone configuration to avoid Hydra nesting issues
 
-# Override training parameters
+# Model configuration
+model:
+  _target_: crackseg.model.core.unet.BaseUNet
+  encoder:
+    _target_: crackseg.model.encoder.resnet.ResNetEncoder
+    init_features: 64
+    pretrained: true
+  bottleneck:
+    _target_: crackseg.model.bottleneck.aspp_bottleneck.ASPPModule
+    in_channels: 512
+    output_channels: 256
+    dilation_rates: [1, 6, 12, 18]
+  decoder:
+    _target_: crackseg.model.decoder.cnn_decoder.CNNDecoder
+    in_channels: 256
+    skip_channels_list: [256, 128, 64, 64]
+    out_channels: 1
+    depth: 4
+
+# Training configuration
 training:
   learning_rate: 0.001  # Increased from default 0.0001
   epochs: 50   # Reduced for faster experimentation
+  optimizer:
+    _target_: torch.optim.Adam
+    lr: 0.001
+    weight_decay: 0.0001
+  loss:
+    _target_: crackseg.training.losses.bce_dice_loss.BCEDiceLoss
+    bce_weight: 0.5
+    dice_weight: 0.5
 
-# Override dataloader parameters
+# Data configuration
+data:
+  data_root: data/crack500/
+  image_size: [256, 256]
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  transform:
+    train:
+      - _target_: albumentations.Resize
+        height: 256
+        width: 256
+      - _target_: albumentations.HorizontalFlip
+        p: 0.5
+      - _target_: albumentations.Normalize
+        mean: [0.485, 0.456, 0.406]
+        std: [0.229, 0.224, 0.225]
+      - _target_: albumentations.ToTensorV2
+    val:
+      - _target_: albumentations.Resize
+        height: 256
+        width: 256
+      - _target_: albumentations.Normalize
+        mean: [0.485, 0.456, 0.406]
+        std: [0.229, 0.224, 0.225]
+      - _target_: albumentations.ToTensorV2
+
+# Dataloader configuration
 dataloader:
   batch_size: 8  # Smaller batch size for higher learning rate
+  num_workers: 4
+  shuffle: true
 EOF
 ```
+
+### **Current Production Configurations**
+
+For production experiments, consider using the current functional configurations as templates:
+
+```bash
+# View current working configurations
+dir configs/experiments/swinv2_hybrid/
+
+# Primary recommended configuration
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_corrected
+
+# Alternative standalone configuration
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_standalone
+```
+
+**Best Practices for Configuration Creation:**
+
+- ✅ **Use standalone configurations** instead of `defaults: - /base`
+- ✅ **Specify all parameters explicitly** to avoid Hydra nesting issues
+- ✅ **Test configurations** before running full experiments
+- ✅ **Use current working configurations** as templates
 
 ## Step 4: Run Your Custom Experiment
 
@@ -501,7 +577,7 @@ artifacts/global/reports/tutorial_02_analysis/
 └── experiment_comparison.csv    # Tabular comparison data
 ```
 
-For more details, see [scripts/experiments/README.md](scripts/experiments/README.md).
+For more details, see `scripts/experiments/README.md`.
 
 ## What's Next?
 

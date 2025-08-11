@@ -32,27 +32,24 @@ import logging
 import sys
 from pathlib import Path
 
-import hydra
 from hydra import compose, initialize_config_dir
 from omegaconf import DictConfig
 
-from crackseg.training.trainer import Trainer, TrainingComponents
-from crackseg.utils.experiment import initialize_experiment
-
-# Import specialized modules from training_pipeline package
-from training_pipeline import (
+# Import specialized modules from consolidated crackseg.training package
+from crackseg.training import (
     create_model,
     handle_checkpointing_and_resume,
     load_data,
     setup_environment,
     setup_training_components,
 )
+from crackseg.training.trainer import Trainer, TrainingComponents
+from crackseg.utils.experiment import initialize_experiment
 
 # Configure standard logger
 log = logging.getLogger(__name__)
 
 
-@hydra.main(version_base=None, config_path="../configs", config_name="base")
 def main(cfg: DictConfig) -> None:
     """
     Main training pipeline entry point for crack segmentation. This
@@ -167,7 +164,12 @@ if __name__ == "__main__":
     # For direct execution, we need to handle this differently
     if len(sys.argv) > 1:
         # If arguments are provided, let Hydra handle them
-        main()
+        from hydra import compose, initialize
+
+        # Minimal safe default if user passes overrides without config context
+        with initialize(config_path="configs", version_base=None):
+            cfg = compose(config_name="base")
+        main(cfg)
     else:
         # For direct execution without arguments, we need to provide a default
         # config
@@ -176,4 +178,4 @@ if __name__ == "__main__":
             config_dir=str(config_dir), version_base=None
         ):
             cfg = compose(config_name="base")
-            main(cfg)
+        main(cfg)

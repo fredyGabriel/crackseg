@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Refactoring Cleanup
+
+- Reduce oversized source files (>400 LOC) via modularization and helper extraction while
+  preserving public APIs
+- Introduce compatibility shims to maintain legacy import paths (e.g., model base classes,
+  deployment core types, reporting figures)
+- Centralize constants, strategies, and utilities for deployment and visualization modules
+- Keep file-size guardrails green; line-limit guardrail passes across refactor scope
+
+### Testing
+
+- Defer comprehensive test updates to a dedicated PR; this PR only adds compatibility shims to keep
+  existing imports and APIs stable
+
+### Documentation
+
+- Add legacy deprecation notices in developer-guides (development/quality/architecture) and link to
+  canonical locations
+- Add documentation audit summary and consolidation map under docs/reports/project-reports/documentation/
+
+---
+
 ## [0.2.0] - 2025-07-21
 
 ### Major Architectural Overhaul & Dependency Modernization
@@ -119,6 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Migration Guide**: Comprehensive guide for dependency changes
 - **Updated Guides**: All documentation aligned with current dependency stack
 - **Test Procedures**: Updated maintenance and execution procedures
+- **Link Checker Integration**: Automated link checker added (0 issues as of 2025-08-10) and legacy
+  docs links remediated
 
 ---
 

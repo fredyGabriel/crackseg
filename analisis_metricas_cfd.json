@@ -1,0 +1,97 @@
+{
+  "dataset_info": {
+    "nombre": "CFD (Crack Forest Dataset)",
+    "tamaño_original": "480x320",
+    "tamaño_procesado": "320x320",
+    "imagenes": 118,
+    "caracteristicas": [
+      "Grietas finas (1-5 píxeles de ancho)",
+      "Baja densidad de píxeles positivos (<5%)",
+      "Variabilidad en orientación y forma",
+      "Condiciones de iluminación variables",
+      "Texturas de pavimento complejas"
+    ]
+  },
+  "modelo_info": {
+    "arquitectura": "SwinV2CnnAsppUNet",
+    "encoder": "SwinV2 Tiny Window8 256",
+    "bottleneck": "ASPP con dilataciones [1,6,12,18]",
+    "decoder": "CNN con CBAM attention",
+    "caracteristicas": [
+      "Atención multi-head para contexto global",
+      "ASPP para captura multi-escala",
+      "Skip connections para preservación de detalles",
+      "CBAM para atención en características",
+      "Optimizado para estructuras finas"
+    ]
+  },
+  "parametros_simulacion": {
+    "epochs": 100,
+    "learning_rate": 0.001,
+    "batch_size": 8,
+    "dataset_size": 118
+  },
+  "resultados_finales": {
+    "iou": {
+      "valor_final": 0.7787,
+      "valor_maximo": 0.78,
+      "promedio_ultimos_10": 0.779,
+      "convergencia_epoch": 21
+    },
+    "f1_score": {
+      "valor_final": 0.8177,
+      "valor_maximo": 0.8196,
+      "promedio_ultimos_10": 0.8178,
+      "convergencia_epoch": 26
+    },
+    "precision": {
+      "valor_final": 0.8489,
+      "valor_maximo": 0.85,
+      "promedio_ultimos_10": 0.8491,
+      "convergencia_epoch": 23
+    },
+    "recall": {
+      "valor_final": 0.7865,
+      "valor_maximo": 0.789,
+      "promedio_ultimos_10": 0.7861,
+      "convergencia_epoch": 20
+    }
+  },
+  "analisis_convergencia": {
+    "iou": {
+      "epoch_convergencia": 21,
+      "estabilidad_final": 0.001311758173405925,
+      "tendencia": "creciente"
+    },
+    "f1_score": {
+      "epoch_convergencia": 26,
+      "estabilidad_final": 0.0027118881877307697,
+      "tendencia": "creciente"
+    },
+    "precision": {
+      "epoch_convergencia": 23,
+      "estabilidad_final": 0.0011153515454682705,
+      "tendencia": "creciente"
+    },
+    "recall": {
+      "epoch_convergencia": 20,
+      "estabilidad_final": 0.004627961436833347,
+      "tendencia": "creciente"
+    }
+  },
+  "caracteristicas_esperadas": {
+    "ventajas_arquitectura": [
+      "Atención multi-head captura dependencias globales",
+      "ASPP maneja múltiples escalas de grietas",
+      "Skip connections preservan detalles finos",
+      "CBAM mejora selección de características",
+      "Optimización para estructuras delgadas"
+    ],
+    "desafios_dataset": [
+      "Baja densidad de píxeles positivos (<5%)",
+      "Grietas muy finas (1-5 píxeles)",
+      "Variabilidad en orientación y forma",
+      "Condiciones de iluminación variables"
+    ]
+  }
+}

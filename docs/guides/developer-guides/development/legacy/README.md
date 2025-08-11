@@ -1,5 +1,9 @@
 # Development Guides
 
+> Legacy notice: these documents are in the legacy section. For the canonical developer guides see
+> `docs/guides/developer-guides/README.md`. For contributing, use `CONTRIBUTING.md` at the
+> repository root.
+
 This directory contains guides for development practices and system setup.
 
 ## Contents

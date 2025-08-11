@@ -478,7 +478,7 @@ def test_model_forward_pass_with_attention(self) -> None:
 
 ## Common Anti-Patterns to Avoid
 
-###  Avoid These Patterns
+### Avoid These Patterns
 
 1. **Testing Implementation Details**
 

@@ -19,7 +19,7 @@ def render_header(
     to display for the current page. anchor: The anchor for the title
     link. Set to False to disable.
     """
-    logo_path = Path("docs/designs/logo.png")
+    logo_path = Path("gui/assets/images/logos/primary-logo.png")
 
     columns = st.columns([1, 4], gap="medium")
     col1, col2 = columns[0], columns[1]

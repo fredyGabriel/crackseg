@@ -6,8 +6,8 @@ from typing import Any, Protocol, cast
 from torch.nn import Module
 from torch.optim import Optimizer
 
-from crackseg.utils.checkpointing import CheckpointSaveConfig, save_checkpoint
 from crackseg.utils.logging.training import safe_log
+from crackseg.utils.storage import CheckpointSaveConfig, save_checkpoint
 
 
 class SafeLogProtocol(Protocol):

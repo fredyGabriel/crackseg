@@ -93,7 +93,7 @@ basedpyright src/crackseg/utils/experiment/
 
 ## References
 
-- **Source Code**: [tracker.py](src/crackseg/utils/experiment/tracker.py)
-- **Metadata**: [metadata.py](src/crackseg/utils/experiment/metadata.py)
-- **Unit Tests**: [test_experiment_tracker.py](tests/unit/utils/test_experiment_tracker.py)
-- **Project Standards**: [coding-standards.mdc](.cursor/rules/coding-standards.mdc)
+- Source Code: see `src/crackseg/utils/experiment/tracker.py`
+- Metadata: see `src/crackseg/utils/experiment/metadata.py`
+- Unit Tests: see `tests/unit/utils/`
+- Project Standards: see `.cursor/rules/coding-standards.mdc`

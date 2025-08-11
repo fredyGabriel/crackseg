@@ -8,6 +8,8 @@ import numpy as np
 import torch
 from omegaconf import DictConfig
 
+from crackseg.utils.data.image_size import get_target_size_from_config
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,10 +28,7 @@ class ImageProcessor:
 
     def _get_target_size(self) -> tuple[int, int]:
         """Get target image size from config."""
-        target_size = self.config.data.image_size
-        if isinstance(target_size, list):
-            return tuple(target_size)
-        return target_size
+        return get_target_size_from_config(self.config)
 
     def load_and_preprocess_image(
         self, image_path: str | Path

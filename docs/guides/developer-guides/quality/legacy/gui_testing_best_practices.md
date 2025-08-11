@@ -1,5 +1,9 @@
 # GUI Testing Best Practices for CrackSeg
 
+> Legacy notice: this document is legacy and will be consolidated. See
+> `docs/guides/developer-guides/quality/` and the bucket README for the canonical version and
+> current navigation.
+
 **Version**: 1.0
 **Last Updated**: December 19, 2024
 **Scope**: Comprehensive testing guidelines for CrackSeg GUI components
@@ -495,5 +499,5 @@ coverage that supports the project's quality objectives.
 
 - [Testing Standards](/.cursor/rules/testing-standards.mdc)
 - [Development Workflow](/.cursor/rules/development-workflow.mdc)
-- [GUI Test Coverage Analysis](gui_test_coverage_analysis.md)
-- [CI/CD Integration Guide](ci_cd_integration_guide.md)
+- GUI Test Coverage Analysis: see `docs/guides/developer-guides/quality/legacy/gui_test_coverage_analysis.md`
+- CI/CD Integration Guide: see `docs/guides/developer-guides/quality/legacy/ci_cd_integration_guide.md`

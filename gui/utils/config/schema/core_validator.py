@@ -618,9 +618,24 @@ class CrackSegSchemaValidator:
         batch_size = training_config.get("batch_size", 8)
         image_size = data_config.get("image_size", "512x512")
 
-        if image_size in self.hardware_constraints["recommended_batch_sizes"]:
+        # Normalize image_size to string key (e.g., "512x512") for lookup
+        if isinstance(image_size, list | tuple):
+            try:
+                w, h = image_size
+                image_size_key = f"{int(w)}x{int(h)}"
+            except Exception:
+                image_size_key = "512x512"
+        elif isinstance(image_size, str):
+            image_size_key = image_size
+        else:
+            image_size_key = "512x512"
+
+        if (
+            image_size_key
+            in self.hardware_constraints["recommended_batch_sizes"]
+        ):
             max_batch = self.hardware_constraints["recommended_batch_sizes"][
-                image_size
+                image_size_key
             ]["max"]
             if batch_size > max_batch:
                 warnings.append(

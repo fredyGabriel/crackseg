@@ -163,24 +163,12 @@ class AdvancedTrainingVisualizer:
         return training_data
 
     def _create_empty_plot(self, title: str) -> Figure:
-        """Create an empty plot with title.
+        """Create an empty plot with title using shared helper."""
+        from crackseg.evaluation.visualization.utils.plot_utils import (
+            create_empty_plot,
+        )
 
-        Args:
-            title: Title for the plot
-
-        Returns:
-            Empty matplotlib figure
-        """
-        import matplotlib.pyplot as plt
-
-        fig, ax = plt.subplots(figsize=self.style_config["figure_size"])
-        ax.set_title(title)
-        ax.text(
-            0.5,
-            0.5,
-            "No data available",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
+        fig, _ = create_empty_plot(
+            title, figsize=self.style_config["figure_size"]
         )
         return fig

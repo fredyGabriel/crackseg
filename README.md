@@ -1,5 +1,7 @@
 # Pavement Crack Segmentation Project
 
+<!-- markdownlint-disable MD013 -->
+
 > **Note:** This project was developed with the assistance of AI tools.
 
 ## Overview
@@ -52,7 +54,8 @@ For complete migration notes, see [CHANGELOG.md](CHANGELOG.md#migration-notes).
 - Optional: CUDA Toolkit (for GPU acceleration)
 - **Note**: Graphviz no longer required - architecture visualization now uses matplotlib
 
-For detailed installation instructions, see [**System Dependencies Guide**](docs/guides/SYSTEM_DEPENDENCIES.md).
+For detailed installation instructions, see System Dependencies (see
+`docs/guides/developer-guides/development/legacy/SYSTEM_DEPENDENCIES.md`).
 
 **Quick verification:**
 
@@ -157,7 +160,8 @@ python -m src.evaluation \
 python src/evaluate.py
 ```
 
-For detailed workflow and advanced configuration options, see [**Training Workflow Guide**](docs/guides/WORKFLOW_TRAINING.md).
+For detailed workflow and advanced configuration options, see **Training Workflow Guide** at
+`docs/guides/operational-guides/workflows/legacy/WORKFLOW_TRAINING.md`.
 
 ## Project Structure
 
@@ -314,7 +318,9 @@ Configuration files:
 - **Tool configuration**: `pyproject.toml`
 - **Type checking**: `pyrightconfig.json`
 
-For detailed code quality guidelines, see [**Coding Standards**](.cursor/rules/coding-standards.mdc).
+For detailed code quality guidelines, see
+[**Coding Standards**](.cursor/rules/coding-standards.mdc). See also
+[CONTRIBUTING](CONTRIBUTING.md) and [CHANGELOG](CHANGELOG.md).
 
 ## Training & Evaluation Workflow
 
@@ -351,7 +357,8 @@ python run.py data.batch_size=4 \
               training.dataloader.num_workers=4
 ```
 
-For complete workflow details, see [**Training Workflow Guide**](docs/guides/WORKFLOW_TRAINING.md).
+For complete workflow details, see **Training Workflow Guide** at
+`docs/guides/operational-guides/workflows/legacy/WORKFLOW_TRAINING.md`.
 
 ## Testing Framework
 
@@ -468,7 +475,7 @@ conda env create -f environment.yml
 conda activate crackseg
 ```
 
-For complete migration details, see [CHANGELOG.md Migration Notes](CHANGELOG.md#migration-notes).
+For complete migration details, see [CHANGELOG](CHANGELOG.md#migration-notes).
 
 ## Contributing
 
@@ -508,7 +515,8 @@ environment matches this version for full compatibility.
 
 ### User & Developer Guides
 
-- [**Training Workflow Guide**](docs/guides/WORKFLOW_TRAINING.md) - Complete training process
+- **Training Workflow Guide**: see
+  `docs/guides/operational-guides/workflows/legacy/WORKFLOW_TRAINING.md` - Complete training process
 - [**Technical Architecture**](docs/guides/TECHNICAL_ARCHITECTURE.md) - System design overview
 - [**System Dependencies**](docs/guides/SYSTEM_DEPENDENCIES.md) - Installation and setup
 - [**Architectural Decisions**](docs/guides/architectural_decisions.md) - ADR-001 and design rationale

@@ -672,7 +672,8 @@ monitor.max_samples = 200  # Keep last 200 samples
 
 ## References
 
-- **Deployment Configuration**: [deployment_config.md](deployment_config.md)
-- **Health Check API**: [health_check_api.md](health_check_api.md)
-- **Performance Monitoring**: [performance_monitoring.md](performance_monitoring.md)
-- **Alert System**: [alert_system.md](alert_system.md)
+- Deployment Packages: see `infrastructure/deployment/packages/` (package-specific docs under each
+  package `docs/`)
+- Health Checks: see `infrastructure/testing/docs/README-DOCKER-TESTING.md` and `infrastructure/testing/docs/README-ARCHITECTURE.md`
+- Performance Monitoring: see `infrastructure/testing/docs/README-ARCHITECTURE.md` (Monitoring sections)
+- Alert System: see `infrastructure/deployment/packages/` (package alert handlers) and `infrastructure/testing/docs/README-ARCHITECTURE.md`

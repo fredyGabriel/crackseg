@@ -52,6 +52,7 @@ dependencies:
   # ⚙️ SYSTEM & UTILITIES
   - psutil               # System and process utilities
   - pyyaml               # YAML parser
+  - pathspec             # .gitignore parsing for project tree generation
   - toml                 # TOML parser
   - click                # Command line interface creation
   - requests             # HTTP library

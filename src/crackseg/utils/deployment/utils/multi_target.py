@@ -13,6 +13,8 @@ from typing import Any
 # Import from core module to avoid type conflicts
 from ..core.manager import DeploymentConfig, DeploymentResult
 from ..core.orchestrator import DeploymentOrchestrator, DeploymentStrategy
+from .defaults_data import get_default_environment_data
+from .env_utils import compute_resource_issues, serialize_environment_configs
 
 
 class TargetEnvironment(Enum):
@@ -56,149 +58,29 @@ class MultiTargetDeploymentManager:
 
     def _initialize_default_configs(self) -> None:
         """Initialize default configurations for each environment."""
-        # Development environment
-        self.environment_configs[TargetEnvironment.DEVELOPMENT] = (
-            EnvironmentConfig(
-                name=TargetEnvironment.DEVELOPMENT,
-                deployment_strategy=DeploymentStrategy.RECREATE,
-                health_check_timeout=10,
-                max_retries=1,
-                auto_rollback=False,
-                performance_thresholds={
-                    "response_time_ms": 1000,
-                    "memory_usage_mb": 2048,
-                    "cpu_usage_percent": 80,
-                },
-                resource_limits={
-                    "memory_mb": 2048,
-                    "cpu_cores": 2,
-                    "disk_gb": 10,
-                },
-                security_requirements={
-                    "ssl_required": False,
-                    "authentication_required": False,
-                },
-                monitoring_config={
-                    "check_interval": 60,
-                    "alert_threshold": 0.8,
-                },
+        raw = get_default_environment_data()
+        name_to_env = {
+            "development": TargetEnvironment.DEVELOPMENT,
+            "staging": TargetEnvironment.STAGING,
+            "production": TargetEnvironment.PRODUCTION,
+            "testing": TargetEnvironment.TESTING,
+            "demo": TargetEnvironment.DEMO,
+        }
+        # Map enum name strings to actual DeploymentStrategy values
+        for key, data in raw.items():
+            env = name_to_env[key]
+            strategy = DeploymentStrategy[data["deployment_strategy"]]
+            self.environment_configs[env] = EnvironmentConfig(
+                name=env,
+                deployment_strategy=strategy,
+                health_check_timeout=data["health_check_timeout"],
+                max_retries=data["max_retries"],
+                auto_rollback=data["auto_rollback"],
+                performance_thresholds=data["performance_thresholds"],
+                resource_limits=data["resource_limits"],
+                security_requirements=data["security_requirements"],
+                monitoring_config=data["monitoring_config"],
             )
-        )
-
-        # Staging environment
-        self.environment_configs[TargetEnvironment.STAGING] = (
-            EnvironmentConfig(
-                name=TargetEnvironment.STAGING,
-                deployment_strategy=DeploymentStrategy.BLUE_GREEN,
-                health_check_timeout=30,
-                max_retries=2,
-                auto_rollback=True,
-                performance_thresholds={
-                    "response_time_ms": 500,
-                    "memory_usage_mb": 4096,
-                    "cpu_usage_percent": 70,
-                },
-                resource_limits={
-                    "memory_mb": 4096,
-                    "cpu_cores": 4,
-                    "disk_gb": 20,
-                },
-                security_requirements={
-                    "ssl_required": True,
-                    "authentication_required": True,
-                },
-                monitoring_config={
-                    "check_interval": 30,
-                    "alert_threshold": 0.9,
-                },
-            )
-        )
-
-        # Production environment
-        self.environment_configs[TargetEnvironment.PRODUCTION] = (
-            EnvironmentConfig(
-                name=TargetEnvironment.PRODUCTION,
-                deployment_strategy=DeploymentStrategy.CANARY,
-                health_check_timeout=60,
-                max_retries=3,
-                auto_rollback=True,
-                performance_thresholds={
-                    "response_time_ms": 200,
-                    "memory_usage_mb": 8192,
-                    "cpu_usage_percent": 60,
-                },
-                resource_limits={
-                    "memory_mb": 8192,
-                    "cpu_cores": 8,
-                    "disk_gb": 50,
-                },
-                security_requirements={
-                    "ssl_required": True,
-                    "authentication_required": True,
-                    "encryption_required": True,
-                },
-                monitoring_config={
-                    "check_interval": 15,
-                    "alert_threshold": 0.95,
-                },
-            )
-        )
-
-        # Testing environment
-        self.environment_configs[TargetEnvironment.TESTING] = (
-            EnvironmentConfig(
-                name=TargetEnvironment.TESTING,
-                deployment_strategy=DeploymentStrategy.RECREATE,
-                health_check_timeout=15,
-                max_retries=1,
-                auto_rollback=False,
-                performance_thresholds={
-                    "response_time_ms": 2000,
-                    "memory_usage_mb": 1024,
-                    "cpu_usage_percent": 90,
-                },
-                resource_limits={
-                    "memory_mb": 1024,
-                    "cpu_cores": 1,
-                    "disk_gb": 5,
-                },
-                security_requirements={
-                    "ssl_required": False,
-                    "authentication_required": False,
-                },
-                monitoring_config={
-                    "check_interval": 120,
-                    "alert_threshold": 0.5,
-                },
-            )
-        )
-
-        # Demo environment
-        self.environment_configs[TargetEnvironment.DEMO] = EnvironmentConfig(
-            name=TargetEnvironment.DEMO,
-            deployment_strategy=DeploymentStrategy.ROLLING,
-            health_check_timeout=20,
-            max_retries=2,
-            auto_rollback=True,
-            performance_thresholds={
-                "response_time_ms": 800,
-                "memory_usage_mb": 3072,
-                "cpu_usage_percent": 75,
-            },
-            resource_limits={
-                "memory_mb": 3072,
-                "cpu_cores": 2,
-                "disk_gb": 15,
-            },
-            security_requirements={
-                "ssl_required": True,
-                "authentication_required": False,
-            },
-            monitoring_config={
-                "check_interval": 45,
-                "alert_threshold": 0.8,
-            },
-        )
 
     def get_orchestrator(
         self, environment: TargetEnvironment
@@ -356,53 +238,12 @@ class MultiTargetDeploymentManager:
         }
 
         # Check resource availability
-        try:
-            import psutil
-
-            # Check system resources
-            memory = psutil.virtual_memory()
-            cpu_count = psutil.cpu_count()
-            disk = psutil.disk_usage("/")
-
-            if env_config.resource_limits:
-                if (
-                    memory.total
-                    < env_config.resource_limits.get("memory_mb", 0)
-                    * 1024
-                    * 1024
-                ):
-                    memory_gb = memory.total / (1024**3)
-                    validation_results["issues"].append(
-                        f"Insufficient memory: {memory_gb:.1f}GB available, "
-                        f"{env_config.resource_limits['memory_mb']}MB required"
-                    )
-                    validation_results["ready"] = False
-
-                if cpu_count < env_config.resource_limits.get("cpu_cores", 0):
-                    validation_results["issues"].append(
-                        f"Insufficient CPU cores: {cpu_count} available, "
-                        f"{env_config.resource_limits['cpu_cores']} required"
-                    )
-                    validation_results["ready"] = False
-
-                if (
-                    disk.free
-                    < env_config.resource_limits.get("disk_gb", 0)
-                    * 1024
-                    * 1024
-                    * 1024
-                ):
-                    disk_gb = disk.free / (1024**3)
-                    validation_results["issues"].append(
-                        f"Insufficient disk space: {disk_gb:.1f}GB available, "
-                        f"{env_config.resource_limits['disk_gb']}GB required"
-                    )
-                    validation_results["ready"] = False
-
-        except ImportError:
-            validation_results["warnings"].append(
-                "psutil not available, skipping resource validation"
-            )
+        issues, warnings = compute_resource_issues(env_config.resource_limits)
+        if issues:
+            validation_results["issues"].extend(issues)
+            validation_results["ready"] = False
+        if warnings:
+            validation_results["warnings"].extend(warnings)
 
         # Check security requirements
         if env_config.security_requirements:
@@ -495,21 +336,9 @@ class MultiTargetDeploymentManager:
         """
         import json
 
-        configs_dict = {}
-        for env, config in self.environment_configs.items():
-            configs_dict[env.value] = {
-                "deployment_strategy": config.deployment_strategy.value,
-                "health_check_timeout": config.health_check_timeout,
-                "max_retries": config.max_retries,
-                "auto_rollback": config.auto_rollback,
-                "performance_thresholds": config.performance_thresholds,
-                "resource_limits": config.resource_limits,
-                "security_requirements": config.security_requirements,
-                "monitoring_config": config.monitoring_config,
-            }
-
+        data = serialize_environment_configs(self.environment_configs)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "w") as f:
-            json.dump(configs_dict, f, indent=2)
+            json.dump(data, f, indent=2)
 
         self.logger.info(f"Exported environment configs to {output_path}")

@@ -1,8 +1,14 @@
 from dataclasses import dataclass
-from typing import Any
 
 import torch
 from torch import nn
+
+from .utils.convlstm_utils import (
+    check_kernel_size_consistency as _check_kernel_helper,
+)
+from .utils.convlstm_utils import (
+    extend_param_for_layers as _extend_for_layers_helper,
+)
 
 
 @dataclass
@@ -160,15 +166,13 @@ class ConvLSTM(nn.Module):
     def __init__(self, input_dim: int, config: ConvLSTMConfig) -> None:
         super().__init__()
 
-        self._check_kernel_size_consistency(
-            config.kernel_size, config.kernel_expected_dims
-        )
+        _check_kernel_helper(config.kernel_size, config.kernel_expected_dims)
 
         # Ensure hidden_dim and kernel_size are lists for iteration
-        hidden_dim_list = self._extend_for_layers(
+        hidden_dim_list = _extend_for_layers_helper(
             config.hidden_dim, config.num_layers
         )
-        kernel_size_list = self._extend_for_layers(
+        kernel_size_list = _extend_for_layers_helper(
             config.kernel_size, config.num_layers
         )
 
@@ -288,69 +292,7 @@ class ConvLSTM(nn.Module):
             )
         return init_states
 
-    def _check_kernel_size_consistency(
-        self, kernel_size: Any, kernel_expected_dims: int
-    ) -> Any:
-        """Checks if kernel_size format is valid (tuple or list of 2 ints)."""
-        # Case 1: Already a tuple of 2 ints
-        if (
-            isinstance(kernel_size, tuple)
-            and len(kernel_size) == kernel_expected_dims
-        ):
-            if all(isinstance(elem, int) for elem in kernel_size):
-                return kernel_size
-
-        # Case 2: List or ListConfig of 2 ints/numbers - convert to tuple
-        # This handles both Python lists and OmegaConf ListConfig from YAML
-        if (
-            hasattr(kernel_size, "__len__")
-            and len(kernel_size) == kernel_expected_dims
-        ):
-            # Try to convert any numeric types to int
-            try:
-                as_tuple = tuple(int(elem) for elem in kernel_size)
-                return as_tuple
-            except (ValueError, TypeError):
-                # Continue to error if conversion fails
-                pass
-
-        # Case 3: List of tuples/lists (for multi-layer consistency)
-        is_list_of_valid_pairs = (
-            hasattr(kernel_size, "__iter__")
-            and hasattr(kernel_size, "__len__")
-            and all(
-                (
-                    hasattr(elem, "__len__")
-                    and len(elem) == kernel_expected_dims
-                )
-                for elem in kernel_size
-            )
-        )
-        if is_list_of_valid_pairs:
-            # For a list of kernel sizes (one per layer), validate format
-            # Type conversion is handled by _extend_for_layers
-            return kernel_size
-
-        # If we get here, format is invalid
-        raise ValueError(
-            f"kernel_size must be a tuple of {kernel_expected_dims} ints, "
-            f"list of {kernel_expected_dims} ints, "
-            "or list of tuples/lists for multi-layer ConvLSTM"
-        )
-
-    def _extend_for_layers(self, param: Any, num_layers: int) -> list[Any]:
-        """Extends a parameter like hidden_dim or kernel_size for layers."""
-        # Simple version: extend if not a list, otherwise validate length.
-        # Consistency check for kernel_size contents happens elsewhere.
-        if not isinstance(param, list):
-            return [param] * num_layers
-        else:
-            if len(param) != num_layers:
-                raise ValueError(
-                    f"Length of list param ({len(param)}) doesn't match "
-                    f"num_layers ({num_layers})"
-                )
-            return param
+    # Helper logic moved to utils: _check_kernel_size_consistency, _extend_for_layers
 
 
 # Example usage (for illustration, will be tested properly)

@@ -10,7 +10,7 @@ focusing on metadata collection and artifact relationships.
 
 ## Documentation Structure
 
-### 📖 [Basic Usage Guide](experiment_tracker/basic_usage.md)
+### 📖 Basic Usage Guide: see `docs/guides/user-guides/usage/experiment_tracker/basic_usage.md`
 
 - Initialization and setup
 - Experiment lifecycle management
@@ -18,7 +18,7 @@ focusing on metadata collection and artifact relationships.
 - Metadata access and management
 - Best practices and testing
 
-### 🔗 [Integration Guide](experiment_tracker/integration.md)
+### 🔗 Integration Guide: see `docs/guides/user-guides/usage/legacy/experiment_tracker/experiment_tracker_integration.md`
 
 - Integration with ExperimentManager
 - Integration with ArtifactManager
@@ -86,8 +86,8 @@ basedpyright src/crackseg/utils/experiment/metadata.py
 
 ## References
 
-- **Source Code**: [tracker.py](src/crackseg/utils/experiment/tracker.py)
-- **Metadata**: [metadata.py](src/crackseg/utils/experiment/metadata.py)
-- **Submodules**: [tracker/](src/crackseg/utils/experiment/tracker/)
-- **Unit Tests**: [test_experiment_tracker.py](tests/unit/utils/test_experiment_tracker.py)
-- **Project Standards**: [coding-standards.mdc](.cursor/rules/coding-standards.mdc)
+- Source Code: see `src/crackseg/utils/experiment/tracker.py` and related modules
+- Metadata: see `src/crackseg/utils/experiment/metadata.py`
+- Submodules: see `src/crackseg/utils/experiment/tracker/`
+- Unit Tests: see `tests/unit/utils/`
+- Project Standards: see `.cursor/rules/coding-standards.mdc`

@@ -23,7 +23,9 @@ def extract_mdc_links(file_path: Path) -> LinkList:
     if not file_path.exists():
         return []
 
-    content = file_path.read_text(encoding="utf-8")
+    from scripts.utils.common.io_utils import read_text  # noqa: E402
+
+    content = read_text(file_path)
     # Pattern to match [text](mdc:path/to/file.mdc)
     pattern = r"\[([^\]]+)\]\(mdc:([^)]+)\)"
     matches = re.findall(pattern, content)

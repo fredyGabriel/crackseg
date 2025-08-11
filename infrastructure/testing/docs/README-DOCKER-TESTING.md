@@ -44,7 +44,7 @@
 |-----------|--------------|-------------|
 | **🏗️ Architecture** | [README-ARCHITECTURE.md](README-ARCHITECTURE.md) | Complete system architecture and design decisions |
 | **⚙️ Setup & Usage** | [README-USAGE.md](README-USAGE.md) | Step-by-step usage guide and workflows |
-| **🔧 Local Development** | [README-LOCAL-DEV.md](README-LOCAL-DEV.md) | Local development environment setup |
+| **🔧 Local Development** | `infrastructure/testing/docs/README-LOCAL-DEV.md` | Local development environment setup |
 | **🐛 Troubleshooting** | [README-TROUBLESHOOTING.md](README-TROUBLESHOOTING.md) | Common issues and solutions |
 
 ### **Specialized Documentation**
@@ -52,9 +52,9 @@
 | Feature | Documentation | Description |
 |---------|--------------|-------------|
 | **🌐 Cross-Browser** | [README.cross-browser-testing.md](README.cross-browser-testing.md) | Multi-browser testing matrices and mobile emulation |
-| **🔗 Network Setup** | [README.network-setup.md](README.network-setup.md) | Multi-network architecture and security |
+| **🔗 Network Setup** | `infrastructure/testing/docs/README.network-setup.md` | Multi-network architecture and security |
 | **📦 Artifact Management** | [README.artifact-management.md](README.artifact-management.md) | Test results, videos, and report handling |
-| **🔐 Environment Management** | [README.environment-management.md](README.environment-management.md) | Environment variables and configuration |
+| **🔐 Environment Management** | `infrastructure/testing/docs/README.environment-management.md` | Environment variables and configuration |
 | **📋 Docker Compose** | [docker-compose.README.md](docker-compose.README.md) | Service definitions and profiles |
 | **🕸️ Selenium Grid** | [selenium-grid-guide.md](selenium-grid-guide.md) | Grid configuration and browser nodes |
 
@@ -424,7 +424,7 @@ pipeline {
 
 - **Project Documentation**: [../../../docs/](../../../docs/)
 - **API Documentation**: [../../../docs/api/](../../../docs/api/)
-- **Training Workflow**: [../../../docs/guides/WORKFLOW_TRAINING.md](../../../docs/guides/WORKFLOW_TRAINING.md)
+- **Training Workflow**: see `docs/guides/operational-guides/workflows/legacy/WORKFLOW_TRAINING.md`
 
 ### External References
 

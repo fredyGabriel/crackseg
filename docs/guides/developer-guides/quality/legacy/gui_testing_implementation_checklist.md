@@ -1,5 +1,9 @@
 # GUI Testing Implementation Checklist
 
+> Legacy notice: this document is legacy and will be consolidated. See
+> `docs/guides/developer-guides/quality/` and the bucket README for the canonical version and
+> current navigation.
+
 **Project**: CrackSeg GUI Testing Framework
 **Reference**: Task #5 in Task Master
 **Timeline**: 4-6 weeks

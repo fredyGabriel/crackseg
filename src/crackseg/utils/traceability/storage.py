@@ -17,28 +17,17 @@ from .models import (
     LineageEntity,
     VersionEntity,
 )
+from .utils.storage_utils import (
+    convert_datetime_fields,
+    load_json_list,
+    save_json_list,
+)
 
 logger = logging.getLogger(__name__)
 
 
 def _convert_datetime_fields(data: dict[str, Any]) -> dict[str, Any]:
-    """Convert datetime fields to ISO format strings for JSON serialization.
-
-    Args:
-        data: Dictionary containing potential datetime fields
-
-    Returns:
-        Dictionary with datetime fields converted to ISO strings
-    """
-    converted = {}
-    for key, value in data.items():
-        if isinstance(value, datetime):
-            converted[key] = value.isoformat()
-        elif isinstance(value, Path):
-            converted[key] = str(value)
-        else:
-            converted[key] = value
-    return converted
+    return convert_datetime_fields(data)
 
 
 class TraceabilityStorage:
@@ -66,10 +55,62 @@ class TraceabilityStorage:
         ]
 
         for file_name in files:
-            file_path = self.storage_path / file_name
+            file_path = self._file(file_name)
             if not file_path.exists():
-                with open(file_path, "w", encoding="utf-8") as f:
-                    json.dump([], f)
+                save_json_list(file_path, [])
+
+    # -------------------------
+    # Generic helpers (DRY)
+    # -------------------------
+    def _file(self, filename: str) -> Path:
+        return self.storage_path / filename
+
+    def _load(self, filename: str) -> list[dict[str, Any]]:
+        try:
+            return load_json_list(self._file(filename))
+        except (json.JSONDecodeError, FileNotFoundError):
+            logger.warning(f"Failed to load {filename}, returning empty list")
+            return []
+
+    def _save(self, filename: str, data: list[dict[str, Any]]) -> None:
+        save_json_list(self._file(filename), data)
+
+    @staticmethod
+    def _find_index_by_id(
+        items: list[dict[str, Any]], id_key: str, id_value: str
+    ) -> int | None:
+        for i, existing in enumerate(items):
+            if existing.get(id_key) == id_value:
+                return i
+        return None
+
+    @classmethod
+    def _upsert_by_id(
+        cls,
+        items: list[dict[str, Any]],
+        id_key: str,
+        obj_dict: dict[str, Any],
+    ) -> tuple[list[dict[str, Any]], bool]:
+        """Insert or update an object in a list by its identifier key.
+
+        Returns updated list and a flag indicating whether it was created (True) or updated (False).
+        """
+        existing_index = cls._find_index_by_id(
+            items, id_key, obj_dict.get(id_key, "")
+        )  # type: ignore[arg-type]
+        if existing_index is not None:
+            items[existing_index] = obj_dict
+            return items, False
+        items.append(obj_dict)
+        return items, True
+
+    @classmethod
+    def _delete_by_id(
+        cls, items: list[dict[str, Any]], id_key: str, id_value: str
+    ) -> tuple[list[dict[str, Any]], bool]:
+        original_len = len(items)
+        items = [x for x in items if x.get(id_key) != id_value]
+        return items, len(items) < original_len
 
     def save_artifact(self, artifact: ArtifactEntity) -> bool:
         """Save artifact to storage.
@@ -81,29 +122,22 @@ class TraceabilityStorage:
             True if save was successful, False otherwise
         """
         try:
-            artifacts = self._load_artifacts()
-
-            # Check if artifact already exists
-            existing_index = None
-            for i, existing in enumerate(artifacts):
-                if existing.get("artifact_id") == artifact.artifact_id:
-                    existing_index = i
-                    break
+            artifacts = self._load("artifacts.json")
 
             artifact_dict = artifact.model_dump()
             artifact_dict = _convert_datetime_fields(artifact_dict)
             artifact_dict["updated_at"] = datetime.now().isoformat()
 
-            if existing_index is not None:
-                # Update existing artifact
-                artifacts[existing_index] = artifact_dict
-            else:
-                # Add new artifact
-                artifact_dict["created_at"] = datetime.now().isoformat()
-                artifacts.append(artifact_dict)
+            artifacts, created = self._upsert_by_id(
+                artifacts, "artifact_id", artifact_dict
+            )
+            if created:
+                artifacts[-1]["created_at"] = datetime.now().isoformat()
 
-            self._save_artifacts(artifacts)
-            logger.info(f"Saved artifact: {artifact.artifact_id}")
+            self._save("artifacts.json", artifacts)
+            logger.info(
+                f"Saved artifact: {artifact.artifact_id} ({'created' if created else 'updated'})"
+            )
             return True
 
         except Exception as e:
@@ -122,29 +156,22 @@ class TraceabilityStorage:
             True if save was successful, False otherwise
         """
         try:
-            experiments = self._load_experiments()
-
-            # Check if experiment already exists
-            existing_index = None
-            for i, existing in enumerate(experiments):
-                if existing.get("experiment_id") == experiment.experiment_id:
-                    existing_index = i
-                    break
+            experiments = self._load("experiments.json")
 
             experiment_dict = experiment.model_dump()
             experiment_dict = _convert_datetime_fields(experiment_dict)
             experiment_dict["updated_at"] = datetime.now().isoformat()
 
-            if existing_index is not None:
-                # Update existing experiment
-                experiments[existing_index] = experiment_dict
-            else:
-                # Add new experiment
-                experiment_dict["created_at"] = datetime.now().isoformat()
-                experiments.append(experiment_dict)
+            experiments, created = self._upsert_by_id(
+                experiments, "experiment_id", experiment_dict
+            )
+            if created:
+                experiments[-1]["created_at"] = datetime.now().isoformat()
 
-            self._save_experiments(experiments)
-            logger.info(f"Saved experiment: {experiment.experiment_id}")
+            self._save("experiments.json", experiments)
+            logger.info(
+                f"Saved experiment: {experiment.experiment_id} ({'created' if created else 'updated'})"
+            )
             return True
 
         except Exception as e:
@@ -163,29 +190,22 @@ class TraceabilityStorage:
             True if save was successful, False otherwise
         """
         try:
-            versions = self._load_versions()
-
-            # Check if version already exists
-            existing_index = None
-            for i, existing in enumerate(versions):
-                if existing.get("version_id") == version.version_id:
-                    existing_index = i
-                    break
+            versions = self._load("versions.json")
 
             version_dict = version.model_dump()
             version_dict = _convert_datetime_fields(version_dict)
             version_dict["updated_at"] = datetime.now().isoformat()
 
-            if existing_index is not None:
-                # Update existing version
-                versions[existing_index] = version_dict
-            else:
-                # Add new version
-                version_dict["created_at"] = datetime.now().isoformat()
-                versions.append(version_dict)
+            versions, created = self._upsert_by_id(
+                versions, "version_id", version_dict
+            )
+            if created:
+                versions[-1]["created_at"] = datetime.now().isoformat()
 
-            self._save_versions(versions)
-            logger.info(f"Saved version: {version.version_id}")
+            self._save("versions.json", versions)
+            logger.info(
+                f"Saved version: {version.version_id} ({'created' if created else 'updated'})"
+            )
             return True
 
         except Exception as e:
@@ -202,29 +222,22 @@ class TraceabilityStorage:
             True if save was successful, False otherwise
         """
         try:
-            lineage_data = self._load_lineage()
-
-            # Check if lineage already exists
-            existing_index = None
-            for i, existing in enumerate(lineage_data):
-                if existing.get("lineage_id") == lineage.lineage_id:
-                    existing_index = i
-                    break
+            lineage_data = self._load("lineage.json")
 
             lineage_dict = lineage.model_dump()
             lineage_dict = _convert_datetime_fields(lineage_dict)
             lineage_dict["updated_at"] = datetime.now().isoformat()
 
-            if existing_index is not None:
-                # Update existing lineage
-                lineage_data[existing_index] = lineage_dict
-            else:
-                # Add new lineage
-                lineage_dict["created_at"] = datetime.now().isoformat()
-                lineage_data.append(lineage_dict)
+            lineage_data, created = self._upsert_by_id(
+                lineage_data, "lineage_id", lineage_dict
+            )
+            if created:
+                lineage_data[-1]["created_at"] = datetime.now().isoformat()
 
-            self._save_lineage(lineage_data)
-            logger.info(f"Saved lineage: {lineage.lineage_id}")
+            self._save("lineage.json", lineage_data)
+            logger.info(
+                f"Saved lineage: {lineage.lineage_id} ({'created' if created else 'updated'})"
+            )
             return True
 
         except Exception as e:
@@ -241,20 +254,16 @@ class TraceabilityStorage:
             True if delete was successful, False otherwise
         """
         try:
-            artifacts = self._load_artifacts()
-            original_count = len(artifacts)
-
-            artifacts = [
-                a for a in artifacts if a.get("artifact_id") != artifact_id
-            ]
-
-            if len(artifacts) < original_count:
-                self._save_artifacts(artifacts)
+            artifacts = self._load("artifacts.json")
+            artifacts, deleted = self._delete_by_id(
+                artifacts, "artifact_id", artifact_id
+            )
+            if deleted:
+                self._save("artifacts.json", artifacts)
                 logger.info(f"Deleted artifact: {artifact_id}")
                 return True
-            else:
-                logger.warning(f"Artifact not found: {artifact_id}")
-                return False
+            logger.warning(f"Artifact not found: {artifact_id}")
+            return False
 
         except Exception as e:
             logger.error(f"Failed to delete artifact {artifact_id}: {e}")
@@ -270,22 +279,16 @@ class TraceabilityStorage:
             True if delete was successful, False otherwise
         """
         try:
-            experiments = self._load_experiments()
-            original_count = len(experiments)
-
-            experiments = [
-                e
-                for e in experiments
-                if e.get("experiment_id") != experiment_id
-            ]
-
-            if len(experiments) < original_count:
-                self._save_experiments(experiments)
+            experiments = self._load("experiments.json")
+            experiments, deleted = self._delete_by_id(
+                experiments, "experiment_id", experiment_id
+            )
+            if deleted:
+                self._save("experiments.json", experiments)
                 logger.info(f"Deleted experiment: {experiment_id}")
                 return True
-            else:
-                logger.warning(f"Experiment not found: {experiment_id}")
-                return False
+            logger.warning(f"Experiment not found: {experiment_id}")
+            return False
 
         except Exception as e:
             logger.error(f"Failed to delete experiment {experiment_id}: {e}")
@@ -298,10 +301,10 @@ class TraceabilityStorage:
             Dictionary with storage statistics
         """
         try:
-            artifacts = self._load_artifacts()
-            experiments = self._load_experiments()
-            versions = self._load_versions()
-            lineage = self._load_lineage()
+            artifacts = self._load("artifacts.json")
+            experiments = self._load("experiments.json")
+            versions = self._load("versions.json")
+            lineage = self._load("lineage.json")
 
             return {
                 "total_artifacts": len(artifacts),
@@ -328,10 +331,10 @@ class TraceabilityStorage:
         try:
             export_data = {
                 "export_timestamp": datetime.now().isoformat(),
-                "artifacts": self._load_artifacts(),
-                "experiments": self._load_experiments(),
-                "versions": self._load_versions(),
-                "lineage": self._load_lineage(),
+                "artifacts": self._load("artifacts.json"),
+                "experiments": self._load("experiments.json"),
+                "versions": self._load("versions.json"),
+                "lineage": self._load("lineage.json"),
             }
 
             export_path.parent.mkdir(parents=True, exist_ok=True)
@@ -360,16 +363,16 @@ class TraceabilityStorage:
 
             # Import each data type
             if "artifacts" in import_data:
-                self._save_artifacts(import_data["artifacts"])
+                self._save("artifacts.json", import_data["artifacts"])  # type: ignore[arg-type]
 
             if "experiments" in import_data:
-                self._save_experiments(import_data["experiments"])
+                self._save("experiments.json", import_data["experiments"])  # type: ignore[arg-type]
 
             if "versions" in import_data:
-                self._save_versions(import_data["versions"])
+                self._save("versions.json", import_data["versions"])  # type: ignore[arg-type]
 
             if "lineage" in import_data:
-                self._save_lineage(import_data["lineage"])
+                self._save("lineage.json", import_data["lineage"])  # type: ignore[arg-type]
 
             logger.info(f"Imported data from: {import_path}")
             return True
@@ -378,66 +381,4 @@ class TraceabilityStorage:
             logger.error(f"Failed to import data: {e}")
             return False
 
-    def _load_artifacts(self) -> list[dict[str, Any]]:
-        """Load artifacts from storage."""
-        try:
-            file_path = self.storage_path / "artifacts.json"
-            with open(file_path, encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
-            logger.warning("Failed to load artifacts, returning empty list")
-            return []
-
-    def _load_experiments(self) -> list[dict[str, Any]]:
-        """Load experiments from storage."""
-        try:
-            file_path = self.storage_path / "experiments.json"
-            with open(file_path, encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
-            logger.warning("Failed to load experiments, returning empty list")
-            return []
-
-    def _load_versions(self) -> list[dict[str, Any]]:
-        """Load versions from storage."""
-        try:
-            file_path = self.storage_path / "versions.json"
-            with open(file_path, encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
-            logger.warning("Failed to load versions, returning empty list")
-            return []
-
-    def _load_lineage(self) -> list[dict[str, Any]]:
-        """Load lineage from storage."""
-        try:
-            file_path = self.storage_path / "lineage.json"
-            with open(file_path, encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, FileNotFoundError):
-            logger.warning("Failed to load lineage, returning empty list")
-            return []
-
-    def _save_artifacts(self, artifacts: list[dict[str, Any]]) -> None:
-        """Save artifacts to storage."""
-        file_path = self.storage_path / "artifacts.json"
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(artifacts, f, indent=2)
-
-    def _save_experiments(self, experiments: list[dict[str, Any]]) -> None:
-        """Save experiments to storage."""
-        file_path = self.storage_path / "experiments.json"
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(experiments, f, indent=2)
-
-    def _save_versions(self, versions: list[dict[str, Any]]) -> None:
-        """Save versions to storage."""
-        file_path = self.storage_path / "versions.json"
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(versions, f, indent=2)
-
-    def _save_lineage(self, lineage: list[dict[str, Any]]) -> None:
-        """Save lineage to storage."""
-        file_path = self.storage_path / "lineage.json"
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(lineage, f, indent=2)
+    # Removed specialized _load/_save methods in favor of generic helpers

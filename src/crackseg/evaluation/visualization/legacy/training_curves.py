@@ -199,26 +199,11 @@ class TrainingCurvesVisualizer:
         return fig
 
     def _create_empty_plot(self, title: str) -> Figure:
-        """Create an empty plot with a message.
-
-        Args:
-            title: Title for the empty plot
-
-        Returns:
-            Matplotlib Figure
-        """
-        fig, ax = plt.subplots(figsize=(8, 6))
-        ax.text(
-            0.5,
-            0.5,
-            f"No data available for {title}",
-            ha="center",
-            va="center",
-            transform=ax.transAxes,
-            fontsize=14,
-            fontweight="bold",
+        from crackseg.evaluation.visualization.utils.plot_utils import (
+            create_empty_plot,
         )
-        ax.set_title(title)
-        ax.set_xlim(0, 1)
-        ax.set_ylim(0, 1)
+
+        fig, _ = create_empty_plot(
+            f"No data available for {title}", figsize=(8, 6)
+        )
         return fig

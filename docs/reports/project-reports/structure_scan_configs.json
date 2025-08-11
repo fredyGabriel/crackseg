@@ -1,0 +1,10 @@
+[
+  {
+    "path": "configs",
+    "py_files": 1
+  },
+  {
+    "path": "configs/model/bottleneck",
+    "py_files": 1
+  }
+]

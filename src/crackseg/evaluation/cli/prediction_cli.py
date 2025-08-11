@@ -10,13 +10,7 @@ from ..visualization.prediction_viz import PredictionVisualizer
 logger = logging.getLogger(__name__)
 
 
-def setup_logging(verbose: bool = False) -> None:
-    """Setup logging configuration."""
-    level = logging.DEBUG if verbose else logging.INFO
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
+from scripts.utils.common.logging_utils import setup_logging  # noqa: E402
 
 
 def print_model_info(analyzer: PredictionAnalyzer) -> None:

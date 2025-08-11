@@ -30,6 +30,8 @@ except ImportError:
     pathspec = None
     print("[WARN] 'pathspec' not installed. .gitignore will not be respected.")
 
+from scripts.utils.common.io_utils import read_text, write_text  # noqa: E402
+
 
 def never_ignore(_: Path) -> bool:
     return False
@@ -81,8 +83,7 @@ def load_gitignore_matcher(project_root: Path) -> Callable[[Path], bool]:
     if pathspec is None or not gitignore_path.exists():
         # No pathspec or no .gitignore: never ignore
         return lambda p: False
-    with open(gitignore_path, encoding="utf-8") as f:
-        patterns = f.read().splitlines()
+    patterns = read_text(gitignore_path).splitlines()
     spec = pathspec.PathSpec.from_lines("gitwildmatch", patterns)
 
     def is_ignored(path: Path) -> bool:
@@ -235,8 +236,8 @@ def main() -> None:
     cursor_output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Write both files
-    output_path.write_text(md_content, encoding="utf-8")
-    cursor_output_path.write_text(cursor_content, encoding="utf-8")
+    write_text(output_path, md_content)
+    write_text(cursor_output_path, cursor_content)
 
     print("✅ Project structure written to:")
     print(f"   - {output_path}")

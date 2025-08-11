@@ -5,7 +5,6 @@ for further analysis.
 """
 
 import ast
-import json
 import os
 from typing import Any
 
@@ -23,15 +22,19 @@ outfile = os.path.join(
     os.path.dirname(__file__), "model_import s_catalog.json"
 )
 
-with open(pyfiles_path, encoding="utf-8") as f:
-    pyfiles: FileList = json.load(f)
+from scripts.utils.common.io_utils import (  # noqa: E402
+    read_json,
+    read_text,
+    write_json,
+)
+
+pyfiles: FileList = read_json(pyfiles_path)
 
 catalog: ImportCatalog = []
 
 for relpath in pyfiles:
     abspath = os.path.join(root_dir, relpath)
-    with open(abspath, encoding="utf-8") as f:
-        source = f.read()
+    source = read_text(abspath)
     try:
         tree = ast.parse(source, filename=relpath)
     except Exception as e:
@@ -62,7 +65,6 @@ for relpath in pyfiles:
                     }
                 )
 
-with open(outfile, "w", encoding="utf-8") as f:
-    json.dump(catalog, f, indent=2, ensure_ascii=False)
+write_json(outfile, catalog, indent=2, ensure_ascii=False)
 
 print(f"Import catalog written to {outfile}")

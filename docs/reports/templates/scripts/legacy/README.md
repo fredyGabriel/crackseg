@@ -40,6 +40,6 @@ tools and documentation
 
 ## See Also
 
-- [scripts/reports/](../../../scripts/reports/) - Model and import analysis tools
-- [docs/reports/tasks/](../tasks/) - Task Master reports
+- scripts/reports: see `scripts/reports/` - Model and import analysis tools
+- docs/reports/tasks: see `docs/reports/tasks/` - Task Master reports
 - [docs/reports/](../) - Main reports index

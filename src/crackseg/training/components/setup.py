@@ -9,24 +9,25 @@ from pathlib import Path
 from typing import Any
 
 from crackseg.training.factory import create_lr_scheduler, create_optimizer
-from crackseg.utils.checkpointing.setup import setup_checkpointing
-from crackseg.utils.config.standardized_storage import (
-    StandardizedConfigStorage,
-    validate_configuration_completeness,
-)
 from crackseg.utils.core.device import get_device
 from crackseg.utils.experiment.manager import ExperimentManager
-from crackseg.utils.logging.base import get_logger
-from crackseg.utils.logging.metrics_manager import MetricsManager
 from crackseg.utils.logging.training import safe_log
 from crackseg.utils.monitoring import (
     BaseCallback,
     CallbackHandler,
     MonitoringManager,
 )
+from crackseg.utils.storage import setup_checkpointing
 from crackseg.utils.training.amp_utils import GradScaler
 from crackseg.utils.training.early_stopping import EarlyStopping
 from crackseg.utils.training.early_stopping_setup import setup_early_stopping
+
+from .utils.setup_helpers import (
+    setup_metrics_manager as _setup_metrics_manager_helper,
+)
+from .utils.setup_helpers import (
+    setup_standardized_config_storage as _setup_config_storage_helper,
+)
 
 
 class TrainerSetup:
@@ -83,11 +84,17 @@ class TrainerSetup:
         trainer_instance.save_best_enabled = save_best_config.get(
             "enabled", False
         )
+        # First try to get from experiment config, then from save_best_config, then defaults
         trainer_instance.monitor_metric = str(
-            save_best_config.get("monitor_metric", "val_loss")
+            trainer_instance.cfg.get(
+                "monitor_metric",
+                save_best_config.get("monitor_metric", "val_loss"),
+            )
         )
         trainer_instance.monitor_mode = str(
-            save_best_config.get("monitor_mode", "min")
+            trainer_instance.cfg.get(
+                "monitor_mode", save_best_config.get("monitor_mode", "min")
+            )
         )
         trainer_instance.best_filename = str(
             save_best_config.get("best_filename", "model_best.pth.tar")
@@ -217,104 +224,13 @@ class TrainerSetup:
 
     def _setup_metrics_manager(self, trainer_instance: Any) -> None:
         """Initialize the MetricsManager for standardized metric logging."""
-        # Get experiment directory from experiment_manager or checkpoint_dir
-        experiment_dir = (
-            getattr(
-                trainer_instance.experiment_manager, "experiment_dir", None
-            )
-            if trainer_instance.experiment_manager
-            else None
-        )
-
-        # Fallback to checkpoint_dir parent if experiment_dir is not available
-        if experiment_dir is None:
-            experiment_dir = trainer_instance.checkpoint_dir.parent
-
-        # Use get_logger for Python logger instead of BaseLogger
-        python_logger = get_logger("trainer.metrics")
-
-        trainer_instance.metrics_manager = MetricsManager(
-            experiment_dir=experiment_dir,
-            logger=python_logger,
-            config=trainer_instance.full_cfg,
-        )
-
-        safe_log(
-            trainer_instance.internal_logger,
-            "info",
-            f"MetricsManager initialized for experiment: {experiment_dir}",
-        )
+        _setup_metrics_manager_helper(trainer_instance)
 
     def _setup_standardized_config_storage(
         self, trainer_instance: Any
     ) -> None:
         """Initialize the StandardizedConfigStorage for configuration management."""
-        # Get experiment directory for configuration storage
-        experiment_dir = (
-            getattr(
-                trainer_instance.experiment_manager, "experiment_dir", None
-            )
-            if trainer_instance.experiment_manager
-            else None
-        )
-
-        # Fallback to checkpoint_dir parent if experiment_dir is not available
-        if experiment_dir is None:
-            experiment_dir = trainer_instance.checkpoint_dir.parent
-
-        # Initialize configuration storage
-        config_storage_dir = experiment_dir / "configurations"
-        trainer_instance.config_storage = StandardizedConfigStorage(
-            base_dir=config_storage_dir,
-            include_environment=True,
-            validate_on_save=True,
-        )
-
-        # Validate current configuration completeness
-        validation_result = validate_configuration_completeness(
-            trainer_instance.full_cfg, strict=False
-        )
-
-        if not validation_result["is_valid"]:
-            missing_required = validation_result["missing_required"]
-            safe_log(
-                trainer_instance.internal_logger,
-                "warning",
-                f"Configuration validation found missing required fields: "
-                f"{missing_required}",
-            )
-
-            # This implements the "prevent training without proper configuration" requirement
-            if validation_result.get("has_critical_missing", False):
-                raise ValueError(
-                    f"Training cannot proceed with incomplete configuration. "
-                    f"Missing critical required fields: {missing_required}"
-                )
-
-        # Save the standardized configuration at initialization
-        experiment_id = getattr(
-            trainer_instance.experiment_manager,
-            "experiment_id",
-            "default_experiment",
-        )
-        try:
-            config_path = trainer_instance.config_storage.save_configuration(
-                config=trainer_instance.full_cfg,
-                experiment_id=experiment_id,
-                config_name="training_config",
-                format_type="yaml",
-            )
-            safe_log(
-                trainer_instance.internal_logger,
-                "info",
-                f"Training configuration saved to: {config_path}",
-            )
-        except Exception as e:
-            safe_log(
-                trainer_instance.internal_logger,
-                "warning",
-                f"Failed to save initial training configuration: {e}",
-            )
+        _setup_config_storage_helper(trainer_instance)
 
     def setup_device_and_model(self, trainer_instance: Any) -> None:
         """Sets up the device and moves the model to it."""
@@ -345,7 +261,7 @@ class TrainerSetup:
     def load_checkpoint_state(self, trainer_instance: Any) -> None:
         """Loads the checkpoint state if a path is provided."""
         if trainer_instance.checkpoint_load_path:
-            from crackseg.utils.checkpointing import load_checkpoint
+            from crackseg.utils.storage import load_checkpoint
 
             checkpoint_data = load_checkpoint(
                 checkpoint_path=trainer_instance.checkpoint_load_path,

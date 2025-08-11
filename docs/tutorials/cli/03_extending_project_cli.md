@@ -14,9 +14,49 @@ available to the configuration system.
 - You have verified the installation works (`python -c "import crackseg"`).
 - You understand that the package must be installed for imports to work.
 
-## Step 1: Understand the Registry System
+## Step 1: Understand the Registry System and Current Configurations
 
-First, let's examine how the registry system works:
+First, let's examine how the registry system works and understand the current functional configurations:
+
+### **Current Functional Configurations**
+
+The project currently has these working configurations:
+
+```bash
+# View current experiment configurations
+dir configs/experiments/swinv2_hybrid/
+
+# Primary recommended configuration (SwinV2 Hybrid)
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_corrected
+
+# Alternative standalone configuration
+python run.py --config-path=configs --config-name=experiments/swinv2_hybrid/swinv2_360x360_standalone
+
+# Basic configurations for testing
+python run.py --config-name=basic_verification
+python run.py --config-name=base
+```
+
+**Performance Metrics** (from current experiments):
+
+- **IoU**: 0.556 ✅ Good
+- **Dice**: 0.697 ✅ Good
+- **Precision**: 0.591 ✅ Good
+- **Recall**: 0.936 ✅ Excellent
+- **F1**: 0.697 ✅ Good
+
+### **Configuration Best Practices**
+
+When extending the project, follow these best practices:
+
+- ✅ **Use standalone configurations** instead of `defaults: - /base`
+- ✅ **Specify all parameters explicitly** to avoid Hydra nesting issues
+- ✅ **Test configurations** before running full experiments
+- ✅ **Use current working configurations** as templates
+
+### **Registry System Examination**
+
+Now let's examine how the registry system works:
 
 ```bash
 # Look at the loss registry setup
