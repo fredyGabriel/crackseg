@@ -4,11 +4,17 @@ patterns identified by the validation script.
 """
 
 import ast
-import json
 import os
 import re
 import shutil
 from typing import Any
+
+from scripts.utils.common.io_utils import (  # noqa: E402
+    read_json,
+    read_text,
+    write_json,
+    write_text,
+)
 
 # Type definitions
 type InvalidEntry = dict[str, Any]
@@ -47,8 +53,7 @@ REPLACEMENTS: list[ReplacementPattern] = [
 # Create backup dir if it doesn't exist
 os.makedirs(BACKUP_DIR, exist_ok=True)
 
-with open(REPORT_PATH, encoding="utf-8") as f:
-    invalid_imports: InvalidImports = json.load(f)
+invalid_imports: InvalidImports = read_json(REPORT_PATH)
 
 # Group by file
 files_to_fix: FilesToFix = {}
@@ -63,8 +68,7 @@ for fname, entries in files_to_fix.items():
     # Backup
     backup_path = os.path.join(BACKUP_DIR, os.path.basename(fname))
     shutil.copy2(abs_path, backup_path)
-    with open(abs_path, encoding="utf-8") as f:
-        lines = f.readlines()
+    lines = read_text(abs_path).splitlines(keepends=True)
     changed = False
     for entry in entries:
         lineno: int = entry["line"] - 1  # 0-based
@@ -103,10 +107,8 @@ for fname, entries in files_to_fix.items():
                 }
             )
     if changed:
-        with open(abs_path, "w", encoding="utf-8") as f:
-            f.writelines(lines)
+        write_text(abs_path, "".join(lines))
 
-with open(LOG_PATH, "w", encoding="utf-8") as f:
-    json.dump(log, f, indent=2, ensure_ascii=False)
+write_json(LOG_PATH, log, indent=2, ensure_ascii=False)
 
 print(f"Autofix finished. Log in {LOG_PATH}. Backups in {BACKUP_DIR}")
