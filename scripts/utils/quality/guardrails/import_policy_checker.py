@@ -22,6 +22,7 @@ from simple_mapping_registry import (  # noqa: E402
     create_default_registry,
 )
 
+from scripts.utils.common.io_utils import read_text  # noqa: E402
 from scripts.utils.common.logging_utils import setup_logging  # noqa: E402
 
 
@@ -80,8 +81,7 @@ class ImportPolicyChecker:
         violations = []
 
         try:
-            with open(file_path, encoding="utf-8") as f:
-                content = f.read()
+            content = read_text(file_path)
 
             tree = ast.parse(content)
 
@@ -186,8 +186,7 @@ class ImportPolicyChecker:
             return violations
 
         try:
-            with open(init_file, encoding="utf-8") as f:
-                content = f.read()
+            content = read_text(init_file)
 
             tree = ast.parse(content)
 
@@ -322,8 +321,7 @@ class ImportPolicyChecker:
         imports = []
 
         try:
-            with open(file_path, encoding="utf-8") as f:
-                content = f.read()
+            content = read_text(file_path)
 
             tree = ast.parse(content)
 
